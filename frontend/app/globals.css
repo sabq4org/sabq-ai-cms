@@ -2,31 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-/* استيراد نظام ألوان صحيفة سبق */
-@import './styles/sabq-theme.css';
-
 @layer base {
+  /* Root variables for Sabq theme */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 206 100% 50%;
+    --background: 210 40% 98%;
+    --foreground: 213 31% 20%;
+    --muted: 214 32% 95%;
+    --muted-foreground: 213 27% 45%;
+    --primary: 211 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 207 73% 95%;
-    --secondary-foreground: 215 20% 20%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 195 100% 50%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 213 27% 84%;
-    --input: 240 5.9% 90%;
-    --ring: 206 100% 50%;
-    --radius: 0.5rem;
+    --card: 0 0% 100%;
+    --card-foreground: 213 31% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 213 31% 20%;
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 213 31% 20%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 211 100% 50%;
+    --radius: 0.75rem;
+    --chart-1: 211 100% 50%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    
+    /* ألوان صحيفة سبق */
+    --sabq-primary: 206 100% 50%;
+    --sabq-primary-light: 199 89% 48%;
+    --sabq-primary-dark: 213 94% 20%;
+    --sabq-secondary: 186 76% 55%;
+    --sabq-accent: 195 100% 50%;
+    --sabq-bg-primary: 204 100% 97%;
+    --sabq-bg-secondary: 207 73% 95%;
+    --sabq-bg-card: 0 0% 100%;
+    --sabq-text-primary: 215 20% 20%;
+    --sabq-text-secondary: 210 10% 40%;
+    --sabq-text-light: 206 14% 60%;
+    --sabq-success: 142 71% 45%;
+    --sabq-warning: 38 92% 50%;
+    --sabq-error: 0 84% 60%;
+    --sabq-info: 199 89% 48%;
+    --sabq-border: 213 27% 84%;
+    --sabq-shadow-color: 210 40% 90%;
     
     /* ألوان التصنيفات */
     --category-politics: 219 91% 60%;
@@ -40,25 +58,36 @@
   }
   
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 15%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 15%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 199 89% 48%;
+    --background: 213 31% 11%;
+    --foreground: 213 10% 90%;
+    --muted: 213 20% 18%;
+    --muted-foreground: 213 10% 55%;
+    --primary: 211 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 186 76% 55%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 50%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 222 47% 20%;
-    --input: 222 47% 20%;
-    --ring: 199 89% 48%;
+    --card: 213 31% 13%;
+    --card-foreground: 213 10% 90%;
+    --popover: 213 31% 13%;
+    --popover-foreground: 213 10% 90%;
+    --secondary: 213 20% 18%;
+    --secondary-foreground: 213 10% 90%;
+    --border: 213 20% 18%;
+    --input: 213 20% 18%;
+    --ring: 211 100% 50%;
+    
+    /* ألوان صحيفة سبق - الوضع الليلي */
+    --sabq-primary: 199 89% 48%;
+    --sabq-primary-light: 186 76% 55%;
+    --sabq-primary-dark: 213 94% 30%;
+    --sabq-secondary: 195 100% 40%;
+    --sabq-accent: 186 100% 45%;
+    --sabq-bg-primary: 222 47% 11%;
+    --sabq-bg-secondary: 217 33% 17%;
+    --sabq-bg-card: 222 47% 15%;
+    --sabq-text-primary: 210 40% 98%;
+    --sabq-text-secondary: 215 20% 85%;
+    --sabq-text-light: 217 19% 65%;
+    --sabq-border: 222 47% 20%;
+    --sabq-shadow-color: 0 0% 0%;
   }
 }
 
@@ -69,7 +98,7 @@
   
   body {
     @apply bg-background text-foreground;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Arabic', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   }
   
   html {
@@ -86,6 +115,52 @@
   /* بطاقة الخبر */
   .news-card {
     @apply rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md;
+  }
+  
+  /* مكونات لوحة تحكم سبق */
+  .sabq-navbar {
+    @apply bg-gradient-to-r from-[hsl(var(--sabq-primary-light))] to-[hsl(var(--sabq-primary))];
+    @apply text-white shadow-lg;
+  }
+  
+  .sabq-sidebar {
+    @apply bg-[hsl(var(--sabq-bg-secondary))] border-r border-[hsl(var(--sabq-border))];
+    @apply text-[hsl(var(--sabq-text-secondary))];
+  }
+  
+  .sabq-sidebar-item {
+    @apply px-4 py-3 rounded-lg transition-all duration-200;
+    @apply hover:bg-[hsl(var(--sabq-primary-light)/0.1)] hover:text-[hsl(var(--sabq-primary))];
+  }
+  
+  .sabq-sidebar-item.active {
+    @apply bg-[hsl(var(--sabq-primary)/0.1)] text-[hsl(var(--sabq-primary))];
+    @apply border-r-4 border-[hsl(var(--sabq-primary))];
+  }
+  
+  .sabq-card {
+    @apply bg-[hsl(var(--sabq-bg-card))] rounded-xl shadow-sm;
+    @apply border border-[hsl(var(--sabq-border))];
+    @apply transition-all duration-300 hover:shadow-md;
+  }
+  
+  .sabq-btn-primary {
+    @apply bg-gradient-to-r from-[hsl(var(--sabq-primary-light))] to-[hsl(var(--sabq-primary))];
+    @apply text-white px-6 py-2.5 rounded-lg font-medium;
+    @apply hover:shadow-lg transform hover:scale-105 transition-all duration-200;
+    @apply active:scale-95;
+  }
+  
+  .sabq-btn-secondary {
+    @apply bg-[hsl(var(--sabq-bg-secondary))] text-[hsl(var(--sabq-text-primary))];
+    @apply px-6 py-2.5 rounded-lg font-medium border border-[hsl(var(--sabq-border))];
+    @apply hover:bg-[hsl(var(--sabq-primary)/0.1)] hover:border-[hsl(var(--sabq-primary))];
+    @apply transition-all duration-200;
+  }
+  
+  .sabq-stat-card {
+    @apply sabq-card p-6;
+    @apply border-t-4 border-t-[hsl(var(--sabq-primary))];
   }
   
   /* شريط الأخبار العاجلة */
@@ -119,6 +194,127 @@
   
   .btn-secondary {
     @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+
+  /* Smooth card styles */
+  .smooth-card {
+    @apply bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100;
+  }
+
+  /* Stats card with gradient */
+  .stat-card {
+    @apply relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100;
+  }
+
+  .stat-card::before {
+    content: '';
+    @apply absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-primary/70;
+  }
+
+  /* Modern table styles */
+  .modern-table {
+    @apply w-full;
+  }
+
+  .modern-table thead {
+    @apply bg-gray-50/50 backdrop-blur-sm;
+  }
+
+  .modern-table th {
+    @apply px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider border-b border-gray-100;
+  }
+
+  .modern-table tbody tr {
+    @apply hover:bg-gray-50/50 transition-colors duration-150 border-b border-gray-100 last:border-b-0;
+  }
+
+  .modern-table td {
+    @apply px-6 py-4 text-sm text-gray-900;
+  }
+
+  /* Input styles */
+  .modern-input {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-danger {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .badge-info {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  /* Sidebar styles */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-100 transition-all duration-200;
+  }
+
+  .sidebar-item.active {
+    @apply bg-primary/10 text-primary font-medium;
+  }
+
+  /* Dashboard grid */
+  .dashboard-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+  }
+
+  /* Content section */
+  .content-section {
+    @apply bg-white rounded-2xl p-6 shadow-sm border border-gray-100;
+  }
+
+  /* Smooth scrollbar */
+  .smooth-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 123, 255, 0.3) transparent;
+  }
+
+  .smooth-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .smooth-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .smooth-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 123, 255, 0.3);
+    border-radius: 3px;
+  }
+
+  .smooth-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 123, 255, 0.5);
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
   }
 }
 

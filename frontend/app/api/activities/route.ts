@@ -159,8 +159,8 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// تصدير أنواع الإجراءات المتاحة
-export const ACTIVITY_ACTIONS = {
+// أنواع الإجراءات المتاحة (محلية - لا يتم تصديرها)
+const ACTIVITY_ACTIONS = {
   // إجراءات المقالات
   CREATE_ARTICLE: 'إنشاء مقال',
   UPDATE_ARTICLE: 'تحديث مقال',

@@ -18,7 +18,8 @@ import {
   FolderOpen,
   Plus,
   UserPlus,
-  Zap
+  Zap,
+  Layout
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -35,6 +36,7 @@ const sidebarItems: SidebarItem[] = [
   { icon: FileText, label: 'المقالات', href: '/dashboard/articles' },
   { icon: Edit3, label: 'التحرير', href: '/dashboard/editor' },
   { icon: FolderOpen, label: 'التصنيفات', href: '/dashboard/categories' },
+  { icon: Layout, label: 'القوالب', href: '/dashboard/templates', badge: 'جديد' },
   { icon: TrendingUp, label: 'التحليلات', href: '/dashboard/analytics' },
   { icon: Users, label: 'إدارة الفريق', href: '/dashboard/team' },
   { icon: Shield, label: 'الأدوار والصلاحيات', href: '/dashboard/roles' },
@@ -59,7 +61,7 @@ export default function DashboardSidebar() {
       <ul className="space-y-2">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          const isActive = pathname ? (pathname === item.href || pathname.startsWith(item.href + '/')) : false;
           
           return (
             <li key={item.href}>
