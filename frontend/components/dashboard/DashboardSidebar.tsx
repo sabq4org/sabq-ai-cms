@@ -19,7 +19,8 @@ import {
   Plus,
   UserPlus,
   Zap,
-  Layout
+  Layout,
+  Newspaper
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -33,6 +34,7 @@ interface SidebarItem {
 const sidebarItems: SidebarItem[] = [
   { icon: Home, label: 'الرئيسية', href: '/dashboard' },
   { icon: Zap, label: 'لوحة سبق الذكية', href: '/dashboard/console', badge: 'جديد' },
+  { icon: Newspaper, label: 'الأخبار', href: '/dashboard/news' },
   { icon: FileText, label: 'المقالات', href: '/dashboard/articles' },
   { icon: Edit3, label: 'التحرير', href: '/dashboard/editor' },
   { icon: FolderOpen, label: 'التصنيفات', href: '/dashboard/categories' },
