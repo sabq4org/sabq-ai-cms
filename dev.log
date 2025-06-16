@@ -1,0 +1,125 @@
+
+> frontend@0.1.0 dev
+> next dev --turbopack
+
+   ▲ Next.js 15.3.3 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://172.20.10.2:3000
+
+ ✓ Starting...
+ ✓ Ready in 1355ms
+ ○ Compiling /dashboard/roles ...
+ ✓ Compiled /dashboard/roles in 3.8s
+ GET /dashboard/roles 200 in 4315ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 1052ms
+ GET /manifest.json 404 in 1117ms
+ ○ Compiling /dashboard/personalization ...
+ ✓ Compiled /dashboard/personalization in 971ms
+ GET /dashboard/personalization 200 in 1017ms
+ ○ Compiling /dashboard/settings ...
+ ✓ Compiled /dashboard/settings in 1078ms
+ ⨯ ReferenceError: window is not defined
+    at eval (app/dashboard/settings/page.tsx:39:88)
+    at SettingsPage (app/dashboard/settings/page.tsx:39:45)
+  37 |
+  38 | export default function SettingsPage() {
+> 39 |   const [activeTab, setActiveTab] = useState(() => { const params = new URLSearchParams(window.location.search); return params.get('tab') || 'identity'; });
+     |                                                                                        ^
+  40 |   const [darkMode, setDarkMode] = useState(false);
+  41 |   const [settings, setSettings] = useState<Record<string, any>>({});
+  42 |   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle'); {
+  digest: '2524297177'
+}
+ GET /dashboard/settings 500 in 1585ms
+ GET /dashboard/settings?tab=ai 200 in 87ms
+ ✓ Compiled in 97ms
+ ○ Compiling /dashboard/team ...
+ ✓ Compiled /dashboard/team in 921ms
+ GET /dashboard/team 200 in 966ms
+ GET /dashboard/settings 200 in 446ms
+ GET /dashboard/roles 200 in 70ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 1031ms
+ GET /dashboard 200 in 530ms
+ GET /dashboard 200 in 1206ms
+ ○ Compiling /dashboard/preferences ...
+ ✓ Compiled /dashboard/preferences in 1070ms
+ GET /dashboard/preferences 200 in 1117ms
+ GET /dashboard 200 in 52ms
+ GET /dashboard/settings?tab=ai 200 in 324ms
+ GET /dashboard/settings?tab=ai 200 in 237ms
+ GET /dashboard/settings?tab=ai 200 in 224ms
+ GET /dashboard/settings 200 in 78ms
+ GET /manifest.json 404 in 146ms
+ GET /dashboard/roles 200 in 59ms
+ GET /dashboard/roles 200 in 52ms
+ GET /dashboard/team 200 in 55ms
+ ✓ Compiled in 154ms
+ ✓ Compiled in 114ms
+ ○ Compiling /newspaper ...
+ ✓ Compiled /newspaper in 1719ms
+ GET /newspaper 200 in 2107ms
+ GET /manifest.json 404 in 105ms
+ ✓ Compiled in 162ms
+ GET /dashboard 200 in 203ms
+ ✓ Compiled in 334ms
+ GET /dashboard/personalization 200 in 69ms
+ GET /manifest.json 404 in 117ms
+ GET /dashboard/preferences 200 in 56ms
+ GET /dashboard/personalization 200 in 51ms
+ GET /dashboard/personalization 200 in 50ms
+ GET /dashboard/preferences 200 in 57ms
+ ○ Compiling /dashboard/analytics ...
+ ✓ Compiled /dashboard/analytics in 1163ms
+ GET /dashboard/analytics 200 in 1203ms
+ GET /dashboard/preferences 200 in 51ms
+ ✓ Compiled in 337ms
+ GET /dashboard/analytics 200 in 217ms
+ GET /dashboard/preferences 200 in 55ms
+ GET /dashboard/analytics 200 in 56ms
+ GET /dashboard/settings 200 in 205ms
+ GET /dashboard/settings 200 in 335ms
+ GET /manifest.json 404 in 94ms
+ GET /dashboard 200 in 55ms
+ ○ Compiling /dashboard/news ...
+ ✓ Compiled /dashboard/news in 973ms
+ GET /dashboard/news 200 in 1015ms
+ GET /dashboard/news 200 in 58ms
+ ○ Compiling /dashboard/news/[id] ...
+ ✓ Compiled /dashboard/news/[id] in 1210ms
+ GET /dashboard/news/A001 200 in 2150ms
+ GET /dashboard 200 in 47ms
+ ○ Compiling /dashboard/categories ...
+ ✓ Compiled /dashboard/categories in 1826ms
+ GET /dashboard/categories 200 in 1881ms
+ ✓ Compiled in 171ms
+ ✓ Compiled in 373ms
+ ✓ Compiled in 186ms
+ GET /dashboard/settings 200 in 225ms
+ ✓ Compiled in 118ms
+ ✓ Compiled in 136ms
+ ✓ Compiled in 140ms
+ ✓ Compiled in 147ms
+ GET /dashboard/settings 200 in 539ms
+ GET /manifest.json 404 in 119ms
+ ✓ Compiled in 157ms
+ ✓ Compiled /dashboard/settings in 89ms
+ ⨯ [Error: The default export is not a React Component in "/dashboard/settings/page"] {
+  page: '/dashboard/settings'
+}
+ ⨯ [Error: The default export is not a React Component in "/dashboard/settings/page"] {
+  page: '/dashboard/settings'
+}
+ ○ Compiling /_error ...
+ ⨯ [Error: The default export is not a React Component in "/dashboard/settings/page"] {
+  page: '/dashboard/settings'
+}
+ GET /newspaper 200 in 1398ms
+ ✓ Compiled in 1464ms
+ GET /newspaper 200 in 71ms
+ ✓ Compiled /_error in 2.1s
+ GET /dashboard/settings 500 in 3100ms
+ ✓ Compiled /dashboard/settings in 28ms
+ GET /dashboard/settings 200 in 453ms
+ GET /manifest.json 404 in 142ms

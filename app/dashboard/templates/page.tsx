@@ -1,0 +1,473 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { 
+  Plus, 
+  Search, 
+  Filter,
+  Layout,
+  FileText,
+  Image,
+  Menu,
+  Calendar,
+  Palette,
+  Settings2,
+  Download,
+  Upload,
+  Eye,
+  Code,
+  Save
+} from 'lucide-react';
+import { TemplatesList } from './components/TemplatesList';
+import { TemplateEditor } from './components/TemplateEditor';
+
+type TemplateType = 'header' | 'footer' | 'sidebar' | 'article' | 'category' | 'special';
+
+interface Template {
+  id: number;
+  name: string;
+  description?: string;
+  type: string;
+  content: any;
+  is_active: boolean;
+  is_default: boolean;
+  starts_at?: string;
+  ends_at?: string;
+  country_code?: string;
+  category_id?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export default function TemplatesPage() {
+  const [activeTab, setActiveTab] = useState<TemplateType>('header');
+  const [showEditor, setShowEditor] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [darkMode, setDarkMode] = useState(false);
+
+  // استرجاع حالة الوضع الليلي من localStorage
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode !== null) {
+      setDarkMode(JSON.parse(savedDarkMode));
+    }
+  }, []);
+
+  const templateTypes = [
+    { 
+      id: 'header', 
+      name: 'الهيدر', 
+      count: 3,
+      icon: <Layout className="w-5 h-5" />,
+      description: 'قوالب رأس الصفحة والتنقل'
+    },
+    { 
+      id: 'footer', 
+      name: 'الفوتر', 
+      count: 2,
+      icon: <Menu className="w-5 h-5" />,
+      description: 'قوالب تذييل الصفحة'
+    },
+    { 
+      id: 'sidebar', 
+      name: 'الشريط الجانبي', 
+      count: 4,
+      icon: <FileText className="w-5 h-5" />,
+      description: 'قوالب الأشرطة الجانبية'
+    },
+    { 
+      id: 'article', 
+      name: 'المقالات', 
+      count: 6,
+      icon: <FileText className="w-5 h-5" />,
+      description: 'قوالب عرض المقالات والأخبار'
+    },
+    { 
+      id: 'category', 
+      name: 'الأقسام', 
+      count: 5,
+      icon: <Image className="w-5 h-5" />,
+      description: 'قوالب صفحات الأقسام'
+    },
+    { 
+      id: 'special', 
+      name: 'المناسبات', 
+      count: 8,
+      icon: <Calendar className="w-5 h-5" />,
+      description: 'قوالب المناسبات والفعاليات'
+    }
+  ];
+
+  // مكون بطاقة الإحصائيات
+  const StatsCard = ({ 
+    title, 
+    value, 
+    subtitle, 
+    icon: Icon, 
+    color = 'blue' 
+  }: {
+    title: string;
+    value: string | number;
+    subtitle: string;
+    icon: any;
+    color?: string;
+  }) => {
+    const getColorClasses = () => {
+      switch (color) {
+        case 'green':
+          return 'bg-green-100 text-green-700 border-green-200';
+        case 'yellow':
+          return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        case 'purple':
+          return 'bg-purple-100 text-purple-700 border-purple-200';
+        case 'red':
+          return 'bg-red-100 text-red-700 border-red-200';
+        default:
+          return 'bg-blue-100 text-blue-700 border-blue-200';
+      }
+    };
+
+    return (
+      <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getColorClasses()}`}>
+            <Icon className="w-6 h-6" />
+          </div>
+          <div className="flex-1">
+            <p className={`text-sm mb-1 transition-colors duration-300 ${
+              darkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>{title}</p>
+            <div className="flex items-baseline gap-2">
+              <span className={`text-2xl font-bold transition-colors duration-300 ${
+                darkMode ? 'text-white' : 'text-gray-800'
+              }`}>{value}</span>
+              <span className={`text-sm transition-colors duration-300 ${
+                darkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}>{subtitle}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const handleEdit = (template: Template) => {
+    setEditingTemplate(template);
+    setShowEditor(true);
+  };
+
+  const handleCreate = () => {
+    setEditingTemplate(null);
+    setShowEditor(true);
+  };
+
+  const handleSave = () => {
+    setShowEditor(false);
+    setEditingTemplate(null);
+    // Refresh the templates list here
+  };
+
+  const handleCancel = () => {
+    setShowEditor(false);
+    setEditingTemplate(null);
+  };
+
+  if (showEditor) {
+    return (
+      <div className={`p-8 transition-colors duration-300 ${
+        darkMode ? 'bg-gray-900' : ''
+      }`}>
+        <TemplateEditor
+          template={editingTemplate}
+          type={activeTab}
+          isNew={!editingTemplate}
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`p-8 transition-colors duration-300 ${
+      darkMode ? 'bg-gray-900' : ''
+    }`}>
+      {/* عنوان وتعريف الصفحة */}
+      <div className="mb-8">
+        <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
+          darkMode ? 'text-white' : 'text-gray-800'
+        }`}>إدارة القوالب</h1>
+        <p className={`transition-colors duration-300 ${
+          darkMode ? 'text-gray-300' : 'text-gray-600'
+        }`}>إدارة وتخصيص قوالب الموقع للمناسبات والفعاليات المختلفة</p>
+      </div>
+
+      {/* قسم النظام الذكي للقوالب */}
+      <div className="mb-8">
+        <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
+          darkMode 
+            ? 'bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border-indigo-700' 
+            : 'bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-100'
+        }`}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <Palette className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className={`text-xl font-bold transition-colors duration-300 ${
+                darkMode ? 'text-white' : 'text-gray-800'
+              }`}>نظام القوالب الذكي</h2>
+              <p className={`text-sm transition-colors duration-300 ${
+                darkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>تخصيص تلقائي للقوالب حسب المناسبات والأحداث</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-4 gap-4">
+            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+              darkMode 
+                ? 'bg-gray-800 border-indigo-600' 
+                : 'bg-white border-indigo-100'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p className={`text-sm font-medium transition-colors duration-300 ${
+                    darkMode ? 'text-gray-200' : 'text-gray-800'
+                  }`}>جدولة تلقائية</p>
+                  <p className={`text-xs transition-colors duration-300 ${
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>نشط</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+              darkMode 
+                ? 'bg-gray-800 border-indigo-600' 
+                : 'bg-white border-indigo-100'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Eye className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className={`text-sm font-medium transition-colors duration-300 ${
+                    darkMode ? 'text-gray-200' : 'text-gray-800'
+                  }`}>معاينة مباشرة</p>
+                  <p className={`text-xs transition-colors duration-300 ${
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>متاح</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+              darkMode 
+                ? 'bg-gray-800 border-indigo-600' 
+                : 'bg-white border-indigo-100'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Code className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className={`text-sm font-medium transition-colors duration-300 ${
+                    darkMode ? 'text-gray-200' : 'text-gray-800'
+                  }`}>محرر متقدم</p>
+                  <p className={`text-xs transition-colors duration-300 ${
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>تفاعلي</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+              darkMode 
+                ? 'bg-gray-800 border-indigo-600' 
+                : 'bg-white border-indigo-100'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <Settings2 className="w-5 h-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className={`text-sm font-medium transition-colors duration-300 ${
+                    darkMode ? 'text-gray-200' : 'text-gray-800'
+                  }`}>تخصيص ديناميكي</p>
+                  <p className={`text-xs transition-colors duration-300 ${
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>ذكي</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* بطاقات الإحصائيات */}
+      <div className="grid grid-cols-6 gap-6 mb-8">
+        <StatsCard
+          title="إجمالي القوالب"
+          value="28"
+          subtitle="قالب نشط"
+          icon={Layout}
+          color="blue"
+        />
+        <StatsCard
+          title="القوالب النشطة"
+          value="24"
+          subtitle="قيد الاستخدام"
+          icon={Eye}
+          color="green"
+        />
+        <StatsCard
+          title="قوالب المناسبات"
+          value="8"
+          subtitle="موسمية"
+          icon={Calendar}
+          color="purple"
+        />
+        <StatsCard
+          title="المسودات"
+          value="4"
+          subtitle="قيد التطوير"
+          icon={FileText}
+          color="yellow"
+        />
+        <StatsCard
+          title="معدل الاستخدام"
+          value="85%"
+          subtitle="كفاءة عالية"
+          icon={Settings2}
+          color="green"
+        />
+        <StatsCard
+          title="آخر تحديث"
+          value="اليوم"
+          subtitle="محدث"
+          icon={Save}
+          color="blue"
+        />
+      </div>
+
+      {/* شريط الأدوات */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="البحث في القوالب..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`pr-10 pl-4 py-3 border rounded-xl w-80 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                darkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
+            />
+          </div>
+          <button className={`px-4 py-3 border rounded-xl flex items-center gap-2 transition-colors duration-300 ${
+            darkMode 
+              ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700' 
+              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+          }`}>
+            <Filter className="w-4 h-4" />
+            فلترة
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <button className={`px-4 py-3 border rounded-xl flex items-center gap-2 transition-colors duration-300 ${
+            darkMode 
+              ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700' 
+              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+          }`}>
+            <Download className="w-4 h-4" />
+            تصدير
+          </button>
+          <button className={`px-4 py-3 border rounded-xl flex items-center gap-2 transition-colors duration-300 ${
+            darkMode 
+              ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700' 
+              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+          }`}>
+            <Upload className="w-4 h-4" />
+            استيراد
+          </button>
+          <button 
+            onClick={handleCreate}
+            className="px-6 py-3 bg-blue-500 text-white rounded-xl flex items-center gap-2 hover:bg-blue-600 transition-colors duration-300"
+          >
+            <Plus className="w-4 h-4" />
+            قالب جديد
+          </button>
+        </div>
+      </div>
+
+      {/* تبويبات أنواع القوالب */}
+      <div className={`rounded-2xl p-2 shadow-sm border mb-8 transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
+        <div className="flex gap-2">
+          {templateTypes.map((type) => {
+            const Icon = type.icon;
+            return (
+              <button
+                key={type.id}
+                onClick={() => setActiveTab(type.id as TemplateType)}
+                className={`flex-1 flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
+                  activeTab === type.id
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : darkMode
+                      ? 'text-gray-300 hover:bg-gray-700'
+                      : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {Icon}
+                  <span>{type.name}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className={`text-xs ${
+                    activeTab === type.id 
+                      ? 'text-white/80' 
+                      : darkMode
+                        ? 'text-gray-400'
+                        : 'text-gray-500'
+                  }`}>
+                    {type.count} قالب
+                  </span>
+                  <span className={`text-xs ${
+                    activeTab === type.id 
+                      ? 'text-white/60' 
+                      : darkMode
+                        ? 'text-gray-500'
+                        : 'text-gray-400'
+                  }`}>
+                    {type.description}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* قائمة القوالب */}
+      <TemplatesList 
+        type={activeTab} 
+        onEdit={handleEdit}
+      />
+    </div>
+  );
+} 

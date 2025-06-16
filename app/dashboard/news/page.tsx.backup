@@ -1,0 +1,529 @@
+'use client';
+
+import React, { useState } from 'react';
+import { 
+  ChevronDown, 
+  Search, 
+  Filter,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  MessageCircle,
+  Copy,
+  Eye,
+  Calendar,
+  Star,
+  Zap,
+  Users,
+  Award,
+  TrendingUp,
+  Activity,
+  MessageSquare
+} from 'lucide-react';
+
+type NewsStatus = 'published' | 'draft' | 'pending';
+type NewsItem = {
+  id: string;
+  title: string;
+  author: string;
+  category: string;
+  publishTime: string;
+  viewCount: number;
+  lastModified: string;
+  lastModifiedBy: string;
+  isPinned: boolean;
+  isBreaking: boolean;
+  status: NewsStatus;
+  rating: number;
+};
+
+const mockNewsData: NewsItem[] = [
+  {
+    id: 'A001',
+    title: 'تطوير جديد في تقنيات الذكاء الاصطناعي يحدث نقلة في مجال الصحافة',
+    author: 'محمد الأحمد',
+    category: 'التكنولوجيا > ذكاء اصطناعي',
+    publishTime: '2024-03-15 10:30',
+    viewCount: 12500,
+    lastModified: '2024-03-15 12:45',
+    lastModifiedBy: 'فاطمة السعيد',
+    isPinned: true,
+    isBreaking: true,
+    status: 'published',
+    rating: 4.8
+  },
+  {
+    id: 'A002',
+    title: 'الاقتصاد السعودي يسجل نمواً قياسياً في الربع الأول من 2024',
+    author: 'عبدالله الخالد',
+    category: 'الاقتصاد > أسواق محلية',
+    publishTime: '2024-03-14 16:20',
+    viewCount: 8300,
+    lastModified: '2024-03-15 08:15',
+    lastModifiedBy: 'سارة النعيم',
+    isPinned: false,
+    isBreaking: false,
+    status: 'published',
+    rating: 4.2
+  },
+  {
+    id: 'A003',
+    title: 'رؤية 2030: إنجازات جديدة في مجال التحول الرقمي والاستدامة',
+    author: 'نورا الزهراني',
+    category: 'محليات > رؤية 2030',
+    publishTime: '',
+    viewCount: 0,
+    lastModified: '2024-03-15 14:30',
+    lastModifiedBy: 'أحمد الحربي',
+    isPinned: false,
+    isBreaking: false,
+    status: 'draft',
+    rating: 0
+  },
+  {
+    id: 'A004',
+    title: 'المملكة تستضيف قمة عالمية للذكاء الاصطناعي في الرياض',
+    author: 'علي المالكي',
+    category: 'سياسة > محلي',
+    publishTime: '',
+    viewCount: 0,
+    lastModified: '2024-03-15 11:20',
+    lastModifiedBy: 'ليلى الشمري',
+    isPinned: false,
+    isBreaking: false,
+    status: 'pending',
+    rating: 0
+  },
+  {
+    id: 'A005',
+    title: 'انطلاق موسم الرياض 2024 بفعاليات ثقافية وترفيهية متنوعة',
+    author: 'رناد القحطاني',
+    category: 'ترفيه > فعاليات',
+    publishTime: '2024-03-13 20:15',
+    viewCount: 15600,
+    lastModified: '2024-03-14 09:45',
+    lastModifiedBy: 'خالد الدوسري',
+    isPinned: true,
+    isBreaking: false,
+    status: 'published',
+    rating: 4.9
+  }
+];
+
+export default function NewsManagementPage() {
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+
+
+  const statusTabs = [
+    { 
+      id: 'all', 
+      name: 'جميع الأخبار', 
+      count: mockNewsData.length,
+      icon: <MessageSquare className="w-5 h-5" />
+    },
+    { 
+      id: 'published', 
+      name: 'منشور', 
+      count: mockNewsData.filter(item => item.status === 'published').length,
+      icon: <Eye className="w-5 h-5" />
+    },
+    { 
+      id: 'draft', 
+      name: 'مسودة', 
+      count: mockNewsData.filter(item => item.status === 'draft').length,
+      icon: <Edit className="w-5 h-5" />
+    },
+    { 
+      id: 'breaking', 
+      name: 'عاجل', 
+      count: mockNewsData.filter(item => item.isBreaking).length,
+      icon: <Zap className="w-5 h-5" />
+    },
+    { 
+      id: 'pending', 
+      name: 'في الانتظار', 
+      count: mockNewsData.filter(item => item.status === 'pending').length,
+      icon: <Calendar className="w-5 h-5" />
+    }
+  ];
+
+  const getStatusBadge = (status: NewsStatus) => {
+    const statusConfig = {
+      published: { color: 'bg-green-100 text-green-700', text: 'منشور' },
+      draft: { color: 'bg-yellow-100 text-yellow-700', text: 'مسودة' },
+      pending: { color: 'bg-blue-100 text-blue-700', text: 'في الانتظار' }
+    };
+    
+    return statusConfig[status] || statusConfig.draft;
+  };
+
+
+
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+      />
+    ));
+  };
+
+  // مكون بطاقة الإحصائيات بتصميم جرعة
+  const JuraStatsCard = ({ title, value, subtitle, iconComponent, gradientColor }: {
+    title: string;
+    value: string;
+    subtitle: string;
+    iconComponent: React.ReactNode;
+    gradientColor: string;
+  }) => (
+    <div className="stat-card animate-fadeIn group">
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <p className="text-sm text-gray-500 mb-2 font-medium">{title}</p>
+          <h3 className="text-2xl font-bold gradient-text mb-1">{value}</h3>
+          <p className="text-xs text-gray-400">{subtitle}</p>
+        </div>
+        <div 
+          className="w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+          style={{ background: gradientColor }}
+        >
+          <div className="text-white">
+            {iconComponent}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div 
+      className="min-h-screen p-8"
+      style={{
+        background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 50%, #e5e7eb 100%)',
+        fontFamily: 'Tajawal, system-ui, -apple-system, "Segoe UI", "Noto Sans Arabic", Arial, sans-serif'
+      }}
+    >
+      {/* العنوان والمقدمة بتصميم جرعة */}
+      <div className="mb-8 animate-slideUp">
+        <div className="section-container">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="gradient-text text-4xl mb-3">إدارة الأخبار</h1>
+              <p className="text-gray-600 text-lg">إدارة ومراقبة محتوى الأخبار والمقالات الصحفية</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button className="btn-primary">
+                <Edit className="w-4 h-4" />
+                خبر جديد
+              </button>
+              <div className="glass-effect px-4 py-2.5 rounded-xl border border-white/20 flex items-center space-x-2">
+                <Calendar className="w-4 h-4 text-gray-500" />
+                <span className="text-sm text-gray-600 font-medium">اليوم</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* بطاقات الإحصائيات بتصميم جرعة */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+        <JuraStatsCard
+          title="إجمالي الأخبار"
+          value="245"
+          subtitle="جميع المواضيع"
+          iconComponent={<MessageSquare className="w-6 h-6" />}
+          gradientColor="linear-gradient(135deg, #3b82f6, #06b6d4)"
+        />
+        <JuraStatsCard
+          title="المنشورة"
+          value="189"
+          subtitle="متاحة للقراء"
+          iconComponent={<TrendingUp className="w-6 h-6" />}
+          gradientColor="linear-gradient(135deg, #10b981, #059669)"
+        />
+        <JuraStatsCard
+          title="المسودات"
+          value="32"
+          subtitle="قيد التحرير"  
+          iconComponent={<Edit className="w-6 h-6" />}
+          gradientColor="linear-gradient(135deg, #f59e0b, #d97706)"
+        />
+        <JuraStatsCard
+          title="إجمالي المشاهدات"
+          value="1.2M"
+          subtitle="آخر 30 يوم"
+          iconComponent={<Eye className="w-6 h-6" />}
+          gradientColor="linear-gradient(135deg, #8b5cf6, #7c3aed)"
+        />
+        <JuraStatsCard
+          title="الكتّاب النشطون"
+          value="12"
+          subtitle="آخر 7 أيام"
+          iconComponent={<Users className="w-6 h-6" />}
+          gradientColor="linear-gradient(135deg, #06b6d4, #0891b2)"
+        />
+        <JuraStatsCard
+          title="متوسط التقييم"
+          value="4.6"
+          subtitle="من 5 نجوم"
+          iconComponent={<Award className="w-6 h-6" />}
+          gradientColor="linear-gradient(135deg, #ef4444, #dc2626)"
+        />
+      </div>
+
+      {/* تبويبات بتصميم جرعة */}
+      <div className="mb-8">
+        <div className="glass-effect rounded-2xl p-2 flex gap-2">
+          {statusTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`group relative flex items-center gap-3 px-6 py-4 rounded-xl transition-all duration-300 min-w-0 flex-1 ${
+                activeTab === tab.id
+                  ? 'gradient-primary text-white shadow-colored'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
+              }`}
+            >
+              {/* الأيقونة */}
+              <div className={`flex-shrink-0 transition-colors duration-300 ${
+                activeTab === tab.id 
+                  ? 'text-white' 
+                  : 'text-gray-400 group-hover:text-gray-600'
+              }`}>
+                {tab.icon}
+              </div>
+              
+              {/* محتوى التاب */}
+              <div className="flex flex-col items-start min-w-0 flex-1">
+                <span className={`text-sm font-semibold truncate transition-colors duration-300 ${
+                  activeTab === tab.id 
+                    ? 'text-white' 
+                    : 'text-gray-700 group-hover:text-gray-900'
+                }`}>
+                  {tab.name}
+                </span>
+                
+                {/* العداد */}
+                <span className={`text-xs font-medium transition-colors duration-300 ${
+                  activeTab === tab.id 
+                    ? 'text-white/80' 
+                    : 'text-gray-500 group-hover:text-gray-700'
+                }`}>
+                  {tab.count} عنصر
+                </span>
+              </div>
+              
+              {/* تأثير الحدود للنشط */}
+              {activeTab === tab.id && (
+                <div className="absolute inset-0 rounded-xl border-2 border-white/20 pointer-events-none"></div>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* جدول إدارة الأخبار بتصميم جرعة */}
+      <div className="data-table-container animate-slideUp">
+
+        {/* شريط البحث والفلاتر */}
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center space-x-4 w-full lg:w-auto">
+              <div className="relative flex-1 lg:w-96">
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="البحث بالعنوان أو معرف المقال..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="input-field pr-10"
+                />
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <select 
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="input-field"
+              >
+                <option value="all">جميع التصنيفات</option>
+                <option value="tech">التكنولوجيا</option>
+                <option value="economy">الاقتصاد</option>
+                <option value="politics">السياسة</option>
+                <option value="sports">الرياضة</option>
+              </select>
+              
+              <select 
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="input-field"
+              >
+                <option value="all">جميع الحالات</option>
+                <option value="published">منشور</option>
+                <option value="draft">مسودة</option>
+                <option value="pending">في الانتظار</option>
+              </select>
+              
+              <button className="btn-secondary">
+                <Filter className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* جدول البيانات */}
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th style={{ width: '30%' }}>العنوان</th>
+              <th>الكاتب</th>
+              <th>التصنيف</th>
+              <th>وقت النشر</th>
+              <th>المشاهدات</th>
+              <th>آخر تعديل</th>
+              <th>التقييم</th>
+              <th>الحالة</th>
+              <th>العمليات</th>
+            </tr>
+          </thead>
+                     <tbody>
+            {mockNewsData.map((news, index) => (
+              <tr 
+                key={news.id} 
+                className={`transition-colors duration-200 ${
+                  news.isBreaking ? 'bg-red-50' : 
+                  news.isPinned ? 'bg-blue-50' : ''
+                }`}
+              >
+                {/* العنوان */}
+                <td>
+                  <div className="flex items-start">
+                    <div className="flex-1">
+                      <button className="text-blue-600 hover:text-blue-800 font-medium text-right leading-tight">
+                        {news.title}
+                      </button>
+                      <div className="flex items-center mt-1 space-x-2">
+                        <span className="text-xs text-gray-500">#{news.id}</span>
+                        {news.isPinned && (
+                          <span className="badge badge-primary">مثبت</span>
+                        )}
+                        {news.isBreaking && (
+                          <span className="badge badge-error">
+                            <Zap className="w-3 h-3 mr-1" />
+                            عاجل
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                {/* الكاتب */}
+                <td className="font-medium text-gray-900">
+                  {news.author}
+                </td>
+
+                {/* التصنيف */}
+                <td>
+                  <span className="badge badge-primary">
+                    {news.category}
+                  </span>
+                </td>
+
+                {/* وقت النشر */}
+                <td className="text-gray-500 text-xs">
+                  {news.publishTime || '-'}
+                </td>
+
+                {/* المشاهدات */}
+                <td>
+                  <div className="flex items-center">
+                    <Eye className="w-4 h-4 text-gray-400 ml-1" />
+                    <span className="text-gray-700 font-medium">
+                      {news.viewCount.toLocaleString()}
+                    </span>
+                  </div>
+                </td>
+
+                {/* آخر تعديل */}
+                <td className="text-xs text-gray-500">
+                  <div>{news.lastModified}</div>
+                  <div className="text-gray-400">بواسطة {news.lastModifiedBy}</div>
+                </td>
+
+                {/* التقييم */}
+                <td>
+                  {news.status === 'published' ? (
+                    <div className="flex items-center space-x-1">
+                      {renderStars(news.rating)}
+                      <span className="text-xs text-gray-600 mr-1">
+                        {news.rating}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-400">-</span>
+                  )}
+                </td>
+
+                {/* الحالة */}
+                <td>
+                  <span className={`badge ${getStatusBadge(news.status).color.includes('green') ? 'badge-success' : getStatusBadge(news.status).color.includes('yellow') ? 'badge-warning' : 'badge-primary'}`}>
+                    {getStatusBadge(news.status).text}
+                  </span>
+                </td>
+
+                {/* العمليات */}
+                <td>
+                  <div className="flex items-center space-x-1">
+                    <button className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200">
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors duration-200">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors duration-200">
+                      <MessageCircle className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                      <Copy className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+                            </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* تذييل الجدول بتصميم جرعة */}
+        <div className="glass-effect border-t border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-700 font-medium">
+              عرض 1-5 من {mockNewsData.length} خبر
+            </div>
+            <div className="flex items-center space-x-2">
+              <button className="btn-secondary text-sm">
+                السابق
+              </button>
+              <button className="btn-primary text-sm">
+                1
+              </button>
+              <button className="btn-secondary text-sm">
+                2
+              </button>
+              <button className="btn-secondary text-sm">
+                التالي
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+} 
