@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم إدارة الأخبار - تصميم احترافي</title>
+    
+    <!-- استيراد الخط العربي -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- استيراد أيقونات Lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        :root {
+            /* نظام ألوان متناسق */
+            --primary-color: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e3a8a;
+            
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* تباعد موحد */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            
+            /* حجم الخط */
+            --text-xs: 0.75rem;
+            --text-sm: 0.875rem;
+            --text-base: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 2rem;
+            
+            /* ظلال */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            
+            /* انتقالات */
+            --transition: all 0.2s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Arabic', 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+        
+        /* حاوي رئيسي */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+        
+        /* رأس الصفحة */
+        .header {
+            margin-bottom: var(--spacing-2xl);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-lg);
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--primary-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .header-text h1 {
+            font-size: var(--text-3xl);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .header-text p {
+            font-size: var(--text-base);
+            color: var(--gray-600);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+        }
+        
+        /* أزرار */
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: 8px;
+            font-size: var(--text-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* قوائم منسدلة */
+        .select {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            background-color: white;
+            font-size: var(--text-sm);
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* بطاقات الإحصائيات */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stat-content h3 {
+            font-size: var(--text-2xl);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .stat-label {
+            font-size: var(--text-sm);
+            color: var(--gray-600);
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .stat-description {
+            font-size: var(--text-xs);
+            color: var(--gray-500);
+        }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-sm);
+            font-size: var(--text-sm);
+            font-weight: 600;
+        }
+        
+        .trend-up {
+            color: var(--success-color);
+        }
+        
+        /* التابات */
+        .tabs-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .tab {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: var(--text-sm);
+            font-weight: 500;
+            color: var(--gray-600);
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .tab:hover {
+            color: var(--gray-900);
+            background-color: var(--gray-50);
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        /* جدول البيانات */
+        .data-table-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .table-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            padding-right: 40px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: var(--text-sm);
+            transition: var(--transition);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+        }
+        
+        .table-filters {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+        
+        /* الجدول */
+        .table {
+            width: 100%;
+        }
+        
+        .table-head {
+            background-color: var(--gray-50);
+        }
+        
+        .table-row {
+            border-bottom: 1px solid var(--gray-200);
+            transition: var(--transition);
+        }
+        
+        .table-row:hover {
+            background-color: var(--gray-50);
+        }
+        
+        .table-cell {
+            padding: var(--spacing-md);
+            font-size: var(--text-sm);
+        }
+        
+        .table-head .table-cell {
+            font-weight: 600;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            font-size: var(--text-xs);
+            letter-spacing: 0.05em;
+        }
+        
+        /* شارات الحالة */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: var(--text-xs);
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background-color: #d1fae5;
+            color: var(--success-color);
+        }
+        
+        .badge-warning {
+            background-color: #fed7aa;
+            color: var(--warning-color);
+        }
+        
+        .badge-danger {
+            background-color: #fee2e2;
+            color: var(--danger-color);
+        }
+        
+        .badge-info {
+            background-color: #dbeafe;
+            color: var(--primary-color);
+        }
+        
+        /* أزرار الإجراءات */
+        .action-btn {
+            background: none;
+            border: none;
+            padding: var(--spacing-xs);
+            cursor: pointer;
+            color: var(--gray-600);
+            transition: var(--transition);
+            border-radius: 4px;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--gray-100);
+            color: var(--gray-900);
+        }
+        
+        /* التذييل */
+        .table-footer {
+            padding: var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--gray-200);
+        }
+        
+        .pagination {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+        
+        .page-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--gray-300);
+            background-color: white;
+            border-radius: 6px;
+            font-size: var(--text-sm);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .page-btn:hover {
+            background-color: var(--gray-50);
+        }
+        
+        .page-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* تصاميم الأيقونات */
+        .icon-blue { background-color: #dbeafe; color: var(--primary-color); }
+        .icon-green { background-color: #d1fae5; color: var(--success-color); }
+        .icon-yellow { background-color: #fed7aa; color: var(--warning-color); }
+        .icon-red { background-color: #fee2e2; color: var(--danger-color); }
+        .icon-purple { background-color: #ede9fe; color: #7c3aed; }
+        .icon-cyan { background-color: #cffafe; color: #0891b2; }
+        
+        /* استجابة الجوال */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-md);
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .table-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+            
+            .table {
+                font-size: var(--text-xs);
+            }
+            
+            .table-cell {
+                padding: var(--spacing-sm);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <div class="header-icon">
+                        <i data-lucide="newspaper" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <div class="header-text">
+                        <h1>لوحة تحكم إدارة الأخبار</h1>
+                        <p>إدارة ومراقبة المحتوى الإخباري</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <select class="select">
+                        <option>آخر 7 أيام</option>
+                        <option>آخر 30 يوم</option>
+                        <option>آخر 3 أشهر</option>
+                    </select>
+                    <button class="btn btn-primary">
+                        <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+                        تحديث
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <p class="stat-label">إجمالي الأخبار</p>
+                        <h3>245</h3>
+                        <p class="stat-description">جميع المقالات</p>
+                        <div class="stat-trend trend-up">
+                            <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                            <span>+12%</span>
+                        </div>
+                    </div>
+                    <div class="stat-icon icon-blue">
+                        <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <p class="stat-label">المنشورة</p>
+                        <h3>189</h3>
+                        <p class="stat-description">متاحة للقراء</p>
+                        <div class="stat-trend trend-up">
+                            <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                            <span>+8%</span>
+                        </div>
+                    </div>
+                    <div class="stat-icon icon-green">
+                        <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <p class="stat-label">المسودات</p>
+                        <h3>32</h3>
+                        <p class="stat-description">قيد التحرير</p>
+                    </div>
+                    <div class="stat-icon icon-yellow">
+                        <i data-lucide="edit-3" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <p class="stat-label">المشاهدات</p>
+                        <h3>1.2M</h3>
+                        <p class="stat-description">آخر 30 يوم</p>
+                        <div class="stat-trend trend-up">
+                            <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                            <span>+24%</span>
+                        </div>
+                    </div>
+                    <div class="stat-icon icon-purple">
+                        <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <p class="stat-label">الكتّاب النشطون</p>
+                        <h3>12</h3>
+                        <p class="stat-description">آخر 7 أيام</p>
+                    </div>
+                    <div class="stat-icon icon-cyan">
+                        <i data-lucide="users" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <p class="stat-label">متوسط التقييم</p>
+                        <h3>4.6</h3>
+                        <p class="stat-description">من 5 نجوم</p>
+                    </div>
+                    <div class="stat-icon icon-red">
+                        <i data-lucide="star" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab active">
+                    <i data-lucide="list" style="width: 16px; height: 16px;"></i>
+                    جميع الأخبار
+                </button>
+                <button class="tab">
+                    <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                    المنشورة
+                </button>
+                <button class="tab">
+                    <i data-lucide="edit" style="width: 16px; height: 16px;"></i>
+                    المسودات
+                </button>
+                <button class="tab">
+                    <i data-lucide="zap" style="width: 16px; height: 16px;"></i>
+                    العاجل
+                </button>
+                <button class="tab">
+                    <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
+                    المجدولة
+                </button>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="data-table-container">
+            <div class="table-header">
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i data-lucide="search" class="search-icon" style="width: 16px; height: 16px;"></i>
+                        <input type="text" class="search-input" placeholder="البحث في الأخبار...">
+                    </div>
+                    <div class="table-filters">
+                        <select class="select">
+                            <option>جميع التصنيفات</option>
+                            <option>التكنولوجيا</option>
+                            <option>الاقتصاد</option>
+                            <option>الرياضة</option>
+                        </select>
+                        <select class="select">
+                            <option>جميع الحالات</option>
+                            <option>منشور</option>
+                            <option>مسودة</option>
+                            <option>مجدول</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table">
+                <thead class="table-head">
+                    <tr class="table-row">
+                        <th class="table-cell">العنوان</th>
+                        <th class="table-cell">الكاتب</th>
+                        <th class="table-cell">التصنيف</th>
+                        <th class="table-cell">التاريخ</th>
+                        <th class="table-cell">المشاهدات</th>
+                        <th class="table-cell">الحالة</th>
+                        <th class="table-cell">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="table-row">
+                        <td class="table-cell">
+                            <div>
+                                <p style="font-weight: 600; color: var(--gray-900); margin-bottom: 4px;">
+                                    تطورات جديدة في تقنيات الذكاء الاصطناعي
+                                </p>
+                                <p style="font-size: var(--text-xs); color: var(--gray-500);">
+                                    #A001
+                                    <span class="badge badge-danger" style="margin-right: 8px;">عاجل</span>
+                                    <span class="badge badge-info">مثبت</span>
+                                </p>
+                            </div>
+                        </td>
+                        <td class="table-cell">محمد الأحمد</td>
+                        <td class="table-cell">
+                            <span class="badge badge-info">التكنولوجيا</span>
+                        </td>
+                        <td class="table-cell">15/03/2024</td>
+                        <td class="table-cell">12.5K</td>
+                        <td class="table-cell">
+                            <span class="badge badge-success">منشور</span>
+                        </td>
+                        <td class="table-cell">
+                            <button class="action-btn">
+                                <i data-lucide="edit" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    
+                    <tr class="table-row">
+                        <td class="table-cell">
+                            <div>
+                                <p style="font-weight: 600; color: var(--gray-900); margin-bottom: 4px;">
+                                    الاقتصاد السعودي يسجل نمواً قياسياً
+                                </p>
+                                <p style="font-size: var(--text-xs); color: var(--gray-500);">#A002</p>
+                            </div>
+                        </td>
+                        <td class="table-cell">عبدالله الخالد</td>
+                        <td class="table-cell">
+                            <span class="badge badge-info">الاقتصاد</span>
+                        </td>
+                        <td class="table-cell">14/03/2024</td>
+                        <td class="table-cell">8.3K</td>
+                        <td class="table-cell">
+                            <span class="badge badge-success">منشور</span>
+                        </td>
+                        <td class="table-cell">
+                            <button class="action-btn">
+                                <i data-lucide="edit" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    
+                    <tr class="table-row">
+                        <td class="table-cell">
+                            <div>
+                                <p style="font-weight: 600; color: var(--gray-900); margin-bottom: 4px;">
+                                    إطلاق مبادرة وطنية جديدة للتحول الرقمي
+                                </p>
+                                <p style="font-size: var(--text-xs); color: var(--gray-500);">#A003</p>
+                            </div>
+                        </td>
+                        <td class="table-cell">سارة النعيم</td>
+                        <td class="table-cell">
+                            <span class="badge badge-info">التكنولوجيا</span>
+                        </td>
+                        <td class="table-cell">13/03/2024</td>
+                        <td class="table-cell">-</td>
+                        <td class="table-cell">
+                            <span class="badge badge-warning">مسودة</span>
+                        </td>
+                        <td class="table-cell">
+                            <button class="action-btn">
+                                <i data-lucide="edit" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="table-footer">
+                <p style="font-size: var(--text-sm); color: var(--gray-600);">
+                    عرض 1-3 من 245 خبر
+                </p>
+                <div class="pagination">
+                    <button class="page-btn">السابق</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">...</button>
+                    <button class="page-btn">25</button>
+                    <button class="page-btn">التالي</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // تفعيل أيقونات Lucide
+        lucide.createIcons();
+        
+        // تفعيل التابات
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html> 

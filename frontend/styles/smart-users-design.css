@@ -1,0 +1,322 @@
+/* =========================================
+   تصميم Smart Users - نسخة مطابقة
+   ========================================= */
+
+/* الخلفية المتدرجة الرئيسية */
+.smart-gradient-bg {
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 50%, #ecfeff 100%);
+  min-height: 100vh;
+}
+
+/* بطاقات الإحصائيات */
+.smart-stat-card {
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(249, 250, 251, 0.9));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.smart-stat-card:hover {
+  transform: translateY(-4px);
+}
+
+/* أيقونة البطاقة */
+.smart-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* تصميم الجدول المتقدم */
+.smart-table-container {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(249, 250, 251, 0.9));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.smart-table-header {
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #334155;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 16px 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.smart-table-row {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.smart-table-row:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05));
+  transform: translateX(4px);
+}
+
+.smart-table-cell {
+  padding: 20px 24px;
+  font-size: 0.875rem;
+}
+
+.smart-table-row:last-child {
+  border-bottom: none;
+}
+
+/* التابات - نمط متقدم */
+.smart-tabs-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.smart-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  min-width: 120px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.smart-tab:hover {
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.smart-tab.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.smart-tab.active svg {
+  color: #3b82f6;
+}
+
+/* الأزرار المتدرجة */
+.smart-btn-primary {
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.smart-btn-primary:hover {
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+}
+
+/* شارات الحالة */
+.smart-badge {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.smart-badge-blue {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+}
+
+.smart-badge-green {
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  color: #065f46;
+}
+
+.smart-badge-yellow {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #78350f;
+}
+
+.smart-badge-red {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #991b1b;
+}
+
+/* شريط التقدم */
+.smart-progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(59, 130, 246, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.smart-progress-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* النص المتدرج */
+.smart-gradient-text {
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+/* العنوان الرئيسي */
+.smart-header-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+}
+
+/* القوائم المنسدلة */
+.smart-select {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 0.875rem;
+  color: #374151;
+  outline: none;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.smart-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* حاويات المحتوى */
+.smart-content-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+/* مؤثرات الحركة */
+@keyframes smart-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.smart-animate-float {
+  animation: smart-float 3s ease-in-out infinite;
+}
+
+@keyframes smart-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.smart-animate-pulse {
+  animation: smart-pulse 2s ease-in-out infinite;
+}
+
+/* مؤشرات الاتجاه */
+.smart-trend-up {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.smart-trend-down {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.smart-trend-stable {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* تحسينات للأجهزة المحمولة */
+@media (max-width: 768px) {
+  .smart-stat-card {
+    padding: 16px;
+  }
+  
+  .smart-table-cell {
+    padding: 12px 16px;
+  }
+  
+  .smart-tab {
+    padding: 12px 16px;
+    min-width: 100px;
+  }
+  
+  .smart-header-icon {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* تأثيرات التمرير */
+.smart-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.smart-hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* شريط التحميل */
+.smart-loading-bar {
+  width: 100%;
+  height: 4px;
+  background: #f3f4f6;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.smart-loading-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  border-radius: 2px;
+  animation: smart-loading 2s ease-in-out infinite;
+}
+
+@keyframes smart-loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+} 
