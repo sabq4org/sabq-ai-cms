@@ -835,50 +835,6 @@ export default function CreateArticlePage() {
 
           {/* الشريط الجانبي */}
           <div className="xl:col-span-1 space-y-6">
-            {/* بطاقة الإجراءات السريعة */}
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-xl p-6 border border-gray-100">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Rocket className="w-5 h-5 text-blue-600" />
-                إجراءات سريعة
-              </h3>
-              <div className="space-y-3">
-                <button
-                  onClick={() => handleSave('draft')}
-                  disabled={saving}
-                  className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-300 disabled:opacity-50"
-                >
-                  <Save className="w-5 h-5" />
-                  حفظ كمسودة
-                </button>
-                
-                <button
-                  onClick={() => handleSave('review')}
-                  disabled={saving}
-                  className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50"
-                >
-                  <Send className="w-5 h-5" />
-                  إرسال للمراجعة
-                </button>
-                
-                <button
-                  onClick={() => handleSave('published')}
-                  disabled={saving}
-                  className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50"
-                >
-                  <Eye className="w-5 h-5" />
-                  نشر مباشر
-                </button>
-                
-                <button
-                  onClick={() => setPreviewMode(!previewMode)}
-                  className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-xl font-medium transition-all duration-300"
-                >
-                  <Eye className="w-5 h-5" />
-                  معاينة المقال
-                </button>
-              </div>
-            </div>
-
             {/* بطاقة الجودة المحسنة */}
             <QualityPanel qualityScore={qualityScore} />
 
