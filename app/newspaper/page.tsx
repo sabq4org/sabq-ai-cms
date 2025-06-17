@@ -204,11 +204,13 @@ export default function NewspaperHomePage() {
       setCategoriesLoading(true);
       const response = await fetch('/api/categories');
       if (response.ok) {
-        const data = await response.json();
-        setCategories(data);
+        const result = await response.json();
+        // استخراج المصفوفة من خاصية data
+        setCategories(result.data || []);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setCategories([]);
     } finally {
       setCategoriesLoading(false);
     }
@@ -482,9 +484,9 @@ export default function NewspaperHomePage() {
               <div className="flex items-center gap-2">
                 {/* شارة التصنيف الذكية */}
                 {(() => {
-                  const categoryData = categories.find((cat: any) => 
+                  const categoryData = Array.isArray(categories) ? categories.find((cat: any) => 
                     cat.name_ar === news.category || cat.name_en === news.category
-                  );
+                  ) : null;
                   
                   if (categoryData) {
                     return (
@@ -1426,10 +1428,30 @@ export default function NewspaperHomePage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : categories.length > 0 ? (
-            <CategoryNavigation
-              categories={categories}
-              className="gap-3"
-            />
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {categories.map((category: any) => (
+                <button
+                  key={category.id}
+                  className={`group px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
+                    darkMode 
+                      ? 'bg-gray-700/50 hover:bg-blue-600/20 text-gray-200 hover:text-blue-300 border border-gray-600 hover:border-blue-500' 
+                      : 'bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-lg'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {category.icon && (
+                      <span className="text-lg group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
+                    )}
+                    <span>{category.name_ar || category.name}</span>
+                    <span className={`text-xs opacity-60 ${
+                      darkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}>
+                      ({category.articles_count || 0})
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
           ) : (
             <div className={`text-center py-8 ${
               darkMode ? 'text-gray-400' : 'text-gray-500'
