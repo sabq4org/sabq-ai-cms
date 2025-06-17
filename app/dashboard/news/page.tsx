@@ -30,7 +30,10 @@ type NewsItem = {
   id: string;
   title: string;
   author: string;
+  author_name?: string;
   category: string | number;
+  category_name?: string;
+  category_color?: string;
   publishTime: string;
   viewCount: number;
   lastModified: string;
@@ -41,6 +44,34 @@ type NewsItem = {
   rating: number;
   slug?: string;
 };
+
+// بيانات التصنيفات
+const categories: { [key: number]: { name: string; color: string } } = {
+  1: { name: 'محليات', color: '#EF4444' },
+  2: { name: 'تقنية', color: '#8B5CF6' },
+  3: { name: 'اقتصاد', color: '#10B981' },
+  4: { name: 'رياضة', color: '#F59E0B' },
+  5: { name: 'سياسة', color: '#3B82F6' },
+  6: { name: 'ترفيه', color: '#EC4899' },
+  7: { name: 'صحة', color: '#06B6D4' },
+  8: { name: 'تعليم', color: '#6366F1' },
+  9: { name: 'ثقافة', color: '#14B8A6' },
+  10: { name: 'دولي', color: '#F97316' }
+};
+
+// دالة لتحديد لون النص بناءً على لون الخلفية
+function getContrastColor(hexColor: string): string {
+  // تحويل HEX إلى RGB
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+  
+  // حساب اللمعان
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  
+  // إرجاع أسود أو أبيض حسب اللمعان
+  return luminance > 0.5 ? '#000000' : '#FFFFFF';
+}
 
 export default function NewsManagementPage() {
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
@@ -63,21 +94,29 @@ export default function NewsManagementPage() {
           throw new Error('فشل في تحميل البيانات');
         }
         const data = await response.json();
-        const mapped: NewsItem[] = (data.articles || []).map((a: any) => ({
-          id: a.id,
-          title: a.title,
-          author: a.author_id || '—',
-          category: a.category_id || '—',
-          publishTime: a.published_at ? new Date(a.published_at).toLocaleString() : '-',
-          viewCount: a.views_count || 0,
-          lastModified: new Date(a.updated_at || a.created_at).toLocaleString(),
-          lastModifiedBy: a.editor_id || a.author_id || '—',
-          isPinned: a.is_pinned || false,
-          isBreaking: a.is_breaking || false,
-          status: a.status as NewsStatus,
-          rating: 0,
-          slug: a.slug
-        }));
+        const mapped: NewsItem[] = (data.articles || []).map((a: any) => {
+          const categoryId = typeof a.category_id === 'number' ? a.category_id : 1;
+          const categoryData = categories[categoryId] || categories[1];
+          
+          return {
+            id: a.id,
+            title: a.title,
+            author: a.author_id || '—',
+            author_name: a.author_name || 'كاتب غير معروف',
+            category: a.category_id || '—',
+            category_name: categoryData.name,
+            category_color: categoryData.color,
+            publishTime: a.published_at ? new Date(a.published_at).toLocaleString() : '-',
+            viewCount: a.views_count || 0,
+            lastModified: new Date(a.updated_at || a.created_at).toLocaleString(),
+            lastModifiedBy: a.editor_id || a.author_id || '—',
+            isPinned: a.is_pinned || false,
+            isBreaking: a.is_breaking || false,
+            status: a.status as NewsStatus,
+            rating: 0,
+            slug: a.slug
+          };
+        });
         setNewsData(mapped);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'حدث خطأ في تحميل البيانات');
@@ -399,11 +438,11 @@ export default function NewsManagementPage() {
                 } focus:outline-none focus:ring-1 focus:ring-blue-500`}
               >
                 <option value="all">جميع التصنيفات</option>
-                <option value="tech">التكنولوجيا</option>
-                <option value="economy">الاقتصاد</option>
-                <option value="politics">السياسة</option>
-                <option value="local">محليات</option>
-                <option value="entertainment">ترفيه</option>
+                {Object.entries(categories).map(([id, category]) => (
+                  <option key={id} value={id}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
               
               <select 
@@ -442,9 +481,6 @@ export default function NewsManagementPage() {
               <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
                 darkMode ? 'text-gray-200' : 'text-gray-700'
               }`} style={{ width: '30%' }}>العنوان</th>
-              <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                darkMode ? 'text-gray-200' : 'text-gray-700'
-              }`}>الكاتب</th>
               <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
                 darkMode ? 'text-gray-200' : 'text-gray-700'
               }`}>التصنيف</th>
@@ -495,6 +531,9 @@ export default function NewsManagementPage() {
                       >
                         {news.title}
                       </Link>
+                      <div className="text-xs text-gray-400 mt-1">
+                        بواسطة {news.author_name}
+                      </div>
                       <div className="flex items-center mt-1 space-x-2">
                         <span className={`text-xs transition-colors duration-300 ${
                     darkMode ? 'text-gray-400' : 'text-gray-500'
@@ -513,17 +552,16 @@ export default function NewsManagementPage() {
             </div>
                 </td>
 
-                {/* الكاتب */}
-                <td className={`px-6 py-4 font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-900'
-                }`}>
-                  {news.author}
-                </td>
-
                 {/* التصنيف */}
                 <td className="px-6 py-4">
-                  <span className="badge badge-primary">
-                    {news.category}
+                  <span 
+                    className="px-3 py-1 rounded-full text-xs font-medium inline-block"
+                    style={{ 
+                      backgroundColor: news.category_color || '#6B7280',
+                      color: getContrastColor(news.category_color || '#6B7280')
+                    }}
+                  >
+                    {news.category_name || 'غير مصنف'}
                   </span>
                 </td>
 
