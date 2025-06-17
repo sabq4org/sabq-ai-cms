@@ -1,20 +1,59 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   ArrowRight, Edit3, Trash2, Copy, Eye, Calendar, User, MapPin, Clock, 
   Hash, Activity, FileText, Heart, Share2, MessageSquare, Bookmark,
   CheckCircle, AlertTriangle, Flag, BarChart3, Brain, Globe, GitBranch
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+
+interface Article {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  author_id: string;
+  author_name?: string;
+  category_id: number;
+  status: 'published' | 'draft' | 'pending' | 'deleted';
+  is_breaking: boolean;
+  is_featured: boolean;
+  is_pinned: boolean;
+  views_count: number;
+  reading_time: number;
+  content_blocks: any[];
+  created_at: string;
+  updated_at: string;
+  published_at?: string;
+  is_deleted: boolean;
+}
+
+// بيانات التصنيفات
+const categories: { [key: number]: { name: string; color: string } } = {
+  1: { name: 'محليات', color: '#EF4444' },
+  2: { name: 'تقنية', color: '#8B5CF6' },
+  3: { name: 'اقتصاد', color: '#10B981' },
+  4: { name: 'رياضة', color: '#F59E0B' },
+  5: { name: 'سياسة', color: '#3B82F6' },
+  6: { name: 'ترفيه', color: '#EC4899' },
+  7: { name: 'صحة', color: '#06B6D4' },
+  8: { name: 'تعليم', color: '#6366F1' },
+  9: { name: 'ثقافة', color: '#14B8A6' },
+  10: { name: 'دولي', color: '#F97316' }
+};
 
 export default function ArticleViewPage() {
   const params = useParams();
+  const router = useRouter();
   const articleId = params?.id as string;
   const [activeTab, setActiveTab] = useState('content');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [article, setArticle] = useState<Article | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // استرجاع حالة الوضع الليلي من localStorage
   useEffect(() => {
@@ -24,94 +63,29 @@ export default function ArticleViewPage() {
     }
   }, []);
 
-  // بيانات المقال - ربط بأول مقال من قائمة الأخبار (A001)
-  const articleData = {
-    id: articleId,
-    title: 'تطوير جديد في تقنيات الذكاء الاصطناعي يحدث نقلة في مجال الصحافة',
-    subtitle: 'تقنيات الذكاء الاصطناعي الجديدة تُحدث ثورة في صناعة الإعلام والصحافة الرقمية',
-    summary: 'شهدت تقنيات الذكاء الاصطناعي تطوراً مذهلاً يعيد تشكيل مشهد الصحافة والإعلام، مع ظهور أدوات جديدة تساعد في إنتاج المحتوى وتحليل البيانات.',
-    author: 'محمد الأحمد',
-    authorRole: 'محرر تقني متخصص',
-    category: 'التكنولوجيا',
-    subCategory: 'ذكاء اصطناعي',
-    publishedAt: '2024-03-15T10:30:00Z',
-    updatedAt: '2024-03-15T12:45:00Z',
-    status: 'published',
-    views: 12500,
-    tags: ['ذكاء اصطناعي', 'صحافة', 'تكنولوجيا', 'إعلام رقمي', 'ابتكار'],
-    location: 'الرياض، السعودية',
-    readTime: '4 دقائق',
-    wordCount: 632,
-    aiQualityScore: 96,
-    seoScore: 91,
-    engagement: { likes: 284, shares: 156, comments: 73, saves: 42 }
-  };
+  // جلب بيانات المقال
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/articles/${articleId}`);
+        if (!response.ok) {
+          throw new Error('فشل في جلب المقال');
+        }
+        const data = await response.json();
+        setArticle(data);
+      } catch (error) {
+        console.error('Error fetching article:', error);
+        toast.error('خطأ في جلب بيانات المقال');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // الخريطة الزمنية
-  const timeline = [
-    {
-      id: 1,
-      title: 'تم إنشاء الخبر',
-      user: 'محمد الأحمد',
-      userRole: 'محرر تقني',
-      timestamp: '2024-03-15T10:30:00Z',
-      description: 'إنشاء المسودة الأولى للخبر حول تطوير الذكاء الاصطناعي',
-      icon: FileText,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
-    },
-    {
-      id: 2,
-      title: 'تم تعديل المحتوى',
-      user: 'فاطمة السعيد',
-      userRole: 'محررة رقمية',
-      timestamp: '2024-03-15T12:45:00Z',
-      description: 'مراجعة وتحسين المحتوى وإضافة التفاصيل التقنية',
-      icon: Edit3,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100'
-    },
-    {
-      id: 3,
-      title: 'تم نشر الخبر',
-      user: 'أحمد الحربي',
-      userRole: 'رئيس قسم التكنولوجيا',
-      timestamp: '2024-03-15T12:45:00Z',
-      description: 'نشر الخبر على الموقع الرسمي ووسائل التواصل',
-      icon: Globe,
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-100'
+    if (articleId) {
+      fetchArticle();
     }
-  ];
-
-  // إصدارات المقال
-  const versions = [
-    {
-      id: 3,
-      version: '1.2',
-      user: 'أحمد الحربي',
-      timestamp: '2024-03-15T12:45:00Z',
-      changes: 'نشر الخبر - إصدار نهائي',
-      status: 'published',
-      isCurrent: true
-    },
-    {
-      id: 2,
-      version: '1.1',
-      user: 'فاطمة السعيد',
-      timestamp: '2024-03-15T12:45:00Z',
-      changes: 'مراجعة المحتوى وإضافة التفاصيل التقنية',
-      status: 'reviewed'
-    },
-    {
-      id: 1,
-      version: '1.0',
-      user: 'محمد الأحمد',
-      timestamp: '2024-03-15T10:30:00Z',
-      changes: 'النسخة الأولى - مسودة أولية حول الذكاء الاصطناعي',
-      status: 'draft'
-    }
-  ];
+  }, [articleId]);
 
   // وظائف التنسيق
   const formatDate = (dateString: string) => {
@@ -127,6 +101,21 @@ export default function ArticleViewPage() {
     });
   };
 
+  const formatFullDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const formatter = new Intl.DateTimeFormat('ar-SA', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Riyadh'
+    });
+    return formatter.format(date);
+  };
+
   const formatRelativeTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -139,8 +128,36 @@ export default function ArticleViewPage() {
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    alert('تم نسخ الرابط! 📎');
+    const link = `https://sabq.org/news/${article?.slug || article?.id}`;
+    navigator.clipboard.writeText(link);
+    toast.success('تم نسخ الرابط! 📎');
+  };
+
+  const handleEdit = () => {
+    router.push(`/dashboard/article/edit/${article?.id}`);
+  };
+
+  const handleDelete = async () => {
+    if (!article) return;
+    
+    try {
+      const response = await fetch('/api/articles', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [article.id] })
+      });
+
+      if (!response.ok) {
+        throw new Error('فشل في حذف المقال');
+      }
+
+      toast.success('تم نقل المقال إلى المحذوفات');
+      setShowDeleteModal(false);
+      router.push('/dashboard/news');
+    } catch (error) {
+      console.error('Error deleting article:', error);
+      toast.error('خطأ في حذف المقال');
+    }
   };
 
   // مكون بطاقة الإحصائية الدائرية
@@ -185,6 +202,29 @@ export default function ArticleViewPage() {
     </div>
   );
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!article) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">المقال غير موجود</h2>
+          <Link href="/dashboard/news" className="text-blue-600 hover:text-blue-700">
+            العودة إلى قائمة الأخبار
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const categoryData = categories[article.category_id] || { name: 'غير مصنف', color: '#6B7280' };
+
   return (
     <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
@@ -204,22 +244,47 @@ export default function ArticleViewPage() {
             العودة للأخبار
           </Link>
           <div className="flex items-center gap-2">
-            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
-              منشور
+            {article.is_breaking && (
+              <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
+                عاجل
+              </span>
+            )}
+            {article.is_featured && (
+              <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium">
+                مميز
+              </span>
+            )}
+            {article.is_pinned && (
+              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
+                مثبت
+              </span>
+            )}
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+              article.status === 'published' ? 'bg-green-100 text-green-800' :
+              article.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+              article.status === 'pending' ? 'bg-blue-100 text-blue-800' :
+              'bg-gray-100 text-gray-800'
+            }`}>
+              {article.status === 'published' ? 'منشور' :
+               article.status === 'draft' ? 'مسودة' :
+               article.status === 'pending' ? 'في الانتظار' :
+               'محذوف'}
             </span>
             <div className="flex items-center gap-1 text-sm text-gray-600">
               <Eye className="w-4 h-4" />
-              {articleData.views.toLocaleString()} مشاهدة
+              {article.views_count.toLocaleString()} مشاهدة
             </div>
           </div>
         </div>
         
         <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
           darkMode ? 'text-white' : 'text-gray-800'
-        }`}>{articleData.title}</h1>
+        }`}>{article.title}</h1>
         <p className={`text-lg transition-colors duration-300 ${
           darkMode ? 'text-gray-300' : 'text-gray-600'
-        }`}>{articleData.subtitle}</p>
+        }`}>
+          {article.content.split('\n')[0].substring(0, 150)}...
+        </p>
       </div>
 
       {/* شريط الأدوات */}
@@ -229,7 +294,10 @@ export default function ArticleViewPage() {
           : 'bg-white border-gray-100'
       }`}>
         <div className="flex flex-wrap gap-3">
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors flex items-center gap-2">
+          <button 
+            onClick={handleEdit}
+            className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors flex items-center gap-2"
+          >
             <Edit3 className="w-4 h-4" />
             تعديل الخبر
           </button>
@@ -307,20 +375,6 @@ export default function ArticleViewPage() {
         <div className="col-span-12 lg:col-span-8 space-y-6">
           {activeTab === 'content' && (
             <div className="space-y-6">
-              {/* الملخص */}
-              <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
-                darkMode 
-                  ? 'bg-gray-800 border-gray-700' 
-                  : 'bg-white border-gray-100'
-              }`}>
-                <h3 className={`text-lg font-bold mb-4 transition-colors duration-300 ${
-                  darkMode ? 'text-white' : 'text-gray-800'
-                }`}>📝 الملخص</h3>
-                <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-xl">
-                  <p className="text-gray-700 leading-relaxed">{articleData.summary}</p>
-                </div>
-              </div>
-
               {/* المحتوى */}
               <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
                 darkMode 
@@ -331,44 +385,11 @@ export default function ArticleViewPage() {
                   darkMode ? 'text-white' : 'text-gray-800'
                 }`}>📖 المحتوى الكامل</h3>
                 <div className="prose prose-lg max-w-none" style={{ direction: 'rtl' }}>
-                  <p className={`leading-relaxed mb-6 transition-colors duration-300 ${
+                  <div className={`whitespace-pre-wrap leading-relaxed transition-colors duration-300 ${
                     darkMode ? 'text-gray-300' : 'text-gray-700'
                   }`}>
-                    شهد قطاع الصحافة والإعلام الرقمي تطوراً مذهلاً مع ظهور تقنيات الذكاء الاصطناعي المتقدمة، والتي باتت تعيد تشكيل طريقة إنتاج ونشر المحتوى الإعلامي. هذه التطورات الجديدة تفتح أفاقاً واسعة أمام الصحفيين والمحررين لتطوير عملهم وتحسين جودة المحتوى المقدم للجمهور.
-                  </p>
-                  
-                  <h3 className={`text-xl font-bold mt-6 mb-4 transition-colors duration-300 ${
-                    darkMode ? 'text-white' : 'text-gray-800'
-                  }`}>ثورة في إنتاج المحتوى</h3>
-                  <p className={`leading-relaxed mb-6 transition-colors duration-300 ${
-                    darkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
-                    تتيح أدوات الذكاء الاصطناعي الجديدة للصحفيين إمكانيات متقدمة في كتابة التقارير، تحليل البيانات، وإنتاج المحتوى المرئي والمسموع. كما تساعد هذه التقنيات في التحقق من المعلومات وكشف الأخبار المزيفة بدقة عالية.
-                  </p>
-                  
-                  <blockquote className="border-r-4 border-blue-500 bg-blue-50 p-4 my-6 rounded-lg">
-                    <p className="text-gray-800 italic">
-                      "الذكاء الاصطناعي لا يحل محل الصحفي، بل يعزز قدراته ويوفر له أدوات أكثر فعالية لإنتاج محتوى عالي الجودة"
-                    </p>
-                  </blockquote>
-                  
-                  <h3 className={`text-xl font-bold mt-6 mb-4 transition-colors duration-300 ${
-                    darkMode ? 'text-white' : 'text-gray-800'
-                  }`}>التأثير على مستقبل الصحافة</h3>
-                  <p className={`leading-relaxed mb-6 transition-colors duration-300 ${
-                    darkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
-                    تشير الدراسات إلى أن استخدام الذكاء الاصطناعي في الصحافة سيؤدي إلى تحسن كبير في سرعة إنتاج الأخبار ودقتها، مع إمكانية تخصيص المحتوى وفقاً لاهتمامات القراء المختلفة.
-                  </p>
-                  
-                  <h3 className={`text-xl font-bold mt-6 mb-4 transition-colors duration-300 ${
-                    darkMode ? 'text-white' : 'text-gray-800'
-                  }`}>التحديات والفرص</h3>
-                  <p className={`leading-relaxed transition-colors duration-300 ${
-                    darkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
-                    رغم الفوائد الكبيرة، تطرح هذه التقنيات تحديات جديدة تتعلق بالأخلاقيات المهنية والحاجة لتدريب الصحفيين على استخدام هذه الأدوات بفعالية. إلا أن الفرص المتاحة تفوق التحديات بكثير، مما يبشر بمستقبل مشرق للصحافة الرقمية.
-                  </p>
+                    {article.content}
+                  </div>
                 </div>
               </div>
             </div>
@@ -386,106 +407,53 @@ export default function ArticleViewPage() {
                   darkMode ? 'text-white' : 'text-gray-800'
                 }`}>⏳ الخريطة الزمنية للمقال</h3>
                 <div className="space-y-4">
-                  {timeline.map((event, index) => {
-                    const Icon = event.icon;
-                    return (
-                      <div key={event.id} className="relative">
-                        {index !== timeline.length - 1 && (
-                          <div className="absolute right-6 top-12 w-0.5 h-16 bg-gray-200"></div>
-                        )}
-                        <div className="flex items-start gap-4">
-                          <div className={`w-12 h-12 ${event.bgColor} rounded-full flex items-center justify-center flex-shrink-0`}>
-                            <Icon className={`w-5 h-5 ${event.color}`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <h4 className={`font-semibold transition-colors duration-300 ${
-                                darkMode ? 'text-white' : 'text-gray-900'
-                              }`}>{event.title}</h4>
-                              <span className="text-xs text-gray-500">{formatRelativeTime(event.timestamp)}</span>
-                            </div>
-                            <p className={`text-sm mb-1 transition-colors duration-300 ${
-                              darkMode ? 'text-gray-400' : 'text-gray-600'
-                            }`}>{event.description}</p>
-                            <div className="flex items-center gap-2 text-xs text-gray-500">
-                              <span>{event.user}</span>
-                              <span>•</span>
-                              <span>{event.userRole}</span>
-                              <span>•</span>
-                              <span>{formatDate(event.timestamp)}</span>
-                            </div>
-                          </div>
-                        </div>
+                  <div className="relative">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-5 h-5 text-blue-600" />
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* إصدارات المقال */}
-              <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
-                darkMode 
-                  ? 'bg-gray-800 border-gray-700' 
-                  : 'bg-white border-gray-100'
-              }`}>
-                <h3 className={`text-lg font-bold mb-6 transition-colors duration-300 ${
-                  darkMode ? 'text-white' : 'text-gray-800'
-                }`}>🔄 إصدارات المقال</h3>
-                <div className="space-y-3">
-                  {versions.map((version) => (
-                    <div 
-                      key={version.id}
-                      className={`p-4 rounded-xl border transition-all duration-200 hover:shadow-md ${
-                        version.isCurrent 
-                          ? 'border-blue-200 bg-blue-50' 
-                          : darkMode
-                            ? 'border-gray-600 bg-gray-700 hover:border-gray-500'
-                            : 'border-gray-200 bg-white hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                            version.isCurrent ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-                          }`}>
-                            {version.version}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className={`font-medium transition-colors duration-300 ${
-                                darkMode ? 'text-white' : 'text-gray-900'
-                              }`}>{version.changes}</span>
-                              {version.isCurrent && (
-                                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                                  الحالي
-                                </span>
-                              )}
-                            </div>
-                            <div className={`text-sm transition-colors duration-300 ${
-                              darkMode ? 'text-gray-400' : 'text-gray-600'
-                            }`}>
-                              {version.user} • {formatDate(version.timestamp)}
-                            </div>
-                          </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className={`font-semibold transition-colors duration-300 ${
+                            darkMode ? 'text-white' : 'text-gray-900'
+                          }`}>تم إنشاء المقال</h4>
+                          <span className="text-xs text-gray-500">{formatRelativeTime(article.created_at)}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            version.status === 'published' ? 'bg-green-100 text-green-800' :
-                            version.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {version.status === 'published' ? 'منشور' :
-                             version.status === 'reviewed' ? 'مُراجع' : 'مسودة'}
-                          </span>
-                          {!version.isCurrent && (
-                            <button className="px-3 py-1 text-sm bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors">
-                              استرجاع
-                            </button>
-                          )}
+                        <p className={`text-sm mb-1 transition-colors duration-300 ${
+                          darkMode ? 'text-gray-400' : 'text-gray-600'
+                        }`}>إنشاء المقال الأول</p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span>{article.author_name || 'غير معروف'}</span>
+                          <span>•</span>
+                          <span>{formatDate(article.created_at)}</span>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                  
+                  {article.updated_at !== article.created_at && (
+                    <div className="relative">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Edit3 className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className={`font-semibold transition-colors duration-300 ${
+                              darkMode ? 'text-white' : 'text-gray-900'
+                            }`}>تم تحديث المقال</h4>
+                            <span className="text-xs text-gray-500">{formatRelativeTime(article.updated_at)}</span>
+                          </div>
+                          <p className={`text-sm mb-1 transition-colors duration-300 ${
+                            darkMode ? 'text-gray-400' : 'text-gray-600'
+                          }`}>آخر تحديث للمحتوى</p>
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <span>{formatDate(article.updated_at)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -510,29 +478,25 @@ export default function ArticleViewPage() {
                 <User className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900">{articleData.author}</p>
-                <p className="text-sm text-gray-600">{articleData.authorRole}</p>
+                <p className="font-semibold text-gray-900">{article.author_name || 'غير معروف'}</p>
+                <p className="text-sm text-gray-600">كاتب المقال</p>
               </div>
             </div>
 
-            {/* التصنيفات */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className={`text-sm font-medium mb-1 block transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>التصنيف الرئيسي</label>
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
-                  {articleData.category}
-                </span>
-              </div>
-              <div>
-                <label className={`text-sm font-medium mb-1 block transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>التصنيف الفرعي</label>
-                <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium">
-                  {articleData.subCategory}
-                </span>
-              </div>
+            {/* التصنيف */}
+            <div className="mb-4">
+              <label className={`text-sm font-medium mb-1 block transition-colors duration-300 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>التصنيف</label>
+              <span 
+                className="px-3 py-1 rounded-full text-xs font-medium inline-block"
+                style={{ 
+                  backgroundColor: categoryData.color + '20',
+                  color: categoryData.color
+                }}
+              >
+                {categoryData.name}
+              </span>
             </div>
 
             {/* التواريخ */}
@@ -544,7 +508,9 @@ export default function ArticleViewPage() {
                 }`}>تاريخ النشر:</span>
                 <span className={`font-medium transition-colors duration-300 ${
                   darkMode ? 'text-gray-200' : 'text-gray-800'
-                }`}>{formatDate(articleData.publishedAt)}</span>
+                }`}>
+                  {article.published_at ? formatDate(article.published_at) : 'غير منشور'}
+                </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="w-4 h-4 text-orange-600" />
@@ -553,137 +519,52 @@ export default function ArticleViewPage() {
                 }`}>آخر تحديث:</span>
                 <span className={`font-medium transition-colors duration-300 ${
                   darkMode ? 'text-gray-200' : 'text-gray-800'
-                }`}>{formatRelativeTime(articleData.updatedAt)}</span>
+                }`}>{formatFullDate(article.updated_at)}</span>
               </div>
-            </div>
-
-            {/* الموقع الجغرافي */}
-            <div className="flex items-center gap-2 text-sm mb-4">
-              <MapPin className="w-4 h-4 text-red-600" />
-              <span className={`transition-colors duration-300 ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>موقع الخبر:</span>
-              <span className={`font-medium transition-colors duration-300 ${
-                darkMode ? 'text-gray-200' : 'text-gray-800'
-              }`}>{articleData.location}</span>
             </div>
 
             {/* إحصائيات سريعة */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="bg-blue-50 p-3 rounded-xl text-center">
-                <div className="text-lg font-bold text-blue-600">{articleData.readTime}</div>
+                <div className="text-lg font-bold text-blue-600">{article.reading_time} دقائق</div>
                 <div className="text-xs text-blue-700">وقت القراءة</div>
               </div>
               <div className="bg-green-50 p-3 rounded-xl text-center">
-                <div className="text-lg font-bold text-green-600">{articleData.wordCount}</div>
+                <div className="text-lg font-bold text-green-600">
+                  {article.content.split(' ').length}
+                </div>
                 <div className="text-xs text-green-700">كلمة</div>
               </div>
             </div>
 
-            {/* الكلمات المفتاحية */}
+            {/* معرف المقال */}
             <div className="mb-6">
               <label className={`text-sm font-medium mb-2 block transition-colors duration-300 ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>الكلمات المفتاحية</label>
-              <div className="flex flex-wrap gap-2">
-                {articleData.tags.map((tag, index) => (
-                  <span key={index} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                    <Hash className="w-3 h-3" />
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* تقييم الذكاء الاصطناعي */}
-          <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
-            darkMode 
-              ? 'bg-gray-800 border-gray-700' 
-              : 'bg-white border-gray-100'
-          }`}>
-            <h3 className={`text-lg font-bold mb-4 transition-colors duration-300 ${
-              darkMode ? 'text-white' : 'text-gray-800'
-            }`}>🧠 تقييم الذكاء الاصطناعي</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className={`text-sm font-medium transition-colors duration-300 ${
-                    darkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>جودة المحتوى</span>
-                  <span className="text-sm font-bold text-blue-600">{articleData.aiQualityScore}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${articleData.aiQualityScore}%` }}
-                  ></div>
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className={`text-sm font-medium transition-colors duration-300 ${
-                    darkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>تحسين محركات البحث</span>
-                  <span className="text-sm font-bold text-green-600">{articleData.seoScore}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${articleData.seoScore}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-
-            {/* تنبيهات الذكاء الاصطناعي */}
-            <div className="mt-4 space-y-2">
-              <div className="p-3 rounded-xl flex items-center gap-2 bg-green-50 border border-green-200">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm">المحتوى عالي الجودة ومناسب للنشر</span>
-              </div>
-              <div className="p-3 rounded-xl flex items-center gap-2 bg-blue-50 border border-blue-200">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
-                <span className="text-sm">تحسين محركات البحث ممتاز</span>
-              </div>
+              }`}>معرف المقال</label>
+              <code className="bg-gray-100 text-gray-800 px-3 py-1 rounded text-xs font-mono">
+                {article.id}
+              </code>
             </div>
           </div>
 
           {/* إحصائيات التفاعل */}
           <div className="grid grid-cols-2 gap-4">
             <CircularStatsCard
-              title="إعجاب"
-              value={articleData.engagement.likes.toString()}
-              subtitle="تفاعل"
-              icon={Heart}
-              bgColor="bg-red-100"
-              iconColor="text-red-600"
-            />
-            <CircularStatsCard
-              title="مشاركة"
-              value={articleData.engagement.shares.toString()}
-              subtitle="شارك"
-              icon={Share2}
+              title="المشاهدات"
+              value={article.views_count.toString()}
+              subtitle="مشاهدة"
+              icon={Eye}
               bgColor="bg-blue-100"
               iconColor="text-blue-600"
             />
             <CircularStatsCard
-              title="تعليق"
-              value={articleData.engagement.comments.toString()}
-              subtitle="رد"
-              icon={MessageSquare}
+              title="القراءة"
+              value={article.reading_time.toString()}
+              subtitle="دقيقة"
+              icon={Clock}
               bgColor="bg-green-100"
               iconColor="text-green-600"
-            />
-            <CircularStatsCard
-              title="حفظ"
-              value={articleData.engagement.saves.toString()}
-              subtitle="محفوظ"
-              icon={Bookmark}
-              bgColor="bg-purple-100"
-              iconColor="text-purple-600"
             />
           </div>
         </div>
@@ -699,7 +580,7 @@ export default function ArticleViewPage() {
             <p className={`mb-6 transition-colors duration-300 ${
               darkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>
-              هل أنت متأكد من حذف هذا المقال؟ هذا الإجراء لا يمكن التراجع عنه.
+              هل أنت متأكد من حذف هذا المقال؟ سيتم نقله إلى سلة المحذوفات.
             </p>
             <div className="flex gap-3">
               <button 
@@ -712,8 +593,11 @@ export default function ArticleViewPage() {
               >
                 إلغاء
               </button>
-              <button className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">
-                حذف نهائي
+              <button 
+                onClick={handleDelete}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
+              >
+                حذف المقال
               </button>
             </div>
           </div>

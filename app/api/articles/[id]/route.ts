@@ -37,77 +37,83 @@ interface Article {
 // ===============================
 // دوال مساعدة لإدارة البيانات
 // ===============================
-const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'articles.json');
+const DATA_FILE = path.join(process.cwd(), 'data', 'articles.json');
 
 async function loadArticles(): Promise<Article[]> {
   try {
-    const fileContent = await fs.readFile(DATA_FILE_PATH, 'utf-8');
-    return JSON.parse(fileContent);
-  } catch {
+    const data = await fs.readFile(DATA_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    // إذا لم يكن الملف موجوداً، أنشئ مصفوفة فارغة
     return [];
   }
 }
 
 async function saveArticles(articles: Article[]): Promise<void> {
-  const dataDir = path.join(process.cwd(), 'data');
-  await fs.mkdir(dataDir, { recursive: true });
-  await fs.writeFile(DATA_FILE_PATH, JSON.stringify(articles, null, 2), 'utf-8');
+  const dir = path.dirname(DATA_FILE);
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(DATA_FILE, JSON.stringify(articles, null, 2));
 }
 
-// GET method لاسترجاع مقال محدد
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+// GET - جلب مقال واحد
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = params.id;
     const articles = await loadArticles();
-    const article = articles.find(a => a.id === id);
+    const article = articles.find(a => a.id === params.id && !a.is_deleted);
     
     if (!article) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'المقال غير موجود' 
-      }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Article not found' },
+        { status: 404 }
+      );
     }
-
-    return NextResponse.json({ 
-      success: true, 
-      data: article,
-      message: 'تم جلب المقال بنجاح' 
-    });
-  } catch (e) {
-    console.error('خطأ في جلب المقال:', e);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'فشل في جلب المقال' 
-    }, { status: 500 });
+    
+    return NextResponse.json(article);
+  } catch (error) {
+    console.error('Error fetching article:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch article' },
+      { status: 500 }
+    );
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+// PATCH - تحديث مقال
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = params.id;
-    const body = await request.json();
+    const updates = await request.json();
     const articles = await loadArticles();
-    const index = articles.findIndex(a => a.id === id);
     
-    if (index === -1) {
-      return NextResponse.json({ success: false, error: 'مقال غير موجود' }, { status: 404 });
+    const articleIndex = articles.findIndex(a => a.id === params.id);
+    if (articleIndex === -1) {
+      return NextResponse.json(
+        { error: 'Article not found' },
+        { status: 404 }
+      );
     }
-
-    // تحديث الحقول المسموح بها فقط
-    const allowed = ['status', 'is_deleted'];
-    const updated = { ...articles[index] } as any;
-    allowed.forEach(k => {
-      if (k in body) updated[k] = body[k];
-    });
-    updated.updated_at = new Date().toISOString();
-    articles[index] = updated;
     
-    // حفظ التغييرات
+    // تحديث المقال
+    articles[articleIndex] = {
+      ...articles[articleIndex],
+      ...updates,
+      updated_at: new Date().toISOString()
+    };
+    
     await saveArticles(articles);
-
-    return NextResponse.json({ success: true, data: updated, message: 'تم التحديث بنجاح' });
-  } catch (e) {
-    return NextResponse.json({ success: false, error: 'فشل التحديث' }, { status: 500 });
+    
+    return NextResponse.json(articles[articleIndex]);
+  } catch (error) {
+    console.error('Error updating article:', error);
+    return NextResponse.json(
+      { error: 'Failed to update article' },
+      { status: 500 }
+    );
   }
 }
 
