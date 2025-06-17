@@ -78,8 +78,8 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
-      <div className="container mx-auto px-4">
+    <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200 w-full">
+      <div className="w-full px-8 lg:px-12">
         <div className="flex items-center justify-between h-16">
           {/* الشعار */}
           <div className="flex items-center gap-8">
@@ -87,9 +87,6 @@ export default function Header() {
               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">سبق</span>
               </div>
-              <span className="hidden md:block text-xl font-bold text-gray-800">
-                صحيفة سبق الإلكترونية
-              </span>
             </Link>
 
             {/* روابط التنقل */}
@@ -228,7 +225,7 @@ export default function Header() {
         {/* القائمة للموبايل */}
         {showMobileMenu && (
           <div className="lg:hidden py-4 border-t border-gray-200">
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-2 px-4">
               <Link
                 href="/newspaper"
                 className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
