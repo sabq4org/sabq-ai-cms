@@ -10,14 +10,12 @@ import {
   Wand2, Layers, Layout, PenTool, BookOpen, Award,
   TrendingUp, Activity, BarChart3, Rocket, Heart,
   Shield, Crown, Gem, Flame, Coffee, Music,
-  Camera, Mic, Headphones, Wifi, Cpu, Database, Mail
+  Camera, Mic, Headphones, Wifi, Cpu, Database, Mail,
+  Share2, Calendar
 } from 'lucide-react';
 
 // استيراد المكونات
 import ContentEditor from '../../../../components/ContentEditor';
-import QualityPanel from '../../../../components/QualityPanel';
-import PublishPanel from '../../../../components/PublishPanel';
-import MediaPanel from '../../../../components/MediaPanel';
 import { logActions, getCurrentUser } from '../../../../lib/log-activity';
 
 // ===============================
@@ -49,6 +47,8 @@ interface ArticleFormData {
   scope: 'local' | 'international';
   status: 'draft' | 'review' | 'published';
   content_blocks: ContentBlock[];
+  featured_image?: string;
+  featured_image_alt?: string;
 }
 
 interface ContentBlock {
@@ -74,7 +74,7 @@ export default function CreateArticlePage() {
     title: '',
     subtitle: '',
     description: '',
-    category_id: 0,
+    category_id: 1, // تغيير القيمة الافتراضية من 0 إلى 1
     is_breaking: false,
     is_featured: false,
     is_smart_newsletter: false,
@@ -99,7 +99,7 @@ export default function CreateArticlePage() {
   const [saving, setSaving] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
   const [previewMode, setPreviewMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'seo' | 'ai'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'seo' | 'ai' | 'publish'>('content');
   const [aiLoading, setAiLoading] = useState<{ [key: string]: boolean }>({});
   const [qualityScore, setQualityScore] = useState(0);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -269,7 +269,8 @@ export default function CreateArticlePage() {
         status,
         is_breaking: formData.is_breaking,
         is_featured: formData.is_featured,
-        featured_image: formData.cover_image,
+        featured_image: formData.featured_image || formData.cover_image,
+        featured_image_alt: formData.featured_image_alt,
         seo_title: formData.title,
         seo_description: formData.description,
         publish_at: formData.publish_time
@@ -446,7 +447,8 @@ export default function CreateArticlePage() {
               {[
                 { id: 'content', name: 'المحتوى', icon: FileText, color: 'from-blue-500 to-blue-600', desc: 'محرر المحتوى الأساسي' },
                 { id: 'ai', name: 'مساعد AI', icon: Brain, color: 'from-purple-500 to-pink-600', desc: 'أدوات الذكاء الاصطناعي' },
-                { id: 'settings', name: 'الإعدادات', icon: Settings, color: 'from-orange-500 to-red-600', desc: 'خيارات النشر' },
+                { id: 'publish', name: 'إعدادات النشر', icon: Rocket, color: 'from-orange-500 to-red-600', desc: 'خيارات النشر والتوقيت' },
+                { id: 'settings', name: 'الإعدادات', icon: Settings, color: 'from-cyan-500 to-blue-600', desc: 'خيارات العرض' },
                 { id: 'seo', name: 'تحسين SEO', icon: Target, color: 'from-green-500 to-emerald-600', desc: 'محركات البحث' }
               ].map((tab) => {
                 const Icon = tab.icon;
@@ -569,64 +571,294 @@ export default function CreateArticlePage() {
               </div>
             )}
             
-            {activeTab === 'settings' && (
+            {activeTab === 'publish' && (
               <div className="bg-white rounded-3xl shadow-xl p-8">
                 <div className="flex items-center gap-4 mb-8">
                   <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Settings className="w-8 h-8 text-white" />
+                    <Rocket className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">إعدادات النشر</h2>
-                    <p className="text-gray-600">تحكم في خيارات عرض ونشر المقال</p>
+                    <h2 className="text-2xl font-bold text-gray-900">إعدادات النشر 🚀</h2>
+                    <p className="text-gray-600">جدولة وتوقيت نشر المقال</p>
                   </div>
                 </div>
 
                 <div className="space-y-6">
-                  {/* خيارات العرض */}
-                  <div className="border-2 border-gray-100 rounded-2xl p-6">
+                  {/* توقيت النشر */}
+                  <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-orange-600" />
+                      توقيت النشر
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 mb-2 block">التاريخ</label>
+                        <input
+                          type="date"
+                          value={formData.publish_time ? new Date(formData.publish_time).toISOString().split('T')[0] : ''}
+                          onChange={(e) => {
+                            const date = new Date(e.target.value);
+                            const time = formData.publish_time ? new Date(formData.publish_time).toTimeString().split(' ')[0] : '00:00:00';
+                            setFormData(prev => ({ 
+                              ...prev, 
+                              publish_time: new Date(`${e.target.value}T${time}`).toISOString()
+                            }));
+                          }}
+                          className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 mb-2 block">الوقت</label>
+                        <input
+                          type="time"
+                          value={formData.publish_time ? new Date(formData.publish_time).toTimeString().slice(0, 5) : ''}
+                          onChange={(e) => {
+                            const date = formData.publish_time ? new Date(formData.publish_time).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+                            setFormData(prev => ({ 
+                              ...prev, 
+                              publish_time: new Date(`${date}T${e.target.value}`).toISOString()
+                            }));
+                          }}
+                          className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+
+                    {/* خيارات النشر السريع */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { label: 'الآن', icon: Zap, action: () => setFormData(prev => ({ ...prev, publish_time: new Date().toISOString() })) },
+                        { label: 'بعد ساعة', icon: Clock, action: () => setFormData(prev => ({ ...prev, publish_time: new Date(Date.now() + 3600000).toISOString() })) },
+                        { label: 'غداً', icon: Calendar, action: () => setFormData(prev => ({ ...prev, publish_time: new Date(Date.now() + 86400000).toISOString() })) },
+                        { label: 'نهاية الأسبوع', icon: Calendar, action: () => {
+                          const now = new Date();
+                          const daysUntilFriday = (5 - now.getDay() + 7) % 7 || 7;
+                          setFormData(prev => ({ ...prev, publish_time: new Date(Date.now() + daysUntilFriday * 86400000).toISOString() }));
+                        }}
+                      ].map((option, index) => {
+                        const Icon = option.icon;
+                        return (
+                          <button
+                            key={index}
+                            onClick={option.action}
+                            className="flex items-center justify-center gap-2 p-3 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-500 hover:bg-orange-50 transition-all"
+                          >
+                            <Icon className="w-4 h-4 text-orange-600" />
+                            <span className="text-sm font-medium">{option.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* عرض التوقيت المحدد */}
+                    {formData.publish_time && (
+                      <div className="mt-4 p-4 bg-white rounded-xl border border-orange-200">
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <Clock className="w-4 h-4 text-orange-600" />
+                          <span className="font-medium">موعد النشر المحدد:</span>
+                          <span className="text-orange-600 font-bold">
+                            {new Date(formData.publish_time).toLocaleString('ar-SA', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              weekday: 'long'
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* حالة المقال */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-blue-600" />
+                      حالة المقال
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {[
+                        { 
+                          status: 'draft', 
+                          label: 'مسودة', 
+                          icon: FileText, 
+                          color: 'gray',
+                          desc: 'حفظ كمسودة للعمل عليها لاحقاً'
+                        },
+                        { 
+                          status: 'review', 
+                          label: 'للمراجعة', 
+                          icon: Eye, 
+                          color: 'yellow',
+                          desc: 'إرسال للمحرر للمراجعة والموافقة'
+                        },
+                        { 
+                          status: 'published', 
+                          label: 'نشر مباشر', 
+                          icon: Send, 
+                          color: 'green',
+                          desc: 'نشر المقال فوراً على الموقع'
+                        }
+                      ].map((option) => {
+                        const Icon = option.icon;
+                        const isSelected = formData.status === option.status;
+                        return (
+                          <label
+                            key={option.status}
+                            className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all ${
+                              isSelected 
+                                ? `border-${option.color}-500 bg-${option.color}-50` 
+                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="status"
+                              value={option.status}
+                              checked={isSelected}
+                              onChange={() => setFormData(prev => ({ ...prev, status: option.status as any }))}
+                              className="sr-only"
+                            />
+                            <div className="text-center">
+                              <div className={`w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center ${
+                                isSelected 
+                                  ? `bg-${option.color}-500 text-white` 
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}>
+                                <Icon className="w-6 h-6" />
+                              </div>
+                              <h4 className="font-semibold text-gray-900">{option.label}</h4>
+                              <p className="text-sm text-gray-600 mt-1">{option.desc}</p>
+                            </div>
+                            {isSelected && (
+                              <CheckCircle className={`absolute top-3 right-3 w-5 h-5 text-${option.color}-600`} />
+                            )}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* إعدادات متقدمة */}
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                      <Settings className="w-5 h-5 text-purple-600" />
+                      إعدادات متقدمة
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <label className="flex items-center justify-between p-4 bg-white rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <Shield className="w-5 h-5 text-purple-600" />
+                          <div>
+                            <div className="font-medium text-gray-900">تفعيل التعليقات</div>
+                            <div className="text-sm text-gray-600">السماح للقراء بالتعليق على المقال</div>
+                          </div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                        />
+                      </label>
+                      
+                      <label className="flex items-center justify-between p-4 bg-white rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <Heart className="w-5 h-5 text-pink-600" />
+                          <div>
+                            <div className="font-medium text-gray-900">تفعيل الإعجابات</div>
+                            <div className="text-sm text-gray-600">السماح للقراء بالإعجاب بالمقال</div>
+                          </div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="w-5 h-5 text-pink-600 rounded focus:ring-pink-500"
+                        />
+                      </label>
+                      
+                      <label className="flex items-center justify-between p-4 bg-white rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <Share2 className="w-5 h-5 text-indigo-600" />
+                          <div>
+                            <div className="font-medium text-gray-900">تفعيل المشاركة</div>
+                            <div className="text-sm text-gray-600">عرض أزرار مشاركة المقال</div>
+                          </div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {activeTab === 'settings' && (
+              <div className="bg-white rounded-3xl shadow-xl p-8">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Settings className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">إعدادات العرض</h2>
+                    <p className="text-gray-600">تحكم في كيفية عرض المقال</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* خيارات العرض المميز */}
+                  <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Eye className="w-5 h-5 text-blue-600" />
-                      خيارات العرض
+                      <Star className="w-5 h-5 text-yellow-600" />
+                      خيارات مميزة
                     </h3>
                     <div className="space-y-4">
-                      <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                      <label className="flex items-center justify-between p-4 bg-white rounded-xl hover:shadow-md transition-all cursor-pointer">
                         <div className="flex items-center gap-3">
-                          <Zap className="w-5 h-5 text-yellow-600" />
+                          <Zap className="w-5 h-5 text-red-600" />
                           <div>
                             <div className="font-medium text-gray-900">خبر عاجل</div>
-                            <div className="text-sm text-gray-600">عرض كخبر عاجل في الصفحة الرئيسية</div>
+                            <div className="text-sm text-gray-600">عرض شريط عاجل أعلى الموقع</div>
                           </div>
                         </div>
                         <input
                           type="checkbox"
                           checked={formData.is_breaking}
                           onChange={(e) => setFormData(prev => ({ ...prev, is_breaking: e.target.checked }))}
-                          className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                          className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
                         />
                       </label>
                       
-                      <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                      <label className="flex items-center justify-between p-4 bg-white rounded-xl hover:shadow-md transition-all cursor-pointer">
                         <div className="flex items-center gap-3">
                           <Star className="w-5 h-5 text-yellow-600" />
                           <div>
                             <div className="font-medium text-gray-900">مقال مميز</div>
-                            <div className="text-sm text-gray-600">إبراز المقال في الصفحة الرئيسية</div>
+                            <div className="text-sm text-gray-600">إبراز في الصفحة الرئيسية</div>
                           </div>
                         </div>
                         <input
                           type="checkbox"
                           checked={formData.is_featured}
                           onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
-                          className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                          className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500"
                         />
                       </label>
 
-                      <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                      <label className="flex items-center justify-between p-4 bg-white rounded-xl hover:shadow-md transition-all cursor-pointer">
                         <div className="flex items-center gap-3">
                           <Mail className="w-5 h-5 text-blue-600" />
                           <div>
                             <div className="font-medium text-gray-900">النشرة الذكية</div>
-                            <div className="text-sm text-gray-600">إضافة للنشرة البريدية الذكية</div>
+                            <div className="text-sm text-gray-600">إضافة للنشرة البريدية</div>
                           </div>
                         </div>
                         <input
@@ -640,56 +872,109 @@ export default function CreateArticlePage() {
                   </div>
 
                   {/* نطاق النشر */}
-                  <div className="border-2 border-gray-100 rounded-2xl p-6">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                       <Globe className="w-5 h-5 text-green-600" />
                       نطاق النشر
                     </h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
                       <label className={`relative flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                         formData.scope === 'local' 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-green-500 bg-white shadow-md' 
+                          : 'border-gray-200 bg-white hover:border-gray-300'
                       }`}>
                         <input
                           type="radio"
                           name="scope"
                           value="local"
                           checked={formData.scope === 'local'}
-                          onChange={(e) => setFormData(prev => ({ ...prev, scope: 'local' }))}
+                          onChange={() => setFormData(prev => ({ ...prev, scope: 'local' }))}
                           className="sr-only"
                         />
-                        <MapPin className="w-5 h-5 text-blue-600" />
-                        <div>
-                          <div className="font-medium text-gray-900">محلي</div>
-                          <div className="text-sm text-gray-600">أخبار محلية</div>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          formData.scope === 'local' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          <MapPin className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">أخبار محلية</div>
+                          <div className="text-sm text-gray-600">للقراء داخل المملكة</div>
                         </div>
                         {formData.scope === 'local' && (
-                          <CheckCircle className="absolute top-2 right-2 w-5 h-5 text-blue-600" />
+                          <CheckCircle className="w-5 h-5 text-green-600" />
                         )}
                       </label>
 
                       <label className={`relative flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                         formData.scope === 'international' 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-green-500 bg-white shadow-md' 
+                          : 'border-gray-200 bg-white hover:border-gray-300'
                       }`}>
                         <input
                           type="radio"
                           name="scope"
                           value="international"
                           checked={formData.scope === 'international'}
-                          onChange={(e) => setFormData(prev => ({ ...prev, scope: 'international' }))}
+                          onChange={() => setFormData(prev => ({ ...prev, scope: 'international' }))}
                           className="sr-only"
                         />
-                        <Globe className="w-5 h-5 text-green-600" />
-                        <div>
-                          <div className="font-medium text-gray-900">دولي</div>
-                          <div className="text-sm text-gray-600">أخبار عالمية</div>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          formData.scope === 'international' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          <Globe className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">أخبار دولية</div>
+                          <div className="text-sm text-gray-600">للقراء حول العالم</div>
                         </div>
                         {formData.scope === 'international' && (
-                          <CheckCircle className="absolute top-2 right-2 w-5 h-5 text-blue-600" />
+                          <CheckCircle className="w-5 h-5 text-green-600" />
                         )}
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* خيارات التفاعل */}
+                  <div className="md:col-span-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5 text-purple-600" />
+                      خيارات التفاعل
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <label className="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-all">
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                        />
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4 text-purple-600" />
+                          <span className="font-medium text-gray-900">التعليقات</span>
+                        </div>
+                      </label>
+                      
+                      <label className="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-all">
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="w-5 h-5 text-pink-600 rounded focus:ring-pink-500"
+                        />
+                        <div className="flex items-center gap-2">
+                          <Heart className="w-4 h-4 text-pink-600" />
+                          <span className="font-medium text-gray-900">الإعجابات</span>
+                        </div>
+                      </label>
+                      
+                      <label className="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-all">
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                        />
+                        <div className="flex items-center gap-2">
+                          <Share2 className="w-4 h-4 text-indigo-600" />
+                          <span className="font-medium text-gray-900">المشاركة</span>
+                        </div>
                       </label>
                     </div>
                   </div>
@@ -836,21 +1121,107 @@ export default function CreateArticlePage() {
           {/* الشريط الجانبي */}
           <div className="xl:col-span-1 space-y-6">
             {/* بطاقة الجودة المحسنة */}
-            <QualityPanel qualityScore={qualityScore} />
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl p-6 border border-green-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-green-600" />
+                جودة المقال
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-700">نسبة الاكتمال</span>
+                    <span className="text-2xl font-bold text-green-600">{qualityScore}%</span>
+                  </div>
+                  <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        qualityScore >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-600' :
+                        qualityScore >= 60 ? 'bg-gradient-to-r from-yellow-500 to-orange-600' :
+                        'bg-gradient-to-r from-red-500 to-pink-600'
+                      }`}
+                      style={{ width: `${qualityScore}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="text-sm text-gray-600">
+                  {qualityScore >= 80 ? '🎉 ممتاز! مقالك جاهز للنشر' :
+                   qualityScore >= 60 ? '👍 جيد، يمكن تحسينه أكثر' :
+                   '💡 يحتاج لمزيد من المحتوى'}
+                </div>
+              </div>
+            </div>
 
             {/* بطاقة النشر */}
-            <PublishPanel 
-              formData={formData}
-              setFormData={setFormData}
-              onSave={handleSave}
-              saving={saving}
-            />
+            <div className="bg-white rounded-3xl shadow-xl p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Send className="w-5 h-5 text-blue-600" />
+                خيارات النشر
+              </h3>
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleSave('draft')}
+                  disabled={saving}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
+                >
+                  <Save className="w-5 h-5" />
+                  حفظ كمسودة
+                </button>
+                
+                <button
+                  onClick={() => handleSave('review')}
+                  disabled={saving}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-yellow-100 text-yellow-700 rounded-xl hover:bg-yellow-200 transition-colors disabled:opacity-50"
+                >
+                  <Eye className="w-5 h-5" />
+                  إرسال للمراجعة
+                </button>
+                
+                <button
+                  onClick={() => handleSave('published')}
+                  disabled={saving || validationErrors.length > 0}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                >
+                  {saving ? (
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
+                  نشر الآن
+                </button>
+              </div>
+            </div>
 
             {/* بطاقة الوسائط */}
-            <MediaPanel 
-              formData={formData}
-              setFormData={setFormData}
-            />
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-6 border border-purple-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Image className="w-5 h-5 text-purple-600" />
+                الوسائط المتعددة
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">صورة الغلاف</label>
+                  <div className="border-2 border-dashed border-purple-300 rounded-xl p-4 text-center hover:border-purple-500 transition-colors cursor-pointer">
+                    <Upload className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600">اسحب الصورة هنا أو انقر للاختيار</p>
+                    <p className="text-xs text-gray-500 mt-1">JPG, PNG (أقصى حجم: 5MB)</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">الصور في المقال</span>
+                  <span className="font-semibold text-purple-600">
+                    {formData.content_blocks.filter(b => b.type === 'image').length}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">مقاطع الفيديو</span>
+                  <span className="font-semibold text-purple-600">
+                    {formData.content_blocks.filter(b => b.type === 'video').length}
+                  </span>
+                </div>
+              </div>
+            </div>
 
             {/* نصائح الكتابة */}
             <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-6 border border-yellow-200">

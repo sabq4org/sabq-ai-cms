@@ -157,42 +157,40 @@ export default function ContentEditor({
   };
   return (
     <div className="space-y-6">
-      {/* الحقول الأساسية - التصميم المحسن */}
-      <div className="bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 rounded-3xl shadow-2xl border border-blue-100/50 overflow-hidden">
-        {/* Header */}
+      {/* معلومات المقال الأساسية - تصميم محسن مثل تاب AI */}
+      <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+        {/* Header مميز */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-              <PenTool className="w-7 h-7 text-white" />
+            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+              <PenTool className="w-8 h-8 text-white" />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-white">معلومات المقال الأساسية</h2>
-              <p className="text-blue-100 text-sm mt-1">املأ المعلومات الأساسية لمقالك بدقة</p>
+              <p className="text-blue-100">املأ البيانات الأساسية لمقالك الجديد</p>
             </div>
           </div>
         </div>
         
         <div className="p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* العنوان الرئيسي */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <div className="md:col-span-2">
+              <div className="group relative bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-200 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-white" />
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+                      <FileText className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-gray-900">
-                        العنوان الرئيسي <span className="text-red-500">*</span>
-                      </label>
-                      <p className="text-xs text-gray-500">عنوان جذاب يلفت انتباه القراء</p>
+                      <h3 className="font-bold text-gray-900">العنوان الرئيسي</h3>
+                      <p className="text-sm text-gray-600">عنوان جذاب يلفت انتباه القراء</p>
                     </div>
                   </div>
                   <button
                     onClick={onGenerateTitle}
                     disabled={aiLoading.title}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white text-sm rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-300 disabled:opacity-50 shadow-md"
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white text-sm rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-300 disabled:opacity-50 shadow-md hover:shadow-lg transform hover:scale-105"
                   >
                     {aiLoading.title ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
@@ -204,33 +202,30 @@ export default function ContentEditor({
                 </div>
                 <textarea
                   value={formData.title}
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onChange={(e) => setFormData((prev: any) => ({ ...prev, title: e.target.value }))}
-                  className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-300"
+                  className="w-full p-4 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-300"
                   rows={2}
                   placeholder="اكتب عنواناً جذاباً ومميزاً..."
                   maxLength={100}
                 />
                 <div className="flex justify-between items-center mt-3">
                   <div className="flex items-center gap-4">
-                    <span className="text-xs text-gray-500">
-                      {formData.title.length}/100 حرف
-                    </span>
+                    <span className="text-sm text-gray-600">{formData.title.length}/100 حرف</span>
                     <div className="h-2 w-32 bg-gray-200 rounded-full overflow-hidden">
                       <div 
                         className={`h-full transition-all duration-300 ${
-                          formData.title.length < 50 ? 'bg-yellow-500' :
-                          formData.title.length <= 60 ? 'bg-green-500' :
-                          formData.title.length <= 80 ? 'bg-orange-500' :
-                          'bg-red-500'
+                          formData.title.length < 50 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' :
+                          formData.title.length <= 60 ? 'bg-gradient-to-r from-green-400 to-green-500' :
+                          formData.title.length <= 80 ? 'bg-gradient-to-r from-orange-400 to-orange-500' :
+                          'bg-gradient-to-r from-red-400 to-red-500'
                         }`}
                         style={{ width: `${(formData.title.length / 100) * 100}%` }}
                       />
                     </div>
                   </div>
                   {formData.title.length > 60 && (
-                    <span className="text-xs text-amber-600 flex items-center gap-1">
-                      <Zap className="w-3 h-3" />
+                    <span className="text-sm text-amber-600 flex items-center gap-1">
+                      <Zap className="w-4 h-4" />
                       العنوان طويل نسبياً
                     </span>
                   )}
@@ -240,21 +235,21 @@ export default function ContentEditor({
 
             {/* العنوان الفرعي */}
             <div>
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 h-full">
+              <div className="group relative bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-200 hover:shadow-lg transition-all duration-300 h-full">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <AlignLeft className="w-5 h-5 text-white" />
+                  <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                    <AlignLeft className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-gray-900">العنوان الفرعي</label>
-                    <p className="text-xs text-gray-500">معلومات إضافية (اختياري)</p>
+                    <h3 className="font-bold text-gray-900">العنوان الفرعي</h3>
+                    <p className="text-sm text-gray-600">معلومات إضافية (اختياري)</p>
                   </div>
                 </div>
                 <input
                   type="text"
                   value={formData.subtitle || ''}
                   onChange={(e) => setFormData((prev: any) => ({ ...prev, subtitle: e.target.value }))}
-                  className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                  className="w-full p-4 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                   placeholder="عنوان فرعي توضيحي..."
                   maxLength={150}
                 />
@@ -263,21 +258,21 @@ export default function ContentEditor({
 
             {/* الوصف الموجز */}
             <div>
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 h-full">
+              <div className="group relative bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-200 hover:shadow-lg transition-all duration-300 h-full">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                      <BookOpen className="w-5 h-5 text-white" />
+                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md">
+                      <BookOpen className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-gray-900">الوصف الموجز</label>
-                      <p className="text-xs text-gray-500">يظهر في نتائج البحث</p>
+                      <h3 className="font-bold text-gray-900">الوصف الموجز</h3>
+                      <p className="text-sm text-gray-600">يظهر في نتائج البحث</p>
                     </div>
                   </div>
                   <button
                     onClick={onGenerateDescription}
                     disabled={aiLoading.description}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 disabled:opacity-50"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 disabled:opacity-50 shadow-md hover:shadow-lg transform hover:scale-105"
                   >
                     {aiLoading.description ? (
                       <RefreshCw className="w-3 h-3 animate-spin" />
@@ -290,17 +285,17 @@ export default function ContentEditor({
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData((prev: any) => ({ ...prev, description: e.target.value }))}
-                  className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none transition-all duration-300"
+                  className="w-full p-4 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none transition-all duration-300"
                   rows={3}
                   placeholder="وصف موجز يلخص محتوى المقال..."
                   maxLength={160}
                 />
                 <div className="flex justify-between items-center mt-3">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-sm text-gray-600">
                     {formData.description.length}/160 حرف
                   </span>
                   {formData.description.length > 155 && (
-                    <span className="text-xs text-red-600">
+                    <span className="text-sm text-red-600">
                       قارب على الحد الأقصى
                     </span>
                   )}
@@ -310,23 +305,21 @@ export default function ContentEditor({
 
             {/* التصنيف */}
             <div>
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              <div className="group relative bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl border border-orange-200 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                      <Tag className="w-5 h-5 text-white" />
+                    <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-md">
+                      <Tag className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-gray-900">
-                        التصنيف الرئيسي <span className="text-red-500">*</span>
-                      </label>
-                      <p className="text-xs text-gray-500">حدد قسم المقال</p>
+                      <h3 className="font-bold text-gray-900">التصنيف الرئيسي</h3>
+                      <p className="text-sm text-gray-600">حدد قسم المقال</p>
                     </div>
                   </div>
                   <button
                     onClick={generateCategorySuggestion}
                     disabled={aiLoading?.category}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-300 disabled:opacity-50"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-300 disabled:opacity-50 shadow-md hover:shadow-lg transform hover:scale-105"
                   >
                     {aiLoading?.category ? (
                       <RefreshCw className="w-3 h-3 animate-spin" />
@@ -339,7 +332,7 @@ export default function ContentEditor({
                 <select
                   value={formData.category_id}
                   onChange={(e) => setFormData((prev: any) => ({ ...prev, category_id: Number(e.target.value) }))}
-                  className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer"
+                  className="w-full p-4 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer"
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                     backgroundPosition: 'left 1rem center',
@@ -348,7 +341,7 @@ export default function ContentEditor({
                     paddingLeft: '3rem'
                   }}
                 >
-                  <option value={0}>اختر التصنيف...</option>
+                  <option value="">اختر التصنيف...</option>
                   {categories.map(cat => (
                     <option key={cat.id} value={cat.id}>
                       {cat.icon} {cat.name_ar}
@@ -357,8 +350,8 @@ export default function ContentEditor({
                 </select>
                 {formData.ai_category_suggestion && (
                   <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                    <p className="text-xs text-purple-700 flex items-center gap-2">
-                      <Sparkles className="w-3 h-3" />
+                    <p className="text-sm text-purple-700 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" />
                       اقتراح AI: {formData.ai_category_suggestion}
                     </p>
                   </div>
@@ -368,20 +361,20 @@ export default function ContentEditor({
             
             {/* التصنيف الفرعي */}
             <div>
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              <div className="group relative bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-2xl border border-cyan-200 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center">
-                    <Layers className="w-5 h-5 text-white" />
+                  <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                    <Layers className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-gray-900">التصنيف الفرعي</label>
-                    <p className="text-xs text-gray-500">تصنيف أكثر دقة</p>
+                    <h3 className="font-bold text-gray-900">التصنيف الفرعي</h3>
+                    <p className="text-sm text-gray-600">تصنيف أكثر دقة</p>
                   </div>
                 </div>
                 <select
                   value={formData.subcategory_id || ''}
                   onChange={(e) => setFormData((prev: any) => ({ ...prev, subcategory_id: e.target.value ? Number(e.target.value) : undefined }))}
-                  className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer disabled:bg-gray-50 disabled:cursor-not-allowed"
+                  className="w-full p-4 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer disabled:bg-gray-50 disabled:cursor-not-allowed"
                   disabled={!formData.category_id}
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
@@ -396,56 +389,172 @@ export default function ContentEditor({
               </div>
             </div>
 
-            {/* خيارات سريعة */}
-            <div className="lg:col-span-2">
+            {/* الصورة المميزة */}
+            <div className="md:col-span-2">
+              <div className="group relative bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-2xl border border-pink-200 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                    <Image className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">الصورة المميزة</h3>
+                    <p className="text-sm text-gray-600">تظهر في واجهة المستخدم وقوائم المقالات</p>
+                  </div>
+                </div>
+                
+                {formData.featured_image ? (
+                  <div className="relative">
+                    <img 
+                      src={formData.featured_image} 
+                      alt="الصورة المميزة" 
+                      className="w-full h-64 object-cover rounded-xl shadow-md"
+                    />
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <button
+                        onClick={() => setFormData((prev: any) => ({ ...prev, featured_image: '' }))}
+                        className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300 shadow-lg"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="mt-4 p-4 bg-white/80 rounded-xl">
+                      <input
+                        type="text"
+                        value={formData.featured_image_alt || ''}
+                        onChange={(e) => setFormData((prev: any) => ({ ...prev, featured_image_alt: e.target.value }))}
+                        className="w-full p-3 bg-white border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
+                        placeholder="النص البديل للصورة (لتحسين SEO)"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-pink-400 transition-all duration-300">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Image className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <p className="text-gray-600 mb-4">اسحب وأفلت الصورة هنا أو</p>
+                      <label className="cursor-pointer">
+                        <span className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all duration-300 inline-block shadow-md hover:shadow-lg transform hover:scale-105">
+                          اختر صورة
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              // في بيئة حقيقية، سترفع الملف إلى السيرفر
+                              // هنا سنستخدم URL مؤقت للمعاينة
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setFormData((prev: any) => ({ 
+                                  ...prev, 
+                                  featured_image: reader.result as string 
+                                }));
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                    
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-4 bg-gradient-to-r from-pink-50 to-purple-50 text-gray-600">أو</span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <input
+                        type="url"
+                        value={formData.featured_image_url || ''}
+                        onChange={(e) => {
+                          const url = e.target.value;
+                          setFormData((prev: any) => ({ 
+                            ...prev, 
+                            featured_image_url: url,
+                            featured_image: url // استخدم URL مباشرة
+                          }));
+                        }}
+                        className="w-full p-4 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
+                        placeholder="أدخل رابط الصورة..."
+                        dir="ltr"
+                      />
+                      <p className="text-xs text-gray-500 mt-2">
+                        يُفضل استخدام صور بحجم 1200x630 بكسل لأفضل عرض
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* خيارات العرض المميز */}
+            <div className="md:col-span-2">
               <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
-                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Award className="w-4 h-4 text-yellow-600" />
+                <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Award className="w-5 h-5 text-yellow-600" />
                   خيارات العرض المميز
                 </h3>
-                <div className="flex flex-wrap gap-4">
-                  <label className="flex items-center gap-3 px-4 py-3 bg-white rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 border border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <label className="group relative bg-white p-4 rounded-xl border-2 border-gray-200 hover:border-red-500 hover:shadow-lg transition-all duration-300 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.is_breaking}
                       onChange={(e) => setFormData((prev: any) => ({ ...prev, is_breaking: e.target.checked }))}
                       className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
                     />
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-red-600" />
-                      <span className="text-sm font-medium text-gray-800">خبر عاجل</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
+                        <Zap className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">خبر عاجل</h4>
+                        <p className="text-sm text-gray-600">عرض في الشريط العاجل</p>
+                      </div>
                     </div>
                   </label>
                   
-                  <label className="flex items-center gap-3 px-4 py-3 bg-white rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 border border-gray-200">
+                  <label className="group relative bg-white p-4 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all duration-300 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.is_featured}
                       onChange={(e) => setFormData((prev: any) => ({ ...prev, is_featured: e.target.checked }))}
                       className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                     />
-                    <div className="flex items-center gap-2">
-                      <Target className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm font-medium text-gray-800">خبر رئيسي</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <Target className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">خبر رئيسي</h4>
+                        <p className="text-sm text-gray-600">إبراز في الصفحة الرئيسية</p>
+                      </div>
                     </div>
                   </label>
                 </div>
               </div>
             </div>
 
-            {/* ملخص AI - جديد */}
+            {/* ملخص AI */}
             {formData.content_blocks?.length > 0 && (
-              <div className="lg:col-span-2">
+              <div className="md:col-span-2">
                 <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-200">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                      <Wand2 className="w-4 h-4 text-indigo-600" />
+                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                      <Wand2 className="w-5 h-5 text-indigo-600" />
                       ملخص ذكي بواسطة AI
                     </h3>
                     <button
                       onClick={generateAISummary}
                       disabled={aiLoading?.summary}
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50"
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 shadow-md hover:shadow-lg transform hover:scale-105"
                     >
                       {aiLoading?.summary ? (
                         <RefreshCw className="w-4 h-4 animate-spin" />
@@ -468,60 +577,85 @@ export default function ContentEditor({
       </div>
 
       {/* محرر المحتوى */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <Type className="w-5 h-5 text-gray-600" />
-          <h2 className="text-lg font-semibold text-gray-900">محرر المحتوى</h2>
+      <div className="bg-white rounded-3xl shadow-xl p-8">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <PenTool className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">محرر المحتوى الذكي</h2>
+            <p className="text-gray-600">أنشئ محتوى احترافي بأدوات متقدمة</p>
+          </div>
         </div>
 
-        {/* أزرار إضافة البلوكات */}
-        <div className="flex flex-wrap gap-2 mb-6 p-4 bg-gray-50 rounded-lg">
-          {[
-            { type: 'paragraph', name: 'فقرة', icon: Type },
-            { type: 'heading', name: 'عنوان', icon: Hash },
-            { type: 'quote', name: 'اقتباس', icon: Quote },
-            { type: 'image', name: 'صورة', icon: Image },
-            { type: 'video', name: 'فيديو', icon: Video },
-            { type: 'list', name: 'قائمة', icon: List },
-            { type: 'link', name: 'رابط', icon: Link }
-          ].map((blockType) => {
-            const Icon = blockType.icon;
-            return (
-              <button
-                key={blockType.type}
-                onClick={() => addBlock(blockType.type)}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 hover:border-gray-300 transition-colors"
-                title={blockType.name}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{blockType.name}</span>
-              </button>
-            );
-          })}
+        {/* أزرار إضافة البلوكات - تصميم محسن */}
+        <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-6 mb-8">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Layers className="w-4 h-4 text-blue-600" />
+            أضف عناصر المحتوى
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { type: 'paragraph', name: 'فقرة نصية', icon: Type, color: 'from-blue-500 to-blue-600', desc: 'نص عادي' },
+              { type: 'heading', name: 'عنوان فرعي', icon: Hash, color: 'from-purple-500 to-purple-600', desc: 'H1-H4' },
+              { type: 'quote', name: 'اقتباس', icon: Quote, color: 'from-green-500 to-green-600', desc: 'نص مميز' },
+              { type: 'image', name: 'صورة', icon: Image, color: 'from-orange-500 to-orange-600', desc: 'JPG/PNG' },
+              { type: 'video', name: 'فيديو', icon: Video, color: 'from-red-500 to-red-600', desc: 'YouTube' },
+              { type: 'list', name: 'قائمة', icon: List, color: 'from-cyan-500 to-cyan-600', desc: 'نقاط/أرقام' },
+              { type: 'link', name: 'رابط', icon: Link, color: 'from-indigo-500 to-indigo-600', desc: 'URL' },
+              { type: 'highlight', name: 'تمييز', icon: Palette, color: 'from-yellow-500 to-yellow-600', desc: 'نص ملون' }
+            ].map((blockType) => {
+              const Icon = blockType.icon;
+              return (
+                <button
+                  key={blockType.type}
+                  onClick={() => addBlock(blockType.type)}
+                  className={`group relative bg-white p-4 rounded-xl border-2 border-gray-200 hover:border-transparent hover:shadow-lg transform hover:scale-105 transition-all duration-300`}
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-r ${blockType.color} opacity-0 group-hover:opacity-100 rounded-xl transition-opacity duration-300`}></div>
+                  <div className="relative z-10">
+                    <div className={`w-10 h-10 bg-gradient-to-r ${blockType.color} rounded-lg flex items-center justify-center mb-2 mx-auto group-hover:bg-white/20`}>
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-sm text-gray-900 group-hover:text-white">{blockType.name}</h4>
+                    <p className="text-xs text-gray-500 group-hover:text-white/80 mt-1">{blockType.desc}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* منطقة المحتوى */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           {(!formData.content_blocks || formData.content_blocks.length === 0) ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-              <Type className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">ابدأ كتابة مقالك</h3>
-              <p className="text-gray-600 mb-4">اختر نوع المحتوى من الأزرار أعلاه</p>
-              <div className="flex justify-center gap-3">
-                <button
-                  onClick={() => addBlock('paragraph')}
-                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  <Type className="w-4 h-4" />
-                  إضافة فقرة
-                </button>
-                <button
-                  onClick={() => addBlock('heading')}
-                  className="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
-                >
-                  <Hash className="w-4 h-4" />
-                  إضافة عنوان
-                </button>
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-12 text-center">
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-400 rounded-full blur-3xl"></div>
+              </div>
+              <div className="relative z-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+                  <PenTool className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">ابدأ كتابة محتوى مميز</h3>
+                <p className="text-gray-600 mb-8 max-w-md mx-auto">اختر نوع المحتوى من الأزرار أعلاه لبدء إنشاء مقال احترافي</p>
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={() => addBlock('paragraph')}
+                    className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  >
+                    <Type className="w-5 h-5" />
+                    إضافة فقرة
+                  </button>
+                  <button
+                    onClick={() => addBlock('heading')}
+                    className="flex items-center gap-2 bg-white text-gray-700 px-6 py-3 rounded-xl border-2 border-gray-200 hover:border-indigo-500 hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  >
+                    <Hash className="w-5 h-5" />
+                    إضافة عنوان
+                  </button>
+                </div>
               </div>
             </div>
           ) : (

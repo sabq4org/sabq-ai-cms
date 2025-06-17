@@ -10,7 +10,7 @@ import {
   Sparkles, Brain, Bot, Headphones, Mic, Download, PauseCircle,
   PlayCircle, Users, Flame, AlertCircle, Lightbulb, Target,
   Compass, Globe2, Newspaper, Activity, ChevronDown, ArrowLeft,
-  Crown, Leaf, Book, Tag
+  Crown, Leaf, Book, Tag, X
 } from 'lucide-react';
 
 import CategoryBadge, { CategoryNavigation } from '../components/CategoryBadge';
@@ -156,6 +156,11 @@ export default function NewspaperHomePage() {
   const [readingTime, setReadingTime] = useState<{ [key: string]: number }>({});
   const [categories, setCategories] = useState<any[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [categoryArticles, setCategoryArticles] = useState<any[]>([]);
+  const [categoryArticlesLoading, setCategoryArticlesLoading] = useState(false);
+  const [articles, setArticles] = useState<any[]>([]);
+  const [articlesLoading, setArticlesLoading] = useState(true);
   const [blocksConfig, setBlocksConfig] = useState({
     briefing: { enabled: true, order: 1 },
     trending: { enabled: true, order: 2 },
@@ -179,6 +184,9 @@ export default function NewspaperHomePage() {
     // جلب التصنيفات من API
     fetchCategories();
     
+    // جلب المقالات من API
+    fetchArticles();
+    
     // تهيئة متتبع ذكاء المستخدم
     if (isLoggedIn) {
       const tracker = new UserIntelligenceTracker('user_current'); // في التطبيق الحقيقي نستخدم معرف المستخدم الفعلي
@@ -198,21 +206,118 @@ export default function NewspaperHomePage() {
     return () => clearInterval(timer);
   }, [isLoggedIn]);
 
-  // جلب التصنيفات من API
+  // إعادة جلب المقالات عندما يتم تحميل التصنيفات
+  useEffect(() => {
+    if (categories.length > 0 && !categoriesLoading) {
+      fetchArticles();
+    }
+  }, [categories, categoriesLoading]);
+
+  // جلب التصنيفات من API مع عدد المقالات
   const fetchCategories = async () => {
     try {
       setCategoriesLoading(true);
-      const response = await fetch('/api/categories');
-      if (response.ok) {
-        const result = await response.json();
-        // استخراج المصفوفة من خاصية data
-        setCategories(result.data || []);
-      }
+      
+      // جلب التصنيفات
+      const categoriesResponse = await fetch('/api/categories');
+      const categoriesResult = await categoriesResponse.json();
+      const categoriesData = categoriesResult.data || [];
+      
+      // جلب جميع المقالات المنشورة
+      const articlesResponse = await fetch('/api/articles?status=published&limit=1000');
+      const articlesResult = await articlesResponse.json();
+      const articlesData = articlesResult.data || articlesResult.articles || [];
+      
+      // حساب عدد المقالات لكل تصنيف
+      const categoriesWithCount = categoriesData.map((category: any) => {
+        const articleCount = articlesData.filter((article: any) => 
+          article.category_id === category.id
+        ).length;
+        
+        return {
+          ...category,
+          articles_count: articleCount
+        };
+      });
+      
+      // ترتيب التصنيفات حسب عدد المقالات (الأكثر مقالات أولاً)
+      const sortedCategories = categoriesWithCount.sort((a: any, b: any) => 
+        b.articles_count - a.articles_count
+      );
+      
+      setCategories(sortedCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
       setCategories([]);
     } finally {
       setCategoriesLoading(false);
+    }
+  };
+
+  // جلب المقالات حسب التصنيف
+  const fetchCategoryArticles = async (categoryId: number) => {
+    try {
+      setCategoryArticlesLoading(true);
+      const response = await fetch(`/api/articles?category_id=${categoryId}&status=published&limit=10`);
+      const result = await response.json();
+      setCategoryArticles(result.data || result.articles || []);
+    } catch (error) {
+      console.error('Error fetching category articles:', error);
+      setCategoryArticles([]);
+    } finally {
+      setCategoryArticlesLoading(false);
+    }
+  };
+
+  // جلب المقالات من API
+  const fetchArticles = async () => {
+    try {
+      setArticlesLoading(true);
+      const response = await fetch('/api/articles?status=published&limit=20&sort=created_at&order=desc');
+      const result = await response.json();
+      const articlesData = result.data || result.articles || [];
+      
+      // تحويل البيانات لتتوافق مع تصميم NewsCard
+      const formattedArticles = articlesData.map((article: any) => {
+        // البحث عن التصنيف المطابق
+        const categoryInfo = categories.find(cat => cat.id === article.category_id);
+        const categoryName = categoryInfo?.name_ar || 'عام';
+        
+        return {
+          id: article.id,
+          title: article.title,
+          excerpt: article.summary || article.content?.substring(0, 150) + '...',
+          category: categoryName,
+          categoryId: article.category_id,
+          author: article.author_id || 'فريق التحرير',
+          publishedAt: article.published_at || article.created_at,
+          readTime: article.reading_time || Math.ceil((article.content?.length || 0) / 200),
+          image: article.featured_image || `https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1586339393862' : '1504711434074'}-${Math.random().toString(36).substring(7)}?auto=format&fit=crop&w=800&q=60`,
+          views: article.views_count || Math.floor(Math.random() * 20000),
+          isBreaking: article.is_breaking || false,
+          tags: article.seo_keywords || []
+        };
+      });
+      
+      setArticles(formattedArticles);
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+      setArticles([]);
+    } finally {
+      setArticlesLoading(false);
+    }
+  };
+
+  // معالج النقر على التصنيف
+  const handleCategoryClick = async (categoryId: number) => {
+    if (selectedCategory === categoryId) {
+      // إذا كان نفس التصنيف، أغلق القائمة
+      setSelectedCategory(null);
+      setCategoryArticles([]);
+    } else {
+      // اختر التصنيف الجديد واجلب مقالاته
+      setSelectedCategory(categoryId);
+      await fetchCategoryArticles(categoryId);
     }
   };
 
@@ -284,113 +389,6 @@ export default function NewspaperHomePage() {
 
   const timeContent = getTimeContent();
 
-  const newsData = [
-    { 
-      id: 'N001', 
-      title: 'إطلاق مبادرة السعودية الخضراء الجديدة', 
-      excerpt: 'خطة طموحة لزراعة مليارات الأشجار وتحويل المملكة لنموذج بيئي عالمي',
-      category: 'بيئة',
-      author: 'فريق التحرير',
-      publishedAt: '2025-01-08T10:30:00Z',
-      readTime: 5,
-      image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=60',
-      views: 15420,
-      isBreaking: true,
-      tags: ['رؤية 2030', 'البيئة', 'التشجير']
-    },
-    { 
-      id: 'N002', 
-      title: 'شركات التقنية العالمية تفتح مقارها في الرياض', 
-      excerpt: 'عمالقة التكنولوجيا يختارون المملكة مركزاً إقليمياً لعملياتهم',
-      category: 'تقنية',
-      author: 'محمد العتيبي',
-      publishedAt: '2025-01-08T09:15:00Z',
-      readTime: 4,
-      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=60',
-      views: 12890,
-      isBreaking: false,
-      tags: ['تقنية', 'استثمار', 'الرياض']
-    },
-    { 
-      id: 'N003', 
-      title: 'ولي العهد يفتتح مدينة الملك سلمان للطاقة', 
-      excerpt: 'مشروع ضخم لتطوير قطاع الطاقة المتجددة والاستدامة',
-      category: 'طاقة',
-      author: 'سارة الزهراني',
-      publishedAt: '2025-01-08T08:45:00Z',
-      readTime: 6,
-      image: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=800&q=60',
-      views: 18760,
-      isBreaking: true,
-      tags: ['طاقة', 'استدامة', 'مشاريع كبرى']
-    },
-    { 
-      id: 'N004', 
-      title: 'المنتخب السعودي يتأهل لنهائيات كأس العالم', 
-      excerpt: 'إنجاز تاريخي للكرة السعودية بالتأهل المباشر لمونديال 2026',
-      category: 'رياضة',
-      author: 'خالد الدوسري',
-      publishedAt: '2025-01-08T07:20:00Z',
-      readTime: 3,
-      image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=800&q=60',
-      views: 22340,
-      isBreaking: true,
-      tags: ['كأس العالم', 'منتخب', 'إنجاز']
-    },
-    { 
-      id: 'N005', 
-      title: 'افتتاح جامعة الملك سلمان للذكاء الاصطناعي', 
-      excerpt: 'أول جامعة متخصصة في الذكاء الاصطناعي وعلوم البيانات في المنطقة',
-      category: 'تعليم',
-      author: 'نورا القحطاني',
-      publishedAt: '2025-01-08T06:45:00Z',
-      readTime: 5,
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=60',
-      views: 16780,
-      isBreaking: false,
-      tags: ['تعليم', 'ذكاء اصطناعي', 'جامعة']
-    },
-    { 
-      id: 'N006', 
-      title: 'إطلاق مشروع القدية الترفيهي العملاق', 
-      excerpt: 'مدينة ترفيهية متكاملة تضم أكبر الألعاب والمرافق الترفيهية في العالم',
-      category: 'ترفيه',
-      author: 'عبدالله الشهري',
-      publishedAt: '2025-01-08T06:15:00Z',
-      readTime: 4,
-      image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=800&q=60',
-      views: 19650,
-      isBreaking: false,
-      tags: ['قدية', 'ترفيه', 'رؤية 2030']
-    },
-    { 
-      id: 'N007', 
-      title: 'المملكة تحقق المركز الأول عالمياً في الأمن السيبراني', 
-      excerpt: 'تصدر المؤشر العالمي للأمن السيبراني بفضل الاستثمارات الضخمة في التقنية',
-      category: 'أمن سيبراني',
-      author: 'محمد آل سعود',
-      publishedAt: '2025-01-08T05:30:00Z',
-      readTime: 6,
-      image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=60',
-      views: 14320,
-      isBreaking: true,
-      tags: ['أمن سيبراني', 'تقنية', 'إنجاز عالمي']
-    },
-    { 
-      id: 'N008', 
-      title: 'انطلاق معرض الرياض الدولي للكتاب 2025', 
-      excerpt: 'أكثر من مليون كتاب ومشاركة 50 دولة في النسخة الأكبر من المعرض',
-      category: 'ثقافة',
-      author: 'فاطمة العتيبي',
-      publishedAt: '2025-01-08T05:00:00Z',
-      readTime: 3,
-      image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=800&q=60',
-      views: 11890,
-      isBreaking: false,
-      tags: ['كتب', 'ثقافة', 'معرض']
-    }
-  ];
-
   // بيانات وهمية للبلوكات
   const briefingData = [
     { id: 1, title: "انطلاق مؤتمر الذكاء الاصطناعي في الرياض\nبمشاركة عالمية واسعة وحضور أكثر من 500 خبير", time: "منذ 15 دقيقة", isNew: true },
@@ -452,16 +450,17 @@ export default function NewspaperHomePage() {
     
     return (
       <div 
-        className={`group rounded-2xl overflow-hidden border-2 border-white transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
-          darkMode ? 'bg-white/10' : 'bg-white/80'
+        className={`group rounded-2xl overflow-hidden border-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+          darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         } ${isPersonalized ? 'ring-2 ring-blue-400/30' : ''}`}
         onMouseEnter={() => trackUserInteraction(news.id, 'view', news.category)}
       >
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden h-48">
           <img 
             src={news.image} 
             alt={news.title}
-            className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
           />
           {news.isBreaking && (
             <span className="absolute top-3 right-3 px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
@@ -708,9 +707,9 @@ export default function NewspaperHomePage() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            darkMode ? 'bg-blue-900/30' : 'bg-blue-50'
+            darkMode ? 'bg-blue-600/30' : 'bg-blue-500'
           }`}>
-            <Activity className="w-5 h-5 text-blue-600" />
+            <Activity className="w-5 h-5 text-white" />
           </div>
           <div>
             <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>موجز الآن</h2>
@@ -718,7 +717,7 @@ export default function NewspaperHomePage() {
           </div>
         </div>
         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-          darkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-50 text-blue-600'
+          darkMode ? 'bg-blue-600/30 text-blue-300' : 'bg-blue-500 text-white'
         }`}>
           {briefingData.length} تحديث
         </span>
@@ -1396,8 +1395,13 @@ export default function NewspaperHomePage() {
       {/* شريط التنقل بالتصنيفات */}
       <section className="max-w-7xl mx-auto px-6 mb-16">
         <div className={`rounded-2xl p-8 transition-all duration-500 ${
-          darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white/70 border border-gray-200'
-        }`} style={{ backdropFilter: 'blur(10px)' }}>
+          darkMode ? 'bg-blue-900/10 border border-blue-800/30' : 'bg-blue-50/50 border border-blue-200/50'
+        }`} style={{ 
+          backdropFilter: 'blur(10px)',
+          background: darkMode 
+            ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)' 
+            : 'linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)'
+        }}>
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-4 mb-4">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
@@ -1428,30 +1432,153 @@ export default function NewspaperHomePage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : categories.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              {categories.map((category: any) => (
-                <button
-                  key={category.id}
-                  className={`group px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                    darkMode 
-                      ? 'bg-gray-700/50 hover:bg-blue-600/20 text-gray-200 hover:text-blue-300 border border-gray-600 hover:border-blue-500' 
-                      : 'bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-lg'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    {category.icon && (
-                      <span className="text-lg group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
-                    )}
-                    <span>{category.name_ar || category.name}</span>
-                    <span className={`text-xs opacity-60 ${
+            <>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                {categories.map((category: any) => (
+                  <button
+                    key={category.id}
+                    onClick={() => handleCategoryClick(category.id)}
+                    className={`group px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
+                      selectedCategory === category.id
+                        ? darkMode 
+                          ? 'bg-blue-600 text-white border-2 border-blue-500 shadow-lg' 
+                          : 'bg-blue-500 text-white border-2 border-blue-400 shadow-lg'
+                        : darkMode 
+                          ? 'bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50' 
+                          : 'bg-white/80 hover:bg-white text-gray-700 hover:text-blue-600 border border-blue-200/50 hover:border-blue-300 shadow-sm hover:shadow-lg backdrop-blur-sm'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {category.icon && (
+                        <span className="text-lg group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
+                      )}
+                      <span>{category.name_ar || category.name}</span>
+                      <span className={`text-xs ${
+                        selectedCategory === category.id
+                          ? 'text-white/90'
+                          : darkMode ? 'text-blue-200 opacity-60' : 'text-gray-500 opacity-60'
+                      }`}>
+                        ({category.articles_count || 0})
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* عرض المقالات المرتبطة بالتصنيف المختار */}
+              {selectedCategory && (
+                <div className={`mt-8 p-6 rounded-xl ${
+                  darkMode ? 'bg-gray-800/50' : 'bg-white/70'
+                } backdrop-blur-sm border ${
+                  darkMode ? 'border-gray-700' : 'border-gray-200'
+                }`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className={`text-lg font-bold ${
+                      darkMode ? 'text-white' : 'text-gray-800'
+                    }`}>
+                      مقالات {categories.find(c => c.id === selectedCategory)?.name_ar}
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setSelectedCategory(null);
+                        setCategoryArticles([]);
+                      }}
+                      className={`p-2 rounded-lg transition-colors ${
+                        darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                      }`}
+                    >
+                      <X className={`w-5 h-5 ${
+                        darkMode ? 'text-gray-400' : 'text-gray-600'
+                      }`} />
+                    </button>
+                  </div>
+
+                  {categoryArticlesLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                    </div>
+                  ) : categoryArticles.length > 0 ? (
+                    <div className="space-y-4">
+                      {categoryArticles.map((article: any) => (
+                        <div
+                          key={article.id}
+                          className={`p-4 rounded-lg border transition-all duration-300 hover:shadow-md ${
+                            darkMode 
+                              ? 'bg-gray-700/50 border-gray-600 hover:bg-gray-700' 
+                              : 'bg-white border-gray-200 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-start gap-4">
+                            {article.featured_image && (
+                              <img
+                                src={article.featured_image}
+                                alt={article.title}
+                                className="w-20 h-20 rounded-lg object-cover"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <h4 className={`font-semibold mb-2 ${
+                                darkMode ? 'text-white' : 'text-gray-800'
+                              }`}>
+                                {article.title}
+                              </h4>
+                              {article.summary && (
+                                <p className={`text-sm line-clamp-2 mb-2 ${
+                                  darkMode ? 'text-gray-300' : 'text-gray-600'
+                                }`}>
+                                  {article.summary}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-4 text-xs">
+                                <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+                                  <Clock className="w-3 h-3 inline ml-1" />
+                                  {new Date(article.created_at).toLocaleDateString('ar-SA')}
+                                </span>
+                                <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+                                  <Eye className="w-3 h-3 inline ml-1" />
+                                  {article.views_count || 0} مشاهدة
+                                </span>
+                                {article.reading_time && (
+                                  <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+                                    <BookOpen className="w-3 h-3 inline ml-1" />
+                                    {article.reading_time} دقائق قراءة
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <button className={`p-2 rounded-lg transition-colors ${
+                              darkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'
+                            }`}>
+                              <ArrowLeft className={`w-4 h-4 ${
+                                darkMode ? 'text-gray-400' : 'text-gray-600'
+                              }`} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* زر عرض المزيد */}
+                      <div className="text-center mt-4">
+                        <button className={`px-6 py-2 rounded-lg font-medium text-sm transition-all duration-300 ${
+                          darkMode
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                            : 'bg-blue-500 hover:bg-blue-600 text-white'
+                        }`}>
+                          عرض جميع مقالات {categories.find(c => c.id === selectedCategory)?.name_ar}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={`text-center py-8 ${
                       darkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}>
-                      ({category.articles_count || 0})
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
+                      <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p>لا توجد مقالات منشورة في هذا التصنيف حالياً</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           ) : (
             <div className={`text-center py-8 ${
               darkMode ? 'text-gray-400' : 'text-gray-500'
@@ -1493,7 +1620,7 @@ export default function NewspaperHomePage() {
                 darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600'
               }`}>
                 <Activity className="w-4 h-4" />
-                <span className="text-sm font-medium">12 مقال جديد اليوم</span>
+                <span className="text-sm font-medium">{articles.length} مقال جديد</span>
               </div>
             </div>
             <button className={`group flex items-center gap-3 px-6 py-3 rounded-xl text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105`}>
@@ -1503,11 +1630,26 @@ export default function NewspaperHomePage() {
           </div>
 
           {/* Enhanced News Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {newsData.map((news) => (
-              <NewsCard key={news.id} news={news} />
-            ))}
-          </div>
+          {articlesLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>جاري تحميل المقالات...</p>
+              </div>
+            </div>
+          ) : articles.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {articles.slice(0, 8).map((news) => (
+                <NewsCard key={news.id} news={news} />
+              ))}
+            </div>
+          ) : (
+            <div className={`text-center py-20 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <Newspaper className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg mb-2">لا توجد مقالات منشورة حالياً</p>
+              <p className="text-sm">تحقق لاحقاً للحصول على آخر الأخبار والمقالات</p>
+            </div>
+          )}
         </section>
 
         {/* Enhanced Smart Blocks Section */}
