@@ -190,7 +190,7 @@ export default function NewsManagementPage() {
     { 
       id: 'all', 
       name: 'جميع الأخبار', 
-      count: newsData.length,
+      count: newsData.filter(item => item.status !== 'deleted').length,
       icon: <MessageSquare className="w-5 h-5" />
     },
     { 
@@ -208,7 +208,7 @@ export default function NewsManagementPage() {
     { 
       id: 'breaking', 
       name: 'عاجل', 
-      count: newsData.filter(item => item.isBreaking).length,
+      count: newsData.filter(item => item.isBreaking && item.status !== 'deleted').length,
       icon: <Zap className="w-5 h-5" />
     },
     { 
@@ -310,7 +310,7 @@ export default function NewsManagementPage() {
       <div className="grid grid-cols-6 gap-6 mb-8">
         <CircularStatsCard
           title="إجمالي الأخبار"
-          value={newsData.length.toString()}
+          value={newsData.filter(item => item.status !== 'deleted').length.toString()}
           subtitle="جميع المواضيع"
           icon={MessageSquare}
           bgColor="bg-cyan-100"
@@ -334,7 +334,7 @@ export default function NewsManagementPage() {
         />
         <CircularStatsCard
           title="إجمالي المشاهدات"
-          value={newsData.reduce((sum, item) => sum + item.viewCount, 0).toLocaleString()}
+          value={newsData.filter(item => item.status === 'published').reduce((sum, item) => sum + item.viewCount, 0).toLocaleString()}
           subtitle="آخر 30 يوم"
           icon={Eye}
           bgColor="bg-red-100"
@@ -342,7 +342,7 @@ export default function NewsManagementPage() {
         />
         <CircularStatsCard
           title="العاجل"
-          value={newsData.filter(item => item.isBreaking).length.toString()}
+          value={newsData.filter(item => item.isBreaking && item.status !== 'deleted').length.toString()}
           subtitle="أخبار عاجلة"
           icon={Zap}
           bgColor="bg-yellow-100"
@@ -498,6 +498,9 @@ export default function NewsManagementPage() {
               }`}>التصنيف</th>
               <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
                 darkMode ? 'text-gray-200' : 'text-gray-700'
+              }`}>تاريخ النشر</th>
+              <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
+                darkMode ? 'text-gray-200' : 'text-gray-700'
               }`}>المشاهدات</th>
               <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
                 darkMode ? 'text-gray-200' : 'text-gray-700'
@@ -513,8 +516,10 @@ export default function NewsManagementPage() {
                      <tbody>
             {newsData
               .filter(item => {
-                if (activeTab === 'all') return true;
                 if (activeTab === 'deleted') return item.status === 'deleted';
+                if (item.status === 'deleted') return false;
+                
+                if (activeTab === 'all') return true;
                 if (activeTab === 'breaking') return item.isBreaking;
                 return item.status === activeTab;
               })
@@ -544,12 +549,6 @@ export default function NewsManagementPage() {
                       <div className="text-xs text-gray-400 mt-1">
                         بواسطة {news.author_name}
                       </div>
-                      {news.publishTime && news.publishTime !== '-' && (
-                        <div className="text-xs text-gray-400 mt-1">
-                          <Calendar className="w-3 h-3 inline-block ml-1" />
-                          {news.publishTime}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </td>
@@ -567,6 +566,18 @@ export default function NewsManagementPage() {
                   </span>
                 </td>
 
+                {/* تاريخ النشر */}
+                <td className="px-6 py-4">
+                  <div className="text-xs text-gray-500">
+                    {news.publishTime && news.publishTime !== '-' ? (
+                      <>
+                        <Calendar className="w-3 h-3 inline-block ml-1" />
+                        {news.publishTime}
+                      </>
+                    ) : '-'}
+                  </div>
+                </td>
+
                 {/* المشاهدات */}
                 <td className="px-6 py-4">
                   <div className="flex items-center">
@@ -576,9 +587,9 @@ export default function NewsManagementPage() {
                     <span className={`font-medium transition-colors duration-300 ${
                       darkMode ? 'text-gray-300' : 'text-gray-700'
                     }`}>
-                      {news.viewCount.toLocaleString()}
+                      {news.status === 'draft' ? 0 : news.viewCount.toLocaleString()}
                     </span>
-                </div>
+                  </div>
                 </td>
 
                 {/* آخر تعديل */}
@@ -601,7 +612,7 @@ export default function NewsManagementPage() {
                 {/* العمليات */}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-1">
-                    <button title="تعديل" onClick={() => router.push(`/dashboard/news/edit/${news.id}`)} className={`p-2 rounded-lg transition-colors duration-200 ${darkMode ? 'text-indigo-400 hover:bg-indigo-900/20' : 'text-indigo-600 hover:bg-indigo-50'}`}><Edit className="w-4 h-4" /></button>
+                    <button title="تعديل" onClick={() => router.push(`/dashboard/article/edit/${news.id}`)} className={`p-2 rounded-lg transition-colors duration-200 ${darkMode ? 'text-indigo-400 hover:bg-indigo-900/20' : 'text-indigo-600 hover:bg-indigo-50'}`}><Edit className="w-4 h-4" /></button>
                     {activeTab === 'deleted' ? (
                       <button
                         title="استعادة إلى المسودات"
@@ -630,7 +641,13 @@ export default function NewsManagementPage() {
             <div className={`text-sm font-medium transition-colors duration-300 ${
               darkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>
-              عرض 1-5 من {newsData.length} خبر
+              عرض 1-5 من {newsData.filter(item => {
+                if (activeTab === 'deleted') return item.status === 'deleted';
+                if (item.status === 'deleted') return false;
+                if (activeTab === 'all') return true;
+                if (activeTab === 'breaking') return item.isBreaking;
+                return item.status === activeTab;
+              }).length} خبر
             </div>
             <div className="flex items-center space-x-2">
               <button className={`px-3 py-1 text-sm rounded-lg border transition-colors duration-300 ${
