@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ChevronDown, 
@@ -18,15 +18,19 @@ import {
   Award,
   TrendingUp, 
   Activity,
-  MessageSquare
+  MessageSquare,
+  AlertTriangle,
+  ArrowUp
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
-type NewsStatus = 'published' | 'draft' | 'pending';
+type NewsStatus = 'published' | 'draft' | 'pending' | 'deleted';
 type NewsItem = {
   id: string;
   title: string;
   author: string;
-  category: string;
+  category: string | number;
   publishTime: string;
   viewCount: number;
   lastModified: string;
@@ -35,87 +39,55 @@ type NewsItem = {
   isBreaking: boolean;
   status: NewsStatus;
   rating: number;
+  slug?: string;
 };
 
-const mockNewsData: NewsItem[] = [
-  {
-    id: 'A001',
-    title: 'تطوير جديد في تقنيات الذكاء الاصطناعي يحدث نقلة في مجال الصحافة',
-    author: 'محمد الأحمد',
-    category: 'التكنولوجيا',
-    publishTime: '2024-03-15 10:30',
-    viewCount: 12500,
-    lastModified: '2024-03-15 12:45',
-    lastModifiedBy: 'فاطمة السعيد',
-    isPinned: true,
-    isBreaking: true,
-    status: 'published',
-    rating: 4.8
-  },
-  {
-    id: 'A002',
-    title: 'الاقتصاد السعودي يسجل نمواً قياسياً في الربع الأول من 2024',
-    author: 'عبدالله الخالد',
-    category: 'الاقتصاد',
-    publishTime: '2024-03-14 16:20',
-    viewCount: 8300,
-    lastModified: '2024-03-15 08:15',
-    lastModifiedBy: 'سارة النعيم',
-    isPinned: false,
-    isBreaking: false,
-    status: 'published',
-    rating: 4.2
-  },
-  {
-    id: 'A003',
-    title: 'رؤية 2030: إنجازات جديدة في مجال التحول الرقمي والاستدامة',
-    author: 'نورا الزهراني',
-    category: 'محليات',
-    publishTime: '',
-    viewCount: 0,
-    lastModified: '2024-03-15 14:30',
-    lastModifiedBy: 'أحمد الحربي',
-    isPinned: false,
-    isBreaking: false,
-    status: 'draft',
-    rating: 0
-  },
-  {
-    id: 'A004',
-    title: 'المملكة تستضيف قمة عالمية للذكاء الاصطناعي في الرياض',
-    author: 'علي المالكي',
-    category: 'سياسة',
-    publishTime: '',
-    viewCount: 0,
-    lastModified: '2024-03-15 11:20',
-    lastModifiedBy: 'ليلى الشمري',
-    isPinned: false,
-    isBreaking: false,
-    status: 'pending',
-    rating: 0
-  },
-  {
-    id: 'A005',
-    title: 'انطلاق موسم الرياض 2024 بفعاليات ثقافية وترفيهية متنوعة',
-    author: 'رناد القحطاني',
-    category: 'ترفيه',
-    publishTime: '2024-03-13 20:15',
-    viewCount: 15600,
-    lastModified: '2024-03-14 09:45',
-    lastModifiedBy: 'خالد الدوسري',
-    isPinned: true,
-    isBreaking: false,
-    status: 'published',
-    rating: 4.9
-  }
-];
-
 export default function NewsManagementPage() {
+  const [newsData, setNewsData] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [darkMode, setDarkMode] = useState(false);
+  const router = useRouter();
+
+  // استرجاع البيانات الحقيقية من API
+  useEffect(() => {
+    const fetchNewsData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/articles');
+        if (!response.ok) {
+          throw new Error('فشل في تحميل البيانات');
+        }
+        const data = await response.json();
+        const mapped: NewsItem[] = (data.articles || []).map((a: any) => ({
+          id: a.id,
+          title: a.title,
+          author: a.author_id || '—',
+          category: a.category_id || '—',
+          publishTime: a.published_at ? new Date(a.published_at).toLocaleString() : '-',
+          viewCount: a.views_count || 0,
+          lastModified: new Date(a.updated_at || a.created_at).toLocaleString(),
+          lastModifiedBy: a.editor_id || a.author_id || '—',
+          isPinned: a.is_pinned || false,
+          isBreaking: a.is_breaking || false,
+          status: a.status as NewsStatus,
+          rating: 0,
+          slug: a.slug
+        }));
+        setNewsData(mapped);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'حدث خطأ في تحميل البيانات');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNewsData();
+  }, []);
 
   // استرجاع حالة الوضع الليلي من localStorage
   React.useEffect(() => {
@@ -125,37 +97,80 @@ export default function NewsManagementPage() {
     }
   }, []);
 
+  // دوال المساعدة للأزرار
+  const handleDelete = async (id: string) => {
+    if (!confirm('هل أنت متأكد من حذف المقال؟')) return;
+    try {
+      await fetch('/api/articles', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [id] })
+      });
+      setNewsData(prev => prev.map(n => n.id === id ? { ...n, status: 'deleted' as NewsStatus } : n));
+      toast.success('تم نقل المقال إلى المحذوفات');
+    } catch (e) {
+      toast.error('فشل حذف المقال');
+      console.error(e);
+    }
+  };
+
+  const handleCopy = (slugOrId: string) => {
+    navigator.clipboard.writeText(`https://sabq.org/articles/${slugOrId}`)
+      .then(() => toast.success('تم نسخ الرابط'))
+      .catch(() => toast.error('لم يتم نسخ الرابط'));
+  };
+
+  const handleRestore = async (id: string) => {
+    try {
+      await fetch(`/api/articles/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'draft', is_deleted: false })
+      });
+      setNewsData(prev => prev.map(n => n.id === id ? { ...n, status: 'draft' as NewsStatus } : n));
+      toast.success('تم استعادة المقال إلى المسودات');
+    } catch (e) {
+      toast.error('فشل استعادة المقال');
+      console.error(e);
+    }
+  };
 
   const statusTabs = [
     { 
       id: 'all', 
       name: 'جميع الأخبار', 
-      count: mockNewsData.length,
+      count: newsData.length,
       icon: <MessageSquare className="w-5 h-5" />
     },
     { 
       id: 'published', 
       name: 'منشور', 
-      count: mockNewsData.filter(item => item.status === 'published').length,
+      count: newsData.filter(item => item.status === 'published').length,
       icon: <Eye className="w-5 h-5" />
     },
     { 
       id: 'draft', 
       name: 'مسودة', 
-      count: mockNewsData.filter(item => item.status === 'draft').length,
+      count: newsData.filter(item => item.status === 'draft').length,
       icon: <Edit className="w-5 h-5" />
     },
     { 
       id: 'breaking', 
       name: 'عاجل', 
-      count: mockNewsData.filter(item => item.isBreaking).length,
+      count: newsData.filter(item => item.isBreaking).length,
       icon: <Zap className="w-5 h-5" />
     },
     { 
       id: 'pending', 
       name: 'في الانتظار', 
-      count: mockNewsData.filter(item => item.status === 'pending').length,
+      count: newsData.filter(item => item.status === 'pending').length,
       icon: <Calendar className="w-5 h-5" />
+    },
+    { 
+      id: 'deleted', 
+      name: 'المحذوفة', 
+      count: newsData.filter(item => item.status === 'deleted').length,
+      icon: <Trash2 className="w-5 h-5" />
     }
   ];
 
@@ -163,15 +178,12 @@ export default function NewsManagementPage() {
     const statusConfig = {
       published: { color: 'bg-green-100 text-green-700', text: 'منشور' },
       draft: { color: 'bg-yellow-100 text-yellow-700', text: 'مسودة' },
-      pending: { color: 'bg-blue-100 text-blue-700', text: 'في الانتظار' }
+      pending: { color: 'bg-blue-100 text-blue-700', text: 'في الانتظار' },
+      deleted: { color: 'bg-gray-100 text-gray-700', text: 'محذوف' }
     };
     
     return statusConfig[status] || statusConfig.draft;
   };
-
-
-
-
 
   // مكون بطاقة الإحصائية الدائرية
   const CircularStatsCard = ({ 
@@ -247,7 +259,7 @@ export default function NewsManagementPage() {
       <div className="grid grid-cols-6 gap-6 mb-8">
         <CircularStatsCard
           title="إجمالي الأخبار"
-          value="245"
+          value={newsData.length.toString()}
           subtitle="جميع المواضيع"
           icon={MessageSquare}
           bgColor="bg-cyan-100"
@@ -255,7 +267,7 @@ export default function NewsManagementPage() {
         />
         <CircularStatsCard
           title="المنشورة"
-          value="189"
+          value={newsData.filter(item => item.status === 'published').length.toString()}
           subtitle="متاحة للقراء"
           icon={TrendingUp}
           bgColor="bg-purple-100"
@@ -263,7 +275,7 @@ export default function NewsManagementPage() {
         />
         <CircularStatsCard
           title="المسودات"
-          value="32"
+          value={newsData.filter(item => item.status === 'draft').length.toString()}
           subtitle="قيد التحرير"
           icon={Edit}
           bgColor="bg-orange-100"
@@ -271,24 +283,24 @@ export default function NewsManagementPage() {
         />
         <CircularStatsCard
           title="إجمالي المشاهدات"
-          value="1.2M"
+          value={newsData.reduce((sum, item) => sum + item.viewCount, 0).toLocaleString()}
           subtitle="آخر 30 يوم"
           icon={Eye}
           bgColor="bg-red-100"
           iconColor="text-red-600"
         />
         <CircularStatsCard
-          title="الكتّاب النشطون"
-          value="12"
-          subtitle="آخر 7 أيام"
-          icon={Users}
-          bgColor="bg-green-100"
-          iconColor="text-green-600"
+          title="العاجل"
+          value={newsData.filter(item => item.isBreaking).length.toString()}
+          subtitle="أخبار عاجلة"
+          icon={Zap}
+          bgColor="bg-yellow-100"
+          iconColor="text-yellow-600"
         />
         <CircularStatsCard
-          title="المحفوظات"
-          value="58"
-          subtitle="مقال مؤرشف"
+          title="في الانتظار"
+          value={newsData.filter(item => item.status === 'pending').length.toString()}
+          subtitle="تحت المراجعة"
           icon={Award}
           bgColor="bg-blue-100"
           iconColor="text-blue-600"
@@ -325,7 +337,29 @@ export default function NewsManagementPage() {
         </div>
       </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <span className="mr-3 text-gray-600">جارٍ تحميل البيانات...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+              <div>
+                <h3 className="text-lg font-semibold text-red-800">خطأ في تحميل البيانات</h3>
+                <p className="text-red-600">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Data Table */}
+        {!loading && !error && (
       <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
       }`}>
@@ -432,7 +466,14 @@ export default function NewsManagementPage() {
             </tr>
           </thead>
                      <tbody>
-            {mockNewsData.map((news, index) => (
+            {newsData
+              .filter(item => {
+                if (activeTab === 'all') return true;
+                if (activeTab === 'deleted') return item.status === 'deleted';
+                if (activeTab === 'breaking') return item.isBreaking;
+                return item.status === activeTab;
+              })
+              .map((news, index) => (
               <tr 
                 key={news.id} 
                 className={`transition-colors duration-200 hover:bg-gray-50 border-b ${
@@ -526,43 +567,21 @@ export default function NewsManagementPage() {
 
                 {/* العمليات */}
                 <td className="px-6 py-4">
-                  <div className="flex items-center space-x-1">
-                    <button className={`p-2 rounded-lg transition-colors duration-200 ${
-                      darkMode 
-                        ? 'text-indigo-400 hover:bg-indigo-900/20' 
-                        : 'text-indigo-600 hover:bg-indigo-50'
-                    }`}>
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button className={`p-2 rounded-lg transition-colors duration-200 ${
-                      darkMode 
-                        ? 'text-rose-400 hover:bg-rose-900/20' 
-                        : 'text-rose-600 hover:bg-rose-50'
-                    }`}>
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                    <button className={`p-2 rounded-lg transition-colors duration-200 ${
-                      darkMode 
-                        ? 'text-emerald-400 hover:bg-emerald-900/20' 
-                        : 'text-emerald-600 hover:bg-emerald-50'
-                    }`}>
-                      <MessageCircle className="w-4 h-4" />
-                    </button>
-                    <button className={`p-2 rounded-lg transition-colors duration-200 ${
-                      darkMode 
-                        ? 'text-gray-400 hover:bg-gray-700' 
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
-                      <Copy className="w-4 h-4" />
-                    </button>
-                    <button className={`p-2 rounded-lg transition-colors duration-200 ${
-                      darkMode 
-                        ? 'text-gray-400 hover:bg-gray-700' 
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
-                      <MoreHorizontal className="w-4 h-4" />
-                    </button>
-                </div>
+                  <div className="flex items-center gap-1">
+                    <button title="تعديل" onClick={() => router.push(`/dashboard/news/edit/${news.id}`)} className={`p-2 rounded-lg transition-colors duration-200 ${darkMode ? 'text-indigo-400 hover:bg-indigo-900/20' : 'text-indigo-600 hover:bg-indigo-50'}`}><Edit className="w-4 h-4" /></button>
+                    {activeTab === 'deleted' ? (
+                      <button
+                        title="استعادة إلى المسودات"
+                        onClick={() => handleRestore(news.id)}
+                        className={`p-2 rounded-lg transition-colors duration-200 ${darkMode ? 'text-green-400 hover:bg-green-900/20' : 'text-green-600 hover:bg-green-50'}`}
+                      >
+                        <ArrowUp className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <button title="حذف" onClick={() => handleDelete(news.id)} className={`p-2 rounded-lg transition-colors duration-200 ${darkMode ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-50'}`}> <Trash2 className="w-4 h-4" /></button>
+                    )}
+                    <button title="نسخ الرابط" onClick={() => handleCopy(news.slug ?? news.id)} className={`p-2 rounded-lg transition-colors duration-200 ${darkMode ? 'text-gray-400 hover:bg-gray-900/20' : 'text-gray-600 hover:bg-gray-50'}`}><Copy className="w-4 h-4" /></button>
+                  </div>
                 </td>
                             </tr>
             ))}
@@ -578,7 +597,7 @@ export default function NewsManagementPage() {
             <div className={`text-sm font-medium transition-colors duration-300 ${
               darkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>
-              عرض 1-5 من {mockNewsData.length} خبر
+              عرض 1-5 من {newsData.length} خبر
             </div>
             <div className="flex items-center space-x-2">
               <button className={`px-3 py-1 text-sm rounded-lg border transition-colors duration-300 ${
@@ -609,6 +628,7 @@ export default function NewsManagementPage() {
           </div>
         </div>
       </div>
+        )}
     </div>
   );
 } 

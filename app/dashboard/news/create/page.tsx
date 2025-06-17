@@ -57,6 +57,8 @@ interface Category {
   color_hex: string;
   icon?: string;
   children?: Category[];
+  position?: number;
+  is_active?: boolean;
 }
 
 export default function CreateArticlePage() {
@@ -93,15 +95,30 @@ export default function CreateArticlePage() {
   const [qualityScore, setQualityScore] = useState(0);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  // تحميل التصنيفات
+  // تحميل التصنيفات الحقيقية من API
   useEffect(() => {
-    const mockCategories: Category[] = [
-      { id: 1, name_ar: 'السياسة', color_hex: '#E5F1FA', icon: '🏛️' },
-      { id: 2, name_ar: 'الاقتصاد', color_hex: '#E3FCEF', icon: '💰' },
-      { id: 3, name_ar: 'التكنولوجيا', color_hex: '#F2F6FF', icon: '💻' },
-      { id: 4, name_ar: 'الرياضة', color_hex: '#FFF5E5', icon: '⚽' }
-    ];
-    setCategories(mockCategories);
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/categories?active_only=true');
+        const result = await res.json();
+        if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل التصنيفات');
+
+        // ترتيب العناصر حسب position أو id
+        const sorted = (result.data as Category[])
+          .filter(cat => cat.is_active)
+          .sort((a, b) => (a.position || 0) - (b.position || 0));
+
+        setCategories(sorted);
+      } catch (err) {
+        console.error('خطأ في تحميل التصنيفات:', err);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   // حفظ تلقائي كل 30 ثانية
@@ -279,22 +296,41 @@ export default function CreateArticlePage() {
   const handleSave = async (status: 'draft' | 'review' | 'published') => {
     const errors = validateForm();
     if (errors.length > 0) return;
-    
+
     setSaving(true);
     try {
-      const articleData = { ...formData, status };
-      // محاكاة حفظ المقال
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Article saved:', articleData);
-      
-      // إظهار رسالة نجاح
-      alert(
-        status === 'draft' ? 'تم حفظ المسودة بنجاح' :
-        status === 'review' ? 'تم إرسال المقال للمراجعة' :
-        'تم نشر المقال بنجاح'
-      );
-    } catch (error) {
-      alert('حدث خطأ أثناء الحفظ');
+      const articleData = {
+        title: formData.title,
+        content_blocks: formData.content_blocks,
+        content: formData.content_blocks
+          .map((b) => (b.type === 'paragraph' ? b.content.text : ''))
+          .join('\n\n'),
+        summary: formData.description,
+        category_id: formData.category_id,
+        status,
+        is_breaking: formData.is_breaking,
+        is_featured: formData.is_featured,
+        featured_image: formData.cover_image,
+        seo_title: formData.title,
+        seo_description: formData.description,
+        publish_at: formData.publish_time
+      };
+
+      const res = await fetch('/api/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(articleData)
+      });
+      const result = await res.json();
+
+      if (!res.ok || !result.success) throw new Error(result.error || 'فشل الحفظ');
+
+      alert(status === 'published' ? 'تم نشر المقال بنجاح' : 'تم الحفظ بنجاح');
+      // إعادة توجيه لقسم الأخبار
+      window.location.href = '/dashboard/news';
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : 'حدث خطأ أثناء الحفظ');
     } finally {
       setSaving(false);
     }

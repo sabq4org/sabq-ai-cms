@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// ===============================
+// تحذير: بيانات مؤقتة
+// ===============================
+// TODO: استبدال جميع أجزاء التخزين المؤقت بقاعدة البيانات الحقيقية
+// يجب ربط هذا API بجداول قاعدة البيانات التالية:
+// - loyalty_points (سجل النقاط)
+// - users (معلومات المستخدمين)
+// - loyalty_rules (قواعد النقاط)
+// - user_sessions (جلسات القراءة)
+
 interface LoyaltyRequest {
   userId: number;
   action: string;
@@ -20,6 +30,7 @@ interface LoyaltyRule {
   is_active: boolean;
 }
 
+// TODO: نقل هذه القواعد إلى جدول loyalty_rules في قاعدة البيانات
 // قواعد النقاط حسب الجدول المطلوب
 const LOYALTY_RULES: LoyaltyRule[] = [
   {
@@ -96,7 +107,8 @@ const LOYALTY_RULES: LoyaltyRule[] = [
   }
 ];
 
-// محاكاة قاعدة البيانات (في التطبيق الحقيقي ستستخدم MySQL/PostgreSQL)
+// TODO: حذف هذا التخزين المؤقت بالكامل واستبداله بقاعدة البيانات الحقيقية
+// محاكاة قاعدة البيانات (مؤقت - يجب إزالته)
 const LOYALTY_STORAGE: { [key: string]: any } = {};
 
 const getUserLoyaltyData = (userId: number) => {

@@ -1,0 +1,52 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+export default function EditArticlePage() {
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [article, setArticle] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        const res = await fetch(`/api/articles/${id}`);
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || "فشل في جلب المقال");
+        setArticle(data.data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "المقال غير موجود أو حدث خطأ");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArticle();
+  }, [id]);
+
+  if (loading) return <div className="p-10 flex justify-center"><Loader2 className="w-6 h-6 animate-spin" /></div>;
+  if (error || !article) return <div className="p-10 text-center text-red-600">{error ?? 'المقال غير موجود'}</div>;
+
+  const handleBack = () => router.back();
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <button onClick={handleBack} className="flex items-center gap-2 mb-6 text-sm text-gray-600 hover:text-gray-900">
+        <ArrowLeft className="w-4 h-4" /> رجوع
+      </button>
+      <h1 className="text-2xl font-bold mb-4">تعديل المقال: {article.title}</h1>
+      {/* يمكن لاحقاً استبدال هذا النموذج بمحرر المقال الكامل */}
+      <textarea
+        defaultValue={article.content || ''}
+        rows={15}
+        className="w-full p-4 border border-gray-300 rounded-lg mb-4"
+        readOnly
+      />
+      <p className="text-gray-500">هذه الصفحة للتجربة فقط. سيتم إضافة محرر كامل لاحقاً.</p>
+    </div>
+  );
+} 

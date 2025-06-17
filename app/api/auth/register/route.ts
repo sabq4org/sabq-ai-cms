@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// محاكاة قاعدة البيانات في الذاكرة
-const users: any[] = [];
-const userPreferences: any[] = [];
-const loyaltyPoints: any[] = [];
+// TODO: استيراد قاعدة البيانات الحقيقية
+// import { prisma } from '@/lib/prisma'; // أو أي ORM تستخدمونه
+// import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,72 +35,75 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // التحقق من وجود البريد مسبقاً
-    const existingUser = users.find(user => user.email === email);
-    if (existingUser) {
+    // التحقق من قوة كلمة المرور
+    if (password.length < 8) {
       return NextResponse.json({
         success: false,
-        error: 'البريد الإلكتروني مسجل مسبقاً'
-      }, { status: 409 });
+        error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل'
+      }, { status: 400 });
     }
 
-    // إنشاء المستخدم الجديد
-    const newUser = {
-      id: Date.now().toString(),
-      fullName,
-      email,
-      phone: phone || '',
-      password, // في التطبيق الحقيقي يجب تشفيرها
-      gender: gender || 'not_specified',
-      city: city || '',
-      country: country || 'السعودية',
-      emailVerified: false,
-      emailVerificationToken: Math.random().toString(36),
-      subscribeNewsletter: Boolean(subscribeNewsletter),
-      preferredCategories: preferredCategories || [],
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    // TODO: التحقق من وجود المستخدم في قاعدة البيانات الحقيقية
+    // const existingUser = await prisma.user.findUnique({
+    //   where: { email }
+    // });
+    // if (existingUser) {
+    //   return NextResponse.json({
+    //     success: false,
+    //     error: 'البريد الإلكتروني مسجل مسبقاً'
+    //   }, { status: 409 });
+    // }
 
-    // حفظ المستخدم
-    users.push(newUser);
+    // TODO: تشفير كلمة المرور
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
-    // إنشاء التفضيلات
-    if (preferredCategories && preferredCategories.length > 0) {
-      for (const categoryId of preferredCategories) {
-        userPreferences.push({
-          id: Date.now().toString() + Math.random(),
-          userId: newUser.id,
-          categoryId,
-          createdAt: new Date().toISOString()
-        });
-      }
-    }
+    // TODO: إنشاء المستخدم في قاعدة البيانات الحقيقية
+    // const newUser = await prisma.user.create({
+    //   data: {
+    //     fullName,
+    //     email,
+    //     phone: phone || '',
+    //     password: hashedPassword,
+    //     gender: gender || 'not_specified',
+    //     city: city || '',
+    //     country: country || 'السعودية',
+    //     emailVerified: false,
+    //     emailVerificationToken: crypto.randomUUID(),
+    //     subscribeNewsletter: Boolean(subscribeNewsletter),
+    //     status: 'pending'
+    //   }
+    // });
 
-    // منح نقاط الولاء (50 نقطة)
-    loyaltyPoints.push({
-      id: Date.now().toString() + Math.random(),
-      userId: newUser.id,
-      points: 50,
-      actionType: 'registration',
-      description: 'مكافأة التسجيل الجديد',
-      createdAt: new Date().toISOString()
-    });
+    // TODO: إضافة التفضيلات
+    // if (preferredCategories && preferredCategories.length > 0) {
+    //   await prisma.userPreference.createMany({
+    //     data: preferredCategories.map(categoryId => ({
+    //       userId: newUser.id,
+    //       categoryId
+    //     }))
+    //   });
+    // }
 
-    console.log(`تسجيل مستخدم جديد: ${fullName} (${email})`);
+    // TODO: منح نقاط الولاء
+    // await prisma.loyaltyPoint.create({
+    //   data: {
+    //     userId: newUser.id,
+    //     points: 50,
+    //     actionType: 'registration',
+    //     description: 'مكافأة التسجيل الجديد'
+    //   }
+    // });
+
+    // TODO: إرسال بريد التحقق
+    // await sendVerificationEmail(newUser.email, newUser.emailVerificationToken);
+
+    console.log(`طلب تسجيل جديد: ${fullName} (${email})`);
 
     return NextResponse.json({
-      success: true,
-      message: 'تم إنشاء حسابك بنجاح!',
-      data: {
-        userId: newUser.id,
-        email: newUser.email,
-        fullName: newUser.fullName,
-        loyaltyPoints: 50,
-        emailVerificationRequired: true
-      }
-    }, { status: 201 });
+      success: false,
+      error: 'التسجيل متوقف مؤقتاً - يجب ربط النظام بقاعدة البيانات الحقيقية أولاً',
+      message: 'يرجى إكمال إعداد قاعدة البيانات لتفعيل التسجيل'
+    }, { status: 503 });
 
   } catch (error) {
     console.error('خطأ في تسجيل المستخدم:', error);
@@ -115,11 +117,12 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   return NextResponse.json({
-    success: true,
+    success: false,
+    message: 'إحصائيات التسجيل متوقفة - يجب ربط النظام بقاعدة البيانات الحقيقية',
     data: {
-      totalUsers: users.length,
-      verifiedUsers: users.filter(u => u.emailVerified).length,
-      totalLoyaltyPoints: loyaltyPoints.reduce((sum, p) => sum + p.points, 0)
+      totalUsers: 0,
+      verifiedUsers: 0,
+      totalLoyaltyPoints: 0
     }
   });
 } 

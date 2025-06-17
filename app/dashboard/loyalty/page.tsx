@@ -16,6 +16,32 @@ export default function LoyaltyPage() {
     }
   }, []);
 
+  // TODO: استبدال بدوال جلب البيانات من قاعدة البيانات الحقيقية
+  const fetchLoyaltyStats = async () => {
+    // يجب تنفيذ استدعاء API لجلب إحصائيات نقاط الولاء
+    // مثال: const response = await fetch('/api/loyalty/stats');
+    return {
+      totalUsers: 0,
+      activeUsers: 0,
+      totalPoints: 0,
+      averagePoints: 0,
+      newMembers: 0,
+      ambassadors: 0
+    };
+  };
+
+  const fetchTopUsers = async () => {
+    // يجب تنفيذ استدعاء API لجلب أعلى المستخدمين
+    // مثال: const response = await fetch('/api/loyalty/top-users');
+    return [];
+  };
+
+  const fetchLoyaltyUsers = async () => {
+    // يجب تنفيذ استدعاء API لجلب مستخدمي برنامج الولاء
+    // مثال: const response = await fetch('/api/loyalty/users');
+    return [];
+  };
+
   const CircularStatsCard = ({ title, value, subtitle, icon: Icon, bgColor, iconColor }: {
     title: string;
     value: string | number;
@@ -112,7 +138,7 @@ export default function LoyaltyPage() {
             <div className="grid grid-cols-6 gap-6 mb-8">
               <CircularStatsCard
                 title="إجمالي المستخدمين"
-                value="4,634"
+                value="0"
                 subtitle="مشترك"
                 icon={Users}
                 bgColor="bg-blue-100"
@@ -120,7 +146,7 @@ export default function LoyaltyPage() {
               />
               <CircularStatsCard
                 title="المستخدمون النشطون"
-                value="3,247"
+                value="0"
                 subtitle="هذا الأسبوع"
                 icon={TrendingUp}
                 bgColor="bg-green-100"
@@ -128,7 +154,7 @@ export default function LoyaltyPage() {
               />
               <CircularStatsCard
                 title="النقاط الموزعة"
-                value="456,789"
+                value="0"
                 subtitle="نقطة"
                 icon={Trophy}
                 bgColor="bg-yellow-100"
@@ -136,7 +162,7 @@ export default function LoyaltyPage() {
               />
               <CircularStatsCard
                 title="متوسط النقاط"
-                value="1,162"
+                value="0"
                 subtitle="لكل مستخدم"
                 icon={Award}
                 bgColor="bg-purple-100"
@@ -144,7 +170,7 @@ export default function LoyaltyPage() {
               />
               <CircularStatsCard
                 title="أعضاء جدد"
-                value="234"
+                value="0"
                 subtitle="هذا الشهر"
                 icon={Users}
                 bgColor="bg-orange-100"
@@ -152,7 +178,7 @@ export default function LoyaltyPage() {
               />
               <CircularStatsCard
                 title="سفراء سبق"
-                value="12"
+                value="0"
                 subtitle="سفير"
                 icon={Crown}
                 bgColor="bg-red-100"
@@ -168,38 +194,11 @@ export default function LoyaltyPage() {
                   darkMode ? 'text-white' : 'text-gray-800'
                 }`}>🏆 أعلى المستخدمين</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center">
-                      <span className="font-bold">1</span>
-                    </div>
-                    <div className="flex-1">
-                      <p className={`font-medium transition-colors duration-300 ${
-                        darkMode ? 'text-white' : 'text-gray-800'
-                      }`}>أحمد محمد الأحمد</p>
-                      <p className={`text-sm transition-colors duration-300 ${
-                        darkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>2,850 نقطة</p>
-                    </div>
-                    <div className="p-1 rounded-lg bg-purple-100">
-                      <Crown className="w-4 h-4 text-purple-600" />
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center">
-                      <span className="font-bold">2</span>
-                    </div>
-                    <div className="flex-1">
-                      <p className={`font-medium transition-colors duration-300 ${
-                        darkMode ? 'text-white' : 'text-gray-800'
-                      }`}>فاطمة علي السعيد</p>
-                      <p className={`text-sm transition-colors duration-300 ${
-                        darkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>1,250 نقطة</p>
-                    </div>
-                    <div className="p-1 rounded-lg bg-yellow-100">
-                      <Award className="w-4 h-4 text-yellow-600" />
-                    </div>
+                  <div className={`text-center py-8 transition-colors duration-300 ${
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    <p>لا توجد بيانات حالياً</p>
+                    <p className="text-sm mt-1">سيتم عرض أعلى المستخدمين بعد ربط قاعدة البيانات</p>
                   </div>
                 </div>
               </div>
@@ -308,58 +307,13 @@ export default function LoyaltyPage() {
             </div>
             
             <div className="space-y-4">
-              {[
-                { name: 'أحمد محمد الأحمد', email: 'ahmed@example.com', points: 2850, rank: 'سفير سبق', activity: 'نشط' },
-                { name: 'فاطمة علي السعيد', email: 'fatima@example.com', points: 1250, rank: 'العضو الذهبي', activity: 'نشط' },
-                { name: 'عبدالله خالد المطيري', email: 'abdullah@example.com', points: 450, rank: 'المتفاعل', activity: 'متوسط' },
-                { name: 'نورا حسن القحطاني', email: 'nora@example.com', points: 85, rank: 'القارئ الجديد', activity: 'قليل' }
-              ].map((user, index) => (
-                <div key={index} className={`p-4 rounded-lg border transition-colors duration-300 ${
-                  darkMode ? 'border-gray-600' : 'border-gray-200'
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                        <span className="text-gray-600 font-medium">
-                          {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </span>
-                      </div>
-                      <div>
-                        <p className={`font-medium transition-colors duration-300 ${
-                          darkMode ? 'text-white' : 'text-gray-800'
-                        }`}>{user.name}</p>
-                        <p className={`text-sm transition-colors duration-300 ${
-                          darkMode ? 'text-gray-400' : 'text-gray-500'
-                        }`}>{user.email}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-4">
-                      <div className="text-center">
-                        <p className={`text-sm transition-colors duration-300 ${
-                          darkMode ? 'text-gray-400' : 'text-gray-500'
-                        }`}>النقاط</p>
-                        <p className={`font-bold transition-colors duration-300 ${
-                          darkMode ? 'text-white' : 'text-gray-800'
-                        }`}>{user.points.toLocaleString()}</p>
-                      </div>
-                      
-                      <div className="text-center">
-                        <p className={`text-sm transition-colors duration-300 ${
-                          darkMode ? 'text-gray-400' : 'text-gray-500'
-                        }`}>الفئة</p>
-                        <p className={`text-sm font-medium transition-colors duration-300 ${
-                          darkMode ? 'text-white' : 'text-gray-800'
-                        }`}>{user.rank}</p>
-                      </div>
-                      
-                      <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {/* TODO: استبدال بمستخدمين حقيقيين من قاعدة البيانات */}
+              <div className={`text-center py-8 transition-colors duration-300 ${
+                darkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}>
+                <p>لا توجد مستخدمين حالياً</p>
+                <p className="text-sm mt-1">سيتم عرض مستخدمي برنامج الولاء بعد ربط قاعدة البيانات</p>
+              </div>
             </div>
           </div>
         );

@@ -19,10 +19,15 @@ interface InteractionRequest {
   userAgent?: string;
 }
 
-// محاكاة قاعدة البيانات للتفاعلات
+// TODO: استبدال بقاعدة البيانات الحقيقية
+// يجب إزالة هذا التخزين المؤقت واستخدام قاعدة البيانات (Prisma/MySQL/MongoDB)
+// محاكاة قاعدة البيانات للتفاعلات (مؤقت - يجب إزالته)
 const INTERACTIONS_STORAGE: { [key: string]: any[] } = {};
 
+// TODO: استبدال بدوال قاعدة البيانات الحقيقية
 const saveInteraction = (interaction: any) => {
+  // يجب استبدال هذا بحفظ في قاعدة البيانات الحقيقية
+  // مثال: return await prisma.interactions.create({ data: interaction });
   const key = `interactions_${interaction.userId}`;
   if (!INTERACTIONS_STORAGE[key]) {
     INTERACTIONS_STORAGE[key] = [];
@@ -31,7 +36,10 @@ const saveInteraction = (interaction: any) => {
   return interaction;
 };
 
+// TODO: استبدال بجلب من قاعدة البيانات الحقيقية
 const getInteractions = (userId: number, articleId?: number) => {
+  // يجب استبدال هذا بجلب من قاعدة البيانات الحقيقية
+  // مثال: return await prisma.interactions.findMany({ where: { userId, articleId } });
   const key = `interactions_${userId}`;
   const interactions = INTERACTIONS_STORAGE[key] || [];
   
@@ -111,7 +119,7 @@ export async function POST(request: NextRequest) {
       articleId,
       interactionType,
       metadata,
-      ipAddress: ipAddress || request.ip,
+      ipAddress: ipAddress || request.headers.get('x-forwarded-for') || 'unknown',
       userAgent: userAgent || request.headers.get('user-agent'),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()

@@ -52,97 +52,18 @@ interface User {
   likesCount: number;
 }
 
-const mockUsers: User[] = [
-  {
-    id: 'U001',
-    name: 'أحمد محمد الأحمد',
-    email: 'ahmed@example.com',
-    phone: '+966501234567',
-    gender: 'male',
-    country: 'السعودية',
-    city: 'الرياض',
-    isVerified: true,
-    status: 'active',
-    role: 'vip',
-    tags: ['تقنية', 'اقتصاد'],
-    joinedAt: '2024-01-15T10:30:00Z',
-    lastLogin: '2024-06-15T14:20:00Z',
-    readCount: 450,
-    commentsCount: 23,
-    likesCount: 156
-  },
-  {
-    id: 'U002',
-    name: 'فاطمة علي السعيد',
-    email: 'fatima@example.com',
-    phone: '+966502345678',
-    gender: 'female',
-    country: 'السعودية',
-    city: 'جدة',
-    isVerified: true,
-    status: 'active',
-    role: 'media',
-    tags: ['سياسة', 'محليات'],
-    joinedAt: '2024-02-20T16:45:00Z',
-    lastLogin: '2024-06-15T09:15:00Z',
-    readCount: 320,
-    commentsCount: 45,
-    likesCount: 289
-  },
-  {
-    id: 'U003',
-    name: 'عبدالله خالد المطيري',
-    email: 'abdullah@example.com',
-    gender: 'male',
-    country: 'الكويت',
-    city: 'الكويت',
-    isVerified: false,
-    status: 'pending',
-    role: 'regular',
-    tags: ['رياضة'],
-    joinedAt: '2024-06-10T08:20:00Z',
-    lastLogin: '2024-06-14T19:30:00Z',
-    readCount: 12,
-    commentsCount: 3,
-    likesCount: 7
-  },
-  {
-    id: 'U004',
-    name: 'نورا حسن القحطاني',
-    email: 'nora@example.com',
-    phone: '+966503456789',
-    gender: 'female',
-    country: 'السعودية',
-    city: 'الدمام',
-    isVerified: true,
-    status: 'banned',
-    role: 'regular',
-    tags: ['ثقافة'],
-    joinedAt: '2024-03-05T12:10:00Z',
-    lastLogin: '2024-06-12T11:45:00Z',
-    readCount: 89,
-    commentsCount: 67,
-    likesCount: 34
-  },
-  {
-    id: 'U005',
-    name: 'سعد إبراهيم الشهري',
-    email: 'saad@example.com',
-    phone: '+966504567890',
-    gender: 'male',
-    country: 'السعودية',
-    city: 'أبها',
-    isVerified: true,
-    status: 'active',
-    role: 'admin',
-    tags: ['إدارة', 'تقنية'],
-    joinedAt: '2023-12-01T14:00:00Z',
-    lastLogin: '2024-06-15T15:00:00Z',
-    readCount: 1250,
-    commentsCount: 189,
-    likesCount: 456
-  }
-];
+// TODO: ربط مع قاعدة البيانات الحقيقية
+// يجب استبدال هذه المصفوفة الفارغة بـ API call لجلب المستخدمين الحقيقيين
+const mockUsers: User[] = [];
+
+// TODO: تنفيذ دالة لجلب البيانات من قاعدة البيانات
+const fetchUsersFromDatabase = async (): Promise<User[]> => {
+  // يجب تنفيذ استدعاء API هنا
+  // const response = await fetch('/api/users');
+  // const data = await response.json();
+  // return data.users;
+  return [];
+};
 
 export default function UsersPage() {
   const [darkMode, setDarkMode] = useState(false);
@@ -161,17 +82,14 @@ export default function UsersPage() {
     }
   }, []);
 
-  // إحصائيات المستخدمين
+  // إحصائيات المستخدمين - TODO: جلب من قاعدة البيانات الحقيقية
   const stats = {
-    total: mockUsers.length,
-    active: mockUsers.filter(u => u.status === 'active').length,
-    pending: mockUsers.filter(u => u.status === 'pending').length,
-    banned: mockUsers.filter(u => u.status === 'banned').length,
-    verified: mockUsers.filter(u => u.isVerified).length,
-    todayJoined: mockUsers.filter(u => {
-      const today = new Date().toISOString().split('T')[0];
-      return u.joinedAt.startsWith(today);
-    }).length
+    total: 0, // TODO: استبدال بعدد المستخدمين الحقيقي
+    active: 0, // TODO: استبدال بعدد المستخدمين النشطين
+    pending: 0, // TODO: استبدال بعدد المستخدمين في الانتظار
+    banned: 0, // TODO: استبدال بعدد المستخدمين المحظورين
+    verified: 0, // TODO: استبدال بعدد المستخدمين الموثقين
+    todayJoined: 0 // TODO: استبدال بعدد المنضمين اليوم
   };
 
   // مكون بطاقة الإحصائية الدائرية
@@ -283,7 +201,7 @@ export default function UsersPage() {
                   {user.name}
                 </Link>
                 {user.isVerified && (
-                  <UserCheck className="w-4 h-4 text-green-500" title="موثق" />
+                  <UserCheck className="w-4 h-4 text-green-500" />
                 )}
               </div>
               <p className={`text-sm transition-colors duration-300 ${
