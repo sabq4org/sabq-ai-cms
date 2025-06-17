@@ -8,6 +8,7 @@ import {
   LogIn, AlertCircle, Sparkles 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { logActions } from '../../lib/log-activity';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -61,6 +62,20 @@ export default function LoginPage() {
 
       // حفظ بيانات المستخدم
       localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('currentUser', JSON.stringify({
+        user_id: data.user.id,
+        user_name: data.user.name,
+        email: data.user.email,
+        role: data.user.role
+      }));
+      
+      // تسجيل حدث تسجيل الدخول
+      await logActions.login({
+        user_id: data.user.id,
+        user_name: data.user.name,
+        email: data.user.email,
+        role: data.user.role
+      });
       
       toast.success('مرحباً بعودتك! 🎉');
       

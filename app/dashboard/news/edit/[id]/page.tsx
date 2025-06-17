@@ -11,6 +11,7 @@ import {
   ArrowLeft, Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { logActions, getCurrentUser } from '../../../../../lib/log-activity';
 
 // ===============================
 // أنواع البيانات
@@ -190,6 +191,14 @@ export default function EditArticlePage() {
       if (!res.ok) {
         const result = await res.json();
         throw new Error(result.error || 'فشل التحديث');
+      }
+
+      // تسجيل الحدث في سجلات النظام
+      const userInfo = getCurrentUser();
+      await logActions.updateArticle(userInfo, articleId, formData.title);
+      
+      if (status === 'published') {
+        await logActions.publishArticle(userInfo, articleId, formData.title);
       }
 
       toast.success(status === 'published' ? 'تم نشر المقال بنجاح' : 'تم حفظ التعديلات بنجاح');

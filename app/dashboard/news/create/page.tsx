@@ -14,6 +14,7 @@ import ContentEditor from '../../../../components/ContentEditor';
 import QualityPanel from '../../../../components/QualityPanel';
 import PublishPanel from '../../../../components/PublishPanel';
 import MediaPanel from '../../../../components/MediaPanel';
+import { logActions, getCurrentUser } from '../../../../lib/log-activity';
 
 // ===============================
 // أنواع البيانات
@@ -328,6 +329,14 @@ export default function CreateArticlePage() {
       const result = await res.json();
 
       if (!res.ok || !result.success) throw new Error(result.error || 'فشل الحفظ');
+
+      // تسجيل الحدث في سجلات النظام
+      const userInfo = getCurrentUser();
+      await logActions.createArticle(userInfo, result.data.id, formData.title);
+      
+      if (status === 'published') {
+        await logActions.publishArticle(userInfo, result.data.id, formData.title);
+      }
 
       alert(status === 'published' ? 'تم نشر المقال بنجاح' : 'تم الحفظ بنجاح');
       // إعادة توجيه لقسم الأخبار

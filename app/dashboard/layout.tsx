@@ -20,7 +20,8 @@ import {
   Brain,
   Target,
   Database,
-  Zap
+  Zap,
+  Shield
 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -473,8 +474,6 @@ export default function DashboardLayout({
                 <div className="w-2 h-2 bg-gray-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </Link>
 
-
-
               <Link href="/dashboard/activities" className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
                 darkMode 
                   ? 'text-gray-300 hover:bg-gradient-to-r hover:from-orange-900/30 hover:to-red-900/30 hover:text-orange-300' 
@@ -496,6 +495,35 @@ export default function DashboardLayout({
                   }`}>تتبع العمليات</p>
                 </div>
                 <div className="w-2 h-2 bg-orange-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </Link>
+
+              <Link href="/dashboard/system/logs" className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+                darkMode 
+                  ? 'text-gray-300 hover:bg-gradient-to-r hover:from-indigo-900/30 hover:to-purple-900/30 hover:text-indigo-300' 
+                  : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-700'
+              }`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                  darkMode 
+                    ? 'bg-indigo-900/40 group-hover:bg-indigo-500 group-hover:text-white' 
+                    : 'bg-indigo-100 group-hover:bg-indigo-500 group-hover:text-white'
+                }`}>
+                  <Shield className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <span className="font-medium">سجلات النظام</span>
+                  <p className={`text-xs transition-colors duration-300 ${
+                    darkMode 
+                      ? 'text-gray-400 group-hover:text-indigo-300' 
+                      : 'text-gray-500 group-hover:text-indigo-600'
+                  }`}>المراقبة الأمنية</p>
+                </div>
+                <div className={`px-2 py-1 rounded-full text-xs font-bold transition-all ${
+                  darkMode 
+                    ? 'bg-indigo-900/40 text-indigo-300 group-hover:bg-indigo-500 group-hover:text-white' 
+                    : 'bg-indigo-100 text-indigo-700 group-hover:bg-indigo-500 group-hover:text-white'
+                }`}>
+                  🔐
+                </div>
               </Link>
 
               <Link href="/dashboard/roles" className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
