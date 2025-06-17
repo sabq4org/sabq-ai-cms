@@ -15,6 +15,7 @@ interface Article {
   title: string;
   slug: string;
   content: string;
+  summary?: string;
   author_id: string;
   author_name?: string;
   category_id: number;
@@ -86,6 +87,32 @@ export default function ArticleViewPage() {
       fetchArticle();
     }
   }, [articleId]);
+
+  // حساب عدد الكلمات الحقيقي
+  const calculateWordCount = (text: string): number => {
+    // إزالة المسافات الزائدة والأسطر الفارغة
+    const cleanText = text.trim().replace(/\s+/g, ' ');
+    // حساب الكلمات العربية والإنجليزية
+    const words = cleanText.split(/\s+/).filter(word => word.length > 0);
+    return words.length;
+  };
+
+  // حساب وقت القراءة الحقيقي (200 كلمة في الدقيقة)
+  const calculateReadingTime = (text: string): number => {
+    const wordCount = calculateWordCount(text);
+    const readingTime = Math.ceil(wordCount / 200);
+    return readingTime || 1; // على الأقل دقيقة واحدة
+  };
+
+  // إنشاء ملخص تلقائي إذا لم يكن موجوداً
+  const generateSummary = (content: string): string => {
+    const paragraphs = content.split('\n').filter(p => p.trim().length > 0);
+    const firstParagraph = paragraphs[0] || '';
+    // أخذ أول 200 حرف من الفقرة الأولى
+    return firstParagraph.length > 200 
+      ? firstParagraph.substring(0, 200) + '...' 
+      : firstParagraph;
+  };
 
   // وظائف التنسيق
   const formatDate = (dateString: string) => {
@@ -224,6 +251,10 @@ export default function ArticleViewPage() {
   }
 
   const categoryData = categories[article.category_id] || { name: 'غير مصنف', color: '#6B7280' };
+  // حساب الإحصائيات الحقيقية
+  const realWordCount = calculateWordCount(article.content);
+  const realReadingTime = calculateReadingTime(article.content);
+  const articleSummary = article.summary || generateSummary(article.content);
 
   return (
     <div className={`p-8 transition-colors duration-300 ${
@@ -280,11 +311,6 @@ export default function ArticleViewPage() {
         <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
           darkMode ? 'text-white' : 'text-gray-800'
         }`}>{article.title}</h1>
-        <p className={`text-lg transition-colors duration-300 ${
-          darkMode ? 'text-gray-300' : 'text-gray-600'
-        }`}>
-          {article.content.split('\n')[0].substring(0, 150)}...
-        </p>
       </div>
 
       {/* شريط الأدوات */}
@@ -375,6 +401,28 @@ export default function ArticleViewPage() {
         <div className="col-span-12 lg:col-span-8 space-y-6">
           {activeTab === 'content' && (
             <div className="space-y-6">
+              {/* الملخص */}
+              <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
+                darkMode 
+                  ? 'bg-gray-800 border-gray-700' 
+                  : 'bg-white border-gray-100'
+              }`}>
+                <h3 className={`text-lg font-bold mb-4 transition-colors duration-300 ${
+                  darkMode ? 'text-white' : 'text-gray-800'
+                }`}>📝 ملخص الخبر</h3>
+                <div className={`p-4 rounded-xl border-r-4 transition-colors duration-300 ${
+                  darkMode 
+                    ? 'bg-gray-700 border-blue-400' 
+                    : 'bg-blue-50 border-blue-500'
+                }`}>
+                  <p className={`leading-relaxed transition-colors duration-300 ${
+                    darkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
+                    {articleSummary}
+                  </p>
+                </div>
+              </div>
+              
               {/* المحتوى */}
               <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
                 darkMode 
@@ -473,13 +521,19 @@ export default function ArticleViewPage() {
             }`}>📄 معلومات المقال</h2>
             
             {/* معلومات الكاتب */}
-            <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-xl">
+            <div className={`flex items-center gap-3 mb-4 p-3 rounded-xl transition-colors duration-300 ${
+              darkMode ? 'bg-gray-700' : 'bg-gray-50'
+            }`}>
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                 <User className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900">{article.author_name || 'غير معروف'}</p>
-                <p className="text-sm text-gray-600">كاتب المقال</p>
+                <p className={`font-semibold transition-colors duration-300 ${
+                  darkMode ? 'text-gray-100' : 'text-gray-900'
+                }`}>{article.author_name || 'غير معروف'}</p>
+                <p className={`text-sm transition-colors duration-300 ${
+                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>كاتب المقال</p>
               </div>
             </div>
 
@@ -525,15 +579,27 @@ export default function ArticleViewPage() {
 
             {/* إحصائيات سريعة */}
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="bg-blue-50 p-3 rounded-xl text-center">
-                <div className="text-lg font-bold text-blue-600">{article.reading_time} دقائق</div>
-                <div className="text-xs text-blue-700">وقت القراءة</div>
+              <div className={`p-3 rounded-xl text-center transition-colors duration-300 ${
+                darkMode ? 'bg-blue-900' : 'bg-blue-50'
+              }`}>
+                <div className={`text-lg font-bold transition-colors duration-300 ${
+                  darkMode ? 'text-blue-300' : 'text-blue-600'
+                }`}>{realReadingTime} دقائق</div>
+                <div className={`text-xs transition-colors duration-300 ${
+                  darkMode ? 'text-blue-400' : 'text-blue-700'
+                }`}>وقت القراءة</div>
               </div>
-              <div className="bg-green-50 p-3 rounded-xl text-center">
-                <div className="text-lg font-bold text-green-600">
-                  {article.content.split(' ').length}
+              <div className={`p-3 rounded-xl text-center transition-colors duration-300 ${
+                darkMode ? 'bg-green-900' : 'bg-green-50'
+              }`}>
+                <div className={`text-lg font-bold transition-colors duration-300 ${
+                  darkMode ? 'text-green-300' : 'text-green-600'
+                }`}>
+                  {realWordCount.toLocaleString()}
                 </div>
-                <div className="text-xs text-green-700">كلمة</div>
+                <div className={`text-xs transition-colors duration-300 ${
+                  darkMode ? 'text-green-400' : 'text-green-700'
+                }`}>كلمة</div>
               </div>
             </div>
 
@@ -542,7 +608,9 @@ export default function ArticleViewPage() {
               <label className={`text-sm font-medium mb-2 block transition-colors duration-300 ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>معرف المقال</label>
-              <code className="bg-gray-100 text-gray-800 px-3 py-1 rounded text-xs font-mono">
+              <code className={`px-3 py-1 rounded text-xs font-mono transition-colors duration-300 ${
+                darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800'
+              }`}>
                 {article.id}
               </code>
             </div>
@@ -552,7 +620,7 @@ export default function ArticleViewPage() {
           <div className="grid grid-cols-2 gap-4">
             <CircularStatsCard
               title="المشاهدات"
-              value={article.views_count.toString()}
+              value={article.views_count.toLocaleString()}
               subtitle="مشاهدة"
               icon={Eye}
               bgColor="bg-blue-100"
@@ -560,7 +628,7 @@ export default function ArticleViewPage() {
             />
             <CircularStatsCard
               title="القراءة"
-              value={article.reading_time.toString()}
+              value={realReadingTime.toString()}
               subtitle="دقيقة"
               icon={Clock}
               bgColor="bg-green-100"
