@@ -106,9 +106,21 @@ export default function NewsManagementPage() {
             category: a.category_id || '—',
             category_name: categoryData.name,
             category_color: categoryData.color,
-            publishTime: a.published_at ? new Date(a.published_at).toLocaleString() : '-',
+            publishTime: a.published_at ? new Date(a.published_at).toLocaleString('ar-SA', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            }) : '-',
             viewCount: a.views_count || 0,
-            lastModified: new Date(a.updated_at || a.created_at).toLocaleString(),
+            lastModified: new Date(a.updated_at || a.created_at).toLocaleString('ar-SA', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
             lastModifiedBy: a.editor_id || a.author_id || '—',
             isPinned: a.is_pinned || false,
             isBreaking: a.is_breaking || false,
@@ -486,9 +498,6 @@ export default function NewsManagementPage() {
               }`}>التصنيف</th>
               <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
                 darkMode ? 'text-gray-200' : 'text-gray-700'
-              }`}>وقت النشر</th>
-              <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                darkMode ? 'text-gray-200' : 'text-gray-700'
               }`}>المشاهدات</th>
               <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
                 darkMode ? 'text-gray-200' : 'text-gray-700'
@@ -512,11 +521,12 @@ export default function NewsManagementPage() {
               .map((news, index) => (
               <tr 
                 key={news.id} 
-                className={`transition-colors duration-200 hover:bg-gray-50 border-b ${
-                  darkMode ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-100 hover:bg-gray-50'
-                } ${
-                  news.isBreaking ? (darkMode ? 'bg-red-900/20' : 'bg-red-50') : 
-                  news.isPinned ? (darkMode ? 'bg-blue-900/20' : 'bg-blue-50') : ''
+                className={`transition-colors duration-200 ${
+                  news.isBreaking 
+                    ? (darkMode ? 'bg-red-900/20 hover:bg-red-900/30 border-l-4 border-red-500' : 'bg-red-50 hover:bg-red-100 border-l-4 border-red-400') 
+                    : news.isPinned 
+                      ? (darkMode ? 'bg-blue-900/20 hover:bg-blue-900/30 border-l-4 border-blue-500' : 'bg-blue-50 hover:bg-blue-100 border-l-4 border-blue-400')
+                      : (darkMode ? 'hover:bg-gray-700 border-b border-gray-700' : 'hover:bg-gray-50 border-b border-gray-100')
                 }`}
               >
                 {/* العنوان */}
@@ -534,22 +544,14 @@ export default function NewsManagementPage() {
                       <div className="text-xs text-gray-400 mt-1">
                         بواسطة {news.author_name}
                       </div>
-                      <div className="flex items-center mt-1 space-x-2">
-                        <span className={`text-xs transition-colors duration-300 ${
-                    darkMode ? 'text-gray-400' : 'text-gray-500'
-                        }`}>#{news.id}</span>
-                        {news.isPinned && (
-                          <span className="badge badge-primary">مثبت</span>
-                        )}
-                        {news.isBreaking && (
-                          <span className="badge badge-error">
-                            <Zap className="w-3 h-3 mr-1" />
-                            عاجل
-                          </span>
-                        )}
-                </div>
-              </div>
-            </div>
+                      {news.publishTime && news.publishTime !== '-' && (
+                        <div className="text-xs text-gray-400 mt-1">
+                          <Calendar className="w-3 h-3 inline-block ml-1" />
+                          {news.publishTime}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </td>
 
                 {/* التصنيف */}
@@ -563,13 +565,6 @@ export default function NewsManagementPage() {
                   >
                     {news.category_name || 'غير مصنف'}
                   </span>
-                </td>
-
-                {/* وقت النشر */}
-                <td className={`px-6 py-4 text-xs transition-colors duration-300 ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                  {news.publishTime || '-'}
                 </td>
 
                 {/* المشاهدات */}
