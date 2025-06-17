@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs/promises';
+import path from 'path';
 
 // ===============================
 // أنواع البيانات
@@ -49,9 +51,88 @@ interface CreateArticleRequest {
   content_blocks?: any[];
 }
 
-// TODO: استبدال بقاعدة البيانات الحقيقية (Prisma/MongoDB/MySQL)
-// يجب ربط هذا الـ API بقاعدة البيانات الفعلية
-export let articles: Article[] = [];
+// ===============================
+// إدارة تخزين البيانات
+// ===============================
+
+const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'articles.json');
+
+// قراءة المقالات من الملف
+async function loadArticles(): Promise<Article[]> {
+  try {
+    // التأكد من وجود مجلد البيانات
+    const dataDir = path.join(process.cwd(), 'data');
+    try {
+      await fs.access(dataDir);
+    } catch {
+      await fs.mkdir(dataDir, { recursive: true });
+    }
+
+    // قراءة الملف
+    const fileContent = await fs.readFile(DATA_FILE_PATH, 'utf-8');
+    return JSON.parse(fileContent);
+  } catch (error) {
+    // إذا لم يكن الملف موجودًا، إرجاع مصفوفة فارغة
+    return [];
+  }
+}
+
+// حفظ المقالات في الملف
+async function saveArticles(articles: Article[]): Promise<void> {
+  try {
+    // التأكد من وجود مجلد البيانات
+    const dataDir = path.join(process.cwd(), 'data');
+    await fs.mkdir(dataDir, { recursive: true });
+    
+    // حفظ البيانات
+    await fs.writeFile(DATA_FILE_PATH, JSON.stringify(articles, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('خطأ في حفظ المقالات:', error);
+    throw new Error('فشل في حفظ المقالات');
+  }
+}
+
+// إضافة مقال جديد
+async function addArticle(article: Article): Promise<void> {
+  const articles = await loadArticles();
+  articles.unshift(article);
+  await saveArticles(articles);
+}
+
+// تحديث مقال
+async function updateArticle(id: string, updates: Partial<Article>): Promise<Article | null> {
+  const articles = await loadArticles();
+  const index = articles.findIndex(a => a.id === id);
+  
+  if (index === -1) return null;
+  
+  articles[index] = { ...articles[index], ...updates, updated_at: new Date().toISOString() };
+  await saveArticles(articles);
+  
+  return articles[index];
+}
+
+// حذف مقالات (حذف ناعم)
+async function softDeleteArticles(ids: string[]): Promise<number> {
+  const articles = await loadArticles();
+  let affected = 0;
+  
+  const updatedArticles = articles.map(article => {
+    if (ids.includes(article.id)) {
+      affected++;
+      return { 
+        ...article, 
+        status: 'deleted' as const, 
+        is_deleted: true, 
+        updated_at: new Date().toISOString() 
+      };
+    }
+    return article;
+  });
+  
+  await saveArticles(updatedArticles);
+  return affected;
+}
 
 // TODO: تنفيذ دوال قاعدة البيانات الحقيقية
 const fetchArticlesFromDatabase = async (filters: any = {}) => {
@@ -87,7 +168,9 @@ function calculateReadingTime(content: string): number {
 }
 
 // فلترة المقالات حسب المعايير
-function filterArticles(query: URLSearchParams) {
+async function filterArticles(query: URLSearchParams) {
+  // تحميل المقالات من الملف
+  const articles = await loadArticles();
   let filteredArticles = [...articles];
 
   // فلترة حسب الحالة
@@ -174,7 +257,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     
     // تطبيق الفلاتر
-    let filteredArticles = filterArticles(searchParams);
+    let filteredArticles = await filterArticles(searchParams);
     
     // تطبيق الترتيب
     const sortBy = searchParams.get('sort') || 'created_at';
@@ -263,16 +346,17 @@ export async function POST(request: NextRequest) {
     };
 
     // التحقق من عدم تكرار الـ slug
+    const existingArticles = await loadArticles();
     let finalSlug = newArticle.slug;
     let counter = 1;
-    while (articles.some(article => article.slug === finalSlug)) {
+    while (existingArticles.some((article: Article) => article.slug === finalSlug)) {
       finalSlug = `${newArticle.slug}-${counter}`;
       counter++;
     }
     newArticle.slug = finalSlug;
 
     // إضافة المقال
-    articles.unshift(newArticle);
+    await addArticle(newArticle);
 
     return NextResponse.json({
       success: true,
@@ -310,14 +394,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // حذف ناعم (تغيير الحالة إلى deleted)
-    let affected = 0;
-    articles = articles.map(a => {
-      if (ids.includes(a.id)) {
-        affected++;
-        return { ...a, status: 'deleted', is_deleted: true, updated_at: new Date().toISOString() } as Article;
-      }
-      return a;
-    });
+    const affected = await softDeleteArticles(ids);
 
     return NextResponse.json({
       success: true,
