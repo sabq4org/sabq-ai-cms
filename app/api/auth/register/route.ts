@@ -1,117 +1,139 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { promises as fs } from 'fs';
+import path from 'path';
+import bcrypt from 'bcryptjs';
 
-// TODO: استيراد قاعدة البيانات الحقيقية
-// import { prisma } from '@/lib/prisma'; // أو أي ORM تستخدمونه
-// import bcrypt from 'bcryptjs';
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  created_at: string;
+  updated_at: string;
+}
+
+const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+
+// تأكد من وجود ملف المستخدمين
+async function ensureUsersFile() {
+  try {
+    await fs.access(usersFilePath);
+  } catch {
+    await fs.mkdir(path.dirname(usersFilePath), { recursive: true });
+    await fs.writeFile(usersFilePath, JSON.stringify({ users: [] }));
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const {
-      fullName,
-      email,
-      phone,
-      password,
-      gender,
-      city,
-      country,
-      preferredCategories,
-      subscribeNewsletter
-    } = await request.json();
+    const body = await request.json();
+    const { name, email, password } = body;
 
     // التحقق من البيانات المطلوبة
-    if (!fullName || !email || !password) {
-      return NextResponse.json({
-        success: false,
-        error: 'الحقول المطلوبة مفقودة'
-      }, { status: 400 });
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { success: false, error: 'جميع الحقول مطلوبة' },
+        { status: 400 }
+      );
     }
 
-    // التحقق من تنسيق البريد الإلكتروني
+    // التحقق من صحة البريد الإلكتروني
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return NextResponse.json({
-        success: false,
-        error: 'البريد الإلكتروني غير صحيح'
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'البريد الإلكتروني غير صحيح' },
+        { status: 400 }
+      );
     }
 
-    // التحقق من قوة كلمة المرور
+    // التحقق من طول كلمة المرور
     if (password.length < 8) {
-      return NextResponse.json({
-        success: false,
-        error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل'
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' },
+        { status: 400 }
+      );
     }
 
-    // TODO: التحقق من وجود المستخدم في قاعدة البيانات الحقيقية
-    // const existingUser = await prisma.user.findUnique({
-    //   where: { email }
-    // });
-    // if (existingUser) {
-    //   return NextResponse.json({
-    //     success: false,
-    //     error: 'البريد الإلكتروني مسجل مسبقاً'
-    //   }, { status: 409 });
-    // }
+    // قراءة ملف المستخدمين
+    await ensureUsersFile();
+    const fileContent = await fs.readFile(usersFilePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    
+    // التحقق من عدم وجود بريد إلكتروني مكرر
+    const existingUser = data.users.find((u: User) => u.email === email);
+    if (existingUser) {
+      return NextResponse.json(
+        { success: false, error: 'البريد الإلكتروني مستخدم بالفعل' },
+        { status: 400 }
+      );
+    }
 
-    // TODO: تشفير كلمة المرور
-    // const hashedPassword = await bcrypt.hash(password, 10);
+    // تشفير كلمة المرور
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // TODO: إنشاء المستخدم في قاعدة البيانات الحقيقية
-    // const newUser = await prisma.user.create({
-    //   data: {
-    //     fullName,
-    //     email,
-    //     phone: phone || '',
-    //     password: hashedPassword,
-    //     gender: gender || 'not_specified',
-    //     city: city || '',
-    //     country: country || 'السعودية',
-    //     emailVerified: false,
-    //     emailVerificationToken: crypto.randomUUID(),
-    //     subscribeNewsletter: Boolean(subscribeNewsletter),
-    //     status: 'pending'
-    //   }
-    // });
+    // إنشاء المستخدم الجديد
+    const newUser: User = {
+      id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name,
+      email,
+      password: hashedPassword,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
 
-    // TODO: إضافة التفضيلات
-    // if (preferredCategories && preferredCategories.length > 0) {
-    //   await prisma.userPreference.createMany({
-    //     data: preferredCategories.map(categoryId => ({
-    //       userId: newUser.id,
-    //       categoryId
-    //     }))
-    //   });
-    // }
+    // إضافة المستخدم إلى القائمة
+    data.users.push(newUser);
 
-    // TODO: منح نقاط الولاء
-    // await prisma.loyaltyPoint.create({
-    //   data: {
-    //     userId: newUser.id,
-    //     points: 50,
-    //     actionType: 'registration',
-    //     description: 'مكافأة التسجيل الجديد'
-    //   }
-    // });
+    // حفظ الملف
+    await fs.writeFile(usersFilePath, JSON.stringify(data, null, 2));
 
-    // TODO: إرسال بريد التحقق
-    // await sendVerificationEmail(newUser.email, newUser.emailVerificationToken);
+    // إنشاء نقاط ولاء أولية (50 نقطة ترحيبية)
+    const loyaltyFilePath = path.join(process.cwd(), 'data', 'loyalty_points.json');
+    try {
+      const loyaltyContent = await fs.readFile(loyaltyFilePath, 'utf-8');
+      const loyaltyData = JSON.parse(loyaltyContent);
+      
+      loyaltyData.points.push({
+        id: `points-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        user_id: newUser.id,
+        points: 50,
+        action: 'registration_bonus',
+        description: 'نقاط ترحيبية للتسجيل',
+        created_at: new Date().toISOString()
+      });
 
-    console.log(`طلب تسجيل جديد: ${fullName} (${email})`);
+      await fs.writeFile(loyaltyFilePath, JSON.stringify(loyaltyData, null, 2));
+    } catch {
+      // إذا لم يكن ملف نقاط الولاء موجوداً، أنشئه
+      const loyaltyData = {
+        points: [{
+          id: `points-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          user_id: newUser.id,
+          points: 50,
+          action: 'registration_bonus',
+          description: 'نقاط ترحيبية للتسجيل',
+          created_at: new Date().toISOString()
+        }]
+      };
+      await fs.mkdir(path.dirname(loyaltyFilePath), { recursive: true });
+      await fs.writeFile(loyaltyFilePath, JSON.stringify(loyaltyData, null, 2));
+    }
 
-    return NextResponse.json({
-      success: false,
-      error: 'التسجيل متوقف مؤقتاً - يجب ربط النظام بقاعدة البيانات الحقيقية أولاً',
-      message: 'يرجى إكمال إعداد قاعدة البيانات لتفعيل التسجيل'
-    }, { status: 503 });
-
-  } catch (error) {
-    console.error('خطأ في تسجيل المستخدم:', error);
+    // إرجاع بيانات المستخدم (بدون كلمة المرور)
+    const { password: _, ...userWithoutPassword } = newUser;
     
     return NextResponse.json({
-      success: false,
-      error: 'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى.'
-    }, { status: 500 });
+      success: true,
+      message: 'تم إنشاء الحساب بنجاح',
+      user: userWithoutPassword
+    });
+    
+  } catch (error) {
+    console.error('خطأ في التسجيل:', error);
+    return NextResponse.json(
+      { success: false, error: 'حدث خطأ في عملية التسجيل' },
+      { status: 500 }
+    );
   }
 }
 

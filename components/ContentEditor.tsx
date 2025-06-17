@@ -26,6 +26,69 @@ export default function ContentEditor({
   aiLoading
 }: ContentEditorProps) {
 
+  // دوال AI الجديدة
+  const generateCategorySuggestion = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setFormData((prev: any) => ({ ...prev, aiLoading: { ...prev.aiLoading, category: true } }));
+    try {
+      // محاكاة استدعاء AI لتحليل المحتوى واقتراح التصنيف
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // تحليل المحتوى الموجود
+      const contentText = formData.content_blocks
+        ?.filter((b: any) => b.type === 'paragraph')
+        .map((b: any) => b.content?.text || '')
+        .join(' ');
+      
+      // اقتراح التصنيف بناءً على المحتوى
+      let suggestedCategoryId = 1; // افتراضي
+      let suggestedCategoryName = '';
+      
+      if (contentText.includes('تقنية') || contentText.includes('ذكاء اصطناعي')) {
+        suggestedCategoryId = categories.find((c: any) => c.name_ar.includes('تقنية'))?.id || 1;
+        suggestedCategoryName = 'التقنية والابتكار';
+      } else if (contentText.includes('رياضة') || contentText.includes('دوري')) {
+        suggestedCategoryId = categories.find((c: any) => c.name_ar.includes('رياضة'))?.id || 2;
+        suggestedCategoryName = 'الرياضة';
+      }
+      
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setFormData((prev: any) => ({ 
+        ...prev, 
+        category_id: suggestedCategoryId,
+        ai_category_suggestion: suggestedCategoryName
+      }));
+    } finally {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setFormData((prev: any) => ({ ...prev, aiLoading: { ...prev.aiLoading, category: false } }));
+    }
+  };
+
+  const generateAISummary = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setFormData((prev: any) => ({ ...prev, aiLoading: { ...prev.aiLoading, summary: true } }));
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // جمع المحتوى من جميع البلوكات
+      const contentText = formData.content_blocks
+        ?.filter((b: any) => b.type === 'paragraph')
+        .map((b: any) => b.content?.text || '')
+        .join(' ');
+      
+      // توليد ملخص ذكي
+      const summary = contentText.length > 100 
+        ? `ملخص تلقائي: ${contentText.substring(0, 150)}...`
+        : 'يحتاج المقال إلى محتوى أكثر لتوليد ملخص دقيق';
+      
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setFormData((prev: any) => ({ ...prev, ai_summary: summary }));
+    } finally {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setFormData((prev: any) => ({ ...prev, aiLoading: { ...prev.aiLoading, summary: false } }));
+    }
+  };
+
   // دوال إدارة البلوكات الحقيقية
   const addBlock = (type: string) => {
     const newBlock = {
@@ -197,9 +260,23 @@ export default function ContentEditor({
 
           {/* التصنيف */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
-              التصنيف الرئيسي <span className="text-red-500">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-gray-700">
+                التصنيف الرئيسي <span className="text-red-500">*</span>
+              </label>
+              <button
+                onClick={generateCategorySuggestion}
+                disabled={aiLoading?.category}
+                className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-700 transition-colors disabled:opacity-50"
+              >
+                {aiLoading?.category ? (
+                  <RefreshCw className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Brain className="w-3 h-3" />
+                )}
+                اقتراح AI
+              </button>
+            </div>
             <select
               value={formData.category_id}
               onChange={(e) => setFormData(prev => ({ ...prev, category_id: Number(e.target.value) }))}
@@ -212,6 +289,11 @@ export default function ContentEditor({
                 </option>
               ))}
             </select>
+            {formData.ai_category_suggestion && (
+              <p className="text-xs text-purple-600 mt-1">
+                🤖 اقتراح AI: {formData.ai_category_suggestion}
+              </p>
+            )}
           </div>
           
           <div>
@@ -250,6 +332,34 @@ export default function ContentEditor({
               <span className="text-sm text-gray-700">خبر رئيسي</span>
             </label>
           </div>
+
+          {/* ملخص AI - جديد */}
+          {formData.content_blocks?.length > 0 && (
+            <div className="lg:col-span-2 mt-4">
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-700">
+                  ملخص ذكي بواسطة AI
+                </label>
+                <button
+                  onClick={generateAISummary}
+                  disabled={aiLoading?.summary}
+                  className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 transition-colors disabled:opacity-50"
+                >
+                  {aiLoading?.summary ? (
+                    <RefreshCw className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3 h-3" />
+                  )}
+                  توليد ملخص
+                </button>
+              </div>
+              {formData.ai_summary && (
+                <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{formData.ai_summary}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

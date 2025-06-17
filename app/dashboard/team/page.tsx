@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { Users, Plus, Search, Download, Bell, Shield, Mail, Phone, Calendar, Clock, CheckCircle, AlertCircle, UserPlus, Edit3, Trash2, Filter, X } from 'lucide-react';
 
 interface TeamMember {
-  id: number;
+  id: string;
+  userId: string;
   name: string;
   email: string;
   phone: string;
+  roleId: string;
   role: string;
   department: string;
   joinDate: string;
@@ -15,6 +17,21 @@ interface TeamMember {
   status: 'active' | 'inactive' | 'pending';
   avatar: string;
   permissions: string[];
+}
+
+interface Role {
+  id: string;
+  name: string;
+  description: string;
+  permissions: string[];
+  color: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
 }
 
 interface Notification {
@@ -26,74 +43,9 @@ interface Notification {
 
 export default function TeamPage() {
   const [darkMode, setDarkMode] = useState(false);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
-    {
-      id: 1,
-      name: 'أحمد محمد السالم',
-      email: 'ahmed.salem@sabq.org',
-      phone: '+966501234567',
-      role: 'رئيس التحرير',
-      department: 'إدارة المحتوى',
-      joinDate: '2023-01-15',
-      lastActive: 'منذ ساعة',
-      status: 'active',
-      avatar: '/api/placeholder/40/40',
-      permissions: ['create_articles', 'edit_articles', 'delete_articles', 'publish_articles', 'manage_users']
-    },
-    {
-      id: 2,
-      name: 'فاطمة عبدالله النور',
-      email: 'fatima.noor@sabq.org',
-      phone: '+966507654321',
-      role: 'محرر أول',
-      department: 'إدارة المحتوى',
-      joinDate: '2023-03-22',
-      lastActive: 'منذ 30 دقيقة',
-      status: 'active',
-      avatar: '/api/placeholder/40/40',
-      permissions: ['create_articles', 'edit_articles', 'publish_articles']
-    },
-    {
-      id: 3,
-      name: 'خالد عبدالعزيز الشمري',
-      email: 'khalid.shamri@sabq.org',
-      phone: '+966503456789',
-      role: 'محرر',
-      department: 'إدارة المحتوى',
-      joinDate: '2023-06-10',
-      lastActive: 'منذ يوم',
-      status: 'active',
-      avatar: '/api/placeholder/40/40',
-      permissions: ['create_articles', 'edit_articles']
-    },
-    {
-      id: 4,
-      name: 'مريم سعد العتيبي',
-      email: 'mariam.otaibi@sabq.org',
-      phone: '+966509876543',
-      role: 'مدقق لغوي',
-      department: 'إدارة المحتوى',
-      joinDate: '2023-08-05',
-      lastActive: 'منذ 3 ساعات',
-      status: 'active',
-      avatar: '/api/placeholder/40/40',
-      permissions: ['edit_articles', 'review_articles']
-    },
-    {
-      id: 5,
-      name: 'عبدالرحمن أحمد القحطاني',
-      email: 'abdul.qahtani@sabq.org',
-      phone: '+966502345678',
-      role: 'مطور',
-      department: 'التقنية',
-      joinDate: '2023-04-12',
-      lastActive: 'منذ 2 ساعة',
-      status: 'active',
-      avatar: '/api/placeholder/40/40',
-      permissions: ['system_settings', 'manage_users', 'backup_system']
-    }
-  ]);
-
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -103,16 +55,20 @@ export default function TeamPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   
+  // بيانات إضافة عضو جديد
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    role: '',
+    userId: '',
+    roleId: '',
     department: '',
     permissions: [] as string[]
   });
+  
+  // للبحث في المستخدمين
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const availableRoles = ['رئيس التحرير', 'محرر أول', 'محرر', 'مدقق لغوي', 'مطور', 'مسوق المحتوى', 'محلل البيانات'];
   const availableDepartments = ['إدارة المحتوى', 'التقنية', 'التسويق', 'إدارة التفاعل', 'تحليل البيانات'];
   const availablePermissions = [
     { id: 'create_articles', name: 'إنشاء المقالات' },
@@ -122,7 +78,12 @@ export default function TeamPage() {
     { id: 'manage_users', name: 'إدارة المستخدمين' },
     { id: 'system_settings', name: 'إعدادات النظام' },
     { id: 'backup_system', name: 'النسخ الاحتياطي' },
-    { id: 'review_articles', name: 'مراجعة المقالات' }
+    { id: 'review_articles', name: 'مراجعة المقالات' },
+    { id: 'manage_media', name: 'إدارة الوسائط' },
+    { id: 'manage_ai', name: 'إدارة الذكاء الاصطناعي' },
+    { id: 'manage_comments', name: 'إدارة التعليقات' },
+    { id: 'view_analytics', name: 'عرض الإحصائيات' },
+    { id: 'share_articles', name: 'مشاركة المقالات' }
   ];
 
   useEffect(() => {
@@ -130,7 +91,76 @@ export default function TeamPage() {
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
+    
+    // جلب البيانات
+    fetchTeamMembers();
+    fetchRoles();
   }, []);
+  
+  // جلب أعضاء الفريق
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await fetch('/api/team-members');
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setTeamMembers(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+      addNotification('حدث خطأ في جلب بيانات الفريق', 'warning');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // جلب الأدوار
+  const fetchRoles = async () => {
+    try {
+      const response = await fetch('/api/roles');
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setRoles(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+    }
+  };
+  
+  // البحث في المستخدمين
+  const searchUsers = async (query: string) => {
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setSearchResults(data.data);
+        setShowUserDropdown(true);
+      }
+    } catch (error) {
+      console.error('Error searching users:', error);
+    }
+  };
+  
+  // تأخير البحث
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (userSearchQuery) {
+        searchUsers(userSearchQuery);
+      } else {
+        setSearchResults([]);
+        setShowUserDropdown(false);
+      }
+    }, 300);
+    
+    return () => clearTimeout(delayDebounceFn);
+  }, [userSearchQuery]);
 
   const addNotification = (message: string, type: 'success' | 'info' | 'warning') => {
     const newNotification: Notification = {
@@ -145,48 +175,57 @@ export default function TeamPage() {
     }, 5000);
   };
 
-  const handleAddMember = () => {
-    if (formData.name && formData.email && formData.role && formData.department) {
-      const newMember: TeamMember = {
-        id: Math.max(...teamMembers.map(m => m.id), 0) + 1,
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        role: formData.role,
-        department: formData.department,
-        joinDate: new Date().toISOString().split('T')[0],
-        lastActive: 'الآن',
-        status: 'active',
-        avatar: '/api/placeholder/40/40',
-        permissions: formData.permissions
-      };
-      
-      setTeamMembers([...teamMembers, newMember]);
-      setFormData({ name: '', email: '', phone: '', role: '', department: '', permissions: [] });
-      setShowAddModal(false);
-      addNotification(`تم إضافة ${formData.name} إلى الفريق بنجاح`, 'success');
+  const handleAddMember = async () => {
+    if (!selectedUser || !formData.roleId || !formData.department) {
+      addNotification('يرجى ملء جميع الحقول المطلوبة', 'warning');
+      return;
     }
+    
+    try {
+      const response = await fetch('/api/team-members', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: selectedUser.id,
+          roleId: formData.roleId,
+          department: formData.department,
+          permissions: formData.permissions
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        addNotification(data.message || 'تمت إضافة العضو بنجاح', 'success');
+        fetchTeamMembers(); // إعادة جلب البيانات
+        setShowAddModal(false);
+        resetForm();
+      } else {
+        addNotification(data.error || 'حدث خطأ في إضافة العضو', 'warning');
+      }
+    } catch (error) {
+      console.error('Error adding team member:', error);
+      addNotification('حدث خطأ في إضافة العضو', 'warning');
+    }
+  };
+  
+  const resetForm = () => {
+    setFormData({ userId: '', roleId: '', department: '', permissions: [] });
+    setUserSearchQuery('');
+    setSelectedUser(null);
+    setSearchResults([]);
+    setShowUserDropdown(false);
   };
 
   const handleEditMember = () => {
-    if (selectedMember && formData.name && formData.email && formData.role && formData.department) {
-      setTeamMembers(teamMembers.map(member => 
-        member.id === selectedMember.id 
-          ? { ...member, name: formData.name, email: formData.email, phone: formData.phone, role: formData.role, department: formData.department, permissions: formData.permissions }
-          : member
-      ));
-      setShowEditModal(false);
-      setSelectedMember(null);
-      addNotification(`تم تحديث بيانات ${formData.name} بنجاح`, 'success');
-    }
+    // سيتم تنفيذها لاحقاً
+    addNotification('ميزة التعديل قيد التطوير', 'info');
+    setShowEditModal(false);
   };
 
-  const handleDeleteMember = (memberId: number) => {
-    const member = teamMembers.find(m => m.id === memberId);
-    if (member && confirm(`هل أنت متأكد من حذف ${member.name} من الفريق؟`)) {
-      setTeamMembers(teamMembers.filter(m => m.id !== memberId));
-      addNotification(`تم حذف ${member.name} من الفريق`, 'warning');
-    }
+  const handleDeleteMember = (memberId: string) => {
+    // سيتم تنفيذها لاحقاً
+    addNotification('ميزة الحذف قيد التطوير', 'info');
   };
 
   const togglePermission = (permissionId: string) => {
@@ -200,14 +239,6 @@ export default function TeamPage() {
 
   const openEditModal = (member: TeamMember) => {
     setSelectedMember(member);
-    setFormData({
-      name: member.name,
-      email: member.email,
-      phone: member.phone,
-      role: member.role,
-      department: member.department,
-      permissions: [...member.permissions]
-    });
     setShowEditModal(true);
   };
 
@@ -220,7 +251,7 @@ export default function TeamPage() {
         member.phone,
         member.role,
         member.department,
-        member.joinDate,
+        new Date(member.joinDate).toLocaleDateString('ar-SA'),
         member.lastActive,
         member.status === 'active' ? 'نشط' : member.status === 'inactive' ? 'غير نشط' : 'في الانتظار'
       ])
@@ -260,6 +291,14 @@ export default function TeamPage() {
       default: return 'غير محدد';
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
@@ -333,7 +372,7 @@ export default function TeamPage() {
               <p className={`text-sm mb-1 transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>الأدوار</p>
               <div className="flex items-baseline gap-2">
                 <span className={`text-2xl font-bold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                  {new Set(teamMembers.map(m => m.role)).size}
+                  {roles.length}
                 </span>
                 <span className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>دور</span>
               </div>
@@ -414,7 +453,7 @@ export default function TeamPage() {
             
             <button 
               onClick={() => {
-                setFormData({ name: '', email: '', phone: '', role: '', department: '', permissions: [] });
+                setFormData({ userId: '', roleId: '', department: '', permissions: [] });
                 setShowAddModal(true);
               }}
               className="px-4 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 flex items-center gap-2 transition-all duration-300 shadow-md hover:shadow-lg"
@@ -514,6 +553,7 @@ export default function TeamPage() {
                   onClick={() => {
                     setShowAddModal(false);
                     setShowEditModal(false);
+                    resetForm();
                   }}
                   className={`p-2 rounded-lg transition-colors duration-300 ${darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-400'}`}
                 >
@@ -522,55 +562,71 @@ export default function TeamPage() {
               </div>
 
               <div className="space-y-4">
+                {showAddModal && (
+                  <div className="relative">
+                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>البحث عن مستخدم</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={userSearchQuery}
+                        onChange={(e) => setUserSearchQuery(e.target.value)}
+                        className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
+                        placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+                      />
+                      {selectedUser && (
+                        <div className={`mt-2 p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                          <div className="flex items-center gap-3">
+                            <img src={selectedUser.avatar} alt={selectedUser.name} className="w-10 h-10 rounded-full" />
+                            <div>
+                              <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{selectedUser.name}</p>
+                              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{selectedUser.email}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* قائمة نتائج البحث */}
+                    {showUserDropdown && searchResults.length > 0 && (
+                      <div className={`absolute z-10 w-full mt-1 max-h-60 overflow-auto rounded-lg shadow-lg ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'}`}>
+                        {searchResults.map((user) => (
+                          <button
+                            key={user.id}
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setUserSearchQuery(user.name);
+                              setShowUserDropdown(false);
+                            }}
+                            className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
+                          >
+                            <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
+                            <div className="text-right flex-1">
+                              <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{user.name}</p>
+                              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{user.email}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الاسم الكامل</label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
-                      placeholder="أدخل الاسم الكامل"
-                    />
-                  </div>
-
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>البريد الإلكتروني</label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
-                      placeholder="example@sabq.org"
-                    />
-                  </div>
-
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>رقم الهاتف</label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
-                      placeholder="+966501234567"
-                    />
-                  </div>
-
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الدور</label>
                     <select
-                      value={formData.role}
-                      onChange={(e) => setFormData({...formData, role: e.target.value})}
+                      value={formData.roleId}
+                      onChange={(e) => setFormData({...formData, roleId: e.target.value})}
                       className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                     >
                       <option value="">اختر الدور</option>
-                      {availableRoles.map(role => (
-                        <option key={role} value={role}>{role}</option>
+                      {roles.map(role => (
+                        <option key={role.id} value={role.id}>{role.name}</option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="md:col-span-2">
+                  <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>القسم</label>
                     <select
                       value={formData.department}

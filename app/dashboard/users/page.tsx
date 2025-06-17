@@ -37,33 +37,17 @@ interface User {
   name: string;
   email: string;
   phone?: string;
-  gender: 'male' | 'female' | 'unspecified';
-  country: string;
-  city: string;
+  gender?: 'male' | 'female' | 'unspecified';
+  country?: string;
+  city?: string;
   avatar?: string;
-  isVerified: boolean;
-  status: 'active' | 'pending' | 'banned';
-  role: 'regular' | 'vip' | 'media' | 'admin';
-  tags: string[];
-  joinedAt: string;
-  lastLogin: string;
-  readCount: number;
-  commentsCount: number;
-  likesCount: number;
+  isVerified?: boolean;
+  status?: 'active' | 'pending' | 'banned';
+  role?: 'regular' | 'vip' | 'media' | 'admin';
+  tags?: string[];
+  created_at: string;
+  updated_at: string;
 }
-
-// TODO: ربط مع قاعدة البيانات الحقيقية
-// يجب استبدال هذه المصفوفة الفارغة بـ API call لجلب المستخدمين الحقيقيين
-const mockUsers: User[] = [];
-
-// TODO: تنفيذ دالة لجلب البيانات من قاعدة البيانات
-const fetchUsersFromDatabase = async (): Promise<User[]> => {
-  // يجب تنفيذ استدعاء API هنا
-  // const response = await fetch('/api/users');
-  // const data = await response.json();
-  // return data.users;
-  return [];
-};
 
 export default function UsersPage() {
   const [darkMode, setDarkMode] = useState(false);
@@ -73,6 +57,8 @@ export default function UsersPage() {
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedGender, setSelectedGender] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // استرجاع حالة الوضع الليلي
   useEffect(() => {
@@ -82,14 +68,39 @@ export default function UsersPage() {
     }
   }, []);
 
-  // إحصائيات المستخدمين - TODO: جلب من قاعدة البيانات الحقيقية
+  // جلب المستخدمين من API
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('/api/users');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.users) {
+          setUsers(data.users);
+        }
+      }
+    } catch (error) {
+      console.error('خطأ في جلب المستخدمين:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // حساب الإحصائيات
   const stats = {
-    total: 0, // TODO: استبدال بعدد المستخدمين الحقيقي
-    active: 0, // TODO: استبدال بعدد المستخدمين النشطين
-    pending: 0, // TODO: استبدال بعدد المستخدمين في الانتظار
-    banned: 0, // TODO: استبدال بعدد المستخدمين المحظورين
-    verified: 0, // TODO: استبدال بعدد المستخدمين الموثقين
-    todayJoined: 0 // TODO: استبدال بعدد المنضمين اليوم
+    total: users.length,
+    active: users.filter(u => u.status === 'active').length,
+    pending: users.filter(u => u.status === 'pending').length,
+    banned: users.filter(u => u.status === 'banned').length,
+    verified: users.filter(u => u.isVerified).length,
+    todayJoined: users.filter(u => {
+      const joinDate = new Date(u.created_at);
+      const today = new Date();
+      return joinDate.toDateString() === today.toDateString();
+    }).length
   };
 
   // مكون بطاقة الإحصائية الدائرية
@@ -136,7 +147,7 @@ export default function UsersPage() {
 
   // دالة تطبيق الفلاتر
   const getFilteredUsers = () => {
-    return mockUsers.filter(user => {
+    return users.filter(user => {
       const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            user.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = selectedStatus === 'all' || user.status === selectedStatus;
@@ -150,27 +161,27 @@ export default function UsersPage() {
 
   // مكون صف المستخدم
   const UserRow = ({ user }: { user: User }) => {
-    const getStatusBadge = (status: string) => {
+    const getStatusBadge = (status?: string) => {
       const statusConfig = {
         active: { color: 'bg-green-100 text-green-700', text: 'نشط' },
         pending: { color: 'bg-yellow-100 text-yellow-700', text: 'في الانتظار' },
         banned: { color: 'bg-red-100 text-red-700', text: 'محظور' }
       };
-      return statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+      return statusConfig[status as keyof typeof statusConfig] || { color: 'bg-gray-100 text-gray-700', text: 'نشط' };
     };
 
-    const getRoleBadge = (role: string) => {
+    const getRoleBadge = (role?: string) => {
       const roleConfig = {
         admin: { color: 'bg-purple-100 text-purple-700', text: 'مسؤول' },
         media: { color: 'bg-blue-100 text-blue-700', text: 'إعلامي' },
         vip: { color: 'bg-orange-100 text-orange-700', text: 'VIP' },
         regular: { color: 'bg-gray-100 text-gray-700', text: 'عادي' }
       };
-      return roleConfig[role as keyof typeof roleConfig] || roleConfig.regular;
+      return roleConfig[role as keyof typeof roleConfig] || { color: 'bg-gray-100 text-gray-700', text: 'عادي' };
     };
 
-    const status = getStatusBadge(user.status);
-    const role = getRoleBadge(user.role);
+    const status = getStatusBadge(user.status || 'active');
+    const role = getRoleBadge(user.role || 'regular');
 
     return (
       <tr className={`transition-colors duration-200 hover:bg-gray-50 border-b ${
@@ -186,7 +197,7 @@ export default function UsersPage() {
                 <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
               ) : (
                 <span className="text-gray-600 font-medium">
-                  {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                  {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                 </span>
               )}
             </div>
@@ -232,7 +243,7 @@ export default function UsersPage() {
             <span className={`text-sm transition-colors duration-300 ${
               darkMode ? 'text-gray-300' : 'text-gray-600'
             }`}>
-              {user.city}, {user.country}
+              {user.city || 'غير محدد'}, {user.country || 'غير محدد'}
             </span>
           </div>
         </td>
@@ -241,14 +252,14 @@ export default function UsersPage() {
         <td className={`px-6 py-4 text-sm transition-colors duration-300 ${
           darkMode ? 'text-gray-400' : 'text-gray-500'
         }`}>
-          {new Date(user.joinedAt).toLocaleDateString('ar-SA')}
+          {new Date(user.created_at).toLocaleDateString('ar-SA')}
         </td>
 
         {/* آخر دخول */}
         <td className={`px-6 py-4 text-sm transition-colors duration-300 ${
           darkMode ? 'text-gray-400' : 'text-gray-500'
         }`}>
-          {new Date(user.lastLogin).toLocaleDateString('ar-SA')}
+          {new Date(user.updated_at).toLocaleDateString('ar-SA')}
         </td>
 
         {/* الحالة */}
@@ -268,15 +279,21 @@ export default function UsersPage() {
         {/* الوسوم */}
         <td className="px-6 py-4">
           <div className="flex gap-1 flex-wrap">
-            {user.tags.slice(0, 2).map((tag, index) => (
-              <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                {tag}
-              </span>
-            ))}
-            {user.tags.length > 2 && (
-              <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                +{user.tags.length - 2}
-              </span>
+            {user.tags && user.tags.length > 0 ? (
+              <>
+                {user.tags.slice(0, 2).map((tag, index) => (
+                  <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                    {tag}
+                  </span>
+                ))}
+                {user.tags.length > 2 && (
+                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                    +{user.tags.length - 2}
+                  </span>
+                )}
+              </>
+            ) : (
+              <span className="text-gray-400 text-xs">-</span>
             )}
           </div>
         </td>
@@ -313,6 +330,14 @@ export default function UsersPage() {
 
   const filteredUsers = getFilteredUsers();
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
@@ -325,7 +350,7 @@ export default function UsersPage() {
           }`}>إدارة المستخدمين</h1>
           <p className={`transition-colors duration-300 ${
             darkMode ? 'text-gray-300' : 'text-gray-600'
-          }`}>إدارة شاملة لأكثر من مليون مستخدم مسجل في صحيفة سبق الإلكترونية</p>
+          }`}>إدارة شاملة للمستخدمين المسجلين في صحيفة سبق الإلكترونية</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -499,86 +524,63 @@ export default function UsersPage() {
           </div>
         </div>
 
-        {/* جدول البيانات */}
+        {/* الجدول */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className={`transition-colors duration-300 ${
               darkMode ? 'bg-gray-700' : 'bg-gray-50'
             }`}>
               <tr>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-500'
                 }`}>المستخدم</th>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-500'
                 }`}>رقم الجوال</th>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-500'
                 }`}>الجنس</th>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-500'
                 }`}>الموقع</th>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-500'
                 }`}>تاريخ التسجيل</th>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
-                }`}>آخر دخول</th>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-500'
+                }`}>آخر تحديث</th>
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-500'
                 }`}>الحالة</th>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-500'
                 }`}>النوع</th>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-500'
                 }`}>الوسوم</th>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-700'
+                <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-500'
                 }`}>الإجراءات</th>
               </tr>
             </thead>
-            <tbody>
-              {filteredUsers.map((user) => (
-                <UserRow key={user.id} user={user} />
-              ))}
+            <tbody className={`divide-y transition-colors duration-300 ${
+              darkMode ? 'divide-gray-700' : 'divide-gray-200'
+            }`}>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map(user => (
+                  <UserRow key={user.id} user={user} />
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={10} className={`px-6 py-8 text-center transition-colors duration-300 ${
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    {users.length === 0 ? 'لا يوجد مستخدمون مسجلون حتى الآن' : 'لا توجد نتائج مطابقة للبحث'}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
-        </div>
-
-        {/* تذييل الجدول */}
-        <div className={`px-6 py-4 border-t transition-colors duration-300 ${
-          darkMode ? 'border-gray-700' : 'border-gray-200'
-        }`}>
-          <div className="flex items-center justify-between">
-            <span className={`text-sm transition-colors duration-300 ${
-              darkMode ? 'text-gray-400' : 'text-gray-500'
-            }`}>
-              عرض {filteredUsers.length} من {mockUsers.length} مستخدم
-            </span>
-            
-            <div className="flex items-center gap-2">
-              <button className={`px-3 py-1 text-sm rounded border transition-colors duration-300 ${
-                darkMode 
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                  : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-              }`}>
-                السابق
-              </button>
-              <span className={`px-3 py-1 text-sm transition-colors duration-300 ${
-                darkMode ? 'text-gray-300' : 'text-gray-600'
-              }`}>
-                1 / 1
-              </span>
-              <button className={`px-3 py-1 text-sm rounded border transition-colors duration-300 ${
-                darkMode 
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                  : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-              }`}>
-                التالي
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

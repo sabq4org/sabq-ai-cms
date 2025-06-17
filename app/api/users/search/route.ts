@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import fs from 'fs/promises'
+import path from 'path'
+
+const USERS_FILE = path.join(process.cwd(), 'data', 'users.json')
 
 // قاعدة بيانات وهمية للمستخدمين المسجلين
 const registeredUsers = [
@@ -126,25 +130,60 @@ const registeredUsers = [
 ]
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const query = searchParams.get('q')?.toLowerCase() || ''
-  
-  if (query.length < 2) {
-    return NextResponse.json({ users: [] })
-  }
-  
-  const filteredUsers = registeredUsers.filter(user => {
-    const matchesName = user.name.toLowerCase().includes(query)
-    const matchesEmail = user.email.toLowerCase().includes(query)
-    const notInTeam = !user.hasTeamRole
+  try {
+    const searchParams = request.nextUrl.searchParams
+    const query = searchParams.get('q') || ''
     
-    return (matchesName || matchesEmail) && notInTeam
-  })
-  
-  return NextResponse.json({ 
-    users: filteredUsers.slice(0, 8),
-    total: filteredUsers.length
-  })
+    if (!query) {
+      return NextResponse.json({ 
+        success: true, 
+        data: [],
+        message: 'يرجى إدخال كلمة البحث' 
+      })
+    }
+    
+    // قراءة بيانات المستخدمين
+    try {
+      const data = await fs.readFile(USERS_FILE, 'utf-8')
+      const users = JSON.parse(data)
+      
+      // البحث في الاسم والبريد الإلكتروني
+      const searchQuery = query.toLowerCase()
+      const filteredUsers = users.filter((user: any) => {
+        return user.name.toLowerCase().includes(searchQuery) ||
+               user.email.toLowerCase().includes(searchQuery)
+      })
+      
+      // إرجاع أول 10 نتائج فقط
+      const results = filteredUsers.slice(0, 10).map((user: any) => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar || '/api/placeholder/40/40',
+        registeredAt: user.createdAt
+      }))
+      
+      return NextResponse.json({ 
+        success: true, 
+        data: results,
+        total: results.length 
+      })
+      
+    } catch (error) {
+      return NextResponse.json({ 
+        success: true, 
+        data: [],
+        message: 'لا توجد بيانات مستخدمين' 
+      })
+    }
+    
+  } catch (error) {
+    console.error('Error searching users:', error)
+    return NextResponse.json(
+      { success: false, error: 'حدث خطأ في البحث' },
+      { status: 500 }
+    )
+  }
 }
 
 export async function POST(request: NextRequest) {

@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Save, Send, Eye, Globe, MapPin, Clock, User, 
-  Calendar, RefreshCw, CheckCircle, AlertTriangle 
+  Calendar, RefreshCw, CheckCircle, AlertTriangle,
+  Sparkles
 } from 'lucide-react';
 
 interface FormData {
@@ -14,6 +15,7 @@ interface FormData {
   subcategory_id?: number;
   is_breaking: boolean;
   is_featured: boolean;
+  is_smart_newsletter?: boolean;
   publish_time: string;
   author_id: string;
   scope: 'local' | 'international';
@@ -134,6 +136,33 @@ export default function PublishPanel({
                 className="text-blue-600"
               />
               <span className="text-sm">🌍 دولي</span>
+            </label>
+          </div>
+        </div>
+
+        {/* مرشح للنشرة الذكية */}
+        <div className="border-t pt-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            <Sparkles className="inline w-4 h-4 mr-2 text-purple-600" />
+            خيارات الذكاء الاصطناعي
+          </label>
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl cursor-pointer hover:from-purple-100 hover:to-indigo-100 transition-colors border border-purple-200">
+              <input
+                type="checkbox"
+                checked={formData.is_smart_newsletter || false}
+                onChange={(e) => setFormData(prev => ({ ...prev, is_smart_newsletter: e.target.checked }))}
+                className="w-5 h-5 text-purple-600 rounded"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-gray-800">✨ مرشح للنشرة الذكية</span>
+                  <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">AI</span>
+                </div>
+                <p className="text-xs text-gray-600 mt-1">
+                  سيتم تضمين هذا المقال في النشرة الذكية المخصصة للمستخدمين بناءً على اهتماماتهم
+                </p>
+              </div>
             </label>
           </div>
         </div>

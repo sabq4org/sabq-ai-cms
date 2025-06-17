@@ -13,6 +13,7 @@ import {
   Copy,
   Eye,
   Calendar,
+  Clock,
   Zap,
   Users, 
   Award,
@@ -25,7 +26,7 @@ import {
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
-type NewsStatus = 'published' | 'draft' | 'pending' | 'deleted';
+type NewsStatus = 'published' | 'draft' | 'pending' | 'deleted' | 'scheduled';
 type NewsItem = {
   id: string;
   title: string;
@@ -35,6 +36,7 @@ type NewsItem = {
   category_name?: string;
   category_color?: string;
   publishTime: string;
+  publishAt?: string; // إضافة تاريخ النشر المجدول
   viewCount: number;
   lastModified: string;
   lastModifiedBy: string;
@@ -98,6 +100,18 @@ export default function NewsManagementPage() {
           const categoryId = typeof a.category_id === 'number' ? a.category_id : 1;
           const categoryData = categories[categoryId] || categories[1];
           
+          // تحديد الحالة بناءً على التاريخ
+          let status = a.status as NewsStatus;
+          const publishAt = a.publish_at || a.published_at;
+          
+          if (status === 'published' && publishAt) {
+            const publishDate = new Date(publishAt);
+            const now = new Date();
+            if (publishDate > now) {
+              status = 'scheduled';
+            }
+          }
+          
           return {
             id: a.id,
             title: a.title,
@@ -113,6 +127,7 @@ export default function NewsManagementPage() {
               hour: '2-digit',
               minute: '2-digit'
             }) : '-',
+            publishAt: publishAt,
             viewCount: a.views_count || 0,
             lastModified: new Date(a.updated_at || a.created_at).toLocaleString('ar-SA', {
               year: 'numeric',
@@ -124,7 +139,7 @@ export default function NewsManagementPage() {
             lastModifiedBy: a.editor_id || a.author_id || '—',
             isPinned: a.is_pinned || false,
             isBreaking: a.is_breaking || false,
-            status: a.status as NewsStatus,
+            status: status,
             rating: 0,
             slug: a.slug
           };
@@ -200,10 +215,22 @@ export default function NewsManagementPage() {
       icon: <Eye className="w-5 h-5" />
     },
     { 
+      id: 'scheduled', 
+      name: 'مجدولة', 
+      count: newsData.filter(item => item.status === 'scheduled').length,
+      icon: <Calendar className="w-5 h-5" />
+    },
+    { 
       id: 'draft', 
       name: 'مسودة', 
       count: newsData.filter(item => item.status === 'draft').length,
       icon: <Edit className="w-5 h-5" />
+    },
+    { 
+      id: 'pending', 
+      name: 'في الانتظار', 
+      count: newsData.filter(item => item.status === 'pending').length,
+      icon: <Clock className="w-5 h-5" />
     },
     { 
       id: 'breaking', 
@@ -212,14 +239,8 @@ export default function NewsManagementPage() {
       icon: <Zap className="w-5 h-5" />
     },
     { 
-      id: 'pending', 
-      name: 'في الانتظار', 
-      count: newsData.filter(item => item.status === 'pending').length,
-      icon: <Calendar className="w-5 h-5" />
-    },
-    { 
       id: 'deleted', 
-      name: 'المحذوفة', 
+      name: 'محذوفة', 
       count: newsData.filter(item => item.status === 'deleted').length,
       icon: <Trash2 className="w-5 h-5" />
     }
@@ -230,7 +251,8 @@ export default function NewsManagementPage() {
       published: { color: 'bg-green-100 text-green-700', text: 'منشور' },
       draft: { color: 'bg-yellow-100 text-yellow-700', text: 'مسودة' },
       pending: { color: 'bg-blue-100 text-blue-700', text: 'في الانتظار' },
-      deleted: { color: 'bg-gray-100 text-gray-700', text: 'محذوف' }
+      deleted: { color: 'bg-gray-100 text-gray-700', text: 'محذوف' },
+      scheduled: { color: 'bg-purple-100 text-purple-700', text: 'مجدول' }
     };
     
     return statusConfig[status] || statusConfig.draft;
@@ -295,13 +317,23 @@ export default function NewsManagementPage() {
           }`}>إدارة شاملة لمحتوى الأخبار والمقالات في صحيفة سبق - كتابة ونشر ومتابعة</p>
         </div>
         
-        <Link 
-          href="/dashboard/news/create"
-          className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-        >
-          <Edit className="w-5 h-5" />
-          إنشاء مقال جديد
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link 
+            href="/dashboard/news/insights"
+            className="flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl"
+          >
+            <Activity className="w-5 h-5" />
+            تحليلات الأخبار
+          </Link>
+          
+          <Link 
+            href="/dashboard/news/create"
+            className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+          >
+            <Edit className="w-5 h-5" />
+            إنشاء مقال جديد
+          </Link>
+        </div>
       </div>
 
 
@@ -325,20 +357,20 @@ export default function NewsManagementPage() {
           iconColor="text-purple-600"
         />
         <CircularStatsCard
+          title="المجدولة"
+          value={newsData.filter(item => item.status === 'scheduled').length.toString()}
+          subtitle="في الانتظار"
+          icon={Calendar}
+          bgColor="bg-indigo-100"
+          iconColor="text-indigo-600"
+        />
+        <CircularStatsCard
           title="المسودات"
           value={newsData.filter(item => item.status === 'draft').length.toString()}
           subtitle="قيد التحرير"
           icon={Edit}
           bgColor="bg-orange-100"
           iconColor="text-orange-600"
-        />
-        <CircularStatsCard
-          title="إجمالي المشاهدات"
-          value={newsData.filter(item => item.status === 'published').reduce((sum, item) => sum + item.viewCount, 0).toLocaleString()}
-          subtitle="آخر 30 يوم"
-          icon={Eye}
-          bgColor="bg-red-100"
-          iconColor="text-red-600"
         />
         <CircularStatsCard
           title="العاجل"
@@ -469,6 +501,7 @@ export default function NewsManagementPage() {
                 <option value="all">جميع الحالات</option>
                 <option value="published">منشور</option>
                 <option value="draft">مسودة</option>
+                <option value="scheduled">مجدول</option>
                 <option value="pending">في الانتظار</option>
               </select>
               
@@ -521,6 +554,7 @@ export default function NewsManagementPage() {
                 
                 if (activeTab === 'all') return true;
                 if (activeTab === 'breaking') return item.isBreaking;
+                if (activeTab === 'scheduled') return item.status === 'scheduled';
                 return item.status === activeTab;
               })
               .map((news, index) => (
@@ -573,6 +607,11 @@ export default function NewsManagementPage() {
                       <>
                         <Calendar className="w-3 h-3 inline-block ml-1" />
                         {news.publishTime}
+                        {news.status === 'scheduled' && news.publishAt && (
+                          <div className="text-purple-600 font-medium mt-1">
+                            مجدول للنشر
+                          </div>
+                        )}
                       </>
                     ) : '-'}
                   </div>

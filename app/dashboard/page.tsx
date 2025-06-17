@@ -16,6 +16,19 @@ import {
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('behavior');
   const [darkMode, setDarkMode] = useState(false);
+  const [stats, setStats] = useState({
+    users: 0,
+    points: 0,
+    articles: 0,
+    interactions: 0,
+    categories: 0,
+    activeUsers: 0,
+    comments: 0,
+    accuracy: 0,
+    updates: 0
+  });
+  const [tableData, setTableData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // استرجاع حالة الوضع الليلي من localStorage
   useEffect(() => {
@@ -23,6 +36,77 @@ export default function DashboardPage() {
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
+  }, []);
+
+  // جلب البيانات الحقيقية
+  useEffect(() => {
+    const fetchRealData = async () => {
+      try {
+        setLoading(true);
+
+        // جلب بيانات المستخدمين
+        const usersRes = await fetch('/api/users');
+        const usersData = await usersRes.json();
+        const totalUsers = usersData.users?.length || 0;
+
+        // جلب بيانات المقالات
+        const articlesRes = await fetch('/api/articles');
+        const articlesData = await articlesRes.json();
+        const totalArticles = articlesData.articles?.length || 0;
+
+        // جلب بيانات التصنيفات
+        const categoriesRes = await fetch('/api/categories');
+        const categoriesData = await categoriesRes.json();
+        const activeCategories = categoriesData.filter((cat: any) => cat.is_active).length || 0;
+
+        // جلب بيانات التفاعلات (إن وجدت)
+        let totalInteractions = 0;
+        let totalPoints = 0;
+        try {
+          const interactionsRes = await fetch('/api/user-interactions');
+          if (interactionsRes.ok) {
+            const interactionsData = await interactionsRes.json();
+            totalInteractions = interactionsData.length || 0;
+          }
+        } catch (error) {
+          // في حالة عدم وجود API للتفاعلات
+        }
+
+        // جلب بيانات النقاط (إن وجدت)
+        try {
+          const pointsRes = await fetch('/api/loyalty-points');
+          if (pointsRes.ok) {
+            const pointsData = await pointsRes.json();
+            totalPoints = pointsData.totalPoints || 0;
+          }
+        } catch (error) {
+          // في حالة عدم وجود API للنقاط
+        }
+
+        // تحديث الإحصائيات بالبيانات الحقيقية
+        setStats({
+          users: totalUsers,
+          points: totalPoints,
+          articles: totalArticles,
+          interactions: totalInteractions,
+          categories: activeCategories,
+          activeUsers: 0, // سيتم حسابه من بيانات التفاعل الحقيقية
+          comments: 0, // سيتم ربطه بنظام التعليقات الحقيقي
+          accuracy: 0, // سيتم حسابه من التحليلات الحقيقية
+          updates: 0 // سيتم حسابه من سجل التحديثات
+        });
+
+        // تصفير بيانات الجدول (سيتم ملؤها بالبيانات الحقيقية لاحقاً)
+        setTableData([]);
+
+      } catch (error) {
+        console.error('خطأ في جلب البيانات:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRealData();
   }, []);
 
   // مكون بطاقة الإحصائية الدائرية
@@ -36,7 +120,7 @@ export default function DashboardPage() {
     textColor = 'text-gray-700'
   }: {
     title: string;
-    value: string;
+    value: string | number;
     subtitle: string;
     icon: any;
     bgColor: string;
@@ -59,7 +143,7 @@ export default function DashboardPage() {
           <div className="flex items-baseline gap-2">
             <span className={`text-2xl font-bold transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800'
-            }`}>{value}</span>
+            }`}>{loading ? '...' : value}</span>
             <span className={`text-sm transition-colors duration-300 ${
               darkMode ? 'text-gray-400' : 'text-gray-500'
             }`}>{subtitle}</span>
@@ -111,27 +195,6 @@ export default function DashboardPage() {
 
   // مكون الجدول
   const DataTable = () => {
-    const data = [
-      {
-        category: 'التكنولوجيا',
-        accuracy: '90.2%',
-        activity: '1442/3/17',
-        engagement: 89,
-        total: 65,
-        user: 'محمد',
-        classification: 'مستخدم مسجل'
-      },
-      {
-        category: 'التكنولوجيا', 
-        accuracy: '98.4%',
-        activity: '1442/3/17',
-        engagement: 76,
-        total: 28,
-        user: 'فاطمة',
-        classification: 'مستخدم مسجل'
-      }
-    ];
-
     // ألوان الجدول حسب الوضع
     const tableColors = {
       headerBg: darkMode ? '#1e3a5f' : '#f0fdff',
@@ -174,29 +237,43 @@ export default function DashboardPage() {
 
         {/* بيانات الجدول */}
         <div style={{ borderColor: tableColors.cellBorder }} className="divide-y">
-          {data.map((row, index) => (
-            <div 
-              key={index} 
-              className={`grid grid-cols-7 gap-4 px-6 py-4 ${tableColors.hoverBg} transition-colors duration-300`}
-              style={{ borderBottom: index < data.length - 1 ? `1px solid ${tableColors.cellBorder}` : 'none' }}
-            >
-              <div className={`text-sm font-medium ${tableColors.bodyText} transition-colors duration-300`}>{row.category}</div>
-              <div className="text-sm font-semibold text-green-500">{row.accuracy}</div>
-              <div className={`text-sm ${tableColors.subText} transition-colors duration-300`}>{row.activity}</div>
-              <div className="flex items-center">
-                <div className={`w-16 rounded-full h-2 mr-2 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
-                  <div
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{ width: `${row.engagement}%` }}
-                  ></div>
-                </div>
-                <span className={`text-xs ${tableColors.subText} transition-colors duration-300`}>{row.engagement}</span>
-              </div>
-              <div className="text-sm font-medium text-blue-500">{row.total}</div>
-              <div className={`text-sm font-medium ${tableColors.bodyText} transition-colors duration-300`}>{row.user}</div>
-              <div className={`text-sm ${tableColors.subText} transition-colors duration-300`}>{row.classification}</div>
+          {loading ? (
+            <div className="text-center py-8">
+              <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                جارٍ تحميل البيانات...
+              </p>
             </div>
-          ))}
+          ) : tableData.length === 0 ? (
+            <div className="text-center py-8">
+              <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                لا توجد بيانات متاحة حالياً
+              </p>
+            </div>
+          ) : (
+            tableData.map((row, index) => (
+              <div 
+                key={index} 
+                className={`grid grid-cols-7 gap-4 px-6 py-4 ${tableColors.hoverBg} transition-colors duration-300`}
+                style={{ borderBottom: index < tableData.length - 1 ? `1px solid ${tableColors.cellBorder}` : 'none' }}
+              >
+                <div className={`text-sm font-medium ${tableColors.bodyText} transition-colors duration-300`}>{row.category}</div>
+                <div className="text-sm font-semibold text-green-500">{row.accuracy}</div>
+                <div className={`text-sm ${tableColors.subText} transition-colors duration-300`}>{row.activity}</div>
+                <div className="flex items-center">
+                  <div className={`w-16 rounded-full h-2 mr-2 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
+                    <div
+                      className="bg-blue-500 h-2 rounded-full"
+                      style={{ width: `${row.engagement}%` }}
+                    ></div>
+                  </div>
+                  <span className={`text-xs ${tableColors.subText} transition-colors duration-300`}>{row.engagement}</span>
+                </div>
+                <div className="text-sm font-medium text-blue-500">{row.total}</div>
+                <div className={`text-sm font-medium ${tableColors.bodyText} transition-colors duration-300`}>{row.user}</div>
+                <div className={`text-sm ${tableColors.subText} transition-colors duration-300`}>{row.classification}</div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     );
@@ -253,7 +330,7 @@ export default function DashboardPage() {
                   }`}>تحليل المحتوى</p>
                   <p className={`text-xs transition-colors duration-300 ${
                     darkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>نشط</p>
+                  }`}>متوقف</p>
                 </div>
               </div>
             </div>
@@ -273,7 +350,7 @@ export default function DashboardPage() {
                   }`}>توقع الاتجاهات</p>
                   <p className={`text-xs transition-colors duration-300 ${
                     darkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>معالج</p>
+                  }`}>متوقف</p>
                 </div>
               </div>
             </div>
@@ -293,7 +370,7 @@ export default function DashboardPage() {
                   }`}>تحليل الجمهور</p>
                   <p className={`text-xs transition-colors duration-300 ${
                     darkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>متاح</p>
+                  }`}>متوقف</p>
                 </div>
               </div>
             </div>
@@ -313,7 +390,7 @@ export default function DashboardPage() {
                   }`}>تصنيف التعليقات</p>
                   <p className={`text-xs transition-colors duration-300 ${
                     darkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>آلي</p>
+                  }`}>متوقف</p>
                 </div>
               </div>
             </div>
@@ -324,52 +401,52 @@ export default function DashboardPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-6 gap-6 mb-8">
         <CircularStatsCard
-          title="دقة التفضيلات"
-          value="85.5%"
-          subtitle="دقة النظام"
-          icon={BarChart3}
-          bgColor="bg-cyan-100"
-          iconColor="text-cyan-600"
+          title="إجمالي المستخدمين"
+          value={stats.users}
+          subtitle="مستخدم مسجل"
+          icon={UserCheck}
+          bgColor="bg-blue-100"
+          iconColor="text-blue-600"
         />
         <CircularStatsCard
-          title="تحديثات التفضيلات"
-          value="+"
-          subtitle="تحديث لهذا"
-          icon={TrendingUp}
+          title="النقاط المكتسبة"
+          value={stats.points}
+          subtitle="نقطة ولاء"
+          icon={Star}
+          bgColor="bg-yellow-100"
+          iconColor="text-yellow-600"
+        />
+        <CircularStatsCard
+          title="المقالات المنشورة"
+          value={stats.articles}
+          subtitle="مقال"
+          icon={FileText}
+          bgColor="bg-green-100"
+          iconColor="text-green-600"
+        />
+        <CircularStatsCard
+          title="التفاعلات"
+          value={stats.interactions}
+          subtitle="تفاعل"
+          icon={Activity}
           bgColor="bg-purple-100"
           iconColor="text-purple-600"
         />
         <CircularStatsCard
-          title="متوسط نقاط التفاعل"
-          value="65.0"
-          subtitle="من 10"
-          icon={Star}
-          bgColor="bg-red-100"
-          iconColor="text-red-600"
-        />
-        <CircularStatsCard
-          title="إجمالي التعليقات"
-          value="334"
-          subtitle="جميع الأنواع"
-          icon={MessageSquare}
+          title="التصنيفات النشطة"
+          value={stats.categories}
+          subtitle="تصنيف"
+          icon={BarChart3}
           bgColor="bg-orange-100"
           iconColor="text-orange-600"
         />
         <CircularStatsCard
           title="المستخدمون النشطون"
-          value="8"
+          value={stats.activeUsers}
           subtitle="آخر 7 أيام"
           icon={Users}
-          bgColor="bg-green-100"
-          iconColor="text-green-600"
-        />
-        <CircularStatsCard
-          title="إجمالي المستخدمين"
-          value="10"
-          subtitle="مستخدم مسجل"
-          icon={UserCheck}
-          bgColor="bg-blue-100"
-          iconColor="text-blue-600"
+          bgColor="bg-red-100"
+          iconColor="text-red-600"
         />
       </div>
 

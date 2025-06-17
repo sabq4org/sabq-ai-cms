@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 import CategoryBadge, { CategoryNavigation } from '../components/CategoryBadge';
+import Header from '../../components/Header';
 
 // ===============================
 // نظام ذكاء المستخدم والتخصيص
@@ -116,7 +117,10 @@ class UserIntelligenceTracker {
   }
 
   private generateSessionId(): string {
-    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    // استخدام معرف ثابت بدلاً من Math.random() لتجنب مشكلة Hydration
+    const timestamp = Date.now();
+    const uniqueId = timestamp.toString(36);
+    return 'session_' + timestamp + '_' + uniqueId;
   }
 
   private getDeviceType(): string {
@@ -145,7 +149,7 @@ class UserIntelligenceTracker {
 
 export default function NewspaperHomePage() {
   const [darkMode, setDarkMode] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [userTracker, setUserTracker] = useState<UserIntelligenceTracker | null>(null);
   const [userPoints, setUserPoints] = useState(0);
@@ -162,6 +166,9 @@ export default function NewspaperHomePage() {
   });
 
   useEffect(() => {
+    // تعيين الوقت الحالي بعد التحميل لتجنب مشكلة Hydration
+    setCurrentTime(new Date());
+    
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
@@ -213,7 +220,8 @@ export default function NewspaperHomePage() {
 
   // Time-based content
   const getTimeContent = () => {
-    const hour = currentTime.getHours();
+    // استخدام ساعة افتراضية إذا لم يتم تحميل الوقت بعد
+    const hour = currentTime ? currentTime.getHours() : 10;
     
     if (hour >= 5 && hour < 12) {
       return {
@@ -1085,7 +1093,7 @@ export default function NewspaperHomePage() {
                   <div className="flex items-center gap-1">
                     <Eye className={`w-3 h-3 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                     <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                      {Math.floor(Math.random() * 5 + 1)}K
+                      {((i + 1) * 1.2).toFixed(1)}K
                     </span>
                   </div>
                 </div>
@@ -1309,77 +1317,7 @@ export default function NewspaperHomePage() {
       }}
     >
       {/* Header */}
-      <header className={`sticky top-0 z-50 border-b ${
-        darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
-      }`}>
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            {/* Right Side - Logo */}
-            <div className="flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                darkMode ? 'bg-blue-600' : 'bg-blue-500'
-              }`}>
-                <span className="text-white font-bold text-lg">س</span>
-              </div>
-              <h1 className={`text-xl font-bold ${
-                darkMode ? 'text-white' : 'text-gray-800'
-              }`}>
-                سبق
-              </h1>
-            </div>
-
-            {/* Left Side - Simple Icons */}
-            <div className="flex items-center gap-3">
-              {/* نقاط المستخدم */}
-              {isLoggedIn && userPoints > 0 && (
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-                  darkMode ? 'bg-gray-800 text-yellow-400 border border-gray-700' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
-                }`}>
-                  <Crown className="w-4 h-4" />
-                  <span className="text-sm font-medium">{userPoints.toLocaleString()}</span>
-                </div>
-              )}
-
-              {/* Search */}
-              <button className={`p-2 rounded-lg transition-colors ${
-                darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
-              }`}>
-                <Search className="w-5 h-5" />
-              </button>
-
-              {/* Notifications */}
-              <button className={`relative p-2 rounded-lg transition-colors ${
-                darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
-              }`}>
-                <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-
-              {/* Dark Mode Toggle */}
-              <button
-                onClick={toggleDarkMode}
-                className={`p-2 rounded-lg transition-colors ${
-                  darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
-                }`}
-              >
-                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
-
-              {/* User Profile */}
-              {isLoggedIn && (
-                <button className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                  darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
-                }`}>
-                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Welcome Section - Full Width */}
       <section className="w-full py-20 mb-12" style={{ 

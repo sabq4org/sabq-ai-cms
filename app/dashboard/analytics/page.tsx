@@ -5,12 +5,89 @@ import { Database, Brain, TrendingUp, Target, Clock, Cpu } from 'lucide-react';
 
 export default function AnalyticsPage() {
   const [darkMode, setDarkMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    dataPoints: 0,
+    todayPredictions: 0,
+    modelsAccuracy: 0,
+    discoveredPatterns: 0,
+    processingTime: 0,
+    activeModels: 0
+  });
+  const [insights, setInsights] = useState<any[]>([]);
+  const [modelPerformance, setModelPerformance] = useState<any[]>([]);
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
+  }, []);
+
+  // جلب البيانات الحقيقية
+  useEffect(() => {
+    const fetchRealData = async () => {
+      try {
+        setLoading(true);
+
+        // جلب إحصائيات التحليلات (إن وجدت)
+        try {
+          const statsRes = await fetch('/api/analytics-stats');
+          if (statsRes.ok) {
+            const statsData = await statsRes.json();
+            setStats({
+              dataPoints: statsData.dataPoints || 0,
+              todayPredictions: statsData.todayPredictions || 0,
+              modelsAccuracy: statsData.modelsAccuracy || 0,
+              discoveredPatterns: statsData.discoveredPatterns || 0,
+              processingTime: statsData.processingTime || 0,
+              activeModels: statsData.activeModels || 0
+            });
+          }
+        } catch (error) {
+          // في حالة عدم وجود API
+        }
+
+        // جلب الاكتشافات (إن وجدت)
+        try {
+          const insightsRes = await fetch('/api/ai-insights');
+          if (insightsRes.ok) {
+            const insightsData = await insightsRes.json();
+            setInsights(insightsData || []);
+          }
+        } catch (error) {
+          // في حالة عدم وجود API
+        }
+
+        // جلب أداء النماذج (إن وجدت)
+        try {
+          const modelsRes = await fetch('/api/model-performance');
+          if (modelsRes.ok) {
+            const modelsData = await modelsRes.json();
+            setModelPerformance(modelsData || []);
+          }
+        } catch (error) {
+          // في حالة عدم وجود API
+        }
+
+        // تصفير جميع الإحصائيات إذا لم يكن هناك بيانات
+        setStats({
+          dataPoints: 0,
+          todayPredictions: 0,
+          modelsAccuracy: 0,
+          discoveredPatterns: 0,
+          processingTime: 0,
+          activeModels: 0
+        });
+
+      } catch (error) {
+        console.error('خطأ في جلب البيانات:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRealData();
   }, []);
 
   return (
@@ -40,7 +117,7 @@ export default function AnalyticsPage() {
               }`}>نقاط البيانات</p>
               <p className={`text-2xl font-bold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
-              }`}>45.6M</p>
+              }`}>{loading ? '...' : stats.dataPoints}</p>
             </div>
           </div>
         </div>
@@ -58,7 +135,7 @@ export default function AnalyticsPage() {
               }`}>توقعات اليوم</p>
               <p className={`text-2xl font-bold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
-              }`}>234,567</p>
+              }`}>{loading ? '...' : stats.todayPredictions}</p>
             </div>
           </div>
         </div>
@@ -76,7 +153,7 @@ export default function AnalyticsPage() {
               }`}>دقة النماذج</p>
               <p className={`text-2xl font-bold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
-              }`}>94.2%</p>
+              }`}>{loading ? '...' : `${stats.modelsAccuracy}%`}</p>
             </div>
           </div>
         </div>
@@ -94,7 +171,7 @@ export default function AnalyticsPage() {
               }`}>أنماط مكتشفة</p>
               <p className={`text-2xl font-bold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
-              }`}>1,847</p>
+              }`}>{loading ? '...' : stats.discoveredPatterns}</p>
             </div>
           </div>
         </div>
@@ -112,7 +189,7 @@ export default function AnalyticsPage() {
               }`}>وقت المعالجة</p>
               <p className={`text-2xl font-bold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
-              }`}>2.3s</p>
+              }`}>{loading ? '...' : `${stats.processingTime}s`}</p>
             </div>
           </div>
         </div>
@@ -130,94 +207,107 @@ export default function AnalyticsPage() {
               }`}>نماذج نشطة</p>
               <p className={`text-2xl font-bold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
-              }`}>12</p>
+              }`}>{loading ? '...' : stats.activeModels}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
-          darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-        }`}>
-          <h3 className={`text-lg font-bold mb-4 transition-colors duration-300 ${
-            darkMode ? 'text-white' : 'text-gray-800'
-          }`}>📊 أهم الاكتشافات</h3>
-          <div className="space-y-4">
-            {[
-              { insight: 'قراء الصباح أكثر تفاعلاً بـ 34%', confidence: 94 },
-              { insight: 'المقالات الطويلة تحقق مشاركة أكبر', confidence: 87 },
-              { insight: 'مستخدمو الجوال يفضلون الأخبار العاجلة', confidence: 91 },
-              { insight: 'القراء الشباب يتابعون الرياضة أكثر', confidence: 89 }
-            ].map((item, index) => (
-              <div key={index} className={`p-3 rounded-lg ${
-                darkMode ? 'bg-gray-700' : 'bg-gray-50'
-              }`}>
-                <p className={`text-sm font-medium mb-1 transition-colors duration-300 ${
-                  darkMode ? 'text-white' : 'text-gray-800'
-                }`}>{item.insight}</p>
-                <div className="flex items-center gap-2">
-                  <div className="w-full bg-gray-300 rounded-full h-2">
-                    <div 
-                      className="h-2 rounded-full bg-blue-600"
-                      style={{ width: `${item.confidence}%` }}
-                    />
-                  </div>
-                  <span className={`text-xs transition-colors duration-300 ${
-                    darkMode ? 'text-gray-400' : 'text-gray-600'
-                  }`}>{item.confidence}%</span>
-                </div>
-              </div>
-            ))}
+      {loading ? (
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              جارٍ تحميل البيانات...
+            </p>
           </div>
         </div>
-
-        <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
-          darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-        }`}>
-          <h3 className={`text-lg font-bold mb-4 transition-colors duration-300 ${
-            darkMode ? 'text-white' : 'text-gray-800'
-          }`}>🎯 أداء النماذج</h3>
-          <div className="space-y-4">
-            {[
-              { name: 'تحليل الاهتمامات', accuracy: 94.2, status: 'ممتاز' },
-              { name: 'توقع السلوك', accuracy: 89.7, status: 'جيد جداً' },
-              { name: 'تصنيف المحتوى', accuracy: 92.1, status: 'ممتاز' },
-              { name: 'تحليل المشاعر', accuracy: 87.4, status: 'جيد' }
-            ].map((model, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className={`text-sm font-medium transition-colors duration-300 ${
-                    darkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>{model.name}</span>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    model.accuracy >= 92 ? 'bg-green-100 text-green-700' :
-                    model.accuracy >= 88 ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-red-100 text-red-700'
+      ) : (
+        <div className="grid grid-cols-2 gap-6">
+          <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
+            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+          }`}>
+            <h3 className={`text-lg font-bold mb-4 transition-colors duration-300 ${
+              darkMode ? 'text-white' : 'text-gray-800'
+            }`}>📊 أهم الاكتشافات</h3>
+            {insights.length === 0 ? (
+              <p className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                لا توجد اكتشافات متاحة حالياً
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {insights.map((item, index) => (
+                  <div key={index} className={`p-3 rounded-lg ${
+                    darkMode ? 'bg-gray-700' : 'bg-gray-50'
                   }`}>
-                    {model.status}
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className={`h-2 rounded-full ${
-                      model.accuracy >= 92 ? 'bg-green-600' :
-                      model.accuracy >= 88 ? 'bg-yellow-600' :
-                      'bg-red-600'
-                    }`}
-                    style={{ width: `${model.accuracy}%` }}
-                  />
-                </div>
-                <div className="text-right">
-                  <span className={`text-xs transition-colors duration-300 ${
-                    darkMode ? 'text-gray-400' : 'text-gray-600'
-                  }`}>{model.accuracy}%</span>
-                </div>
+                    <p className={`text-sm font-medium mb-1 transition-colors duration-300 ${
+                      darkMode ? 'text-white' : 'text-gray-800'
+                    }`}>{item.insight}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-full bg-gray-300 rounded-full h-2">
+                        <div 
+                          className="h-2 rounded-full bg-blue-600"
+                          style={{ width: `${item.confidence || 0}%` }}
+                        />
+                      </div>
+                      <span className={`text-xs transition-colors duration-300 ${
+                        darkMode ? 'text-gray-400' : 'text-gray-600'
+                      }`}>{item.confidence || 0}%</span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+          </div>
+
+          <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
+            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+          }`}>
+            <h3 className={`text-lg font-bold mb-4 transition-colors duration-300 ${
+              darkMode ? 'text-white' : 'text-gray-800'
+            }`}>🎯 أداء النماذج</h3>
+            {modelPerformance.length === 0 ? (
+              <p className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                لا توجد نماذج نشطة حالياً
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {modelPerformance.map((model, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className={`text-sm font-medium transition-colors duration-300 ${
+                        darkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}>{model.name}</span>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        model.accuracy >= 92 ? 'bg-green-100 text-green-700' :
+                        model.accuracy >= 88 ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {model.status || 'متوقف'}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full ${
+                          model.accuracy >= 92 ? 'bg-green-600' :
+                          model.accuracy >= 88 ? 'bg-yellow-600' :
+                          'bg-red-600'
+                        }`}
+                        style={{ width: `${model.accuracy || 0}%` }}
+                      />
+                    </div>
+                    <div className="text-right">
+                      <span className={`text-xs transition-colors duration-300 ${
+                        darkMode ? 'text-gray-400' : 'text-gray-600'
+                      }`}>{model.accuracy || 0}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

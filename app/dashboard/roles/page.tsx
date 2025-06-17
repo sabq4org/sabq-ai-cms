@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Plus, Users, Lock, Eye, X, Save, Trash2, Edit3, CheckCircle } from 'lucide-react';
 
 interface Role {
-  id: number;
+  id: string;
   name: string;
   description: string;
   users: number;
@@ -14,13 +14,8 @@ interface Role {
 
 export default function RolesPage() {
   const [darkMode, setDarkMode] = useState(false);
-  const [roles, setRoles] = useState<Role[]>([
-    { id: 1, name: 'رئيس التحرير', description: 'إدارة شاملة للمحتوى والفريق', users: 2, permissions: ['create_articles', 'edit_articles', 'delete_articles', 'publish_articles', 'manage_users'], color: 'blue' },
-    { id: 2, name: 'محرر', description: 'كتابة وتحرير المقالات', users: 8, permissions: ['create_articles', 'edit_articles', 'publish_articles'], color: 'green' },
-    { id: 3, name: 'مدقق', description: 'مراجعة وتدقيق المحتوى', users: 3, permissions: ['edit_articles', 'review_articles'], color: 'purple' },
-    { id: 4, name: 'مسوق المحتوى', description: 'تسويق ونشر المحتوى', users: 2, permissions: ['view_articles', 'share_articles'], color: 'orange' }
-  ]);
-  
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
@@ -39,9 +34,14 @@ export default function RolesPage() {
     { id: 'delete_articles', name: 'حذف المقالات', category: 'المحتوى' },
     { id: 'publish_articles', name: 'نشر المقالات', category: 'المحتوى' },
     { id: 'review_articles', name: 'مراجعة المقالات', category: 'المحتوى' },
+    { id: 'manage_media', name: 'إدارة الوسائط', category: 'المحتوى' },
     { id: 'manage_users', name: 'إدارة المستخدمين', category: 'المستخدمين' },
+    { id: 'manage_comments', name: 'إدارة التعليقات', category: 'المستخدمين' },
+    { id: 'manage_ai', name: 'إدارة الذكاء الاصطناعي', category: 'النظام' },
     { id: 'view_analytics', name: 'عرض الإحصائيات', category: 'النظام' },
-    { id: 'manage_settings', name: 'إدارة الإعدادات', category: 'النظام' }
+    { id: 'manage_settings', name: 'إدارة الإعدادات', category: 'النظام' },
+    { id: 'view_articles', name: 'عرض المقالات', category: 'النظام' },
+    { id: 'share_articles', name: 'مشاركة المقالات', category: 'النظام' }
   ];
 
   const colors = [
@@ -58,49 +58,73 @@ export default function RolesPage() {
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
+    
+    // جلب الأدوار
+    fetchRoles();
   }, []);
+  
+  const fetchRoles = async () => {
+    try {
+      const response = await fetch('/api/roles');
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setRoles(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+      showSuccess('حدث خطأ في جلب الأدوار');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const showSuccess = () => {
+  const showSuccess = (message?: string) => {
     setShowSuccessMessage(true);
     setTimeout(() => setShowSuccessMessage(false), 3000);
   };
 
-  const handleCreateRole = () => {
-    if (formData.name && formData.description) {
-      const newRole: Role = {
-        id: Math.max(...roles.map(r => r.id), 0) + 1,
-        name: formData.name,
-        description: formData.description,
-        users: 0,
-        permissions: formData.permissions,
-        color: formData.color
-      };
+  const handleCreateRole = async () => {
+    if (!formData.name || !formData.description) {
+      showSuccess('يرجى ملء جميع الحقول المطلوبة');
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/roles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          permissions: formData.permissions,
+          color: formData.color
+        })
+      });
       
-      setRoles([...roles, newRole]);
-      setFormData({ name: '', description: '', permissions: [], color: 'blue' });
-      setShowCreateModal(false);
-      showSuccess();
+      const data = await response.json();
+      
+      if (data.success) {
+        fetchRoles(); // إعادة جلب البيانات
+        setFormData({ name: '', description: '', permissions: [], color: 'blue' });
+        setShowCreateModal(false);
+        showSuccess();
+      } else {
+        showSuccess(data.error || 'حدث خطأ في إنشاء الدور');
+      }
+    } catch (error) {
+      console.error('Error creating role:', error);
+      showSuccess('حدث خطأ في إنشاء الدور');
     }
   };
 
   const handleEditRole = () => {
-    if (selectedRole && formData.name && formData.description) {
-      setRoles(roles.map(role => 
-        role.id === selectedRole.id 
-          ? { ...role, name: formData.name, description: formData.description, permissions: formData.permissions, color: formData.color }
-          : role
-      ));
-      setShowEditModal(false);
-      setSelectedRole(null);
-      showSuccess();
-    }
+    showSuccess('ميزة التعديل قيد التطوير');
+    setShowEditModal(false);
   };
 
-  const handleDeleteRole = (roleId: number) => {
-    if (confirm('هل أنت متأكد من حذف هذا الدور؟')) {
-      setRoles(roles.filter(role => role.id !== roleId));
-      showSuccess();
-    }
+  const handleDeleteRole = (roleId: string) => {
+    showSuccess('ميزة الحذف قيد التطوير');
   };
 
   const togglePermission = (permissionId: string) => {
@@ -130,12 +154,21 @@ export default function RolesPage() {
       purple: { bg: 'bg-purple-100', text: 'text-purple-600', border: 'border-purple-200' },
       orange: { bg: 'bg-orange-100', text: 'text-orange-600', border: 'border-orange-200' },
       red: { bg: 'bg-red-100', text: 'text-red-600', border: 'border-red-200' },
-      cyan: { bg: 'bg-cyan-100', text: 'text-cyan-600', border: 'border-cyan-200' }
+      cyan: { bg: 'bg-cyan-100', text: 'text-cyan-600', border: 'border-cyan-200' },
+      gray: { bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-200' }
     };
     return colorMap[color] || colorMap.blue;
   };
 
   const totalUsers = roles.reduce((sum, role) => sum + role.users, 0);
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>

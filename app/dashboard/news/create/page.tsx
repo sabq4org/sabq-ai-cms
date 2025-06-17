@@ -28,6 +28,9 @@ interface ArticleFormData {
   subcategory_id?: number;
   is_breaking: boolean;
   is_featured: boolean;
+  is_smart_newsletter: boolean; // جديد - مرشح للنشرة الذكية
+  ai_category_suggestion?: string; // جديد - اقتراح AI للتصنيف
+  ai_summary?: string; // جديد - ملخص AI
   keywords: string[];
   cover_image?: string;
   cover_video?: string;
@@ -69,6 +72,7 @@ export default function CreateArticlePage() {
     category_id: 0,
     is_breaking: false,
     is_featured: false,
+    is_smart_newsletter: false, // جديد - مرشح للنشرة الذكية
     keywords: [],
     publish_time: '', // سيتم تعيينه في useEffect
     author_id: 'current_user',
