@@ -79,8 +79,8 @@ export default function LoginPage() {
       
       toast.success('مرحباً بعودتك! 🎉');
       
-      // توجيه إلى الصفحة الرئيسية أو الصفحة المطلوبة
-      const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/';
+      // توجيه إلى لوحة التحكم
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
       router.push(redirectTo);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'حدث خطأ في تسجيل الدخول');

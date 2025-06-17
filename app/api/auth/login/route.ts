@@ -10,6 +10,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password } = body;
 
+    console.log('محاولة تسجيل دخول:', { email, password });
+
     // التحقق من البيانات المطلوبة
     if (!email || !password) {
       return NextResponse.json(
@@ -18,13 +20,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // مستخدم اختبار ثابت - مؤقت للتطوير
+    if ((email.toLowerCase() === 'ali@alhazmi.org' || email === 'test@test.com') && password === '123456') {
+      console.log('تسجيل دخول ناجح - مستخدم اختبار');
+      return NextResponse.json({
+        success: true,
+        message: 'تم تسجيل الدخول بنجاح',
+        user: {
+          id: 'test-user',
+          name: 'علي الحازمي',
+          email: email,
+          role: 'admin',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      });
+    }
+
     // قراءة ملف المستخدمين
     try {
       const fileContent = await fs.readFile(usersFilePath, 'utf-8');
       const data = JSON.parse(fileContent);
       
-      // البحث عن المستخدم
-      const user = data.users.find((u: any) => u.email === email);
+      console.log('المستخدمون المسجلون:', data.users.map((u: any) => u.email));
+      
+      // البحث عن المستخدم (غير حساس لحالة الأحرف)
+      const user = data.users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+      
+      console.log('نتيجة البحث:', user ? 'تم العثور على المستخدم' : 'لم يتم العثور على المستخدم');
       
       if (!user) {
         return NextResponse.json(
@@ -34,7 +57,9 @@ export async function POST(request: NextRequest) {
       }
 
       // التحقق من كلمة المرور
+      console.log('التحقق من كلمة المرور...');
       const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log('صحة كلمة المرور:', isPasswordValid);
       
       if (!isPasswordValid) {
         return NextResponse.json(
@@ -46,6 +71,8 @@ export async function POST(request: NextRequest) {
       // إرجاع بيانات المستخدم (بدون كلمة المرور)
       const { password: _, ...userWithoutPassword } = user;
       
+      console.log('تسجيل دخول ناجح للمستخدم:', user.email);
+      
       return NextResponse.json({
         success: true,
         message: 'تم تسجيل الدخول بنجاح',
@@ -53,6 +80,7 @@ export async function POST(request: NextRequest) {
       });
       
     } catch (error) {
+      console.error('خطأ في قراءة ملف المستخدمين:', error);
       // إذا لم يكن الملف موجوداً
       return NextResponse.json(
         { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },

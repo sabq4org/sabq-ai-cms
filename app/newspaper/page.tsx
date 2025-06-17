@@ -154,6 +154,8 @@ export default function NewspaperHomePage() {
   const [userTracker, setUserTracker] = useState<UserIntelligenceTracker | null>(null);
   const [userPoints, setUserPoints] = useState(0);
   const [readingTime, setReadingTime] = useState<{ [key: string]: number }>({});
+  const [categories, setCategories] = useState<any[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [blocksConfig, setBlocksConfig] = useState({
     briefing: { enabled: true, order: 1 },
     trending: { enabled: true, order: 2 },
@@ -174,6 +176,9 @@ export default function NewspaperHomePage() {
       setDarkMode(JSON.parse(savedDarkMode));
     }
     
+    // جلب التصنيفات من API
+    fetchCategories();
+    
     // تهيئة متتبع ذكاء المستخدم
     if (isLoggedIn) {
       const tracker = new UserIntelligenceTracker('user_current'); // في التطبيق الحقيقي نستخدم معرف المستخدم الفعلي
@@ -192,6 +197,22 @@ export default function NewspaperHomePage() {
     
     return () => clearInterval(timer);
   }, [isLoggedIn]);
+
+  // جلب التصنيفات من API
+  const fetchCategories = async () => {
+    try {
+      setCategoriesLoading(true);
+      const response = await fetch('/api/categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
 
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
@@ -260,64 +281,6 @@ export default function NewspaperHomePage() {
   };
 
   const timeContent = getTimeContent();
-
-  // بيانات التصنيفات المتاحة
-  const availableCategories = [
-    {
-      id: 1,
-      name_ar: 'السياسة',
-      name_en: 'Politics',
-      slug: 'politics',
-      color_hex: '#E5F1FA',
-      icon: '🏛️',
-      description: 'أخبار سياسية محلية ودولية'
-    },
-    {
-      id: 2,
-      name_ar: 'الاقتصاد',
-      name_en: 'Economy',
-      slug: 'economy',
-      color_hex: '#E3FCEF',
-      icon: '💰',
-      description: 'أخبار اقتصادية ومالية'
-    },
-    {
-      id: 3,
-      name_ar: 'التكنولوجيا',
-      name_en: 'Technology',
-      slug: 'technology',
-      color_hex: '#F2F6FF',
-      icon: '💻',
-      description: 'أخبار التقنية والابتكار'
-    },
-    {
-      id: 4,
-      name_ar: 'الرياضة',
-      name_en: 'Sports',
-      slug: 'sports',
-      color_hex: '#FFF5E5',
-      icon: '⚽',
-      description: 'أخبار رياضية محلية وعالمية'
-    },
-    {
-      id: 5,
-      name_ar: 'الثقافة',
-      name_en: 'Culture',
-      slug: 'culture',
-      color_hex: '#FDE7F3',
-      icon: '🎭',
-      description: 'أخبار ثقافية وفنية'
-    },
-    {
-      id: 6,
-      name_ar: 'الصحة',
-      name_en: 'Health',
-      slug: 'health',
-      color_hex: '#F0FDF4',
-      icon: '🏥',
-      description: 'أخبار طبية وصحية'
-    }
-  ];
 
   const newsData = [
     { 
@@ -519,7 +482,7 @@ export default function NewspaperHomePage() {
               <div className="flex items-center gap-2">
                 {/* شارة التصنيف الذكية */}
                 {(() => {
-                  const categoryData = availableCategories.find(cat => 
+                  const categoryData = categories.find((cat: any) => 
                     cat.name_ar === news.category || cat.name_en === news.category
                   );
                   
@@ -1321,7 +1284,7 @@ export default function NewspaperHomePage() {
 
       {/* Welcome Section - Full Width */}
       <section className="w-full py-20 mb-12" style={{ 
-        background: 'linear-gradient(135deg, #4F7CE8 0%, #6C91F7 50%, #8BA7FF 100%)' 
+        backgroundColor: '#8AB6FD' 
       }}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center relative">
@@ -1334,25 +1297,12 @@ export default function NewspaperHomePage() {
 
             {/* Main Title */}
             <div className="mb-16 relative z-10">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="w-1 h-1 bg-white/60 rounded-full animate-ping"></div>
-                <Calendar className="w-5 h-5 text-white/80" />
-                <span className="text-white/80 text-sm font-medium">
-                  الثلاثاء، 16 ذو الحجة 1451 هـ
-                </span>
-                <div className="w-1 h-1 bg-white/60 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
-              </div>
               <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white leading-tight">
                 هل فاتك شيء اليوم؟
               </h1>
               <p className="text-2xl text-white/90 mb-4">
                 إليك الخلاصة المسائية من سبق
               </p>
-              <div className="flex items-center justify-center gap-2 text-white/70">
-                <Sparkles className="w-4 h-4" />
-                <span className="text-sm">مدعوم بالذكاء الاصطناعي</span>
-                <Sparkles className="w-4 h-4" />
-              </div>
             </div>
             
             {/* Enhanced Three News Cards */}
@@ -1420,17 +1370,6 @@ export default function NewspaperHomePage() {
                 </div>
               </div>
             </div>
-
-            {/* Enhanced Read Full Button */}
-            <div className="relative z-10">
-              <button className="group bg-white/25 hover:bg-white/35 backdrop-blur-lg text-white px-12 py-4 rounded-2xl font-bold text-lg transition-all duration-300 border border-white/40 hover:scale-105 hover:shadow-xl hover:shadow-white/20">
-                <span className="flex items-center gap-3">
-                  <Book className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                  قراءة سبق الكاملة
-                  <ArrowLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </button>
-            </div>
           </div>
         </div>
       </section>
@@ -1457,30 +1396,47 @@ export default function NewspaperHomePage() {
         <div className={`rounded-2xl p-8 transition-all duration-500 ${
           darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white/70 border border-gray-200'
         }`} style={{ backdropFilter: 'blur(10px)' }}>
-          <div className="flex items-center gap-4 mb-6">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-              darkMode ? 'bg-blue-600' : 'bg-blue-500'
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-4 mb-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                darkMode ? 'bg-blue-600' : 'bg-blue-500'
+              }`}>
+                <Tag className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h2 className={`text-2xl font-bold mb-2 transition-colors duration-300 ${
+              darkMode ? 'text-white' : 'text-gray-800'
             }`}>
-              <Tag className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className={`text-xl font-bold transition-colors duration-300 ${
-                darkMode ? 'text-white' : 'text-gray-800'
-              }`}>
-                استكشف بحسب التصنيفات
-              </h2>
-              <p className={`text-sm transition-colors duration-300 ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>
-                اختر التصنيف الذي يهمك لتصفح الأخبار المتخصصة
-              </p>
-            </div>
+              استكشف بحسب التصنيفات
+            </h2>
+            <p className={`text-sm transition-colors duration-300 ${
+              darkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}>
+              اختر التصنيف الذي يهمك لتصفح الأخبار المتخصصة
+            </p>
+            <p className={`text-xs mt-2 transition-colors duration-300 ${
+              darkMode ? 'text-gray-500' : 'text-gray-500'
+            }`}>
+              <span className="opacity-75">التصنيفات مرتبطة بنظام إدارة المحتوى</span>
+            </p>
           </div>
 
-          <CategoryNavigation
-            categories={availableCategories}
-            className="gap-3"
-          />
+          {categoriesLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            </div>
+          ) : categories.length > 0 ? (
+            <CategoryNavigation
+              categories={categories}
+              className="gap-3"
+            />
+          ) : (
+            <div className={`text-center py-8 ${
+              darkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>
+              <p className="text-sm">لا توجد تصنيفات متاحة حالياً</p>
+            </div>
+          )}
         </div>
       </section>
 

@@ -23,6 +23,7 @@ import {
   Zap,
   Shield
 } from 'lucide-react';
+import { getCurrentUser, logActions } from '@/lib/log-activity';
 
 export default function DashboardLayout({
   children,
@@ -30,6 +31,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [darkMode, setDarkMode] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   // حفظ واسترجاع حالة الوضع الليلي
   useEffect(() => {
@@ -44,6 +46,35 @@ export default function DashboardLayout({
     setDarkMode(newDarkMode);
     localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
   };
+
+  const handleLogout = async () => {
+    // الحصول على معلومات المستخدم الحالي
+    const userInfo = getCurrentUser();
+    
+    // تسجيل حدث تسجيل الخروج
+    await logActions.logout(userInfo);
+    
+    // حذف معلومات المستخدم من localStorage
+    localStorage.removeItem('currentUser');
+    
+    // توجيه المستخدم إلى صفحة تسجيل الدخول
+    window.location.href = '/login';
+  };
+
+  // إغلاق القائمة عند النقر خارجها
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.profile-menu-container')) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div 
@@ -123,25 +154,77 @@ export default function DashboardLayout({
           </button>
 
             {/* الملف الشخصي */}
-            <div className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors duration-300 ${
-              darkMode 
-                ? 'hover:bg-gray-700' 
-                : 'hover:bg-gray-50'
-            }`}>
-              <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-white" />
-              </div>
-              <div className="text-right">
-                <p className={`text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-white' : 'text-gray-800'
-                }`}>علي الحازمي</p>
-                <p className={`text-xs transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-500'
-                }`}>مدير النظام</p>
-              </div>
-              <ChevronDown className={`w-4 h-4 transition-colors duration-300 ${
-                darkMode ? 'text-gray-400' : 'text-gray-400'
-              }`} />
+            <div className="relative profile-menu-container">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors duration-300 ${
+                  darkMode 
+                    ? 'hover:bg-gray-700' 
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <div className="text-right">
+                  <p className={`text-sm font-medium transition-colors duration-300 ${
+                    darkMode ? 'text-white' : 'text-gray-800'
+                  }`}>علي الحازمي</p>
+                  <p className={`text-xs transition-colors duration-300 ${
+                    darkMode ? 'text-gray-300' : 'text-gray-500'
+                  }`}>مدير النظام</p>
+                </div>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                  darkMode ? 'text-gray-400' : 'text-gray-400'
+                } ${showProfileMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* قائمة الملف الشخصي المنسدلة */}
+              {showProfileMenu && (
+                <div className={`absolute left-0 mt-2 w-48 rounded-lg shadow-lg border transition-all duration-200 z-50 ${
+                  darkMode 
+                    ? 'bg-gray-800 border-gray-700' 
+                    : 'bg-white border-gray-200'
+                }`}>
+                  <Link
+                    href="/profile"
+                    className={`flex items-center gap-3 px-4 py-3 hover:bg-opacity-10 transition-colors duration-200 rounded-t-lg ${
+                      darkMode 
+                        ? 'text-gray-300 hover:bg-white' 
+                        : 'text-gray-700 hover:bg-gray-500'
+                    }`}
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="text-sm">الملف الشخصي</span>
+                  </Link>
+                  
+                  <Link
+                    href="/dashboard/settings"
+                    className={`flex items-center gap-3 px-4 py-3 hover:bg-opacity-10 transition-colors duration-200 ${
+                      darkMode 
+                        ? 'text-gray-300 hover:bg-white' 
+                        : 'text-gray-700 hover:bg-gray-500'
+                    }`}
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span className="text-sm">الإعدادات</span>
+                  </Link>
+                  
+                  <hr className={`my-1 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                  
+                  <button
+                    onClick={handleLogout}
+                    className={`flex items-center gap-3 px-4 py-3 w-full text-right hover:bg-opacity-10 transition-colors duration-200 rounded-b-lg ${
+                      darkMode 
+                        ? 'text-red-400 hover:bg-red-500' 
+                        : 'text-red-600 hover:bg-red-500'
+                    }`}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span className="text-sm">تسجيل الخروج</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

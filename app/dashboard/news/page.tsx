@@ -21,7 +21,13 @@ import {
   Activity,
   MessageSquare,
   AlertTriangle,
-  ArrowUp
+  ArrowUp,
+  Newspaper,
+  PenTool,
+  FileText,
+  BarChart3,
+  Target,
+  Sparkles
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -206,7 +212,7 @@ export default function NewsManagementPage() {
       id: 'all', 
       name: 'جميع الأخبار', 
       count: newsData.filter(item => item.status !== 'deleted').length,
-      icon: <MessageSquare className="w-5 h-5" />
+      icon: <FileText className="w-5 h-5" />
     },
     { 
       id: 'published', 
@@ -258,32 +264,34 @@ export default function NewsManagementPage() {
     return statusConfig[status] || statusConfig.draft;
   };
 
-  // مكون بطاقة الإحصائية الدائرية
-  const CircularStatsCard = ({ 
+  // مكون بطاقة الإحصائية المحسّنة
+  const EnhancedStatsCard = ({ 
     title, 
     value, 
     subtitle, 
     icon: Icon, 
-    bgColor,
+    bgGradient,
     iconColor,
-    textColor = 'text-gray-700'
+    trend,
+    trendValue
   }: {
     title: string;
-    value: string;
+    value: string | number;
     subtitle: string;
     icon: any;
-    bgColor: string;
+    bgGradient: string;
     iconColor: string;
-    textColor?: string;
+    trend?: 'up' | 'down';
+    trendValue?: string;
   }) => (
-    <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${
+    <div className={`rounded-2xl p-6 shadow-sm border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
       darkMode 
         ? 'bg-gray-800 border-gray-700' 
         : 'bg-white border-gray-100'
     }`}>
       <div className="flex items-center gap-4">
-        <div className={`w-12 h-12 ${bgColor} rounded-full flex items-center justify-center`}>
-          <Icon className={`w-6 h-6 ${iconColor}`} />
+        <div className={`w-14 h-14 ${bgGradient} rounded-2xl flex items-center justify-center shadow-lg`}>
+          <Icon className={`w-7 h-7 ${iconColor}`} />
         </div>
         <div className="flex-1">
           <p className={`text-sm mb-1 transition-colors duration-300 ${
@@ -292,11 +300,19 @@ export default function NewsManagementPage() {
           <div className="flex items-baseline gap-2">
             <span className={`text-2xl font-bold transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800'
-            }`}>{value}</span>
+            }`}>{loading ? '...' : value}</span>
             <span className={`text-sm transition-colors duration-300 ${
               darkMode ? 'text-gray-400' : 'text-gray-500'
             }`}>{subtitle}</span>
           </div>
+          {trend && trendValue && (
+            <div className={`flex items-center gap-1 mt-2 text-xs ${
+              trend === 'up' ? 'text-green-600' : 'text-red-600'
+            }`}>
+              <TrendingUp className={`w-3 h-3 ${trend === 'down' ? 'rotate-180' : ''}`} />
+              <span>{trendValue}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -306,91 +322,108 @@ export default function NewsManagementPage() {
     <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
-            {/* عنوان وتعريف الصفحة */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
-            darkMode ? 'text-white' : 'text-gray-800'
-          }`}>إدارة الأخبار</h1>
-          <p className={`transition-colors duration-300 ${
-            darkMode ? 'text-gray-300' : 'text-gray-600'
-          }`}>إدارة شاملة لمحتوى الأخبار والمقالات في صحيفة سبق - كتابة ونشر ومتابعة</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <Link 
-            href="/dashboard/news/insights"
-            className="flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl"
-          >
-            <Activity className="w-5 h-5" />
-            تحليلات الأخبار
-          </Link>
-          
-          <Link 
-            href="/dashboard/news/create"
-            className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-          >
-            <Edit className="w-5 h-5" />
-            إنشاء مقال جديد
-          </Link>
+      {/* عنوان وتعريف الصفحة */}
+      <div className="mb-8">
+        <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
+          darkMode ? 'text-white' : 'text-gray-800'
+        }`}>مركز إدارة المحتوى الإخباري</h1>
+        <p className={`transition-colors duration-300 ${
+          darkMode ? 'text-gray-300' : 'text-gray-600'
+        }`}>منصة متكاملة لإدارة ونشر المحتوى الإخباري مع أدوات تحليل الأداء وتتبع التفاعل</p>
+      </div>
+
+      {/* قسم النظام التحريري */}
+      <div className="mb-8">
+        <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
+          darkMode 
+            ? 'bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border-blue-700' 
+            : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Newspaper className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h2 className={`text-xl font-bold transition-colors duration-300 ${
+                  darkMode ? 'text-white' : 'text-gray-800'
+                }`}>نظام إدارة المحتوى الصحفي</h2>
+                <p className={`text-sm transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-600'
+                }`}>أدوات متقدمة لإنشاء ونشر ومتابعة المحتوى الإخباري بكفاءة عالية</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Link 
+                href="/dashboard/news/insights"
+                className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-5 py-2.5 rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg"
+              >
+                <BarChart3 className="w-4 h-4" />
+                تحليلات متقدمة
+              </Link>
+              
+              <Link 
+                href="/dashboard/news/create"
+                className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-2.5 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-md hover:shadow-lg"
+              >
+                <PenTool className="w-4 h-4" />
+                مقال جديد
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 
-
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-6 gap-6 mb-8">
-        <CircularStatsCard
-          title="إجمالي الأخبار"
+      {/* بطاقات الإحصائيات المحسّنة */}
+      <div className="grid grid-cols-5 gap-6 mb-8">
+        <EnhancedStatsCard
+          title="إجمالي المحتوى"
           value={newsData.filter(item => item.status !== 'deleted').length.toString()}
-          subtitle="جميع المواضيع"
-          icon={MessageSquare}
-          bgColor="bg-cyan-100"
-          iconColor="text-cyan-600"
+          subtitle="مقال"
+          icon={FileText}
+          bgGradient="bg-gradient-to-br from-blue-500 to-blue-600"
+          iconColor="text-white"
+          trend="up"
+          trendValue="+12% هذا الشهر"
         />
-        <CircularStatsCard
-          title="المنشورة"
+        <EnhancedStatsCard
+          title="المحتوى المنشور"
           value={newsData.filter(item => item.status === 'published').length.toString()}
-          subtitle="متاحة للقراء"
-          icon={TrendingUp}
-          bgColor="bg-purple-100"
-          iconColor="text-purple-600"
+          subtitle="متاح للقراء"
+          icon={Eye}
+          bgGradient="bg-gradient-to-br from-green-500 to-emerald-600"
+          iconColor="text-white"
+          trend="up"
+          trendValue="+8% هذا الأسبوع"
         />
-        <CircularStatsCard
-          title="المجدولة"
+        <EnhancedStatsCard
+          title="المحتوى المجدول"
           value={newsData.filter(item => item.status === 'scheduled').length.toString()}
-          subtitle="في الانتظار"
+          subtitle="بانتظار النشر"
           icon={Calendar}
-          bgColor="bg-indigo-100"
-          iconColor="text-indigo-600"
+          bgGradient="bg-gradient-to-br from-purple-500 to-indigo-600"
+          iconColor="text-white"
         />
-        <CircularStatsCard
+        <EnhancedStatsCard
           title="المسودات"
           value={newsData.filter(item => item.status === 'draft').length.toString()}
           subtitle="قيد التحرير"
           icon={Edit}
-          bgColor="bg-orange-100"
-          iconColor="text-orange-600"
+          bgGradient="bg-gradient-to-br from-orange-500 to-amber-600"
+          iconColor="text-white"
         />
-        <CircularStatsCard
-          title="العاجل"
+        <EnhancedStatsCard
+          title="الأخبار العاجلة"
           value={newsData.filter(item => item.isBreaking && item.status !== 'deleted').length.toString()}
-          subtitle="أخبار عاجلة"
+          subtitle="خبر عاجل"
           icon={Zap}
-          bgColor="bg-yellow-100"
-          iconColor="text-yellow-600"
-        />
-        <CircularStatsCard
-          title="في الانتظار"
-          value={newsData.filter(item => item.status === 'pending').length.toString()}
-          subtitle="تحت المراجعة"
-          icon={Award}
-          bgColor="bg-blue-100"
-          iconColor="text-blue-600"
+          bgGradient="bg-gradient-to-br from-yellow-500 to-amber-600"
+          iconColor="text-white"
         />
       </div>
 
-        {/* Navigation Tabs */}
+      {/* أزرار التنقل المحسّنة */}
       <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
@@ -402,7 +435,7 @@ export default function NewsManagementPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-48 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
+                className={`w-44 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 relative ${
                   activeTab === tab.id
                     ? 'bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
                     : darkMode
@@ -410,143 +443,178 @@ export default function NewsManagementPage() {
                       : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
                 }`}
               >
-                {tab.icon}
+                <div className={`transition-transform duration-300 ${activeTab === tab.id ? 'scale-110' : ''}`}>
+                  {tab.icon}
+                </div>
                 <div className="text-center">
                   <div>{tab.name}</div>
                 </div>
+                {tab.count > 0 && (
+                  <span className={`absolute top-2 left-2 px-2 py-0.5 text-xs rounded-full ${
+                    activeTab === tab.id
+                      ? 'bg-white text-blue-500'
+                      : darkMode
+                        ? 'bg-gray-700 text-gray-300'
+                        : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {tab.count}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
       </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <span className="mr-3 text-gray-600">جارٍ تحميل البيانات...</span>
-          </div>
-        )}
-
-        {/* Error State */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-              <div>
-                <h3 className="text-lg font-semibold text-red-800">خطأ في تحميل البيانات</h3>
-                <p className="text-red-600">{error}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Data Table */}
-        {!loading && !error && (
-      <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
-        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
+      {/* شريط البحث والفلاتر - خارج الجدول */}
+      <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
       }`}>
-
-        {/* شريط البحث والفلاتر */}
-        <div className={`px-6 py-4 border-b transition-colors duration-300 ${
-          darkMode ? 'border-gray-700' : 'border-gray-200'
-        }`}>
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="flex items-center space-x-4 w-full lg:w-auto">
-              <div className="relative flex-1 lg:w-96">
-                <Search className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-500' : 'text-gray-400'
-                }`} />
-                <input
-                  type="text"
-                  placeholder="البحث بالعنوان أو معرف المقال..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={`w-full px-4 py-2 pr-10 text-sm rounded-lg border transition-colors duration-300 ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400 focus:border-blue-500 focus:bg-gray-600' 
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-white'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                />
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <select 
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className={`px-4 py-2 text-sm rounded-lg border transition-colors duration-300 ${
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          <div className="flex items-center gap-3 w-full lg:w-auto">
+            <div className="relative flex-1 lg:w-96">
+              <Search className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${
+                darkMode ? 'text-gray-400' : 'text-gray-500'
+              }`} />
+              <input
+                type="text"
+                placeholder="البحث في المحتوى..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`w-full px-4 py-2.5 pr-11 text-sm rounded-lg border transition-all duration-300 ${
                   darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-              >
-                <option value="all">جميع التصنيفات</option>
-                {Object.entries(categories).map(([id, category]) => (
-                  <option key={id} value={id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-              
-              <select 
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className={`px-4 py-2 text-sm rounded-lg border transition-colors duration-300 ${
-                  darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-              >
-                <option value="all">جميع الحالات</option>
-                <option value="published">منشور</option>
-                <option value="draft">مسودة</option>
-                <option value="scheduled">مجدول</option>
-                <option value="pending">في الانتظار</option>
-              </select>
-              
-              <button className={`p-2 rounded-lg border transition-colors duration-300 ${
-          darkMode 
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                  : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-              }`}>
-                <Filter className="w-4 h-4" />
-              </button>
-            </div>
+                    ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400 focus:border-blue-500 focus:bg-gray-600' 
+                    : 'bg-white border-gray-200 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-white'
+                } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+              />
             </div>
           </div>
           
-        {/* جدول البيانات */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-          <thead className={`transition-colors duration-300 ${
-            darkMode ? 'bg-gray-700' : 'bg-gray-50'
-          }`}>
-            <tr>
-              <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                darkMode ? 'text-gray-200' : 'text-gray-700'
-              }`} style={{ width: '30%' }}>العنوان</th>
-              <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                darkMode ? 'text-gray-200' : 'text-gray-700'
-              }`}>التصنيف</th>
-              <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                darkMode ? 'text-gray-200' : 'text-gray-700'
-              }`}>تاريخ النشر</th>
-              <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                darkMode ? 'text-gray-200' : 'text-gray-700'
-              }`}>المشاهدات</th>
-              <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                darkMode ? 'text-gray-200' : 'text-gray-700'
-              }`}>آخر تعديل</th>
-              <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                darkMode ? 'text-gray-200' : 'text-gray-700'
-              }`}>الحالة</th>
-              <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${
-                darkMode ? 'text-gray-200' : 'text-gray-700'
-              }`}>العمليات</th>
-            </tr>
-          </thead>
-                     <tbody>
+          <div className="flex items-center gap-2">
+            <select 
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className={`px-4 py-2.5 text-sm rounded-lg border transition-all duration-300 ${
+                darkMode 
+                  ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
+                  : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+            >
+              <option value="all">جميع التصنيفات</option>
+              {Object.entries(categories).map(([id, category]) => (
+                <option key={id} value={id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            
+            <select 
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className={`px-4 py-2.5 text-sm rounded-lg border transition-all duration-300 ${
+                darkMode 
+                  ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
+                  : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+            >
+              <option value="all">جميع الحالات</option>
+              <option value="published">منشور</option>
+              <option value="draft">مسودة</option>
+              <option value="scheduled">مجدول</option>
+              <option value="pending">في الانتظار</option>
+            </select>
+            
+            <button className={`p-2.5 rounded-lg border transition-all duration-300 hover:shadow-md ${
+              darkMode 
+                ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}>
+              <Sparkles className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-blue-200 rounded-full animate-pulse"></div>
+            <div className="w-20 h-20 border-4 border-transparent border-t-blue-500 rounded-full animate-spin absolute top-0 left-0"></div>
+          </div>
+          <span className={`mr-4 text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            جارٍ تحميل المحتوى الإخباري...
+          </span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className={`rounded-2xl p-6 mb-8 border-2 ${
+          darkMode 
+            ? 'bg-red-900/20 border-red-700' 
+            : 'bg-red-50 border-red-200'
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className={`text-lg font-semibold ${
+                darkMode ? 'text-red-400' : 'text-red-800'
+              }`}>خطأ في تحميل البيانات</h3>
+              <p className={`${darkMode ? 'text-red-300' : 'text-red-600'}`}>{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* جدول البيانات المحسّن */}
+      {!loading && !error && (
+        <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-100'} overflow-hidden transition-colors duration-300`}>
+          <div className="px-6 py-4" style={{ borderBottom: darkMode ? '1px solid #374151' : '1px solid #f4f8fe' }}>
+            <div className="flex items-center justify-between">
+              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'} transition-colors duration-300`}>
+                قائمة المحتوى الإخباري
+              </h3>
+              
+              <div className="flex items-center gap-2">
+                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {newsData.filter(item => {
+                    if (activeTab === 'deleted') return item.status === 'deleted';
+                    if (item.status === 'deleted') return false;
+                    if (activeTab === 'all') return true;
+                    if (activeTab === 'breaking') return item.isBreaking;
+                    if (activeTab === 'scheduled') return item.status === 'scheduled';
+                    return item.status === activeTab;
+                  }).length} مقال
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          {/* رأس الجدول المحسّن */}
+          <div 
+            style={{ 
+              backgroundColor: darkMode ? '#1e3a5f' : '#f0f9ff',
+              borderBottom: darkMode ? '2px solid #2563eb' : '2px solid #dde9fc'
+            }}
+          >
+            <div className="grid grid-cols-12 gap-4 px-6 py-4">
+              <div className={`col-span-4 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>العنوان</div>
+              <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>التصنيف</div>
+              <div className={`col-span-2 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>تاريخ النشر</div>
+              <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>المشاهدات</div>
+              <div className={`col-span-2 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>آخر تعديل</div>
+              <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>الحالة</div>
+              <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>الإجراءات</div>
+            </div>
+          </div>
+
+          {/* بيانات الجدول */}
+          <div style={{ borderColor: darkMode ? '#374151' : '#f4f8fe' }} className="divide-y">
             {newsData
               .filter(item => {
                 if (activeTab === 'deleted') return item.status === 'deleted';
@@ -558,166 +626,224 @@ export default function NewsManagementPage() {
                 return item.status === activeTab;
               })
               .map((news, index) => (
-              <tr 
-                key={news.id} 
-                className={`transition-colors duration-200 ${
-                  news.isBreaking 
-                    ? (darkMode ? 'bg-red-900/20 hover:bg-red-900/30 border-l-4 border-red-500' : 'bg-red-50 hover:bg-red-100 border-l-4 border-red-400') 
-                    : news.isPinned 
-                      ? (darkMode ? 'bg-blue-900/20 hover:bg-blue-900/30 border-l-4 border-blue-500' : 'bg-blue-50 hover:bg-blue-100 border-l-4 border-blue-400')
-                      : (darkMode ? 'hover:bg-gray-700 border-b border-gray-700' : 'hover:bg-gray-50 border-b border-gray-100')
-                }`}
-              >
-                {/* العنوان */}
-                <td className="px-6 py-4">
-                  <div className="flex items-start">
-                    <div className="flex-1">
-                      <Link 
-                        href={`/dashboard/news/${news.id}`}
-                        className={`font-medium text-right leading-tight transition-colors duration-300 hover:underline ${
-                          darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'
-                        }`}
-                      >
-                        {news.title}
-                      </Link>
-                      <div className="text-xs text-gray-400 mt-1">
-                        بواسطة {news.author_name}
+                <div 
+                  key={news.id} 
+                  className={`grid grid-cols-12 gap-4 px-6 py-4 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-slate-50'} transition-all duration-300 ${
+                    news.isPinned ? 'border-r-4 border-blue-500' : ''
+                  }`}
+                  style={{ borderBottom: index < newsData.length - 1 ? (darkMode ? '1px solid #374151' : '1px solid #f4f8fe') : 'none' }}
+                >
+                  {/* العنوان */}
+                  <div className="col-span-4">
+                    <div className="flex items-start">
+                      <div className="flex-1">
+                        <Link 
+                          href={`/dashboard/news/${news.id}`}
+                          className={`font-medium text-right leading-tight transition-colors duration-300 hover:underline ${
+                            darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'
+                          }`}
+                        >
+                          {news.title}
+                        </Link>
+                        <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <Users className="w-3 h-3 inline-block ml-1" />
+                          {news.author_name}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </td>
 
-                {/* التصنيف */}
-                <td className="px-6 py-4">
-                  <span 
-                    className="px-3 py-1 rounded-full text-xs font-medium inline-block"
-                    style={{ 
-                      backgroundColor: news.category_color || '#6B7280',
-                      color: getContrastColor(news.category_color || '#6B7280')
-                    }}
-                  >
-                    {news.category_name || 'غير مصنف'}
-                  </span>
-                </td>
-
-                {/* تاريخ النشر */}
-                <td className="px-6 py-4">
-                  <div className="text-xs text-gray-500">
-                    {news.publishTime && news.publishTime !== '-' ? (
-                      <>
-                        <Calendar className="w-3 h-3 inline-block ml-1" />
-                        {news.publishTime}
-                        {news.status === 'scheduled' && news.publishAt && (
-                          <div className="text-purple-600 font-medium mt-1">
-                            مجدول للنشر
-                          </div>
-                        )}
-                      </>
-                    ) : '-'}
-                  </div>
-                </td>
-
-                {/* المشاهدات */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center">
-                    <Eye className={`w-4 h-4 ml-1 transition-colors duration-300 ${
-                      darkMode ? 'text-gray-500' : 'text-gray-400'
-                    }`} />
-                    <span className={`font-medium transition-colors duration-300 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      {news.status === 'draft' ? 0 : news.viewCount.toLocaleString()}
+                  {/* التصنيف */}
+                  <div className="col-span-1">
+                    <span 
+                      className="px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 shadow-sm"
+                      style={{ 
+                        backgroundColor: news.category_color || '#6B7280',
+                        color: getContrastColor(news.category_color || '#6B7280')
+                      }}
+                    >
+                      {news.category_name || 'غير مصنف'}
                     </span>
                   </div>
-                </td>
 
-                {/* آخر تعديل */}
-                <td className={`px-6 py-4 text-xs transition-colors duration-300 ${
-                    darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                  <div>{news.lastModified}</div>
-                  <div className={`transition-colors duration-300 ${
-                    darkMode ? 'text-gray-500' : 'text-gray-400'
-                  }`}>بواسطة {news.lastModifiedBy}</div>
-                </td>
-
-                {/* الحالة */}
-                <td className="px-6 py-4">
-                  <span className={`badge ${getStatusBadge(news.status).color.includes('green') ? 'badge-success' : getStatusBadge(news.status).color.includes('yellow') ? 'badge-warning' : 'badge-primary'}`}>
-                    {getStatusBadge(news.status).text}
-                  </span>
-                </td>
-
-                {/* العمليات */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-1">
-                    <button title="تعديل" onClick={() => router.push(`/dashboard/article/edit/${news.id}`)} className={`p-2 rounded-lg transition-colors duration-200 ${darkMode ? 'text-indigo-400 hover:bg-indigo-900/20' : 'text-indigo-600 hover:bg-indigo-50'}`}><Edit className="w-4 h-4" /></button>
-                    {activeTab === 'deleted' ? (
-                      <button
-                        title="استعادة إلى المسودات"
-                        onClick={() => handleRestore(news.id)}
-                        className={`p-2 rounded-lg transition-colors duration-200 ${darkMode ? 'text-green-400 hover:bg-green-900/20' : 'text-green-600 hover:bg-green-50'}`}
-                      >
-                        <ArrowUp className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      <button title="حذف" onClick={() => handleDelete(news.id)} className={`p-2 rounded-lg transition-colors duration-200 ${darkMode ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-50'}`}> <Trash2 className="w-4 h-4" /></button>
-                    )}
-                    <button title="نسخ الرابط" onClick={() => handleCopy(news.slug ?? news.id)} className={`p-2 rounded-lg transition-colors duration-200 ${darkMode ? 'text-gray-400 hover:bg-gray-900/20' : 'text-gray-600 hover:bg-gray-50'}`}><Copy className="w-4 h-4" /></button>
+                  {/* تاريخ النشر */}
+                  <div className="col-span-2">
+                    <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {news.publishTime && news.publishTime !== '-' ? (
+                        <>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {news.publishTime}
+                          </div>
+                          {news.status === 'scheduled' && news.publishAt && (
+                            <div className="text-purple-600 font-medium text-xs mt-1">
+                              <Clock className="w-3 h-3 inline-block ml-1" />
+                              مجدول للنشر
+                            </div>
+                          )}
+                        </>
+                      ) : '-'}
+                    </div>
                   </div>
-                </td>
-                            </tr>
-            ))}
-          </tbody>
-        </table>
-            </div>
+
+                  {/* المشاهدات */}
+                  <div className="col-span-1">
+                    <div className="flex items-center gap-1">
+                      <Eye className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {news.status === 'draft' ? 0 : news.viewCount.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* آخر تعديل */}
+                  <div className={`col-span-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <div>{news.lastModified}</div>
+                    <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                      <Edit className="w-3 h-3 inline-block ml-1" />
+                      {news.lastModifiedBy}
+                    </div>
+                  </div>
+
+                  {/* الحالة */}
+                  <div className="col-span-1">
+                    <span className={`px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-1 shadow-sm ${getStatusBadge(news.status).color}`}>
+                      {getStatusBadge(news.status).text}
+                    </span>
+                  </div>
+
+                  {/* الإجراءات */}
+                  <div className="col-span-1">
+                    <div className="flex items-center gap-1">
+                      <button 
+                        title="تعديل" 
+                        onClick={() => router.push(`/dashboard/article/edit/${news.id}`)} 
+                        className={`p-1.5 rounded-lg transition-all duration-200 hover:scale-110 ${
+                          darkMode ? 'text-indigo-400 hover:bg-indigo-900/20' : 'text-indigo-600 hover:bg-indigo-50'
+                        }`}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      {activeTab === 'deleted' ? (
+                        <button
+                          title="استعادة"
+                          onClick={() => handleRestore(news.id)}
+                          className={`p-1.5 rounded-lg transition-all duration-200 hover:scale-110 ${
+                            darkMode ? 'text-green-400 hover:bg-green-900/20' : 'text-green-600 hover:bg-green-50'
+                          }`}
+                        >
+                          <ArrowUp className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <button 
+                          title="حذف" 
+                          onClick={() => handleDelete(news.id)} 
+                          className={`p-1.5 rounded-lg transition-all duration-200 hover:scale-110 ${
+                            darkMode ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-50'
+                          }`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button 
+                        title="نسخ الرابط" 
+                        onClick={() => handleCopy(news.slug ?? news.id)} 
+                        className={`p-1.5 rounded-lg transition-all duration-200 hover:scale-110 ${
+                          darkMode ? 'text-gray-400 hover:bg-gray-900/20' : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             
-        {/* تذييل الجدول */}
-        <div className={`border-t px-6 py-4 transition-colors duration-300 ${
-          darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
-        }`}>
-          <div className="flex items-center justify-between">
-            <div className={`text-sm font-medium transition-colors duration-300 ${
-              darkMode ? 'text-gray-300' : 'text-gray-700'
-            }`}>
-              عرض 1-5 من {newsData.filter(item => {
-                if (activeTab === 'deleted') return item.status === 'deleted';
-                if (item.status === 'deleted') return false;
-                if (activeTab === 'all') return true;
-                if (activeTab === 'breaking') return item.isBreaking;
-                return item.status === activeTab;
-              }).length} خبر
-            </div>
-            <div className="flex items-center space-x-2">
-              <button className={`px-3 py-1 text-sm rounded-lg border transition-colors duration-300 ${
-                darkMode 
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                  : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+            {newsData.filter(item => {
+              if (activeTab === 'deleted') return item.status === 'deleted';
+              if (item.status === 'deleted') return false;
+              if (activeTab === 'all') return true;
+              if (activeTab === 'breaking') return item.isBreaking;
+              if (activeTab === 'scheduled') return item.status === 'scheduled';
+              return item.status === activeTab;
+            }).length === 0 && (
+              <div className="text-center py-12">
+                <MessageSquare className={`w-12 h-12 mx-auto mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-300'}`} />
+                <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  لا يوجد محتوى في هذا القسم
+                </p>
+              </div>
+            )}
+          </div>
+            
+          {/* تذييل الجدول */}
+          <div className={`border-t px-6 py-4 transition-colors duration-300 ${
+            darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-100 bg-gray-50'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className={`text-sm font-medium transition-colors duration-300 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>
-                السابق
-              </button>
-              <button className="px-3 py-1 text-sm rounded-lg bg-blue-500 text-white">
-                1
-              </button>
-              <button className={`px-3 py-1 text-sm rounded-lg border transition-colors duration-300 ${
-                darkMode 
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                  : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-              }`}>
-                2
-              </button>
-              <button className={`px-3 py-1 text-sm rounded-lg border transition-colors duration-300 ${
-              darkMode 
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                  : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-              }`}>
-                التالي
-              </button>
+                <span className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  عرض {newsData.filter(item => {
+                    if (activeTab === 'deleted') return item.status === 'deleted';
+                    if (item.status === 'deleted') return false;
+                    if (activeTab === 'all') return true;
+                    if (activeTab === 'breaking') return item.isBreaking;
+                    if (activeTab === 'scheduled') return item.status === 'scheduled';
+                    return item.status === activeTab;
+                  }).length} من {newsData.length} مقال
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <button 
+                  disabled
+                  className={`px-4 py-2 text-sm rounded-lg transition-all duration-300 flex items-center gap-1 ${
+                    darkMode 
+                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed' 
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  <ChevronDown className="w-4 h-4 rotate-90" />
+                  السابق
+                </button>
+                
+                <div className="flex items-center gap-1">
+                  <button className="px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium shadow-md">
+                    1
+                  </button>
+                  <button className={`px-3 py-1.5 text-sm rounded-lg transition-all duration-300 hover:shadow-md ${
+                    darkMode 
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                  }`}>
+                    2
+                  </button>
+                  <button className={`px-3 py-1.5 text-sm rounded-lg transition-all duration-300 hover:shadow-md ${
+                    darkMode 
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                  }`}>
+                    3
+                  </button>
+                  <span className={`px-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>...</span>
+                </div>
+                
+                <button className={`px-4 py-2 text-sm rounded-lg transition-all duration-300 flex items-center gap-1 hover:shadow-md ${
+                  darkMode 
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                }`}>
+                  التالي
+                  <ChevronDown className="w-4 h-4 -rotate-90" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-        )}
+      )}
     </div>
   );
 } 
