@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requirePermission } from '@/app/lib/auth'
+import { templateService } from '@/lib/services/templateService'
 
 // POST /api/templates/[id]/set-default
 export async function POST(
@@ -10,10 +11,17 @@ export async function POST(
     const user = await requirePermission('templates.update')
     const { id } = await params
     
-    // هنا يتم:
-    // 1. إلغاء تعيين القالب الافتراضي الحالي من نفس النوع
-    // 2. تعيين القالب الجديد كافتراضي
-    // في قاعدة البيانات
+    const success = await templateService.setTemplateAsDefault(
+      parseInt(id),
+      parseInt(user.id)
+    )
+    
+    if (!success) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to set template as default' },
+        { status: 400 }
+      )
+    }
     
     return NextResponse.json({
       success: true,

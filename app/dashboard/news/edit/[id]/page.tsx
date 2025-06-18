@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { logActions, getCurrentUser } from '../../../../../lib/log-activity';
+import ContentEditorWithTiptap from '../../../../../components/ContentEditorWithTiptap';
 
 // ===============================
 // أنواع البيانات
@@ -406,17 +407,12 @@ export default function EditArticlePage() {
               </div>
 
               {/* محرر المحتوى */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-6">محتوى المقال</h2>
-                
-                <textarea
-                  value={formData.content || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                  className="w-full p-4 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                  rows={15}
-                  placeholder="اكتب محتوى المقال هنا..."
-                />
-              </div>
+              <ContentEditorWithTiptap 
+                formData={formData}
+                setFormData={setFormData}
+                categories={categories}
+                aiLoading={{}}
+              />
             </div>
 
             {/* الشريط الجانبي */}

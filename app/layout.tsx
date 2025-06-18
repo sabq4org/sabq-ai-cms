@@ -65,7 +65,7 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </head>
-      <body className={`${notoSansArabic.variable} font-sans antialiased`}>
+      <body className={`${notoSansArabic.variable} font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
         <Providers>{children}</Providers>
       </body>
     </html>

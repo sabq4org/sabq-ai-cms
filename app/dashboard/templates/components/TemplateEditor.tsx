@@ -1,28 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Save, Calendar, Globe, Tag, Eye, Plus, Trash2, Upload, Link } from 'lucide-react'
+import { ArrowLeft, Save, Calendar, Globe, Tag, Eye, Plus, Trash2, Upload, Link, Palette, Image } from 'lucide-react'
 import { HeaderEditor } from './editors/HeaderEditor'
 import { FooterEditor } from './editors/FooterEditor'
-
-interface Template {
-  id?: number
-  name: string
-  description?: string
-  type: string
-  content: any
-  settings?: any
-  is_active: boolean
-  is_default: boolean
-  starts_at?: string
-  ends_at?: string
-  country_code?: string
-  category_id?: number
-}
+import { Template, TemplateType } from '@/types/template'
 
 interface TemplateEditorProps {
   template: Template | null
-  type: string
+  type: TemplateType
   isNew: boolean
   onSave: (template: Partial<Template>) => void
   onCancel: () => void
@@ -40,7 +26,16 @@ export function TemplateEditor({ template, type, isNew, onSave, onCancel }: Temp
     starts_at: '',
     ends_at: '',
     country_code: '',
-    category_id: undefined
+    category_id: undefined,
+    logo_url: '',
+    logo_alt: '',
+    logo_width: undefined,
+    logo_height: undefined,
+    primary_color: '',
+    secondary_color: '',
+    custom_styles: '',
+    social_links: [],
+    active_blocks: []
   })
 
   const [showPreview, setShowPreview] = useState(false)
@@ -59,7 +54,7 @@ export function TemplateEditor({ template, type, isNew, onSave, onCancel }: Temp
     }
   }, [template, type])
 
-  const getDefaultContent = (templateType: string) => {
+  const getDefaultContent = (templateType: TemplateType) => {
     switch (templateType) {
       case 'header':
         return {
@@ -81,7 +76,29 @@ export function TemplateEditor({ template, type, isNew, onSave, onCancel }: Temp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(formData)
+    
+    try {
+      const method = isNew ? 'POST' : 'PUT'
+      const url = isNew ? '/api/templates' : `/api/templates/${template?.id}`
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        onSave(data)
+      } else {
+        throw new Error('Failed to save template')
+      }
+    } catch (error) {
+      console.error('Error saving template:', error)
+      // يمكن إضافة رسالة خطأ هنا
+    }
   }
 
   const updateContent = (newContent: any) => {
@@ -213,6 +230,130 @@ export function TemplateEditor({ template, type, isNew, onSave, onCancel }: Temp
 
           {activeTab === 'design' && (
             <div className="space-y-6">
+              {/* إعدادات الشعار */}
+              <div className="bg-gray-50 rounded-xl p-4 space-y-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Image className="w-4 h-4" />
+                  إعدادات الشعار
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-2">
+                      رابط الشعار
+                    </label>
+                    <input
+                      type="url"
+                      value={formData.logo_url || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, logo_url: e.target.value }))}
+                      className="modern-input text-sm"
+                      placeholder="https://example.com/logo.png"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-2">
+                      النص البديل
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.logo_alt || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, logo_alt: e.target.value }))}
+                      className="modern-input text-sm"
+                      placeholder="شعار الموقع"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-2">
+                      العرض (بكسل)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.logo_width || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, logo_width: e.target.value ? parseInt(e.target.value) : undefined }))}
+                      className="modern-input text-sm"
+                      placeholder="150"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-2">
+                      الارتفاع (بكسل)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.logo_height || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, logo_height: e.target.value ? parseInt(e.target.value) : undefined }))}
+                      className="modern-input text-sm"
+                      placeholder="50"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* إعدادات الألوان */}
+              <div className="bg-gray-50 rounded-xl p-4 space-y-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Palette className="w-4 h-4" />
+                  الألوان والتصميم
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-2">
+                      اللون الأساسي
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={formData.primary_color || '#000000'}
+                        onChange={(e) => setFormData(prev => ({ ...prev, primary_color: e.target.value }))}
+                        className="h-10 w-20"
+                      />
+                      <input
+                        type="text"
+                        value={formData.primary_color || ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, primary_color: e.target.value }))}
+                        className="modern-input text-sm flex-1"
+                        placeholder="#000000"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-2">
+                      اللون الثانوي
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={formData.secondary_color || '#ffffff'}
+                        onChange={(e) => setFormData(prev => ({ ...prev, secondary_color: e.target.value }))}
+                        className="h-10 w-20"
+                      />
+                      <input
+                        type="text"
+                        value={formData.secondary_color || ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, secondary_color: e.target.value }))}
+                        className="modern-input text-sm flex-1"
+                        placeholder="#ffffff"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm text-gray-600 mb-2">
+                    أنماط CSS مخصصة
+                  </label>
+                  <textarea
+                    value={formData.custom_styles || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, custom_styles: e.target.value }))}
+                    className="modern-input text-sm font-mono"
+                    rows={5}
+                    placeholder=".header { background: linear-gradient(...); }"
+                  />
+                </div>
+              </div>
+              
+              {/* محرر المحتوى الخاص بكل نوع */}
               {type === 'header' && (
                 <HeaderEditor
                   content={formData.content || {}}

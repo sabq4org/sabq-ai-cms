@@ -2,12 +2,12 @@
   "users": [
     {
       "user_id": "test-user",
-      "total_points": 125,
-      "earned_points": 125,
+      "total_points": 135,
+      "earned_points": 135,
       "redeemed_points": 0,
       "tier": "bronze",
       "created_at": "2025-06-17T00:00:00.000Z",
-      "last_updated": "2025-06-18T08:48:22.234Z"
+      "last_updated": "2025-06-18T13:05:58.369Z"
     },
     {
       "user_id": "anonymous",
@@ -20,12 +20,12 @@
     },
     {
       "user_id": "user-1750236579398-3h4rt6gu7",
-      "total_points": 100,
-      "earned_points": 100,
+      "total_points": 105,
+      "earned_points": 105,
       "redeemed_points": 0,
       "tier": "bronze",
       "created_at": "2025-06-18T08:55:38.113Z",
-      "last_updated": "2025-06-18T08:55:38.113Z"
+      "last_updated": "2025-06-18T15:40:51.106Z"
     }
   ],
   "updated_at": "2025-06-17T00:00:00.000Z"

@@ -615,7 +615,7 @@ export default function NewsDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" ref={contentRef}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300" ref={contentRef}>
       <Header />
       
       {/* Progress Bar */}
@@ -627,277 +627,282 @@ export default function NewsDetailPage({ params }: PageProps) {
       </div>
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-6 py-4">
+      <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 transition-colors duration-300">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center gap-2 text-sm">
-            <Link href="/" className="text-gray-500 hover:text-gray-700">
+            <Link href="/" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
               الرئيسية
             </Link>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-            <Link href="/" className="text-gray-500 hover:text-gray-700">
+            <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+            <Link href="/" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
               الأخبار
             </Link>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-            <span className="text-gray-900 font-medium">{article.category_name || 'عام'}</span>
+            <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+            <span className="text-gray-900 dark:text-gray-100 font-medium">{article.category_name || 'عام'}</span>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <article className="max-w-4xl mx-auto px-6 py-12">
-        {/* Header Info */}
-        <div className="mb-8">
-          {/* Category & Badges */}
-          <div className="flex items-center gap-3 mb-6">
-            <span className={`inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r ${getCategoryColor(article.category_name)} text-white text-sm font-bold rounded-full shadow-md`}>
-              <Tag className="w-4 h-4" />
-              {article.category_name || 'عام'}
-            </span>
-            {article.is_breaking && (
-              <span className="inline-flex items-center gap-1 px-4 py-2 bg-red-500 text-white text-sm font-bold rounded-full animate-pulse shadow-md">
-                <Zap className="w-4 h-4" />
-                عاجل
+      {/* Main Content Container */}
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Article Content */}
+        <article className="w-full">
+          {/* Header Info */}
+          <div className="mb-8">
+            {/* Category & Badges */}
+            <div className="flex items-center gap-3 mb-6">
+              <span className={`inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r ${getCategoryColor(article.category_name)} text-white text-sm font-bold rounded-full shadow-md`}>
+                <Tag className="w-4 h-4" />
+                {article.category_name || 'عام'}
               </span>
+              {article.is_breaking && (
+                <span className="inline-flex items-center gap-1 px-4 py-2 bg-red-500 text-white text-sm font-bold rounded-full animate-pulse shadow-md">
+                  <Zap className="w-4 h-4" />
+                  عاجل
+                </span>
+              )}
+              {article.is_featured && (
+                <span className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-bold rounded-full shadow-md">
+                  <Award className="w-4 h-4" />
+                  مميز
+                </span>
+              )}
+            </div>
+
+            {/* Title */}
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+              {article.title}
+            </h1>
+
+            {/* Subtitle */}
+            {article.subtitle && (
+              <h2 className="text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+                {article.subtitle}
+              </h2>
             )}
-            {article.is_featured && (
-              <span className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-bold rounded-full shadow-md">
-                <Award className="w-4 h-4" />
-                مميز
-              </span>
-            )}
+
+            {/* Article Meta */}
+            <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400 pb-8 border-b dark:border-gray-700">
+              {/* Author */}
+              {article.author_name && (
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-md">
+                    <User className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900 dark:text-white">{article.author_name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">كاتب</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Date & Time */}
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                <span>{formatDate(article.published_at || article.created_at)}</span>
+                <span className="text-gray-400 dark:text-gray-600">•</span>
+                <span>{formatTime(article.published_at || article.created_at)}</span>
+              </div>
+
+              {/* Updated */}
+              {article.updated_at && article.updated_at !== article.created_at && (
+                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-500">
+                  <RefreshCw className="w-4 h-4" />
+                  <span>آخر تحديث: {formatDate(article.updated_at)}</span>
+                </div>
+              )}
+
+              {/* Stats */}
+              <div className="flex items-center gap-4 mr-auto">
+                {article.reading_time && (
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                    <span>{article.reading_time} دقائق قراءة</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-1.5">
+                  <Eye className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                  <span>{article.views_count || 0} مشاهدة</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            {article.title}
-          </h1>
-
-          {/* Subtitle */}
-          {article.subtitle && (
-            <h2 className="text-2xl text-gray-600 mb-8 leading-relaxed">
-              {article.subtitle}
-            </h2>
+          {/* Featured Image */}
+          {(article.featured_image || article.title) && (
+            <div className="mb-12">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                <img
+                  src={article.featured_image || generatePlaceholderImage(article.title)}
+                  alt={article.title}
+                  className="w-full h-auto"
+                />
+                {article.is_breaking && (
+                  <div className="absolute top-6 right-6 px-4 py-2 bg-red-500 text-white font-bold rounded-full animate-pulse backdrop-blur-sm">
+                    خبر عاجل
+                  </div>
+                )}
+              </div>
+              {article.image_caption && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center italic">
+                  {article.image_caption}
+                </p>
+              )}
+            </div>
           )}
 
-          {/* Article Meta */}
-          <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 pb-8 border-b">
-            {/* Author */}
-            {article.author_name && (
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-md">
-                  <User className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <p className="font-bold text-gray-900">{article.author_name}</p>
-                  <p className="text-xs text-gray-500">كاتب</p>
-                </div>
-              </div>
-            )}
-
-            {/* Date & Time */}
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <span>{formatDate(article.published_at || article.created_at)}</span>
-              <span className="text-gray-400">•</span>
-              <span>{formatTime(article.published_at || article.created_at)}</span>
-            </div>
-
-            {/* Updated */}
-            {article.updated_at && article.updated_at !== article.created_at && (
-              <div className="flex items-center gap-2 text-gray-500">
-                <RefreshCw className="w-4 h-4" />
-                <span>آخر تحديث: {formatDate(article.updated_at)}</span>
-              </div>
-            )}
-
-            {/* Stats */}
-            <div className="flex items-center gap-4 mr-auto">
-              {article.reading_time && (
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  <span>{article.reading_time} دقائق قراءة</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1.5">
-                <Eye className="w-4 h-4 text-gray-400" />
-                <span>{article.views_count || 0} مشاهدة</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Featured Image */}
-        {(article.featured_image || article.title) && (
-          <div className="mb-12">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-              <img
-                src={article.featured_image || generatePlaceholderImage(article.title)}
-                alt={article.title}
-                className="w-full h-auto"
-              />
-              {article.is_breaking && (
-                <div className="absolute top-6 right-6 px-4 py-2 bg-red-500 text-white font-bold rounded-full animate-pulse backdrop-blur-sm">
-                  خبر عاجل
-                </div>
-              )}
-            </div>
-            {article.image_caption && (
-              <p className="text-sm text-gray-600 mt-4 text-center italic">
-                {article.image_caption}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Smart Summary */}
-        {article.summary && (
-          <div className="relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-3xl p-8 mb-12 border border-blue-200 shadow-lg">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200 rounded-full blur-3xl opacity-30" />
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-200 rounded-full blur-3xl opacity-30" />
-            
-            <div className="relative">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-full shadow-md">
-                    <Sparkles className="w-4 h-4" />
-                    <span className="font-bold text-sm">الملخص الذكي</span>
+          {/* Smart Summary */}
+          {article.summary && (
+            <div className="relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-3xl p-8 mb-12 border border-blue-200 dark:border-gray-700 shadow-lg">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200 dark:bg-blue-900 rounded-full blur-3xl opacity-30" />
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-200 dark:bg-purple-900 rounded-full blur-3xl opacity-30" />
+              
+              <div className="relative">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-full shadow-md">
+                      <Sparkles className="w-4 h-4" />
+                      <span className="font-bold text-sm">الملخص الذكي</span>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">ملخص تم توليده بواسطة الذكاء الاصطناعي</p>
                   </div>
-                  <p className="text-sm text-gray-500">ملخص تم توليده بواسطة الذكاء الاصطناعي</p>
+                  <button
+                    onClick={speakSummary}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all font-medium text-sm ${
+                      isSpeaking 
+                        ? 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800' 
+                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 shadow-md hover:shadow-lg'
+                    }`}
+                  >
+                    {isSpeaking ? (
+                      <>
+                        <VolumeX className="w-4 h-4" />
+                        <span>إيقاف</span>
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-4 h-4" />
+                        <span>🔊 استمع للملخص</span>
+                      </>
+                    )}
+                  </button>
                 </div>
-                <button
-                  onClick={speakSummary}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all font-medium text-sm ${
-                    isSpeaking 
-                      ? 'bg-red-100 text-red-600 hover:bg-red-200' 
-                      : 'bg-white text-gray-700 hover:bg-gray-50 shadow-md hover:shadow-lg'
-                  }`}
-                >
-                  {isSpeaking ? (
-                    <>
-                      <VolumeX className="w-4 h-4" />
-                      <span>إيقاف</span>
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-4 h-4" />
-                      <span>🔊 استمع للملخص</span>
-                    </>
-                  )}
-                </button>
+                <p className="text-gray-700 dark:text-gray-300 leading-loose text-lg">
+                  {article.summary}
+                </p>
               </div>
-              <p className="text-gray-700 leading-loose text-lg">
-                {article.summary}
-              </p>
+            </div>
+          )}
+
+          {/* Article Content - مع الحفاظ على قابلية القراءة */}
+          <div className="max-w-4xl mx-auto mb-12">
+            <div 
+              className="prose prose-lg prose-gray dark:prose-invert max-w-none"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              {renderArticleContent(article.content)}
             </div>
           </div>
-        )}
 
-        {/* Article Content */}
-        <div 
-          className="prose prose-lg prose-gray max-w-none mb-12"
-          style={{ fontFamily: 'Georgia, serif' }}
-        >
-          {renderArticleContent(article.content)}
-        </div>
+          {/* Keywords */}
+          {article.seo_keywords && (
+            <div className="flex items-center gap-3 flex-wrap mb-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl">
+              <Hash className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+              {article.seo_keywords.split(',').map((keyword, index) => (
+                <span
+                  key={index}
+                  className="px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium shadow-sm"
+                >
+                  {keyword.trim()}
+                </span>
+              ))}
+            </div>
+          )}
 
-        {/* Keywords */}
-        {article.seo_keywords && (
-          <div className="flex items-center gap-3 flex-wrap mb-12 p-6 bg-gray-50 rounded-2xl">
-            <Hash className="w-5 h-5 text-gray-400" />
-            {article.seo_keywords.split(',').map((keyword, index) => (
-              <span
-                key={index}
-                className="px-4 py-2 bg-white text-gray-700 rounded-full text-sm font-medium shadow-sm"
-              >
-                {keyword.trim()}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Interaction Buttons */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 py-8 px-8 bg-gradient-to-r from-gray-50 to-gray-100 rounded-3xl mb-12">
-          <div className="flex items-center gap-4">
-                          <button
+          {/* Interaction Buttons */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 py-8 px-8 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800 rounded-3xl mb-12">
+            <div className="flex items-center gap-4">
+              <button
                 onClick={handleLike}
                 className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all transform hover:scale-105 ${
                   interaction.liked
                     ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white shadow-lg'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 shadow-md'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 shadow-md'
                 }`}
               >
-              <Heart className={`w-5 h-5 ${interaction.liked ? 'fill-current' : ''}`} />
-              <span>{interaction.liked ? 'أعجبني' : 'إعجاب'}</span>
-              {article.likes_count && article.likes_count > 0 && (
-                <span className="mr-1">({article.likes_count})</span>
-              )}
-            </button>
+                <Heart className={`w-5 h-5 ${interaction.liked ? 'fill-current' : ''}`} />
+                <span>{interaction.liked ? 'أعجبني' : 'إعجاب'}</span>
+                {article.likes_count && article.likes_count > 0 && (
+                  <span className="mr-1">({article.likes_count})</span>
+                )}
+              </button>
 
-                          <button
+              <button
                 onClick={handleSave}
                 className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all transform hover:scale-105 ${
                   interaction.saved
                     ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 shadow-md'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 shadow-md'
                 }`}
               >
-              <Bookmark className={`w-5 h-5 ${interaction.saved ? 'fill-current' : ''}`} />
-              <span>{interaction.saved ? 'محفوظ' : 'حفظ'}</span>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600 font-medium">شارك المقال:</span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleShare('twitter')}
-                className="p-3 bg-white hover:bg-gray-50 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                title="شارك على تويتر"
-              >
-                <Twitter className="w-5 h-5 text-[#1DA1F2]" />
-              </button>
-              <button
-                onClick={() => handleShare('facebook')}
-                className="p-3 bg-white hover:bg-gray-50 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                title="شارك على فيسبوك"
-              >
-                <Facebook className="w-5 h-5 text-[#4267B2]" />
-              </button>
-              <button
-                onClick={() => handleShare('whatsapp')}
-                className="p-3 bg-white hover:bg-gray-50 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                title="شارك على واتساب"
-              >
-                <MessageCircle className="w-5 h-5 text-[#25D366]" />
-              </button>
-              <button
-                onClick={() => handleShare('telegram')}
-                className="p-3 bg-white hover:bg-gray-50 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                title="شارك على تيليجرام"
-              >
-                <Send className="w-5 h-5 text-[#0088cc]" />
-              </button>
-              <button
-                onClick={() => handleShare('copy')}
-                className="p-3 bg-white hover:bg-gray-50 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                title="نسخ الرابط"
-              >
-                {copySuccess ? (
-                  <Check className="w-5 h-5 text-green-500" />
-                ) : (
-                  <Copy className="w-5 h-5 text-gray-600" />
-                )}
+                <Bookmark className={`w-5 h-5 ${interaction.saved ? 'fill-current' : ''}`} />
+                <span>{interaction.saved ? 'محفوظ' : 'حفظ'}</span>
               </button>
             </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">شارك المقال:</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleShare('twitter')}
+                  className="p-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+                  title="شارك على تويتر"
+                >
+                  <Twitter className="w-5 h-5 text-[#1DA1F2]" />
+                </button>
+                <button
+                  onClick={() => handleShare('facebook')}
+                  className="p-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+                  title="شارك على فيسبوك"
+                >
+                  <Facebook className="w-5 h-5 text-[#4267B2]" />
+                </button>
+                <button
+                  onClick={() => handleShare('whatsapp')}
+                  className="p-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+                  title="شارك على واتساب"
+                >
+                  <MessageCircle className="w-5 h-5 text-[#25D366]" />
+                </button>
+                <button
+                  onClick={() => handleShare('telegram')}
+                  className="p-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+                  title="شارك على تيليجرام"
+                >
+                  <Send className="w-5 h-5 text-[#0088cc]" />
+                </button>
+                <button
+                  onClick={() => handleShare('copy')}
+                  className="p-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+                  title="نسخ الرابط"
+                >
+                  {copySuccess ? (
+                    <Check className="w-5 h-5 text-green-500" />
+                  ) : (
+                    <Copy className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        </article>
 
         {/* AI Recommendations - محتوى مخصص لك */}
         {!userDataLoaded ? (
           // عرض حالة التحميل أثناء التحقق من تسجيل الدخول
           <div className="mt-16 mb-16">
             <div className="flex items-center justify-center py-12">
-              <div className="flex items-center gap-3 text-gray-500">
+              <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span>جاري التحقق من حالة تسجيل الدخول...</span>
               </div>
@@ -912,11 +917,11 @@ export default function NewsDetailPage({ params }: PageProps) {
                     <Bot className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900">محتوى مخصص لك 🤖</h3>
-                    <p className="text-xs text-gray-500">اخترنا لك هذا المحتوى بناءً على اهتماماتك</p>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">محتوى مخصص لك 🤖</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">اخترنا لك هذا المحتوى بناءً على اهتماماتك</p>
                   </div>
                 </div>
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 text-[10px] font-medium rounded-full">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-[10px] font-medium rounded-full">
                   <Brain className="w-3 h-3" />
                   مقترح ذكي
                 </span>
@@ -925,7 +930,7 @@ export default function NewsDetailPage({ params }: PageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recommendations.slice(0, 6).map((rec: any) => (
                   <Link key={rec.id} href={`/article/${rec.id}`}>
-                    <div className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden h-full">
+                    <div className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden h-full">
                       {/* AI Badge */}
                       {rec.recommendation_reason && (
                         <div className="absolute top-2 right-2 z-10 px-2 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-[10px] font-medium rounded-full shadow-md backdrop-blur-sm">
@@ -955,12 +960,12 @@ export default function NewsDetailPage({ params }: PageProps) {
                           )}
                           
                           {/* Title */}
-                          <h4 className="font-bold text-sm text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-2 mb-2">
+                          <h4 className="font-bold text-sm text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2 mb-2">
                             {rec.title}
                           </h4>
                           
                           {/* Meta - simplified */}
-                          <div className="flex items-center justify-between text-[10px] text-gray-500">
+                          <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400">
                             <div className="flex items-center gap-2">
                               {rec.created_at && (
                                 <span>{formatDate(rec.created_at)}</span>
@@ -990,7 +995,7 @@ export default function NewsDetailPage({ params }: PageProps) {
               {/* Loading State */}
               {loadingRecommendations && (
                 <div className="flex items-center justify-center py-12">
-                  <div className="flex items-center gap-3 text-gray-500">
+                  <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
                     <Loader2 className="w-5 h-5 animate-spin" />
                     <span>جاري تحميل التوصيات المخصصة...</span>
                   </div>
@@ -1000,7 +1005,7 @@ export default function NewsDetailPage({ params }: PageProps) {
           ) : loadingRecommendations ? (
             <div className="mt-16 mb-16">
               <div className="flex items-center justify-center py-12">
-                <div className="flex items-center gap-3 text-gray-500">
+                <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>جاري تحميل التوصيات المخصصة...</span>
                 </div>
@@ -1009,12 +1014,12 @@ export default function NewsDetailPage({ params }: PageProps) {
           ) : null
         ) : (
           <div className="mt-16 mb-16">
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-8 text-center border border-purple-200">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-800 rounded-3xl p-8 text-center border border-purple-200 dark:border-gray-700">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 text-white rounded-full mb-4">
                 <Bot className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">احصل على توصيات مخصصة لك 🤖</h3>
-              <p className="text-gray-600 mb-6">سجل دخولك لتحصل على محتوى مختار خصيصاً بناءً على اهتماماتك</p>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">احصل على توصيات مخصصة لك 🤖</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">سجل دخولك لتحصل على محتوى مختار خصيصاً بناءً على اهتماماتك</p>
               <Link 
                 href="/login" 
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-2xl hover:shadow-lg transition-all transform hover:scale-105"
@@ -1033,13 +1038,13 @@ export default function NewsDetailPage({ params }: PageProps) {
               <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-2xl shadow-md">
                 <TrendingUp className="w-6 h-6" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">مقالات ذات صلة</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">مقالات ذات صلة</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {article.related_articles.map((related) => (
                 <Link key={related.id} href={`/article/${related.id}`}>
-                  <div className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+                  <div className="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
                     <div className="flex gap-4">
                       <img
                         src={related.featured_image || generatePlaceholderImage(related.title)}
@@ -1047,10 +1052,10 @@ export default function NewsDetailPage({ params }: PageProps) {
                         className="w-40 h-32 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="flex-1 p-4">
-                        <h4 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
+                        <h4 className="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
                           {related.title}
                         </h4>
-                        <div className="flex items-center gap-3 text-xs text-gray-500">
+                        <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                           <span>{formatDate(related.published_at || related.created_at || '')}</span>
                           {related.reading_time && (
                             <>
@@ -1067,7 +1072,7 @@ export default function NewsDetailPage({ params }: PageProps) {
             </div>
           </div>
         )}
-      </article>
+      </div>
     </div>
   );
 } 

@@ -13,6 +13,7 @@ import {
   Crown, Leaf, Book, Tag, X
 } from 'lucide-react';
 import Link from 'next/link';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 import CategoryBadge, { CategoryNavigation } from './components/CategoryBadge';
 import Header from '../components/Header';
@@ -149,7 +150,7 @@ class UserIntelligenceTracker {
 }
 
 export default function NewspaperHomePage() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userTracker, setUserTracker] = useState<UserIntelligenceTracker | null>(null);
@@ -178,11 +179,6 @@ export default function NewspaperHomePage() {
   useEffect(() => {
     // تعيين الوقت الحالي بعد التحميل لتجنب مشكلة Hydration
     setCurrentTime(new Date());
-    
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
     
     // التحقق من تسجيل الدخول
     const userId = localStorage.getItem('user_id');
@@ -390,11 +386,7 @@ export default function NewspaperHomePage() {
     }
   };
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
-  };
+  // toggleDarkMode removed - using useDarkMode hook instead
 
   // دالة تتبع التفاعلات الذكية
   const trackUserInteraction = useCallback((articleId: string, type: UserInteraction['interaction_type'], category: string, additionalData: any = {}) => {
@@ -460,6 +452,78 @@ export default function NewspaperHomePage() {
           { title: "حملة تطوير الأحياء تتوسع", desc: "مشاريع تنموية في جميع المناطق", category: "تطوير", image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=800&q=60" }
         ]
       };
+    }
+  };
+
+  // دالة جديدة للحصول على العبارات الذكية
+  const getSmartDosePhrase = () => {
+    // التحويل إلى توقيت السعودية
+    const saudiTime = new Date();
+    if (currentTime) {
+      // إضافة 3 ساعات للحصول على توقيت السعودية من UTC
+      const offset = 3 * 60 * 60 * 1000;
+      saudiTime.setTime(currentTime.getTime() + offset);
+    }
+    
+    const hour = saudiTime.getHours();
+    
+    // الفترة الصباحية (06:00 ص – 11:59 ص)
+    if (hour >= 6 && hour < 12) {
+      const morningPhrases = [
+        "هل بدأت يومك بفهم المشهد؟",
+        "صباحك مع سبق.. أكثر وعيًا",
+        "ابدأ يومك بمعرفة تُشبِهك"
+      ];
+      return morningPhrases[Math.floor(Math.random() * morningPhrases.length)];
+    }
+    
+    // فترة الظهيرة (12:00 ظ – 05:59 م)
+    else if (hour >= 12 && hour < 18) {
+      const afternoonPhrases = [
+        "وقفة تحليلية لمنتصف اليوم",
+        "الظهيرة.. ما الذي تصدر المشهد؟",
+        "نصف اليوم، ونصف الصورة 📊"
+      ];
+      return afternoonPhrases[Math.floor(Math.random() * afternoonPhrases.length)];
+    }
+    
+    // الفترة المسائية (06:00 م – 12:00 ص)
+    else if (hour >= 18 && hour <= 23) {
+      const eveningPhrases = [
+        "هل فاتك شيء اليوم؟",
+        "موجز نهاية اليوم.. قبل أن تنام",
+        "الذكاء يلخص لك المشهد"
+      ];
+      return eveningPhrases[Math.floor(Math.random() * eveningPhrases.length)];
+    }
+    
+    // الفترة الليلية (12:00 ص – 05:59 ص) - استخدم عبارات المساء
+    else {
+      const eveningPhrases = [
+        "هل فاتك شيء اليوم؟",
+        "موجز نهاية اليوم.. قبل أن تنام",
+        "الذكاء يلخص لك المشهد"
+      ];
+      return eveningPhrases[Math.floor(Math.random() * eveningPhrases.length)];
+    }
+  };
+
+  // دالة للحصول على العبارة الفرعية حسب الوقت
+  const getSmartDoseSubtitle = () => {
+    const saudiTime = new Date();
+    if (currentTime) {
+      const offset = 3 * 60 * 60 * 1000;
+      saudiTime.setTime(currentTime.getTime() + offset);
+    }
+    
+    const hour = saudiTime.getHours();
+    
+    if (hour >= 6 && hour < 12) {
+      return "إليك الجرعة الصباحية من سبق";
+    } else if (hour >= 12 && hour < 18) {
+      return "إليك جرعة الظهيرة من سبق";
+    } else {
+      return "إليك الخلاصة المسائية من سبق";
     }
   };
 
@@ -1499,24 +1563,40 @@ export default function NewspaperHomePage() {
       <Header />
 
       {/* Welcome Section - Full Width */}
-      <section className="w-full py-20 mb-12 bg-gradient-to-br from-[#0f52ba] to-[#3783ff] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1f3f75] via-transparent to-[#5fa9ff] opacity-40"></div>
+      <section className={`w-full py-20 mb-12 relative overflow-hidden transition-all duration-500 ${
+        darkMode 
+          ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
+          : 'bg-gradient-to-br from-[#0f52ba] to-[#3783ff]'
+      }`}>
+        <div className={`absolute inset-0 opacity-40 ${
+          darkMode
+            ? 'bg-gradient-to-br from-blue-900/20 via-transparent to-indigo-900/20'
+            : 'bg-gradient-to-br from-[#1f3f75] via-transparent to-[#5fa9ff]'
+        }`}></div>
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center relative">
             {/* Background Decoration */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full animate-pulse backdrop-blur-sm"></div>
-              <div className="absolute bottom-20 left-20 w-24 h-24 bg-white/10 rounded-full animate-pulse backdrop-blur-sm" style={{ animationDelay: '1s' }}></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full animate-pulse backdrop-blur-sm" style={{ animationDelay: '2s' }}></div>
+              <div className={`absolute top-10 right-10 w-32 h-32 rounded-full animate-pulse backdrop-blur-sm ${
+                darkMode ? 'bg-blue-400/10' : 'bg-white/10'
+              }`}></div>
+              <div className={`absolute bottom-20 left-20 w-24 h-24 rounded-full animate-pulse backdrop-blur-sm ${
+                darkMode ? 'bg-indigo-400/10' : 'bg-white/10'
+              }`} style={{ animationDelay: '1s' }}></div>
+              <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full animate-pulse backdrop-blur-sm ${
+                darkMode ? 'bg-purple-400/5' : 'bg-white/5'
+              }`} style={{ animationDelay: '2s' }}></div>
             </div>
 
             {/* Main Title */}
             <div className="mb-16 relative z-10">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white leading-tight drop-shadow-lg">
-                هل فاتك شيء اليوم؟
+                {getSmartDosePhrase()}
               </h1>
-              <p className="text-xl sm:text-2xl text-white/95 mb-4 drop-shadow">
-                إليك الخلاصة المسائية من سبق
+              <p className={`text-xl sm:text-2xl mb-4 drop-shadow ${
+                darkMode ? 'text-gray-200' : 'text-white/95'
+              }`}>
+                {getSmartDoseSubtitle()}
               </p>
             </div>
             
@@ -1524,7 +1604,11 @@ export default function NewspaperHomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 relative z-10">
               {/* Card 1 - Breaking News */}
               <Link href="/article/article-1" className="block">
-                <div className="group bg-white/95 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden">
+                <div className={`group backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${
+                  darkMode 
+                    ? 'bg-gray-800/95 hover:bg-gray-800' 
+                    : 'bg-white/95 hover:bg-white'
+                }`}>
                   {/* Card Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
@@ -1541,15 +1625,25 @@ export default function NewspaperHomePage() {
                   
                   {/* Card Content */}
                   <div className="flex-1 p-5 flex flex-col">
-                    <h3 className="text-right text-gray-900 font-bold mb-2 text-lg leading-relaxed line-clamp-2 group-hover:text-blue-700 transition-colors">
+                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${
+                      darkMode 
+                        ? 'text-white group-hover:text-blue-400' 
+                        : 'text-gray-900 group-hover:text-blue-700'
+                    }`}>
                       إطلاق مشروع نيوم للهيدروجين الأخضر
                     </h3>
-                    <p className="text-right text-gray-600 text-sm mb-4 leading-relaxed line-clamp-3 flex-1">
+                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${
+                      darkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}>
                       أكبر مشروع للطاقة النظيفة في المنطقة بقيمة 8.4 مليار دولار
                     </p>
-                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-                      <span className="text-xs text-gray-500">منذ 5 دقائق</span>
-                      <span className="flex items-center gap-2 text-blue-600 text-sm font-medium group-hover:gap-3 transition-all">
+                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${
+                      darkMode ? 'border-gray-700' : 'border-gray-100'
+                    }`}>
+                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>منذ 5 دقائق</span>
+                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${
+                        darkMode ? 'text-blue-400' : 'text-blue-600'
+                      }`}>
                         اقرأ المزيد
                         <ArrowLeft className="w-4 h-4" />
                       </span>
@@ -1560,7 +1654,11 @@ export default function NewspaperHomePage() {
 
               {/* Card 2 - Featured - تحسين البلوك الثاني */}
               <Link href="/article/article-2" className="block">
-                <div className="group bg-white/95 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden">
+                <div className={`group backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${
+                  darkMode 
+                    ? 'bg-gray-800/95 hover:bg-gray-800' 
+                    : 'bg-white/95 hover:bg-white'
+                }`}>
                   {/* Card Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
@@ -1577,15 +1675,25 @@ export default function NewspaperHomePage() {
                   
                   {/* Card Content */}
                   <div className="flex-1 p-5 flex flex-col">
-                    <h3 className="text-right text-gray-900 font-bold mb-2 text-lg leading-relaxed line-clamp-2 group-hover:text-blue-700 transition-colors">
+                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${
+                      darkMode 
+                        ? 'text-white group-hover:text-blue-400' 
+                        : 'text-gray-900 group-hover:text-blue-700'
+                    }`}>
                       السعودية تستضيف قمة الذكاء الاصطناعي العالمية 2025
                     </h3>
-                    <p className="text-right text-gray-600 text-sm mb-4 leading-relaxed line-clamp-3 flex-1">
+                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${
+                      darkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}>
                       حدث عالمي يجمع رواد التقنية والذكاء الاصطناعي من جميع أنحاء العالم
                     </p>
-                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-                      <span className="text-xs text-gray-500">منذ ساعة</span>
-                      <span className="flex items-center gap-2 text-blue-600 text-sm font-medium group-hover:gap-3 transition-all">
+                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${
+                      darkMode ? 'border-gray-700' : 'border-gray-100'
+                    }`}>
+                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>منذ ساعة</span>
+                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${
+                        darkMode ? 'text-blue-400' : 'text-blue-600'
+                      }`}>
                         اقرأ المزيد
                         <ArrowLeft className="w-4 h-4" />
                       </span>
@@ -1596,7 +1704,11 @@ export default function NewspaperHomePage() {
 
               {/* Card 3 - Environment */}
               <Link href="/article/article-3" className="block">
-                <div className="group bg-white/95 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden">
+                <div className={`group backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${
+                  darkMode 
+                    ? 'bg-gray-800/95 hover:bg-gray-800' 
+                    : 'bg-white/95 hover:bg-white'
+                }`}>
                   {/* Card Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
@@ -1613,21 +1725,43 @@ export default function NewspaperHomePage() {
                   
                   {/* Card Content */}
                   <div className="flex-1 p-5 flex flex-col">
-                    <h3 className="text-right text-gray-900 font-bold mb-2 text-lg leading-relaxed line-clamp-2 group-hover:text-blue-700 transition-colors">
+                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${
+                      darkMode 
+                        ? 'text-white group-hover:text-blue-400' 
+                        : 'text-gray-900 group-hover:text-blue-700'
+                    }`}>
                       مشروع البحر الأحمر يحقق إنجازاً بيئياً عالمياً
                     </h3>
-                    <p className="text-right text-gray-600 text-sm mb-4 leading-relaxed line-clamp-3 flex-1">
+                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${
+                      darkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}>
                       حماية 75% من الشعاب المرجانية وزراعة 50 مليون شجرة مانجروف
                     </p>
-                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-                      <span className="text-xs text-gray-500">منذ 3 ساعات</span>
-                      <span className="flex items-center gap-2 text-blue-600 text-sm font-medium group-hover:gap-3 transition-all">
+                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${
+                      darkMode ? 'border-gray-700' : 'border-gray-100'
+                    }`}>
+                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>منذ 3 ساعات</span>
+                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${
+                        darkMode ? 'text-blue-400' : 'text-blue-600'
+                      }`}>
                         اقرأ المزيد
                         <ArrowLeft className="w-4 h-4" />
                       </span>
                     </div>
                   </div>
                 </div>
+              </Link>
+            </div>
+            
+            {/* زر قراءة الجرعة الكاملة */}
+            <div className="mt-8 text-center">
+              <Link 
+                href="/daily-dose" 
+                className="inline-flex items-center gap-3 px-8 py-4 bg-white/20 backdrop-blur-md hover:bg-white/30 text-white font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                <BookOpen className="w-5 h-5" />
+                <span>قراءة الجرعة الكاملة</span>
+                <ArrowLeft className="w-5 h-5" />
               </Link>
             </div>
           </div>
@@ -1960,21 +2094,13 @@ export default function NewspaperHomePage() {
           </div>
 
           {/* Enhanced Show All Link */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${
-                darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600'
-              }`}>
-                <Activity className="w-4 h-4" />
-                <span className="text-sm font-medium">{articles.length} مقال جديد</span>
-              </div>
-              {/* عرض نقاط الولاء */}
-              {isLoggedIn && <LoyaltyPointsDisplay />}
-            </div>
-            <button className={`group flex items-center gap-3 px-6 py-3 rounded-xl text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105`}>
-              <span className="font-semibold">عرض الكل</span>
+          <div className="flex items-center justify-end mb-8">
+            <Link 
+              href="/for-you"
+              className={`group inline-flex items-center gap-2 px-6 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105`}>
+              <span>عرض الكل</span>
               <ArrowLeft className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
+            </Link>
           </div>
 
           {/* Enhanced News Grid */}

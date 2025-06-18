@@ -19,6 +19,8 @@ interface UserProfile {
   email: string;
   created_at: string;
   avatar?: string;
+  gender?: string;
+  city?: string;
 }
 
 interface LoyaltyData {
@@ -56,6 +58,7 @@ export default function ProfilePage() {
     shares: 0
   });
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showLoyaltyModal, setShowLoyaltyModal] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -93,23 +96,14 @@ export default function ProfilePage() {
       }
 
       // جلب إحصائيات المستخدم
-      const interactionsResponse = await fetch(`/api/interactions/all`);
+      const interactionsResponse = await fetch(`/api/interactions/user/${user.id}`);
       if (interactionsResponse.ok) {
         const interactionsData = await interactionsResponse.json();
-        const userInteractions = interactionsData.data.filter((interaction: any) => 
-          interaction.user_id === user.id
-        );
-        
-        // حساب الإحصائيات الحقيقية
-        const stats = {
-          articlesRead: userInteractions.filter((i: any) => i.interaction_type === 'read').length,
-          interactions: userInteractions.filter((i: any) => 
-            ['like', 'comment', 'save'].includes(i.interaction_type)
-          ).length,
-          shares: userInteractions.filter((i: any) => i.interaction_type === 'share').length
-        };
-        
-        setUserStats(stats);
+        setUserStats(interactionsData.stats || {
+          articlesRead: 0,
+          interactions: 0,
+          shares: 0
+        });
       }
     } catch (error) {
       console.error('خطأ في جلب البيانات:', error);
@@ -144,14 +138,15 @@ export default function ProfilePage() {
     if (!file || !user) return;
 
     // التحقق من نوع الملف
-    if (!file.type.startsWith('image/')) {
-      toast.error('يرجى اختيار ملف صورة صالح');
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('يرجى اختيار ملف صورة صالح (PNG أو JPG)');
       return;
     }
 
-    // التحقق من حجم الملف (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+    // التحقق من حجم الملف (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('حجم الصورة يجب أن يكون أقل من 2 ميجابايت');
       return;
     }
 
@@ -159,10 +154,11 @@ export default function ProfilePage() {
 
     try {
       const formData = new FormData();
-      formData.append('avatar', file);
+      formData.append('file', file);
+      formData.append('type', 'avatar');
       formData.append('userId', user.id);
 
-      const response = await fetch('/api/user/upload-avatar', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
@@ -171,18 +167,31 @@ export default function ProfilePage() {
         const data = await response.json();
         
         // تحديث بيانات المستخدم
-        const updatedUser = { ...user, avatar: data.avatarUrl };
+        const updatedUser = { ...user, avatar: data.url };
         setUser(updatedUser);
         
         // تحديث localStorage
         localStorage.setItem('user', JSON.stringify(updatedUser));
         
+        // تحديث في قاعدة البيانات
+        await fetch('/api/user/update-avatar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            avatarUrl: data.url
+          })
+        });
+        
         toast.success('تم تحديث الصورة الشخصية بنجاح');
         
-        // تحديث الهيدر
+        // تحديث الصفحة
         window.location.reload();
       } else {
-        toast.error('حدث خطأ في رفع الصورة');
+        const error = await response.json();
+        toast.error(error.error || 'حدث خطأ في رفع الصورة');
       }
     } catch (error) {
       console.error('خطأ في رفع الصورة:', error);
@@ -220,7 +229,7 @@ export default function ProfilePage() {
     return (
       <>
         <Header />
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       </>
@@ -236,17 +245,10 @@ export default function ProfilePage() {
       <Header />
       <div className="min-h-screen bg-gray-50">
         {/* رأس الصفحة بتصميم محسّن */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-          <div className="container mx-auto px-4 py-16">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100">
+          <div className="max-w-screen-xl mx-auto px-4 py-12">
             <div className="flex items-center justify-between mb-8">
-              <h1 className="text-3xl font-bold">الملف الشخصي</h1>
-              <Link 
-                href="/profile/settings"
-                className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors backdrop-blur"
-              >
-                <Settings className="w-5 h-5" />
-                <span>الإعدادات</span>
-              </Link>
+              <h1 className="text-3xl font-bold text-gray-800">الملف الشخصي</h1>
             </div>
 
             {/* بطاقة المستخدم */}
@@ -256,10 +258,10 @@ export default function ProfilePage() {
                   <img 
                     src={user.avatar} 
                     alt={user.name}
-                    className="w-24 h-24 rounded-full object-cover shadow-xl border-4 border-white/20"
+                    className="w-24 h-24 rounded-full object-cover shadow-xl border-4 border-gray-200"
                   />
                 ) : (
-                  <div className="w-24 h-24 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-4xl font-bold shadow-xl">
+                  <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-4xl font-bold shadow-xl text-gray-700">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -268,7 +270,7 @@ export default function ProfilePage() {
                 <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/png,image/jpeg,image/jpg"
                     onChange={handleAvatarUpload}
                     className="hidden"
                     disabled={uploadingAvatar}
@@ -286,15 +288,15 @@ export default function ProfilePage() {
               </div>
               
               <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-1">{user.name}</h2>
-                <p className="text-blue-100 mb-2">{user.email}</p>
-                <div className="flex items-center gap-4 text-sm">
+                <h2 className="text-2xl font-bold mb-1 text-gray-800">{user.name}</h2>
+                <p className="text-gray-600 mb-2">{user.email}</p>
+                <div className="flex items-center gap-4 text-sm text-gray-700">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     عضو منذ {formatDate(user.created_at)}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Crown className="w-4 h-4 text-amber-400" />
+                    <Crown className="w-4 h-4 text-amber-500" />
                     عضوية {membership.name}
                   </span>
                 </div>
@@ -302,7 +304,7 @@ export default function ProfilePage() {
 
               <button
                 onClick={() => router.push('/profile/edit')}
-                className="px-6 py-3 bg-white text-blue-600 rounded-lg hover:shadow-lg transition-all font-medium flex items-center gap-2"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all font-medium flex items-center gap-2"
               >
                 <Edit2 className="w-5 h-5" />
                 تعديل الملف
@@ -312,14 +314,13 @@ export default function ProfilePage() {
         </div>
 
         {/* المحتوى الرئيسي */}
-        <div className="container mx-auto px-4 -mt-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="max-w-screen-xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            {/* العمود الأيسر - المعلومات الأساسية */}
-            <div className="space-y-6">
+            {/* العمود الأول - النقاط والإحصائيات */}
+            <div className="space-y-6 lg:col-span-1">
               
-              {/* بطاقة النقاط والمستوى */}
-              <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
                 <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                   <Zap className="w-5 h-5 text-amber-500" />
                   نقاط الولاء
@@ -349,18 +350,18 @@ export default function ProfilePage() {
                 )}
 
                 <div className="pt-4 border-t">
-                  <Link 
-                    href="/loyalty"
-                    className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center justify-center gap-1"
+                  <button 
+                    onClick={() => setShowLoyaltyModal(true)}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center justify-center gap-1 w-full"
                   >
                     عرض تفاصيل النقاط
                     <ChevronRight className="w-4 h-4" />
-                  </Link>
+                  </button>
                 </div>
               </div>
 
               {/* بطاقة الإحصائيات */}
-              <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
                 <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-green-600" />
                   إحصائياتي
@@ -387,7 +388,7 @@ export default function ProfilePage() {
             <div className="lg:col-span-2 space-y-6">
               
               {/* بطاقة الاهتمامات */}
-              <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                     <Heart className="w-5 h-5 text-red-500" />
@@ -436,7 +437,7 @@ export default function ProfilePage() {
               </div>
 
               {/* بطاقة آخر النشاطات */}
-              <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
                 <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
                   <Activity className="w-5 h-5 text-blue-600" />
                   آخر النشاطات
@@ -470,22 +471,66 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
-
-                {loyaltyData?.recent_activities && loyaltyData.recent_activities.length > 5 && (
-                  <div className="mt-4 pt-4 border-t">
-                    <Link 
-                      href="/loyalty"
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center justify-center gap-1"
-                    >
-                      عرض جميع النشاطات
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Modal تفاصيل النقاط */}
+        {showLoyaltyModal && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-gray-800">تفاصيل نقاط الولاء</h3>
+                  <button
+                    onClick={() => setShowLoyaltyModal(false)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                <div className="space-y-4">
+                  {loyaltyData?.recent_activities && loyaltyData.recent_activities.length > 0 ? (
+                    loyaltyData.recent_activities.map((activity) => (
+                      <div key={activity.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center text-blue-600">
+                            {getActionIcon(activity.action)}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800">{activity.description}</p>
+                            <p className="text-sm text-gray-500">{formatDate(activity.created_at)}</p>
+                          </div>
+                        </div>
+                        {activity.points > 0 && (
+                          <span className="font-bold text-green-600 text-lg">
+                            +{activity.points}
+                          </span>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-12">
+                      <Zap className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                      <p className="text-gray-500">لا توجد نقاط مكتسبة حتى الآن</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="p-6 border-t border-gray-100 bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">إجمالي النقاط</span>
+                  <span className="text-2xl font-bold text-amber-600">
+                    {loyaltyData?.total_points || 0} نقطة
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

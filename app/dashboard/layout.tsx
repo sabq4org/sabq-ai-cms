@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
-  Moon,
-  Sun,
   Bell,
   User,
   ChevronDown,
@@ -21,31 +19,23 @@ import {
   Target,
   Database,
   Zap,
-  Shield
+  Shield,
+  Menu,
+  X,
+  Mail
 } from 'lucide-react';
 import { getCurrentUser, logActions } from '@/lib/log-activity';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-
-  // حفظ واسترجاع حالة الوضع الليلي
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
-  };
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     // الحصول على معلومات المستخدم الحالي
@@ -76,6 +66,18 @@ export default function DashboardLayout({
     };
   }, []);
 
+  // إغلاق الـ sidebar عند تغيير حجم الشاشة
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div 
       className={`min-h-screen transition-all duration-500 ease-in-out ${
@@ -92,54 +94,43 @@ export default function DashboardLayout({
       )}
       
       {/* Header الموحد للوحة التحكم */}
-      <header className={`shadow-sm border-b px-6 py-6 transition-colors duration-300 ${
+      <header className={`shadow-sm border-b px-4 sm:px-6 py-4 sm:py-6 transition-colors duration-300 ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-200'
       }`}>
         <div className="flex items-center justify-between">
-          {/* الجهة اليمنى - اللوجو والعنوان */}
-        <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-lg">س</span>
+          {/* الجهة اليمنى - القائمة واللوجو والعنوان */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* زر القائمة للموبايل */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className={`lg:hidden p-2 rounded-lg transition-colors duration-300 ${
+                darkMode 
+                  ? 'hover:bg-gray-700 text-gray-300' 
+                  : 'hover:bg-gray-100 text-gray-600'
+              }`}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <span className="text-white font-bold text-sm sm:text-lg">س</span>
             </div>
-            <div>
-              <h1 className={`text-xl font-bold transition-colors duration-300 ${
+            <div className="hidden sm:block">
+              <h1 className={`text-lg sm:text-xl font-bold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
               }`}>لوحة تحكم سبق</h1>
-              <p className={`text-sm transition-colors duration-300 ${
+              <p className={`text-xs sm:text-sm transition-colors duration-300 ${
                 darkMode ? 'text-gray-300' : 'text-gray-500'
               }`}>نسخة 1.0</p>
             </div>
-        </div>
+          </div>
         
           {/* الجهة اليسرى - الأدوات */}
-          <div className="flex items-center gap-4">
-            {/* الوضع الليلي */}
-            <button
-              onClick={toggleDarkMode}
-              className={`p-2 rounded-lg transition-all duration-300 relative group ${
-                darkMode 
-                  ? 'hover:bg-gray-700 text-gray-300 hover:text-yellow-400 hover:scale-110' 
-                  : 'hover:bg-gray-100 text-gray-600 hover:text-blue-600 hover:scale-110'
-              }`}
-              title={darkMode ? 'التبديل للوضع النهاري' : 'التبديل للوضع الليلي'}
-            >
-              {darkMode ? (
-                <Sun className="w-5 h-5 animate-pulse" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-              
-              {/* Tooltip محسّن */}
-              <div className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 px-2 py-1 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
-                darkMode 
-                  ? 'bg-gray-700 text-gray-200' 
-                  : 'bg-gray-800 text-white'
-              }`}>
-                {darkMode ? 'الوضع النهاري' : 'الوضع الليلي'}
-              </div>
-            </button>
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* زر التبديل للوضع الليلي */}
+            <DarkModeToggle />
 
             {/* الإشعارات */}
             <button className={`relative p-2 rounded-lg transition-colors duration-300 ${
@@ -148,16 +139,16 @@ export default function DashboardLayout({
                 : 'hover:bg-gray-100 text-gray-600'
             }`}>
               <Bell className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
                 3
               </span>
-          </button>
+            </button>
 
             {/* الملف الشخصي */}
             <div className="relative profile-menu-container">
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className={`flex items-center gap-3 cursor-pointer rounded-lg p-2 transition-colors duration-300 ${
+                className={`flex items-center gap-2 sm:gap-3 cursor-pointer rounded-lg p-1 sm:p-2 transition-colors duration-300 ${
                   darkMode 
                     ? 'hover:bg-gray-700' 
                     : 'hover:bg-gray-50'
@@ -166,7 +157,7 @@ export default function DashboardLayout({
                 <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
                   <User className="w-4 h-4 text-white" />
                 </div>
-                <div className="text-right">
+                <div className="hidden sm:block text-right">
                   <p className={`text-sm font-medium transition-colors duration-300 ${
                     darkMode ? 'text-white' : 'text-gray-800'
                   }`}>علي الحازمي</p>
@@ -174,7 +165,7 @@ export default function DashboardLayout({
                     darkMode ? 'text-gray-300' : 'text-gray-500'
                   }`}>مدير النظام</p>
                 </div>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                <ChevronDown className={`hidden sm:block w-4 h-4 transition-transform duration-300 ${
                   darkMode ? 'text-gray-400' : 'text-gray-400'
                 } ${showProfileMenu ? 'rotate-180' : ''}`} />
               </button>
@@ -230,14 +221,41 @@ export default function DashboardLayout({
         </div>
       </header>
 
+      {/* Overlay للموبايل */}
+      {sidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <div className="flex">
         {/* القائمة الجانبية اليمنى */}
-        <aside className={`w-72 shadow-xl border-l min-h-screen transition-colors duration-300 ${
+        <aside className={`${
+          sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+        } lg:translate-x-0 fixed lg:relative w-72 shadow-xl border-l min-h-screen transition-all duration-300 z-50 ${
           darkMode 
             ? 'bg-gradient-to-b from-gray-800 to-gray-900 border-gray-700' 
             : 'bg-gradient-to-b from-slate-50 to-white border-gray-100'
         }`}>
-          <div className="p-6">
+          {/* زر إغلاق للموبايل */}
+          <div className="lg:hidden flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+              القائمة الرئيسية
+            </h2>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className={`p-2 rounded-lg transition-colors ${
+                darkMode 
+                  ? 'hover:bg-gray-700 text-gray-300' 
+                  : 'hover:bg-gray-100 text-gray-600'
+              }`}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="p-4 lg:p-6 overflow-y-auto max-h-[calc(100vh-4rem)] lg:max-h-full">
             {/* شارة الحالة */}
             <div className={`p-4 rounded-xl border transition-colors duration-300 ${
               darkMode 
@@ -262,7 +280,10 @@ export default function DashboardLayout({
             
             {/* قائمة التنقل الأنيقة */}
             <nav className="mt-8 space-y-2">
-              <Link href="/dashboard" className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+              <Link 
+                href="/dashboard" 
+                onClick={() => setSidebarOpen(false)}
+                className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
                 darkMode 
                   ? 'text-gray-300 hover:bg-gradient-to-r hover:from-blue-900/30 hover:to-purple-900/30 hover:text-blue-300' 
                   : 'text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-700'
@@ -285,7 +306,10 @@ export default function DashboardLayout({
                 <div className="w-2 h-2 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </Link>
 
-              <Link href="/dashboard/news" className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+              <Link 
+                href="/dashboard/news" 
+                onClick={() => setSidebarOpen(false)}
+                className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
                 darkMode 
                   ? 'text-gray-300 hover:bg-gradient-to-r hover:from-green-900/30 hover:to-emerald-900/30 hover:text-green-300' 
                   : 'text-gray-700 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-700'
@@ -314,7 +338,10 @@ export default function DashboardLayout({
                 </div>
               </Link>
 
-              <Link href="/dashboard/categories" className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+              <Link 
+                href="/dashboard/categories" 
+                onClick={() => setSidebarOpen(false)}
+                className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
                 darkMode 
                   ? 'text-gray-300 hover:bg-gradient-to-r hover:from-indigo-900/30 hover:to-blue-900/30 hover:text-indigo-300' 
                   : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-blue-50 hover:text-indigo-700'
@@ -343,7 +370,10 @@ export default function DashboardLayout({
                 </div>
               </Link>
 
-              <Link href="/dashboard/users" className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+              <Link 
+                href="/dashboard/users" 
+                onClick={() => setSidebarOpen(false)}
+                className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
                 darkMode 
                   ? 'text-gray-300 hover:bg-gradient-to-r hover:from-purple-900/30 hover:to-pink-900/30 hover:text-purple-300' 
                   : 'text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
@@ -369,6 +399,38 @@ export default function DashboardLayout({
                     : 'bg-purple-100 text-purple-700 group-hover:bg-purple-500 group-hover:text-white'
                 }`}>
                   1.2M
+                </div>
+              </Link>
+
+              <Link 
+                href="/dashboard/messages" 
+                onClick={() => setSidebarOpen(false)}
+                className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+                darkMode 
+                  ? 'text-gray-300 hover:bg-gradient-to-r hover:from-amber-900/30 hover:to-orange-900/30 hover:text-amber-300' 
+                  : 'text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-700'
+              }`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                  darkMode 
+                    ? 'bg-amber-900/40 group-hover:bg-amber-500 group-hover:text-white' 
+                    : 'bg-amber-100 group-hover:bg-amber-500 group-hover:text-white'
+                }`}>
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <span className="font-medium">صندوق الرسائل</span>
+                  <p className={`text-xs transition-colors duration-300 ${
+                    darkMode 
+                      ? 'text-gray-400 group-hover:text-amber-300' 
+                      : 'text-gray-500 group-hover:text-amber-600'
+                  }`}>رسائل المستخدمين</p>
+                </div>
+                <div className={`px-2 py-1 rounded-full text-xs font-bold transition-all ${
+                  darkMode 
+                    ? 'bg-amber-900/40 text-amber-300 group-hover:bg-amber-500 group-hover:text-white' 
+                    : 'bg-amber-100 text-amber-700 group-hover:bg-amber-500 group-hover:text-white'
+                }`}>
+                  جديد
                 </div>
               </Link>
 

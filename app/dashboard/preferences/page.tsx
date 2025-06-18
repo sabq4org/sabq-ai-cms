@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useDarkMode } from '@/hooks/useDarkMode';
 import { 
   Brain, Users, TrendingUp, Eye, BarChart3, Settings, Target, 
   Heart, Share2, MessageSquare, Clock, Star, Zap, Filter,
@@ -9,7 +10,7 @@ import {
 } from 'lucide-react';
 
 export default function PreferencesPage() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [categoryData, setCategoryData] = useState<any[]>([]);
@@ -27,13 +28,6 @@ export default function PreferencesPage() {
     dailyComments: 0
   });
 
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
-  }, []);
-
   // جلب البيانات الحقيقية
   useEffect(() => {
     const fetchRealData = async () => {
@@ -43,7 +37,9 @@ export default function PreferencesPage() {
         // جلب بيانات التصنيفات النشطة
         const categoriesRes = await fetch('/api/categories');
         const categoriesData = await categoriesRes.json();
-        const activeCategories = categoriesData.filter((cat: any) => cat.is_active).map((cat: any) => ({
+        // التحقق من أن البيانات مصفوفة
+        const categories = Array.isArray(categoriesData) ? categoriesData : (categoriesData.categories || []);
+        const activeCategories = categories.filter((cat: any) => cat.is_active).map((cat: any) => ({
           id: cat.id,
           name: cat.name,
           users: 0, // سيتم حسابه من تفضيلات المستخدمين الحقيقية
@@ -66,11 +62,19 @@ export default function PreferencesPage() {
         }
 
         // تحديث الإحصائيات بالقيم الصفرية أو الحقيقية
-        const usersRes = await fetch('/api/users');
-        const usersData = await usersRes.json();
+        let totalUsers = 0;
+        try {
+          const usersRes = await fetch('/api/users');
+          if (usersRes.ok) {
+            const usersData = await usersRes.json();
+            totalUsers = usersData.users?.length || 0;
+          }
+        } catch (error) {
+          console.error('خطأ في جلب بيانات المستخدمين:', error);
+        }
         
         setStats({
-          totalUsers: usersData.users?.length || 0,
+          totalUsers,
           activeInteractions: 0,
           avgReadingTime: 0,
           updatedPreferences: 0,

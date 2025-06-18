@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 type NewsStatus = 'published' | 'draft' | 'pending' | 'deleted' | 'scheduled';
 type NewsItem = {
@@ -53,19 +54,7 @@ type NewsItem = {
   slug?: string;
 };
 
-// بيانات التصنيفات
-const categories: { [key: number]: { name: string; color: string } } = {
-  1: { name: 'محليات', color: '#EF4444' },
-  2: { name: 'تقنية', color: '#8B5CF6' },
-  3: { name: 'اقتصاد', color: '#10B981' },
-  4: { name: 'رياضة', color: '#F59E0B' },
-  5: { name: 'سياسة', color: '#3B82F6' },
-  6: { name: 'ترفيه', color: '#EC4899' },
-  7: { name: 'صحة', color: '#06B6D4' },
-  8: { name: 'تعليم', color: '#6366F1' },
-  9: { name: 'ثقافة', color: '#14B8A6' },
-  10: { name: 'دولي', color: '#F97316' }
-};
+
 
 // دالة لتحديد لون النص بناءً على لون الخلفية
 function getContrastColor(hexColor: string): string {
@@ -89,8 +78,25 @@ export default function NewsManagementPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const [darkMode, setDarkMode] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+  const { darkMode } = useDarkMode();
   const router = useRouter();
+
+  // جلب التصنيفات
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories?status=active');
+        if (response.ok) {
+          const result = await response.json();
+          setCategories(result.data || []);
+        }
+      } catch (err) {
+        console.error('خطأ في جلب التصنيفات:', err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // استرجاع البيانات الحقيقية من API
   useEffect(() => {
@@ -103,9 +109,6 @@ export default function NewsManagementPage() {
         }
         const data = await response.json();
         const mapped: NewsItem[] = (data.articles || []).map((a: any) => {
-          const categoryId = typeof a.category_id === 'number' ? a.category_id : 1;
-          const categoryData = categories[categoryId] || categories[1];
-          
           // تحديد الحالة بناءً على التاريخ
           let status = a.status as NewsStatus;
           const publishAt = a.publish_at || a.published_at;
@@ -123,9 +126,9 @@ export default function NewsManagementPage() {
             title: a.title,
             author: a.author_id || '—',
             author_name: a.author_name || 'كاتب غير معروف',
-            category: a.category_id || '—',
-            category_name: categoryData.name,
-            category_color: categoryData.color,
+            category: a.category_id || 0,
+            category_name: a.category_name || 'غير مصنف',
+            category_color: a.category_color || '#6B7280',
             publishTime: a.published_at ? new Date(a.published_at).toLocaleString('ar-SA', {
               year: 'numeric',
               month: 'short',
@@ -161,13 +164,7 @@ export default function NewsManagementPage() {
     fetchNewsData();
   }, []);
 
-  // استرجاع حالة الوضع الليلي من localStorage
-  React.useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
-  }, []);
+  // darkMode يتم إدارته الآن بواسطة useDarkMode hook
 
   // دوال المساعدة للأزرار
   const handleDelete = async (id: string) => {
@@ -284,24 +281,24 @@ export default function NewsManagementPage() {
     trend?: 'up' | 'down';
     trendValue?: string;
   }) => (
-    <div className={`rounded-2xl p-6 shadow-sm border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+    <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
       darkMode 
         ? 'bg-gray-800 border-gray-700' 
         : 'bg-white border-gray-100'
     }`}>
-      <div className="flex items-center gap-4">
-        <div className={`w-14 h-14 ${bgGradient} rounded-2xl flex items-center justify-center shadow-lg`}>
-          <Icon className={`w-7 h-7 ${iconColor}`} />
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className={`w-12 h-12 sm:w-14 sm:h-14 ${bgGradient} rounded-2xl flex items-center justify-center shadow-lg`}>
+          <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${iconColor}`} />
         </div>
         <div className="flex-1">
-          <p className={`text-sm mb-1 transition-colors duration-300 ${
+          <p className={`text-xs sm:text-sm mb-1 transition-colors duration-300 ${
             darkMode ? 'text-gray-400' : 'text-gray-500'
           }`}>{title}</p>
-          <div className="flex items-baseline gap-2">
-            <span className={`text-2xl font-bold transition-colors duration-300 ${
+          <div className="flex items-baseline gap-1 sm:gap-2">
+            <span className={`text-lg sm:text-2xl font-bold transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800'
             }`}>{loading ? '...' : value}</span>
-            <span className={`text-sm transition-colors duration-300 ${
+            <span className={`text-xs sm:text-sm transition-colors duration-300 ${
               darkMode ? 'text-gray-400' : 'text-gray-500'
             }`}>{subtitle}</span>
           </div>
@@ -319,53 +316,54 @@ export default function NewsManagementPage() {
   );
 
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
-      <div className="mb-8">
-        <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
+      <div className="mb-6 sm:mb-8">
+        <h1 className={`text-2xl sm:text-3xl font-bold mb-2 transition-colors duration-300 ${
           darkMode ? 'text-white' : 'text-gray-800'
         }`}>مركز إدارة المحتوى الإخباري</h1>
-        <p className={`transition-colors duration-300 ${
+        <p className={`text-sm sm:text-base transition-colors duration-300 ${
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>منصة متكاملة لإدارة ونشر المحتوى الإخباري مع أدوات تحليل الأداء وتتبع التفاعل</p>
       </div>
 
       {/* قسم النظام التحريري */}
-      <div className="mb-8">
-        <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
+      <div className="mb-6 sm:mb-8">
+        <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
           darkMode 
             ? 'bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border-blue-700' 
             : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100'
         }`}>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Newspaper className="w-7 h-7 text-white" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Newspaper className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               </div>
               <div>
-                <h2 className={`text-xl font-bold transition-colors duration-300 ${
+                <h2 className={`text-lg sm:text-xl font-bold transition-colors duration-300 ${
                   darkMode ? 'text-white' : 'text-gray-800'
                 }`}>نظام إدارة المحتوى الصحفي</h2>
-                <p className={`text-sm transition-colors duration-300 ${
+                <p className={`text-xs sm:text-sm transition-colors duration-300 ${
                   darkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}>أدوات متقدمة لإنشاء ونشر ومتابعة المحتوى الإخباري بكفاءة عالية</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <Link 
                 href="/dashboard/news/insights"
-                className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-5 py-2.5 rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
               >
                 <BarChart3 className="w-4 h-4" />
-                تحليلات متقدمة
+                <span className="hidden sm:inline">تحليلات متقدمة</span>
+                <span className="sm:hidden">تحليلات</span>
               </Link>
               
               <Link 
                 href="/dashboard/news/create"
-                className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-2.5 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
               >
                 <PenTool className="w-4 h-4" />
                 مقال جديد
@@ -376,7 +374,7 @@ export default function NewsManagementPage() {
       </div>
 
       {/* بطاقات الإحصائيات المحسّنة */}
-      <div className="grid grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
         <EnhancedStatsCard
           title="إجمالي المحتوى"
           value={newsData.filter(item => item.status !== 'deleted').length.toString()}
@@ -424,18 +422,18 @@ export default function NewsManagementPage() {
       </div>
 
       {/* أزرار التنقل المحسّنة */}
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
+      <div className={`rounded-2xl p-2 shadow-sm border mb-6 sm:mb-8 w-full transition-colors duration-300 ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
       }`}>
-        <div className="flex gap-2 justify-start pr-8">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {statusTabs.map((tab) => {
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-44 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 relative ${
+                className={`min-w-[100px] sm:min-w-[120px] lg:w-44 flex flex-col items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 sm:px-3 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 relative ${
                   activeTab === tab.id
                     ? 'bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
                     : darkMode
@@ -444,13 +442,13 @@ export default function NewsManagementPage() {
                 }`}
               >
                 <div className={`transition-transform duration-300 ${activeTab === tab.id ? 'scale-110' : ''}`}>
-                  {tab.icon}
+                  {React.cloneElement(tab.icon, { className: 'w-4 h-4 sm:w-5 sm:h-5' })}
                 </div>
                 <div className="text-center">
-                  <div>{tab.name}</div>
+                  <div className="whitespace-nowrap">{tab.name}</div>
                 </div>
                 {tab.count > 0 && (
-                  <span className={`absolute top-2 left-2 px-2 py-0.5 text-xs rounded-full ${
+                  <span className={`absolute top-1 sm:top-2 left-1 sm:left-2 px-1.5 sm:px-2 py-0.5 text-xs rounded-full ${
                     activeTab === tab.id
                       ? 'bg-white text-blue-500'
                       : darkMode
@@ -467,7 +465,7 @@ export default function NewsManagementPage() {
       </div>
 
       {/* شريط البحث والفلاتر - خارج الجدول */}
-      <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
+      <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border mb-6 sm:mb-8 transition-colors duration-300 ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
@@ -483,7 +481,7 @@ export default function NewsManagementPage() {
                 placeholder="البحث في المحتوى..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full px-4 py-2.5 pr-11 text-sm rounded-lg border transition-all duration-300 ${
+                className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 pr-10 sm:pr-11 text-sm rounded-lg border transition-all duration-300 ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400 focus:border-blue-500 focus:bg-gray-600' 
                     : 'bg-white border-gray-200 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-white'
@@ -492,20 +490,20 @@ export default function NewsManagementPage() {
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full lg:w-auto">
             <select 
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className={`px-4 py-2.5 text-sm rounded-lg border transition-all duration-300 ${
+              className={`flex-1 lg:flex-initial px-3 sm:px-4 py-2 sm:py-2.5 text-sm rounded-lg border transition-all duration-300 ${
                 darkMode 
                   ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
                   : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500'
               } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
             >
               <option value="all">جميع التصنيفات</option>
-              {Object.entries(categories).map(([id, category]) => (
-                <option key={id} value={id}>
-                  {category.name}
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.icon} {category.name_ar}
                 </option>
               ))}
             </select>
@@ -513,7 +511,7 @@ export default function NewsManagementPage() {
             <select 
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className={`px-4 py-2.5 text-sm rounded-lg border transition-all duration-300 ${
+              className={`flex-1 lg:flex-initial px-3 sm:px-4 py-2 sm:py-2.5 text-sm rounded-lg border transition-all duration-300 ${
                 darkMode 
                   ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
                   : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500'

@@ -369,6 +369,55 @@
       "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15",
       "created_at": "2025-06-18T08:55:05.357Z",
       "severity": "info"
+    },
+    {
+      "id": "log-1750250153360-9sp9o4vh8",
+      "user_id": "test-user",
+      "user_name": "علي الحازمي",
+      "email": "test@test.com",
+      "role": "admin",
+      "action_type": "login",
+      "details": "علي الحازمي سجّل دخولاً إلى النظام",
+      "target_id": null,
+      "target_type": null,
+      "old_value": null,
+      "new_value": null,
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15",
+      "created_at": "2025-06-18T12:35:53.360Z",
+      "severity": "info"
+    },
+    {
+      "id": "log-1750265252515-1afozdh5h",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "user_name": "علي عبده",
+      "email": "ali@alhazm.org",
+      "action_type": "create",
+      "details": "تم إنشاء مقال جديد: \"رحيل الشاعر والإعلامي موسى بن يحيى مُحرَّق.. صوتٌ أضاء المشهد الثقافي وأورق في ذاكرة الوطن\"",
+      "target_id": "article-1750265252460-rif52vpw9",
+      "target_type": "article",
+      "old_value": null,
+      "new_value": null,
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15",
+      "created_at": "2025-06-18T16:47:32.515Z",
+      "severity": "info"
+    },
+    {
+      "id": "log-1750265252556-menze9jdb",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "user_name": "علي عبده",
+      "email": "ali@alhazm.org",
+      "action_type": "publish",
+      "details": "تم نشر المقال: \"رحيل الشاعر والإعلامي موسى بن يحيى مُحرَّق.. صوتٌ أضاء المشهد الثقافي وأورق في ذاكرة الوطن\"",
+      "target_id": "article-1750265252460-rif52vpw9",
+      "target_type": "article",
+      "old_value": null,
+      "new_value": null,
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15",
+      "created_at": "2025-06-18T16:47:32.556Z",
+      "severity": "info"
     }
   ]
 }

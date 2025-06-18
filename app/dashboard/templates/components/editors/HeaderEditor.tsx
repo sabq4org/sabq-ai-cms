@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Plus, Trash2, Move, Upload, Link, Type, Palette, Settings } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 interface HeaderContent {
   logo?: {
@@ -31,6 +32,7 @@ interface HeaderContent {
   theme?: {
     primaryColor?: string
     backgroundColor?: string
+    headerHeight?: number
   }
 }
 
@@ -41,9 +43,62 @@ interface HeaderEditorProps {
 
 export function HeaderEditor({ content, onChange }: HeaderEditorProps) {
   const [activeSection, setActiveSection] = useState<'logo' | 'navigation' | 'topbar' | 'social' | 'theme'>('logo')
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const updateContent = (section: keyof HeaderContent, value: any) => {
     onChange({ ...content, [section]: value })
+  }
+
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // التحقق من نوع الملف
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('يرجى اختيار ملف صورة صالح (PNG, JPG, SVG, WEBP)')
+      return
+    }
+
+    // التحقق من حجم الملف (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('حجم الملف يجب أن يكون أقل من 5 ميجابايت')
+      return
+    }
+
+    setUploadingLogo(true)
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('type', 'logo')
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        updateContent('logo', { 
+          ...content.logo, 
+          url: data.url,
+          alt: content.logo?.alt || 'شعار الموقع'
+        })
+        toast.success('تم رفع الشعار بنجاح')
+      } else {
+        throw new Error('فشل رفع الملف')
+      }
+    } catch (error) {
+      console.error('Error uploading logo:', error)
+      toast.error('حدث خطأ أثناء رفع الشعار')
+    } finally {
+      setUploadingLogo(false)
+      // إعادة تعيين قيمة input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
   }
 
   const addNavigationItem = () => {
@@ -191,10 +246,44 @@ export function HeaderEditor({ content, onChange }: HeaderEditorProps) {
             </div>
           </div>
 
-          <button className="btn-secondary text-sm flex items-center gap-2">
-            <Upload className="w-4 h-4" />
-            رفع شعار جديد
-          </button>
+          {/* معاينة الشعار الحالي */}
+          {content.logo?.url && (
+            <div className="p-4 bg-white rounded-lg border border-gray-200">
+              <p className="text-xs text-gray-500 mb-2">معاينة الشعار:</p>
+              <img 
+                src={content.logo.url} 
+                alt={content.logo.alt || 'معاينة الشعار'}
+                className="max-h-16 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/placeholder-logo.png'
+                }}
+              />
+            </div>
+          )}
+
+          {/* زر رفع الشعار مع input مخفي */}
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/webp"
+              onChange={handleLogoUpload}
+              className="hidden"
+              id="logo-upload"
+            />
+            <button 
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingLogo}
+              className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Upload className="w-4 h-4" />
+              {uploadingLogo ? 'جاري الرفع...' : 'رفع شعار جديد'}
+            </button>
+            <p className="text-xs text-gray-500 mt-2">
+              الصيغ المدعومة: PNG, JPG, SVG, WEBP - الحجم الأقصى: 5MB
+            </p>
+          </div>
         </div>
       )}
 
@@ -423,6 +512,22 @@ export function HeaderEditor({ content, onChange }: HeaderEditorProps) {
                   dir="ltr"
                 />
               </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <label className="block text-sm text-gray-600 mb-2">ارتفاع الهيدر (px)</label>
+              <input
+                type="number"
+                value={content.theme?.headerHeight || 64}
+                onChange={(e) => updateContent('theme', { ...content.theme, headerHeight: parseInt(e.target.value) })}
+                className="modern-input text-sm"
+                placeholder="64"
+                min="40"
+                max="200"
+              />
+              <p className="text-xs text-gray-500 mt-1">الارتفاع الافتراضي: 64px</p>
             </div>
           </div>
         </div>

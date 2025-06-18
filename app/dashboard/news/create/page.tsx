@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 // استيراد المكونات
-import ContentEditor from '../../../../components/ContentEditor';
+import ContentEditorWithTiptap from '../../../../components/ContentEditorWithTiptap';
 import { logActions, getCurrentUser } from '../../../../lib/log-activity';
 
 // ===============================
@@ -508,14 +508,145 @@ export default function CreateArticlePage() {
           {/* منطقة المحتوى الرئيسية */}
           <div className="xl:col-span-2">
             {activeTab === 'content' && (
-              <ContentEditor 
-                formData={formData}
-                setFormData={setFormData}
-                categories={categories}
-                onGenerateTitle={generateTitle}
-                onGenerateDescription={generateDescription}
-                aiLoading={aiLoading}
-              />
+              <div className="bg-white rounded-3xl shadow-xl p-8">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <FileText className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">محرر المحتوى</h2>
+                    <p className="text-gray-600">أنشئ محتوى احترافي بأدوات متقدمة</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {/* العنوان الرئيسي */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      العنوان الرئيسي <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <textarea
+                        value={formData.title}
+                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="اكتب عنواناً جذاباً ومميزاً للمقال..."
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        rows={2}
+                      />
+                      <button
+                        onClick={generateTitle}
+                        disabled={aiLoading.title}
+                        className="absolute left-2 top-2 p-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors disabled:opacity-50"
+                      >
+                        {aiLoading.title ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className={`text-xs ${formData.title.length > 100 ? 'text-red-500' : 'text-gray-500'}`}>
+                        {formData.title.length} / 100 حرف
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* العنوان الفرعي */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      العنوان الفرعي (اختياري)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.subtitle}
+                      onChange={(e) => setFormData(prev => ({ ...prev, subtitle: e.target.value }))}
+                      placeholder="عنوان فرعي يدعم العنوان الرئيسي..."
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* التصنيف والنطاق */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-2 block">
+                        التصنيف الرئيسي <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={formData.category_id}
+                        onChange={(e) => setFormData(prev => ({ ...prev, category_id: Number(e.target.value) }))}
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value={0}>اختر التصنيف...</option>
+                        {categories.map(cat => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.icon} {cat.name_ar}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-2 block">
+                        النطاق
+                      </label>
+                      <select
+                        value={formData.scope}
+                        onChange={(e) => setFormData(prev => ({ ...prev, scope: e.target.value as 'local' | 'international' }))}
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="local">🏠 محلي</option>
+                        <option value="international">🌍 دولي</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* الوصف الموجز */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      الوصف الموجز
+                    </label>
+                    <div className="relative">
+                      <textarea
+                        value={formData.description}
+                        onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                        placeholder="وصف موجز يظهر في نتائج البحث ومعاينة المقال..."
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        rows={3}
+                      />
+                      <button
+                        onClick={generateDescription}
+                        disabled={aiLoading.description}
+                        className="absolute left-2 top-2 p-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors disabled:opacity-50"
+                      >
+                        {aiLoading.description ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className={`text-xs ${formData.description.length > 160 ? 'text-red-500' : 'text-gray-500'}`}>
+                        {formData.description.length} / 160 حرف
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* محرر المحتوى */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      محتوى المقال <span className="text-red-500">*</span>
+                    </label>
+                    <ContentEditorWithTiptap 
+                      formData={formData}
+                      setFormData={setFormData}
+                      categories={categories}
+                      aiLoading={aiLoading}
+                    />
+                  </div>
+                </div>
+              </div>
             )}
             
             {activeTab === 'ai' && (

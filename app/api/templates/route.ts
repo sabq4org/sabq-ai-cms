@@ -1,115 +1,80 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requirePermission } from '@/app/lib/auth'
+import { templateService } from '@/lib/services/templateService'
+import { TemplateType } from '@/types/template'
+import { promises as fs } from 'fs'
+import path from 'path'
 
 // GET /api/templates
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const user = await requirePermission('templates.view')
+    const dataPath = path.join(process.cwd(), 'data', 'templates.json')
+    const data = await fs.readFile(dataPath, 'utf-8')
+    const templates = JSON.parse(data)
     
-    const { searchParams } = new URL(request.url)
-    const type = searchParams.get('type')
-    
-    // هنا يتم جلب القوالب من قاعدة البيانات
-    // مؤقتاً نرجع بيانات تجريبية
-    const templates = [
-      {
-        id: 1,
-        name: 'الهيدر الافتراضي',
-        description: 'قالب الهيدر الأساسي للموقع',
-        type: 'header',
-        content: {
-          logo: {
-            url: '/images/sabq-logo.svg',
-            alt: 'صحيفة سبق الإلكترونية'
-          },
-          navigation: {
-            items: [
-              { label: 'الرئيسية', url: '/', order: 1 },
-              { label: 'محليات', url: '/local', order: 2 },
-              { label: 'دولي', url: '/international', order: 3 },
-              { label: 'اقتصاد', url: '/economy', order: 4 },
-              { label: 'رياضة', url: '/sports', order: 5 }
-            ]
-          }
-        },
-        is_active: true,
-        is_default: true,
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-15T00:00:00Z'
-      },
-      {
-        id: 2,
-        name: 'الفوتر الافتراضي',
-        description: 'قالب الفوتر الأساسي للموقع',
-        type: 'footer',
-        content: {
-          sections: [
-            {
-              title: 'عن سبق',
-              links: [
-                { label: 'من نحن', url: '/about' },
-                { label: 'رؤيتنا ورسالتنا', url: '/vision' }
-              ]
-            }
-          ],
-          newsletter: {
-            enabled: true,
-            title: 'اشترك في النشرة البريدية'
-          },
-          copyright: '© 2024 صحيفة سبق الإلكترونية. جميع الحقوق محفوظة.'
-        },
-        is_active: true,
-        is_default: true,
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-15T00:00:00Z'
-      }
-    ]
-    
-    // فلترة حسب النوع إذا تم تحديده
-    const filteredTemplates = type 
-      ? templates.filter(t => t.type === type)
-      : templates
-    
-    return NextResponse.json(filteredTemplates)
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: error.message === 'Unauthorized' ? 401 : 403 }
-    )
+    return NextResponse.json(templates)
+  } catch (error) {
+    console.error('Error reading templates:', error)
+    return NextResponse.json([], { status: 500 })
   }
 }
 
 // POST /api/templates
 export async function POST(request: NextRequest) {
   try {
-    const user = await requirePermission('templates.create')
-    const data = await request.json()
+    const newTemplate = await request.json()
     
-    // التحقق من البيانات المطلوبة
-    if (!data.name || !data.type || !data.content) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
-        { status: 400 }
-      )
+    const dataPath = path.join(process.cwd(), 'data', 'templates.json')
+    const data = await fs.readFile(dataPath, 'utf-8')
+    const templates = JSON.parse(data)
+    
+    // إنشاء ID جديد
+    const maxId = templates.reduce((max: number, t: any) => Math.max(max, t.id), 0)
+    newTemplate.id = maxId + 1
+    
+    // إضافة التواريخ
+    newTemplate.created_at = new Date().toISOString()
+    newTemplate.updated_at = new Date().toISOString()
+    
+    // استخراج بيانات الشعار من content إذا كانت موجودة
+    if (newTemplate.content?.logo?.url) {
+      newTemplate.logo_url = newTemplate.content.logo.url
+      newTemplate.logo_alt = newTemplate.content.logo.alt || 'شعار الموقع'
+      newTemplate.logo_width = newTemplate.content.logo.width
+      newTemplate.logo_height = newTemplate.content.logo.height
     }
     
-    // هنا يتم إنشاء القالب في قاعدة البيانات
-    const newTemplate = {
-      id: Date.now(),
-      ...data,
-      created_by: user.id,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+    // استخراج ارتفاع الهيدر من content إذا كان موجوداً
+    if (newTemplate.content?.theme?.headerHeight) {
+      newTemplate.header_height = newTemplate.content.theme.headerHeight
     }
     
-    return NextResponse.json({
-      success: true,
-      data: newTemplate
-    })
-  } catch (error: any) {
+    // استخراج روابط التواصل الاجتماعي من content
+    if (newTemplate.content?.socialLinks) {
+      newTemplate.social_links = newTemplate.content.socialLinks
+    }
+    
+    // إذا كان القالب is_default = true، تأكد من إلغاء default للقوالب الأخرى من نفس النوع
+    if (newTemplate.is_default === true) {
+      templates.forEach((t: any) => {
+        if (t.type === newTemplate.type) {
+          t.is_default = false
+        }
+      })
+    }
+    
+    // إضافة القالب الجديد
+    templates.push(newTemplate)
+    
+    // حفظ التحديثات
+    await fs.writeFile(dataPath, JSON.stringify(templates, null, 2))
+    
+    return NextResponse.json(newTemplate)
+  } catch (error) {
+    console.error('Error creating template:', error)
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: error.message === 'Unauthorized' ? 401 : 500 }
+      { error: 'Failed to create template' },
+      { status: 500 }
     )
   }
 } 

@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Edit, Trash2, ToggleLeft, ToggleRight, Calendar, Globe, Tag, Star } from 'lucide-react'
+import { Edit, Trash2, ToggleLeft, ToggleRight, Calendar, Globe, Tag, Star, Eye } from 'lucide-react'
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
+import { useTemplatePreview } from '@/hooks/useTemplate'
 
 interface Template {
   id: number
@@ -29,6 +30,8 @@ interface TemplatesListProps {
 export function TemplatesList({ type, onEdit }: TemplatesListProps) {
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
+  const [previewingId, setPreviewingId] = useState<number | null>(null)
+  const { generatePreview } = useTemplatePreview(previewingId || 0)
 
   useEffect(() => {
     fetchTemplates()
@@ -95,6 +98,12 @@ export function TemplatesList({ type, onEdit }: TemplatesListProps) {
     } catch (error) {
       console.error('Error deleting template:', error)
     }
+  }
+
+  const handlePreview = async (templateId: number) => {
+    setPreviewingId(templateId)
+    await generatePreview()
+    setPreviewingId(null)
   }
 
   if (loading) {
@@ -212,6 +221,15 @@ export function TemplatesList({ type, onEdit }: TemplatesListProps) {
             </div>
 
             <div className="flex items-center gap-2 mr-4">
+              <button
+                onClick={() => handlePreview(template.id)}
+                className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                title="معاينة"
+                disabled={previewingId === template.id}
+              >
+                <Eye className="w-5 h-5" />
+              </button>
+              
               {!template.is_default && (
                 <button
                   onClick={() => setAsDefault(template)}

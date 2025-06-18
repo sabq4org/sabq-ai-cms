@@ -270,6 +270,18 @@ function sortArticles(articles: Article[], sortBy: string = 'created_at', order:
 // معالجات API
 // ===============================
 
+// جلب معلومات التصنيفات
+async function fetchCategoriesData() {
+  try {
+    const categoriesFile = path.join(process.cwd(), 'data', 'categories.json');
+    const fileContent = await fs.readFile(categoriesFile, 'utf-8');
+    const data = JSON.parse(fileContent);
+    return data.categories || [];
+  } catch (error) {
+    return [];
+  }
+}
+
 // GET: استرجاع المقالات
 export async function GET(request: NextRequest) {
   try {
@@ -277,6 +289,20 @@ export async function GET(request: NextRequest) {
     
     // تطبيق الفلاتر
     let filteredArticles = await filterArticles(searchParams);
+    
+    // جلب معلومات التصنيفات
+    const categories = await fetchCategoriesData();
+    
+    // إثراء المقالات بمعلومات التصنيف
+    filteredArticles = filteredArticles.map(article => {
+      const category = categories.find((cat: any) => cat.id === article.category_id);
+      return {
+        ...article,
+        category_name: category?.name_ar || 'غير مصنف',
+        category_color: category?.color_hex || '#6B7280',
+        category_icon: category?.icon || '📁'
+      };
+    });
     
     // تطبيق الترتيب
     const sortBy = searchParams.get('sort') || 'created_at';

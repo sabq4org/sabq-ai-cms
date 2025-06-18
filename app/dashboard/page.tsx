@@ -12,10 +12,11 @@ import {
   Star,
   UserCheck
 } from 'lucide-react';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('behavior');
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
   const [stats, setStats] = useState({
     users: 0,
     points: 0,
@@ -30,13 +31,7 @@ export default function DashboardPage() {
   const [tableData, setTableData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // استرجاع حالة الوضع الليلي من localStorage
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
-  }, []);
+  // darkMode يتم إدارته الآن بواسطة useDarkMode hook
 
   // جلب البيانات الحقيقية
   useEffect(() => {
@@ -133,24 +128,24 @@ export default function DashboardPage() {
     iconColor: string;
     textColor?: string;
   }) => (
-    <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${
+    <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${
       darkMode 
         ? 'bg-gray-800 border-gray-700' 
         : 'bg-white border-gray-100'
     }`}>
-      <div className="flex items-center gap-4">
-        <div className={`w-12 h-12 ${bgColor} rounded-full flex items-center justify-center`}>
-          <Icon className={`w-6 h-6 ${iconColor}`} />
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 ${bgColor} rounded-full flex items-center justify-center`}>
+          <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColor}`} />
         </div>
         <div className="flex-1">
-          <p className={`text-sm mb-1 transition-colors duration-300 ${
+          <p className={`text-xs sm:text-sm mb-1 transition-colors duration-300 ${
             darkMode ? 'text-gray-400' : 'text-gray-500'
           }`}>{title}</p>
-          <div className="flex items-baseline gap-2">
-            <span className={`text-2xl font-bold transition-colors duration-300 ${
+          <div className="flex items-baseline gap-1 sm:gap-2">
+            <span className={`text-lg sm:text-2xl font-bold transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800'
             }`}>{loading ? '...' : value}</span>
-            <span className={`text-sm transition-colors duration-300 ${
+            <span className={`text-xs sm:text-sm transition-colors duration-300 ${
               darkMode ? 'text-gray-400' : 'text-gray-500'
             }`}>{subtitle}</span>
           </div>
@@ -174,14 +169,14 @@ export default function DashboardPage() {
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
       }`}>
-        <div className="flex gap-2 justify-start pr-8">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-48 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
+                className={`min-w-[120px] sm:min-w-[150px] lg:w-48 flex flex-col items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 sm:px-3 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 ${
                   activeTab === tab.id
                     ? 'bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
                     : darkMode
@@ -189,8 +184,8 @@ export default function DashboardPage() {
                       : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
                 }`}
               >
-                <Icon className="w-5 h-5" />
-                {tab.name}
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="whitespace-nowrap">{tab.name}</span>
               </button>
             );
           })}
@@ -217,121 +212,125 @@ export default function DashboardPage() {
 
     return (
       <div className={`${tableColors.containerBg} rounded-2xl shadow-sm border ${tableColors.containerBorder} overflow-hidden transition-colors duration-300`}>
-        <div className="px-6 py-4" style={{ borderBottom: `1px solid ${tableColors.cellBorder}` }}>
-          <h3 className={`text-lg font-semibold ${tableColors.titleText} transition-colors duration-300`}>
+        <div className="px-4 sm:px-6 py-4" style={{ borderBottom: `1px solid ${tableColors.cellBorder}` }}>
+          <h3 className={`text-base sm:text-lg font-semibold ${tableColors.titleText} transition-colors duration-300`}>
             سلوك المستخدمين الأكثر نشاطاً
           </h3>
         </div>
         
-        {/* رأس الجدول */}
-        <div 
-          style={{ 
-            backgroundColor: tableColors.headerBg,
-            borderBottom: `2px solid ${tableColors.headerBorder}`
-          }}
-        >
-          <div className="grid grid-cols-7 gap-4 px-6 py-4">
-            <div className={`text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>الفئات المفضلة</div>
-            <div className={`text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>دقة التفضيلات</div>
-            <div className={`text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>آخر نشاط</div>
-            <div className={`text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>نقاط التفاعل</div>
-            <div className={`text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>إجمالي التفاعلات</div>
-            <div className={`text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>المستخدم</div>
-            <div className={`text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>تصنيف العميق</div>
+        {/* جدول متجاوب */}
+        <div className="overflow-x-auto">
+          {/* رأس الجدول */}
+          <div 
+            style={{ 
+              backgroundColor: tableColors.headerBg,
+              borderBottom: `2px solid ${tableColors.headerBorder}`
+            }}
+            className="min-w-[800px]"
+          >
+            <div className="grid grid-cols-7 gap-4 px-4 sm:px-6 py-4">
+              <div className={`text-xs sm:text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>الفئات المفضلة</div>
+              <div className={`text-xs sm:text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>دقة التفضيلات</div>
+              <div className={`text-xs sm:text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>آخر نشاط</div>
+              <div className={`text-xs sm:text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>نقاط التفاعل</div>
+              <div className={`text-xs sm:text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>إجمالي التفاعلات</div>
+              <div className={`text-xs sm:text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>المستخدم</div>
+              <div className={`text-xs sm:text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>تصنيف العميق</div>
+            </div>
           </div>
-        </div>
 
-        {/* بيانات الجدول */}
-        <div style={{ borderColor: tableColors.cellBorder }} className="divide-y">
-          {loading ? (
-            <div className="text-center py-8">
-              <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                جارٍ تحميل البيانات...
-              </p>
-            </div>
-          ) : tableData.length === 0 ? (
-            <div className="text-center py-8">
-              <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                لا توجد بيانات متاحة حالياً
-              </p>
-            </div>
-          ) : (
-            tableData.map((row, index) => (
-              <div 
-                key={index} 
-                className={`grid grid-cols-7 gap-4 px-6 py-4 ${tableColors.hoverBg} transition-colors duration-300`}
-                style={{ borderBottom: index < tableData.length - 1 ? `1px solid ${tableColors.cellBorder}` : 'none' }}
-              >
-                <div className={`text-sm font-medium ${tableColors.bodyText} transition-colors duration-300`}>{row.category}</div>
-                <div className="text-sm font-semibold text-green-500">{row.accuracy}</div>
-                <div className={`text-sm ${tableColors.subText} transition-colors duration-300`}>{row.activity}</div>
-                <div className="flex items-center">
-                  <div className={`w-16 rounded-full h-2 mr-2 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
-                    <div
-                      className="bg-blue-500 h-2 rounded-full"
-                      style={{ width: `${row.engagement}%` }}
-                    ></div>
-                  </div>
-                  <span className={`text-xs ${tableColors.subText} transition-colors duration-300`}>{row.engagement}</span>
-                </div>
-                <div className="text-sm font-medium text-blue-500">{row.total}</div>
-                <div className={`text-sm font-medium ${tableColors.bodyText} transition-colors duration-300`}>{row.user}</div>
-                <div className={`text-sm ${tableColors.subText} transition-colors duration-300`}>{row.classification}</div>
+          {/* بيانات الجدول */}
+          <div style={{ borderColor: tableColors.cellBorder }} className="divide-y min-w-[800px]">
+            {loading ? (
+              <div className="text-center py-8">
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  جارٍ تحميل البيانات...
+                </p>
               </div>
-            ))
-          )}
+            ) : tableData.length === 0 ? (
+              <div className="text-center py-8">
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  لا توجد بيانات متاحة حالياً
+                </p>
+              </div>
+            ) : (
+              tableData.map((row, index) => (
+                <div 
+                  key={index} 
+                  className={`grid grid-cols-7 gap-4 px-4 sm:px-6 py-4 ${tableColors.hoverBg} transition-colors duration-300`}
+                  style={{ borderBottom: index < tableData.length - 1 ? `1px solid ${tableColors.cellBorder}` : 'none' }}
+                >
+                  <div className={`text-xs sm:text-sm font-medium ${tableColors.bodyText} transition-colors duration-300`}>{row.category}</div>
+                  <div className="text-xs sm:text-sm font-semibold text-green-500">{row.accuracy}</div>
+                  <div className={`text-xs sm:text-sm ${tableColors.subText} transition-colors duration-300`}>{row.activity}</div>
+                  <div className="flex items-center">
+                    <div className={`w-12 sm:w-16 rounded-full h-2 mr-2 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
+                      <div
+                        className="bg-blue-500 h-2 rounded-full"
+                        style={{ width: `${row.engagement}%` }}
+                      ></div>
+                    </div>
+                    <span className={`text-xs ${tableColors.subText} transition-colors duration-300`}>{row.engagement}</span>
+                  </div>
+                  <div className="text-xs sm:text-sm font-medium text-blue-500">{row.total}</div>
+                  <div className={`text-xs sm:text-sm font-medium ${tableColors.bodyText} transition-colors duration-300`}>{row.user}</div>
+                  <div className={`text-xs sm:text-sm ${tableColors.subText} transition-colors duration-300`}>{row.classification}</div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     );
   };
 
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
-            {/* عنوان وتعريف الصفحة */}
-      <div className="mb-8">
-        <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
+      {/* عنوان وتعريف الصفحة */}
+      <div className="mb-6 sm:mb-8">
+        <h1 className={`text-2xl sm:text-3xl font-bold mb-2 transition-colors duration-300 ${
           darkMode ? 'text-white' : 'text-gray-800'
         }`}>لوحة سبق</h1>
-        <p className={`transition-colors duration-300 ${
+        <p className={`text-sm sm:text-base transition-colors duration-300 ${
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>نظام إدارة المحتوى الذكي لصحيفة سبق - تحكم شامل في المحتوى والتفاعل</p>
       </div>
 
       {/* قسم النظام الذكي */}
-      <div className="mb-8">
-        <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
+      <div className="mb-6 sm:mb-8">
+        <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
           darkMode 
             ? 'bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border-purple-700' 
             : 'bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-100'
         }`}>
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">🤖</span>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+              <span className="text-white font-bold text-lg sm:text-xl">🤖</span>
             </div>
             <div>
-              <h2 className={`text-xl font-bold transition-colors duration-300 ${
+              <h2 className={`text-lg sm:text-xl font-bold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
               }`}>النظام الذكي</h2>
-              <p className={`text-sm transition-colors duration-300 ${
+              <p className={`text-xs sm:text-sm transition-colors duration-300 ${
                 darkMode ? 'text-gray-300' : 'text-gray-600'
               }`}>تحليل متقدم للمحتوى والتفاعل باستخدام الذكاء الاصطناعي</p>
             </div>
           </div>
           
-          <div className="grid grid-cols-4 gap-4">
-            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className={`rounded-xl p-3 sm:p-4 border transition-colors duration-300 ${
               darkMode 
                 ? 'bg-gray-800 border-purple-600' 
                 : 'bg-white border-purple-100'
             }`}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-purple-600" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                 </div>
                 <div>
-                  <p className={`text-sm font-medium transition-colors duration-300 ${
+                  <p className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${
                     darkMode ? 'text-gray-200' : 'text-gray-800'
                   }`}>تحليل المحتوى</p>
                   <p className={`text-xs transition-colors duration-300 ${
@@ -341,17 +340,17 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+            <div className={`rounded-xl p-3 sm:p-4 border transition-colors duration-300 ${
               darkMode 
                 ? 'bg-gray-800 border-purple-600' 
                 : 'bg-white border-purple-100'
             }`}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                 </div>
                 <div>
-                  <p className={`text-sm font-medium transition-colors duration-300 ${
+                  <p className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${
                     darkMode ? 'text-gray-200' : 'text-gray-800'
                   }`}>توقع الاتجاهات</p>
                   <p className={`text-xs transition-colors duration-300 ${
@@ -361,17 +360,17 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+            <div className={`rounded-xl p-3 sm:p-4 border transition-colors duration-300 ${
               darkMode 
                 ? 'bg-gray-800 border-purple-600' 
                 : 'bg-white border-purple-100'
             }`}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Users className="w-5 h-5 text-blue-600" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className={`text-sm font-medium transition-colors duration-300 ${
+                  <p className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${
                     darkMode ? 'text-gray-200' : 'text-gray-800'
                   }`}>تحليل الجمهور</p>
                   <p className={`text-xs transition-colors duration-300 ${
@@ -381,17 +380,17 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+            <div className={`rounded-xl p-3 sm:p-4 border transition-colors duration-300 ${
               darkMode 
                 ? 'bg-gray-800 border-purple-600' 
                 : 'bg-white border-purple-100'
             }`}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 text-orange-600" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
                 </div>
                 <div>
-                  <p className={`text-sm font-medium transition-colors duration-300 ${
+                  <p className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${
                     darkMode ? 'text-gray-200' : 'text-gray-800'
                   }`}>تصنيف التعليقات</p>
                   <p className={`text-xs transition-colors duration-300 ${
@@ -405,7 +404,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-6 gap-6 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
         <CircularStatsCard
           title="إجمالي المستخدمين"
           value={stats.users}
