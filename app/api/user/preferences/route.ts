@@ -34,6 +34,47 @@ async function ensureInteractionsFile() {
   }
 }
 
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: 'معرف المستخدم مطلوب' },
+        { status: 400 }
+      );
+    }
+
+    // قراءة ملف التفضيلات
+    await ensurePreferencesFile();
+    const fileContent = await fs.readFile(preferencesFilePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+
+    // التأكد من وجود مصفوفة preferences
+    if (!data.preferences) {
+      data.preferences = [];
+    }
+
+    // الحصول على تفضيلات المستخدم
+    const userPreferences = data.preferences.filter(
+      (pref: UserPreference) => pref.user_id === userId
+    );
+
+    return NextResponse.json({
+      success: true,
+      data: userPreferences
+    });
+
+  } catch (error) {
+    console.error('خطأ في جلب التفضيلات:', error);
+    return NextResponse.json(
+      { success: false, error: 'حدث خطأ في جلب التفضيلات' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -50,6 +91,11 @@ export async function POST(request: NextRequest) {
     await ensurePreferencesFile();
     const fileContent = await fs.readFile(preferencesFilePath, 'utf-8');
     const data = JSON.parse(fileContent);
+
+    // التأكد من وجود مصفوفة preferences
+    if (!data.preferences) {
+      data.preferences = [];
+    }
 
     // حذف التفضيلات القديمة للمستخدم
     data.preferences = data.preferences.filter(
@@ -75,6 +121,11 @@ export async function POST(request: NextRequest) {
     await ensureInteractionsFile();
     const interactionsContent = await fs.readFile(interactionsFilePath, 'utf-8');
     const interactionsData = JSON.parse(interactionsContent);
+
+    // التأكد من وجود مصفوفة interactions
+    if (!interactionsData.interactions) {
+      interactionsData.interactions = [];
+    }
 
     interactionsData.interactions.push({
       id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

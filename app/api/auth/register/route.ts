@@ -2,17 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
+import { sendVerificationEmail, generateVerificationCode } from '@/lib/email';
 
 interface User {
   id: string;
   name: string;
   email: string;
   password: string;
+  email_verified: boolean;
   created_at: string;
   updated_at: string;
 }
 
+interface VerificationCode {
+  email: string;
+  code: string;
+  expires_at: string;
+  created_at: string;
+}
+
 const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+const verificationCodesPath = path.join(process.cwd(), 'data', 'email_verification_codes.json');
 
 // تأكد من وجود ملف المستخدمين
 async function ensureUsersFile() {
@@ -21,6 +31,16 @@ async function ensureUsersFile() {
   } catch {
     await fs.mkdir(path.dirname(usersFilePath), { recursive: true });
     await fs.writeFile(usersFilePath, JSON.stringify({ users: [] }));
+  }
+}
+
+// تأكد من وجود ملف رموز التحقق
+async function ensureVerificationCodesFile() {
+  try {
+    await fs.access(verificationCodesPath);
+  } catch {
+    await fs.mkdir(path.dirname(verificationCodesPath), { recursive: true });
+    await fs.writeFile(verificationCodesPath, JSON.stringify([]));
   }
 }
 
@@ -77,6 +97,7 @@ export async function POST(request: NextRequest) {
       name,
       email,
       password: hashedPassword,
+      email_verified: false, // غير مفعل حتى يتم التحقق من البريد
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -87,7 +108,35 @@ export async function POST(request: NextRequest) {
     // حفظ الملف
     await fs.writeFile(usersFilePath, JSON.stringify(data, null, 2));
 
-    // إنشاء نقاط ولاء أولية (50 نقطة ترحيبية)
+    // توليد رمز التحقق
+    const verificationCode = generateVerificationCode();
+    
+    // حفظ رمز التحقق
+    await ensureVerificationCodesFile();
+    const codesContent = await fs.readFile(verificationCodesPath, 'utf-8');
+    const codes = JSON.parse(codesContent);
+    
+    // إزالة أي رموز قديمة لنفس البريد
+    const filteredCodes = codes.filter((c: VerificationCode) => c.email !== email);
+    
+    // إضافة الرمز الجديد
+    filteredCodes.push({
+      email,
+      code: verificationCode,
+      expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 دقائق
+      created_at: new Date().toISOString()
+    });
+    
+    await fs.writeFile(verificationCodesPath, JSON.stringify(filteredCodes, null, 2));
+
+    // إرسال بريد التحقق
+    const emailSent = await sendVerificationEmail(email, name, verificationCode);
+    
+    if (!emailSent) {
+      console.warn('⚠️ تحذير: فشل إرسال بريد التحقق');
+    }
+
+    // إنشاء نقاط ولاء أولية (50 نقطة ترحيبية) - ستُفعل بعد التحقق من البريد
     const loyaltyFilePath = path.join(process.cwd(), 'data', 'loyalty_points.json');
     try {
       const loyaltyContent = await fs.readFile(loyaltyFilePath, 'utf-8');
@@ -98,7 +147,8 @@ export async function POST(request: NextRequest) {
         user_id: newUser.id,
         points: 50,
         action: 'registration_bonus',
-        description: 'نقاط ترحيبية للتسجيل',
+        description: 'نقاط ترحيبية للتسجيل (معلقة حتى التحقق)',
+        pending: true, // معلقة حتى يتم التحقق من البريد
         created_at: new Date().toISOString()
       });
 
@@ -111,7 +161,8 @@ export async function POST(request: NextRequest) {
           user_id: newUser.id,
           points: 50,
           action: 'registration_bonus',
-          description: 'نقاط ترحيبية للتسجيل',
+          description: 'نقاط ترحيبية للتسجيل (معلقة حتى التحقق)',
+          pending: true,
           created_at: new Date().toISOString()
         }]
       };
@@ -124,8 +175,11 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      message: 'تم إنشاء الحساب بنجاح',
-      user: userWithoutPassword
+      message: emailSent 
+        ? 'تم إنشاء الحساب بنجاح. تم إرسال رمز التحقق إلى بريدك الإلكتروني' 
+        : 'تم إنشاء الحساب بنجاح',
+      user: userWithoutPassword,
+      requiresVerification: true
     });
     
   } catch (error) {

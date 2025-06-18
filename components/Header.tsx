@@ -4,24 +4,25 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
-  Menu, Search, User, Bell, Settings, Heart, 
-  LogOut, ChevronDown, Home, Newspaper, Star 
+  Menu, Search, ChevronDown 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SabqLogo from './SabqLogo';
+import UserDropdown from './UserDropdown';
 
 interface UserData {
   id: string;
   name: string;
   email: string;
+  avatar?: string;
 }
 
 export default function Header() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
-  const [userPoints, setUserPoints] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,24 +31,17 @@ export default function Header() {
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
-      // جلب النقاط
-      fetchUserPoints(parsedUser.id);
+    }
+
+    // جلب إعدادات الموقع (اللوقو المخصص)
+    const siteSettings = localStorage.getItem('siteSettings');
+    if (siteSettings) {
+      const settings = JSON.parse(siteSettings);
+      if (settings.logoUrl) {
+        setCustomLogo(settings.logoUrl);
+      }
     }
   }, []);
-  
-  // جلب نقاط المستخدم
-  const fetchUserPoints = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/user/loyalty-points/${userId}`);
-      const data = await response.json();
-      
-      if (data.success && data.data) {
-        setUserPoints(data.data.totalPoints);
-      }
-    } catch (error) {
-      console.error('Error fetching user points:', error);
-    }
-  };
 
   // إغلاق القائمة المنسدلة عند النقر خارجها
   useEffect(() => {
@@ -62,11 +56,15 @@ export default function Header() {
   }, []);
 
   const handleLogout = () => {
+    // إزالة جميع بيانات المستخدم
     localStorage.removeItem('user');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('user_loyalty_points');
+    
     setUser(null);
-    setUserPoints(0);
     toast.success('تم تسجيل الخروج بنجاح');
-    router.push('/newspaper');
+    router.push('/');
   };
 
   const getInitials = (name: string) => {
@@ -84,14 +82,22 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* الشعار */}
           <div className="flex items-center gap-8">
-            <Link href="/newspaper" className="flex items-center gap-2">
-              {/* شعار سبق */}
-              <SabqLogo />
+            <Link href="/" className="flex items-center gap-2">
+              {/* شعار سبق - مخصص أو افتراضي */}
+              {customLogo ? (
+                <img 
+                  src={customLogo} 
+                  alt="سبق" 
+                  className="h-10 w-auto object-contain"
+                />
+              ) : (
+                <SabqLogo />
+              )}
             </Link>
 
             {/* روابط التنقل */}
             <nav className="hidden lg:flex items-center gap-6">
-              <Link href="/newspaper" className="text-gray-600 hover:text-blue-600 transition-colors">
+              <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
                 الرئيسية
               </Link>
               <Link href="/news" className="text-gray-600 hover:text-blue-600 transition-colors">
@@ -120,79 +126,29 @@ export default function Header() {
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                    {getInitials(user.name)}
-                  </div>
-                  <div className="hidden md:block text-right">
-                    <p className="text-gray-700 font-medium">{user.name}</p>
-                    <p className="text-xs text-amber-600 flex items-center gap-1">
-                      <Star className="w-3 h-3" />
-                      رصيدك: {userPoints} نقطة
-                    </p>
-                  </div>
+                  {user.avatar ? (
+                    <img 
+                      src={user.avatar} 
+                      alt={user.name}
+                      className="w-10 h-10 rounded-full object-cover shadow-md"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-md">
+                      {getInitials(user.name)}
+                    </div>
+                  )}
                   <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${
                     showDropdown ? 'rotate-180' : ''
                   }`} />
                 </button>
 
-                {/* القائمة المنسدلة */}
+                {/* القائمة المنسدلة الجديدة */}
                 {showDropdown && (
-                  <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="font-medium text-gray-800">{user.name}</p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
-                      <div className="mt-2 flex items-center gap-2 text-amber-600">
-                        <Star className="w-4 h-4" />
-                        <span className="text-sm font-medium">رصيدك: {userPoints} نقطة</span>
-                      </div>
-                    </div>
-
-                    <Link
-                      href="/profile"
-                      className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => setShowDropdown(false)}
-                    >
-                      <User className="w-4 h-4" />
-                      <span>الملف الشخصي</span>
-                    </Link>
-
-                    <Link
-                      href="/welcome/preferences"
-                      className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => setShowDropdown(false)}
-                    >
-                      <Heart className="w-4 h-4" />
-                      <span>اهتماماتي</span>
-                    </Link>
-
-                    <Link
-                      href="/settings"
-                      className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => setShowDropdown(false)}
-                    >
-                      <Settings className="w-4 h-4" />
-                      <span>الإعدادات</span>
-                    </Link>
-
-                    <Link
-                      href="/notifications"
-                      className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => setShowDropdown(false)}
-                    >
-                      <Bell className="w-4 h-4" />
-                      <span>الإشعارات</span>
-                    </Link>
-
-                    <div className="border-t border-gray-100 mt-2 pt-2">
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors w-full text-right"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>تسجيل الخروج</span>
-                      </button>
-                    </div>
-                  </div>
+                  <UserDropdown 
+                    user={user}
+                    onClose={() => setShowDropdown(false)}
+                    onLogout={handleLogout}
+                  />
                 )}
               </div>
             ) : (
@@ -227,7 +183,7 @@ export default function Header() {
           <div className="lg:hidden py-4 border-t border-gray-200">
             <nav className="flex flex-col gap-2">
               <Link
-                href="/newspaper"
+                href="/"
                 className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
                 onClick={() => setShowMobileMenu(false)}
               >

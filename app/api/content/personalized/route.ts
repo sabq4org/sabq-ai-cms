@@ -1,202 +1,187 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
+import { NextRequest, NextResponse } from 'next/server';
+import { promises as fs } from 'fs';
 import path from 'path';
 
-interface UserPreference {
+interface UserInteraction {
   user_id: string;
-  preferences: Record<string, number>;
-  last_updated: string;
+  article_id: string;
+  interaction_type: string;
+  category_id?: number;
+  timestamp: string;
 }
 
 interface Article {
   id: string;
   title: string;
-  summary: string;
-  content: string;
-  author: string;
-  category_id: string;
-  created_at: string;
-  updated_at: string;
+  summary?: string;
+  content?: string;
+  category_id: number;
+  author_id?: string;
+  author_name?: string;
+  featured_image?: string;
+  views_count: number;
   status: string;
-  is_breaking_news: boolean;
-  ai_generated: boolean;
-  views?: number;
-  likes?: number;
-  shares?: number;
+  published_at?: string;
+  created_at: string;
+  reading_time?: number;
+  seo_keywords?: string;
+  is_breaking?: boolean;
 }
 
-interface UserInteraction {
-  id: string;
-  user_id: string;
-  article_id: string;
-  action: string;
-  duration?: number;
-  timestamp: string;
-}
-
-export async function GET(request: Request) {
+// دالة لتحميل المقالات
+async function loadPersonalizedArticles() {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('user_id');
+    const filePath = path.join(process.cwd(), 'data', 'articles.json');
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    return data.articles || [];
+  } catch (error) {
+    console.error('Error loading articles:', error);
+    return [];
+  }
+}
+
+// دالة لتحميل التفاعلات
+async function loadUserInteractions() {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'user_article_interactions.json');
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    return data.interactions || [];
+  } catch (error) {
+    console.error('Error loading interactions:', error);
+    return [];
+  }
+}
+
+// دالة لتحميل تفضيلات المستخدم
+async function loadUserPreferencesById(userId: string) {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'user_preferences.json');
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    const userPref = data.preferences?.find((p: any) => p.user_id === userId);
+    return userPref || null;
+  } catch (error) {
+    console.error('Error loading user preferences:', error);
+    return null;
+  }
+}
+
+// دالة لحساب نقاط الثقة للمقال بناءً على تفضيلات المستخدم
+function calculateArticleScore(article: any, userPreferences: any, interactions: any[]) {
+  let score = 0;
+  
+  // نقاط بناءً على التصنيف المفضل
+  if (userPreferences?.preferred_categories?.includes(article.category_id)) {
+    score += 10;
+  }
+  
+  // نقاط بناءً على الكلمات المفتاحية
+  const articleKeywords = article.seo_keywords || [];
+  const preferredKeywords = userPreferences?.preferred_keywords || [];
+  const matchingKeywords = articleKeywords.filter((k: string) => 
+    preferredKeywords.some((pk: string) => k.includes(pk) || pk.includes(k))
+  );
+  score += matchingKeywords.length * 5;
+  
+  // نقاط بناءً على التفاعلات السابقة
+  const articleInteractions = interactions.filter(i => i.article_id === article.id);
+  score += articleInteractions.length * 2;
+  
+  // نقاط بناءً على الحداثة
+  const articleDate = new Date(article.published_at || article.created_at);
+  const daysSincePublished = (Date.now() - articleDate.getTime()) / (1000 * 60 * 60 * 24);
+  if (daysSincePublished < 1) score += 8;
+  else if (daysSincePublished < 3) score += 5;
+  else if (daysSincePublished < 7) score += 2;
+  
+  // نقاط بناءً على الشعبية
+  score += Math.min(article.views_count / 100, 10);
+  
+  return score;
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const userId = searchParams.get('user_id') || 'test-user';
     const limit = parseInt(searchParams.get('limit') || '10');
-    const type = searchParams.get('type') || 'all'; // all, breaking, recommended, read-later
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
-    }
-
-    // جلب تفضيلات المستخدم
-    const preferencesPath = path.join(process.cwd(), 'data', 'user_preferences.json');
-    let userPreferences: Record<string, number> = {};
     
-    try {
-      const prefsData = await fs.readFile(preferencesPath, 'utf8');
-      const preferences: UserPreference[] = JSON.parse(prefsData);
-      const userPref = preferences.find(p => p.user_id === userId);
-      if (userPref) {
-        userPreferences = userPref.preferences;
-      }
-    } catch (error) {
-      // لا توجد تفضيلات بعد
-    }
-
-    // جلب المقالات
-    const articlesPath = path.join(process.cwd(), 'data', 'articles.json');
-    const articlesData = await fs.readFile(articlesPath, 'utf8');
-    const allArticles: Article[] = JSON.parse(articlesData);
-
+    // تحميل البيانات
+    const [articles, interactions, userPreferences] = await Promise.all([
+      loadPersonalizedArticles(),
+      loadUserInteractions(),
+      loadUserPreferencesById(userId)
+    ]);
+    
     // فلترة المقالات المنشورة فقط
-    let articles = allArticles.filter(article => article.status === 'published');
-
-    // جلب التفاعلات السابقة
-    const interactionsPath = path.join(process.cwd(), 'data', 'user_article_interactions.json');
-    let userInteractions: UserInteraction[] = [];
+    const publishedArticles = articles.filter((article: any) => 
+      article.status === 'published' && !article.is_deleted
+    );
     
-    try {
-      const interactionsData = await fs.readFile(interactionsPath, 'utf8');
-      const allInteractions: UserInteraction[] = JSON.parse(interactionsData);
-      userInteractions = allInteractions.filter(i => i.user_id === userId);
-    } catch (error) {
-      // لا توجد تفاعلات بعد
-    }
-
-    // تحديد نوع المحتوى المطلوب
-    switch (type) {
-      case 'breaking':
-        // الأخبار العاجلة من التصنيفات المفضلة
-        articles = articles.filter(article => {
-          const isBreaking = article.is_breaking_news;
-          const isPreferredCategory = userPreferences[article.category_id] > 0;
-          return isBreaking && (Object.keys(userPreferences).length === 0 || isPreferredCategory);
-        });
-        break;
-
-      case 'read-later':
-        // المقالات التي تفاعل معها جزئياً (قرأ أقل من 30 ثانية)
-        const partiallyReadArticleIds = userInteractions
-          .filter(i => i.action === 'read' && i.duration && i.duration < 30)
-          .map(i => i.article_id);
-        articles = articles.filter(article => partiallyReadArticleIds.includes(article.id));
-        break;
-
-      case 'recommended':
-        // توصيات بناءً على الاهتمامات
-        articles = articles.filter(article => {
-          const weight = userPreferences[article.category_id] || 0;
-          return weight > 2; // التصنيفات ذات الوزن المرتفع
-        });
-        break;
-
-      default:
-        // جميع المقالات مرتبة حسب التفضيلات
-    }
-
-    // حساب نقاط الأولوية لكل مقال
-    const articlesWithScore = articles.map(article => {
-      let score = 0;
-      
-      // 1. وزن التصنيف
-      const categoryWeight = userPreferences[article.category_id] || 0;
-      score += categoryWeight * 10;
-      
-      // 2. حداثة المقال (كلما كان أحدث كلما زادت النقاط)
-      const articleAge = Date.now() - new Date(article.created_at).getTime();
-      const ageInHours = articleAge / (1000 * 60 * 60);
-      if (ageInHours < 1) score += 20;
-      else if (ageInHours < 6) score += 15;
-      else if (ageInHours < 24) score += 10;
-      else if (ageInHours < 48) score += 5;
-      
-      // 3. التفاعل السابق
-      const previousInteraction = userInteractions.find(i => i.article_id === article.id);
-      if (previousInteraction) {
-        if (previousInteraction.action === 'like') score += 5;
-        if (previousInteraction.action === 'share') score += 7;
-        if (previousInteraction.action === 'comment') score += 10;
-      }
-      
-      // 4. الأخبار العاجلة
-      if (article.is_breaking_news) score += 25;
-      
-      // 5. شعبية المقال
-      const popularity = (article.views || 0) + (article.likes || 0) * 2 + (article.shares || 0) * 3;
-      score += Math.min(popularity / 100, 10); // حد أقصى 10 نقاط للشعبية
-      
-      return { ...article, score };
-    });
-
+    // حساب النقاط لكل مقال
+    const scoredArticles = publishedArticles.map((article: any) => ({
+      ...article,
+      score: calculateArticleScore(article, userPreferences, interactions)
+    }));
+    
     // ترتيب المقالات حسب النقاط
-    articlesWithScore.sort((a, b) => b.score - a.score);
-
-    // أخذ العدد المطلوب
-    const personalizedArticles = articlesWithScore.slice(0, limit);
-
-    // تحديد وقت الجرعة (صباح، ظهر، مساء)
-    const hour = new Date().getHours();
-    let dose = 'morning';
-    if (hour >= 12 && hour < 17) dose = 'afternoon';
-    else if (hour >= 17) dose = 'evening';
-
-    // جلب التصنيفات للمعلومات الإضافية
-    const categoriesPath = path.join(process.cwd(), 'data', 'categories.json');
-    let categories: any[] = [];
-    try {
-      const categoriesData = await fs.readFile(categoriesPath, 'utf8');
-      categories = JSON.parse(categoriesData);
-    } catch (error) {
-      // لا توجد تصنيفات
-    }
-
-    // إضافة معلومات التصنيف لكل مقال
-    const enrichedArticles = personalizedArticles.map(article => {
-      const category = categories.find(c => c.id === article.category_id);
+    scoredArticles.sort((a: any, b: any) => b.score - a.score);
+    
+    // أخذ أفضل المقالات
+    const personalizedArticles = scoredArticles.slice(0, limit);
+    
+    // تجهيز البيانات للعرض
+    const formattedArticles = personalizedArticles.map((article: any) => {
+      // حساب عدد التفاعلات الحقيقية
+      const articleInteractions = interactions.filter((i: any) => i.article_id === article.id);
+      const likes = articleInteractions.filter((i: any) => i.interaction_type === 'like').length;
+      const shares = articleInteractions.filter((i: any) => i.interaction_type === 'share').length;
+      const comments = articleInteractions.filter((i: any) => i.interaction_type === 'comment').length;
+      
       return {
-        ...article,
-        category_name: category?.name || 'غير مصنف',
-        category_icon: category?.icon || '📄'
+        id: article.id,
+        title: article.title,
+        summary: article.summary,
+        content: article.content,
+        category_id: article.category_id,
+        author_name: article.author_name || 'فريق التحرير',
+        featured_image: article.featured_image,
+        published_at: article.published_at || article.created_at,
+        reading_time: article.reading_time || Math.ceil((article.content?.length || 0) / 200),
+        views_count: article.views_count || 0,
+        likes_count: likes,
+        shares_count: shares,
+        comments_count: comments,
+        interaction_count: articleInteractions.length,
+        tags: article.seo_keywords || [],
+        score: article.score,
+        confidence: Math.min(article.score / 50 * 100, 100), // نسبة الثقة كنسبة مئوية
+        is_personalized: article.score > 20 // علامة للمقالات المخصصة بشكل عالي
       };
     });
-
+    
     return NextResponse.json({
       success: true,
-      user_id: userId,
-      dose,
-      preferences_count: Object.keys(userPreferences).length,
-      articles: enrichedArticles,
-      metadata: {
-        total_available: articles.length,
-        returned: enrichedArticles.length,
-        personalization_active: Object.keys(userPreferences).length > 0
+      data: {
+        articles: formattedArticles,
+        user_id: userId,
+        generated_at: new Date().toISOString(),
+        preferences_applied: !!userPreferences,
+        total_articles: publishedArticles.length,
+        personalized_count: formattedArticles.filter((a: any) => a.is_personalized).length
       }
     });
-
+    
   } catch (error) {
-    console.error('Error fetching personalized content:', error);
+    console.error('Error in personalized content API:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch personalized content' },
+      { 
+        success: false, 
+        error: 'Failed to fetch personalized content',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

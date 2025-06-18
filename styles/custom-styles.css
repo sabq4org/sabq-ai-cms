@@ -1,0 +1,293 @@
+/* 🎨 منصة سبق الذكية - الأنماط المخصصة */
+
+/* ==================== */
+/* 1. متغيرات الألوان الأساسية */
+/* ==================== */
+
+:root {
+  /* Primary Colors */
+  --primary-blue: #3B82F6;
+  --primary-purple: #8B5CF6;
+  --primary-indigo: #6366F1;
+  --primary-pink: #EC4899;
+  --primary-green: #10B981;
+  --primary-yellow: #F59E0B;
+  --primary-red: #EF4444;
+  
+  /* Secondary Colors */
+  --secondary-gray: #6B7280;
+  --secondary-cool-gray: #9CA3AF;
+  --secondary-warm-gray: #78716C;
+  --secondary-teal: #14B8A6;
+  --secondary-cyan: #06B6D4;
+  --secondary-orange: #F97316;
+  
+  /* Background Colors */
+  --bg-light: #F9FAFB;
+  --bg-default: #F3F4F6;
+  --bg-dark: #1F2937;
+  --bg-darker: #111827;
+}
+
+/* ==================== */
+/* 2. التدرجات الرئيسية */
+/* ==================== */
+
+.gradient-hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+}
+
+.gradient-primary {
+  background: linear-gradient(to right, var(--primary-blue), var(--primary-purple));
+}
+
+.gradient-accent {
+  background: linear-gradient(to right, var(--primary-purple), var(--primary-pink));
+}
+
+.gradient-user-dropdown {
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
+}
+
+/* ==================== */
+/* 3. ألوان التصنيفات */
+/* ==================== */
+
+.category-tech { background: linear-gradient(to right, #8B5CF6, #9333EA); }
+.category-economy { background: linear-gradient(to right, #10B981, #059669); }
+.category-sports { background: linear-gradient(to right, #3B82F6, #2563EB); }
+.category-politics { background: linear-gradient(to right, #EF4444, #DC2626); }
+.category-culture { background: linear-gradient(to right, #F59E0B, #D97706); }
+.category-health { background: linear-gradient(to right, #EC4899, #DB2777); }
+.category-local { background: linear-gradient(to right, #6366F1, #4F46E5); }
+.category-international { background: linear-gradient(to right, #06B6D4, #0891B2); }
+.category-variety { background: linear-gradient(to right, #F97316, #EA580C); }
+.category-environment { background: linear-gradient(to right, #14B8A6, #0D9488); }
+
+/* ==================== */
+/* 4. أنماط نقاط الولاء */
+/* ==================== */
+
+.tier-bronze {
+  background: linear-gradient(to right, #FB923C, #EA580C);
+}
+
+.tier-silver {
+  background: linear-gradient(to right, #9CA3AF, #6B7280);
+}
+
+.tier-gold {
+  background: linear-gradient(to right, #FCD34D, #F59E0B);
+}
+
+.tier-platinum {
+  background: linear-gradient(to right, #A78BFA, #8B5CF6);
+}
+
+/* ==================== */
+/* 5. الرسوم المتحركة */
+/* ==================== */
+
+/* شريط الأخبار العاجلة */
+@keyframes ticker {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.ticker-animation {
+  animation: ticker 30s linear infinite;
+}
+
+/* نبض الأخبار العاجلة */
+@keyframes pulse-custom {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse-custom {
+  animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* تأثير التموج للنقاط */
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.ripple-effect {
+  animation: ripple 1s ease-out;
+}
+
+/* ==================== */
+/* 6. أنماط الزوايا المنحنية */
+/* ==================== */
+
+.rounded-custom-sm { border-radius: 0.75rem; } /* rounded-xl */
+.rounded-custom-md { border-radius: 1rem; }    /* rounded-2xl */
+.rounded-custom-lg { border-radius: 1.5rem; }  /* rounded-3xl */
+
+/* ==================== */
+/* 7. أنماط الظلال المخصصة */
+/* ==================== */
+
+.shadow-custom-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow-custom-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-custom-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-custom-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-custom-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.shadow-gradient {
+  box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.5);
+}
+
+/* ==================== */
+/* 8. أنماط الانتقالات */
+/* ==================== */
+
+.transition-custom-all {
+  transition: all 0.3s ease;
+}
+
+.transition-custom-transform {
+  transition: transform 0.5s ease;
+}
+
+.transition-custom-colors {
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+/* ==================== */
+/* 9. أنماط RTL */
+/* ==================== */
+
+[dir="rtl"] .rtl-padding-fix {
+  padding-right: 1rem;
+  padding-left: 0;
+}
+
+[dir="rtl"] .rtl-margin-fix {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+/* ==================== */
+/* 10. أنماط خاصة */
+/* ==================== */
+
+/* شريط التقدم في القراءة */
+.reading-progress {
+  background: linear-gradient(to right, var(--primary-blue), var(--primary-purple));
+  height: 4px;
+  transition: width 0.3s ease;
+}
+
+/* خلفية البلوكات الذكية */
+.smart-block-bg {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* أزرار CTA */
+.cta-primary {
+  background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
+  transition: all 0.3s ease;
+}
+
+.cta-primary:hover {
+  background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+  transform: scale(1.05);
+  box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.5);
+}
+
+.cta-secondary {
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  transition: all 0.3s ease;
+}
+
+.cta-secondary:hover {
+  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+  transform: scale(1.05);
+  box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.5);
+}
+
+/* بطاقات الأخبار */
+.news-card {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.news-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+}
+
+.news-card img {
+  transition: transform 0.5s ease;
+}
+
+.news-card:hover img {
+  transform: scale(1.1);
+}
+
+/* ==================== */
+/* 11. وضع الظلام */
+/* ==================== */
+
+.dark {
+  --bg-primary: var(--bg-dark);
+  --bg-secondary: var(--bg-darker);
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+}
+
+.dark .gradient-hero {
+  background: linear-gradient(135deg, #374151 0%, #4B5563 50%, #6B7280 100%);
+}
+
+.dark .smart-block-bg {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(75, 85, 99, 0.3);
+}
+
+/* ==================== */
+/* 12. أنماط الطباعة */
+/* ==================== */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break {
+    page-break-after: always;
+  }
+} 

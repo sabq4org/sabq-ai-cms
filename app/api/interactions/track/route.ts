@@ -1,6 +1,21 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
+import { NextRequest, NextResponse } from 'next/server';
+import { promises as fs } from 'fs';
 import path from 'path';
+
+interface UserInteraction {
+  id: string;
+  user_id: string;
+  article_id: string;
+  interaction_type: 'view' | 'read' | 'like' | 'unlike' | 'share' | 'comment' | 'save' | 'unsave';
+  category_id?: number;
+  duration?: number;
+  scroll_percentage?: number;
+  platform?: string;
+  source?: string;
+  device_type?: string;
+  session_id?: string;
+  timestamp: string;
+}
 
 interface InteractionData {
   user_id: string;
@@ -44,168 +59,352 @@ const POINTS_CONFIG = {
 // الحد الأدنى لمدة القراءة (بالثواني)
 const MIN_READ_DURATION = 10;
 
-export async function POST(request: Request) {
+// نظام النقاط
+const POINTS_SYSTEM = {
+  view: 1,
+  read: 5,
+  like: 10,
+  share: 15,
+  comment: 20,
+  save: 10
+};
+
+// دالة لتحميل التفاعلات
+async function loadInteractions() {
   try {
-    const interaction: InteractionData = await request.json();
+    const filePath = path.join(process.cwd(), 'data', 'user_article_interactions.json');
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    return data.interactions || [];
+  } catch (error) {
+    console.error('Error loading interactions:', error);
+    return [];
+  }
+}
+
+// دالة لحفظ التفاعلات
+async function saveInteractions(interactions: any[]) {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'user_article_interactions.json');
+    const data = { interactions, updated_at: new Date().toISOString() };
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving interactions:', error);
+    return false;
+  }
+}
+
+// دالة لتحديث نقاط المستخدم
+async function updateUserLoyaltyPoints(userId: string, points: number) {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'user_loyalty_points.json');
+    let loyaltyData: { users: any[] } = { users: [] };
     
-    // التحقق من صحة البيانات
-    if (!interaction.user_id || !interaction.article_id || !interaction.action) {
+    try {
+      const fileContent = await fs.readFile(filePath, 'utf-8');
+      loyaltyData = JSON.parse(fileContent);
+    } catch (error) {
+      // ملف غير موجود، سيتم إنشاؤه
+    }
+    
+    // البحث عن المستخدم أو إنشاء سجل جديد
+    let userRecord = loyaltyData.users.find((u: any) => u.user_id === userId);
+    
+    if (!userRecord) {
+      userRecord = {
+        user_id: userId,
+        total_points: 0,
+        earned_points: 0,
+        redeemed_points: 0,
+        tier: 'bronze',
+        created_at: new Date().toISOString()
+      };
+      loyaltyData.users.push(userRecord);
+    }
+    
+    // تحديث النقاط
+    userRecord.total_points += points;
+    userRecord.earned_points += points;
+    userRecord.last_updated = new Date().toISOString();
+    
+    // تحديث المستوى بناءً على النقاط
+    if (userRecord.total_points >= 10000) {
+      userRecord.tier = 'platinum';
+    } else if (userRecord.total_points >= 5000) {
+      userRecord.tier = 'gold';
+    } else if (userRecord.total_points >= 1000) {
+      userRecord.tier = 'silver';
+    }
+    
+    // حفظ البيانات
+    await fs.writeFile(filePath, JSON.stringify(loyaltyData, null, 2));
+    
+    return userRecord;
+  } catch (error) {
+    console.error('Error updating loyalty points:', error);
+    return null;
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      type,
+      user_id,
+      article_id,
+      category_id,
+      source = 'unknown',
+      device_type = 'unknown',
+      duration,
+      scroll_percentage,
+      platform
+    } = body;
+    
+    // التحقق من المدخلات
+    if (!user_id || !article_id || !type) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { success: false, error: 'Missing required fields' },
         { status: 400 }
       );
     }
-
-    // إذا كان التفاعل قراءة وأقل من 10 ثواني، لا نحتسبه
-    if (interaction.action === 'read' && interaction.duration && interaction.duration < MIN_READ_DURATION) {
-      return NextResponse.json(
-        { message: 'Interaction too short to be counted' },
-        { status: 200 }
-      );
-    }
-
-    // جلب بيانات المقال
-    const articlesPath = path.join(process.cwd(), 'data', 'articles.json');
-    const articlesData = await fs.readFile(articlesPath, 'utf8');
-    const articles: Article[] = JSON.parse(articlesData);
-    const article = articles.find(a => a.id === interaction.article_id);
     
-    if (!article) {
+    // التحقق من أن المستخدم مسجل وليس anonymous
+    if (user_id === 'anonymous' || user_id === 'guest' || !user_id.trim()) {
       return NextResponse.json(
-        { error: 'Article not found' },
-        { status: 404 }
+        { 
+          success: false, 
+          error: 'Authentication required',
+          message: 'يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯'
+        },
+        { status: 401 }
       );
     }
-
-    // 1. حفظ التفاعل
-    const interactionsPath = path.join(process.cwd(), 'data', 'user_article_interactions.json');
-    let interactions = [];
-    try {
-      const data = await fs.readFile(interactionsPath, 'utf8');
-      interactions = JSON.parse(data);
-    } catch (error) {
-      // إذا لم يكن الملف موجوداً، سننشئ مصفوفة جديدة
+    
+    // التحقق من نوع التفاعل
+    if (!Object.keys(POINTS_SYSTEM).includes(type)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid interaction type' },
+        { status: 400 }
+      );
     }
-
+    
+    // منع منح النقاط لتفاعلات View العشوائية
+    if (type === 'view' && (!duration || duration < 5)) {
+      // لا نمنح نقاط للمشاهدات السريعة جداً
+      return NextResponse.json({
+        success: true,
+        data: {
+          interaction: { type: 'view', tracked: true },
+          points_earned: 0,
+          message: 'تم تسجيل المشاهدة'
+        }
+      });
+    }
+    
+    // التحقق من القراءة الفعلية (يجب أن يكون هناك مدة كافية)
+    if (type === 'read' && (!duration || duration < 30 || !scroll_percentage || scroll_percentage < 50)) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid read interaction',
+        message: 'يجب قراءة المقال لمدة كافية للحصول على النقاط'
+      });
+    }
+    
+    // تحميل التفاعلات الحالية
+    const interactions = await loadInteractions();
+    
+    // التحقق من التفاعلات المكررة (منع التلاعب)
+    const existingInteraction = interactions.find((i: any) => 
+      i.user_id === user_id && 
+      i.article_id === article_id && 
+      i.interaction_type === type &&
+      // السماح بتفاعل واحد من نفس النوع كل 24 ساعة
+      new Date(i.timestamp).getTime() > Date.now() - (24 * 60 * 60 * 1000)
+    );
+    
+    if (existingInteraction && type !== 'view') {
+      return NextResponse.json({
+        success: false,
+        error: 'Duplicate interaction',
+        message: 'لقد قمت بهذا التفاعل مسبقاً'
+      });
+    }
+    
+    // إنشاء سجل التفاعل الجديد
     const newInteraction = {
-      id: `int_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      user_id: interaction.user_id,
-      article_id: interaction.article_id,
-      category_id: article.category_id,
-      action: interaction.action,
-      duration: interaction.duration,
+      id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      user_id,
+      article_id,
+      interaction_type: type,
+      category_id,
+      source,
+      device_type,
+      duration,
+      scroll_percentage,
+      platform,
       timestamp: new Date().toISOString(),
-      points_awarded: POINTS_CONFIG[interaction.action]
+      points_earned: POINTS_SYSTEM[type as keyof typeof POINTS_SYSTEM]
     };
-
+    
+    // إضافة التفاعل الجديد
     interactions.push(newInteraction);
-    await fs.writeFile(interactionsPath, JSON.stringify(interactions, null, 2));
-
-    // 2. تحديث تفضيلات المستخدم
-    const preferencesPath = path.join(process.cwd(), 'data', 'user_preferences.json');
-    let preferences: UserPreference[] = [];
-    try {
-      const data = await fs.readFile(preferencesPath, 'utf8');
-      preferences = JSON.parse(data);
-    } catch (error) {
-      // إذا لم يكن الملف موجوداً
+    
+    // حفظ التفاعلات
+    const saved = await saveInteractions(interactions);
+    
+    if (!saved) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to save interaction' },
+        { status: 500 }
+      );
     }
-
-    let userPref = preferences.find(p => p.user_id === interaction.user_id);
-    if (!userPref) {
-      userPref = {
-        user_id: interaction.user_id,
-        preferences: {},
-        last_updated: new Date().toISOString()
-      };
-      preferences.push(userPref);
+    
+    // تحديث نقاط الولاء
+    const loyaltyUpdate = await updateUserLoyaltyPoints(user_id, newInteraction.points_earned);
+    
+    // تحديث تفضيلات المستخدم إذا كان هناك category_id
+    if (category_id) {
+      await updateUserPreferences(user_id, category_id, type);
     }
-
-    // زيادة وزن التصنيف
-    const categoryId = article.category_id;
-    if (!userPref.preferences[categoryId]) {
-      userPref.preferences[categoryId] = 0;
+    
+    // تحديث عدد المشاهدات للمقال
+    if (type === 'view') {
+      await updateArticleViews(article_id);
     }
-
-    // زيادة الوزن حسب نوع التفاعل
-    const weightIncrease = {
-      read: 1,
-      like: 2,
-      share: 3,
-      comment: 4
-    };
-
-    userPref.preferences[categoryId] += weightIncrease[interaction.action];
-    userPref.last_updated = new Date().toISOString();
-
-    await fs.writeFile(preferencesPath, JSON.stringify(preferences, null, 2));
-
-    // 3. تحديث نقاط الولاء
-    const pointsPath = path.join(process.cwd(), 'data', 'loyalty_points.json');
-    let loyaltyData: LoyaltyPoints[] = [];
-    try {
-      const data = await fs.readFile(pointsPath, 'utf8');
-      loyaltyData = JSON.parse(data);
-    } catch (error) {
-      // إذا لم يكن الملف موجوداً
-    }
-
-    let userLoyalty = loyaltyData.find(l => l.user_id === interaction.user_id);
-    if (!userLoyalty) {
-      userLoyalty = {
-        user_id: interaction.user_id,
-        points: 0,
-        history: []
-      };
-      loyaltyData.push(userLoyalty);
-    }
-
-    const pointsAwarded = POINTS_CONFIG[interaction.action];
-    userLoyalty.points += pointsAwarded;
-    userLoyalty.history.push({
-      action: interaction.action,
-      points: pointsAwarded,
-      timestamp: new Date().toISOString(),
-      article_id: interaction.article_id
-    });
-
-    // الاحتفاظ بآخر 100 سجل فقط
-    if (userLoyalty.history.length > 100) {
-      userLoyalty.history = userLoyalty.history.slice(-100);
-    }
-
-    await fs.writeFile(pointsPath, JSON.stringify(loyaltyData, null, 2));
-
-    // 4. تحليل الاهتمامات المتكررة
-    const recentInteractions = interactions
-      .filter(i => i.user_id === interaction.user_id)
-      .filter(i => new Date(i.timestamp) > new Date(Date.now() - 48 * 60 * 60 * 1000)) // آخر 48 ساعة
-      .filter(i => i.category_id === categoryId);
-
-    let bonusWeightApplied = false;
-    if (recentInteractions.length >= 3) {
-      // زيادة إضافية للوزن إذا تفاعل 3 مرات في 48 ساعة
-      userPref.preferences[categoryId] += 2;
-      bonusWeightApplied = true;
-      
-      // حفظ التحديث
-      await fs.writeFile(preferencesPath, JSON.stringify(preferences, null, 2));
-    }
-
+    
     return NextResponse.json({
       success: true,
-      interaction: newInteraction,
-      points_awarded: pointsAwarded,
-      total_points: userLoyalty.points,
-      category_weight: userPref.preferences[categoryId],
-      bonus_weight_applied: bonusWeightApplied
+      data: {
+        interaction: newInteraction,
+        points_earned: newInteraction.points_earned,
+        loyalty: loyaltyUpdate
+      },
+      message: `تم منحك ${newInteraction.points_earned} نقطة!`
     });
-
+    
   } catch (error) {
     console.error('Error tracking interaction:', error);
     return NextResponse.json(
-      { error: 'Failed to track interaction' },
+      { 
+        success: false, 
+        error: 'Failed to track interaction',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
+  }
+}
+
+// تحديث نقاط الولاء
+async function updateLoyaltyPoints(userId: string, interactionType: string) {
+  try {
+    const pointsPath = path.join(process.cwd(), 'data', 'loyalty_points.json');
+    let loyaltyData: any = {};
+    
+    try {
+      const fileContent = await fs.readFile(pointsPath, 'utf-8');
+      loyaltyData = JSON.parse(fileContent);
+    } catch (error) {
+      // ملف جديد
+    }
+
+    // نظام النقاط
+    const pointRules: { [key: string]: number } = {
+      view: 1,
+      read: 10,
+      like: 5,
+      share: 15,
+      comment: 20,
+      save: 8,
+      unlike: -5,
+      unsave: -8
+    };
+
+    const points = pointRules[interactionType] || 0;
+    
+    if (!loyaltyData[userId]) {
+      loyaltyData[userId] = {
+        totalPoints: 0,
+        history: []
+      };
+    }
+
+    loyaltyData[userId].totalPoints += points;
+    loyaltyData[userId].history.push({
+      points,
+      action: interactionType,
+      timestamp: new Date().toISOString()
+    });
+
+    await fs.writeFile(pointsPath, JSON.stringify(loyaltyData, null, 2));
+  } catch (error) {
+    console.error('Error updating loyalty points:', error);
+  }
+}
+
+// تحديث عدد المشاهدات للمقال
+async function updateArticleViews(articleId: string) {
+  try {
+    const articlesPath = path.join(process.cwd(), 'data', 'articles.json');
+    const fileContent = await fs.readFile(articlesPath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    const articles = data.articles || data || [];
+    
+    const articleIndex = articles.findIndex((a: any) => a.id === articleId);
+    if (articleIndex !== -1) {
+      articles[articleIndex].views_count = (articles[articleIndex].views_count || 0) + 1;
+      
+      await fs.writeFile(
+        articlesPath,
+        JSON.stringify({ articles }, null, 2)
+      );
+    }
+  } catch (error) {
+    console.error('Error updating article views:', error);
+  }
+}
+
+// تحديث تفضيلات المستخدم
+async function updateUserPreferences(userId: string, categoryId: number, interactionType: string) {
+  try {
+    const prefsPath = path.join(process.cwd(), 'data', 'user_preferences.json');
+    let preferences: any = {};
+    
+    try {
+      const fileContent = await fs.readFile(prefsPath, 'utf-8');
+      preferences = JSON.parse(fileContent);
+    } catch (error) {
+      // ملف جديد
+    }
+
+    if (!preferences[userId]) {
+      preferences[userId] = {
+        categories: {},
+        lastUpdated: new Date().toISOString()
+      };
+    }
+
+    // أوزان التفاعلات
+    const weights: { [key: string]: number } = {
+      view: 0.1,
+      read: 0.5,
+      like: 0.3,
+      share: 0.7,
+      comment: 0.8,
+      save: 0.6,
+      unlike: -0.3,
+      unsave: -0.6
+    };
+
+    const weight = weights[interactionType] || 0;
+    const currentScore = preferences[userId].categories[categoryId] || 0;
+    preferences[userId].categories[categoryId] = Math.max(0, Math.min(5, currentScore + weight));
+    preferences[userId].lastUpdated = new Date().toISOString();
+
+    await fs.writeFile(prefsPath, JSON.stringify(preferences, null, 2));
+  } catch (error) {
+    console.error('Error updating user preferences:', error);
   }
 } 

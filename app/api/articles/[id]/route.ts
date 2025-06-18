@@ -1,5 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { loadArticles, saveArticles, updateArticle, Article } from '@/lib/articles-storage';
+import { promises as fs } from 'fs';
+import path from 'path';
+
+const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'articles.json');
+
+interface Article {
+  id: string;
+  title: string;
+  content: string;
+  author_id: string;
+  category_id: number;
+  status: string;
+  is_deleted?: boolean;
+  updated_at: string;
+  [key: string]: any;
+}
+
+// قراءة المقالات من الملف
+async function loadArticles(): Promise<Article[]> {
+  try {
+    const fileContent = await fs.readFile(DATA_FILE_PATH, 'utf-8');
+    const data = JSON.parse(fileContent);
+    
+    if (data.articles && Array.isArray(data.articles)) {
+      return data.articles;
+    }
+    
+    if (Array.isArray(data)) {
+      return data;
+    }
+    
+    return [];
+  } catch (error) {
+    return [];
+  }
+}
+
+// حفظ المقالات في الملف
+async function saveArticles(articles: Article[]): Promise<void> {
+  try {
+    const dataToSave = { articles };
+    await fs.writeFile(DATA_FILE_PATH, JSON.stringify(dataToSave, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('خطأ في حفظ المقالات:', error);
+    throw new Error('فشل في حفظ المقالات');
+  }
+}
+
+// تحديث مقال
+async function updateArticle(id: string, updates: Partial<Article>): Promise<Article | null> {
+  const articles = await loadArticles();
+  const index = articles.findIndex(a => a.id === id);
+  
+  if (index === -1) {
+    return null;
+  }
+  
+  articles[index] = {
+    ...articles[index],
+    ...updates,
+    updated_at: new Date().toISOString()
+  };
+  
+  await saveArticles(articles);
+  return articles[index];
+}
 
 // GET - جلب مقال واحد
 export async function GET(
@@ -8,7 +73,13 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    console.log('Fetching article with ID:', id);
+    
     const articles = await loadArticles();
+    console.log('Loaded articles type:', typeof articles);
+    console.log('Is array?', Array.isArray(articles));
+    console.log('Articles count:', articles?.length || 0);
+    
     const article = articles.find(a => a.id === id && !a.is_deleted);
     
     if (!article) {

@@ -47,17 +47,23 @@ export default function DashboardPage() {
         // جلب بيانات المستخدمين
         const usersRes = await fetch('/api/users');
         const usersData = await usersRes.json();
-        const totalUsers = usersData.users?.length || 0;
+        const usersArray = usersData.users || usersData.data || usersData || [];
+        const totalUsers = Array.isArray(usersArray) ? usersArray.length : 0;
 
         // جلب بيانات المقالات
         const articlesRes = await fetch('/api/articles');
         const articlesData = await articlesRes.json();
-        const totalArticles = articlesData.articles?.length || 0;
+        const articlesArray = articlesData.articles || articlesData.data || articlesData || [];
+        const totalArticles = Array.isArray(articlesArray) ? articlesArray.length : 0;
 
         // جلب بيانات التصنيفات
         const categoriesRes = await fetch('/api/categories');
         const categoriesData = await categoriesRes.json();
-        const activeCategories = categoriesData.filter((cat: any) => cat.is_active).length || 0;
+        // التعامل مع الهيكل الصحيح للبيانات المُرجعة من API
+        const categoriesArray = categoriesData.data || categoriesData || [];
+        const activeCategories = Array.isArray(categoriesArray) 
+          ? categoriesArray.filter((cat: any) => cat.is_active).length 
+          : 0;
 
         // جلب بيانات التفاعلات (إن وجدت)
         let totalInteractions = 0;

@@ -80,10 +80,15 @@ export default function RegisterPage() {
       // حفظ بيانات المستخدم في localStorage
       localStorage.setItem('user', JSON.stringify(data.user));
       
-      toast.success('🎉 تم إنشاء حسابك بنجاح! لقد حصلت على 50 نقطة ترحيبية');
-      
-      // توجيه إلى صفحة اختيار الاهتمامات
-      router.push('/welcome/preferences');
+      if (data.requiresVerification) {
+        toast.success('تم إنشاء حسابك! يرجى التحقق من بريدك الإلكتروني');
+        // توجيه إلى صفحة التحقق من البريد
+        router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
+      } else {
+        toast.success('🎉 تم إنشاء حسابك بنجاح! لقد حصلت على 50 نقطة ترحيبية');
+        // توجيه إلى صفحة اختيار الاهتمامات
+        router.push('/welcome/preferences');
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'حدث خطأ في التسجيل');
     } finally {

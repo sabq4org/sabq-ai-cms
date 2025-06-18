@@ -1,17 +1,17 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-node_modules/
-.pnp
+/node_modules
+/.pnp
 .pnp.js
+.yarn/install-state.gz
 
 # testing
-coverage/
-.nyc_output
+/coverage
 
 # next.js
-.next/
-out/
+/.next/
+/out/
 
 # production
 /build
@@ -24,14 +24,13 @@ out/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
-*.log
 
-# env files (can opt-in for committing if needed)
-.env
+# local env files
 .env*.local
-.env.development
-.env.production
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # vercel
 .vercel
@@ -40,59 +39,43 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# turbopack
+.turbo
+
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
 # OS
-.DS_Store
 Thumbs.db
 
-# Backup files
-*.backup
-*.backup2
-*.bak
-*_backup*
-__dev__/
+# Logs
+logs
+*.log
 
-# Cache
-.cache/
-.pm2/
-*.cache
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Backups
+*.backup
+*.bak
 
 # Temporary files
 tmp/
 temp/
-*.tmp
-*.temp
+.tmp/
 
-# Test files
-test-*
-*.test.*
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# Build artifacts
-.turbo/
-
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Local data files
-/data/
-*.json
+# Package manager locks (optional - uncomment if you want to exclude)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml

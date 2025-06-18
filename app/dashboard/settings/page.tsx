@@ -7,8 +7,9 @@ import {
   Building, Clock, Calendar, Mail, Phone, Twitter, Instagram, Facebook,
   Youtube, Smartphone, Lock, Bell, RefreshCw, FileText, Link, 
   Type, Image, Tag, Bot, Languages, ShieldAlert, Key, AlertTriangle,
-  Server, HardDrive, History, Info
+  Server, HardDrive, History, Info, X, Image as ImageIcon
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('identity');
@@ -17,6 +18,11 @@ export default function SettingsPage() {
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [testResult, setTestResult] = useState<{success: boolean; message: string} | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
+  const [siteName, setSiteName] = useState('صحيفة سبق الإلكترونية');
+  const [siteDescription, setSiteDescription] = useState('موقع إخباري رائد يقدم أحدث الأخبار والتحليلات');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [previewLogo, setPreviewLogo] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // 🏷️ إعدادات الهوية
   const [identitySettings, setIdentitySettings] = useState({
@@ -106,6 +112,18 @@ export default function SettingsPage() {
     loadSettings();
   }, []);
 
+  useEffect(() => {
+    // جلب الإعدادات المحفوظة
+    const savedSettings = localStorage.getItem('siteSettings');
+    if (savedSettings) {
+      const settings = JSON.parse(savedSettings);
+      setSiteName(settings.siteName || 'صحيفة سبق الإلكترونية');
+      setSiteDescription(settings.siteDescription || 'موقع إخباري رائد يقدم أحدث الأخبار والتحليلات');
+      setLogoUrl(settings.logoUrl || '');
+      setPreviewLogo(settings.logoUrl || '');
+    }
+  }, []);
+
   const showSuccess = () => {
     setShowSuccessMessage(true);
     setTimeout(() => setShowSuccessMessage(false), 3000);
@@ -152,6 +170,64 @@ export default function SettingsPage() {
     
     localStorage.setItem(`settings_${section}`, JSON.stringify(settings));
     showSuccess();
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // التحقق من نوع الملف
+      if (!file.type.startsWith('image/')) {
+        toast.error('يرجى اختيار ملف صورة صالح');
+        return;
+      }
+
+      // التحقق من حجم الملف (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('حجم الملف يجب أن يكون أقل من 5 ميجابايت');
+        return;
+      }
+
+      // عرض معاينة الصورة
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setPreviewLogo(result);
+        setLogoUrl(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeLogo = () => {
+    setLogoUrl('');
+    setPreviewLogo('');
+  };
+
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      // حفظ الإعدادات في localStorage
+      const settings = {
+        siteName,
+        siteDescription,
+        logoUrl,
+        updatedAt: new Date().toISOString()
+      };
+      
+      localStorage.setItem('siteSettings', JSON.stringify(settings));
+      
+      // تحديث الصفحة لتطبيق التغييرات
+      toast.success('تم حفظ الإعدادات بنجاح');
+      
+      // إعادة تحميل الصفحة بعد ثانية
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      toast.error('حدث خطأ أثناء حفظ الإعدادات');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const tabs = [
@@ -224,8 +300,8 @@ export default function SettingsPage() {
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>اسم الصحيفة</label>
                   <input
                     type="text"
-                    value={identitySettings.siteName}
-                    onChange={(e) => setIdentitySettings({...identitySettings, siteName: e.target.value})}
+                    value={siteName}
+                    onChange={(e) => setSiteName(e.target.value)}
                     className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                   />
                 </div>
@@ -245,8 +321,8 @@ export default function SettingsPage() {
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      value={identitySettings.logo}
-                      onChange={(e) => setIdentitySettings({...identitySettings, logo: e.target.value})}
+                      value={logoUrl}
+                      onChange={(e) => setLogoUrl(e.target.value)}
                       placeholder="رابط الشعار أو اضغط رفع"
                       className={`flex-1 px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                     />
@@ -328,8 +404,8 @@ export default function SettingsPage() {
               <div>
                 <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الوصف التعريفي</label>
                 <textarea
-                  value={identitySettings.siteDescription}
-                  onChange={(e) => setIdentitySettings({...identitySettings, siteDescription: e.target.value})}
+                  value={siteDescription}
+                  onChange={(e) => setSiteDescription(e.target.value)}
                   rows={3}
                   className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                 />
@@ -603,7 +679,7 @@ export default function SettingsPage() {
                     <div>
                       <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>رابط تطبيق iOS</label>
                       <div className="flex items-center gap-3">
-                        <Smartphone className="w-5 h-5 text-gray-600" />
+                        <SmartphoneIcon className="w-5 h-5 text-gray-600" />
                         <input
                           type="url"
                           value={socialSettings.iosAppUrl}
@@ -617,7 +693,7 @@ export default function SettingsPage() {
                     <div>
                       <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>رابط تطبيق Android</label>
                       <div className="flex items-center gap-3">
-                        <Smartphone className="w-5 h-5 text-gray-600" />
+                        <SmartphoneIcon className="w-5 h-5 text-gray-600" />
                         <input
                           type="url"
                           value={socialSettings.androidAppUrl}
@@ -1003,6 +1079,43 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* معاينة مباشرة */}
+      <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">معاينة الشعار</h2>
+        <div className="bg-gray-100 rounded-lg p-6 flex items-center justify-center">
+          {previewLogo ? (
+            <img
+              src={previewLogo}
+              alt="معاينة الشعار"
+              className="max-h-16"
+            />
+          ) : (
+            <div className="text-gray-400 flex flex-col items-center">
+              <ImageIcon className="w-12 h-12 mb-2" />
+              <span className="text-sm">لم يتم رفع شعار بعد</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* أزرار الإجراءات */}
+      <div className="mt-8 flex justify-end gap-3 pt-4 border-t">
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={isLoading}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+        >
+          <Save className="w-4 h-4" />
+          {isLoading ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+        </button>
       </div>
     </div>
   );

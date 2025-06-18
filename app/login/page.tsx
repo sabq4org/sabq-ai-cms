@@ -69,6 +69,9 @@ export default function LoginPage() {
         role: data.user.role
       }));
       
+      // حفظ user_id للتوافق مع نظام التوصيات
+      localStorage.setItem('user_id', data.user.id);
+      
       // تسجيل حدث تسجيل الدخول
       await logActions.login({
         user_id: data.user.id,
@@ -79,9 +82,25 @@ export default function LoginPage() {
       
       toast.success('مرحباً بعودتك! 🎉');
       
-      // توجيه إلى لوحة التحكم
-      const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
-      router.push(redirectTo);
+      // توجيه ذكي بناءً على دور المستخدم
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect');
+      
+      if (redirectTo) {
+        // إذا كان هناك رابط محدد للتوجيه، استخدمه
+        router.push(redirectTo);
+      } else {
+        // توجيه بناءً على دور المستخدم وحالة المستخدم
+        if (data.user.role === 'admin' || data.user.role === 'editor') {
+          // المديرون والمحررون إلى لوحة التحكم
+          router.push('/dashboard');
+        } else if (data.user.is_new || !data.user.has_preferences) {
+          // المستخدمون الجدد أو الذين لم يحددوا اهتماماتهم
+          router.push('/welcome/preferences');
+        } else {
+          // القراء والمستخدمون العاديون إلى الصفحة الرئيسية
+          router.push('/');
+        }
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'حدث خطأ في تسجيل الدخول');
     } finally {

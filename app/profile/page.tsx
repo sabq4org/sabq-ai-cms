@@ -7,7 +7,8 @@ import {
   User, Mail, Crown, Heart, Bell, LogOut, 
   Edit2, Check, X, Star, Award, TrendingUp,
   Calendar, Activity, BookOpen, Share2, Shield,
-  Settings, ChevronRight, Zap, Gift
+  Settings, ChevronRight, Zap, Gift, Eye,
+  MessageCircle, Bookmark, Camera, Upload
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Header from '@/components/Header';
@@ -17,6 +18,7 @@ interface UserProfile {
   name: string;
   email: string;
   created_at: string;
+  avatar?: string;
 }
 
 interface LoyaltyData {
@@ -48,6 +50,12 @@ export default function ProfilePage() {
   const [preferences, setPreferences] = useState<UserPreference[]>([]);
   const [editingPreferences, setEditingPreferences] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userStats, setUserStats] = useState({
+    articlesRead: 0,
+    interactions: 0,
+    shares: 0
+  });
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -83,6 +91,26 @@ export default function ProfilePage() {
         const prefsData = await prefsResponse.json();
         setPreferences(prefsData.data);
       }
+
+      // جلب إحصائيات المستخدم
+      const interactionsResponse = await fetch(`/api/interactions/all`);
+      if (interactionsResponse.ok) {
+        const interactionsData = await interactionsResponse.json();
+        const userInteractions = interactionsData.data.filter((interaction: any) => 
+          interaction.user_id === user.id
+        );
+        
+        // حساب الإحصائيات الحقيقية
+        const stats = {
+          articlesRead: userInteractions.filter((i: any) => i.interaction_type === 'read').length,
+          interactions: userInteractions.filter((i: any) => 
+            ['like', 'comment', 'save'].includes(i.interaction_type)
+          ).length,
+          shares: userInteractions.filter((i: any) => i.interaction_type === 'share').length
+        };
+        
+        setUserStats(stats);
+      }
     } catch (error) {
       console.error('خطأ في جلب البيانات:', error);
     } finally {
@@ -111,13 +139,80 @@ export default function ProfilePage() {
     });
   };
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // التحقق من نوع الملف
+    if (!file.type.startsWith('image/')) {
+      toast.error('يرجى اختيار ملف صورة صالح');
+      return;
+    }
+
+    // التحقق من حجم الملف (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      formData.append('userId', user.id);
+
+      const response = await fetch('/api/user/upload-avatar', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // تحديث بيانات المستخدم
+        const updatedUser = { ...user, avatar: data.avatarUrl };
+        setUser(updatedUser);
+        
+        // تحديث localStorage
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        toast.success('تم تحديث الصورة الشخصية بنجاح');
+        
+        // تحديث الهيدر
+        window.location.reload();
+      } else {
+        toast.error('حدث خطأ في رفع الصورة');
+      }
+    } catch (error) {
+      console.error('خطأ في رفع الصورة:', error);
+      toast.error('حدث خطأ في رفع الصورة');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const getActionIcon = (action: string) => {
     switch (action) {
-      case 'read_article': return <BookOpen className="w-4 h-4" />;
-      case 'share_article': return <Share2 className="w-4 h-4" />;
-      case 'like_article': return <Heart className="w-4 h-4" />;
-      case 'select_preferences': return <Activity className="w-4 h-4" />;
-      default: return <Star className="w-4 h-4" />;
+      case 'read': 
+      case 'read_article': 
+        return <BookOpen className="w-4 h-4" />;
+      case 'share':
+      case 'share_article': 
+        return <Share2 className="w-4 h-4" />;
+      case 'like':
+      case 'like_article': 
+        return <Heart className="w-4 h-4" />;
+      case 'view':
+        return <Eye className="w-4 h-4" />;
+      case 'comment':
+        return <MessageCircle className="w-4 h-4" />;
+      case 'save':
+        return <Bookmark className="w-4 h-4" />;
+      case 'select_preferences': 
+        return <Activity className="w-4 h-4" />;
+      default: 
+        return <Star className="w-4 h-4" />;
     }
   };
 
@@ -146,7 +241,7 @@ export default function ProfilePage() {
             <div className="flex items-center justify-between mb-8">
               <h1 className="text-3xl font-bold">الملف الشخصي</h1>
               <Link 
-                href="/settings"
+                href="/profile/settings"
                 className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors backdrop-blur"
               >
                 <Settings className="w-5 h-5" />
@@ -156,10 +251,35 @@ export default function ProfilePage() {
 
             {/* بطاقة المستخدم */}
             <div className="flex items-center gap-6">
-              <div className="relative">
-                <div className="w-24 h-24 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-4xl font-bold shadow-xl">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
+              <div className="relative group">
+                {user.avatar ? (
+                  <img 
+                    src={user.avatar} 
+                    alt={user.name}
+                    className="w-24 h-24 rounded-full object-cover shadow-xl border-4 border-white/20"
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-4xl font-bold shadow-xl">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                
+                {/* زر تغيير الصورة */}
+                <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    disabled={uploadingAvatar}
+                  />
+                  {uploadingAvatar ? (
+                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+                  ) : (
+                    <Camera className="w-8 h-8 text-white" />
+                  )}
+                </label>
+                
                 <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
                   <span className="text-xl">{membership.icon}</span>
                 </div>
@@ -249,15 +369,15 @@ export default function ProfilePage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">مقالات مقروءة</span>
-                    <span className="font-semibold text-gray-800">127</span>
+                    <span className="font-semibold text-gray-800">{userStats.articlesRead}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">تفاعلات</span>
-                    <span className="font-semibold text-gray-800">43</span>
+                    <span className="font-semibold text-gray-800">{userStats.interactions}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">مشاركات</span>
-                    <span className="font-semibold text-gray-800">18</span>
+                    <span className="font-semibold text-gray-800">{userStats.shares}</span>
                   </div>
                 </div>
               </div>
@@ -323,54 +443,45 @@ export default function ProfilePage() {
                 </h3>
 
                 <div className="space-y-4">
-                  {loyaltyData?.recent_activities.slice(0, 5).map((activity) => (
-                    <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                          {getActionIcon(activity.action)}
+                  {loyaltyData?.recent_activities && loyaltyData.recent_activities.length > 0 ? (
+                    loyaltyData.recent_activities.slice(0, 5).map((activity) => (
+                      <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                            {getActionIcon(activity.action)}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800">{activity.description}</p>
+                            <p className="text-sm text-gray-500">{formatDate(activity.created_at)}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-800">{activity.description}</p>
-                          <p className="text-sm text-gray-500">{formatDate(activity.created_at)}</p>
-                        </div>
+                        {activity.points > 0 && (
+                          <span className="font-bold text-green-600">
+                            +{activity.points}
+                          </span>
+                        )}
                       </div>
-                      <span className="font-bold text-green-600">
-                        +{activity.points}
-                      </span>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <p className="text-gray-500">لا توجد نشاطات حتى الآن</p>
+                      <p className="text-sm text-gray-400 mt-1">ابدأ بقراءة المقالات لكسب النقاط!</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* بطاقة الإشعارات */}
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-purple-600" />
-                    الإشعارات
-                  </h3>
-                  <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                    إدارة الإشعارات
-                  </button>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-                    <input type="checkbox" defaultChecked className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="font-medium text-gray-800">أخبار عاجلة</p>
-                      <p className="text-sm text-gray-500">تلقي إشعارات بالأخبار العاجلة</p>
-                    </div>
-                  </label>
-                  
-                  <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-                    <input type="checkbox" defaultChecked className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="font-medium text-gray-800">تحديثات الاهتمامات</p>
-                      <p className="text-sm text-gray-500">أخبار جديدة في تصنيفاتك المفضلة</p>
-                    </div>
-                  </label>
-                </div>
+                {loyaltyData?.recent_activities && loyaltyData.recent_activities.length > 5 && (
+                  <div className="mt-4 pt-4 border-t">
+                    <Link 
+                      href="/loyalty"
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center justify-center gap-1"
+                    >
+                      عرض جميع النشاطات
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>

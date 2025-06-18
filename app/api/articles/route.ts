@@ -70,7 +70,19 @@ async function loadArticles(): Promise<Article[]> {
 
     // قراءة الملف
     const fileContent = await fs.readFile(DATA_FILE_PATH, 'utf-8');
-    return JSON.parse(fileContent);
+    const data = JSON.parse(fileContent);
+    
+    // التعامل مع البنية الجديدة للملف
+    if (data.articles && Array.isArray(data.articles)) {
+      return data.articles;
+    }
+    
+    // إذا كانت البيانات مصفوفة مباشرة (للتوافق مع البنية القديمة)
+    if (Array.isArray(data)) {
+      return data;
+    }
+    
+    return [];
   } catch (error) {
     // إذا لم يكن الملف موجودًا، إرجاع مصفوفة فارغة
     return [];
@@ -84,8 +96,9 @@ async function saveArticles(articles: Article[]): Promise<void> {
     const dataDir = path.join(process.cwd(), 'data');
     await fs.mkdir(dataDir, { recursive: true });
     
-    // حفظ البيانات
-    await fs.writeFile(DATA_FILE_PATH, JSON.stringify(articles, null, 2), 'utf-8');
+    // حفظ البيانات بنفس البنية الموجودة
+    const dataToSave = { articles };
+    await fs.writeFile(DATA_FILE_PATH, JSON.stringify(dataToSave, null, 2), 'utf-8');
   } catch (error) {
     console.error('خطأ في حفظ المقالات:', error);
     throw new Error('فشل في حفظ المقالات');
@@ -177,6 +190,12 @@ async function filterArticles(query: URLSearchParams) {
   const status = query.get('status');
   if (status) {
     filteredArticles = filteredArticles.filter(article => article.status === status);
+  }
+
+  // فلترة حسب التصنيف
+  const categoryId = query.get('category_id');
+  if (categoryId) {
+    filteredArticles = filteredArticles.filter(article => article.category_id === parseInt(categoryId));
   }
 
   // فلترة حسب القسم
@@ -290,6 +309,7 @@ export async function GET(request: NextRequest) {
       pagination: stats,
       filters: {
         status: searchParams.get('status'),
+        category_id: searchParams.get('category_id'),
         section_id: searchParams.get('section_id'),
         search: searchParams.get('search'),
         featured: searchParams.get('featured'),
