@@ -8,6 +8,7 @@ import {
   LogOut, ChevronDown, Home, Newspaper, Star 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import SabqLogo from './SabqLogo';
 
 interface UserData {
   id: string;
@@ -84,9 +85,8 @@ export default function Header() {
           {/* الشعار */}
           <div className="flex items-center gap-8">
             <Link href="/newspaper" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">سبق</span>
-              </div>
+              {/* شعار سبق */}
+              <SabqLogo />
             </Link>
 
             {/* روابط التنقل */}
