@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { 
   ArrowRight, Mail, Phone, MapPin, Calendar, Eye, MessageSquare, 
@@ -8,7 +8,8 @@ import {
   Smartphone
 } from 'lucide-react';
 
-export default function UserDetailsPage({ params }: { params: { id: string } }) {
+export default function UserDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
@@ -19,7 +20,7 @@ export default function UserDetailsPage({ params }: { params: { id: string } }) 
   }, []);
 
   const user = {
-    id: params.id,
+    id: id,
     name: 'أحمد محمد الأحمد',
     email: 'ahmed@example.com',
     phone: '+966501234567',

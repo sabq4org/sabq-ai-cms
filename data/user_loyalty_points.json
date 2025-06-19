@@ -1,31 +1,44 @@
 {
   "users": [
     {
-      "user_id": "test-user",
-      "total_points": 135,
-      "earned_points": 135,
+      "user_id": "user-1750229554450-9uudnk37n",
+      "total_points": 140,
+      "earned_points": 140,
       "redeemed_points": 0,
-      "tier": "bronze",
+      "created_at": "2025-06-18T06:52:34.450Z",
+      "last_updated": "2025-06-19T11:45:00.000Z"
+    },
+    {
+      "user_id": "test-user",
+      "total_points": 140,
+      "earned_points": 140,
+      "redeemed_points": 0,
       "created_at": "2025-06-17T00:00:00.000Z",
-      "last_updated": "2025-06-18T13:05:58.369Z"
+      "last_updated": "2025-06-19T05:52:53.169Z"
     },
     {
       "user_id": "anonymous",
       "total_points": 24,
       "earned_points": 24,
       "redeemed_points": 0,
-      "tier": "bronze",
       "created_at": "2025-06-18T05:46:51.312Z",
       "last_updated": "2025-06-18T06:00:40.224Z"
     },
     {
       "user_id": "user-1750236579398-3h4rt6gu7",
-      "total_points": 105,
-      "earned_points": 105,
+      "total_points": 1250,
+      "earned_points": 1250,
       "redeemed_points": 0,
-      "tier": "bronze",
       "created_at": "2025-06-18T08:55:38.113Z",
-      "last_updated": "2025-06-18T15:40:51.106Z"
+      "last_updated": "2025-06-19T03:18:52.072Z"
+    },
+    {
+      "user_id": "test-regular",
+      "total_points": 100,
+      "earned_points": 100,
+      "redeemed_points": 0,
+      "created_at": "2025-06-19T05:10:02.472Z",
+      "last_updated": "2025-06-19T05:10:02.472Z"
     }
   ],
   "updated_at": "2025-06-17T00:00:00.000Z"

@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
+import { readFile } from 'fs/promises';
 import path from 'path';
 import bcrypt from 'bcryptjs';
-
-const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password } = body;
 
-    console.log('محاولة تسجيل دخول:', { email, password });
+    console.log('محاولة تسجيل دخول:', { email });
 
     // التحقق من البيانات المطلوبة
     if (!email || !password) {
@@ -20,73 +18,61 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // مستخدم اختبار ثابت - مؤقت للتطوير
-    if ((email.toLowerCase() === 'ali@alhazmi.org' || email === 'test@test.com') && password === '123456') {
-      console.log('تسجيل دخول ناجح - مستخدم اختبار');
-      return NextResponse.json({
-        success: true,
-        message: 'تم تسجيل الدخول بنجاح',
-        user: {
-          id: 'test-user',
-          name: 'علي الحازمي',
-          email: email,
-          role: 'admin',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      });
-    }
-
     // قراءة ملف المستخدمين
-    try {
-      const fileContent = await fs.readFile(usersFilePath, 'utf-8');
-      const data = JSON.parse(fileContent);
-      
-      console.log('المستخدمون المسجلون:', data.users.map((u: any) => u.email));
-      
-      // البحث عن المستخدم (غير حساس لحالة الأحرف)
-      const user = data.users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
-      
-      console.log('نتيجة البحث:', user ? 'تم العثور على المستخدم' : 'لم يتم العثور على المستخدم');
-      
-      if (!user) {
-        return NextResponse.json(
-          { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
-          { status: 401 }
-        );
-      }
+    const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+    const fileContents = await readFile(usersFilePath, 'utf8');
+    const data = JSON.parse(fileContents);
+    const users = data.users || [];
 
-      // التحقق من كلمة المرور
-      console.log('التحقق من كلمة المرور...');
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      console.log('صحة كلمة المرور:', isPasswordValid);
-      
-      if (!isPasswordValid) {
-        return NextResponse.json(
-          { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
-          { status: 401 }
-        );
-      }
+    // البحث عن المستخدم بالبريد الإلكتروني
+    const user = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
 
-      // إرجاع بيانات المستخدم (بدون كلمة المرور)
-      const { password: _, ...userWithoutPassword } = user;
-      
-      console.log('تسجيل دخول ناجح للمستخدم:', user.email);
-      
-      return NextResponse.json({
-        success: true,
-        message: 'تم تسجيل الدخول بنجاح',
-        user: userWithoutPassword
-      });
-      
-    } catch (error) {
-      console.error('خطأ في قراءة ملف المستخدمين:', error);
-      // إذا لم يكن الملف موجوداً
+    if (!user) {
       return NextResponse.json(
         { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
         { status: 401 }
       );
     }
+
+    // التحقق من كلمة المرور
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
+        { status: 401 }
+      );
+    }
+
+    // التحقق من حالة الحساب
+    if (user.status === 'suspended' || user.status === 'banned') {
+      return NextResponse.json(
+        { success: false, error: 'عذراً، حسابك موقوف أو محظور' },
+        { status: 403 }
+      );
+    }
+
+    // إزالة كلمة المرور من البيانات المرسلة
+    const { password: _, ...userWithoutPassword } = user;
+
+    console.log('تسجيل دخول ناجح للمستخدم:', user.email);
+
+    // إضافة معلومات إضافية للمستخدم
+    const responseUser = {
+      ...userWithoutPassword,
+      is_admin: user.role === 'admin',
+      // التأكد من وجود جميع الحقول المطلوبة (بدون loyaltyLevel - سيتم حسابه من النقاط)
+      loyaltyPoints: user.loyaltyPoints || 0,
+      status: user.status || 'active',
+      role: user.role || 'regular',
+      isVerified: user.isVerified || false
+    };
+
+    return NextResponse.json({
+      success: true,
+      message: 'تم تسجيل الدخول بنجاح',
+      user: responseUser
+    });
     
   } catch (error) {
     console.error('خطأ في تسجيل الدخول:', error);

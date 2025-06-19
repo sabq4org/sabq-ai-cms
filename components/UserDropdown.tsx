@@ -7,6 +7,7 @@ import {
   Heart, Settings, Bell, LogOut, Loader2,
   Crown, Star, Award, Gem
 } from 'lucide-react';
+import { getMembershipLevel } from '@/lib/loyalty';
 
 interface UserData {
   id: string;
@@ -73,37 +74,20 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
     };
   }, []);
 
-  const getTierIcon = (tier: string) => {
-    switch (tier) {
-      case 'bronze': return Crown;
-      case 'silver': return Star;
-      case 'gold': return Award;
-      case 'platinum': return Gem;
+  // استخدام نظام التصنيف المركزي
+  const loyaltyLevel = loyaltyData ? getMembershipLevel(loyaltyData.total_points) : null;
+
+  const getTierIcon = (name: string) => {
+    switch (name) {
+      case 'برونزي': return Crown;
+      case 'فضي': return Star;
+      case 'ذهبي': return Award;
+      case 'سفير': return Gem;
       default: return Trophy;
     }
   };
 
-  const getTierColor = (tier: string) => {
-    switch (tier) {
-      case 'bronze': return 'text-orange-600 bg-orange-50';
-      case 'silver': return 'text-gray-600 bg-gray-50';
-      case 'gold': return 'text-yellow-600 bg-yellow-50';
-      case 'platinum': return 'text-purple-600 bg-purple-50';
-      default: return 'text-blue-600 bg-blue-50';
-    }
-  };
-
-  const getTierName = (tier: string) => {
-    switch (tier) {
-      case 'bronze': return 'عضو برونزي';
-      case 'silver': return 'عضو فضي';
-      case 'gold': return 'عضو ذهبي';
-      case 'platinum': return 'عضو بلاتيني';
-      default: return 'عضو جديد';
-    }
-  };
-
-  const TierIcon = loyaltyData ? getTierIcon(loyaltyData.tier) : Trophy;
+  const TierIcon = loyaltyLevel ? getTierIcon(loyaltyLevel.name) : Trophy;
 
   return (
     <div className="absolute left-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
@@ -124,13 +108,13 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
 
 
           {/* المستوى */}
-          {loyaltyData && (
+          {loyaltyLevel && (
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl shadow-sm ${getTierColor(loyaltyData.tier)}`}>
-                <TierIcon className="w-5 h-5" />
+              <div className={`p-2 rounded-xl shadow-sm ${loyaltyLevel.bgColor}`}>
+                <TierIcon className="w-5 h-5" style={{ color: loyaltyLevel.color }} />
               </div>
               <div>
-                <p className="font-bold text-gray-900">{getTierName(loyaltyData.tier)}</p>
+                <p className="font-bold text-gray-900">{loyaltyLevel.name}</p>
                 <p className="text-xs text-gray-500">مستوى العضوية</p>
               </div>
             </div>

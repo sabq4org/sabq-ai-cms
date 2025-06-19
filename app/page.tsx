@@ -165,6 +165,8 @@ export default function NewspaperHomePage() {
   const [articlesLoading, setArticlesLoading] = useState(true);
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
   const [personalizedLoading, setPersonalizedLoading] = useState(true);
+  const [smartDosePhrase, setSmartDosePhrase] = useState<string>("جرعة سبق الذكية");
+  const [smartDoseSubtitle, setSmartDoseSubtitle] = useState<string>("إليك أهم الأخبار");
   const [blocksConfig, setBlocksConfig] = useState({
     briefing: { enabled: true, order: 1 },
     trending: { enabled: true, order: 2 },
@@ -214,6 +216,56 @@ export default function NewspaperHomePage() {
     
     return () => clearInterval(timer);
   }, []);
+
+  // تحديث العبارات الذكية بعد تحميل الوقت
+  useEffect(() => {
+    if (currentTime) {
+      // دالة محلية للحصول على العبارة الذكية
+      const updateSmartDosePhrases = () => {
+        const saudiTime = new Date();
+        const offset = 3 * 60 * 60 * 1000;
+        saudiTime.setTime(currentTime.getTime() + offset);
+        
+        const hour = saudiTime.getHours();
+        const day = saudiTime.getDay();
+        
+        // تحديد العبارة حسب الوقت
+        let phrase = "جرعة سبق الذكية";
+        let subtitle = "إليك أهم الأخبار";
+        
+        if (hour >= 6 && hour < 12) {
+          const morningPhrases = [
+            "هل بدأت يومك بفهم المشهد؟",
+            "صباحك مع سبق.. أكثر وعيًا",
+            "ابدأ يومك بمعرفة تُشبِهك"
+          ];
+          phrase = morningPhrases[day % morningPhrases.length];
+          subtitle = "إليك الجرعة الصباحية من سبق";
+        } else if (hour >= 12 && hour < 18) {
+          const afternoonPhrases = [
+            "وقفة تحليلية لمنتصف اليوم",
+            "الظهيرة.. ما الذي تصدر المشهد؟",
+            "نصف اليوم، ونصف الصورة 📊"
+          ];
+          phrase = afternoonPhrases[day % afternoonPhrases.length];
+          subtitle = "إليك جرعة الظهيرة من سبق";
+        } else {
+          const eveningPhrases = [
+            "هل فاتك شيء اليوم؟",
+            "موجز نهاية اليوم.. قبل أن تنام",
+            "الذكاء يلخص لك المشهد"
+          ];
+          phrase = eveningPhrases[day % eveningPhrases.length];
+          subtitle = "إليك الخلاصة المسائية من سبق";
+        }
+        
+        setSmartDosePhrase(phrase);
+        setSmartDoseSubtitle(subtitle);
+      };
+      
+      updateSmartDosePhrases();
+    }
+  }, [currentTime]);
 
   // جلب المحتوى المخصص من API
   const fetchPersonalizedContent = async () => {
@@ -466,6 +518,7 @@ export default function NewspaperHomePage() {
     }
     
     const hour = saudiTime.getHours();
+    const day = saudiTime.getDay(); // لاستخدامه في اختيار العبارة بدلاً من random
     
     // الفترة الصباحية (06:00 ص – 11:59 ص)
     if (hour >= 6 && hour < 12) {
@@ -474,7 +527,7 @@ export default function NewspaperHomePage() {
         "صباحك مع سبق.. أكثر وعيًا",
         "ابدأ يومك بمعرفة تُشبِهك"
       ];
-      return morningPhrases[Math.floor(Math.random() * morningPhrases.length)];
+      return morningPhrases[day % morningPhrases.length];
     }
     
     // فترة الظهيرة (12:00 ظ – 05:59 م)
@@ -484,7 +537,7 @@ export default function NewspaperHomePage() {
         "الظهيرة.. ما الذي تصدر المشهد؟",
         "نصف اليوم، ونصف الصورة 📊"
       ];
-      return afternoonPhrases[Math.floor(Math.random() * afternoonPhrases.length)];
+      return afternoonPhrases[day % afternoonPhrases.length];
     }
     
     // الفترة المسائية (06:00 م – 12:00 ص)
@@ -494,7 +547,7 @@ export default function NewspaperHomePage() {
         "موجز نهاية اليوم.. قبل أن تنام",
         "الذكاء يلخص لك المشهد"
       ];
-      return eveningPhrases[Math.floor(Math.random() * eveningPhrases.length)];
+      return eveningPhrases[day % eveningPhrases.length];
     }
     
     // الفترة الليلية (12:00 ص – 05:59 ص) - استخدم عبارات المساء
@@ -504,7 +557,7 @@ export default function NewspaperHomePage() {
         "موجز نهاية اليوم.. قبل أن تنام",
         "الذكاء يلخص لك المشهد"
       ];
-      return eveningPhrases[Math.floor(Math.random() * eveningPhrases.length)];
+      return eveningPhrases[day % eveningPhrases.length];
     }
   };
 
@@ -1591,12 +1644,12 @@ export default function NewspaperHomePage() {
             {/* Main Title */}
             <div className="mb-16 relative z-10">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white leading-tight drop-shadow-lg">
-                {getSmartDosePhrase()}
+                {smartDosePhrase}
               </h1>
               <p className={`text-xl sm:text-2xl mb-4 drop-shadow ${
                 darkMode ? 'text-gray-200' : 'text-white/95'
               }`}>
-                {getSmartDoseSubtitle()}
+                {smartDoseSubtitle}
               </p>
             </div>
             

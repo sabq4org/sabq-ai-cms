@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Mail, Lock, Eye, EyeOff, 
@@ -12,6 +12,7 @@ import { logActions } from '../../lib/log-activity';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -20,6 +21,11 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>({});
+
+  // الحصول على رابط الإرجاع من URL parameters
+  const callbackUrl = searchParams?.get('callbackUrl') || 
+                     searchParams?.get('redirectTo') || 
+                     searchParams?.get('returnTo');
 
   const validateForm = () => {
     const newErrors: any = {};
@@ -82,25 +88,27 @@ export default function LoginPage() {
       
       toast.success('مرحباً بعودتك! 🎉');
       
-      // توجيه ذكي بناءً على دور المستخدم
-      const redirectTo = new URLSearchParams(window.location.search).get('redirect');
+      // التوجيه الذكي
+      let redirectPath = '/';
       
-      if (redirectTo) {
-        // إذا كان هناك رابط محدد للتوجيه، استخدمه
-        router.push(redirectTo);
+      // إذا كان هناك رابط محدد للعودة إليه
+      if (callbackUrl && callbackUrl.startsWith('/')) {
+        // استخدام الرابط المطلوب مباشرة (بغض النظر عن نوع المستخدم)
+        redirectPath = callbackUrl;
+        console.log('توجيه إلى الرابط المطلوب:', redirectPath);
       } else {
-        // توجيه بناءً على دور المستخدم وحالة المستخدم
-        if (data.user.role === 'admin' || data.user.role === 'editor') {
-          // المديرون والمحررون إلى لوحة التحكم
-          router.push('/dashboard');
-        } else if (data.user.is_new || !data.user.has_preferences) {
-          // المستخدمون الجدد أو الذين لم يحددوا اهتماماتهم
-          router.push('/welcome/preferences');
+        // التوجيه بناءً على نوع المستخدم فقط إذا لم يكن هناك رابط محدد
+        if (data.user.is_admin === true || data.user.role === 'admin') {
+          redirectPath = '/dashboard';
+          console.log('توجيه مدير إلى لوحة التحكم');
         } else {
-          // القراء والمستخدمون العاديون إلى الصفحة الرئيسية
-          router.push('/');
+          redirectPath = '/newspaper';
+          console.log('توجيه مستخدم عادي إلى الصحيفة');
         }
       }
+      
+      router.push(redirectPath);
+
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'حدث خطأ في تسجيل الدخول');
     } finally {

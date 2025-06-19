@@ -12,7 +12,10 @@ export async function GET(
     // قراءة ملف التفاعلات
     const interactionsPath = path.join(process.cwd(), 'data', 'user_article_interactions.json');
     const interactionsData = await fs.readFile(interactionsPath, 'utf-8');
-    const interactions = JSON.parse(interactionsData);
+    const data = JSON.parse(interactionsData);
+    
+    // التأكد من أن التفاعلات مصفوفة
+    const interactions = Array.isArray(data.interactions) ? data.interactions : [];
     
     // تصفية التفاعلات للمستخدم المحدد
     const userInteractions = interactions.filter((interaction: any) => 

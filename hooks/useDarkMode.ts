@@ -16,6 +16,17 @@ export function useDarkMode() {
       root.classList.remove('dark');
       root.style.colorScheme = 'light';
     }
+    
+    // تحديث meta theme-color
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', isDark ? '#1f2937' : '#ffffff');
+    }
+    
+    // فرض إعادة حساب الأنماط
+    document.body.style.display = 'none';
+    document.body.offsetHeight; // Force reflow
+    document.body.style.display = '';
   }, []);
 
   useEffect(() => {
@@ -44,8 +55,22 @@ export function useDarkMode() {
       }
     };
 
+    // الاستماع لتغييرات من tabs أخرى
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'darkMode' && e.newValue !== null) {
+        const isDark = JSON.parse(e.newValue);
+        setDarkMode(isDark);
+        updateDarkMode(isDark);
+      }
+    };
+
     mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [updateDarkMode]);
 
   const toggleDarkMode = useCallback(() => {
@@ -56,6 +81,10 @@ export function useDarkMode() {
     
     // فرض إعادة رسم الصفحة للتأكد من التحديث الفوري
     window.dispatchEvent(new Event('dark-mode-changed'));
+    
+    // بث الحدث لجميع المكونات
+    const event = new CustomEvent('dark-mode-toggled', { detail: { darkMode: newValue } });
+    window.dispatchEvent(event);
   }, [darkMode, updateDarkMode]);
 
   return { darkMode, toggleDarkMode, mounted };

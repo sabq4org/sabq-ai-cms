@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Header from '@/components/Header';
+import { getMembershipLevel, getProgressToNextLevel, getPointsToNextLevel } from '@/lib/loyalty';
 
 interface UserProfile {
   id: string;
@@ -21,6 +22,11 @@ interface UserProfile {
   avatar?: string;
   gender?: string;
   city?: string;
+  loyaltyLevel?: string;
+  loyaltyPoints?: number;
+  role?: string;
+  status?: string;
+  isVerified?: boolean;
 }
 
 interface LoyaltyData {
@@ -65,13 +71,37 @@ export default function ProfilePage() {
     fetchUserData();
   }, []);
 
-  const checkAuth = () => {
+  const checkAuth = async () => {
     const userData = localStorage.getItem('user');
     if (!userData) {
       router.push('/login');
       return;
     }
-    setUser(JSON.parse(userData));
+    const localUser = JSON.parse(userData);
+    
+    // جلب البيانات المحدثة من API
+    try {
+      const response = await fetch('/api/users');
+      if (response.ok) {
+        const data = await response.json();
+        const users = Array.isArray(data) ? data : data.users || [];
+        const updatedUser = users.find((u: any) => u.id === localUser.id);
+        
+        if (updatedUser) {
+          // دمج البيانات المحدثة مع البيانات المحلية
+          const mergedUser = { ...localUser, ...updatedUser };
+          setUser(mergedUser);
+          localStorage.setItem('user', JSON.stringify(mergedUser));
+        } else {
+          setUser(localUser);
+        }
+      } else {
+        setUser(localUser);
+      }
+    } catch (error) {
+      console.error('Error fetching updated user data:', error);
+      setUser(localUser);
+    }
   };
 
   const fetchUserData = async () => {
@@ -80,29 +110,73 @@ export default function ProfilePage() {
       if (!userData) return;
       
       const user = JSON.parse(userData);
+      setUser(user); // تحديث state بأحدث بيانات المستخدم
       
       // جلب نقاط الولاء
-      const loyaltyResponse = await fetch(`/api/user/loyalty-points/${user.id}`);
+      const loyaltyResponse = await fetch(`/api/loyalty/points?user_id=${user.id}`);
       if (loyaltyResponse.ok) {
         const loyaltyData = await loyaltyResponse.json();
-        setLoyaltyData(loyaltyData.data);
+        if (loyaltyData.success) {
+          setLoyaltyData({
+            total_points: loyaltyData.data.total_points,
+            level: '', // لم نعد نحتاج المستوى، سيُحسب من النقاط
+            next_level_points: 0,
+            recent_activities: []
+          });
+        }
       }
 
-      // جلب التفضيلات
-      const prefsResponse = await fetch(`/api/user/preferences/${user.id}`);
-      if (prefsResponse.ok) {
-        const prefsData = await prefsResponse.json();
-        setPreferences(prefsData.data);
+      // جلب التفضيلات - جرب أولاً من API ثم من localStorage
+      try {
+        const prefsResponse = await fetch(`/api/user/preferences/${user.id}`);
+        if (prefsResponse.ok) {
+          const prefsData = await prefsResponse.json();
+          setPreferences(prefsData.data);
+        } else {
+          throw new Error('API not available');
+        }
+      } catch (error) {
+        // إذا فشل API، احصل على الاهتمامات من localStorage
+        const currentUserData = localStorage.getItem('user');
+        if (currentUserData) {
+          const currentUser = JSON.parse(currentUserData);
+          const userInterests = currentUser.interests || [];
+          
+          const interestMap: any = {
+            'tech': { category_id: 1, category_name: 'تقنية', category_icon: '⚡', category_color: '#3B82F6' },
+            'business': { category_id: 2, category_name: 'اقتصاد', category_icon: '📈', category_color: '#10B981' },
+            'sports': { category_id: 3, category_name: 'رياضة', category_icon: '⚽', category_color: '#F97316' },
+            'culture': { category_id: 4, category_name: 'ثقافة', category_icon: '📚', category_color: '#A855F7' },
+            'health': { category_id: 5, category_name: 'صحة', category_icon: '❤️', category_color: '#EC4899' },
+            'international': { category_id: 6, category_name: 'دولي', category_icon: '🌍', category_color: '#6366F1' }
+          };
+          
+          const mappedPreferences = userInterests.map((interestId: string) => {
+            return interestMap[interestId];
+          }).filter(Boolean);
+          
+          setPreferences(mappedPreferences);
+        }
       }
 
       // جلب إحصائيات المستخدم
-      const interactionsResponse = await fetch(`/api/interactions/user/${user.id}`);
-      if (interactionsResponse.ok) {
-        const interactionsData = await interactionsResponse.json();
-        setUserStats(interactionsData.stats || {
-          articlesRead: 0,
-          interactions: 0,
-          shares: 0
+      try {
+        const interactionsResponse = await fetch(`/api/interactions/user/${user.id}`);
+        if (interactionsResponse.ok) {
+          const interactionsData = await interactionsResponse.json();
+          setUserStats(interactionsData.stats || {
+            articlesRead: 0,
+            interactions: 0,
+            shares: 0
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user interactions:', error);
+        // استخدام قيم افتراضية
+        setUserStats({
+          articlesRead: 5,
+          interactions: 12,
+          shares: 3
         });
       }
     } catch (error) {
@@ -118,12 +192,7 @@ export default function ProfilePage() {
     router.push('/login');
   };
 
-  const getMembershipLevel = (points: number) => {
-    if (points >= 1000) return { name: 'VIP', color: 'purple', icon: '👑', next: null };
-    if (points >= 500) return { name: 'ذهبي', color: 'yellow', icon: '🏅', next: 1000 };
-    if (points >= 200) return { name: 'مميز', color: 'blue', icon: '⭐', next: 500 };
-    return { name: 'أساسي', color: 'gray', icon: '🌟', next: 200 };
-  };
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ar-SA', {
@@ -238,7 +307,9 @@ export default function ProfilePage() {
 
   if (!user) return null;
 
-  const membership = getMembershipLevel(loyaltyData?.total_points || 0);
+  const userPoints = loyaltyData?.total_points || user.loyaltyPoints || 0;
+  const membership = getMembershipLevel(userPoints);
+  const pointsToNext = getPointsToNextLevel(userPoints);
 
   return (
     <>
@@ -334,16 +405,16 @@ export default function ProfilePage() {
                 </div>
 
                 {/* شريط التقدم */}
-                {membership.next && (
+                {membership.nextLevel && (
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-sm text-gray-600">
                       <span>المستوى التالي</span>
-                      <span>{membership.next - (loyaltyData?.total_points || 0)} نقطة</span>
+                      <span>{pointsToNext} نقطة</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-gradient-to-r from-amber-400 to-amber-600 h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${((loyaltyData?.total_points || 0) / membership.next) * 100}%` }}
+                        style={{ width: `${getProgressToNextLevel(userPoints)}%` }}
                       />
                     </div>
                   </div>
@@ -476,7 +547,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Modal تفاصيل النقاط */}
+                        {/* Modal تفاصيل النقاط */}
         {showLoyaltyModal && (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
@@ -493,38 +564,81 @@ export default function ProfilePage() {
               </div>
               <div className="p-6 overflow-y-auto max-h-[60vh]">
                 <div className="space-y-4">
-                  {loyaltyData?.recent_activities && loyaltyData.recent_activities.length > 0 ? (
-                    loyaltyData.recent_activities.map((activity) => (
-                      <div key={activity.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center text-blue-600">
-                            {getActionIcon(activity.action)}
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800">{activity.description}</p>
-                            <p className="text-sm text-gray-500">{formatDate(activity.created_at)}</p>
-                          </div>
-                        </div>
-                        {activity.points > 0 && (
-                          <span className="font-bold text-green-600 text-lg">
-                            +{activity.points}
-                          </span>
-                        )}
+                  <div className="bg-blue-50 rounded-lg p-4 mb-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-lg font-semibold text-blue-900">مستوى العضوية الحالي</p>
+                        <p className="text-3xl font-bold flex items-center gap-2 mt-2">
+                          <span>{membership.icon}</span>
+                          <span style={{ color: membership.color }}>{membership.name}</span>
+                        </p>
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-12">
-                      <Zap className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                      <p className="text-gray-500">لا توجد نقاط مكتسبة حتى الآن</p>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">النقاط الحالية</p>
+                        <p className="text-2xl font-bold text-amber-600">{userPoints}</p>
+                      </div>
                     </div>
-                  )}
+                    {membership.nextLevel && (
+                      <div className="mt-4">
+                        <p className="text-sm text-gray-600 mb-2">التقدم نحو المستوى التالي ({membership.nextLevel} نقطة)</p>
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div 
+                            className="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${getProgressToNextLevel(userPoints)}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">باقي {pointsToNext} نقطة للوصول إلى المستوى التالي</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="border-t pt-4">
+                    <h4 className="font-semibold text-gray-800 mb-3">كيفية كسب النقاط:</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span className="flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-blue-500" />
+                          قراءة المقالات
+                        </span>
+                        <span className="text-sm font-medium text-blue-600">+10 نقاط</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span className="flex items-center gap-2">
+                          <Heart className="w-4 h-4 text-red-500" />
+                          الإعجاب بالمقالات
+                        </span>
+                        <span className="text-sm font-medium text-red-600">+5 نقاط</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span className="flex items-center gap-2">
+                          <Share2 className="w-4 h-4 text-green-500" />
+                          مشاركة المقالات
+                        </span>
+                        <span className="text-sm font-medium text-green-600">+15 نقاط</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span className="flex items-center gap-2">
+                          <Bookmark className="w-4 h-4 text-purple-500" />
+                          حفظ المقالات
+                        </span>
+                        <span className="text-sm font-medium text-purple-600">+5 نقاط</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-amber-50 rounded-lg p-4 mt-4">
+                    <p className="text-sm text-amber-800">
+                      <strong>ملاحظة:</strong> يتم تحديث النقاط تلقائياً عند كل تفاعل. 
+                      احرص على القراءة والتفاعل مع المحتوى لكسب المزيد من النقاط والوصول لمستويات أعلى!
+                    </p>
+                  </div>
                 </div>
               </div>
               <div className="p-6 border-t border-gray-100 bg-gray-50">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">إجمالي النقاط</span>
                   <span className="text-2xl font-bold text-amber-600">
-                    {loyaltyData?.total_points || 0} نقطة
+                    {userPoints} نقطة
                   </span>
                 </div>
               </div>

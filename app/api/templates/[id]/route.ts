@@ -7,9 +7,10 @@ import path from 'path'
 // GET /api/templates/[id]
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params;
     const templateId = parseInt(params.id)
     
     const dataPath = path.join(process.cwd(), 'data', 'templates.json')
@@ -38,10 +39,11 @@ export async function GET(
 // PATCH /api/templates/[id]
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requirePermission('templates.update')
+    const params = await props.params;
     const { id } = params
     const data = await request.json()
     
@@ -73,10 +75,11 @@ export async function PATCH(
 // DELETE /api/templates/[id]
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requirePermission('templates.delete')
+    const params = await props.params;
     const { id } = params
     
     const success = await templateService.deleteTemplate(parseInt(id))
@@ -102,9 +105,10 @@ export async function DELETE(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params;
     const templateId = parseInt(params.id)
     const updatedData = await request.json()
     

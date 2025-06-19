@@ -9,7 +9,16 @@ interface DarkModeToggleProps {
 }
 
 export function DarkModeToggle({ className = '', showTooltip = true }: DarkModeToggleProps) {
-  const { darkMode, toggleDarkMode } = useDarkMode();
+  const { darkMode, toggleDarkMode, mounted } = useDarkMode();
+
+  if (!mounted) {
+    // عرض placeholder أثناء التحميل لتجنب hydration mismatch
+    return (
+      <div className={`p-2 rounded-lg ${className}`}>
+        <div className="w-5 h-5" />
+      </div>
+    );
+  }
 
   return (
     <button

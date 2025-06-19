@@ -10,8 +10,9 @@ import {
   BookOpen, Heart, MessageCircle, Bookmark, Twitter,
   Facebook, Send, Copy, ChevronRight, Award, Hash,
   Zap, Globe, BookOpen as BookOpenIcon, PenTool, RefreshCw,
-  Sparkles, TrendingUp, Check, Brain, Bot
+  Sparkles, TrendingUp, Check, Brain, Bot, FileText
 } from 'lucide-react';
+import './article-styles.css';
 
 interface Article {
   id: string;
@@ -35,7 +36,7 @@ interface Article {
   reading_time?: number;
   is_breaking?: boolean;
   is_featured?: boolean;
-  seo_keywords?: string;
+  seo_keywords?: string | string[];
   related_articles?: RelatedArticle[];
 }
 
@@ -219,6 +220,12 @@ export default function NewsDetailPage({ params }: PageProps) {
       const data = await response.json();
       
       // التعامل مع البيانات المباشرة (API يرجع المقال مباشرة)
+      // إذا كان المقال يحتوي على content_blocks، استخدمها بدلاً من content
+      if (data.content_blocks && Array.isArray(data.content_blocks) && data.content_blocks.length > 0) {
+        // تحويل content_blocks إلى JSON string لاستخدامه في renderArticleContent
+        data.content = JSON.stringify(data.content_blocks);
+      }
+      
       setArticle(data);
       
       // جلب التفاعلات المحفوظة
@@ -472,100 +479,285 @@ export default function NewsDetailPage({ params }: PageProps) {
 
   const renderArticleContent = (content: string) => {
     try {
+      // التحقق من وجود المحتوى
+      if (!content) {
+        return <p className="text-gray-500 dark:text-gray-400 text-center">لا يوجد محتوى لعرضه</p>;
+      }
+      
       // محاولة تحليل المحتوى كـ JSON blocks
       const blocks = JSON.parse(content);
       
       if (Array.isArray(blocks)) {
-        return blocks.map((block: any, index: number) => {
-          switch (block.type) {
-            case 'paragraph':
-              return (
-                <p key={index} className="mb-6 text-gray-800 leading-loose text-lg">
-                  {block.content || block.text}
-                </p>
-              );
-            
-            case 'heading':
-              return (
-                <h3 key={index} className="text-2xl font-bold text-gray-900 mb-4 mt-8">
-                  {block.content || block.text}
-                </h3>
-              );
-            
-            case 'quote':
-            case 'blockquote':
-              return (
-                <blockquote key={index} className="border-r-4 border-blue-500 pr-6 my-8 text-gray-700 italic">
-                  <p className="text-lg leading-relaxed">
-                    {block.content || block.text}
-                  </p>
-                  {block.author && (
-                    <cite className="block mt-2 text-sm text-gray-600">
-                      — {block.author}
-                    </cite>
-                  )}
-                </blockquote>
-              );
-            
-            case 'list':
-              return (
-                <ul key={index} className="list-disc list-inside mb-6 space-y-2 text-gray-800">
-                  {(block.items || []).map((item: string, i: number) => (
-                    <li key={i} className="text-lg leading-relaxed">{item}</li>
-                  ))}
-                </ul>
-              );
-            
-            case 'ordered-list':
-              return (
-                <ol key={index} className="list-decimal list-inside mb-6 space-y-2 text-gray-800">
-                  {(block.items || []).map((item: string, i: number) => (
-                    <li key={i} className="text-lg leading-relaxed">{item}</li>
-                  ))}
-                </ol>
-              );
-            
-            case 'image':
-              return (
-                <figure key={index} className="my-8">
-                  <img
-                    src={block.url || block.src}
-                    alt={block.alt || ''}
-                    className="w-full rounded-2xl shadow-lg"
-                  />
-                  {block.caption && (
-                    <figcaption className="text-center text-sm text-gray-600 mt-2">
-                      {block.caption}
-                    </figcaption>
-                  )}
-                </figure>
-              );
-            
-            default:
-              return (
-                <p key={index} className="mb-6 text-gray-800 leading-loose text-lg">
-                  {block.content || block.text || ''}
-                </p>
-              );
-          }
-        });
+        return (
+          <div className="article-content">
+            {blocks.map((block: any, index: number) => {
+              // التحقق من صحة البلوك
+              if (!block || typeof block !== 'object') return null;
+              
+              // التعامل مع البنية الجديدة من BlockEditor
+              const blockType = block.type;
+              const blockData = block.data?.[blockType] || block.data || {};
+              
+              switch (blockType) {
+                case 'paragraph':
+                  const paragraphText = blockData.text || block.text || block.content || '';
+                  // التحقق من نوع النص
+                  const finalText = typeof paragraphText === 'object' ? 
+                    (paragraphText.text || JSON.stringify(paragraphText)) : paragraphText;
+                  if (!finalText) return null;
+                  return (
+                    <p key={block.id || index} className="mb-6 text-lg leading-relaxed text-gray-700 dark:text-gray-300">
+                      {finalText}
+                    </p>
+                  );
+                
+                case 'heading':
+                  const headingText = blockData.text || block.text || block.content || '';
+                  const level = blockData.level || 2;
+                  // التحقق من نوع النص
+                  const finalHeadingText = typeof headingText === 'object' ? 
+                    (headingText.text || JSON.stringify(headingText)) : headingText;
+                  if (!finalHeadingText) return null;
+                  
+                  const headingClasses = {
+                    1: "text-4xl font-bold mt-12 mb-6 text-gray-900 dark:text-white",
+                    2: "text-3xl font-bold mt-10 mb-5 text-gray-900 dark:text-white",
+                    3: "text-2xl font-bold mt-8 mb-4 text-gray-900 dark:text-white",
+                    4: "text-xl font-bold mt-6 mb-3 text-gray-900 dark:text-white",
+                    5: "text-lg font-bold mt-4 mb-2 text-gray-900 dark:text-white",
+                    6: "text-base font-bold mt-3 mb-2 text-gray-900 dark:text-white"
+                  };
+                  
+                  return React.createElement(
+                    `h${level}`,
+                    { 
+                      key: block.id || index, 
+                      className: headingClasses[level as keyof typeof headingClasses] || headingClasses[2]
+                    },
+                    finalHeadingText
+                  );
+                
+                case 'quote':
+                  const quoteText = blockData.text || block.text || block.content || '';
+                  // التحقق من نوع النص
+                  const finalQuoteText = typeof quoteText === 'object' ? 
+                    (quoteText.text || JSON.stringify(quoteText)) : quoteText;
+                  if (!finalQuoteText) return null;
+                  return (
+                    <blockquote key={block.id || index} className="relative my-10 px-8 py-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-850 rounded-2xl border-r-4 border-blue-500">
+                      <div className="absolute -top-4 -right-2 text-6xl text-blue-200 dark:text-blue-800">"</div>
+                      <p className="relative z-10 text-lg text-gray-700 dark:text-gray-300 italic">
+                        {finalQuoteText}
+                      </p>
+                      {blockData.author && (
+                        <cite className="block mt-3 text-sm text-gray-600 dark:text-gray-400 font-medium not-italic">
+                          — {blockData.author}
+                        </cite>
+                      )}
+                    </blockquote>
+                  );
+                
+                case 'list':
+                  const listItems = blockData.items || block.items || [];
+                  const isOrdered = blockData.style === 'ordered' || block.ordered;
+                  if (listItems.length === 0) return null;
+                  
+                  const ListTag = isOrdered ? 'ol' : 'ul';
+                  return (
+                    <ListTag key={block.id || index} className={`mb-6 ${isOrdered ? 'list-decimal' : 'list-disc'} pr-6 space-y-1`}>
+                      {listItems.map((item: any, i: number) => {
+                        // التعامل مع العناصر سواء كانت نص أو كائن
+                        const itemText = typeof item === 'string' ? item : (item.text || item.content || '');
+                        return (
+                          <li key={i} className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">{itemText}</li>
+                        );
+                      })}
+                    </ListTag>
+                  );
+                
+                case 'image':
+                  const imageUrl = blockData.url || blockData.file?.url || block.url || block.src;
+                  if (!imageUrl) return null;
+                  
+                  return (
+                    <figure key={block.id || index} className="my-10">
+                      <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                        <img
+                          src={imageUrl}
+                          alt={blockData.alt || block.alt || ''}
+                          className="w-full h-auto"
+                        />
+                      </div>
+                      {(blockData.caption || block.caption) && (
+                        <figcaption className="text-center text-sm text-gray-600 dark:text-gray-400 mt-4 italic">
+                          {typeof (blockData.caption || block.caption) === 'object' 
+                            ? (blockData.caption?.text || block.caption?.text || '') 
+                            : (blockData.caption || block.caption)}
+                        </figcaption>
+                      )}
+                    </figure>
+                  );
+                
+                case 'video':
+                  const videoUrl = blockData.url || block.url || block.src;
+                  if (!videoUrl) return null;
+                  
+                  // تحديد نوع الفيديو (YouTube, Vimeo, etc.)
+                  const getVideoEmbed = (url: string) => {
+                    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                      const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+                      return `https://www.youtube.com/embed/${videoId}`;
+                    }
+                    if (url.includes('vimeo.com')) {
+                      const videoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
+                      return `https://player.vimeo.com/video/${videoId}`;
+                    }
+                    return url;
+                  };
+                  
+                  return (
+                    <figure key={block.id || index} className="my-10">
+                      <div className="relative rounded-2xl overflow-hidden shadow-xl bg-gray-100 dark:bg-gray-800">
+                        <iframe
+                          src={getVideoEmbed(videoUrl)}
+                          className="w-full aspect-video"
+                          allowFullScreen
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        />
+                      </div>
+                      {(blockData.caption || block.caption) && (
+                        <figcaption className="text-center text-sm text-gray-600 dark:text-gray-400 mt-4 italic">
+                          {typeof (blockData.caption || block.caption) === 'object' 
+                            ? (blockData.caption?.text || block.caption?.text || '') 
+                            : (blockData.caption || block.caption)}
+                        </figcaption>
+                      )}
+                    </figure>
+                  );
+                
+                case 'divider':
+                  return (
+                    <hr key={block.id || index} className="my-12 border-t-2 border-gray-200 dark:border-gray-700 w-1/2 mx-auto" />
+                  );
+                
+                case 'code':
+                  const codeText = blockData.code || block.code || blockData.text || '';
+                  // التحقق من نوع النص
+                  const finalCodeText = typeof codeText === 'object' ? 
+                    (codeText.text || codeText.code || JSON.stringify(codeText, null, 2)) : codeText;
+                  if (!finalCodeText) return null;
+                  return (
+                    <pre key={block.id || index} className="my-6 p-6 bg-gray-900 dark:bg-gray-950 rounded-2xl overflow-x-auto">
+                      <code className="text-gray-100 text-sm font-mono">
+                        {finalCodeText}
+                      </code>
+                    </pre>
+                  );
+                
+                case 'table':
+                  const tableData = blockData.content || block.content || [];
+                  if (!tableData.length) return null;
+                  return (
+                    <div key={block.id || index} className="my-8 overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                          {tableData.map((row: any, rowIndex: number) => (
+                            <tr key={rowIndex}>
+                              {Array.isArray(row) ? row.map((cell: any, cellIndex: number) => {
+                                // التحقق من نوع البيانات في الخلية
+                                const cellContent = typeof cell === 'object' ? 
+                                  (cell.text || cell.content || JSON.stringify(cell)) : cell;
+                                return (
+                                  <td 
+                                    key={cellIndex} 
+                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
+                                  >
+                                    {cellContent}
+                                  </td>
+                                );
+                              }) : (
+                                <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                                  {typeof row === 'object' ? JSON.stringify(row) : row}
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                
+                case 'embed':
+                  const embedUrl = blockData.url || block.url || '';
+                  const embedCode = blockData.embed || block.embed || '';
+                  
+                  if (embedCode) {
+                    return (
+                      <div 
+                        key={block.id || index} 
+                        className="my-8"
+                        dangerouslySetInnerHTML={{ __html: embedCode }}
+                      />
+                    );
+                  }
+                  
+                  if (embedUrl) {
+                    return (
+                      <div key={block.id || index} className="my-8 rounded-2xl overflow-hidden shadow-xl">
+                        <iframe
+                          src={embedUrl}
+                          className="w-full h-96"
+                          allowFullScreen
+                        />
+                      </div>
+                    );
+                  }
+                  return null;
+                
+                default:
+                  // للبلوكات غير المدعومة، نحاول عرض النص إن وجد
+                  const defaultText = blockData.text || block.text || block.content || '';
+                  // التحقق من نوع النص
+                  const finalDefaultText = typeof defaultText === 'object' ? 
+                    (defaultText.text || JSON.stringify(defaultText)) : defaultText;
+                  if (!finalDefaultText) return null;
+                  return (
+                    <p key={block.id || index} className="mb-6 text-lg leading-relaxed text-gray-700 dark:text-gray-300">
+                      {finalDefaultText}
+                    </p>
+                  );
+              }
+            })}
+          </div>
+        );
       }
     } catch (e) {
       // إذا فشل التحليل، المحتوى ليس JSON، نعرضه كـ HTML عادي
+      console.log('Content is not JSON blocks, rendering as HTML');
     }
     
     // عرض المحتوى كـ HTML إذا لم يكن JSON
     return (
       <div 
         dangerouslySetInnerHTML={{ __html: content }}
-        className="prose-p:mb-6 prose-p:text-gray-800 prose-p:leading-loose prose-p:text-lg
-                   prose-h3:text-2xl prose-h3:font-bold prose-h3:text-gray-900 prose-h3:mb-4 prose-h3:mt-8
-                   prose-blockquote:border-r-4 prose-blockquote:border-blue-500 prose-blockquote:pr-6 
-                   prose-blockquote:my-8 prose-blockquote:text-gray-700 prose-blockquote:italic
-                   prose-ul:list-disc prose-ul:list-inside prose-ul:mb-6 prose-ul:space-y-2
-                   prose-ol:list-decimal prose-ol:list-inside prose-ol:mb-6 prose-ol:space-y-2
-                   prose-li:text-lg prose-li:leading-relaxed prose-li:text-gray-800
-                   prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-8"
+        className="article-content prose prose-lg prose-gray dark:prose-invert max-w-none
+                   prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100
+                   prose-h1:text-4xl prose-h1:mt-12 prose-h1:mb-6
+                   prose-h2:text-3xl prose-h2:mt-10 prose-h2:mb-5
+                   prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
+                   prose-h4:text-xl prose-h4:mt-6 prose-h4:mb-3
+                   prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-p:text-lg prose-p:mb-6
+                   prose-blockquote:not-italic prose-blockquote:border-r-4 prose-blockquote:border-blue-500 prose-blockquote:pr-6
+                   prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-800 prose-blockquote:py-4 prose-blockquote:rounded-2xl
+                   prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300
+                   prose-ul:list-disc prose-ol:list-decimal prose-ul:pr-6 prose-ol:pr-6
+                   prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-li:marker:text-gray-500 prose-li:leading-relaxed
+                   prose-img:rounded-2xl prose-img:shadow-xl prose-img:my-10 prose-img:w-full
+                   prose-a:text-blue-600 hover:prose-a:text-blue-700 prose-a:no-underline hover:prose-a:underline
+                   prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
+                   prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:text-gray-100 prose-pre:rounded-2xl
+                   prose-hr:border-gray-300 dark:prose-hr:border-gray-700 prose-hr:my-12"
+        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}
       />
     );
   };
@@ -626,282 +818,241 @@ export default function NewsDetailPage({ params }: PageProps) {
         />
       </div>
 
-      {/* Breadcrumb */}
-      <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Link href="/" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-              الرئيسية
-            </Link>
-            <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            <Link href="/" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-              الأخبار
-            </Link>
-            <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            <span className="text-gray-900 dark:text-gray-100 font-medium">{article.category_name || 'عام'}</span>
+      {/* Main Content Container - تقليل العرض */}
+      <div className="max-w-4xl mx-auto px-4 py-8 transition-colors duration-300">
+        {/* Category and Tags - فوق العنوان */}
+        <div className="mb-4 text-right">
+          <div className="flex items-center justify-start gap-4">
+            <span className={`inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r ${getCategoryColor(article.category_name)} text-white text-sm font-bold rounded-full shadow-md`}>
+              <Tag className="w-4 h-4" />
+              {article.category_name || 'عام'}
+            </span>
+            {article.is_breaking && (
+              <span className="inline-flex items-center gap-1 px-4 py-2 bg-red-500 text-white text-sm font-bold rounded-full animate-pulse shadow-md">
+                <Zap className="w-4 h-4" />
+                عاجل
+              </span>
+            )}
+            {article.is_featured && (
+              <span className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-bold rounded-full shadow-md">
+                <Award className="w-4 h-4" />
+                مميز
+              </span>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Article Content */}
-        <article className="w-full">
-          {/* Header Info */}
-          <div className="mb-8">
-            {/* Category & Badges */}
-            <div className="flex items-center gap-3 mb-6">
-              <span className={`inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r ${getCategoryColor(article.category_name)} text-white text-sm font-bold rounded-full shadow-md`}>
-                <Tag className="w-4 h-4" />
-                {article.category_name || 'عام'}
-              </span>
-              {article.is_breaking && (
-                <span className="inline-flex items-center gap-1 px-4 py-2 bg-red-500 text-white text-sm font-bold rounded-full animate-pulse shadow-md">
-                  <Zap className="w-4 h-4" />
-                  عاجل
-                </span>
-              )}
-              {article.is_featured && (
-                <span className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-bold rounded-full shadow-md">
-                  <Award className="w-4 h-4" />
-                  مميز
-                </span>
-              )}
-            </div>
+        {/* عنوان وتعريف الصفحة */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white transition-colors duration-300 text-right">
+            {article.title}
+          </h1>
+          {article.subtitle && (
+            <p className="text-gray-600 dark:text-gray-300 transition-colors duration-300 text-xl leading-relaxed text-right">
+              {article.subtitle}
+            </p>
+          )}
+        </div>
 
-            {/* Title */}
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-              {article.title}
-            </h1>
-
-            {/* Subtitle */}
-            {article.subtitle && (
-              <h2 className="text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-                {article.subtitle}
-              </h2>
-            )}
-
-            {/* Article Meta */}
-            <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400 pb-8 border-b dark:border-gray-700">
+        {/* معلومات المقال المبسطة */}
+        <div className="mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+            <div className="flex items-center justify-center gap-8 text-sm text-gray-600 dark:text-gray-400">
               {/* Author */}
               {article.author_name && (
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-md">
-                    <User className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-900 dark:text-white">{article.author_name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">كاتب</p>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  <span className="font-medium">{article.author_name}</span>
                 </div>
               )}
 
-              {/* Date & Time */}
+              {/* Date */}
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                <Calendar className="w-4 h-4" />
                 <span>{formatDate(article.published_at || article.created_at)}</span>
-                <span className="text-gray-400 dark:text-gray-600">•</span>
-                <span>{formatTime(article.published_at || article.created_at)}</span>
               </div>
 
-              {/* Updated */}
-              {article.updated_at && article.updated_at !== article.created_at && (
-                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-500">
-                  <RefreshCw className="w-4 h-4" />
-                  <span>آخر تحديث: {formatDate(article.updated_at)}</span>
-                </div>
-              )}
-
-              {/* Stats */}
-              <div className="flex items-center gap-4 mr-auto">
-                {article.reading_time && (
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                    <span>{article.reading_time} دقائق قراءة</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-1.5">
-                  <Eye className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                  <span>{article.views_count || 0} مشاهدة</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Featured Image */}
-          {(article.featured_image || article.title) && (
-            <div className="mb-12">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                <img
-                  src={article.featured_image || generatePlaceholderImage(article.title)}
-                  alt={article.title}
-                  className="w-full h-auto"
-                />
-                {article.is_breaking && (
-                  <div className="absolute top-6 right-6 px-4 py-2 bg-red-500 text-white font-bold rounded-full animate-pulse backdrop-blur-sm">
-                    خبر عاجل
-                  </div>
-                )}
-              </div>
-              {article.image_caption && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center italic">
-                  {article.image_caption}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Smart Summary */}
-          {article.summary && (
-            <div className="relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-3xl p-8 mb-12 border border-blue-200 dark:border-gray-700 shadow-lg">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200 dark:bg-blue-900 rounded-full blur-3xl opacity-30" />
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-200 dark:bg-purple-900 rounded-full blur-3xl opacity-30" />
-              
-              <div className="relative">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-full shadow-md">
-                      <Sparkles className="w-4 h-4" />
-                      <span className="font-bold text-sm">الملخص الذكي</span>
-                    </div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">ملخص تم توليده بواسطة الذكاء الاصطناعي</p>
-                  </div>
-                  <button
-                    onClick={speakSummary}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all font-medium text-sm ${
-                      isSpeaking 
-                        ? 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800' 
-                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 shadow-md hover:shadow-lg'
-                    }`}
-                  >
-                    {isSpeaking ? (
-                      <>
-                        <VolumeX className="w-4 h-4" />
-                        <span>إيقاف</span>
-                      </>
-                    ) : (
-                      <>
-                        <Volume2 className="w-4 h-4" />
-                        <span>🔊 استمع للملخص</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 leading-loose text-lg">
-                  {article.summary}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Article Content - مع الحفاظ على قابلية القراءة */}
-          <div className="max-w-4xl mx-auto mb-12">
-            <div 
-              className="prose prose-lg prose-gray dark:prose-invert max-w-none"
-              style={{ fontFamily: 'Georgia, serif' }}
-            >
-              {renderArticleContent(article.content)}
-            </div>
-          </div>
-
-          {/* Keywords */}
-          {article.seo_keywords && (
-            <div className="flex items-center gap-3 flex-wrap mb-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl">
-              <Hash className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-              {article.seo_keywords.split(',').map((keyword, index) => (
-                <span
-                  key={index}
-                  className="px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium shadow-sm"
-                >
-                  {keyword.trim()}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Interaction Buttons */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 py-8 px-8 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800 rounded-3xl mb-12">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleLike}
-                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all transform hover:scale-105 ${
-                  interaction.liked
-                    ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white shadow-lg'
-                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 shadow-md'
-                }`}
-              >
-                <Heart className={`w-5 h-5 ${interaction.liked ? 'fill-current' : ''}`} />
-                <span>{interaction.liked ? 'أعجبني' : 'إعجاب'}</span>
-                {article.likes_count && article.likes_count > 0 && (
-                  <span className="mr-1">({article.likes_count})</span>
-                )}
-              </button>
-
-              <button
-                onClick={handleSave}
-                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all transform hover:scale-105 ${
-                  interaction.saved
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg'
-                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 shadow-md'
-                }`}
-              >
-                <Bookmark className={`w-5 h-5 ${interaction.saved ? 'fill-current' : ''}`} />
-                <span>{interaction.saved ? 'محفوظ' : 'حفظ'}</span>
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">شارك المقال:</span>
+              {/* Reading Time */}
               <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>{article.reading_time || 5} دقائق</span>
+              </div>
+
+              {/* Views */}
+              <div className="flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                <span>{article.views_count || 0} مشاهدة</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Featured Image */}
+        {(article.featured_image || article.title) && (
+          <div className="mb-8">
+            <div className="relative rounded-xl overflow-hidden shadow-lg">
+              <img
+                src={article.featured_image || generatePlaceholderImage(article.title)}
+                alt={article.title}
+                className="w-full h-auto"
+              />
+              {article.is_breaking && (
+                <div className="absolute top-4 right-4 px-3 py-1 bg-red-500 text-white font-bold rounded-full animate-pulse text-sm">
+                  خبر عاجل
+                </div>
+              )}
+            </div>
+            {article.image_caption && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-3 text-center italic">
+                {article.image_caption}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Smart Summary */}
+        {article.summary && (
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl p-6 border border-blue-100 dark:border-blue-700 transition-colors duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-white">الملخص الذكي</h3>
+                </div>
                 <button
-                  onClick={() => handleShare('twitter')}
-                  className="p-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                  title="شارك على تويتر"
+                  onClick={speakSummary}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-medium text-sm ${
+                    isSpeaking 
+                      ? 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300' 
+                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                  }`}
                 >
-                  <Twitter className="w-5 h-5 text-[#1DA1F2]" />
-                </button>
-                <button
-                  onClick={() => handleShare('facebook')}
-                  className="p-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                  title="شارك على فيسبوك"
-                >
-                  <Facebook className="w-5 h-5 text-[#4267B2]" />
-                </button>
-                <button
-                  onClick={() => handleShare('whatsapp')}
-                  className="p-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                  title="شارك على واتساب"
-                >
-                  <MessageCircle className="w-5 h-5 text-[#25D366]" />
-                </button>
-                <button
-                  onClick={() => handleShare('telegram')}
-                  className="p-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                  title="شارك على تيليجرام"
-                >
-                  <Send className="w-5 h-5 text-[#0088cc]" />
-                </button>
-                <button
-                  onClick={() => handleShare('copy')}
-                  className="p-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                  title="نسخ الرابط"
-                >
-                  {copySuccess ? (
-                    <Check className="w-5 h-5 text-green-500" />
+                  {isSpeaking ? (
+                    <>
+                      <VolumeX className="w-4 h-4" />
+                      <span>إيقاف</span>
+                    </>
                   ) : (
-                    <Copy className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <>
+                      <Volume2 className="w-4 h-4" />
+                      <span>استمع</span>
+                    </>
                   )}
                 </button>
               </div>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg text-right">
+                {article.summary}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Article Content */}
+        <article className="mb-12">
+          <div className="bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-850 rounded-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+            <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-p:text-lg prose-p:text-right prose-headings:text-right prose-li:text-right" dir="rtl">
+              {renderArticleContent(article.content)}
             </div>
           </div>
         </article>
 
-        {/* AI Recommendations - محتوى مخصص لك */}
+        {/* Action Buttons */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <button
+              onClick={handleLike}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                interaction.liked
+                  ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white shadow-md'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              <Heart className={`w-5 h-5 ${interaction.liked ? 'fill-current' : ''}`} />
+              <span>{interaction.liked ? 'أعجبني' : 'إعجاب'}</span>
+            </button>
+
+            <button
+              onClick={handleSave}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                interaction.saved
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              <Bookmark className={`w-5 h-5 ${interaction.saved ? 'fill-current' : ''}`} />
+              <span>{interaction.saved ? 'محفوظ' : 'حفظ'}</span>
+            </button>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">شارك:</span>
+              <button
+                onClick={() => handleShare('twitter')}
+                className="p-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all"
+                title="شارك على تويتر"
+              >
+                <Twitter className="w-5 h-5 text-[#1DA1F2]" />
+              </button>
+              <button
+                onClick={() => handleShare('whatsapp')}
+                className="p-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all"
+                title="شارك على واتساب"
+              >
+                <MessageCircle className="w-5 h-5 text-[#25D366]" />
+              </button>
+              <button
+                onClick={() => handleShare('copy')}
+                className="p-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all"
+                title="نسخ الرابط"
+              >
+                {copySuccess ? (
+                  <Check className="w-5 h-5 text-green-500" />
+                ) : (
+                  <Copy className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Keywords */}
+        {article.seo_keywords && (
+          <div className="mb-12">
+            <div className="text-right">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">الكلمات المفتاحية</h3>
+              <div className="flex items-center justify-start gap-3 flex-wrap">
+                {(() => {
+                  // معالجة الكلمات المفتاحية بأمان
+                  let keywords: string[] = [];
+                  
+                  if (typeof article.seo_keywords === 'string' && article.seo_keywords.trim()) {
+                    // إذا كانت نص، نقسمها
+                    keywords = article.seo_keywords.split(',').map(k => k.trim()).filter(k => k);
+                  } else if (Array.isArray(article.seo_keywords)) {
+                    // إذا كانت مصفوفة، نستخدمها مباشرة
+                    keywords = article.seo_keywords.filter(k => typeof k === 'string' && k.trim());
+                  }
+                  
+                  return keywords.map((keyword, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                    >
+                      #{keyword}
+                    </span>
+                  ));
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* AI Recommendations - محتوى مخصص لك - مبسط */}
         {!userDataLoaded ? (
           // عرض حالة التحميل أثناء التحقق من تسجيل الدخول
-          <div className="mt-16 mb-16">
-            <div className="flex items-center justify-center py-12">
+          <div className="mt-12 mb-12">
+            <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span>جاري التحقق من حالة تسجيل الدخول...</span>
@@ -910,51 +1061,44 @@ export default function NewsDetailPage({ params }: PageProps) {
           </div>
         ) : isLoggedIn ? (
           recommendations.length > 0 ? (
-            <div className="mt-16 mb-16">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
+            <div className="mt-12 mb-12">
+              <div className="text-right mb-6">
+                <div className="flex items-center justify-start gap-2 mb-2">
                   <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 text-white rounded-xl shadow-md">
                     <Bot className="w-5 h-5" />
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">محتوى مخصص لك 🤖</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">اخترنا لك هذا المحتوى بناءً على اهتماماتك</p>
-                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">محتوى مخصص لك 🤖</h3>
                 </div>
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-[10px] font-medium rounded-full">
-                  <Brain className="w-3 h-3" />
-                  مقترح ذكي
-                </span>
+                <p className="text-sm text-gray-500 dark:text-gray-400">اخترنا لك هذا المحتوى بناءً على اهتماماتك</p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {recommendations.slice(0, 6).map((rec: any) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {recommendations.slice(0, 4).map((rec: any) => (
                   <Link key={rec.id} href={`/article/${rec.id}`}>
-                    <div className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden h-full">
+                    <div className="group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
                       {/* AI Badge */}
                       {rec.recommendation_reason && (
-                        <div className="absolute top-2 right-2 z-10 px-2 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-[10px] font-medium rounded-full shadow-md backdrop-blur-sm">
+                        <div className="absolute top-2 right-2 z-10 px-2 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-medium rounded-full shadow-md">
                           {rec.recommendation_reason}
                         </div>
                       )}
                       
-                      <div className="flex flex-col h-full">
+                      <div className="flex gap-4 p-4">
                         {/* Image */}
-                        <div className="relative h-32 overflow-hidden">
+                        <div className="relative w-24 h-20 overflow-hidden rounded-md">
                           <img
                             src={rec.featured_image || rec.image_url || generatePlaceholderImage(rec.title)}
                             alt={rec.title}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </div>
                         
                         {/* Content */}
-                        <div className="flex-1 p-3">
+                        <div className="flex-1">
                           {/* Category */}
                           {rec.category_name && (
-                            <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 mb-2 text-[10px] font-bold text-white rounded-full bg-gradient-to-r ${getCategoryColor(rec.category_name)}`}>
-                              <Tag className="w-2.5 h-2.5" />
+                            <span className={`inline-flex items-center gap-1 px-2 py-1 mb-2 text-xs font-medium text-white rounded-full bg-gradient-to-r ${getCategoryColor(rec.category_name)}`}>
+                              <Tag className="w-3 h-3" />
                               {rec.category_name}
                             </span>
                           )}
@@ -964,26 +1108,26 @@ export default function NewsDetailPage({ params }: PageProps) {
                             {rec.title}
                           </h4>
                           
-                          {/* Meta - simplified */}
-                          <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400">
-                            <div className="flex items-center gap-2">
-                              {rec.created_at && (
-                                <span>{formatDate(rec.created_at)}</span>
-                              )}
-                              {rec.reading_time && (
+                          {/* Meta */}
+                          <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                            {rec.created_at && (
+                              <span>{formatDate(rec.created_at)}</span>
+                            )}
+                            {rec.reading_time && (
+                              <>
+                                <span>•</span>
                                 <span>{rec.reading_time} د</span>
-                              )}
-                            </div>
-                            
-                            {/* Stats */}
-                            <div className="flex items-center gap-2">
-                              {rec.views_count > 0 && (
-                                <div className="flex items-center gap-0.5">
+                              </>
+                            )}
+                            {rec.views_count > 0 && (
+                              <>
+                                <span>•</span>
+                                <div className="flex items-center gap-1">
                                   <Eye className="w-3 h-3" />
                                   <span>{rec.views_count}</span>
                                 </div>
-                              )}
-                            </div>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -994,7 +1138,7 @@ export default function NewsDetailPage({ params }: PageProps) {
               
               {/* Loading State */}
               {loadingRecommendations && (
-                <div className="flex items-center justify-center py-12">
+                <div className="flex items-center justify-center py-8 mt-4">
                   <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
                     <Loader2 className="w-5 h-5 animate-spin" />
                     <span>جاري تحميل التوصيات المخصصة...</span>
@@ -1003,8 +1147,8 @@ export default function NewsDetailPage({ params }: PageProps) {
               )}
             </div>
           ) : loadingRecommendations ? (
-            <div className="mt-16 mb-16">
-              <div className="flex items-center justify-center py-12">
+            <div className="mt-12 mb-12">
+              <div className="flex items-center justify-center py-8">
                 <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>جاري تحميل التوصيات المخصصة...</span>
@@ -1013,46 +1157,43 @@ export default function NewsDetailPage({ params }: PageProps) {
             </div>
           ) : null
         ) : (
-          <div className="mt-16 mb-16">
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-800 rounded-3xl p-8 text-center border border-purple-200 dark:border-gray-700">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 text-white rounded-full mb-4">
-                <Bot className="w-8 h-8" />
+          <div className="mt-12 mb-12">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-800 rounded-xl p-6 text-right border border-purple-200 dark:border-gray-700">
+              <div className="inline-flex items-center justify-start w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 text-white rounded-full mb-3">
+                <Bot className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">احصل على توصيات مخصصة لك 🤖</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">سجل دخولك لتحصل على محتوى مختار خصيصاً بناءً على اهتماماتك</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">احصل على توصيات مخصصة لك 🤖</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">سجل دخولك لتحصل على محتوى مختار خصيصاً بناءً على اهتماماتك</p>
               <Link 
                 href="/login" 
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-2xl hover:shadow-lg transition-all transform hover:scale-105"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-lg hover:shadow-lg transition-all transform hover:scale-105"
               >
-                <Sparkles className="w-5 h-5" />
+                <Sparkles className="w-4 h-4" />
                 سجل دخولك الآن
               </Link>
             </div>
           </div>
         )}
 
-        {/* Related Articles */}
+        {/* Related Articles - مبسط */}
         {article.related_articles && article.related_articles.length > 0 && (
-          <div className="mt-16">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-2xl shadow-md">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">مقالات ذات صلة</h3>
+          <div className="mt-12 mb-16">
+            <div className="text-right mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">مقالات ذات صلة</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {article.related_articles.map((related) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {article.related_articles.slice(0, 4).map((related) => (
                 <Link key={related.id} href={`/article/${related.id}`}>
-                  <div className="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
-                    <div className="flex gap-4">
+                  <div className="group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div className="flex gap-4 p-4">
                       <img
                         src={related.featured_image || generatePlaceholderImage(related.title)}
                         alt={related.title}
-                        className="w-40 h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-24 h-20 object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="flex-1 p-4">
-                        <h4 className="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+                      <div className="flex-1">
+                        <h4 className="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 mb-2 text-sm">
                           {related.title}
                         </h4>
                         <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
@@ -1060,7 +1201,7 @@ export default function NewsDetailPage({ params }: PageProps) {
                           {related.reading_time && (
                             <>
                               <span>•</span>
-                              <span>{related.reading_time} دقائق</span>
+                              <span>{related.reading_time} د</span>
                             </>
                           )}
                         </div>

@@ -76,7 +76,7 @@ const mockActivities = [
   }
 ]
 
-const getActionIcon = (type) => {
+const getActionIcon = (type: string) => {
   switch (type) {
     case 'publish': return <FileText className='w-4 h-4 text-green-500' />
     case 'edit': return <Edit className='w-4 h-4 text-blue-500' />
@@ -87,7 +87,7 @@ const getActionIcon = (type) => {
   }
 }
 
-const getActionColor = (type) => {
+const getActionColor = (type: string) => {
   switch (type) {
     case 'publish': return 'bg-green-100 text-green-800'
     case 'edit': return 'bg-blue-100 text-blue-800'

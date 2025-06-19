@@ -15,8 +15,10 @@ import {
 } from 'lucide-react';
 
 // استيراد المكونات
-import ContentEditorWithTiptap from '../../../../components/ContentEditorWithTiptap';
+import ContentEditorWithBlocks from '../../../../components/ContentEditorWithBlocks';
+import FeaturedImageUpload from '../../../../components/FeaturedImageUpload';
 import { logActions, getCurrentUser } from '../../../../lib/log-activity';
+import { useDarkMode } from '../../../../hooks/useDarkMode';
 
 // ===============================
 // أنواع البيانات
@@ -51,12 +53,11 @@ interface ArticleFormData {
   featured_image_alt?: string;
 }
 
-interface ContentBlock {
-  id: string;
-  type: 'paragraph' | 'heading' | 'quote' | 'image' | 'video' | 'tweet' | 'list' | 'link' | 'highlight';
-  content: any;
-  order: number;
-}
+// استخدام أنواع Block من محرر البلوكات
+import { Block } from '../../../../components/BlockEditor/types';
+
+// ContentBlock سيكون مرادف لـ Block
+type ContentBlock = Block;
 
 interface Category {
   id: number;
@@ -70,6 +71,7 @@ interface Category {
 }
 
 export default function CreateArticlePage() {
+  const { darkMode } = useDarkMode();
   const [formData, setFormData] = useState<ArticleFormData>({
     title: '',
     subtitle: '',
@@ -135,7 +137,10 @@ export default function CreateArticlePage() {
   useEffect(() => {
     const text = formData.content_blocks
       .filter(b => b.type === 'paragraph' || b.type === 'heading')
-      .map(b => b.content.text || '')
+      .map(b => {
+        const blockData = b.data[b.type];
+        return (blockData && typeof blockData === 'object' && 'text' in blockData) ? blockData.text : '';
+      })
       .join(' ');
     
     const words = text.trim().split(/\s+/).length;
@@ -258,12 +263,36 @@ export default function CreateArticlePage() {
 
     setSaving(true);
     try {
+      // إنشاء محتوى نصي بسيط كـ fallback
+      const textContent = formData.content_blocks
+        .map((b) => {
+          const blockData = b.data?.[b.type] || b.data || {};
+          
+          switch (b.type) {
+            case 'paragraph':
+              return (blockData as any).text || '';
+            case 'heading':
+              return (blockData as any).text || '';
+            case 'quote':
+              const quoteData = blockData as any;
+              return `"${quoteData.text || ''}"${quoteData.author ? ` — ${quoteData.author}` : ''}`;
+            case 'list':
+              const listData = blockData as any;
+              const items = listData.items || [];
+              return items.map((item: string) => `• ${item}`).join('\n');
+            case 'divider':
+              return '---';
+            default:
+              return (blockData as any).text || '';
+          }
+        })
+        .filter((text: string) => text.trim())
+        .join('\n\n');
+
       const articleData = {
         title: formData.title,
         content_blocks: formData.content_blocks,
-        content: formData.content_blocks
-          .map((b) => (b.type === 'paragraph' ? b.content.text : ''))
-          .join('\n\n'),
+        content: textContent || 'محتوى المقال', // fallback نصي للتوافق
         summary: formData.description,
         category_id: formData.category_id,
         status,
@@ -638,11 +667,13 @@ export default function CreateArticlePage() {
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       محتوى المقال <span className="text-red-500">*</span>
                     </label>
-                    <ContentEditorWithTiptap 
+                    <ContentEditorWithBlocks 
                       formData={formData}
                       setFormData={setFormData}
                       categories={categories}
                       aiLoading={aiLoading}
+                      onGenerateTitle={generateTitle}
+                      onGenerateDescription={generateDescription}
                     />
                   </div>
                 </div>
@@ -1330,12 +1361,12 @@ export default function CreateArticlePage() {
               </h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">صورة الغلاف</label>
-                  <div className="border-2 border-dashed border-purple-300 rounded-xl p-4 text-center hover:border-purple-500 transition-colors cursor-pointer">
-                    <Upload className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">اسحب الصورة هنا أو انقر للاختيار</p>
-                    <p className="text-xs text-gray-500 mt-1">JPG, PNG (أقصى حجم: 5MB)</p>
-                  </div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">الصورة البارزة</label>
+                  <FeaturedImageUpload
+                    value={formData.featured_image || ''}
+                    onChange={(url) => setFormData(prev => ({ ...prev, featured_image: url }))}
+                    darkMode={darkMode}
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between text-sm">

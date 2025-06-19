@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
         total_points: 100, // نقاط ترحيبية
         earned_points: 100,
         redeemed_points: 0,
-        tier: 'bronze',
         created_at: new Date().toISOString(),
         last_updated: new Date().toISOString()
       };
@@ -123,15 +122,22 @@ export async function POST(request: NextRequest) {
     
     const userRecord = loyaltyData.users.find((u: any) => u.user_id === user_id);
     
+    const currentPoints = userRecord?.total_points || 0;
+    
+    // حساب النقاط المطلوبة للمستوى التالي
+    const getNextTierPoints = (points: number) => {
+      if (points < 101) return 101;
+      if (points < 501) return 501;
+      if (points < 2001) return 2001;
+      return null; // سفير - أعلى مستوى
+    };
+    
     return NextResponse.json({
       success: true,
       data: {
-        current_points: userRecord?.total_points || 0,
-        tier: userRecord?.tier || 'bronze',
+        current_points: currentPoints,
         stats,
-        next_tier_points: userRecord?.tier === 'bronze' ? 1000 : 
-                         userRecord?.tier === 'silver' ? 5000 : 
-                         userRecord?.tier === 'gold' ? 10000 : null
+        next_tier_points: getNextTierPoints(currentPoints)
       }
     });
     

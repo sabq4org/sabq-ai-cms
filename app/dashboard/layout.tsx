@@ -33,7 +33,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { darkMode } = useDarkMode();
+  const { darkMode, mounted } = useDarkMode();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -81,7 +81,7 @@ export default function DashboardLayout({
   return (
     <div 
       className={`min-h-screen transition-all duration-500 ease-in-out ${
-        darkMode ? 'bg-gray-900' : 'bg-slate-50'
+        mounted && darkMode ? 'bg-gray-900' : 'bg-slate-50'
       }`}
       style={{
         fontFamily: 'Tajawal, system-ui, -apple-system, "Segoe UI", "Noto Sans Arabic", Arial, sans-serif',
@@ -89,13 +89,13 @@ export default function DashboardLayout({
       }}
     >
       {/* مؤشر حالة الوضع الليلي */}
-      {darkMode && (
+      {mounted && darkMode && (
         <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 z-50 animate-pulse"></div>
       )}
       
       {/* Header الموحد للوحة التحكم */}
       <header className={`shadow-sm border-b px-4 sm:px-6 py-4 sm:py-6 transition-colors duration-300 ${
-        darkMode 
+        mounted && darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-200'
       }`}>
@@ -171,9 +171,9 @@ export default function DashboardLayout({
               </button>
 
               {/* قائمة الملف الشخصي المنسدلة */}
-              {showProfileMenu && (
-                <div className={`absolute left-0 mt-2 w-48 rounded-lg shadow-lg border transition-all duration-200 z-50 ${
-                  darkMode 
+              {mounted && showProfileMenu && (
+                <div className={`absolute left-0 mt-2 w-48 rounded-lg shadow-lg border transition-all duration-200 z-40 ${
+                  mounted && darkMode 
                     ? 'bg-gray-800 border-gray-700' 
                     : 'bg-white border-gray-200'
                 }`}>
@@ -222,7 +222,7 @@ export default function DashboardLayout({
       </header>
 
       {/* Overlay للموبايل */}
-      {sidebarOpen && (
+      {mounted && sidebarOpen && (
         <div 
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={() => setSidebarOpen(false)}
@@ -232,9 +232,9 @@ export default function DashboardLayout({
       <div className="flex">
         {/* القائمة الجانبية اليمنى */}
         <aside className={`${
-          sidebarOpen ? 'translate-x-0' : 'translate-x-full'
-        } lg:translate-x-0 fixed lg:relative w-72 shadow-xl border-l min-h-screen transition-all duration-300 z-50 ${
-          darkMode 
+          mounted && sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+        } lg:translate-x-0 fixed lg:relative w-72 shadow-xl border-l min-h-screen transition-all duration-300 z-30 ${
+          mounted && darkMode 
             ? 'bg-gradient-to-b from-gray-800 to-gray-900 border-gray-700' 
             : 'bg-gradient-to-b from-slate-50 to-white border-gray-100'
         }`}>
@@ -483,6 +483,35 @@ export default function DashboardLayout({
                     : 'bg-yellow-100 text-yellow-700 group-hover:bg-yellow-500 group-hover:text-white'
                 }`}>
                   456K
+                </div>
+              </Link>
+
+              <Link href="/dashboard/insights/behavior" className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+                darkMode 
+                  ? 'text-gray-300 hover:bg-gradient-to-r hover:from-indigo-900/30 hover:to-violet-900/30 hover:text-indigo-300' 
+                  : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-violet-50 hover:text-indigo-700'
+              }`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                  darkMode 
+                    ? 'bg-indigo-900/40 group-hover:bg-indigo-500 group-hover:text-white' 
+                    : 'bg-indigo-100 group-hover:bg-indigo-500 group-hover:text-white'
+                }`}>
+                  <BarChart3 className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <span className="font-medium">تحليلات التفاعل</span>
+                  <p className={`text-xs transition-colors duration-300 ${
+                    darkMode 
+                      ? 'text-gray-400 group-hover:text-indigo-300' 
+                      : 'text-gray-500 group-hover:text-indigo-600'
+                  }`}>سلوك المستخدمين</p>
+                </div>
+                <div className={`px-2 py-1 rounded-full text-xs font-bold transition-all ${
+                  darkMode 
+                    ? 'bg-indigo-900/40 text-indigo-300 group-hover:bg-indigo-500 group-hover:text-white' 
+                    : 'bg-indigo-100 text-indigo-700 group-hover:bg-indigo-500 group-hover:text-white'
+                }`}>
+                  NEW
                 </div>
               </Link>
 

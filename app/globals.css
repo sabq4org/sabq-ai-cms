@@ -103,3 +103,353 @@ a:hover {
     @apply bg-gray-400 dark:bg-gray-600 rounded;
   }
 }
+
+/* إضافة CSS عام لضمان ظهور القوائم المنبثقة فوق كل العناصر */
+
+/* إصلاح شامل لمشكلة z-index للقوائم المنبثقة */
+/* القوائم المنبثقة يجب أن تكون في أعلى طبقة */
+.block-menu-dropdown,
+.block-toolbar-dropdown,
+.ai-menu-dropdown,
+.editor-dropdown,
+.editor-menu,
+.editor-toolbar,
+div[class*="dropdown"],
+div[class*="menu"][class*="absolute"],
+div[role="menu"],
+div[role="listbox"] {
+  z-index: 999999 !important;
+  position: absolute !important;
+}
+
+/* تطبيق z-index على جميع العناصر المحتملة */
+.z-\[9999\] {
+  z-index: 999999 !important;
+}
+
+/* الشريط الجانبي يجب أن يكون في طبقة أقل */
+aside,
+aside.fixed,
+aside.relative,
+.z-30 {
+  z-index: 30 !important;
+  position: relative !important;
+}
+
+/* تأكد من أن العناصر الأساسية لا تحجب القوائم */
+.fixed.inset-0,
+.lg\:relative {
+  z-index: auto !important;
+}
+
+/* قواعد خاصة للمحرر */
+.block-editor-container {
+  position: relative;
+  isolation: isolate;
+  z-index: 1;
+}
+
+/* قواعد للقوائم المنبثقة في BlockEditor */
+.block-editor-container .absolute {
+  z-index: 999999 !important;
+}
+
+/* تأكد من أن القوائم المنبثقة تظهر فوق كل شيء */
+[style*="z-index: 9999"] {
+  z-index: 999999 !important;
+}
+
+/* إضافة طبقة خاصة للقوائم المنبثقة */
+.dropdown-portal {
+  position: fixed !important;
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+}
+
+/* تحسين عرض القوائم المنبثقة */
+.block-menu-dropdown,
+.block-toolbar-dropdown {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* ضمان أن الشريط الجانبي لا يغطي القوائم */
+aside.sidebar,
+.dashboard-sidebar,
+aside[class*="translate-x"] {
+  z-index: 20 !important;
+  position: relative !important;
+}
+
+/* ضمان أن overlay الموبايل لا يغطي القوائم */
+.mobile-overlay,
+.lg\:hidden.fixed.inset-0 {
+  z-index: 25 !important;
+}
+
+/* إصلاح القوائم في وضع الشاشة الكاملة */
+@media (min-width: 1024px) {
+  aside.lg\:relative {
+    z-index: 20 !important;
+  }
+}
+
+/* تحسين عرض القوائم النقطية في المحتوى العربي */
+[dir="rtl"] ul,
+[lang="ar"] ul {
+  list-style-type: disc;
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+
+[dir="rtl"] ol,
+[lang="ar"] ol {
+  list-style-type: decimal;
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+
+[dir="rtl"] li,
+[lang="ar"] li {
+  text-align: right;
+  direction: rtl;
+  list-style-position: outside;
+}
+
+/* تحسين الـ markers للقوائم العربية */
+[dir="rtl"] ul li::marker,
+[lang="ar"] ul li::marker {
+  color: #3b82f6;
+  font-size: 1.1em;
+}
+
+[dir="rtl"] ol li::marker,
+[lang="ar"] ol li::marker {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+/* حل نهائي لمشكلة القوائم المنبثقة */
+/* أولوية قصوى للقوائم المنبثقة */
+body > div[style*="z-index"],
+body > .dropdown-portal {
+  z-index: 2147483647 !important; /* أعلى قيمة ممكنة */
+}
+
+/* القوائم المنبثقة داخل المحرر */
+[class*="editor"] [class*="absolute"][class*="dropdown"],
+[class*="editor"] [class*="absolute"][class*="menu"],
+.group:hover .absolute {
+  z-index: 999999 !important;
+}
+
+/* إصلاح خاص للشريط الجانبي في لوحة التحكم */
+.min-h-screen > .flex > aside {
+  z-index: 10 !important;
+  position: relative !important;
+}
+
+/* تأكد من أن القوائم تظهر فوق كل شيء آخر */
+.absolute[style*="z-index: 999999"] {
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+}
+
+/* إصلاح overflow للعناصر المحتوية */
+.group {
+  overflow: visible !important;
+}
+
+.relative:has(.absolute) {
+  overflow: visible !important;
+}
+
+/* إصلاح مشكلة القائمة المنسدلة في BlockEditor */
+.block-menu-dropdown {
+  position: fixed !important;
+  z-index: 99999 !important;
+}
+
+.block-toolbar-dropdown {
+  position: fixed !important;
+  z-index: 99999 !important;
+}
+
+/* Portal dropdowns */
+.portal-dropdown {
+  z-index: 99999 !important;
+}
+
+/* تحسينات تنسيق المحتوى في صفحة المقال */
+.article-content p {
+  font-size: 18px !important;
+  line-height: 1.8 !important;
+  margin-bottom: 20px !important;
+  color: #374151;
+}
+
+.dark .article-content p {
+  color: #d1d5db;
+}
+
+.article-content h1 {
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  margin-top: 3rem !important;
+  margin-bottom: 1.5rem !important;
+  color: #111827;
+}
+
+.article-content h2 {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  margin-top: 2.5rem !important;
+  margin-bottom: 1.25rem !important;
+  color: #111827;
+}
+
+.article-content h3 {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+  color: #111827;
+}
+
+.article-content h4 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.75rem !important;
+  color: #111827;
+}
+
+.dark .article-content h1,
+.dark .article-content h2,
+.dark .article-content h3,
+.dark .article-content h4 {
+  color: #f3f4f6;
+}
+
+.article-content ul,
+.article-content ol {
+  padding-right: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.article-content li {
+  font-size: 18px !important;
+  line-height: 1.8 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.article-content blockquote {
+  border-right: 4px solid #3b82f6 !important;
+  padding: 1.5rem !important;
+  margin: 2rem 0 !important;
+  background: #eff6ff;
+  border-radius: 0.5rem;
+}
+
+.dark .article-content blockquote {
+  background: #1e3a5f;
+}
+
+.article-content img {
+  border-radius: 0.75rem !important;
+  margin: 2rem auto !important;
+  display: block;
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.article-content table {
+  width: 100% !important;
+  margin: 2rem 0 !important;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.article-content th,
+.article-content td {
+  padding: 0.75rem 1rem !important;
+  border: 1px solid #e5e7eb;
+  text-align: right;
+}
+
+.dark .article-content th,
+.dark .article-content td {
+  border-color: #374151;
+}
+
+.article-content th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.dark .article-content th {
+  background: #1f2937;
+}
+
+/* تحسين شريط التقدم في القراءة */
+.reading-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(to left, #3b82f6, #8b5cf6);
+  transition: width 0.3s ease;
+  z-index: 9999;
+}
+
+/* تحسين تأثيرات الهوفر */
+.article-content a {
+  color: #3b82f6;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.article-content a:hover {
+  border-bottom-color: #3b82f6;
+}
+
+/* تحسين المسافات بين البلوكات */
+.article-content > * + * {
+  margin-top: 1.5rem;
+}
+
+/* تحسين عرض الكود */
+.article-content pre {
+  background: #1f2937 !important;
+  padding: 1.5rem !important;
+  border-radius: 0.75rem !important;
+  overflow-x: auto;
+  margin: 2rem 0 !important;
+}
+
+.article-content code {
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  font-size: 14px;
+}
+
+/* تحسين حجم خط المحتوى على الأجهزة المحمولة */
+@media (max-width: 768px) {
+  .article-content p,
+  .article-content li {
+    font-size: 16px !important;
+  }
+  
+  .article-content h1 {
+    font-size: 2rem !important;
+  }
+  
+  .article-content h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  .article-content h3 {
+    font-size: 1.25rem !important;
+  }
+}

@@ -8,7 +8,7 @@ import {
   Tag, ArrowRight, Calendar, Clock, Eye, Heart, 
   BookOpen, TrendingUp, Filter, Loader2, ChevronLeft,
   Trophy, Laptop, Building2, Leaf, Activity, Globe,
-  Grid, List, SortDesc, Sparkles
+  Grid, List, SortDesc, Sparkles, ChevronDown, Zap, Award
 } from 'lucide-react';
 
 interface Category {

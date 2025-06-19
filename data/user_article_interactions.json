@@ -557,7 +557,125 @@
         ]
       },
       "created_at": "2025-06-18T15:45:34.174Z"
+    },
+    {
+      "id": "interaction-1750273886662-vmqtyzjfy",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "article-1750265252460-rif52vpw9",
+      "interaction_type": "read",
+      "category_id": 5,
+      "source": "unknown",
+      "device_type": "unknown",
+      "duration": 1073,
+      "scroll_percentage": 50.289855072463766,
+      "timestamp": "2025-06-18T19:11:26.662Z",
+      "points_earned": 5
+    },
+    {
+      "id": "interaction-1750275778508-bva1pfht1",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "article-1750275556683-1xrqzrhxo",
+      "interaction_type": "read",
+      "category_id": 1,
+      "source": "unknown",
+      "device_type": "unknown",
+      "duration": 204,
+      "scroll_percentage": 52.536929993577395,
+      "timestamp": "2025-06-18T19:42:58.508Z",
+      "points_earned": 5
+    },
+    {
+      "id": "interaction-1750276434989-c29thpveb",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "article-1750275556683-1xrqzrhxo",
+      "interaction_type": "like",
+      "category_id": 1,
+      "source": "unknown",
+      "device_type": "unknown",
+      "timestamp": "2025-06-18T19:53:54.989Z",
+      "points_earned": 10
+    },
+    {
+      "id": "interaction-1750276437148-ksyw251ty",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "article-1750275556683-1xrqzrhxo",
+      "interaction_type": "save",
+      "category_id": 1,
+      "source": "unknown",
+      "device_type": "unknown",
+      "timestamp": "2025-06-18T19:53:57.148Z",
+      "points_earned": 10
+    },
+    {
+      "id": "interaction-1750303062870-x39chcfxy",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "article-1750222780834-sports1",
+      "interaction_type": "like",
+      "category_id": 2,
+      "source": "unknown",
+      "device_type": "unknown",
+      "timestamp": "2025-06-19T03:17:42.870Z",
+      "points_earned": 10
+    },
+    {
+      "id": "interaction-1750303066406-xc4f50ulk",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "article-1750222780834-sports1",
+      "interaction_type": "save",
+      "category_id": 2,
+      "source": "unknown",
+      "device_type": "unknown",
+      "timestamp": "2025-06-19T03:17:46.406Z",
+      "points_earned": 10
+    },
+    {
+      "id": "interaction-1750303081528-4aae5hmxc",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "article-1750222780833-tech1",
+      "interaction_type": "save",
+      "category_id": 1,
+      "source": "unknown",
+      "device_type": "unknown",
+      "timestamp": "2025-06-19T03:18:01.528Z",
+      "points_earned": 10
+    },
+    {
+      "id": "interaction-1750303083871-tee0uodxo",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "article-1750222780833-tech1",
+      "interaction_type": "like",
+      "category_id": 1,
+      "source": "unknown",
+      "device_type": "unknown",
+      "timestamp": "2025-06-19T03:18:03.871Z",
+      "points_earned": 10
+    },
+    {
+      "id": "interaction-1750303132071-vyyrm71kh",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "article-1750222780833-tech1",
+      "interaction_type": "read",
+      "category_id": 1,
+      "source": "unknown",
+      "device_type": "unknown",
+      "duration": 54,
+      "scroll_percentage": 51.50166852057843,
+      "timestamp": "2025-06-19T03:18:52.071Z",
+      "points_earned": 5
+    },
+    {
+      "id": "interaction-1750312373160-zlyuazazk",
+      "user_id": "test-user",
+      "article_id": "article-1750312326282-8g76vdcx6",
+      "interaction_type": "read",
+      "category_id": 4,
+      "source": "unknown",
+      "device_type": "unknown",
+      "duration": 30,
+      "scroll_percentage": 66.97284345047923,
+      "timestamp": "2025-06-19T05:52:53.160Z",
+      "points_earned": 5
     }
   ],
-  "updated_at": "2025-06-18T15:40:51.105Z"
+  "updated_at": "2025-06-19T05:52:53.160Z"
 }
