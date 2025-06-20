@@ -1,217 +1,457 @@
 {
   "user-1750236579398-3h4rt6gu7": {
     "user_id": "user-1750236579398-3h4rt6gu7",
-    "total_points": 118,
-    "earned_points": 118,
+    "total_points": 272,
+    "earned_points": 272,
     "redeemed_points": 0,
     "history": [
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.353Z"
+        "timestamp": "2025-06-20T07:58:13.602Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.526Z"
+        "timestamp": "2025-06-20T07:58:13.606Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.529Z"
+        "timestamp": "2025-06-20T07:58:13.891Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.611Z"
+        "timestamp": "2025-06-20T07:58:13.964Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.669Z"
+        "timestamp": "2025-06-20T07:58:14.037Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.711Z"
+        "timestamp": "2025-06-20T07:58:14.039Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.718Z"
+        "timestamp": "2025-06-20T07:58:14.040Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.787Z"
+        "timestamp": "2025-06-20T07:58:14.092Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.791Z"
+        "timestamp": "2025-06-20T07:58:14.271Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.866Z"
+        "timestamp": "2025-06-20T07:58:14.349Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.921Z"
+        "timestamp": "2025-06-20T07:58:14.408Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.959Z"
+        "timestamp": "2025-06-20T07:58:14.410Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:23.961Z"
+        "timestamp": "2025-06-20T07:58:14.412Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.033Z"
+        "timestamp": "2025-06-20T07:58:14.507Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.044Z"
+        "timestamp": "2025-06-20T07:58:14.647Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.153Z"
+        "timestamp": "2025-06-20T07:58:14.734Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.205Z"
+        "timestamp": "2025-06-20T07:58:14.790Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.248Z"
+        "timestamp": "2025-06-20T07:58:14.792Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.249Z"
+        "timestamp": "2025-06-20T07:58:14.849Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.327Z"
+        "timestamp": "2025-06-20T07:58:14.898Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.445Z"
+        "timestamp": "2025-06-20T07:58:15.030Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.498Z"
+        "timestamp": "2025-06-20T07:58:15.110Z"
       },
       {
         "points": 5,
         "action": "read على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.542Z"
+        "timestamp": "2025-06-20T07:58:15.183Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:15.240Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:15.447Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:15.584Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:15.665Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:15.728Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:15.730Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:15.776Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:15.898Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.001Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.077Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.183Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.184Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.286Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.352Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.451Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.535Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.637Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.643Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.767Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.792Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:16.946Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:17.021Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:17.081Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:17.139Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:17.214Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:17.227Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:17.365Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:17.427Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:17.476Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:17.534Z"
+      },
+      {
+        "points": 5,
+        "action": "read على المقال",
+        "details": {
+          "article_id": "article-1750405448031-4ib72tmub"
+        },
+        "timestamp": "2025-06-20T07:58:17.584Z"
       },
       {
         "points": 1,
         "action": "view على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.544Z"
+        "timestamp": "2025-06-20T07:59:18.525Z"
       },
       {
         "points": 1,
         "action": "view على المقال",
         "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
+          "article_id": "article-1750405448031-4ib72tmub"
         },
-        "timestamp": "2025-06-20T06:45:24.619Z"
-      },
-      {
-        "points": 1,
-        "action": "view على المقال",
-        "details": {
-          "article_id": "article-1750401860067-v6yim91cm"
-        },
-        "timestamp": "2025-06-20T06:45:24.623Z"
+        "timestamp": "2025-06-20T07:59:19.127Z"
       }
     ]
   }

@@ -1591,7 +1591,6 @@ export default function NewspaperHomePage() {
         darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'
       }`}
       style={{
-        fontFamily: 'Tajawal, system-ui, -apple-system, "Segoe UI", "Noto Sans Arabic", Arial, sans-serif',
         direction: 'rtl'
       }}
     >

@@ -18,6 +18,14 @@ import './article-styles.css';
 import Footer from '@/components/Footer';
 import { useDarkModeContext } from '@/components/DarkModeProvider';
 import { formatFullDate, formatTimeOnly } from '@/lib/date-utils';
+import ArticleJsonLd from '@/components/ArticleJsonLd';
+
+// تعريف نوع twttr لتويتر
+declare global {
+  interface Window {
+    twttr: any;
+  }
+}
 
 // دالة لتسجيل التفاعل عبر API
 async function trackInteraction(data: {
@@ -241,6 +249,35 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       fetchRecommendations(articleId);
     }
   }, [isLoggedIn, userDataLoaded, articleId]);
+
+  // تحميل سكريبت تويتر
+  useEffect(() => {
+    if (article && article.content) {
+      try {
+        const blocks = JSON.parse(article.content);
+        const hasTweets = blocks.some((block: any) => block.type === 'tweet');
+        
+        if (hasTweets && !window.twttr) {
+          const script = document.createElement('script');
+          script.src = 'https://platform.twitter.com/widgets.js';
+          script.async = true;
+          script.onload = () => {
+            if (window.twttr && window.twttr.widgets) {
+              window.twttr.widgets.load();
+            }
+          };
+          document.body.appendChild(script);
+        } else if (hasTweets && window.twttr && window.twttr.widgets) {
+          // إعادة تحميل التغريدات إذا كان السكريبت محملاً بالفعل
+          setTimeout(() => {
+            window.twttr.widgets.load();
+          }, 100);
+        }
+      } catch (e) {
+        // ليس محتوى JSON
+      }
+    }
+  }, [article]);
 
   const fetchArticle = async (id: string) => {
     try {
@@ -526,9 +563,24 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
               
               switch (blockType) {
                 case 'paragraph':
-                  const paragraphText = blockData.text || block.text || block.content || '';
+                  // معالجة البنية المتداخلة للفقرة
+                  let paragraphText = '';
+                  
+                  if (blockData.paragraph?.paragraph?.text) {
+                    paragraphText = blockData.paragraph.paragraph.text;
+                  } else if (blockData.paragraph?.text) {
+                    paragraphText = blockData.paragraph.text;
+                  } else if (blockData.text) {
+                    paragraphText = blockData.text;
+                  } else if (block.text) {
+                    paragraphText = block.text;
+                  } else if (block.content) {
+                    paragraphText = block.content;
+                  }
+                  
                   const finalParagraphText = typeof paragraphText === 'object' ? 
-                    (paragraphText.text || JSON.stringify(paragraphText)) : paragraphText;
+                    ((paragraphText as any).text || JSON.stringify(paragraphText)) : paragraphText;
+                    
                   if (!finalParagraphText) return null;
                   return (
                     <p key={block.id || index} className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 dark:text-gray-300">
@@ -631,7 +683,20 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                   );
                 
                 case 'tweet':
-                  const tweetUrl = blockData.url || block.url || '';
+                  // معالجة البنية المتداخلة للبيانات
+                  let tweetUrl = '';
+                  
+                  // التحقق من مختلف الأماكن المحتملة للـ URL
+                  if (blockData.tweet?.tweet?.url) {
+                    tweetUrl = blockData.tweet.tweet.url;
+                  } else if (blockData.tweet?.url) {
+                    tweetUrl = blockData.tweet.url;
+                  } else if (blockData.url) {
+                    tweetUrl = blockData.url;
+                  } else if (block.url) {
+                    tweetUrl = block.url;
+                  }
+                  
                   if (!tweetUrl) return null;
                   
                   // استخراج معرف التغريدة
@@ -643,12 +708,21 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                       <blockquote className="twitter-tweet" data-lang="ar">
                         <a href={tweetUrl}></a>
                       </blockquote>
-                      <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
                     </div>
                   );
                 
                 case 'table':
-                  const tableData = blockData.table || block.table || { headers: [], rows: [] };
+                  // معالجة البنية المتداخلة للجدول
+                  let tableData = { headers: [], rows: [] };
+                  
+                  if (blockData.table?.table) {
+                    tableData = blockData.table.table;
+                  } else if (blockData.table) {
+                    tableData = blockData.table;
+                  } else if (block.table) {
+                    tableData = block.table;
+                  }
+                  
                   if (!tableData.rows || tableData.rows.length === 0) return null;
                   
                   return (
@@ -687,10 +761,23 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                   );
                 
                 case 'link':
-                  const linkUrl = blockData.url || block.url || '';
-                  const linkText = blockData.text || block.text || linkUrl;
+                  // معالجة البنية المتداخلة للرابط
+                  let linkUrl = '';
+                  let linkText = '';
+                  
+                  if (blockData.link?.link) {
+                    linkUrl = blockData.link.link.url || '';
+                    linkText = blockData.link.link.text || '';
+                  } else if (blockData.link) {
+                    linkUrl = blockData.link.url || '';
+                    linkText = blockData.link.text || '';
+                  } else {
+                    linkUrl = blockData.url || block.url || '';
+                    linkText = blockData.text || block.text || '';
+                  }
+                  
                   const finalLinkText = typeof linkText === 'object' ? 
-                    (linkText.text || JSON.stringify(linkText)) : linkText;
+                    ((linkText as any).text || JSON.stringify(linkText)) : (linkText || linkUrl);
                   
                   if (!linkUrl) return null;
                   
@@ -834,9 +921,10 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
   }
 
   if (!article) {
-    return (
-      <>
-        <Header />
+      return (
+    <>
+      <Header />
+      {article && <ArticleJsonLd article={article} />}
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 dark:bg-gray-900">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-full mb-6 shadow-lg dark:shadow-gray-900/50">

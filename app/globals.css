@@ -1,6 +1,9 @@
 /* استيراد الخط العربي Tajawal */
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
 
+/* استيراد خط IBM Plex Sans Arabic */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap');
+
 /* استيراد أنماط تصميم جُرعة */
 @import '../styles/jur3a-colors.css';
 
@@ -12,6 +15,7 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --font-ibm-plex-arabic: 'IBM Plex Sans Arabic', 'Tajawal', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,8 +26,12 @@
   }
 }
 
+* {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif !important;
+}
+
 body {
-  font-family: 'Tajawal', system-ui, -apple-system, 'Segoe UI', 'Noto Sans Arabic', Arial, sans-serif;
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif !important;
   direction: rtl;
   text-align: right;
   color: rgb(var(--foreground-rgb));

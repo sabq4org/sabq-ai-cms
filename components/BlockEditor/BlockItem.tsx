@@ -5,7 +5,7 @@ import { Block, BlockData, AIAction } from './types';
 import { moveBlock, deleteBlock, updateBlock, createBlock, insertBlockAfter, getBlockTitle } from './utils';
 import BlockToolbar from './BlockToolbar';
 import BlockMenu from './BlockMenu';
-import { ParagraphBlock, HeadingBlock, ImageBlock, VideoBlock, QuoteBlock, ListBlock, DividerBlock } from './blocks';
+import { ParagraphBlock, HeadingBlock, ImageBlock, VideoBlock, QuoteBlock, ListBlock, DividerBlock, TweetBlock, LinkBlock, TableBlock } from './blocks';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { Code, Twitter, Link, Table } from 'lucide-react';
 
@@ -158,11 +158,35 @@ export default function BlockItem({
           />
         );
       
+      case 'tweet':
+        return (
+          <TweetBlock
+            data={blockData as any}
+            onChange={handleUpdate}
+            readOnly={readOnly}
+          />
+        );
+      
+      case 'link':
+        return (
+          <LinkBlock
+            data={blockData as any}
+            onChange={handleUpdate}
+            readOnly={readOnly}
+          />
+        );
+      
+      case 'table':
+        return (
+          <TableBlock
+            data={blockData as any}
+            onChange={handleUpdate}
+            readOnly={readOnly}
+          />
+        );
+      
       // البلوكات غير المكتملة
       case 'code':
-      case 'tweet':
-      case 'link':
-      case 'table':
         return (
           <div className={`p-6 rounded-lg text-center border-2 border-dashed ${
             darkMode 
@@ -170,10 +194,7 @@ export default function BlockItem({
               : 'bg-gray-50 text-gray-600 border-gray-300'
           }`}>
             <div className="mb-2">
-              {block.type === 'code' && <Code className="w-8 h-8 mx-auto opacity-50" />}
-              {block.type === 'tweet' && <Twitter className="w-8 h-8 mx-auto opacity-50" />}
-              {block.type === 'link' && <Link className="w-8 h-8 mx-auto opacity-50" />}
-              {block.type === 'table' && <Table className="w-8 h-8 mx-auto opacity-50" />}
+              <Code className="w-8 h-8 mx-auto opacity-50" />
             </div>
             <p className="font-medium mb-1">بلوك {getBlockTitle(block.type)}</p>
             <p className="text-sm opacity-75">هذه الميزة قيد التطوير وستكون متاحة قريباً</p>

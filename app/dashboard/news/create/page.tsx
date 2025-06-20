@@ -218,7 +218,7 @@ export default function CreateArticlePage() {
     else if (formData.title.length > 0) score += 10;
     
     // الوصف (15 نقطة)
-    if (formData.description.length > 50 && formData.description.length < 160) score += 15;
+    if (formData.description.length > 50 && formData.description.length <= 400) score += 15;
     else if (formData.description.length > 0) score += 8;
     
     // المحتوى (30 نقطة)
@@ -248,7 +248,7 @@ export default function CreateArticlePage() {
     if (!formData.author_id) errors.push('يجب اختيار المراسل/الكاتب');
     if (!formData.category_id) errors.push('يجب اختيار تصنيف');
     if (formData.content_blocks.length === 0) errors.push('المحتوى فارغ - أضف بعض الفقرات');
-    if (formData.description.length > 160) errors.push('الوصف طويل جداً (أكثر من 160 حرف)');
+    if (formData.description.length > 400) errors.push('الوصف طويل جداً (أكثر من 400 حرف)');
     
     setValidationErrors(errors);
     return errors;
@@ -727,8 +727,8 @@ export default function CreateArticlePage() {
                       </button>
                     </div>
                     <div className="flex justify-between mt-1">
-                      <span className={`text-xs ${formData.description.length > 160 ? 'text-red-500' : 'text-gray-500'}`}>
-                        {formData.description.length} / 160 حرف
+                      <span className={`text-xs ${formData.description.length > 400 ? 'text-red-500' : 'text-gray-500'}`}>
+                        {formData.description.length} / 400 حرف
                       </span>
                     </div>
                   </div>

@@ -23,9 +23,9 @@ const blockItems: { type: BlockType; icon: any; description: string; isEnabled?:
   { type: 'list', icon: List, description: 'قائمة نقطية أو رقمية', isEnabled: true },
   { type: 'code', icon: Code, description: 'كود برمجي', isEnabled: false },
   { type: 'divider', icon: Minus, description: 'خط فاصل', isEnabled: true },
-  { type: 'tweet', icon: Twitter, description: 'تضمين تغريدة (قريباً)', isEnabled: false },
-  { type: 'link', icon: Link, description: 'رابط مع معاينة (قريباً)', isEnabled: false },
-  { type: 'table', icon: Table, description: 'جدول بيانات (قريباً)', isEnabled: false }
+  { type: 'tweet', icon: Twitter, description: 'تضمين تغريدة', isEnabled: true },
+  { type: 'link', icon: Link, description: 'رابط مع معاينة', isEnabled: true },
+  { type: 'table', icon: Table, description: 'جدول بيانات', isEnabled: true }
 ];
 
 export default function BlockMenu({ onSelect, trigger }: BlockMenuProps) {
