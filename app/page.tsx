@@ -17,6 +17,7 @@ import { useDarkMode } from '@/hooks/useDarkMode';
 
 import CategoryBadge, { CategoryNavigation } from './components/CategoryBadge';
 import Header from '../components/Header';
+import SmartSlot from '@/components/home/SmartSlot';
 
 // ===============================
 // نظام ذكاء المستخدم والتخصيص
@@ -167,6 +168,14 @@ export default function NewspaperHomePage() {
   const [personalizedLoading, setPersonalizedLoading] = useState(true);
   const [smartDosePhrase, setSmartDosePhrase] = useState<string>("جرعة سبق الذكية");
   const [smartDoseSubtitle, setSmartDoseSubtitle] = useState<string>("إليك أهم الأخبار");
+  const [trendingData, setTrendingData] = useState<any[]>([]);
+  const [trendingLoading, setTrendingLoading] = useState(true);
+  const [analysisData, setAnalysisData] = useState<any>({
+    mainEvent: null,
+    alert: null,
+    trend: null
+  });
+  const [analysisLoading, setAnalysisLoading] = useState(true);
   const [blocksConfig, setBlocksConfig] = useState({
     briefing: { enabled: true, order: 1 },
     trending: { enabled: true, order: 2 },
@@ -209,6 +218,12 @@ export default function NewspaperHomePage() {
     
     // جلب المقالات من API
     fetchArticles();
+    
+    // جلب المقالات الأكثر تداولاً
+    fetchTrendingArticles();
+    
+    // جلب بيانات التحليل الذكي
+    fetchAnalysisData();
     
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -289,6 +304,8 @@ export default function NewspaperHomePage() {
   useEffect(() => {
     if (categories.length > 0 && !categoriesLoading) {
       fetchArticles();
+      fetchTrendingArticles();
+      fetchAnalysisData();
     }
   }, [categories, categoriesLoading]);
 
@@ -404,11 +421,86 @@ export default function NewspaperHomePage() {
     }
   };
 
+  // جلب المقالات الأكثر تداولاً
+  const fetchTrendingArticles = async () => {
+    try {
+      setTrendingLoading(true);
+      
+      // جلب المقالات المنشورة مرتبة حسب عدد المشاهدات
+      const response = await fetch('/api/articles?status=published&limit=5&sort=views&order=desc');
+      const result = await response.json();
+      const articlesData = result.data || result.articles || [];
+      
+      // تحويل البيانات لتتوافق مع تصميم TrendingBlock
+      const formattedTrending = articlesData.slice(0, 3).map((article: any, index: number) => {
+        // البحث عن التصنيف المطابق
+        const categoryInfo = categories.find(cat => cat.id === article.category_id);
+        const categoryName = categoryInfo?.name_ar || categoryInfo?.name || 'عام';
+        
+        return {
+          id: article.id,
+          title: article.title,
+          views: article.views_count || (1000 * (3 - index)), // استخدام قيمة افتراضية إذا لم تكن موجودة
+          category: categoryName
+        };
+      });
+      
+      setTrendingData(formattedTrending);
+    } catch (error) {
+      console.error('Error fetching trending articles:', error);
+      setTrendingData([]);
+    } finally {
+      setTrendingLoading(false);
+    }
+  };
+
+  // جلب بيانات التحليل الذكي
+  const fetchAnalysisData = async () => {
+    try {
+      setAnalysisLoading(true);
+      
+      // جلب أحدث مقال مميز كحدث رئيسي
+      const featuredResponse = await fetch('/api/articles?status=published&featured=true&limit=1&sort=published_at&order=desc');
+      const featuredResult = await featuredResponse.json();
+      const featuredArticle = (featuredResult.data || featuredResult.articles || [])[0];
+      
+      // جلب أحدث مقال عاجل كتنبيه
+      const breakingResponse = await fetch('/api/articles?status=published&breaking=true&limit=1&sort=published_at&order=desc');
+      const breakingResult = await breakingResponse.json();
+      const breakingArticle = (breakingResult.data || breakingResult.articles || [])[0];
+      
+      // جلب مقال من فئة الاقتصاد أو التقنية كتوجه
+      const trendResponse = await fetch('/api/articles?status=published&limit=20&sort=published_at&order=desc');
+      const trendResult = await trendResponse.json();
+      const trendArticles = (trendResult.data || trendResult.articles || []);
+      const trendArticle = trendArticles.find((article: any) => {
+        const categoryInfo = categories.find(cat => cat.id === article.category_id);
+        const categoryName = categoryInfo?.name_ar || categoryInfo?.name || '';
+        return categoryName.includes('اقتصاد') || categoryName.includes('تقنية');
+      });
+      
+      setAnalysisData({
+        mainEvent: featuredArticle ? featuredArticle.title : null,
+        alert: breakingArticle ? breakingArticle.title : null,
+        trend: trendArticle ? trendArticle.title : null
+      });
+    } catch (error) {
+      console.error('Error fetching analysis data:', error);
+      setAnalysisData({
+        mainEvent: null,
+        alert: null,
+        trend: null
+      });
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
+
   // دالة لتوليد صورة بديلة بناءً على العنوان
   const generatePlaceholderImage = (title: string) => {
     // قائمة بصور Unsplash ذات جودة عالية ومتنوعة
     const placeholderImages = [
-      'https://images.unsplash.com/photo-1504711434969-e33886168f5c', // أخبار
+              'https://images.unsplash.com/photo-1504711434969-e33886168f5c', // أخبار
       'https://images.unsplash.com/photo-1451187580459-43490279c0fa', // تقنية
       'https://images.unsplash.com/photo-1495020689067-958852a7765e', // إعلام
       'https://images.unsplash.com/photo-1585829365295-ab7cd400c167', // أخبار 2
@@ -589,18 +681,6 @@ export default function NewspaperHomePage() {
     { id: 3, title: "نجاح عملية إطلاق القمر الاصطناعي السعودي\nويدخل المدار المحدد بنجاح تام وفقاً للخطة", time: "منذ ساعة", isNew: false },
     { id: 4, title: "افتتاح مدينة نيوم الطبية الذكية\nأول مستشفى رقمي متكامل يعتمد على الذكاء الاصطناعي", time: "منذ ساعتين", isNew: false }
   ];
-
-  const trendingData = [
-    { id: 1, title: "اكتشاف أثري مهم في العلا يعود لحضارة نبطية\nيكشف أسرار جديدة عن طرق التجارة القديمة", views: 24580, category: "تراث" },
-    { id: 2, title: "إطلاق برنامج سكني جديد يستهدف الشباب\nبخيارات تمويل ميسرة وأسعار تنافسية", views: 19230, category: "اقتصاد" },
-    { id: 3, title: "فوز المنتخب السعودي بكأس آسيا للمرة الرابعة\nبعد مباراة نهائية مثيرة انتهت بركلات الترجيح", views: 45670, category: "رياضة" }
-  ];
-
-  const analysisData = {
-    mainEvent: "المملكة تتقدم في مؤشر الابتكار العالمي للمرة الثالثة\nوتحتل المركز الـ15 عالمياً في الابتكار التقني",
-    alert: "موجة حر شديدة متوقعة على المنطقة الشرقية\nمع درجات حرارة قد تصل إلى 48 مئوية",
-    trend: "نمو استثنائي في قطاع التقنية المالية بنسبة 34%\nوتوقعات بمضاعفة الاستثمارات خلال العام القادم"
-  };
 
   const userRecommendation = {
     title: "تطوير الذكاء الاصطناعي في التعليم السعودي يدخل مرحلة جديدة\nمع إطلاق منصات تعليمية ذكية في 500 مدرسة حكومية",
@@ -1022,8 +1102,31 @@ export default function NewspaperHomePage() {
         </div>
       </div>
       
-      <div className="space-y-4">
-        {trendingData.map((item, index) => (
+      {trendingLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={`p-4 rounded-2xl border ${
+              darkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-200'
+            }`}>
+              <div className="flex items-center gap-4 animate-pulse">
+                <div className={`w-8 h-8 rounded-full ${
+                  darkMode ? 'bg-gray-600' : 'bg-gray-300'
+                }`}></div>
+                <div className="flex-1">
+                  <div className={`h-4 rounded mb-2 ${
+                    darkMode ? 'bg-gray-600' : 'bg-gray-300'
+                  }`}></div>
+                  <div className={`h-3 rounded w-1/3 ${
+                    darkMode ? 'bg-gray-600' : 'bg-gray-300'
+                  }`}></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : trendingData.length > 0 ? (
+        <div className="space-y-4">
+          {trendingData.map((item, index) => (
           <Link key={item.id} href={`/article/trending-${item.id}`} className="block">
             <div className={`p-4 rounded-2xl border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 cursor-pointer ${
               darkMode ? 'bg-gray-700/50 border-gray-600 hover:bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'
@@ -1059,13 +1162,22 @@ export default function NewspaperHomePage() {
           </Link>
         ))}
       </div>
-      
-      <div className={`mt-4 p-3 rounded-lg ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900'}`}>
-        <div className="flex items-center justify-between text-xs">
-          <span className={darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}>إجمالي القراءات اليوم</span>
-          <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>2.8M قراءة</span>
+      ) : (
+        <div className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          لا توجد مقالات متداولة حالياً
         </div>
-      </div>
+      )}
+      
+      {!trendingLoading && trendingData.length > 0 && (
+        <div className={`mt-4 p-3 rounded-lg ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900'}`}>
+          <div className="flex items-center justify-between text-xs">
+            <span className={darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}>إجمالي القراءات اليوم</span>
+            <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
+              {trendingData.reduce((sum, item) => sum + item.views, 0).toLocaleString()} قراءة
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -1094,67 +1206,108 @@ export default function NewspaperHomePage() {
         }`}></div>
       </div>
       
-      <div className="space-y-5">
-        <div className={`p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${
-          darkMode ? 'bg-blue-900/20 border-blue-700/30' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200'
-        }`}>
-          <div className="flex items-start gap-3">
-            <Star className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
-            <div>
-              <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>أبرز حدث اليوم</h4>
-              <p className={`text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>{analysisData.mainEvent}</p>
-              <div className="flex items-center gap-2">
-                <span className={`px-2 py-1 rounded-md text-xs ${
-                  darkMode ? 'bg-blue-800/50 text-blue-300' : 'bg-blue-100 text-blue-700'
-                }`}>
-                  تأثير عالي
-                </span>
-                <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ 3 ساعات</span>
+      {analysisLoading ? (
+        <div className="space-y-5">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={`p-4 rounded-2xl border ${
+              darkMode ? 'bg-gray-700/20 border-gray-700/30' : 'bg-gray-50 border-gray-200'
+            }`}>
+              <div className="animate-pulse">
+                <div className="flex items-start gap-3">
+                  <div className={`w-5 h-5 rounded ${
+                    darkMode ? 'bg-gray-600' : 'bg-gray-300'
+                  }`}></div>
+                  <div className="flex-1">
+                    <div className={`h-4 rounded mb-2 w-1/3 ${
+                      darkMode ? 'bg-gray-600' : 'bg-gray-300'
+                    }`}></div>
+                    <div className={`h-4 rounded mb-3 ${
+                      darkMode ? 'bg-gray-600' : 'bg-gray-300'
+                    }`}></div>
+                    <div className={`h-3 rounded w-1/4 ${
+                      darkMode ? 'bg-gray-600' : 'bg-gray-300'
+                    }`}></div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
+      ) : (
+        <div className="space-y-5">
+          {analysisData.mainEvent && (
+            <div className={`p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${
+              darkMode ? 'bg-blue-900/20 border-blue-700/30' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200'
+            }`}>
+              <div className="flex items-start gap-3">
+                <Star className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>أبرز حدث اليوم</h4>
+                  <p className={`text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>{analysisData.mainEvent}</p>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded-md text-xs ${
+                      darkMode ? 'bg-blue-800/50 text-blue-300' : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      تأثير عالي
+                    </span>
+                    <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ 3 ساعات</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
-        <div className={`p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${
-          darkMode ? 'bg-orange-900/20 border-orange-700/30' : 'bg-orange-50 border-orange-200'
-        }`}>
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-orange-600 mt-1 flex-shrink-0" />
-            <div>
-              <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>تنبيه مهم</h4>
-              <p className={`text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>{analysisData.alert}</p>
-              <div className="flex items-center gap-2">
-                <span className={`px-2 py-1 rounded-md text-xs ${
-                  darkMode ? 'bg-orange-800/50 text-orange-300' : 'bg-orange-100 text-orange-700'
-                }`}>
-                  متوسط الأهمية
-                </span>
-                <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ ساعة</span>
+          {analysisData.alert && (
+            <div className={`p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${
+              darkMode ? 'bg-orange-900/20 border-orange-700/30' : 'bg-orange-50 border-orange-200'
+            }`}>
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-orange-600 mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>تنبيه مهم</h4>
+                  <p className={`text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>{analysisData.alert}</p>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded-md text-xs ${
+                      darkMode ? 'bg-orange-800/50 text-orange-300' : 'bg-orange-100 text-orange-700'
+                    }`}>
+                      متوسط الأهمية
+                    </span>
+                    <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ ساعة</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          )}
 
-        <div className={`p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${
-          darkMode ? 'bg-green-900/20 border-green-700/30' : 'bg-green-50 border-green-200'
-        }`}>
-          <div className="flex items-start gap-3">
-            <TrendingUp className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-            <div>
-              <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>توجه إيجابي</h4>
-              <p className={`text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>{analysisData.trend}</p>
-              <div className="flex items-center gap-2">
-                <span className={`px-2 py-1 rounded-md text-xs ${
-                  darkMode ? 'bg-green-800/50 text-green-300' : 'bg-green-100 text-green-700'
-                }`}>
-                  نمو +34%
-                </span>
-                <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>هذا الأسبوع</span>
+          {analysisData.trend && (
+            <div className={`p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${
+              darkMode ? 'bg-green-900/20 border-green-700/30' : 'bg-green-50 border-green-200'
+            }`}>
+              <div className="flex items-start gap-3">
+                <TrendingUp className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>توجه إيجابي</h4>
+                  <p className={`text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>{analysisData.trend}</p>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded-md text-xs ${
+                      darkMode ? 'bg-green-800/50 text-green-300' : 'bg-green-100 text-green-700'
+                    }`}>
+                      نمو +34%
+                    </span>
+                    <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>هذا الأسبوع</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
+          
+          {!analysisData.mainEvent && !analysisData.alert && !analysisData.trend && (
+            <div className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              لا توجد تحليلات متاحة حالياً
+            </div>
+          )}
         </div>
-      </div>
+      )}
       
       <button className={`w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
         darkMode ? 'bg-purple-900/30 hover:bg-purple-800/30 text-purple-300' : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
@@ -1597,6 +1750,9 @@ export default function NewspaperHomePage() {
       {/* Header */}
       <Header />
 
+      {/* Smart Blocks - Top Banner */}
+      <SmartSlot position="topBanner" />
+
       {/* Welcome Section - Full Width */}
       <section className={`w-full py-20 mb-12 relative overflow-hidden transition-all duration-500 ${
         darkMode 
@@ -1806,6 +1962,9 @@ export default function NewspaperHomePage() {
         </div>
       </section>
 
+      {/* Smart Blocks - After Highlights */}
+      <SmartSlot position="afterHighlights" />
+
       {/* Elegant Separator */}
       <div className="max-w-7xl mx-auto px-6 mb-12">
         <div className="flex items-center justify-center">
@@ -2003,7 +2162,11 @@ export default function NewspaperHomePage() {
                                         darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'
                                       }`}>
                                         <Calendar className="w-3 h-3" />
-                                        {new Date(article.created_at).toLocaleDateString('ar-SA')}
+                                        {new Date(article.created_at).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                  })}
                                       </span>
                                       {article.reading_time && (
                                         <span className={`flex items-center gap-1 ${
@@ -2167,6 +2330,12 @@ export default function NewspaperHomePage() {
           )}
         </section>
 
+        {/* Smart Blocks - After Cards */}
+        <SmartSlot position="afterCards" />
+
+        {/* Smart Blocks - Before Personalization */}
+        <SmartSlot position="beforePersonalization" />
+
         {/* Enhanced Smart Blocks Section */}
         <section className="mb-16">
           {/* Section Header */}
@@ -2280,20 +2449,18 @@ export default function NewspaperHomePage() {
         </section>
       </main>
 
+      {/* Smart Blocks - Before Footer */}
+      <SmartSlot position="beforeFooter" />
+
       {/* Enhanced Footer */}
-      <footer className={`relative overflow-hidden mt-20 ${
+      <footer className={`mt-20 ${
         darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'
       }`}>
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500 rounded-full -translate-x-32 -translate-y-32"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500 rounded-full translate-x-48 translate-y-48"></div>
-        </div>
 
         {/* Border */}
         <div className="h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
         
-        <div className="relative max-w-7xl mx-auto px-6 py-12">
+        <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center">
             {/* Logo Section */}
             <div className="mb-8">
