@@ -13,6 +13,7 @@ interface Article {
   content: string;
   summary?: string;
   author_id: string;
+  author?: any;
   editor_id?: string;
   category_id?: number;
   section_id?: number;
@@ -49,6 +50,8 @@ interface CreateArticleRequest {
   is_featured?: boolean;
   publish_at?: string;
   content_blocks?: any[];
+  author_id?: string;
+  author?: any;
 }
 
 // ===============================
@@ -385,7 +388,7 @@ export async function POST(request: NextRequest) {
       slug: body.title ? generateSlug(body.title) : `article-${Date.now()}`,
       content: body.content,
       summary: body.summary?.trim(),
-      author_id: 'current-user-id', // سيتم استبداله بالمستخدم الحالي
+      author_id: body.author_id || 'current-user-id',
       category_id: body.category_id,
       section_id: body.section_id,
       status: (body.status as any) || 'draft',
@@ -396,6 +399,7 @@ export async function POST(request: NextRequest) {
       is_featured: body.is_featured || false,
       is_pinned: false,
       publish_at: body.publish_at,
+      published_at: undefined,
       views_count: 0,
       reading_time: calculateReadingTime(body.content),
       content_blocks: body.content_blocks || [],
@@ -403,6 +407,31 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
       is_deleted: false
     };
+
+    // معالجة الجدولة الزمنية
+    if (body.publish_at && body.status === 'published') {
+      const publishDate = new Date(body.publish_at);
+      const now = new Date();
+      
+      if (publishDate > now) {
+        // إذا كان التوقيت في المستقبل، قم بجدولة المقال
+        newArticle.status = 'scheduled';
+        newArticle.publish_at = publishDate.toISOString();
+      } else {
+        // إذا كان التوقيت في الماضي أو الحاضر، قم بنشره مباشرة
+        newArticle.status = 'published';
+        newArticle.published_at = publishDate.toISOString();
+      }
+    } else if (body.status === 'published' && !body.publish_at) {
+      // إذا كان النشر مباشر بدون توقيت محدد
+      newArticle.status = 'published';
+      newArticle.published_at = new Date().toISOString();
+    }
+
+    // إضافة author من البيانات المرسلة
+    if (body.author) {
+      newArticle.author = body.author;
+    }
 
     // التحقق من عدم تكرار الـ slug
     const existingArticles = await loadArticles();

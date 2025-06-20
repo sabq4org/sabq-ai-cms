@@ -327,6 +327,26 @@ export default function CreateArticlePage() {
         .filter((text: string) => text.trim())
         .join('\n\n');
 
+      // التحقق من الجدولة الزمنية
+      let finalStatus = status;
+      let statusMessage = '';
+      
+      if (status === 'published' && formData.publish_time) {
+        const publishDate = new Date(formData.publish_time);
+        const now = new Date();
+        
+        if (publishDate > now) {
+          statusMessage = `سيتم نشر المقال في ${publishDate.toLocaleString('ar-SA', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            weekday: 'long'
+          })}`;
+        }
+      }
+
       const articleData = {
         title: formData.title,
         subtitle: formData.subtitle,
@@ -363,7 +383,13 @@ export default function CreateArticlePage() {
         await logActions.publishArticle(userInfo, result.data.id, formData.title);
       }
 
-      alert(status === 'published' ? 'تم نشر المقال بنجاح' : 'تم الحفظ بنجاح');
+      // عرض رسالة النجاح المناسبة
+      if (statusMessage) {
+        alert(`تم حفظ المقال بنجاح. ${statusMessage}`);
+      } else {
+        alert(status === 'published' ? 'تم نشر المقال بنجاح' : 'تم الحفظ بنجاح');
+      }
+      
       window.location.href = '/dashboard/news';
     } catch (err) {
       console.error(err);

@@ -1122,6 +1122,38 @@
       "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15",
       "created_at": "2025-06-20T08:04:27.890Z",
       "severity": "info"
+    },
+    {
+      "id": "log-1750406988278-uqdx306pa",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "user_name": "علي عبده",
+      "email": "ali@alhazm.org",
+      "action_type": "update",
+      "details": "تم تحديث المقال: \"\"لوّن صيفك\".. برنامج صيفي يعكس تنوع المملكة ويستهدف أكثر من 41 مليون زائر\"",
+      "target_id": "article-1750405448031-4ib72tmub",
+      "target_type": "article",
+      "old_value": null,
+      "new_value": null,
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15",
+      "created_at": "2025-06-20T08:09:48.278Z",
+      "severity": "info"
+    },
+    {
+      "id": "log-1750406988313-qvh3khzka",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "user_name": "علي عبده",
+      "email": "ali@alhazm.org",
+      "action_type": "publish",
+      "details": "تم نشر المقال: \"\"لوّن صيفك\".. برنامج صيفي يعكس تنوع المملكة ويستهدف أكثر من 41 مليون زائر\"",
+      "target_id": "article-1750405448031-4ib72tmub",
+      "target_type": "article",
+      "old_value": null,
+      "new_value": null,
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15",
+      "created_at": "2025-06-20T08:09:48.313Z",
+      "severity": "info"
     }
   ]
 }

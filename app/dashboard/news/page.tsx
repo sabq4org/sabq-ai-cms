@@ -667,20 +667,30 @@ export default function NewsManagementPage() {
                   {/* تاريخ النشر */}
                   <div className="col-span-2">
                     <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      {news.publishTime && news.publishTime !== '-' ? (
-                        <>
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {news.publishTime}
+                      {news.status === 'scheduled' && news.publishAt ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-medium">
+                            <Clock className="w-3 h-3" />
+                            <span>مجدول للنشر</span>
                           </div>
-                          {news.status === 'scheduled' && news.publishAt && (
-                            <div className="text-purple-600 font-medium text-xs mt-1">
-                              <Clock className="w-3 h-3 inline-block ml-1" />
-                              مجدول للنشر
-                            </div>
-                          )}
-                        </>
-                      ) : '-'}
+                          <div className="text-xs">
+                            {new Date(news.publishAt).toLocaleString('ar-SA', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                        </div>
+                      ) : news.publishTime && news.publishTime !== '-' ? (
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {news.publishTime}
+                        </div>
+                      ) : (
+                        '-'
+                      )}
                     </div>
                   </div>
 
