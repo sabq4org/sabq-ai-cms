@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs/promises'
+import { promises as fs } from 'fs'
 import path from 'path'
 
 const USERS_FILE = path.join(process.cwd(), 'data', 'users.json')
@@ -131,58 +131,61 @@ const registeredUsers = [
 
 export async function GET(request: NextRequest) {
   try {
+    // الحصول على كلمة البحث من الاستعلام
     const searchParams = request.nextUrl.searchParams
     const query = searchParams.get('q') || ''
     
-    if (!query) {
-      return NextResponse.json({ 
-        success: true, 
-        data: [],
-        message: 'يرجى إدخال كلمة البحث' 
+    if (!query || query.length < 2) {
+      return NextResponse.json({
+        success: false,
+        error: 'يجب أن تكون كلمة البحث حرفين على الأقل',
+        data: []
       })
     }
+
+    // قراءة ملف المستخدمين
+    const usersFilePath = path.join(process.cwd(), 'data', 'users.json')
+    const fileContents = await fs.readFile(usersFilePath, 'utf8')
+    const data = JSON.parse(fileContents)
     
-    // قراءة بيانات المستخدمين
-    try {
-      const data = await fs.readFile(USERS_FILE, 'utf-8')
-      const users = JSON.parse(data)
-      
+    // التأكد من وجود مصفوفة المستخدمين
+    const users = Array.isArray(data) ? data : (data.users || [])
+    
+    // البحث في المستخدمين
+    const searchQuery = query.toLowerCase()
+    const filteredUsers = users.filter((user: any) => {
       // البحث في الاسم والبريد الإلكتروني
-      const searchQuery = query.toLowerCase()
-      const filteredUsers = users.filter((user: any) => {
-        return user.name.toLowerCase().includes(searchQuery) ||
-               user.email.toLowerCase().includes(searchQuery)
-      })
+      const nameMatch = user.name?.toLowerCase().includes(searchQuery)
+      const emailMatch = user.email?.toLowerCase().includes(searchQuery)
       
-      // إرجاع أول 10 نتائج فقط
-      const results = filteredUsers.slice(0, 10).map((user: any) => ({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar || '/api/placeholder/40/40',
-        registeredAt: user.createdAt
-      }))
+      // استبعاد المستخدمين المحذوفين أو المعطلين
+      const isActive = user.status === 'active' || !user.status
       
-      return NextResponse.json({ 
-        success: true, 
-        data: results,
-        total: results.length 
-      })
-      
-    } catch (error) {
-      return NextResponse.json({ 
-        success: true, 
-        data: [],
-        message: 'لا توجد بيانات مستخدمين' 
-      })
-    }
-    
+      return (nameMatch || emailMatch) && isActive
+    })
+
+    // تحديد الحقول المطلوبة فقط
+    const results = filteredUsers.slice(0, 10).map((user: any) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar || '/default-avatar.png',
+      role: user.role || 'regular',
+      isVerified: user.isVerified || false
+    }))
+
+    return NextResponse.json({
+      success: true,
+      data: results,
+      count: results.length
+    })
   } catch (error) {
     console.error('Error searching users:', error)
-    return NextResponse.json(
-      { success: false, error: 'حدث خطأ في البحث' },
-      { status: 500 }
-    )
+    return NextResponse.json({
+      success: false,
+      error: 'حدث خطأ أثناء البحث',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }
 

@@ -4,79 +4,55 @@ import path from 'path';
 
 const ROLES_FILE = path.join(process.cwd(), 'data', 'roles.json');
 
-// الأدوار الافتراضية
-const DEFAULT_ROLES = [
+// بيانات الأدوار الافتراضية
+const defaultRoles = [
   {
-    id: 'role-admin',
-    name: 'مشرف عام',
+    id: '1',
+    name: 'مدير النظام',
     description: 'صلاحيات كاملة على النظام',
-    permissions: ['all'],
-    color: 'red',
-    users: 0
+    permissions: [
+      'create_articles', 'edit_articles', 'delete_articles', 'publish_articles',
+      'manage_users', 'system_settings', 'backup_system', 'review_articles',
+      'manage_media', 'manage_ai', 'manage_comments', 'view_analytics', 'share_articles'
+    ],
+    color: '#DC2626' // أحمر
   },
   {
-    id: 'role-editor-chief',
-    name: 'رئيس تحرير',
-    description: 'إدارة شاملة للمحتوى والفريق',
-    permissions: ['create_articles', 'edit_articles', 'delete_articles', 'publish_articles', 'manage_users', 'view_analytics'],
-    color: 'blue',
-    users: 0
-  },
-  {
-    id: 'role-editor',
+    id: '2',
     name: 'محرر',
-    description: 'كتابة وتحرير المقالات',
-    permissions: ['create_articles', 'edit_articles', 'publish_articles'],
-    color: 'green',
-    users: 0
+    description: 'إدارة المحتوى والمقالات',
+    permissions: [
+      'create_articles', 'edit_articles', 'delete_articles', 'publish_articles',
+      'review_articles', 'manage_media', 'manage_comments', 'view_analytics', 'share_articles'
+    ],
+    color: '#059669' // أخضر
   },
   {
-    id: 'role-reporter',
-    name: 'مراسل',
-    description: 'كتابة الأخبار والتقارير',
-    permissions: ['create_articles', 'edit_articles'],
-    color: 'cyan',
-    users: 0
+    id: '3',
+    name: 'كاتب',
+    description: 'كتابة وتعديل المقالات',
+    permissions: [
+      'create_articles', 'edit_articles', 'manage_media', 'view_analytics', 'share_articles'
+    ],
+    color: '#2563EB' // أزرق
   },
   {
-    id: 'role-proofreader',
-    name: 'مدقق لغوي',
-    description: 'مراجعة وتدقيق المحتوى',
-    permissions: ['edit_articles', 'review_articles'],
-    color: 'purple',
-    users: 0
+    id: '4',
+    name: 'مشرف',
+    description: 'مراجعة ونشر المحتوى',
+    permissions: [
+      'review_articles', 'publish_articles', 'manage_comments', 'view_analytics'
+    ],
+    color: '#7C3AED' // بنفسجي
   },
   {
-    id: 'role-media-manager',
-    name: 'مدير وسائط',
-    description: 'إدارة الصور والفيديوهات',
-    permissions: ['manage_media', 'edit_articles'],
-    color: 'orange',
-    users: 0
-  },
-  {
-    id: 'role-ai-supervisor',
-    name: 'مسؤول AI',
-    description: 'إدارة أدوات الذكاء الاصطناعي',
-    permissions: ['manage_ai', 'view_analytics', 'edit_articles'],
-    color: 'purple',
-    users: 0
-  },
-  {
-    id: 'role-engagement-supervisor',
-    name: 'مشرف تفاعل',
-    description: 'إدارة التفاعل مع الجمهور',
-    permissions: ['manage_comments', 'view_analytics', 'share_articles'],
-    color: 'green',
-    users: 0
-  },
-  {
-    id: 'role-viewer',
-    name: 'Viewer',
-    description: 'صلاحيات المشاهدة فقط',
-    permissions: ['view_articles', 'view_analytics'],
-    color: 'gray',
-    users: 0
+    id: '5',
+    name: 'عضو',
+    description: 'صلاحيات أساسية',
+    permissions: [
+      'view_analytics', 'share_articles'
+    ],
+    color: '#6B7280' // رمادي
   }
 ];
 
@@ -98,11 +74,12 @@ async function initializeRoles() {
     await fs.access(ROLES_FILE);
   } catch {
     // إذا لم يكن الملف موجود، أنشئ الأدوار الافتراضية
-    await fs.writeFile(ROLES_FILE, JSON.stringify(DEFAULT_ROLES, null, 2));
+    await fs.writeFile(ROLES_FILE, JSON.stringify(defaultRoles, null, 2));
   }
 }
 
-export async function GET() {
+// GET - جلب جميع الأدوار
+export async function GET(request: NextRequest) {
   try {
     await initializeRoles();
     
@@ -122,16 +99,17 @@ export async function GET() {
       // إذا لم يكن هناك أعضاء فريق
     }
     
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       data: roles,
-      total: roles.length 
+      count: roles.length
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: 'حدث خطأ في جلب الأدوار' },
-      { status: 500 }
-    );
+    console.error('Error fetching roles:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'حدث خطأ في جلب الأدوار'
+    }, { status: 500 });
   }
 }
 

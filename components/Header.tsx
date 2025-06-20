@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import SabqLogo from './SabqLogo';
 import UserDropdown from './UserDropdown';
 import { DarkModeToggle } from './DarkModeToggle';
+import { useDarkModeContext } from './DarkModeProvider';
 
 interface UserData {
   id: string;
@@ -140,15 +141,16 @@ export default function Header() {
   // استخدام روابط التنقل من القالب
   const getNavigationItems = () => {
     if (headerTemplate?.content?.navigation?.items) {
-      return headerTemplate.content.navigation.items.sort((a, b) => a.order - b.order);
+      return headerTemplate.content.navigation.items
+        .filter(item => item.label !== 'عن سبق')
+        .sort((a, b) => a.order - b.order);
     }
     // الروابط الافتراضية
     return [
       { label: 'الرئيسية', url: '/', order: 1 },
       { label: 'الأخبار', url: '/news', order: 2 },
       { label: 'التصنيفات', url: '/categories', order: 3 },
-      { label: 'عن سبق', url: '/about', order: 4 },
-      { label: 'تواصل معنا', url: '/contact', order: 5 }
+      { label: 'تواصل معنا', url: '/contact', order: 4 }
     ];
   };
 
@@ -172,11 +174,34 @@ export default function Header() {
     return headerTemplate?.logo_height || headerTemplate?.content?.logo?.height || 40;
   };
 
+  // استخدام useDarkMode hook
+  const { darkMode } = useDarkModeContext();
+
+  // الاستماع لتغييرات الوضع المظلم
+  useEffect(() => {
+    const handleDarkModeChange = () => {
+      // فرض إعادة رسم المكون
+      setShowDropdown(false);
+      setShowMobileMenu(false);
+    };
+
+    window.addEventListener('dark-mode-changed', handleDarkModeChange);
+    window.addEventListener('dark-mode-toggled', handleDarkModeChange);
+
+    return () => {
+      window.removeEventListener('dark-mode-changed', handleDarkModeChange);
+      window.removeEventListener('dark-mode-toggled', handleDarkModeChange);
+    };
+  }, []);
+
   return (
     <header 
-      className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700 transition-colors duration-300"
+      className="shadow-md dark:shadow-gray-900/50 sticky top-0 z-50 border-b transition-colors duration-300"
       style={{
-        backgroundColor: headerTemplate?.primary_color || undefined,
+        backgroundColor: darkMode 
+          ? '#1f2937' // gray-800 في الوضع المظلم
+          : (headerTemplate?.primary_color || '#ffffff'), // أبيض أو لون القالب في الوضع العادي
+        borderColor: darkMode ? '#374151' : '#e5e7eb', // gray-700 / gray-200
         color: headerTemplate?.secondary_color || undefined
       }}
     >
@@ -185,46 +210,51 @@ export default function Header() {
           className="flex items-center justify-between"
           style={{ height: `${getHeaderHeight()}px` }}
         >
-          {/* الشعار */}
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
-              {/* شعار سبق - من القالب أو افتراضي */}
-              {getLogoUrl() ? (
-                <img 
-                  src={getLogoUrl()!} 
-                  alt={getLogoAlt()} 
-                  className="object-contain"
-                  style={{
-                    width: getLogoWidth() === 'auto' ? 'auto' : `${getLogoWidth()}px`,
-                    height: `${getLogoHeight()}px`
-                  }}
-                />
-              ) : (
-                <SabqLogo />
-              )}
-            </Link>
+          {/* الشعار في اليمين */}
+          <Link href="/" className="flex-shrink-0">
+            {/* شعار سبق - من القالب أو افتراضي */}
+            {getLogoUrl() ? (
+              <img 
+                src={getLogoUrl()!} 
+                alt={getLogoAlt()} 
+                className="object-contain"
+                style={{
+                  width: getLogoWidth() === 'auto' ? 'auto' : `${getLogoWidth()}px`,
+                  height: `${getLogoHeight()}px`
+                }}
+              />
+            ) : (
+              <SabqLogo />
+            )}
+          </Link>
 
-            {/* روابط التنقل */}
-            <nav className="hidden lg:flex items-center gap-6">
-              {getNavigationItems().map((item) => (
-                <Link 
-                  key={item.url}
-                  href={item.url} 
-                  className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  style={{
-                    color: headerTemplate?.secondary_color || undefined
-                  }}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
+          {/* روابط التنقل في الوسط */}
+          <nav className="hidden lg:flex items-center gap-8 flex-1 justify-center">
+            {getNavigationItems().map((item) => (
+              <Link 
+                key={item.url}
+                href={item.url} 
+                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium text-lg"
+                style={{
+                  color: darkMode 
+                    ? '#d1d5db' // gray-300 في الوضع المظلم
+                    : (headerTemplate?.secondary_color || '#374151') // gray-700 أو لون القالب
+                }}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
 
-          {/* الجزء الأيمن */}
-          <div className="flex items-center gap-4">
+          {/* الجزء الأيسر - البحث والمستخدم وزر القائمة */}
+          <div className="flex items-center gap-4 flex-shrink-0">
             {/* البحث */}
-            <button className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <button 
+              className="p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              style={{
+                color: darkMode ? '#d1d5db' : '#4b5563' // gray-300 / gray-600
+              }}
+            >
               <Search className="w-5 h-5" />
             </button>
 
@@ -236,20 +266,20 @@ export default function Header() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 dark:hover:bg-gray-700 transition-colors"
                 >
                   {user.avatar ? (
                     <img 
                       src={user.avatar} 
                       alt={user.name}
-                      className="w-10 h-10 rounded-full object-cover shadow-md"
+                      className="w-10 h-10 rounded-full object-cover shadow-md dark:shadow-gray-900/50"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-md">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-md dark:shadow-gray-900/50">
                       {getInitials(user.name)}
                     </div>
                   )}
-                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
+                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 transition-transform ${
                     showDropdown ? 'rotate-180' : ''
                   }`} />
                 </button>
@@ -267,7 +297,7 @@ export default function Header() {
               <div className="flex items-center gap-3">
                 <Link
                   href="/login"
-                  className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                  className="text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
                 >
                   تسجيل الدخول
                 </Link>
@@ -283,7 +313,10 @@ export default function Header() {
             {/* زر القائمة للموبايل */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="lg:hidden p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              style={{
+                color: darkMode ? '#d1d5db' : '#4b5563' // gray-300 / gray-600
+              }}
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -292,13 +325,28 @@ export default function Header() {
 
         {/* القائمة للموبايل */}
         {showMobileMenu && (
-          <div className="lg:hidden py-4 border-t border-gray-200 dark:border-gray-700">
+          <div 
+            className="lg:hidden py-4 border-t"
+            style={{
+              borderColor: darkMode ? '#374151' : '#e5e7eb' // gray-700 / gray-200
+            }}
+          >
             <nav className="flex flex-col gap-2">
               {getNavigationItems().map((item) => (
                 <Link
                   key={item.url}
                   href={item.url}
-                  className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="px-4 py-2 rounded-lg transition-colors"
+                  style={{
+                    color: darkMode ? '#d1d5db' : '#4b5563', // gray-300 / gray-600
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = darkMode ? '#374151' : '#f9fafb'; // gray-700 / gray-50
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                   onClick={() => setShowMobileMenu(false)}
                 >
                   {item.label}

@@ -1,7 +1,7 @@
 'use client';
 
 import { Moon, Sun } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from './DarkModeProvider';
 
 interface DarkModeToggleProps {
   className?: string;
@@ -9,7 +9,7 @@ interface DarkModeToggleProps {
 }
 
 export function DarkModeToggle({ className = '', showTooltip = true }: DarkModeToggleProps) {
-  const { darkMode, toggleDarkMode, mounted } = useDarkMode();
+  const { darkMode, toggleDarkMode, mounted } = useDarkModeContext();
 
   if (!mounted) {
     // عرض placeholder أثناء التحميل لتجنب hydration mismatch

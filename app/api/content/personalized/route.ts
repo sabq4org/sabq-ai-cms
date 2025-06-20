@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { getPersonalizedContent } from '@/lib/user-interactions';
 
 interface UserInteraction {
   user_id: string;
@@ -102,85 +103,41 @@ function calculateArticleScore(article: any, userPreferences: any, interactions:
   return score;
 }
 
+// GET: الحصول على المحتوى المخصص للمستخدم
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const userId = searchParams.get('user_id') || 'test-user';
+    const userId = searchParams.get('user_id');
     const limit = parseInt(searchParams.get('limit') || '10');
-    
-    // تحميل البيانات
-    const [articles, interactions, userPreferences] = await Promise.all([
-      loadPersonalizedArticles(),
-      loadUserInteractions(),
-      loadUserPreferencesById(userId)
-    ]);
-    
-    // فلترة المقالات المنشورة فقط
-    const publishedArticles = articles.filter((article: any) => 
-      article.status === 'published' && !article.is_deleted
-    );
-    
-    // حساب النقاط لكل مقال
-    const scoredArticles = publishedArticles.map((article: any) => ({
-      ...article,
-      score: calculateArticleScore(article, userPreferences, interactions)
-    }));
-    
-    // ترتيب المقالات حسب النقاط
-    scoredArticles.sort((a: any, b: any) => b.score - a.score);
-    
-    // أخذ أفضل المقالات
-    const personalizedArticles = scoredArticles.slice(0, limit);
-    
-    // تجهيز البيانات للعرض
-    const formattedArticles = personalizedArticles.map((article: any) => {
-      // حساب عدد التفاعلات الحقيقية
-      const articleInteractions = interactions.filter((i: any) => i.article_id === article.id);
-      const likes = articleInteractions.filter((i: any) => i.interaction_type === 'like').length;
-      const shares = articleInteractions.filter((i: any) => i.interaction_type === 'share').length;
-      const comments = articleInteractions.filter((i: any) => i.interaction_type === 'comment').length;
-      
-      return {
-        id: article.id,
-        title: article.title,
-        summary: article.summary,
-        content: article.content,
-        category_id: article.category_id,
-        author_name: article.author_name || 'فريق التحرير',
-        featured_image: article.featured_image,
-        published_at: article.published_at || article.created_at,
-        reading_time: article.reading_time || Math.ceil((article.content?.length || 0) / 200),
-        views_count: article.views_count || 0,
-        likes_count: likes,
-        shares_count: shares,
-        comments_count: comments,
-        interaction_count: articleInteractions.length,
-        tags: article.seo_keywords || [],
-        score: article.score,
-        confidence: Math.min(article.score / 50 * 100, 100), // نسبة الثقة كنسبة مئوية
-        is_personalized: article.score > 20 // علامة للمقالات المخصصة بشكل عالي
-      };
-    });
-    
+
+    if (!userId) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'User ID is required' 
+        },
+        { status: 400 }
+      );
+    }
+
+    // الحصول على المحتوى المخصص
+    const personalizedContent = await getPersonalizedContent(userId, limit);
+
     return NextResponse.json({
       success: true,
       data: {
-        articles: formattedArticles,
-        user_id: userId,
-        generated_at: new Date().toISOString(),
-        preferences_applied: !!userPreferences,
-        total_articles: publishedArticles.length,
-        personalized_count: formattedArticles.filter((a: any) => a.is_personalized).length
+        articles: personalizedContent,
+        count: personalizedContent.length,
+        personalization_active: personalizedContent.some(a => a.recommendation_reason)
       }
     });
-    
+
   } catch (error) {
-    console.error('Error in personalized content API:', error);
+    console.error('Error getting personalized content:', error);
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to fetch personalized content',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Failed to get personalized content' 
       },
       { status: 500 }
     );

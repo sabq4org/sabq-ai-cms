@@ -132,6 +132,7 @@ export default function TeamPage() {
   const searchUsers = async (query: string) => {
     if (query.length < 2) {
       setSearchResults([]);
+      setShowUserDropdown(false);
       return;
     }
     
@@ -142,9 +143,17 @@ export default function TeamPage() {
       if (data.success && data.data) {
         setSearchResults(data.data);
         setShowUserDropdown(true);
+      } else {
+        setSearchResults([]);
+        setShowUserDropdown(false);
+        if (data.error) {
+          console.error('Search error:', data.error);
+        }
       }
     } catch (error) {
       console.error('Error searching users:', error);
+      setSearchResults([]);
+      setShowUserDropdown(false);
     }
   };
   
@@ -217,10 +226,37 @@ export default function TeamPage() {
     setShowUserDropdown(false);
   };
 
-  const handleEditMember = () => {
-    // سيتم تنفيذها لاحقاً
-    addNotification('ميزة التعديل قيد التطوير', 'info');
-    setShowEditModal(false);
+  const handleEditMember = async () => {
+    if (!selectedMember) return;
+    if (!formData.roleId || !formData.department) {
+      addNotification('يرجى ملء جميع الحقول المطلوبة', 'warning');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/team-members?id=${selectedMember.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roleId: formData.roleId,
+          department: formData.department,
+          permissions: formData.permissions
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        addNotification(data.message || 'تم تحديث بيانات العضو', 'success');
+        fetchTeamMembers();
+        setShowEditModal(false);
+      } else {
+        addNotification(data.error || 'حدث خطأ في التحديث', 'warning');
+      }
+    } catch (error) {
+      console.error('Error updating member:', error);
+      addNotification('حدث خطأ في التحديث', 'warning');
+    }
   };
 
   const handleDeleteMember = (memberId: string) => {
@@ -239,6 +275,12 @@ export default function TeamPage() {
 
   const openEditModal = (member: TeamMember) => {
     setSelectedMember(member);
+    setFormData({
+      userId: member.userId,
+      roleId: member.roleId,
+      department: member.department,
+      permissions: member.permissions
+    });
     setShowEditModal(true);
   };
 

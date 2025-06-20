@@ -13,6 +13,8 @@ interface Article {
   status: string;
   is_deleted?: boolean;
   updated_at: string;
+  author_name?: string;
+  author_avatar?: string;
   [key: string]: any;
 }
 
@@ -47,6 +49,32 @@ async function saveArticles(articles: Article[]): Promise<void> {
   }
 }
 
+// دالة لقراءة أعضاء الفريق
+async function loadTeamMembers(): Promise<any[]> {
+  try {
+    const teamFilePath = path.join(process.cwd(), 'data', 'team_members.json');
+    const fileContent = await fs.readFile(teamFilePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    return data.teamMembers || [];
+  } catch (error) {
+    console.error('Error loading team members:', error);
+    return [];
+  }
+}
+
+// دالة لقراءة التصنيفات
+async function loadCategories(): Promise<any[]> {
+  try {
+    const categoriesFilePath = path.join(process.cwd(), 'data', 'categories.json');
+    const fileContent = await fs.readFile(categoriesFilePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    return data.categories || [];
+  } catch (error) {
+    console.error('Error loading categories:', error);
+    return [];
+  }
+}
+
 // تحديث مقال
 async function updateArticle(id: string, updates: Partial<Article>): Promise<Article | null> {
   const articles = await loadArticles();
@@ -63,6 +91,19 @@ async function updateArticle(id: string, updates: Partial<Article>): Promise<Art
   };
   
   await saveArticles(articles);
+
+  // إثراء المقال ببيانات المراسل إن لم تكن موجودة
+  if (articles[index].author_id && !articles[index].author_name) {
+    const teamMembers = await loadTeamMembers();
+    const author = teamMembers.find(member => member.userId === articles[index].author_id || member.id === articles[index].author_id);
+    if (author) {
+      articles[index].author_name = author.name;
+      if (author.avatar) {
+        articles[index].author_avatar = author.avatar;
+      }
+    }
+  }
+
   return articles[index];
 }
 
@@ -89,7 +130,37 @@ export async function GET(
       );
     }
     
-    return NextResponse.json(article);
+    // إضافة بيانات التصنيف
+    if (article.category_id) {
+      const categories = await loadCategories();
+      const category = categories.find(c => c.id === article.category_id);
+      if (category) {
+        article.category = category;
+        article.category_name = category.name_ar;
+      }
+    }
+    
+    // إضافة بيانات المؤلف إن لم تكن موجودة
+    if (article.author_id && !article.author_name) {
+      const teamMembers = await loadTeamMembers();
+      const author = teamMembers.find(member => 
+        member.userId === article.author_id || 
+        member.id === article.author_id
+      );
+      if (author) {
+        article.author_name = author.name;
+        if (author.avatar) {
+          article.author_avatar = author.avatar;
+        }
+      }
+    }
+    
+    return NextResponse.json(article, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=59',
+        'Content-Type': 'application/json',
+      }
+    });
   } catch (error) {
     console.error('Error fetching article:', error);
     return NextResponse.json(
@@ -150,7 +221,10 @@ export async function PUT(
       ...body,
       id, // المحافظة على المعرف
       updated_at: new Date().toISOString(),
-      author_id: articles[index].author_id // المحافظة على معرف الكاتب الأصلي
+      author_id: body.author_id ?? articles[index].author_id,
+      author: body.author ?? articles[index].author,
+      author_name: body.author ?? articles[index].author_name,
+      author_avatar: body.author_avatar ?? articles[index].author_avatar
     };
     
     articles[index] = updated;

@@ -1,0 +1,65 @@
+[
+  {
+    "user_id": "user-1750236579398-3h4rt6gu7",
+    "points_earned": 5,
+    "action": "read على المقال",
+    "details": {
+      "article_id": "article-1750401860067-v6yim91cm"
+    },
+    "timestamp": "2025-06-20T06:45:24.328Z"
+  },
+  {
+    "user_id": "user-1750236579398-3h4rt6gu7",
+    "points_earned": 5,
+    "action": "read على المقال",
+    "details": {
+      "article_id": "article-1750401860067-v6yim91cm"
+    },
+    "timestamp": "2025-06-20T06:45:24.445Z"
+  },
+  {
+    "user_id": "user-1750236579398-3h4rt6gu7",
+    "points_earned": 5,
+    "action": "read على المقال",
+    "details": {
+      "article_id": "article-1750401860067-v6yim91cm"
+    },
+    "timestamp": "2025-06-20T06:45:24.500Z"
+  },
+  {
+    "user_id": "user-1750236579398-3h4rt6gu7",
+    "points_earned": 5,
+    "action": "read على المقال",
+    "details": {
+      "article_id": "article-1750401860067-v6yim91cm"
+    },
+    "timestamp": "2025-06-20T06:45:24.542Z"
+  },
+  {
+    "user_id": "user-1750236579398-3h4rt6gu7",
+    "points_earned": 1,
+    "action": "view على المقال",
+    "details": {
+      "article_id": "article-1750401860067-v6yim91cm"
+    },
+    "timestamp": "2025-06-20T06:45:24.576Z"
+  },
+  {
+    "user_id": "user-1750236579398-3h4rt6gu7",
+    "points_earned": 1,
+    "action": "view على المقال",
+    "details": {
+      "article_id": "article-1750401860067-v6yim91cm"
+    },
+    "timestamp": "2025-06-20T06:45:24.620Z"
+  },
+  {
+    "user_id": "user-1750236579398-3h4rt6gu7",
+    "points_earned": 1,
+    "action": "view على المقال",
+    "details": {
+      "article_id": "article-1750401860067-v6yim91cm"
+    },
+    "timestamp": "2025-06-20T06:45:24.654Z"
+  }
+]

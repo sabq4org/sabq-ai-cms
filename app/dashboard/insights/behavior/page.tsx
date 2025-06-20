@@ -7,7 +7,8 @@ import {
   Eye, Heart, Share2, MessageSquare, 
   Bookmark, Clock, Activity, PieChart,
   BarChart3, Calendar, Target, Zap,
-  RefreshCw, Download, Filter
+  RefreshCw, Download, Filter, Shield,
+  Database, Search, AlertCircle
 } from 'lucide-react';
 
 interface BehaviorInsights {
@@ -53,6 +54,18 @@ export default function BehaviorInsightsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [darkMode, setDarkMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
+  const [filterUser, setFilterUser] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+
+  // استرجاع حالة الوضع الليلي من localStorage
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode !== null) {
+      setDarkMode(JSON.parse(savedDarkMode));
+    }
+  }, []);
 
   // جلب البيانات
   const fetchInsights = async () => {
@@ -118,12 +131,139 @@ export default function BehaviorInsightsPage() {
     }
   };
 
+  // مكون بطاقة الإحصائية
+  const StatsCard = ({ 
+    title, 
+    value, 
+    subtitle, 
+    icon: Icon, 
+    bgColor,
+    iconColor
+  }: {
+    title: string;
+    value: string | number;
+    subtitle: string;
+    icon: any;
+    bgColor: string;
+    iconColor: string;
+  }) => (
+    <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${
+      darkMode 
+        ? 'bg-gray-800 border-gray-700' 
+        : 'bg-white border-gray-100'
+    }`}>
+      <div className="flex items-center gap-4">
+        <div className={`w-12 h-12 ${bgColor} rounded-full flex items-center justify-center`}>
+          <Icon className={`w-6 h-6 ${iconColor}`} />
+        </div>
+        <div className="flex-1">
+          <p className={`text-sm mb-1 transition-colors duration-300 ${
+            darkMode ? 'text-gray-400' : 'text-gray-500'
+          }`}>{title}</p>
+          <div className="flex items-baseline gap-2">
+            <span className={`text-2xl font-bold transition-colors duration-300 ${
+              darkMode ? 'text-white' : 'text-gray-800'
+            }`}>{loading ? '...' : value}</span>
+            <span className={`text-sm transition-colors duration-300 ${
+              darkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>{subtitle}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // مكون أزرار التنقل
+  const NavigationTabs = () => {
+    const tabs = [
+      { id: 'all', name: 'جميع التفاعلات', icon: Database, count: insights?.overview.total_interactions || 0 },
+      { id: 'users', name: 'المستخدمون النشطون', icon: Users, count: insights?.overview.active_users || 0 },
+      { id: 'categories', name: 'التصنيفات', icon: BarChart3, count: insights?.top_categories.length || 0 },
+      { id: 'points', name: 'نقاط الولاء', icon: Award, count: insights?.overview.total_points_awarded || 0 }
+    ];
+
+    return (
+      <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
+        <div className="flex gap-2 justify-start pr-8">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-48 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 relative ${
+                  activeTab === tab.id
+                    ? 'bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
+                    : darkMode
+                      ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
+                      : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                {tab.name}
+                {tab.count > 0 && (
+                  <span className={`absolute top-2 left-2 px-2 py-0.5 text-xs rounded-full ${
+                    activeTab === tab.id
+                      ? 'bg-white text-blue-500'
+                      : darkMode
+                        ? 'bg-gray-700 text-gray-300'
+                        : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const exportToCSV = () => {
+    if (!insights) return;
+    
+    const headers = ['المستخدم', 'البريد الإلكتروني', 'التفاعلات', 'النقاط', 'المستوى', 'التصنيف المفضل', 'آخر نشاط'];
+    const csvContent = [
+      headers.join(','),
+      ...insights.top_users.map(user => [
+        user.name,
+        user.email,
+        user.interactions,
+        user.points,
+        user.level,
+        user.favorite_category,
+        new Date(user.last_activity).toLocaleString('ar-SA')
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `behavior_insights_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
+        darkMode ? 'bg-gray-900' : 'bg-gray-50'
+      }`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">جاري تحميل التحليلات...</p>
+          <div className="inline-flex items-center gap-2">
+            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              جارٍ تحميل التحليلات...
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -131,13 +271,19 @@ export default function BehaviorInsightsPage() {
 
   if (error || !insights) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
+        darkMode ? 'bg-gray-900' : 'bg-gray-50'
+      }`}>
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 text-red-500">
             <Activity className="w-full h-full" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">خطأ في تحميل البيانات</h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">{error || 'حدث خطأ غير متوقع'}</p>
+          <h3 className={`text-xl font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            خطأ في تحميل البيانات
+          </h3>
+          <p className={`mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            {error || 'حدث خطأ غير متوقع'}
+          </p>
           <button
             onClick={fetchInsights}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 mx-auto"
@@ -157,288 +303,327 @@ export default function BehaviorInsightsPage() {
     insights.interaction_summary.total_bookmarks;
 
   return (
-    <div className="p-6 space-y-6">
-      {/* الهيدر */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            تحليلات التفاعل وسلوك المستخدمين
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            رصد التفاعل وتحديث التفضيلات تلقائيًا لتعزيز تجربة التوصيات
-          </p>
+    <div className={`p-8 transition-colors duration-300 ${
+      darkMode ? 'bg-gray-900' : ''
+    }`}>
+      {/* عنوان وتعريف الصفحة */}
+      <div className="mb-8">
+        <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
+          darkMode ? 'text-white' : 'text-gray-800'
+        }`}>تحليلات التفاعل وسلوك المستخدمين</h1>
+        <p className={`transition-colors duration-300 ${
+          darkMode ? 'text-gray-300' : 'text-gray-600'
+        }`}>رصد التفاعل وتحديث التفضيلات تلقائيًا لتعزيز تجربة التوصيات</p>
+      </div>
+
+      {/* قسم نظام التحليل الذكي */}
+      <div className="mb-8">
+        <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
+          darkMode 
+            ? 'bg-gradient-to-r from-blue-900/30 to-purple-900/30 border-blue-700' 
+            : 'bg-gradient-to-r from-blue-50 to-purple-50 border-blue-100'
+        }`}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <BarChart3 className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h2 className={`text-xl font-bold transition-colors duration-300 ${
+                darkMode ? 'text-white' : 'text-gray-800'
+              }`}>نظام التحليل الذكي</h2>
+              <p className={`text-sm transition-colors duration-300 ${
+                darkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>تحليل شامل لسلوك المستخدمين وتفضيلاتهم لتحسين تجربة المحتوى</p>
+            </div>
+            <div className="mr-auto flex items-center gap-3">
+              <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                آخر تحديث: {lastUpdate.toLocaleTimeString('ar')}
+              </span>
+              <button
+                onClick={fetchInsights}
+                className={`p-2 rounded-lg shadow-sm transition-colors ${
+                  darkMode 
+                    ? 'bg-gray-800 hover:bg-gray-700' 
+                    : 'bg-white hover:bg-gray-50'
+                }`}
+              >
+                <RefreshCw className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+              </button>
+            </div>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            آخر تحديث: {lastUpdate.toLocaleTimeString('ar')}
-          </span>
-          <button
-            onClick={fetchInsights}
-            className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+      </div>
+
+      {/* بطاقات الإحصائيات */}
+      <div className="grid grid-cols-5 gap-6 mb-8">
+        <StatsCard
+          title="المستخدمون النشطون"
+          value={insights.overview.active_users}
+          subtitle="مستخدم نشط"
+          icon={Users}
+          bgColor="bg-blue-100"
+          iconColor="text-blue-600"
+        />
+        <StatsCard
+          title="إجمالي التفاعلات"
+          value={totalInteractions}
+          subtitle="تفاعل"
+          icon={Activity}
+          bgColor="bg-purple-100"
+          iconColor="text-purple-600"
+        />
+        <StatsCard
+          title="النقاط الممنوحة"
+          value={insights.overview.total_points_awarded}
+          subtitle="نقطة ولاء"
+          icon={Award}
+          bgColor="bg-green-100"
+          iconColor="text-green-600"
+        />
+        <StatsCard
+          title="متوسط التفاعل"
+          value={insights.overview.average_interactions_per_user}
+          subtitle="لكل مستخدم"
+          icon={Target}
+          bgColor="bg-orange-100"
+          iconColor="text-orange-600"
+        />
+        <StatsCard
+          title="المقالات المنشورة"
+          value={insights.overview.published_articles}
+          subtitle="مقال"
+          icon={BookOpen}
+          bgColor="bg-pink-100"
+          iconColor="text-pink-600"
+        />
+      </div>
+
+      {/* أزرار التنقل */}
+      <NavigationTabs />
+
+      {/* أدوات الفلترة والتصدير */}
+      <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex items-center gap-2">
+            <Search className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+            <input
+              type="text"
+              placeholder="بحث بالمستخدم..."
+              value={filterUser}
+              onChange={(e) => setFilterUser(e.target.value)}
+              className={`px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300 ${
+                darkMode 
+                  ? 'bg-gray-700 border-gray-600 text-gray-200' 
+                  : 'bg-white border-gray-200 text-gray-800'
+              }`}
+            />
+          </div>
+
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className={`px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300 ${
+              darkMode 
+                ? 'bg-gray-700 border-gray-600 text-gray-200' 
+                : 'bg-white border-gray-200 text-gray-800'
+            }`}
           >
-            <RefreshCw className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <option value="">جميع التصنيفات</option>
+            {insights.top_categories.map(cat => (
+              <option key={cat.id} value={cat.name}>{cat.name}</option>
+            ))}
+          </select>
+
+          <button
+            onClick={exportToCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
+          >
+            <Download className="w-4 h-4" />
+            تصدير CSV
           </button>
         </div>
       </div>
 
-      {/* البطاقات الإحصائية */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <Users className="w-8 h-8 opacity-80" />
-            <span className="text-2xl font-bold">{insights.overview.active_users}</span>
-          </div>
-          <h3 className="font-semibold">المستخدمون النشطون</h3>
-          <p className="text-sm opacity-80 mt-1">خلال آخر 7 أيام</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <Activity className="w-8 h-8 opacity-80" />
-            <span className="text-2xl font-bold">{totalInteractions}</span>
-          </div>
-          <h3 className="font-semibold">إجمالي التفاعلات</h3>
-          <p className="text-sm opacity-80 mt-1">جميع أنواع التفاعل</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <Award className="w-8 h-8 opacity-80" />
-            <span className="text-2xl font-bold">{insights.overview.total_points_awarded}</span>
-          </div>
-          <h3 className="font-semibold">النقاط الممنوحة</h3>
-          <p className="text-sm opacity-80 mt-1">نقاط الولاء المكتسبة</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <Target className="w-8 h-8 opacity-80" />
-            <span className="text-2xl font-bold">{insights.overview.average_interactions_per_user}</span>
-          </div>
-          <h3 className="font-semibold">متوسط التفاعل</h3>
-          <p className="text-sm opacity-80 mt-1">لكل مستخدم نشط</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl p-6 text-white"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <BookOpen className="w-8 h-8 opacity-80" />
-            <span className="text-2xl font-bold">{insights.overview.published_articles}</span>
-          </div>
-          <h3 className="font-semibold">المقالات المنشورة</h3>
-          <p className="text-sm opacity-80 mt-1">محتوى متاح للتفاعل</p>
-        </motion.div>
-      </div>
-
-      {/* تفصيل التفاعلات والمستخدمون النشطون */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* تفصيل التفاعلات */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6"
-        >
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-            <PieChart className="w-6 h-6 text-blue-600" />
-            تفصيل التفاعلات
-          </h2>
-          
-          <div className="space-y-4">
-            {Object.entries({
-              reads: insights.interaction_summary.total_reads,
-              likes: insights.interaction_summary.total_likes,
-              shares: insights.interaction_summary.total_shares,
-              comments: insights.interaction_summary.total_comments,
-              bookmarks: insights.interaction_summary.total_bookmarks
-            }).map(([type, count]) => (
-              <div key={type} className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                  {getInteractionIcon(type)}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      {type === 'reads' && 'القراءات'}
-                      {type === 'likes' && 'الإعجابات'}
-                      {type === 'shares' && 'المشاركات'}
-                      {type === 'comments' && 'التعليقات'}
-                      {type === 'bookmarks' && 'المحفوظات'}
-                    </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{count}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${getPercentage(count, totalInteractions)}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* التصنيفات النشطة */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6"
-        >
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-purple-600" />
-            التصنيفات النشطة
-          </h2>
-          
-          <div className="space-y-4">
-            {insights.top_categories.map((category, index) => (
-              <motion.div
-                key={category.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                  <span className="text-purple-600 dark:text-purple-400 font-bold">
-                    {index + 1}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 dark:text-white">{category.name}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {category.interaction_count} تفاعل
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+      {/* المحتوى الرئيسي حسب التبويب النشط */}
+      {activeTab === 'all' && (
+        <div className="grid grid-cols-2 gap-6 mb-8">
+          {/* تفصيل التفاعلات */}
+          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-100'} overflow-hidden transition-colors duration-300`}>
+            <div className="px-6 py-4" style={{ borderBottom: darkMode ? '1px solid #374151' : '1px solid #f4f8fe' }}>
+              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center gap-2`}>
+                <PieChart className="w-5 h-5 text-blue-600" />
+                تفصيل التفاعلات
+              </h3>
+            </div>
             
-            {insights.top_categories.length === 0 && (
-              <p className="text-center text-gray-500 dark:text-gray-400 py-8">
-                لا توجد بيانات تصنيفات بعد
-              </p>
-            )}
+            <div className="p-6 space-y-4">
+              {Object.entries({
+                reads: insights.interaction_summary.total_reads,
+                likes: insights.interaction_summary.total_likes,
+                shares: insights.interaction_summary.total_shares,
+                comments: insights.interaction_summary.total_comments,
+                bookmarks: insights.interaction_summary.total_bookmarks
+              }).map(([type, count]) => (
+                <div key={type} className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    darkMode ? 'bg-gray-700' : 'bg-gray-100'
+                  }`}>
+                    {getInteractionIcon(type)}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {type === 'reads' && 'القراءات'}
+                        {type === 'likes' && 'الإعجابات'}
+                        {type === 'shares' && 'المشاركات'}
+                        {type === 'comments' && 'التعليقات'}
+                        {type === 'bookmarks' && 'المحفوظات'}
+                      </span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{count}</span>
+                    </div>
+                    <div className={`w-full rounded-full h-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                      <div
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${getPercentage(count, totalInteractions)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </motion.div>
-      </div>
+
+          {/* التصنيفات النشطة */}
+          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-100'} overflow-hidden transition-colors duration-300`}>
+            <div className="px-6 py-4" style={{ borderBottom: darkMode ? '1px solid #374151' : '1px solid #f4f8fe' }}>
+              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center gap-2`}>
+                <BarChart3 className="w-5 h-5 text-purple-600" />
+                التصنيفات النشطة
+              </h3>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {insights.top_categories.map((category, index) => (
+                <div
+                  key={category.id}
+                  className={`flex items-center gap-4 p-3 rounded-lg transition-colors ${
+                    darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    darkMode ? 'bg-purple-900/30' : 'bg-purple-100'
+                  }`}>
+                    <BarChart3 className={`w-5 h-5 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{category.name}</h4>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {category.interaction_count} تفاعل
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* جدول المستخدمين النشطين */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <Zap className="w-6 h-6 text-orange-600" />
+      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-100'} overflow-hidden transition-colors duration-300`}>
+        <div className="px-6 py-4" style={{ borderBottom: darkMode ? '1px solid #374151' : '1px solid #f4f8fe' }}>
+          <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center gap-2`}>
+            <Zap className="w-5 h-5 text-orange-600" />
             المستخدمون الأكثر تفاعلاً
-          </h2>
-          
-          <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center gap-2 text-sm">
-            <Download className="w-4 h-4" />
-            تصدير البيانات
-          </button>
+          </h3>
+        </div>
+        
+        {/* رأس الجدول */}
+        <div 
+          style={{ 
+            backgroundColor: darkMode ? '#1e3a5f' : '#f0fdff',
+            borderBottom: darkMode ? '2px solid #2563eb' : '2px solid #dde9fc'
+          }}
+        >
+          <div className="grid grid-cols-6 gap-4 px-6 py-4">
+            <div className={`text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>المستخدم</div>
+            <div className={`text-sm font-medium text-center ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>التفاعلات</div>
+            <div className={`text-sm font-medium text-center ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>النقاط</div>
+            <div className={`text-sm font-medium text-center ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>المستوى</div>
+            <div className={`text-sm font-medium text-center ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>التصنيف المفضل</div>
+            <div className={`text-sm font-medium text-center ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>آخر نشاط</div>
+          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b border-gray-200 dark:border-gray-700">
-              <tr>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-300">المستخدم</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-300">التفاعلات</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-300">النقاط</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-300">المستوى</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-300">التصنيف المفضل</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-300">آخر نشاط</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {insights.top_users.map((user, index) => (
-                <motion.tr
-                  key={user.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+        {/* بيانات الجدول */}
+        <div style={{ borderColor: darkMode ? '#374151' : '#f4f8fe' }} className="divide-y">
+          {insights.top_users.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className={`w-12 h-12 mx-auto mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-300'}`} />
+              <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                لا يوجد مستخدمون نشطون حالياً
+              </p>
+            </div>
+          ) : (
+            insights.top_users
+              .filter(user => filterUser === '' || user.name.toLowerCase().includes(filterUser.toLowerCase()) || user.email.toLowerCase().includes(filterUser.toLowerCase()))
+              .filter(user => filterCategory === '' || user.favorite_category === filterCategory)
+              .map((user, index) => (
+                <div 
+                  key={user.id} 
+                  className={`grid grid-cols-6 gap-4 px-6 py-4 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-slate-50'} transition-colors duration-300`}
+                  style={{ borderBottom: index < insights.top_users.length - 1 ? (darkMode ? '1px solid #374151' : '1px solid #f4f8fe') : 'none' }}
                 >
-                  <td className="py-4 px-4">
-                    <div className="flex items-center gap-3">
-                      {user.avatar ? (
-                        <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                          {user.name.charAt(0)}
-                        </div>
-                      )}
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">{user.name}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+                  <div className="flex items-center gap-3">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                        {user.name.charAt(0)}
                       </div>
+                    )}
+                    <div>
+                      <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{user.name}</p>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{user.email}</p>
                     </div>
-                  </td>
-                  <td className="py-4 px-4 text-center">
-                    <span className="font-semibold text-gray-900 dark:text-white">{user.interactions}</span>
-                  </td>
-                  <td className="py-4 px-4 text-center">
+                  </div>
+                  <div className="text-center">
+                    <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{user.interactions}</span>
+                  </div>
+                  <div className="text-center">
                     <div className="flex items-center justify-center gap-1">
                       <Award className="w-4 h-4 text-yellow-500" />
-                      <span className="font-semibold text-gray-900 dark:text-white">{user.points}</span>
+                      <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{user.points}</span>
                     </div>
-                  </td>
-                  <td className="py-4 px-4 text-center">
+                  </div>
+                  <div className="text-center">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${getLevelColor(user.level)}`}>
                       {user.level}
                     </span>
-                  </td>
-                  <td className="py-4 px-4 text-center">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{user.favorite_category}</span>
-                  </td>
-                  <td className="py-4 px-4 text-center">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                  </div>
+                  <div className="text-center">
+                    <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{user.favorite_category}</span>
+                  </div>
+                  <div className="text-center">
+                    <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {new Date(user.last_activity).toLocaleDateString('ar')}
                     </span>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {insights.top_users.length === 0 && (
-            <div className="text-center py-12">
-              <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">لا يوجد مستخدمون نشطون حالياً</p>
-            </div>
+                  </div>
+                </div>
+              ))
           )}
         </div>
-      </motion.div>
+      </div>
 
       {/* معلومات الفترة الزمنية */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 flex items-center gap-3">
-        <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-        <p className="text-sm text-blue-800 dark:text-blue-300">
+      <div className={`mt-8 rounded-xl p-4 flex items-center gap-3 ${
+        darkMode ? 'bg-blue-900/20' : 'bg-blue-50'
+      }`}>
+        <Calendar className={`w-5 h-5 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+        <p className={`text-sm ${darkMode ? 'text-blue-300' : 'text-blue-800'}`}>
           هذه البيانات للفترة من {new Date(insights.time_period.start).toLocaleDateString('ar')} 
           {' '}إلى {new Date(insights.time_period.end).toLocaleDateString('ar')} 
           {' '}({insights.time_period.days} أيام)

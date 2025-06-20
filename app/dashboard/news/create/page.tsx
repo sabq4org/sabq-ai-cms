@@ -46,6 +46,11 @@ interface ArticleFormData {
   };
   publish_time: string;
   author_id: string;
+  author?: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
   scope: 'local' | 'international';
   status: 'draft' | 'review' | 'published';
   content_blocks: ContentBlock[];
@@ -68,6 +73,14 @@ interface Category {
   children?: Category[];
   position?: number;
   is_active?: boolean;
+}
+
+interface Author {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role: string;
 }
 
 export default function CreateArticlePage() {
@@ -97,6 +110,7 @@ export default function CreateArticlePage() {
   }, []);
 
   const [categories, setCategories] = useState<Category[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
@@ -131,6 +145,29 @@ export default function CreateArticlePage() {
     };
 
     fetchCategories();
+  }, []);
+
+  // تحميل المستخدمين المؤهلين كمراسلين
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      try {
+        const res = await fetch('/api/users');
+        const result = await res.json();
+        if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل المستخدمين');
+
+        // فلترة المستخدمين حسب الأدوار المطلوبة
+        const eligibleAuthors = (result.data as Author[])
+          .filter(user => ['admin', 'editor', 'media'].includes(user.role))
+          .sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+        setAuthors(eligibleAuthors);
+      } catch (err) {
+        console.error('خطأ في تحميل المراسلين:', err);
+        setAuthors([]);
+      }
+    };
+
+    fetchAuthors();
   }, []);
 
   // حساب عدد الكلمات ووقت القراءة
@@ -208,6 +245,7 @@ export default function CreateArticlePage() {
     
     if (!formData.title.trim()) errors.push('العنوان الرئيسي مطلوب');
     if (formData.title.length > 100) errors.push('العنوان طويل جداً (أكثر من 100 حرف)');
+    if (!formData.author_id) errors.push('يجب اختيار المراسل/الكاتب');
     if (!formData.category_id) errors.push('يجب اختيار تصنيف');
     if (formData.content_blocks.length === 0) errors.push('المحتوى فارغ - أضف بعض الفقرات');
     if (formData.description.length > 160) errors.push('الوصف طويل جداً (أكثر من 160 حرف)');
@@ -291,6 +329,7 @@ export default function CreateArticlePage() {
 
       const articleData = {
         title: formData.title,
+        subtitle: formData.subtitle,
         content_blocks: formData.content_blocks,
         content: textContent || 'محتوى المقال', // fallback نصي للتوافق
         summary: formData.description,
@@ -302,7 +341,9 @@ export default function CreateArticlePage() {
         featured_image_alt: formData.featured_image_alt,
         seo_title: formData.title,
         seo_description: formData.description,
-        publish_at: formData.publish_time
+        publish_at: formData.publish_time,
+        author: formData.author,
+        author_id: formData.author_id
       };
 
       const res = await fetch('/api/articles', {
@@ -595,6 +636,36 @@ export default function CreateArticlePage() {
                     />
                   </div>
 
+                  {/* المراسل */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      المراسل / الكاتب <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.author_id}
+                      onChange={(e) => {
+                        const selectedAuthor = authors.find(a => a.id === e.target.value);
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          author_id: e.target.value,
+                          author: selectedAuthor ? {
+                            id: selectedAuthor.id,
+                            name: selectedAuthor.name,
+                            avatar: selectedAuthor.avatar
+                          } : undefined
+                        }));
+                      }}
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">اختر المراسل...</option>
+                      {authors.map(author => (
+                        <option key={author.id} value={author.id}>
+                          {author.name} - {author.email}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* التصنيف والنطاق */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -660,6 +731,18 @@ export default function CreateArticlePage() {
                         {formData.description.length} / 160 حرف
                       </span>
                     </div>
+                  </div>
+
+                  {/* الصورة البارزة */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      الصورة البارزة
+                    </label>
+                    <FeaturedImageUpload
+                      value={formData.featured_image || ''}
+                      onChange={(url) => setFormData(prev => ({ ...prev, featured_image: url }))}
+                      darkMode={darkMode}
+                    />
                   </div>
 
                   {/* محرر المحتوى */}

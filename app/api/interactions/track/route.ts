@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { recordInteraction } from '@/lib/user-interactions';
 
 interface UserInteraction {
   id: string;
@@ -150,148 +151,37 @@ async function updateUserLoyaltyPoints(userId: string, points: number) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      type,
-      user_id,
-      article_id,
-      category_id,
-      source = 'unknown',
-      device_type = 'unknown',
-      duration,
-      scroll_percentage,
-      platform
-    } = body;
     
-    // التحقق من المدخلات
-    if (!user_id || !article_id || !type) {
+    const { userId, articleId, interactionType, source, duration, completed } = body;
+    
+    if (!userId || !articleId || !interactionType) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { error: 'Missing required fields' },
         { status: 400 }
       );
     }
     
-    // التحقق من أن المستخدم مسجل وليس anonymous
-    if (user_id === 'anonymous' || user_id === 'guest' || !user_id.trim()) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Authentication required',
-          message: 'يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯'
-        },
-        { status: 401 }
-      );
-    }
-    
-    // التحقق من نوع التفاعل
-    if (!Object.keys(POINTS_SYSTEM).includes(type)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid interaction type' },
-        { status: 400 }
-      );
-    }
-    
-    // منع منح النقاط لتفاعلات View العشوائية
-    if (type === 'view' && (!duration || duration < 5)) {
-      // لا نمنح نقاط للمشاهدات السريعة جداً
-      return NextResponse.json({
-        success: true,
-        data: {
-          interaction: { type: 'view', tracked: true },
-          points_earned: 0,
-          message: 'تم تسجيل المشاهدة'
-        }
-      });
-    }
-    
-    // التحقق من القراءة الفعلية (يجب أن يكون هناك مدة كافية)
-    if (type === 'read' && (!duration || duration < 30 || !scroll_percentage || scroll_percentage < 50)) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid read interaction',
-        message: 'يجب قراءة المقال لمدة كافية للحصول على النقاط'
-      });
-    }
-    
-    // تحميل التفاعلات الحالية
-    const interactions = await loadInteractions();
-    
-    // التحقق من التفاعلات المكررة (منع التلاعب)
-    const existingInteraction = interactions.find((i: any) => 
-      i.user_id === user_id && 
-      i.article_id === article_id && 
-      i.interaction_type === type &&
-      // السماح بتفاعل واحد من نفس النوع كل 24 ساعة
-      new Date(i.timestamp).getTime() > Date.now() - (24 * 60 * 60 * 1000)
-    );
-    
-    if (existingInteraction && type !== 'view') {
-      return NextResponse.json({
-        success: false,
-        error: 'Duplicate interaction',
-        message: 'لقد قمت بهذا التفاعل مسبقاً'
-      });
-    }
-    
-    // إنشاء سجل التفاعل الجديد
-    const newInteraction = {
-      id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      user_id,
-      article_id,
-      interaction_type: type,
-      category_id,
-      source,
-      device_type,
-      duration,
-      scroll_percentage,
-      platform,
+    // تسجيل التفاعل
+    await recordInteraction({
+      user_id: userId,
+      article_id: articleId,
+      interaction_type: interactionType,
       timestamp: new Date().toISOString(),
-      points_earned: POINTS_SYSTEM[type as keyof typeof POINTS_SYSTEM]
-    };
+      source: source || 'unknown',
+      duration,
+      completed,
+      device: request.headers.get('user-agent') || undefined
+    });
     
-    // إضافة التفاعل الجديد
-    interactions.push(newInteraction);
-    
-    // حفظ التفاعلات
-    const saved = await saveInteractions(interactions);
-    
-    if (!saved) {
-      return NextResponse.json(
-        { success: false, error: 'Failed to save interaction' },
-        { status: 500 }
-      );
-    }
-    
-    // تحديث نقاط الولاء
-    const loyaltyUpdate = await updateUserLoyaltyPoints(user_id, newInteraction.points_earned);
-    
-    // تحديث تفضيلات المستخدم إذا كان هناك category_id
-    if (category_id) {
-      await updateUserPreferences(user_id, category_id, type);
-    }
-    
-    // تحديث عدد المشاهدات للمقال
-    if (type === 'view') {
-      await updateArticleViews(article_id);
-    }
-    
-    return NextResponse.json({
+    return NextResponse.json({ 
       success: true,
-      data: {
-        interaction: newInteraction,
-        points_earned: newInteraction.points_earned,
-        loyalty: loyaltyUpdate
-      },
-      message: `تم منحك ${newInteraction.points_earned} نقطة!`
+      message: 'Interaction recorded successfully'
     });
     
   } catch (error) {
     console.error('Error tracking interaction:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to track interaction',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Failed to track interaction' },
       { status: 500 }
     );
   }

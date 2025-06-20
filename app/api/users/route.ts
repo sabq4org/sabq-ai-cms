@@ -85,10 +85,16 @@ async function getUsersData() {
 export async function GET() {
   try {
     const users = await getUsersData();
-    return NextResponse.json(users);
+    return NextResponse.json({
+      success: true,
+      data: users
+    });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch users' },
+      { 
+        success: false,
+        error: 'Failed to fetch users' 
+      },
       { status: 500 }
     );
   }

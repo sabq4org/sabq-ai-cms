@@ -71,6 +71,13 @@ interface Category {
   is_active?: boolean;
 }
 
+// نوع بيانات المراسل
+interface Reporter {
+  id: string;
+  name: string;
+  avatar?: string;
+}
+
 export default function EditArticlePage() {
   const params = useParams();
   const router = useRouter();
@@ -94,6 +101,7 @@ export default function EditArticlePage() {
   });
 
   const [categories, setCategories] = useState<Category[]>([]);
+  const [reporters, setReporters] = useState<Reporter[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
@@ -178,6 +186,27 @@ export default function EditArticlePage() {
     };
 
     fetchCategories();
+  }, []);
+
+  // تحميل المراسلين
+  useEffect(() => {
+    const fetchReporters = async () => {
+      try {
+        const res = await fetch('/api/team-members');
+        const result = await res.json();
+        if (res.ok && result.success && Array.isArray(result.data)) {
+          // في هذا المثال نعتبر كل أعضاء الفريق مراسلين إذا كان لديهم role يشمل كلمة "مراسل"
+          const reps = result.data
+            .filter((m: any) => m.status === 'active')
+            .map((m: any) => ({ id: m.userId || m.id, name: m.name, avatar: m.avatar }));
+          setReporters(reps);
+        }
+      } catch (err) {
+        console.error('خطأ في تحميل المراسلين:', err);
+      }
+    };
+
+    fetchReporters();
   }, []);
 
   // حساب عدد الكلمات ووقت القراءة
@@ -275,6 +304,7 @@ export default function EditArticlePage() {
     const errors: string[] = [];
     
     if (!formData.title || !formData.title.trim()) errors.push('العنوان الرئيسي مطلوب');
+    if (!formData.author_id || !formData.author_id.trim()) errors.push('اسم المراسل مطلوب');
     if (formData.title && formData.title.length > 100) errors.push('العنوان طويل جداً (أكثر من 100 حرف)');
     if (!formData.category_id) errors.push('يجب اختيار تصنيف');
     if (!formData.content_blocks || !Array.isArray(formData.content_blocks) || formData.content_blocks.length === 0) {
@@ -359,6 +389,7 @@ export default function EditArticlePage() {
         .filter((text: string) => text.trim())
         .join('\n\n');
 
+      const reporter = reporters.find(r => r.id === formData.author_id);
       const articleData = {
         title: formData.title,
         content_blocks: formData.content_blocks,
@@ -373,7 +404,9 @@ export default function EditArticlePage() {
         seo_title: formData.title,
         seo_description: formData.description,
         seo_keywords: formData.keywords,
-        publish_at: formData.publish_time
+        publish_at: formData.publish_time,
+        author_id: formData.author_id,
+        author: reporter?.name || undefined
       };
 
       const res = await fetch(`/api/articles/${articleId}`, {
@@ -717,6 +750,23 @@ export default function EditArticlePage() {
                       placeholder="عنوان فرعي يدعم العنوان الرئيسي..."
                       className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
+                  </div>
+
+                  {/* اسم المراسل */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      اسم المراسل <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.author_id}
+                      onChange={(e) => setFormData(prev => ({ ...prev, author_id: e.target.value }))}
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">اختر المراسل...</option>
+                      {reporters.map((rep) => (
+                        <option key={rep.id} value={rep.id}>{rep.name}</option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* التصنيف والنطاق */}

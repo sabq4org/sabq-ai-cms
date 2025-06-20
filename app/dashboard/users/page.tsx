@@ -119,8 +119,10 @@ export default function UsersPage() {
       const response = await fetch('/api/users');
       if (response.ok) {
         const data = await response.json();
-        // التأكد من أن البيانات مصفوفة
-        if (Array.isArray(data)) {
+        // معالجة البيانات بناءً على الشكل المُرجع من API
+        if (data.success && Array.isArray(data.data)) {
+          setUsers(data.data);
+        } else if (Array.isArray(data)) {
           setUsers(data);
         } else if (data && Array.isArray(data.users)) {
           setUsers(data.users);
@@ -128,6 +130,9 @@ export default function UsersPage() {
           console.error('Invalid users data format:', data);
           setUsers([]);
         }
+      } else {
+        console.error('Failed to fetch users');
+        setUsers([]);
       }
     } catch (error) {
       console.error('Error fetching users:', error);

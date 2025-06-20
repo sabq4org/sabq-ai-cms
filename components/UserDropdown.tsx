@@ -90,18 +90,18 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
   const TierIcon = loyaltyLevel ? getTierIcon(loyaltyLevel.name) : Trophy;
 
   return (
-    <div className="absolute left-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <div className="absolute left-0 mt-3 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:shadow-gray-900/50 border border-gray-100 dark:border-gray-700 overflow-hidden">
       {/* رأس القائمة - معلومات المستخدم */}
-      <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6">
+      <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-700 dark:via-gray-800 dark:to-gray-700 p-6">
         <div className="space-y-3">
           {/* الاسم */}
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/80 rounded-xl shadow-sm">
-              <User className="w-5 h-5 text-gray-700" />
+            <div className="p-2 bg-white/80 dark:bg-gray-700/80 rounded-xl shadow-sm dark:shadow-gray-900/50">
+              <User className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </div>
             <div>
-              <p className="font-bold text-gray-900 text-lg">{user.name}</p>
-              <p className="text-xs text-gray-500">مرحباً بك في سبق الذكية</p>
+              <p className="font-bold text-gray-900 dark:text-white text-lg">{user.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">مرحباً بك في سبق الذكية</p>
             </div>
           </div>
 
@@ -110,41 +110,41 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
           {/* المستوى */}
           {loyaltyLevel && (
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl shadow-sm ${loyaltyLevel.bgColor}`}>
+              <div className={`p-2 rounded-xl shadow-sm dark:shadow-gray-900/50 ${loyaltyLevel.bgColor}`}>
                 <TierIcon className="w-5 h-5" style={{ color: loyaltyLevel.color }} />
               </div>
               <div>
-                <p className="font-bold text-gray-900">{loyaltyLevel.name}</p>
-                <p className="text-xs text-gray-500">مستوى العضوية</p>
+                <p className="font-bold text-gray-900 dark:text-white">{loyaltyLevel.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">مستوى العضوية</p>
               </div>
             </div>
           )}
 
           {/* النقاط */}
-          <div className="flex items-center justify-between bg-white/90 rounded-xl p-3 shadow-sm">
+          <div className="flex items-center justify-between bg-white/90 dark:bg-gray-700/90 rounded-xl p-3 shadow-sm dark:shadow-gray-900/50">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
                 <Trophy className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="font-bold text-gray-900 text-lg">
+                <p className="font-bold text-gray-900 dark:text-white text-lg">
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin inline" />
                   ) : (
                     loyaltyData?.total_points.toLocaleString('ar-SA') || '0'
                   )}
                 </p>
-                <p className="text-xs text-gray-500">نقطة ولاء</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">نقطة ولاء</p>
               </div>
             </div>
             <button
               onClick={fetchLoyaltyPoints}
-              className={`p-2 hover:bg-gray-100 rounded-lg transition-all ${
+              className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-all ${
                 isRefreshing ? 'animate-spin' : ''
               }`}
               title="تحديث النقاط"
             >
-              <RefreshCw className="w-4 h-4 text-gray-600" />
+              <RefreshCw className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
           </div>
         </div>
@@ -154,46 +154,46 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
       <div className="py-2">
         <Link
           href="/profile"
-          className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           onClick={onClose}
         >
-          <User className="w-4 h-4 text-gray-400" />
+          <User className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <span>الملف الشخصي</span>
         </Link>
 
         <Link
           href="/welcome/preferences"
-          className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           onClick={onClose}
         >
-          <Heart className="w-4 h-4 text-gray-400" />
+          <Heart className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <span>اهتماماتي</span>
         </Link>
 
         <Link
           href="/settings"
-          className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           onClick={onClose}
         >
-          <Settings className="w-4 h-4 text-gray-400" />
+          <Settings className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <span>الإعدادات</span>
         </Link>
 
         <Link
           href="/notifications"
-          className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           onClick={onClose}
         >
-          <Bell className="w-4 h-4 text-gray-400" />
+          <Bell className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <span>الإشعارات</span>
         </Link>
       </div>
 
       {/* زر تسجيل الخروج */}
-      <div className="border-t border-gray-100">
+      <div className="border-t border-gray-100 dark:border-gray-700">
         <button
           onClick={onLogout}
-          className="flex items-center gap-3 px-6 py-3 text-red-600 hover:bg-red-50 transition-colors w-full text-right"
+          className="flex items-center gap-3 px-6 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full text-right"
         >
           <LogOut className="w-4 h-4" />
           <span>تسجيل الخروج</span>

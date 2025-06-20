@@ -298,7 +298,7 @@ export default function ProfilePage() {
     return (
       <>
         <Header />
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       </>
@@ -314,12 +314,12 @@ export default function ProfilePage() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* رأس الصفحة بتصميم محسّن */}
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
           <div className="max-w-screen-xl mx-auto px-4 py-12">
             <div className="flex items-center justify-between mb-8">
-              <h1 className="text-3xl font-bold text-gray-800">الملف الشخصي</h1>
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">الملف الشخصي</h1>
             </div>
 
             {/* بطاقة المستخدم */}
@@ -329,10 +329,10 @@ export default function ProfilePage() {
                   <img 
                     src={user.avatar} 
                     alt={user.name}
-                    className="w-24 h-24 rounded-full object-cover shadow-xl border-4 border-gray-200"
+                    className="w-24 h-24 rounded-full object-cover shadow-xl dark:shadow-gray-900/50 border-4 border-gray-200 dark:border-gray-700"
                   />
                 ) : (
-                  <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-4xl font-bold shadow-xl text-gray-700">
+                  <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-4xl font-bold shadow-xl dark:shadow-gray-900/50 text-gray-700 dark:text-gray-300">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -353,15 +353,15 @@ export default function ProfilePage() {
                   )}
                 </label>
                 
-                <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center shadow-lg dark:shadow-gray-900/50">
                   <span className="text-xl">{membership.icon}</span>
                 </div>
               </div>
               
               <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-1 text-gray-800">{user.name}</h2>
-                <p className="text-gray-600 mb-2">{user.email}</p>
-                <div className="flex items-center gap-4 text-sm text-gray-700">
+                <h2 className="text-2xl font-bold mb-1 text-gray-800 dark:text-gray-100">{user.name}</h2>
+                <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-2">{user.email}</p>
+                <div className="flex items-center gap-4 text-sm text-gray-700 dark:text-gray-300">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     عضو منذ {formatDate(user.created_at)}
@@ -375,7 +375,7 @@ export default function ProfilePage() {
 
               <button
                 onClick={() => router.push('/profile/edit')}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all font-medium flex items-center gap-2"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg dark:shadow-gray-900/50 transition-all font-medium flex items-center gap-2"
               >
                 <Edit2 className="w-5 h-5" />
                 تعديل الملف
@@ -391,8 +391,8 @@ export default function ProfilePage() {
             {/* العمود الأول - النقاط والإحصائيات */}
             <div className="space-y-6 lg:col-span-1">
               
-              <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 transition-shadow p-6">
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
                   <Zap className="w-5 h-5 text-amber-500" />
                   نقاط الولاء
                 </h3>
@@ -401,17 +401,17 @@ export default function ProfilePage() {
                   <div className="text-4xl font-bold text-amber-600 mb-2">
                     {loyaltyData?.total_points || 0}
                   </div>
-                  <p className="text-gray-600">نقطة</p>
+                  <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500">نقطة</p>
                 </div>
 
                 {/* شريط التقدم */}
                 {membership.nextLevel && (
                   <div className="space-y-2 mb-4">
-                    <div className="flex justify-between text-sm text-gray-600">
+                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                       <span>المستوى التالي</span>
                       <span>{pointsToNext} نقطة</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                       <div 
                         className="bg-gradient-to-r from-amber-400 to-amber-600 h-2 rounded-full transition-all duration-500"
                         style={{ width: `${getProgressToNextLevel(userPoints)}%` }}
@@ -420,10 +420,10 @@ export default function ProfilePage() {
                   </div>
                 )}
 
-                <div className="pt-4 border-t">
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                   <button 
                     onClick={() => setShowLoyaltyModal(true)}
-                    className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center justify-center gap-1 w-full"
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium flex items-center justify-center gap-1 w-full"
                   >
                     عرض تفاصيل النقاط
                     <ChevronRight className="w-4 h-4" />
@@ -432,24 +432,24 @@ export default function ProfilePage() {
               </div>
 
               {/* بطاقة الإحصائيات */}
-              <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 transition-shadow p-6">
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-green-600" />
                   إحصائياتي
                 </h3>
                 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">مقالات مقروءة</span>
-                    <span className="font-semibold text-gray-800">{userStats.articlesRead}</span>
+                    <span className="text-gray-600 dark:text-gray-400 dark:text-gray-500">مقالات مقروءة</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-100">{userStats.articlesRead}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">تفاعلات</span>
-                    <span className="font-semibold text-gray-800">{userStats.interactions}</span>
+                    <span className="text-gray-600 dark:text-gray-400 dark:text-gray-500">تفاعلات</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-100">{userStats.interactions}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">مشاركات</span>
-                    <span className="font-semibold text-gray-800">{userStats.shares}</span>
+                    <span className="text-gray-600 dark:text-gray-400 dark:text-gray-500">مشاركات</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-100">{userStats.shares}</span>
                   </div>
                 </div>
               </div>
@@ -459,15 +459,15 @@ export default function ProfilePage() {
             <div className="lg:col-span-2 space-y-6">
               
               {/* بطاقة الاهتمامات */}
-              <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 transition-shadow p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                     <Heart className="w-5 h-5 text-red-500" />
                     اهتماماتي
                   </h3>
                   <Link
                     href="/welcome/preferences"
-                    className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 text-sm"
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1 text-sm"
                   >
                     <Edit2 className="w-4 h-4" />
                     تعديل الاهتمامات
@@ -479,14 +479,14 @@ export default function ProfilePage() {
                     {preferences.map((pref) => (
                       <div 
                         key={pref.category_id}
-                        className="flex items-center gap-3 p-3 rounded-lg border-2 hover:shadow-md transition-shadow"
+                        className="flex items-center gap-3 p-3 rounded-lg border-2 hover:shadow-md dark:shadow-gray-900/50 transition-shadow"
                         style={{ 
                           backgroundColor: pref.category_color + '10',
                           borderColor: pref.category_color + '30'
                         }}
                       >
                         <span className="text-2xl">{pref.category_icon}</span>
-                        <span className="font-medium text-gray-700">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
                           {pref.category_name}
                         </span>
                       </div>
@@ -494,11 +494,11 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                    <p className="text-gray-500 mb-4">لم تختر اهتمامات بعد</p>
+                    <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">لم تختر اهتمامات بعد</p>
                     <Link
                       href="/welcome/preferences"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg dark:shadow-gray-900/50 transition-all"
                     >
                       <Heart className="w-5 h-5" />
                       اختر اهتماماتك الآن
@@ -508,8 +508,8 @@ export default function ProfilePage() {
               </div>
 
               {/* بطاقة آخر النشاطات */}
-              <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 transition-shadow p-6">
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-2">
                   <Activity className="w-5 h-5 text-blue-600" />
                   آخر النشاطات
                 </h3>
@@ -517,14 +517,14 @@ export default function ProfilePage() {
                 <div className="space-y-4">
                   {loyaltyData?.recent_activities && loyaltyData.recent_activities.length > 0 ? (
                     loyaltyData.recent_activities.slice(0, 5).map((activity) => (
-                      <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
                             {getActionIcon(activity.action)}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-800">{activity.description}</p>
-                            <p className="text-sm text-gray-500">{formatDate(activity.created_at)}</p>
+                            <p className="font-medium text-gray-800 dark:text-gray-100">{activity.description}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">{formatDate(activity.created_at)}</p>
                           </div>
                         </div>
                         {activity.points > 0 && (
@@ -536,9 +536,9 @@ export default function ProfilePage() {
                     ))
                   ) : (
                     <div className="text-center py-8">
-                      <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                      <p className="text-gray-500">لا توجد نشاطات حتى الآن</p>
-                      <p className="text-sm text-gray-400 mt-1">ابدأ بقراءة المقالات لكسب النقاط!</p>
+                      <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                      <p className="text-gray-500 dark:text-gray-400">لا توجد نشاطات حتى الآن</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">ابدأ بقراءة المقالات لكسب النقاط!</p>
                     </div>
                   )}
                 </div>
@@ -550,13 +550,13 @@ export default function ProfilePage() {
                         {/* Modal تفاصيل النقاط */}
         {showLoyaltyModal && (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
-              <div className="p-6 border-b border-gray-100">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-700">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-gray-800">تفاصيل نقاط الولاء</h3>
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">تفاصيل نقاط الولاء</h3>
                   <button
                     onClick={() => setShowLoyaltyModal(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 rounded-lg transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -564,59 +564,59 @@ export default function ProfilePage() {
               </div>
               <div className="p-6 overflow-y-auto max-h-[60vh]">
                 <div className="space-y-4">
-                  <div className="bg-blue-50 rounded-lg p-4 mb-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-lg font-semibold text-blue-900">مستوى العضوية الحالي</p>
+                        <p className="text-lg font-semibold text-blue-900 dark:text-blue-200">مستوى العضوية الحالي</p>
                         <p className="text-3xl font-bold flex items-center gap-2 mt-2">
                           <span>{membership.icon}</span>
                           <span style={{ color: membership.color }}>{membership.name}</span>
                         </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-sm text-gray-600">النقاط الحالية</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">النقاط الحالية</p>
                         <p className="text-2xl font-bold text-amber-600">{userPoints}</p>
                       </div>
                     </div>
                     {membership.nextLevel && (
                       <div className="mt-4">
-                        <p className="text-sm text-gray-600 mb-2">التقدم نحو المستوى التالي ({membership.nextLevel} نقطة)</p>
-                        <div className="w-full bg-gray-200 rounded-full h-3">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-2">التقدم نحو المستوى التالي ({membership.nextLevel} نقطة)</p>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                           <div 
                             className="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500"
                             style={{ width: `${getProgressToNextLevel(userPoints)}%` }}
                           />
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">باقي {pointsToNext} نقطة للوصول إلى المستوى التالي</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-1">باقي {pointsToNext} نقطة للوصول إلى المستوى التالي</p>
                       </div>
                     )}
                   </div>
                   
                   <div className="border-t pt-4">
-                    <h4 className="font-semibold text-gray-800 mb-3">كيفية كسب النقاط:</h4>
+                    <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-3">كيفية كسب النقاط:</h4>
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                         <span className="flex items-center gap-2">
                           <BookOpen className="w-4 h-4 text-blue-500" />
                           قراءة المقالات
                         </span>
                         <span className="text-sm font-medium text-blue-600">+10 نقاط</span>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                         <span className="flex items-center gap-2">
                           <Heart className="w-4 h-4 text-red-500" />
                           الإعجاب بالمقالات
                         </span>
                         <span className="text-sm font-medium text-red-600">+5 نقاط</span>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                         <span className="flex items-center gap-2">
                           <Share2 className="w-4 h-4 text-green-500" />
                           مشاركة المقالات
                         </span>
                         <span className="text-sm font-medium text-green-600">+15 نقاط</span>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                         <span className="flex items-center gap-2">
                           <Bookmark className="w-4 h-4 text-purple-500" />
                           حفظ المقالات
@@ -626,17 +626,17 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   
-                  <div className="bg-amber-50 rounded-lg p-4 mt-4">
-                    <p className="text-sm text-amber-800">
+                  <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 mt-4">
+                    <p className="text-sm text-amber-800 dark:text-amber-200">
                       <strong>ملاحظة:</strong> يتم تحديث النقاط تلقائياً عند كل تفاعل. 
                       احرص على القراءة والتفاعل مع المحتوى لكسب المزيد من النقاط والوصول لمستويات أعلى!
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="p-6 border-t border-gray-100 bg-gray-50">
+              <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">إجمالي النقاط</span>
+                  <span className="text-gray-600 dark:text-gray-400 dark:text-gray-500">إجمالي النقاط</span>
                   <span className="text-2xl font-bold text-amber-600">
                     {userPoints} نقطة
                   </span>

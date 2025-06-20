@@ -1,10 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import React, { createContext, useContext, useEffect, ReactNode } from 'react';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
-export function DarkModeProvider({ children }: { children: React.ReactNode }) {
-  // يتم تطبيق الوضع الليلي في useDarkMode hook
-  // لا حاجة لتطبيقه هنا مرة أخرى
+interface DarkModeContextType {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+  mounted: boolean;
+}
+
+const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined);
+
+export function DarkModeProvider({ children }: { children: ReactNode }) {
+  const darkModeData = useDarkMode();
   
   useEffect(() => {
     // الاستماع لتغييرات الوضع الليلي لفرض إعادة الرسم
@@ -14,6 +22,11 @@ export function DarkModeProvider({ children }: { children: React.ReactNode }) {
         // تحديث أي متغيرات CSS مخصصة إذا لزم الأمر
         const isDark = document.documentElement.classList.contains('dark');
         document.documentElement.style.setProperty('--color-scheme', isDark ? 'dark' : 'light');
+        
+        // فرض إعادة تحميل الأنماط
+        document.body.style.display = 'none';
+        document.body.offsetHeight; // Force reflow
+        document.body.style.display = '';
       });
     };
 
@@ -25,5 +38,19 @@ export function DarkModeProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('dark-mode-changed', handleDarkModeChange);
   }, []);
 
-  return <>{children}</>;
+  return (
+    <DarkModeContext.Provider value={darkModeData}>
+      <div key={darkModeData.darkMode ? 'dark' : 'light'} className="min-h-screen">
+        {children}
+      </div>
+    </DarkModeContext.Provider>
+  );
+}
+
+export function useDarkModeContext() {
+  const context = useContext(DarkModeContext);
+  if (context === undefined) {
+    throw new Error('useDarkModeContext must be used within a DarkModeProvider');
+  }
+  return context;
 } 

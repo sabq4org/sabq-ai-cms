@@ -7,11 +7,21 @@ export async function GET(request: NextRequest) {
   try {
     // قراءة ملف نقاط الولاء
     const loyaltyPath = path.join(process.cwd(), 'data', 'user_loyalty_points.json');
-    let loyaltyData: { users: any[] } = { users: [] };
+    let loyaltyData: any = {};
+    let loyaltyUsers: any[] = [];
     
     try {
       const loyaltyContent = await fs.readFile(loyaltyPath, 'utf-8');
       loyaltyData = JSON.parse(loyaltyContent);
+      
+      // تحويل البيانات من object إلى array
+      if (typeof loyaltyData === 'object' && !Array.isArray(loyaltyData)) {
+        loyaltyUsers = Object.values(loyaltyData);
+      } else if (loyaltyData.users && Array.isArray(loyaltyData.users)) {
+        loyaltyUsers = loyaltyData.users;
+      } else if (Array.isArray(loyaltyData)) {
+        loyaltyUsers = loyaltyData;
+      }
     } catch (error) {
       console.error('Error reading loyalty points:', error);
     }
@@ -47,9 +57,9 @@ export async function GET(request: NextRequest) {
     );
 
     // ربط بيانات الولاء مع بيانات العضويات (JOIN)
-    const usersWithLoyalty = loyaltyData.users
-      .filter(loyaltyUser => loyaltyUser.user_id !== 'anonymous') // استبعاد المجهولين
-      .map(loyaltyUser => {
+    const usersWithLoyalty = loyaltyUsers
+      .filter((loyaltyUser: any) => loyaltyUser.user_id !== 'anonymous') // استبعاد المجهولين
+      .map((loyaltyUser: any) => {
         // البحث عن المستخدم في قاعدة بيانات العضويات
         const userProfile = usersData.users.find(user => user.id === loyaltyUser.user_id);
         
@@ -116,8 +126,8 @@ export async function GET(request: NextRequest) {
 
     // البحث عن أعضاء لديهم حسابات لكن بدون نقاط ولاء
     const membersWithoutLoyalty = usersData.users
-      .filter(user => !loyaltyData.users.some(loyaltyUser => loyaltyUser.user_id === user.id))
-      .map(user => ({
+      .filter((user: any) => !loyaltyUsers.some((loyaltyUser: any) => loyaltyUser.user_id === user.id))
+      .map((user: any) => ({
         user_id: user.id,
         total_points: 0,
         earned_points: 0,
@@ -145,7 +155,7 @@ export async function GET(request: NextRequest) {
     // حساب الإحصائيات العامة
     const totalUsers = usersWithLoyalty.length; // فقط المستخدمين الذين لديهم نقاط
     const totalMembers = usersData.users.length; // جميع الأعضاء
-    const totalPoints = usersWithLoyalty.reduce((sum, user) => sum + (user.total_points || 0), 0);
+    const totalPoints = usersWithLoyalty.reduce((sum: number, user: any) => sum + (user.total_points || 0), 0);
     const averagePoints = totalUsers > 0 ? Math.round(totalPoints / totalUsers) : 0;
 
     // حساب المستخدمين النشطين (الذين حصلوا على نقاط في آخر 7 أيام)
@@ -163,20 +173,20 @@ export async function GET(request: NextRequest) {
     const monthAgo = new Date();
     monthAgo.setMonth(monthAgo.getMonth() - 1);
     
-    const newMembers = usersData.users.filter(user => 
+    const newMembers = usersData.users.filter((user: any) => 
       new Date(user.created_at) > monthAgo
     ).length;
 
     // حساب سفراء سبق (المستخدمين مع أكثر من 2000 نقطة)
-    const ambassadors = usersWithLoyalty.filter(user => 
+    const ambassadors = usersWithLoyalty.filter((user: any) => 
       (user.total_points || 0) >= 2000
     ).length;
 
     // أعلى المستخدمين (أعلى 10) مع بيانات كاملة
     const topUsers = usersWithLoyalty
-      .sort((a, b) => (b.total_points || 0) - (a.total_points || 0))
+      .sort((a: any, b: any) => (b.total_points || 0) - (a.total_points || 0))
       .slice(0, 10)
-      .map(user => ({
+      .map((user: any) => ({
         user_id: user.user_id,
         name: user.name,
         email: user.email,

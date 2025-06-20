@@ -232,6 +232,19 @@ async function filterArticles(query: URLSearchParams) {
     filteredArticles = filteredArticles.filter(article => article.is_breaking);
   }
 
+  // فلترة حسب الكلمة المفتاحية
+  const keyword = query.get('keyword');
+  if (keyword) {
+    filteredArticles = filteredArticles.filter(article => {
+      const kws = Array.isArray(article.seo_keywords)
+        ? article.seo_keywords
+        : typeof article.seo_keywords === 'string'
+          ? (article.seo_keywords as string).split(',').map((k: string) => k.trim())
+          : [];
+      return kws.includes(keyword);
+    });
+  }
+
   return filteredArticles;
 }
 

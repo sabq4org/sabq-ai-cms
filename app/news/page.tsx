@@ -4,12 +4,15 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import './news-styles.css';
 import { 
   Newspaper, Filter, Clock, Eye, Tag, Search, 
   TrendingUp, Calendar, User, Hash, Loader2,
   Grid, List, ChevronRight, Sparkles, BookOpen,
   Zap, Globe, Heart, MessageCircle, Share2, Award
 } from 'lucide-react';
+import { formatFullDate, formatDateOnly } from '@/lib/date-utils';
 
 interface Article {
   id: string;
@@ -173,14 +176,8 @@ export default function NewsPage() {
     return categoryColors[categoryName] || categoryColors['default'];
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  // استخدام دالة التاريخ الميلادي الموحدة
+  const formatDate = formatDateOnly;
 
   const generatePlaceholderImage = (title: string) => {
     const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#EF4444', '#F59E0B'];
@@ -203,7 +200,7 @@ export default function NewsPage() {
 
   const ArticleCard = ({ article }: { article: Article }) => (
     <Link href={`/article/${article.id}`}>
-      <div className={`group h-full bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-transparent transform hover:-translate-y-1 ${
+      <div className={`group h-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-gray-900/50 hover:shadow-2xl dark:hover:shadow-gray-900/70 transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-transparent transform hover:-translate-y-1 ${
         viewMode === 'list' ? 'flex gap-6' : 'flex flex-col'
       }`}>
         {/* صورة المقال */}
@@ -246,20 +243,20 @@ export default function NewsPage() {
         <div className={`flex-1 p-6 ${viewMode === 'list' ? 'flex flex-col justify-between' : ''}`}>
           {/* العنوان */}
           <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors leading-tight">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
               {article.title}
             </h3>
 
             {/* الملخص */}
             {article.summary && (
-              <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2 leading-relaxed">
                 {article.summary}
               </p>
             )}
           </div>
 
           {/* معلومات إضافية */}
-          <div className="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-4">
               {article.author_name && (
                 <div className="flex items-center gap-1.5">
@@ -293,189 +290,196 @@ export default function NewsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
       <Header />
-      
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="absolute inset-0">
-          <div className="absolute top-20 right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-20 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-6 py-24">
-          <div className="text-center">
-            <div className="inline-flex items-center gap-3 mb-6 bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full">
-              <Newspaper className="w-6 h-6" />
-              <span className="text-lg font-medium">مركز الأخبار</span>
-            </div>
-            <h1 className="text-5xl font-bold mb-6">جميع الأخبار</h1>
-            <p className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-              تابع أحدث ما نُشر في سبق الذكية من أخبار محلية وعالمية
-            </p>
-            
-            {/* إحصائيات */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-12">
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-1">{articles.length}</div>
-                <div className="text-sm text-white/80">مقال منشور</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-1">{categories.length}</div>
-                <div className="text-sm text-white/80">تصنيف</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-1">24/7</div>
-                <div className="text-sm text-white/80">تغطية مستمرة</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Hero Section - تصميم بسيط وأنيق */}
+        <div className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+          <div className="max-w-7xl mx-auto px-6 py-12">
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">جميع الأخبار</h1>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                تابع أحدث ما نُشر في صحيفة سبق من أخبار محلية وعالمية
+              </p>
+              
+              {/* إحصائيات - تصميم بسيط */}
+              <div className="flex items-center justify-center gap-8 mt-8">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">{articles.length}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">مقال منشور</div>
+                </div>
+                <div className="w-px h-10 bg-gray-300 dark:bg-gray-600" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">{categories.length}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">تصنيف</div>
+                </div>
+                <div className="w-px h-10 bg-gray-300 dark:bg-gray-600" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">24/7</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">تغطية مستمرة</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Controls Section */}
-      <div className="sticky top-0 bg-white shadow-sm z-40 border-b">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            {/* Search */}
-            <div className="relative w-full lg:w-96">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="ابحث في الأخبار..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pr-10 pl-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
+        {/* Controls Section - تصميم بسيط وأنيق */}
+        <div className="sticky top-0 bg-white dark:bg-gray-800 z-40 border-b border-gray-100 dark:border-gray-700">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+              {/* Search - تصميم بسيط */}
+              <div className="relative w-full lg:w-96">
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="ابحث في الأخبار..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pr-10 pl-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-400 dark:focus:border-blue-500 transition-colors text-sm text-gray-900 dark:text-white"
+                />
+              </div>
+
+              {/* Filters - تصميم بسيط */}
+              <div className="flex items-center gap-3">
+                {/* Sort Dropdown */}
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-400 dark:focus:border-blue-500 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  <option value="latest">الأحدث</option>
+                  <option value="popular">الأكثر مشاهدة</option>
+                  <option value="trending">الأكثر تفاعلاً</option>
+                </select>
+
+                {/* View Mode - تصميم بسيط */}
+                <div className="flex items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-1 border border-gray-200 dark:border-gray-600">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded transition-colors ${
+                      viewMode === 'grid' 
+                        ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    }`}
+                  >
+                    <Grid className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded transition-colors ${
+                      viewMode === 'list' 
+                        ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    }`}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Filters */}
-            <div className="flex items-center gap-4">
-              {/* Sort */}
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-medium"
+            {/* Categories - تصميم بسيط */}
+            <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  selectedCategory === null
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
               >
-                <option value="latest">الأحدث</option>
-                <option value="popular">الأكثر مشاهدة</option>
-                <option value="trending">الأكثر تفاعلاً</option>
-              </select>
-
-              {/* View Mode */}
-              <div className="flex items-center gap-1 border-2 border-gray-200 rounded-xl p-1">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === 'grid' 
-                      ? 'bg-blue-500 text-white shadow-md' 
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <Grid className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-lg transition-all ${
-                    viewMode === 'list' 
-                      ? 'bg-blue-500 text-white shadow-md' 
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
+                جميع الأخبار
+              </button>
+              
+              {Array.isArray(categories) && categories.length > 0 && categories
+                .filter(category => category.is_active !== false)
+                .map((category) => {
+                  const isSelected = selectedCategory === category.id;
+                  const categoryColor = category.color_hex || '#6B7280';
+                  
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => setSelectedCategory(category.id)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                        isSelected
+                          ? 'text-white'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                      style={{
+                        backgroundColor: isSelected ? categoryColor : undefined
+                      }}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        {category.icon && <span>{category.icon}</span>}
+                        {category.name_ar || category.name_en || category.name}
+                        {category.articles_count !== undefined && category.articles_count > 0 && (
+                          <span className="text-xs opacity-80">
+                            ({category.articles_count})
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
             </div>
-          </div>
-
-          {/* Categories */}
-          <div className="flex items-center gap-3 mt-6 overflow-x-auto pb-2 scrollbar-hide">
-            <button
-              onClick={() => setSelectedCategory(null)}
-              className={`px-6 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all transform hover:scale-105 ${
-                selectedCategory === null
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              جميع الأخبار
-            </button>
-            {Array.isArray(categories) && categories.length > 0 && categories
-              .filter(category => category.is_active !== false)
-              .map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`px-6 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all transform hover:scale-105 ${
-                    selectedCategory === category.id
-                      ? `bg-gradient-to-r ${getCategoryColor(category.id)} text-white shadow-lg`
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {category.icon && <span className="mr-2">{category.icon}</span>}
-                  {category.name_ar || category.name_en || category.name}
-                  {category.articles_count !== undefined && (
-                    <span className="mr-2 opacity-75">({category.articles_count})</span>
-                  )}
-                </button>
-              ))}
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {loading && page === 1 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
-            <p className="text-gray-500">جاري تحميل الأخبار...</p>
-          </div>
-        ) : filteredArticles.length > 0 ? (
-          <>
-            <div className={`${
-              viewMode === 'grid' 
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8' 
-                : 'space-y-6'
-            }`}>
-              {filteredArticles.map((article) => (
-                <ArticleCard key={article.id} article={article} />
-              ))}
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          {loading && page === 1 ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
+              <p className="text-gray-500 dark:text-gray-400">جاري تحميل الأخبار...</p>
             </div>
-
-            {/* Load More */}
-            {hasMore && (
-              <div className="text-center mt-16">
-                <button
-                  onClick={() => setPage(prev => prev + 1)}
-                  disabled={loading}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed font-bold"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      جاري التحميل...
-                    </>
-                  ) : (
-                    <>
-                      عرض المزيد
-                      <ChevronRight className="w-5 h-5" />
-                    </>
-                  )}
-                </button>
+          ) : filteredArticles.length > 0 ? (
+            <>
+              <div className={`${
+                viewMode === 'grid' 
+                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8' 
+                  : 'space-y-6'
+              }`}>
+                {filteredArticles.map((article) => (
+                  <ArticleCard key={article.id} article={article} />
+                ))}
               </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-20">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mb-6">
-              <Newspaper className="w-12 h-12 text-gray-400" />
+
+              {/* Load More */}
+              {hasMore && (
+                <div className="text-center mt-16">
+                  <button
+                    onClick={() => setPage(prev => prev + 1)}
+                    disabled={loading}
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-xl dark:shadow-gray-900/50 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed font-bold"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        جاري التحميل...
+                      </>
+                    ) : (
+                      <>
+                        عرض المزيد
+                        <ChevronRight className="w-5 h-5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-20">
+              <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full mb-6">
+                <Newspaper className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">لا توجد أخبار متاحة</h3>
+              <p className="text-gray-500 dark:text-gray-400">لم يتم العثور على أي مقالات منشورة حالياً</p>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">لا توجد أخبار متاحة</h3>
-            <p className="text-gray-500">لم يتم العثور على أي مقالات منشورة حالياً</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 } 

@@ -87,45 +87,45 @@ export default function PreferencesPage() {
   // عرض حالة التحميل أثناء جلب الاهتمامات المحفوظة
   if (loadingPreferences) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري تحميل اهتماماتك...</p>
+          <p className="text-gray-600 dark:text-gray-400">جاري تحميل اهتماماتك...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
       {/* خلفية ديناميكية */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 rounded-full blur-3xl opacity-30 animate-pulse delay-1000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 dark:bg-blue-600 rounded-full blur-3xl opacity-30 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 dark:bg-purple-600 rounded-full blur-3xl opacity-30 animate-pulse delay-1000"></div>
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto pt-20">
         {/* الترحيب */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg mb-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg dark:shadow-gray-900/50 mb-6">
             <Heart className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">مرحباً بك في رحلتك الذكية! 🚀</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">مرحباً بك في رحلتك الذكية! 🚀</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             ساعدنا في تخصيص تجربتك عبر اختيار اهتماماتك. سنقوم بعرض المحتوى الأكثر ملاءمة لك.
           </p>
         </div>
 
         {/* بطاقة الاهتمامات */}
-        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl p-8 border border-white/50">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 p-8 border border-white/50 dark:border-gray-700/50">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
             {initialInterestsCount > 0 ? 'تحديث اهتماماتك' : 'اختر اهتماماتك'}
           </h2>
           
           {/* رسالة توضيحية إذا كانت هناك اهتمامات محفوظة */}
           {initialInterestsCount > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-center">
-              <p className="text-blue-800">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6 text-center">
+              <p className="text-blue-800 dark:text-blue-200">
                 لديك {initialInterestsCount} اهتمامات محفوظة. يمكنك تعديلها أو الإبقاء عليها.
               </p>
             </div>
@@ -142,8 +142,8 @@ export default function PreferencesPage() {
                   onClick={() => handleInterestToggle(interest.id)}
                   className={`relative p-6 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
                     isSelected 
-                      ? 'border-blue-500 shadow-lg shadow-blue-500/25' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-blue-500 shadow-lg shadow-blue-500/25 dark:shadow-blue-500/10' 
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   {/* تأثير الخلفية المتحركة عند التحديد */}
@@ -157,7 +157,7 @@ export default function PreferencesPage() {
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                     
-                    <h3 className="text-lg font-bold text-gray-800 mb-2">{interest.name}</h3>
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{interest.name}</h3>
                     
                     {/* مؤشر التحديد */}
                     {isSelected && (
@@ -173,8 +173,8 @@ export default function PreferencesPage() {
 
           {/* ملخص الاختيارات */}
           {selectedInterests.length > 0 && (
-            <div className="bg-blue-50 rounded-2xl p-6 mb-6">
-              <h3 className="text-lg font-bold text-blue-900 mb-3">اهتماماتك المختارة:</h3>
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6 mb-6">
+              <h3 className="text-lg font-bold text-blue-900 dark:text-blue-200 mb-3">اهتماماتك المختارة:</h3>
               <div className="flex flex-wrap gap-2">
                 {selectedInterests.map(id => {
                   const interest = interests.find(i => i.id === id);
@@ -195,7 +195,7 @@ export default function PreferencesPage() {
           <div className="flex gap-4 justify-center">
             <button
               onClick={() => router.push(initialInterestsCount > 0 ? '/profile' : '/newspaper')}
-              className="px-6 py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+              className="px-6 py-3 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               {initialInterestsCount > 0 ? 'إلغاء' : 'تخطي الآن'}
             </button>
@@ -221,7 +221,7 @@ export default function PreferencesPage() {
 
         {/* نصائح */}
         <div className="text-center mt-8">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             💡 يمكنك تعديل اهتماماتك في أي وقت من الإعدادات
           </p>
         </div>
