@@ -477,6 +477,37 @@ export default function DashboardLayout({
                     </div>
                   </Link>
 
+                  <Link href="/dashboard/deep-analysis" 
+                    onClick={() => setSidebarOpen(false)}
+                    className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+                    darkMode 
+                      ? 'text-gray-300 hover:bg-gradient-to-r hover:from-purple-900/30 hover:to-indigo-900/30 hover:text-purple-300' 
+                      : 'text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 hover:text-purple-700'
+                  }`}>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-purple-900/40 group-hover:bg-purple-500 group-hover:text-white' 
+                        : 'bg-purple-100 group-hover:bg-purple-500 group-hover:text-white'
+                    }`}>
+                      <Brain className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-medium">التحليل العميق</span>
+                      <p className={`text-xs transition-colors duration-300 ${
+                        darkMode 
+                          ? 'text-gray-400 group-hover:text-purple-300' 
+                          : 'text-gray-500 group-hover:text-purple-600'
+                      }`}>تحليلات استراتيجية</p>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-bold transition-all ${
+                      darkMode 
+                        ? 'bg-purple-900/40 text-purple-300 group-hover:bg-purple-500 group-hover:text-white' 
+                        : 'bg-purple-100 text-purple-700 group-hover:bg-purple-500 group-hover:text-white'
+                    }`}>
+                      جديد
+                    </div>
+                  </Link>
+
                   <Link href="/dashboard/templates" 
                     onClick={() => setSidebarOpen(false)}
                     className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${

@@ -20,7 +20,8 @@ import {
   UserPlus,
   Zap,
   Layout,
-  Newspaper
+  Newspaper,
+  Brain
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -35,6 +36,7 @@ const sidebarItems: SidebarItem[] = [
   { icon: Home, label: 'الرئيسية', href: '/dashboard' },
   { icon: Zap, label: 'لوحة سبق الذكية', href: '/dashboard/console', badge: 'جديد' },
   { icon: Newspaper, label: 'الأخبار', href: '/dashboard/news' },
+  { icon: Brain, label: 'التحليل العميق', href: '/dashboard/deep-analysis', badge: 'جديد' },
   { icon: Settings, label: 'الإعدادات', href: '/dashboard/settings' },
   { icon: FileText, label: 'المقالات', href: '/dashboard/articles' },
   { icon: Edit3, label: 'التحرير', href: '/dashboard/editor' },
