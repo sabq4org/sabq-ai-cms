@@ -18,6 +18,7 @@ import { useDarkMode } from '@/hooks/useDarkMode';
 import CategoryBadge, { CategoryNavigation } from './components/CategoryBadge';
 import Header from '../components/Header';
 import SmartSlot from '@/components/home/SmartSlot';
+import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
 
 // ===============================
 // نظام ذكاء المستخدم والتخصيص
@@ -186,6 +187,8 @@ export default function NewspaperHomePage() {
     todayEvent: { enabled: true, order: 7 },
     regions: { enabled: true, order: 8 }
   });
+  const [deepInsights, setDeepInsights] = useState<any[]>([]);
+  const [deepInsightsLoading, setDeepInsightsLoading] = useState(true);
 
   useEffect(() => {
     // تعيين الوقت الحالي بعد التحميل لتجنب مشكلة Hydration
@@ -224,6 +227,9 @@ export default function NewspaperHomePage() {
     
     // جلب بيانات التحليل الذكي
     fetchAnalysisData();
+    
+    // جلب التحليلات العميقة
+    fetchDeepInsights();
     
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -493,6 +499,23 @@ export default function NewspaperHomePage() {
       });
     } finally {
       setAnalysisLoading(false);
+    }
+  };
+
+  // جلب التحليلات العميقة
+  const fetchDeepInsights = async () => {
+    try {
+      setDeepInsightsLoading(true);
+      const response = await fetch('/api/deep-insights?limit=3&sort=desc');
+      if (response.ok) {
+        const data = await response.json();
+        setDeepInsights(data);
+      }
+    } catch (error) {
+      console.error('Error fetching deep insights:', error);
+      setDeepInsights([]);
+    } finally {
+      setDeepInsightsLoading(false);
     }
   };
 
@@ -1752,6 +1775,11 @@ export default function NewspaperHomePage() {
 
       {/* Smart Blocks - Top Banner */}
       <SmartSlot position="topBanner" />
+
+      {/* Deep Analysis Widget - After Header */}
+      {!deepInsightsLoading && deepInsights.length > 0 && (
+        <DeepAnalysisWidget insights={deepInsights} />
+      )}
 
       {/* Welcome Section - Full Width */}
       <section className={`w-full py-20 mb-12 relative overflow-hidden transition-all duration-500 ${
