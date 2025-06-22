@@ -483,3 +483,30 @@ html.dark {
 img, video, iframe {
   transition: none !important;
 }
+
+/* أنماط مكون SabqCard */
+.sabq-card {
+  @apply bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm;
+  transition: all 0.3s ease;
+}
+
+.sabq-card.hover:hover {
+  @apply shadow-md transform -translate-y-0.5;
+}
+
+.sabq-shadow-blue {
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+}
+
+.sabq-glow {
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
+}
+
+.sabq-stat-card {
+  @apply hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-800;
+  transition: all 0.3s ease;
+}
+
+.sabq-stat-card:hover {
+  transform: translateY(-2px);
+}

@@ -1,553 +1,645 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Settings, 
   Save, 
-  RotateCcw, 
-  AlertCircle,
-  CheckCircle,
-  Sparkles,
+  AlertCircle, 
   Brain,
+  Key,
+  Sliders,
+  FileText,
+  Sparkles,
+  CheckCircle,
+  XCircle,
+  RotateCcw,
   Zap,
-  Shield
+  Shield,
+  Globe
 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useDarkMode } from '@/hooks/useDarkMode';
+import toast from 'react-hot-toast';
 
-// البرومبت الافتراضي
-const DEFAULT_PROMPT = `أنت محلل استراتيجي خبير في وكالة سبق الإخبارية، متخصص في إعداد تحليلات عميقة ودقيقة للقراء في العالم العربي.
-
-قم بإعداد تحليل استراتيجي عميق حول الموضوع التالي: {{title}}
-
-السياق/المقال الأصلي:
-{{articleText}}
-
-زاوية التحليل المطلوبة: {{analysisAngle}}
-مستوى العمق المطلوب: {{depthLevel}}
-التصنيفات: {{categories}}
-
-يجب أن يتضمن التحليل المحاور التالية بالترتيب:
-
-1. **المقدمة** (150-200 كلمة):
-   - خلفية موجزة عن الموضوع وسياقه الحالي
-   - أهمية الموضوع للقارئ السعودي والعربي
-   - نظرة عامة على ما سيتناوله التحليل
-
-2. **الوضع الراهن والسياق** (300-400 كلمة):
-   - تحليل الوضع الحالي بالأرقام والحقائق
-   - الاستراتيجيات والسياسات الحالية المرتبطة
-   - مقارنة مع التجارب الإقليمية والدولية
-
-3. **التحديات الرئيسية** (400-500 كلمة):
-   - التحديات التقنية والتشغيلية
-   - التحديات التنظيمية والقانونية
-   - التحديات الاقتصادية والمالية
-   - التحديات الاجتماعية والثقافية
-   - التحديات البيئية (إن وجدت)
-
-4. **الفرص المستقبلية والابتكارات** (400-500 كلمة):
-   - الفرص قصيرة المدى (1-2 سنة)
-   - الفرص متوسطة المدى (3-5 سنوات)
-   - الفرص طويلة المدى (5+ سنوات)
-   - التقنيات والابتكارات الناشئة
-   - نماذج الأعمال الجديدة المحتملة
-
-5. **الأثر المتوقع** (300-400 كلمة):
-   - الأثر الاقتصادي (أرقام وتوقعات)
-   - الأثر المجتمعي والثقافي
-   - الأثر على سوق العمل والوظائف
-   - الأثر على جودة الحياة
-   - الأثر على رؤية السعودية 2030
-
-6. **دراسات الحالة والأمثلة** (200-300 كلمة):
-   - أمثلة نجاح محلية أو إقليمية
-   - دروس مستفادة من تجارب دولية
-   - أفضل الممارسات القابلة للتطبيق
-
-7. **التوصيات الاستراتيجية** (400-500 كلمة):
-   - توصيات للقطاع الحكومي
-   - توصيات للقطاع الخاص
-   - توصيات للمؤسسات التعليمية والبحثية
-   - توصيات للأفراد والمجتمع
-   - خارطة طريق تنفيذية مقترحة
-
-8. **الخلاصة والنظرة المستقبلية** (150-200 كلمة):
-   - ملخص النقاط الرئيسية
-   - السيناريوهات المستقبلية المحتملة
-   - دعوة للعمل
-
-متطلبات الأسلوب:
-- استخدم لغة عربية فصيحة وواضحة
-- تجنب المصطلحات المعقدة غير الضرورية
-- استخدم الأرقام والإحصائيات عند توفرها
-- اربط التحليل برؤية السعودية 2030 عند الإمكان
-- استخدم عناوين فرعية واضحة لكل قسم
-- أضف نقاط مرقمة أو نقاط للقوائم المهمة
-- اجعل التحليل قابلاً للتنفيذ وليس نظرياً فقط`;
-
-interface AISettings {
-  prompt: string;
+interface SettingsData {
+  apiKey: string;
   model: string;
   temperature: number;
   maxTokens: number;
-  topP: number;
-  frequencyPenalty: number;
-  presencePenalty: number;
-  enableAutoSave: boolean;
-  autoGenerateKeywords: boolean;
-  autoGenerateSummary: boolean;
-  qualityThreshold: number;
+  customPrompt: string;
+  enableAutoAnalysis: boolean;
+  analysisDepth: 'basic' | 'intermediate' | 'advanced';
+  includeReferences: boolean;
+  includeStatistics: boolean;
+  autoTranslate: boolean;
+  language: 'ar' | 'en';
 }
 
+const defaultPrompt = `أنت محلل استراتيجي خبير في وكالة سبق الإخبارية. مهمتك هي إنشاء تحليل عميق وشامل باللغة العربية للموضوع المعطى.
+
+يجب أن يتضمن التحليل الأقسام التالية:
+
+1. **المقدمة** (150-200 كلمة):
+   - نظرة عامة جذابة عن الموضوع
+   - أهمية الموضوع في السياق الحالي
+   - الأسئلة الرئيسية التي سيجيب عنها التحليل
+
+2. **الوضع الراهن والسياق** (300-400 كلمة):
+   - الخلفية التاريخية والتطورات الحديثة
+   - العوامل المؤثرة والأطراف المعنية
+   - البيانات والإحصائيات الحالية
+
+3. **التحديات الرئيسية** (400-500 كلمة):
+   - تحديد وتحليل 3-5 تحديات رئيسية
+   - تأثير كل تحدي على المدى القصير والطويل
+   - العقبات المحتملة وسيناريوهات المخاطر
+
+4. **الفرص المستقبلية والابتكارات** (400-500 كلمة):
+   - الفرص الناشئة والاتجاهات المستقبلية
+   - التقنيات والحلول المبتكرة
+   - أفضل الممارسات العالمية القابلة للتطبيق
+
+5. **الأثر المتوقع** (300-400 كلمة):
+   - التأثيرات الاقتصادية والاجتماعية
+   - التغييرات المتوقعة في السلوك والممارسات
+   - المؤشرات الرئيسية لقياس النجاح
+
+6. **دراسات الحالة والأمثلة** (200-300 كلمة):
+   - أمثلة محلية أو عالمية ذات صلة
+   - الدروس المستفادة
+   - قابلية التطبيق في السياق المحلي
+
+7. **التوصيات الاستراتيجية** (400-500 كلمة):
+   - 5-7 توصيات محددة وقابلة للتنفيذ
+   - خطة العمل المقترحة مع الجدول الزمني
+   - مؤشرات الأداء الرئيسية
+
+8. **الخلاصة والنظرة المستقبلية** (150-200 كلمة):
+   - ملخص النقاط الرئيسية
+   - الرسالة الختامية
+   - دعوة للعمل
+
+متطلبات الأسلوب:
+- استخدم لغة عربية فصحى واضحة ومهنية
+- تجنب المصطلحات المعقدة غير الضرورية
+- استخدم العناوين الفرعية والتنسيق لتحسين القراءة
+- ادعم النقاط بالبيانات والمصادر عند الإمكان
+- حافظ على التوازن بين العمق التحليلي وسهولة الفهم`;
+
 export default function DeepAnalysisSettingsPage() {
-  const [settings, setSettings] = useState<AISettings>({
-    prompt: DEFAULT_PROMPT,
-    model: 'gpt-4-turbo-preview',
+  const { darkMode } = useDarkMode();
+  const [settings, setSettings] = useState<SettingsData>({
+    apiKey: '',
+    model: 'gpt-4',
     temperature: 0.7,
     maxTokens: 4000,
-    topP: 1,
-    frequencyPenalty: 0.3,
-    presencePenalty: 0.3,
-    enableAutoSave: true,
-    autoGenerateKeywords: true,
-    autoGenerateSummary: true,
-    qualityThreshold: 0.8
+    customPrompt: defaultPrompt,
+    enableAutoAnalysis: false,
+    analysisDepth: 'advanced',
+    includeReferences: true,
+    includeStatistics: true,
+    autoTranslate: false,
+    language: 'ar'
   });
-
-  const [apiKey, setApiKey] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  
+  const [saving, setSaving] = useState(false);
+  const [testingConnection, setTestingConnection] = useState(false);
+  const [activeTab, setActiveTab] = useState('prompt');
 
   useEffect(() => {
     // تحميل الإعدادات المحفوظة
     const savedSettings = localStorage.getItem('deepAnalysisSettings');
     if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
-
-    // تحميل مفتاح API
-    const savedApiKey = localStorage.getItem('openaiApiKey');
-    if (savedApiKey) {
-      setApiKey(savedApiKey);
+      try {
+        const parsed = JSON.parse(savedSettings);
+        setSettings({
+          apiKey: parsed.apiKey || '',
+          model: parsed.model || 'gpt-4',
+          temperature: parsed.temperature || 0.7,
+          maxTokens: parsed.maxTokens || 4000,
+          customPrompt: parsed.customPrompt || defaultPrompt,
+          enableAutoAnalysis: parsed.enableAutoAnalysis || false,
+          analysisDepth: parsed.analysisDepth || 'advanced',
+          includeReferences: parsed.includeReferences !== false,
+          includeStatistics: parsed.includeStatistics !== false,
+          autoTranslate: parsed.autoTranslate || false,
+          language: parsed.language || 'ar'
+        });
+      } catch (error) {
+        console.error('Error parsing saved settings:', error);
+      }
     }
   }, []);
 
-  const handleSaveSettings = async () => {
-    setIsLoading(true);
-    setSaveStatus('saving');
-
+  const handleSave = async () => {
+    setSaving(true);
+    
     try {
       // حفظ الإعدادات في localStorage
       localStorage.setItem('deepAnalysisSettings', JSON.stringify(settings));
       
-      // حفظ مفتاح API بشكل منفصل
-      if (apiKey) {
-        localStorage.setItem('openaiApiKey', apiKey);
-      }
-
-      // في الإنتاج، يمكن حفظ الإعدادات في قاعدة البيانات
-      // await fetch('/api/ai/deep-analysis/settings', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ settings, apiKey })
-      // });
-
-      setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 3000);
+      // في الإنتاج، سيتم إرسال الإعدادات إلى API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success('تم حفظ الإعدادات بنجاح');
     } catch (error) {
-      console.error('Error saving settings:', error);
-      setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000);
+      toast.error('حدث خطأ أثناء حفظ الإعدادات');
     } finally {
-      setIsLoading(false);
+      setSaving(false);
     }
   };
 
-  const handleResetToDefault = () => {
-    setSettings({
-      ...settings,
-      prompt: DEFAULT_PROMPT
-    });
-  };
-
-  const testAPIConnection = async () => {
-    if (!apiKey) {
-      alert('الرجاء إدخال مفتاح API أولاً');
+  const testConnection = async () => {
+    if (!settings.apiKey) {
+      toast.error('الرجاء إدخال مفتاح API أولاً');
       return;
     }
 
-    setIsLoading(true);
+    setTestingConnection(true);
+
     try {
-      // اختبار الاتصال بـ OpenAI
       const response = await fetch('/api/ai/test-connection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey })
+        body: JSON.stringify({ apiKey: settings.apiKey })
       });
 
       if (response.ok) {
-        alert('تم الاتصال بنجاح مع OpenAI API');
+        toast.success('تم الاتصال بنجاح مع OpenAI');
       } else {
-        alert('فشل الاتصال. تحقق من صحة مفتاح API');
+        toast.error('فشل الاتصال. تأكد من صحة المفتاح');
       }
     } catch (error) {
-      alert('حدث خطأ أثناء اختبار الاتصال');
+      toast.error('حدث خطأ أثناء اختبار الاتصال');
     } finally {
-      setIsLoading(false);
+      setTestingConnection(false);
     }
   };
 
+  const resetPrompt = () => {
+    if (confirm('هل أنت متأكد من إعادة تعيين البرومبت إلى الإعدادات الافتراضية؟')) {
+      setSettings({ ...settings, customPrompt: defaultPrompt });
+      toast.success('تم إعادة تعيين البرومبت');
+    }
+  };
+
+  const tabsConfig = [
+    { 
+      id: 'prompt', 
+      name: 'البرومبت', 
+      icon: <FileText className="w-5 h-5" />
+    },
+    { 
+      id: 'ai', 
+      name: 'إعدادات AI', 
+      icon: <Brain className="w-5 h-5" />
+    },
+    { 
+      id: 'api', 
+      name: 'API', 
+      icon: <Key className="w-5 h-5" />
+    },
+    { 
+      id: 'features', 
+      name: 'المميزات', 
+      icon: <Sparkles className="w-5 h-5" />
+    }
+  ];
+
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-          <Settings className="h-8 w-8" />
-          إعدادات التحليل العميق
-        </h1>
-        <p className="text-muted-foreground">
-          قم بتخصيص إعدادات الذكاء الاصطناعي والبرومبت المستخدم في توليد التحليلات
-        </p>
+    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+      darkMode ? 'bg-gray-900' : ''
+    }`}>
+      {/* عنوان وتعريف الصفحة */}
+      <div className="mb-6 sm:mb-8">
+        <h1 className={`text-2xl sm:text-3xl font-bold mb-2 transition-colors duration-300 ${
+          darkMode ? 'text-white' : 'text-gray-800'
+        }`}>إعدادات التحليل العميق</h1>
+        <p className={`text-sm sm:text-base transition-colors duration-300 ${
+          darkMode ? 'text-gray-300' : 'text-gray-600'
+        }`}>قم بتخصيص إعدادات الذكاء الاصطناعي والبرومبت المستخدم في توليد التحليلات</p>
       </div>
 
-      <Tabs defaultValue="prompt" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="prompt" className="flex items-center gap-2">
-            <Brain className="h-4 w-4" />
-            البرومبت
-          </TabsTrigger>
-          <TabsTrigger value="ai" className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4" />
-            إعدادات AI
-          </TabsTrigger>
-          <TabsTrigger value="api" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            API
-          </TabsTrigger>
-          <TabsTrigger value="features" className="flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            المميزات
-          </TabsTrigger>
-        </TabsList>
+      {/* قسم المعلومات */}
+      <div className="mb-6 sm:mb-8">
+        <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
+          darkMode 
+            ? 'bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border-purple-700' 
+            : 'bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-100'
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Settings className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+            </div>
+            <div>
+              <h2 className={`text-lg sm:text-xl font-bold transition-colors duration-300 ${
+                darkMode ? 'text-white' : 'text-gray-800'
+              }`}>تكوين نظام التحليل الذكي</h2>
+              <p className={`text-xs sm:text-sm transition-colors duration-300 ${
+                darkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>اضبط معاملات الذكاء الاصطناعي للحصول على أفضل النتائج</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <TabsContent value="prompt" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>برومبت التحليل العميق</CardTitle>
-              <CardDescription>
-                قم بتخصيص البرومبت المستخدم لتوليد التحليلات. استخدم المتغيرات التالية:
-                {`{{title}}`, `{{articleText}}`, `{{analysisAngle}}`, `{{depthLevel}}`, `{{categories}}`}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="prompt">نص البرومبت</Label>
-                <Textarea
-                  id="prompt"
-                  value={settings.prompt}
-                  onChange={(e) => setSettings({ ...settings, prompt: e.target.value })}
-                  className="min-h-[400px] font-mono text-sm"
-                  dir="rtl"
-                />
-              </div>
-              <div className="flex gap-2">
+      {/* التبويبات */}
+      <div className={`rounded-2xl p-2 shadow-sm border mb-6 sm:mb-8 w-full transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {tabsConfig.map((tab) => {
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`min-w-[100px] sm:min-w-[120px] lg:w-44 flex flex-col items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 sm:px-3 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 relative ${
+                  activeTab === tab.id
+                    ? 'bg-purple-500 text-white shadow-md border-b-4 border-purple-600'
+                    : darkMode
+                      ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
+                      : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
+                }`}
+              >
+                <div className={`transition-transform duration-300 ${activeTab === tab.id ? 'scale-110' : ''}`}>
+                  {React.cloneElement(tab.icon, { className: 'w-4 h-4 sm:w-5 sm:h-5' })}
+                </div>
+                <div className="text-center">
+                  <div className="whitespace-nowrap">{tab.name}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* محتوى التبويبات */}
+      <div className="space-y-6">
+        {/* تبويب البرومبت */}
+        {activeTab === 'prompt' && (
+          <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
+            darkMode 
+              ? 'bg-gray-800 border-gray-700' 
+              : 'bg-white border-gray-100'
+          }`}>
+            <div className={`px-6 py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className="flex justify-between items-center">
+                <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                  تخصيص البرومبت
+                </h3>
                 <Button 
                   variant="outline" 
-                  onClick={handleResetToDefault}
+                  size="sm" 
+                  onClick={resetPrompt}
                   className="flex items-center gap-2"
                 >
-                  <RotateCcw className="h-4 w-4" />
-                  إعادة تعيين للافتراضي
+                  <RotateCcw className="w-4 h-4" />
+                  إعادة تعيين
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="prompt" className="text-sm font-medium mb-2 block">
+                    نص البرومبت المخصص
+                  </Label>
+                  <Textarea
+                    id="prompt"
+                    value={settings.customPrompt}
+                    onChange={(e) => setSettings({ ...settings, customPrompt: e.target.value })}
+                    className={`min-h-[400px] font-mono text-sm ${
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-gray-200' 
+                        : 'bg-white border-gray-200'
+                    }`}
+                    dir="rtl"
+                  />
+                  <p className={`text-sm mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    هذا البرومبت سيستخدم عند توليد التحليلات بالذكاء الاصطناعي
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-        <TabsContent value="ai" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>إعدادات نموذج AI</CardTitle>
-              <CardDescription>
-                قم بضبط معاملات نموذج الذكاء الاصطناعي للحصول على أفضل النتائج
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="model">النموذج</Label>
-                  <select
+        {/* تبويب إعدادات AI */}
+        {activeTab === 'ai' && (
+          <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
+            darkMode 
+              ? 'bg-gray-800 border-gray-700' 
+              : 'bg-white border-gray-100'
+          }`}>
+            <div className={`px-6 py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                إعدادات نموذج الذكاء الاصطناعي
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="model" className="text-sm font-medium mb-2 block">
+                    النموذج
+                  </Label>
+                  <select 
                     id="model"
                     value={settings.model}
                     onChange={(e) => setSettings({ ...settings, model: e.target.value })}
-                    className="w-full p-2 border rounded-md"
+                    className={`w-full px-3 py-2 text-sm rounded-lg border transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-purple-500' 
+                        : 'bg-white border-gray-200 text-gray-900 focus:border-purple-500'
+                    } focus:outline-none focus:ring-2 focus:ring-purple-500/20`}
                   >
-                    <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
                     <option value="gpt-4">GPT-4</option>
+                    <option value="gpt-4-turbo">GPT-4 Turbo</option>
                     <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
                   </select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="maxTokens">الحد الأقصى للرموز</Label>
+                <div>
+                  <Label htmlFor="temperature" className="text-sm font-medium mb-2 block">
+                    درجة الإبداع (Temperature): {settings.temperature}
+                  </Label>
+                  <div className="flex items-center gap-4">
+                    <input
+                      id="temperature"
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={settings.temperature || 0.7}
+                      onChange={(e) => setSettings({ ...settings, temperature: parseFloat(e.target.value) })}
+                      className="flex-1"
+                    />
+                    <span className={`w-12 text-center font-mono ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {settings.temperature}
+                    </span>
+                  </div>
+                  <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    قيمة أعلى = إبداع أكثر، قيمة أقل = دقة أكثر
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="maxTokens" className="text-sm font-medium mb-2 block">
+                    الحد الأقصى للرموز
+                  </Label>
                   <Input
                     id="maxTokens"
                     type="number"
-                    value={settings.maxTokens}
-                    onChange={(e) => setSettings({ ...settings, maxTokens: parseInt(e.target.value) })}
-                    min={100}
-                    max={8000}
+                    value={settings.maxTokens || 4000}
+                    onChange={(e) => setSettings({ ...settings, maxTokens: parseInt(e.target.value) || 4000 })}
+                    className={darkMode ? 'bg-gray-700 border-gray-600' : ''}
+                    min="1000"
+                    max="8000"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="temperature">
-                    درجة الحرارة (Temperature): {settings.temperature}
+                <div>
+                  <Label htmlFor="depth" className="text-sm font-medium mb-2 block">
+                    عمق التحليل
                   </Label>
-                  <input
-                    id="temperature"
-                    type="range"
-                    value={settings.temperature}
-                    onChange={(e) => setSettings({ ...settings, temperature: parseFloat(e.target.value) })}
-                    min={0}
-                    max={2}
-                    step={0.1}
-                    className="w-full"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    قيمة أقل = نتائج أكثر تحديداً، قيمة أعلى = نتائج أكثر إبداعاً
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="topP">Top P: {settings.topP}</Label>
-                  <input
-                    id="topP"
-                    type="range"
-                    value={settings.topP}
-                    onChange={(e) => setSettings({ ...settings, topP: parseFloat(e.target.value) })}
-                    min={0}
-                    max={1}
-                    step={0.1}
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="frequencyPenalty">
-                    عقوبة التكرار: {settings.frequencyPenalty}
-                  </Label>
-                  <input
-                    id="frequencyPenalty"
-                    type="range"
-                    value={settings.frequencyPenalty}
-                    onChange={(e) => setSettings({ ...settings, frequencyPenalty: parseFloat(e.target.value) })}
-                    min={0}
-                    max={2}
-                    step={0.1}
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="presencePenalty">
-                    عقوبة الوجود: {settings.presencePenalty}
-                  </Label>
-                  <input
-                    id="presencePenalty"
-                    type="range"
-                    value={settings.presencePenalty}
-                    onChange={(e) => setSettings({ ...settings, presencePenalty: parseFloat(e.target.value) })}
-                    min={0}
-                    max={2}
-                    step={0.1}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="api" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>إعدادات API</CardTitle>
-              <CardDescription>
-                قم بإدخال مفتاح OpenAI API الخاص بك للاتصال بخدمات الذكاء الاصطناعي
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  يتم حفظ مفتاح API بشكل آمن ولن يتم مشاركته مع أي جهة خارجية
-                </AlertDescription>
-              </Alert>
-
-              <div className="space-y-2">
-                <Label htmlFor="apiKey">مفتاح OpenAI API</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="apiKey"
-                    type="password"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    placeholder="sk-..."
-                    className="flex-1"
-                  />
-                  <Button 
-                    variant="outline" 
-                    onClick={testAPIConnection}
-                    disabled={isLoading || !apiKey}
+                  <select 
+                    id="depth"
+                    value={settings.analysisDepth}
+                    onChange={(e) => setSettings({ ...settings, analysisDepth: e.target.value as 'basic' | 'intermediate' | 'advanced' })}
+                    className={`w-full px-3 py-2 text-sm rounded-lg border transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-purple-500' 
+                        : 'bg-white border-gray-200 text-gray-900 focus:border-purple-500'
+                    } focus:outline-none focus:ring-2 focus:ring-purple-500/20`}
                   >
-                    اختبار الاتصال
-                  </Button>
+                    <option value="basic">أساسي</option>
+                    <option value="intermediate">متوسط</option>
+                    <option value="advanced">متقدم</option>
+                  </select>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
 
-              <div className="rounded-lg bg-muted p-4">
-                <h4 className="font-medium mb-2">كيفية الحصول على مفتاح API:</h4>
-                <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-                  <li>قم بزيارة <a href="https://platform.openai.com" target="_blank" rel="noopener noreferrer" className="underline">platform.openai.com</a></li>
-                  <li>قم بتسجيل الدخول أو إنشاء حساب جديد</li>
-                  <li>اذهب إلى قسم API Keys</li>
-                  <li>انقر على "Create new secret key"</li>
-                  <li>انسخ المفتاح والصقه هنا</li>
-                </ol>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="features" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>المميزات الإضافية</CardTitle>
-              <CardDescription>
-                قم بتفعيل أو تعطيل المميزات الإضافية للتحليل العميق
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="autoSave">الحفظ التلقائي</Label>
-                    <p className="text-sm text-muted-foreground">
-                      حفظ التحليلات تلقائياً كمسودة أثناء الكتابة
-                    </p>
-                  </div>
-                  <Switch
-                    id="autoSave"
-                    checked={settings.enableAutoSave}
-                    onCheckedChange={(checked) => 
-                      setSettings({ ...settings, enableAutoSave: checked })
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="autoKeywords">توليد الكلمات المفتاحية تلقائياً</Label>
-                    <p className="text-sm text-muted-foreground">
-                      استخراج الكلمات المفتاحية من المحتوى تلقائياً
-                    </p>
-                  </div>
-                  <Switch
-                    id="autoKeywords"
-                    checked={settings.autoGenerateKeywords}
-                    onCheckedChange={(checked) => 
-                      setSettings({ ...settings, autoGenerateKeywords: checked })
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="autoSummary">توليد الملخص تلقائياً</Label>
-                    <p className="text-sm text-muted-foreground">
-                      إنشاء ملخص تلقائي للتحليل
-                    </p>
-                  </div>
-                  <Switch
-                    id="autoSummary"
-                    checked={settings.autoGenerateSummary}
-                    onCheckedChange={(checked) => 
-                      setSettings({ ...settings, autoGenerateSummary: checked })
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="qualityThreshold">
-                    حد الجودة المطلوب: {(settings.qualityThreshold * 100).toFixed(0)}%
+        {/* تبويب API */}
+        {activeTab === 'api' && (
+          <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
+            darkMode 
+              ? 'bg-gray-800 border-gray-700' 
+              : 'bg-white border-gray-100'
+          }`}>
+            <div className={`px-6 py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                إعدادات API
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="space-y-6">
+                <div>
+                  <Label htmlFor="apiKey" className="text-sm font-medium mb-2 block">
+                    مفتاح OpenAI API
                   </Label>
-                  <input
-                    id="qualityThreshold"
-                    type="range"
-                    value={settings.qualityThreshold}
-                    onChange={(e) => setSettings({ ...settings, qualityThreshold: parseFloat(e.target.value) })}
-                    min={0.5}
-                    max={1}
-                    step={0.05}
-                    className="w-full"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    التحليلات التي تقل جودتها عن هذا الحد سيتم تحذير المستخدم
-                  </p>
+                  <div className="flex gap-2">
+                    <Input
+                      id="apiKey"
+                      type="password"
+                      value={settings.apiKey || ''}
+                      onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
+                      placeholder="sk-..."
+                      className={`flex-1 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={testConnection}
+                      disabled={testingConnection}
+                      className="min-w-[120px]"
+                    >
+                      {testingConnection ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600 ml-2"></div>
+                          جاري الاختبار...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-4 h-4 ml-2" />
+                          اختبار الاتصال
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <Alert className={`${darkMode ? 'border-yellow-800 bg-yellow-900/20' : 'border-yellow-200 bg-yellow-50'}`}>
+                  <AlertCircle className="h-4 w-4 text-yellow-600" />
+                  <AlertDescription className={darkMode ? 'text-yellow-200' : 'text-yellow-800'}>
+                    احتفظ بمفتاح API الخاص بك بسرية تامة. لا تشاركه مع أي شخص.
+                  </AlertDescription>
+                </Alert>
+
+                <div className={`rounded-lg p-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                  <h4 className={`font-medium mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                    كيفية الحصول على مفتاح API:
+                  </h4>
+                  <ol className={`list-decimal list-inside space-y-1 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <li>قم بزيارة <a href="https://platform.openai.com" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">platform.openai.com</a></li>
+                    <li>قم بتسجيل الدخول أو إنشاء حساب جديد</li>
+                    <li>اذهب إلى قسم API Keys</li>
+                    <li>انقر على "Create new secret key"</li>
+                    <li>انسخ المفتاح والصقه هنا</li>
+                  </ol>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </div>
+          </div>
+        )}
 
-      <div className="mt-6 flex justify-end gap-4">
-        <Button
-          variant="outline"
-          onClick={() => window.location.href = '/dashboard/deep-analysis'}
+        {/* تبويب المميزات */}
+        {activeTab === 'features' && (
+          <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
+            darkMode 
+              ? 'bg-gray-800 border-gray-700' 
+              : 'bg-white border-gray-100'
+          }`}>
+            <div className={`px-6 py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                المميزات الإضافية
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="space-y-6">
+                <div className={`flex items-center justify-between p-4 rounded-lg ${
+                  darkMode ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
+                  <div>
+                    <Label htmlFor="autoAnalysis" className="text-sm font-medium">
+                      التحليل التلقائي
+                    </Label>
+                    <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      تفعيل التحليل التلقائي للمقالات الجديدة
+                    </p>
+                  </div>
+                  <Switch
+                    id="autoAnalysis"
+                    checked={settings.enableAutoAnalysis}
+                    onCheckedChange={(checked) => setSettings({ ...settings, enableAutoAnalysis: checked })}
+                  />
+                </div>
+
+                <div className={`flex items-center justify-between p-4 rounded-lg ${
+                  darkMode ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
+                  <div>
+                    <Label htmlFor="references" className="text-sm font-medium">
+                      تضمين المراجع
+                    </Label>
+                    <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      إضافة مراجع ومصادر للتحليل
+                    </p>
+                  </div>
+                  <Switch
+                    id="references"
+                    checked={settings.includeReferences}
+                    onCheckedChange={(checked) => setSettings({ ...settings, includeReferences: checked })}
+                  />
+                </div>
+
+                <div className={`flex items-center justify-between p-4 rounded-lg ${
+                  darkMode ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
+                  <div>
+                    <Label htmlFor="statistics" className="text-sm font-medium">
+                      تضمين الإحصائيات
+                    </Label>
+                    <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      إضافة رسوم بيانية وإحصائيات
+                    </p>
+                  </div>
+                  <Switch
+                    id="statistics"
+                    checked={settings.includeStatistics}
+                    onCheckedChange={(checked) => setSettings({ ...settings, includeStatistics: checked })}
+                  />
+                </div>
+
+                <div className={`flex items-center justify-between p-4 rounded-lg ${
+                  darkMode ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
+                  <div>
+                    <Label htmlFor="translate" className="text-sm font-medium">
+                      الترجمة التلقائية
+                    </Label>
+                    <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      ترجمة التحليلات تلقائياً
+                    </p>
+                  </div>
+                  <Switch
+                    id="translate"
+                    checked={settings.autoTranslate}
+                    onCheckedChange={(checked) => setSettings({ ...settings, autoTranslate: checked })}
+                  />
+                </div>
+
+                {settings.autoTranslate && (
+                  <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                    <Label htmlFor="language" className="text-sm font-medium mb-2 block">
+                      اللغة المستهدفة
+                    </Label>
+                    <select 
+                      id="language"
+                      value={settings.language}
+                      onChange={(e) => setSettings({ ...settings, language: e.target.value as 'ar' | 'en' })}
+                      className={`w-full md:w-[200px] px-3 py-2 text-sm rounded-lg border transition-all duration-300 ${
+                        darkMode 
+                          ? 'bg-gray-600 border-gray-500 text-gray-200 focus:border-purple-500' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-purple-500'
+                      } focus:outline-none focus:ring-2 focus:ring-purple-500/20`}
+                    >
+                      <option value="ar">العربية</option>
+                      <option value="en">English</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* أزرار الإجراءات */}
+      <div className="flex justify-end gap-3 mt-8">
+        <Button 
+          variant="outline" 
+          onClick={() => window.history.back()}
+          className={darkMode ? 'border-gray-600 hover:bg-gray-700' : ''}
         >
           إلغاء
         </Button>
         <Button 
-          onClick={handleSaveSettings}
-          disabled={isLoading}
-          className="flex items-center gap-2"
+          onClick={handleSave} 
+          disabled={saving}
+          className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
         >
-          {isLoading ? (
-            <>جاري الحفظ...</>
+          {saving ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white ml-2"></div>
+              جاري الحفظ...
+            </>
           ) : (
             <>
-              <Save className="h-4 w-4" />
+              <Save className="w-4 h-4 ml-2" />
               حفظ الإعدادات
             </>
           )}
         </Button>
       </div>
-
-      {saveStatus === 'saved' && (
-        <Alert className="mt-4 border-green-200 bg-green-50">
-          <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800">
-            تم حفظ الإعدادات بنجاح
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {saveStatus === 'error' && (
-        <Alert className="mt-4 border-red-200 bg-red-50">
-          <AlertCircle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">
-            حدث خطأ أثناء حفظ الإعدادات
-          </AlertDescription>
-        </Alert>
-      )}
     </div>
   );
 } 
