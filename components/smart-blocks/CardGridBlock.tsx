@@ -2,151 +2,113 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Calendar, Eye, Clock, User } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-
-interface Article {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt?: string;
-  imageUrl?: string;
-  category?: string;
-  author?: {
-    name: string;
-    avatar?: string;
-  };
-  publishedAt: string;
-  views?: number;
-  readTime?: number;
-}
+import Image from 'next/image';
+import { Clock, Eye, TrendingUp, ChevronLeft, Newspaper } from 'lucide-react';
 
 interface CardGridBlockProps {
-  block: {
-    id: string;
-    name: string;
-    theme: {
-      primaryColor: string;
-      backgroundColor: string;
-      textColor: string;
-    };
-    articlesCount?: number;
-  };
-  articles: Article[];
+  block: any;
+  articles: any[];
 }
 
-export const CardGridBlock: React.FC<CardGridBlockProps> = ({ block, articles }) => {
-  // تحديد عدد الأعمدة بناءً على عدد المقالات
-  const getGridCols = () => {
-    const count = articles.length;
-    if (count <= 2) return 'grid-cols-1 sm:grid-cols-2';
-    if (count <= 3) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
-    return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
-  };
+export function CardGridBlock({ block, articles }: CardGridBlockProps) {
+  const displayArticles = articles.slice(0, block.config?.itemsCount || 8);
+
+  // إذا لم تكن هناك مقالات، عرض رسالة
+  if (displayArticles.length === 0) {
+    return (
+      <div className="smart-block-container">
+        <div className="smart-block-header">
+          <div className="smart-block-header-content">
+            <div className="smart-block-title-wrapper">
+              <Newspaper className="smart-block-icon" />
+              <h2 className="smart-block-title">{block.name || 'أحدث الأخبار'}</h2>
+            </div>
+            {block.keywords && block.keywords.length > 0 && (
+              <div className="smart-block-keywords">
+                {block.keywords.map((keyword: string, index: number) => (
+                  <span key={index} className="keyword-badge">
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="empty-block-message">
+          <div className="empty-icon">📰</div>
+          <p className="empty-text">لا توجد مقالات مرتبطة بهذه الكلمة المفتاحية حالياً</p>
+          <p className="empty-subtext">سيتم تحديث البلوك تلقائياً عند توفر محتوى جديد</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full">
-      {/* عنوان البلوك */}
-      <div className="mb-6">
-        <h2 
-          className="text-2xl font-bold"
-          style={{ color: block.theme.textColor }}
-        >
-          {block.name}
-        </h2>
-        <div 
-          className="h-1 w-20 mt-2 rounded-full"
-          style={{ backgroundColor: block.theme.primaryColor }}
-        />
+    <div className="smart-block-container">
+      <div className="smart-block-header">
+        <div className="smart-block-header-content">
+          <div className="smart-block-title-wrapper">
+            <Newspaper className="smart-block-icon" />
+            <h2 className="smart-block-title">{block.name || 'أحدث الأخبار'}</h2>
+          </div>
+          {block.keywords && block.keywords.length > 0 && (
+            <div className="smart-block-keywords">
+              {block.keywords.map((keyword: string, index: number) => (
+                <span key={index} className="keyword-tag">
+                  {keyword}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <Link href="/news" className="view-all-link">
+          عرض الكل
+          <ChevronLeft className="w-4 h-4" />
+        </Link>
       </div>
 
-      {/* شبكة البطاقات */}
-      <div className={`grid ${getGridCols()} gap-4 lg:gap-6`}>
-        {articles.map((article) => (
-          <Link 
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {displayArticles.map((article, index) => (
+          <Link
             key={article.id}
-            href={`/news/${article.slug}`}
-            className="group block"
+            href={`/article/${article.id}`}
+            className="article-card group"
           >
-            <div 
-              className="h-full rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-              style={{ 
-                backgroundColor: block.theme.backgroundColor,
-                borderColor: block.theme.primaryColor,
-                borderWidth: '1px',
-                borderStyle: 'solid'
-              }}
-            >
-              {/* صورة المقال */}
-              {article.imageUrl && (
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={article.imageUrl}
-                    alt={article.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                  {/* شارة التصنيف */}
-                  {article.category && (
-                    <div 
-                      className="absolute top-3 right-3 px-2 py-1 rounded-md text-xs font-medium"
-                      style={{ 
-                        backgroundColor: block.theme.primaryColor,
-                        color: '#ffffff'
-                      }}
-                    >
-                      {article.category}
-                    </div>
-                  )}
+            <div className="article-card-image">
+              {article.image || article.featured_image ? (
+                <Image
+                  src={article.image || article.featured_image}
+                  alt={article.title}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900/20 dark:to-orange-800/10">
+                  <TrendingUp className="w-12 h-12 text-orange-400 dark:text-orange-500" />
                 </div>
               )}
-
-              {/* محتوى البطاقة */}
-              <div className="p-4">
-                <h3 
-                  className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-opacity-80 transition-colors"
-                  style={{ color: block.theme.textColor }}
-                >
-                  {article.title}
-                </h3>
-
-                {article.excerpt && (
-                  <p 
-                    className="text-sm mb-3 line-clamp-2 opacity-80"
-                    style={{ color: block.theme.textColor }}
-                  >
-                    {article.excerpt}
-                  </p>
-                )}
-
-                {/* معلومات إضافية */}
-                <div className="flex items-center justify-between text-xs opacity-60">
-                  <div className="flex items-center gap-3">
-                    {/* الكاتب */}
-                    {article.author && (
-                      <div className="flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        <span>{article.author.name}</span>
-                      </div>
-                    )}
-
-                    {/* التاريخ */}
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      <span>{new Date(article.publishedAt).toLocaleDateString('ar-SA')}</span>
-                    </div>
-                  </div>
-
-                  {/* المشاهدات */}
-                  {article.views && (
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      <span>{article.views.toLocaleString('ar-SA')}</span>
-                    </div>
-                  )}
-                </div>
+              {index < 2 && (
+                <span className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                  جديد
+                </span>
+              )}
+            </div>
+            
+            <div className="article-card-content">
+              <h3 className="article-card-title">
+                {article.title}
+              </h3>
+              
+              <div className="article-card-meta">
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {new Date(article.published_at || article.created_at).toLocaleDateString('ar-SA')}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Eye className="w-3 h-3" />
+                  {article.views || 0}
+                </span>
               </div>
             </div>
           </Link>
@@ -154,4 +116,4 @@ export const CardGridBlock: React.FC<CardGridBlockProps> = ({ block, articles })
       </div>
     </div>
   );
-}; 
+} 

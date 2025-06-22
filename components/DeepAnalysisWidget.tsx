@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock3, Heart, Bookmark, Brain, User, Calendar, Search } from "lucide-react";
+import { Clock3, Heart, Bookmark, Brain, User, Calendar, Search, Share2, TrendingUp, Globe, FileText, ChevronLeft } from "lucide-react";
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
@@ -28,6 +28,7 @@ interface DeepInsight {
   url: string;
   isNew?: boolean;
   qualityScore?: number;
+  category?: string;
 }
 
 interface DeepAnalysisWidgetProps {
@@ -67,6 +68,19 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
     }
   };
 
+  const handleShare = (item: DeepInsight) => {
+    if (navigator.share) {
+      navigator.share({
+        title: item.title,
+        text: item.summary,
+        url: window.location.origin + item.url
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(window.location.origin + item.url);
+      toast.success('تم نسخ الرابط');
+    }
+  };
+
   const markAsRead = (id: string) => {
     const newReadItems = [...readItems, id];
     setReadItems(newReadItems);
@@ -94,6 +108,37 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
       return author.substring(0, 15) + '...';
     }
     return author;
+  };
+
+  // تحديد ما إذا كان التحليل جديد (خلال آخر 24 ساعة)
+  const isNewInsight = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    return diffInHours < 24;
+  };
+
+  // اختيار الأيقونة بناءً على نوع التحليل
+  const getInsightIcon = (category?: string) => {
+    switch(category?.toLowerCase()) {
+      case 'research':
+      case 'أبحاث':
+        return '🧠';
+      case 'report':
+      case 'تقارير':
+        return '📊';
+      case 'global':
+      case 'عالمي':
+        return '🌍';
+      case 'tech':
+      case 'تقنية':
+        return '💻';
+      case 'economy':
+      case 'اقتصاد':
+        return '💰';
+      default:
+        return '📈';
+    }
   };
 
   return (
@@ -128,65 +173,85 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
             {insights.map((item) => {
               const isUnread = !readItems.includes(item.id);
               const isAI = item.type === 'AI';
+              const isNew = isNewInsight(item.createdAt);
               
               return (
                 <div 
                   key={item.id} 
-                  className={`relative rounded-2xl overflow-hidden transition-all duration-300 hover:transform hover:scale-[1.02] ${
+                  className={`relative rounded-2xl overflow-hidden transition-all duration-300 hover:transform hover:-translate-y-1 group ${
                     darkMode 
-                      ? 'bg-gray-800 shadow-xl' 
-                      : 'bg-white shadow-lg hover:shadow-xl'
-                  } ${isAI ? 'ring-1 ring-purple-200' : ''} ${isUnread ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+                      ? 'bg-gray-800 shadow-lg hover:shadow-xl' 
+                      : 'bg-white shadow-md hover:shadow-lg'
+                  }`}
+                  style={{
+                    boxShadow: darkMode 
+                      ? '0 2px 6px rgba(0, 0, 0, 0.3)' 
+                      : '0 2px 6px rgba(0, 0, 0, 0.05)'
+                  }}
                 >
                   <div className="p-6">
-                    {/* مؤشر جديد */}
-                    {isUnread && (
-                      <div className="absolute top-2 left-2">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500 text-white">
-                          جديد
+                    {/* مؤشر جديد - نقطة حمراء صغيرة */}
+                    {isNew && (
+                      <div className="absolute top-4 left-4">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                         </span>
                       </div>
                     )}
 
-                    {/* الشريط العلوي */}
-                    <div className="flex items-center gap-2 mb-5">
-                      {isAI && (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          AI 🤖
+                    {/* الشريط العلوي مع الأيقونة الدلالية */}
+                    <div className="flex items-center justify-between mb-5">
+                      <div className="flex items-center gap-3">
+                        {/* أيقونة دلالية */}
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
+                          darkMode 
+                            ? 'bg-gray-700/50' 
+                            : 'bg-gray-100'
+                        }`}>
+                          {getInsightIcon(item.category)}
+                        </div>
+                        
+                        {/* بادج تحليل عميق - محدث بتدرج ناعم */}
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                          style={{
+                            background: 'linear-gradient(135deg, #d0e3ff 0%, #84aef3 100%)',
+                            color: '#1e40af'
+                          }}>
+                          تحليل عميق
                         </span>
-                      )}
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        darkMode 
-                          ? 'bg-blue-900/50 text-blue-300' 
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        تحليل عميق
-                      </span>
+                        
+                        {isAI && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            AI
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    {/* العنوان - مكبر */}
-                    <h3 className={`font-bold text-xl leading-relaxed mb-4 line-clamp-2 ${
+                    {/* العنوان */}
+                    <h3 className={`font-bold text-lg leading-relaxed mb-3 line-clamp-2 ${
                       darkMode ? 'text-white' : 'text-gray-900'
                     }`}>
                       {item.title}
                     </h3>
 
-                    {/* الملخص */}
-                    <p className={`text-sm mb-5 line-clamp-2 leading-relaxed ${
+                    {/* الملخص - خط خفيف */}
+                    <p className={`text-sm mb-4 line-clamp-3 leading-relaxed font-light ${
                       darkMode ? 'text-gray-400' : 'text-gray-600'
                     }`}>
                       {item.summary}
                     </p>
 
                     {/* الوسوم */}
-                    <div className="flex flex-wrap gap-2 mb-6">
+                    <div className="flex flex-wrap gap-1.5 mb-5">
                       {item.tags.slice(0, 3).map((tag, idx) => (
                         <span 
                           key={idx} 
-                          className={`text-xs px-2.5 py-1 rounded-md ${
+                          className={`text-xs px-2 py-0.5 rounded-md ${
                             darkMode 
-                              ? 'bg-gray-700 text-gray-300' 
-                              : 'bg-gray-100 text-gray-700'
+                              ? 'bg-gray-700/50 text-gray-400' 
+                              : 'bg-gray-100 text-gray-600'
                           }`}
                         >
                           #{tag}
@@ -195,13 +260,13 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                     </div>
 
                     {/* الإحصائيات */}
-                    <div className={`flex items-center gap-4 text-xs mb-6 ${
+                    <div className={`flex items-center gap-3 text-xs mb-5 ${
                       darkMode ? 'text-gray-500' : 'text-gray-500'
                     }`}>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span className="flex items-center gap-1 cursor-help">
-                            <User className="w-3.5 h-3.5" />
+                            <User className="w-3 h-3" />
                             {truncateAuthor(item.author)}
                           </span>
                         </TooltipTrigger>
@@ -210,57 +275,74 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                         </TooltipContent>
                       </Tooltip>
                       <span className="flex items-center gap-1">
-                        <Clock3 className="w-3.5 h-3.5" /> 
-                        {item.readTime} دقيقة
+                        <Clock3 className="w-3 h-3" /> 
+                        {item.readTime} د
                       </span>
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5" />
+                        <Calendar className="w-3 h-3" />
                         {formatDate(item.createdAt)}
                       </span>
                     </div>
 
-                    {/* الأزرار - إعادة ترتيب */}
-                    <div className="flex items-center gap-2">
-                      {/* زر اقرأ التحليل */}
-                      <a href={item.url} className="flex-1" onClick={() => markAsRead(item.id)}>
-                        <button className={`w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 ${
+                    {/* زر القراءة - مصغر وخافت */}
+                    <div className="mb-4">
+                      <a href={item.url} onClick={() => markAsRead(item.id)}>
+                        <button className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-all duration-300 border group-hover:border-blue-500 ${
                           darkMode 
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            ? 'border-gray-700 text-gray-300 hover:text-blue-400 hover:bg-gray-700/50' 
+                            : 'border-gray-200 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
                         }`}>
-                          اقرأ التحليل
+                          <span className="flex items-center justify-center gap-2">
+                            اقرأ التحليل
+                            <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                          </span>
                         </button>
                       </a>
-                      
-                      {/* أزرار الإعجاب والحفظ */}
+                    </div>
+
+                    {/* عناصر التفاعل - موسطة */}
+                    <div className="flex items-center justify-center gap-4">
                       <button
-                        onClick={() => handleLike(item.id)}
-                        className={`p-2.5 rounded-lg transition-all duration-300 ${
-                          likedItems.includes(item.id) 
-                            ? 'bg-red-50 text-red-600 border border-red-200' 
-                            : darkMode 
-                              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        onClick={() => handleShare(item)}
+                        className={`p-2 rounded-lg transition-all duration-300 ${
+                          darkMode 
+                            ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-700/50' 
+                            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                         }`}
-                        title="إعجاب"
+                        title="مشاركة"
                       >
-                        <Heart className={`w-4 h-4 ${
-                          likedItems.includes(item.id) ? 'fill-current' : ''
-                        }`} />
+                        <Share2 className="w-4 h-4" />
                       </button>
+                      
                       <button
                         onClick={() => handleSave(item.id)}
-                        className={`p-2.5 rounded-lg transition-all duration-300 ${
+                        className={`p-2 rounded-lg transition-all duration-300 ${
                           savedItems.includes(item.id) 
-                            ? 'bg-blue-50 text-blue-600 border border-blue-200' 
+                            ? 'text-blue-500' 
                             : darkMode 
-                              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-700/50' 
+                              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                         }`}
                         title="حفظ"
                       >
                         <Bookmark className={`w-4 h-4 ${
                           savedItems.includes(item.id) ? 'fill-current' : ''
+                        }`} />
+                      </button>
+                      
+                      <button
+                        onClick={() => handleLike(item.id)}
+                        className={`p-2 rounded-lg transition-all duration-300 ${
+                          likedItems.includes(item.id) 
+                            ? 'text-red-500' 
+                            : darkMode 
+                              ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-700/50' 
+                              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                        }`}
+                        title="إعجاب"
+                      >
+                        <Heart className={`w-4 h-4 ${
+                          likedItems.includes(item.id) ? 'fill-current' : ''
                         }`} />
                       </button>
                     </div>

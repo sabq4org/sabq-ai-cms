@@ -95,13 +95,17 @@ export default function SmartSlot({ position, userType = 'guest' }: SmartSlotPro
 
   const fetchArticlesForBlock = async (block: SmartBlock) => {
     try {
-      let url = `/api/articles?status=published&limit=${block.articlesCount || 6}`;
-      
-      // دعم الكلمات المفتاحية المتعددة
-      if (block.keywords && block.keywords.length > 0) {
-        const searchQuery = block.keywords.join(' ');
-        url += `&search=${encodeURIComponent(searchQuery)}`;
+      // إذا لم تكن هناك كلمات مفتاحية، لا نعرض أي مقالات
+      if (!block.keywords || block.keywords.length === 0) {
+        setArticles(prev => ({
+          ...prev,
+          [block.id]: []
+        }));
+        return;
       }
+      
+      // جلب جميع المقالات المنشورة
+      let url = `/api/articles?status=published&limit=100`; // جلب عدد كبير للفلترة المحلية
       
       if (block.category) {
         url += `&category=${encodeURIComponent(block.category)}`;
@@ -112,9 +116,34 @@ export default function SmartSlot({ position, userType = 'guest' }: SmartSlotPro
       
       const articlesData = data.data || data.articles || data || [];
       
+      // فلترة المقالات بناءً على الكلمات المفتاحية
+      const filteredArticles = articlesData.filter((article: any) => {
+        // التحقق من وجود الكلمات المفتاحية في:
+        // 1. seo_keywords
+        // 2. العنوان
+        // 3. المحتوى
+        const articleKeywords = article.seo_keywords || [];
+        const title = article.title || '';
+        const content = article.content || '';
+        const summary = article.summary || '';
+        
+        return block.keywords?.some((keyword: string) => {
+          const lowerKeyword = keyword.toLowerCase();
+          return (
+            articleKeywords.some((k: string) => k.toLowerCase().includes(lowerKeyword)) ||
+            title.toLowerCase().includes(lowerKeyword) ||
+            content.toLowerCase().includes(lowerKeyword) ||
+            summary.toLowerCase().includes(lowerKeyword)
+          );
+        });
+      });
+      
+      // أخذ العدد المطلوب فقط
+      const limitedArticles = filteredArticles.slice(0, block.articlesCount || 6);
+      
       setArticles(prev => ({
         ...prev,
-        [block.id]: articlesData.map((article: any) => ({
+        [block.id]: limitedArticles.map((article: any) => ({
           id: article.id,
           title: article.title,
           slug: article.slug || article.id,
@@ -132,6 +161,10 @@ export default function SmartSlot({ position, userType = 'guest' }: SmartSlotPro
       }));
     } catch (error) {
       console.error('Error fetching articles for block:', error);
+      setArticles(prev => ({
+        ...prev,
+        [block.id]: []
+      }));
     }
   };
 

@@ -8,7 +8,7 @@
       "summary": "هلا ومرحبا",
       "author_id": "tm-1750618269861-zhxswwcg3",
       "category_id": 2,
-      "status": "published",
+      "status": "deleted",
       "featured_image": "blob:http://localhost:3000/8ba3ee19-dcc9-43c0-9ed0-d734d3329e14",
       "seo_title": "تجربة",
       "seo_description": "هلا ومرحبا",
@@ -32,8 +32,8 @@
         }
       ],
       "created_at": "2025-06-22T19:39:09.387Z",
-      "updated_at": "2025-06-22T19:39:09.387Z",
-      "is_deleted": false,
+      "updated_at": "2025-06-22T19:58:37.865Z",
+      "is_deleted": true,
       "author": {
         "id": "tm-1750618269861-zhxswwcg3",
         "name": "علي عبده",
@@ -191,7 +191,7 @@
       "is_featured": true,
       "is_pinned": false,
       "publish_at": "2025-01-22T14:30:00.000Z",
-      "views_count": 2847,
+      "views_count": 2849,
       "reading_time": 2,
       "content_blocks": [],
       "created_at": "2025-01-22T14:30:00.000Z",
@@ -207,7 +207,7 @@
       "author": "علي عبده",
       "author_name": "علي عبده",
       "stats": {
-        "views": 2847,
+        "views": 2849,
         "likes": 156,
         "shares": 89,
         "comments": 234,

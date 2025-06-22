@@ -50,7 +50,7 @@ interface SmartBlock {
   position: 'topBanner' | 'afterHighlights' | 'afterCards' | 'beforePersonalization' | 'beforeFooter';
   type: 'smart' | 'custom' | 'html';
   status: 'active' | 'inactive' | 'scheduled';
-  displayType: 'grid' | 'cards' | 'horizontal' | 'gallery' | 'list';
+  displayType: 'grid' | 'cards' | 'horizontal' | 'gallery' | 'list' | 'hero-slider' | 'magazine' | 'headline' | 'image-left' | 'carousel';
   keywords?: string[];
   category?: string;
   articlesCount: number;
@@ -78,15 +78,17 @@ const POSITIONS = [
   { value: 'beforeFooter', label: 'قبل التذييل', description: 'في أسفل الصفحة قبل الفوتر', icon: '🔚' }
 ];
 
-const DISPLAY_TYPES = [
-  { value: 'cards', label: 'بطاقات (Card View)', icon: Layers, color: 'text-purple-500', description: 'شبكة من البطاقات بمقاس موحد' },
-  { value: 'headline', label: 'عناوين فقط (Headlines)', icon: FileText, color: 'text-gray-500', description: 'قائمة نصوص فقط بعناوين المقالات' },
-  { value: 'image-left', label: 'صورة يسار (Image Left)', icon: Image, color: 'text-orange-500', description: 'صورة مصغرة بجوار عنوان المقال' },
-  { value: 'carousel', label: 'كاروسيل (Carousel)', icon: List, color: 'text-green-500', description: 'تمرير أفقي للمحتوى' },
-  { value: 'grid', label: 'شبكة (Grid)', icon: Grid3X3, color: 'text-blue-500', description: 'شبكة بطاقات كلاسيكية' },
-  { value: 'list', label: 'قائمة (List)', icon: FileText, color: 'text-gray-500', description: 'قائمة عمودية بسيطة' },
-  { value: 'horizontal', label: 'شريط أفقي', icon: List, color: 'text-green-500', description: 'شريط أفقي قابل للتمرير' },
-  { value: 'gallery', label: 'معرض صور', icon: Image, color: 'text-orange-500', description: 'معرض صور بدون نصوص' }
+const displayTypes = [
+  { value: 'cards', label: 'بطاقات شبكية', icon: '🎴', color: 'text-purple-500', description: 'شبكة من البطاقات بمقاس موحد' },
+  { value: 'carousel', label: 'كاروسيل', icon: '🎠', color: 'text-green-500', description: 'تمرير أفقي للمحتوى' },
+  { value: 'headline', label: 'قائمة عناوين', icon: '📰', color: 'text-gray-500', description: 'قائمة نصوص فقط بعناوين المقالات' },
+  { value: 'image-left', label: 'صورة يسار', icon: '🖼️', color: 'text-orange-500', description: 'صورة مصغرة بجوار عنوان المقال' },
+  { value: 'hero-slider', label: 'سلايدر رئيسي', icon: '🎬', color: 'text-red-500', description: 'سلايدر كبير مع صور وعناوين' },
+  { value: 'magazine', label: 'تخطيط مجلة', icon: '📖', color: 'text-indigo-500', description: 'تخطيط مجلة احترافي' },
+  { value: 'grid', label: 'شبكة', icon: '⚏', color: 'text-blue-500', description: 'شبكة بطاقات كلاسيكية' },
+  { value: 'list', label: 'قائمة', icon: '📋', color: 'text-gray-500', description: 'قائمة عمودية بسيطة' },
+  { value: 'horizontal', label: 'أفقي', icon: '↔️', color: 'text-green-500', description: 'شريط أفقي قابل للتمرير' },
+  { value: 'gallery', label: 'معرض', icon: '🖼️', color: 'text-orange-500', description: 'معرض صور بدون نصوص' }
 ];
 
 const BLOCK_TYPES = [
@@ -713,12 +715,12 @@ export default function SmartBlocksPage() {
                           }`}>{block.name}</h3>
                           {getStatusBadge(block.status)}
                           <Badge variant="outline" className="text-xs">
-                            {DISPLAY_TYPES.find(d => d.value === block.displayType)?.icon && (
-                              React.createElement(DISPLAY_TYPES.find(d => d.value === block.displayType)!.icon, {
-                                className: `w-3 h-3 ml-1 ${DISPLAY_TYPES.find(d => d.value === block.displayType)?.color}`
-                              })
-                            )}
-                            {DISPLAY_TYPES.find(d => d.value === block.displayType)?.label}
+                            <span className={displayTypes.find(d => d.value === block.displayType)?.color}>
+                              {displayTypes.find(d => d.value === block.displayType)?.icon}
+                            </span>
+                            <span className="mr-1">
+                              {displayTypes.find(d => d.value === block.displayType)?.label}
+                            </span>
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             {BLOCK_TYPES.find(t => t.value === block.type)?.icon && (
@@ -922,7 +924,7 @@ export default function SmartBlocksPage() {
                         <SelectTrigger id="block-type" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-h-[300px] overflow-y-auto`}>
+                        <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
                           {BLOCK_TYPES.map((type) => {
                             const Icon = type.icon;
                             return (
@@ -1051,12 +1053,11 @@ export default function SmartBlocksPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
-                          {DISPLAY_TYPES.map((type) => {
-                            const Icon = type.icon;
+                          {displayTypes.map((type) => {
                             return (
                               <SelectItem key={type.value} value={type.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
                                 <div className="flex items-center gap-2">
-                                  <Icon className={`w-4 h-4 ${type.color}`} />
+                                  <span className={type.color}>{type.icon}</span>
                                   <span>{type.label}</span>
                                 </div>
                               </SelectItem>
@@ -1303,6 +1304,36 @@ export default function SmartBlocksPage() {
                           <div className="w-full h-full bg-gray-300 animate-pulse"></div>
                         </div>
                       ))}
+                    </div>
+                  )}
+
+                  {newBlock.displayType === 'hero-slider' && (
+                    <div className="relative h-48 rounded-lg overflow-hidden">
+                      <div className="absolute inset-0 bg-gray-300 animate-pulse"></div>
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+                        <div className="h-4 bg-white/50 rounded mb-2 w-3/4 animate-pulse"></div>
+                        <div className="h-3 bg-white/30 rounded w-1/2 animate-pulse"></div>
+                      </div>
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                        {[1, 2, 3].map(i => (
+                          <div 
+                            key={i} 
+                            className={`h-1 rounded-full animate-pulse ${i === 1 ? 'w-6 bg-white' : 'w-3 bg-white/50'}`}
+                          ></div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {newBlock.displayType === 'magazine' && (
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="col-span-2">
+                        <div className="h-32 bg-gray-300 rounded animate-pulse"></div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-15 bg-gray-300 rounded animate-pulse"></div>
+                        <div className="h-15 bg-gray-300 rounded animate-pulse"></div>
+                      </div>
                     </div>
                   )}
 

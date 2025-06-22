@@ -6,12 +6,14 @@ import { HeadlineListBlock } from './HeadlineListBlock';
 import { ImageLeftBlock } from './ImageLeftBlock';
 import { CarouselBlock } from './CarouselBlock';
 import { HtmlBlock } from './HtmlBlock';
+import { HeroSliderBlock } from './HeroSliderBlock';
+import { MagazineLayoutBlock } from './MagazineLayoutBlock';
 
 interface SmartBlock {
   id: string;
   name: string;
   type: 'smart' | 'custom' | 'html';
-  displayType: 'cards' | 'headline' | 'image-left' | 'carousel' | 'grid' | 'list' | 'horizontal' | 'gallery';
+  displayType: 'cards' | 'headline' | 'image-left' | 'carousel' | 'grid' | 'list' | 'horizontal' | 'gallery' | 'hero-slider' | 'magazine';
   theme: {
     primaryColor: string;
     backgroundColor: string;
@@ -87,6 +89,12 @@ export const SmartBlockRenderer: React.FC<SmartBlockRendererProps> = ({
       case 'gallery':
         return <CarouselBlock block={block} articles={displayArticles} />;
       
+      case 'hero-slider':
+        return <HeroSliderBlock block={block} articles={displayArticles} />;
+      
+      case 'magazine':
+        return <MagazineLayoutBlock block={block} articles={displayArticles} />;
+      
       default:
         return <CardGridBlock block={block} articles={displayArticles} />;
     }
@@ -94,9 +102,9 @@ export const SmartBlockRenderer: React.FC<SmartBlockRendererProps> = ({
 
   return (
     <div
-      className="smart-block-container"
+      className="smart-block-wrapper"
       style={{
-        padding: block.padding || '1rem',
+        padding: block.padding || '0',
         margin: block.margin || '0',
         backgroundColor: block.bgColor || 'transparent'
       }}
