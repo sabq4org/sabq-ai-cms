@@ -7,8 +7,8 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    // إعادة التوجيه التلقائي إلى لوحة التحكم
-    router.push('/dashboard');
+    // إعادة التوجيه التلقائي إلى صفحة التحليل العميق
+    router.push('/deep-analysis');
   }, [router]);
 
   return (
@@ -17,7 +17,7 @@ export default function HomePage() {
         <h1 className="text-4xl font-bold text-blue-600 mb-4">
           صحيفة سبق الإلكترونية
         </h1>
-        <p className="text-gray-600 mb-8">جاري التحويل إلى لوحة التحكم...</p>
+        <p className="text-gray-600 mb-8">جاري التحويل إلى التحليل العميق...</p>
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
       </div>
     </div>
