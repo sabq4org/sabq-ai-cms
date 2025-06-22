@@ -51,7 +51,7 @@ interface SmartBlock {
   type: 'smart' | 'custom' | 'html';
   status: 'active' | 'inactive' | 'scheduled';
   displayType: 'grid' | 'cards' | 'horizontal' | 'gallery' | 'list';
-  keyword?: string;
+  keywords?: string[];
   category?: string;
   articlesCount: number;
   theme: {
@@ -92,6 +92,65 @@ const BLOCK_TYPES = [
   { value: 'html', label: 'بلوك HTML', description: 'كود HTML مخصص', icon: Code, color: 'text-green-500' }
 ];
 
+const EnhancedStatsCard = ({ 
+  title, 
+  value, 
+  subtitle, 
+  icon: Icon, 
+  bgGradient,
+  iconColor,
+  trend,
+  trendValue,
+  darkMode,
+  loading
+}: {
+  title: string;
+  value: string | number;
+  subtitle: string;
+  icon: any;
+  bgGradient: string;
+  iconColor: string;
+  trend?: 'up' | 'down';
+  trendValue?: string;
+  darkMode: boolean;
+  loading: boolean;
+}) => {
+  return (
+    <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+      darkMode 
+        ? 'bg-gray-800 border-gray-700' 
+        : 'bg-white border-gray-100'
+    }`}>
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className={`w-12 h-12 sm:w-14 sm:h-14 ${bgGradient} rounded-2xl flex items-center justify-center shadow-lg`}>
+          <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${iconColor}`} />
+        </div>
+        <div className="flex-1">
+          <p className={`text-xs sm:text-sm mb-1 transition-colors duration-300 ${
+            darkMode ? 'text-gray-400' : 'text-gray-500'
+          }`}>{title}</p>
+          <div className="flex items-baseline gap-1 sm:gap-2">
+            <span className={`text-lg sm:text-2xl font-bold transition-colors duration-300 ${
+              darkMode ? 'text-white' : 'text-gray-800'
+            }`}>{loading ? '...' : value}</span>
+            <span className={`text-xs sm:text-sm transition-colors duration-300 ${
+              darkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>{subtitle}</span>
+          </div>
+          {trend && trendValue && (
+            <div className={`flex items-center gap-1 mt-2 text-xs ${
+              trend === 'up' ? 'text-green-600' : 'text-red-600'
+            }`}>
+              <TrendingUp className={`w-3 h-3 ${trend === 'down' ? 'rotate-180' : ''}`} />
+              <span>{trendValue}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function SmartBlocksPage() {
   const { darkMode } = useDarkModeContext();
   const [blocks, setBlocks] = useState<SmartBlock[]>([]);
@@ -100,8 +159,9 @@ export default function SmartBlocksPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
-  const [showSettings, setShowSettings] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+  const [currentKeyword, setCurrentKeyword] = useState('');
 
   // نموذج البلوك الجديد
   const [newBlock, setNewBlock] = useState<Partial<SmartBlock>>({
@@ -110,7 +170,7 @@ export default function SmartBlocksPage() {
     type: 'smart',
     status: 'active',
     displayType: 'grid',
-    keyword: '',
+    keywords: [],
     category: '',
     articlesCount: 6,
     theme: {
@@ -302,7 +362,7 @@ export default function SmartBlocksPage() {
       type: 'smart',
       status: 'active',
       displayType: 'grid',
-      keyword: '',
+      keywords: [],
       category: '',
       articlesCount: 6,
       theme: {
@@ -320,6 +380,7 @@ export default function SmartBlocksPage() {
     setSelectedBlock(null);
     setIsEditing(false);
     setShowPreview(false);
+    setCurrentKeyword('');
   };
 
   const getStatusBadge = (status: string) => {
@@ -355,60 +416,6 @@ export default function SmartBlocksPage() {
       </div>
     );
   }
-
-  // مكون بطاقة الإحصائية المحسّنة
-  const EnhancedStatsCard = ({ 
-    title, 
-    value, 
-    subtitle, 
-    icon: Icon, 
-    bgGradient,
-    iconColor,
-    trend,
-    trendValue
-  }: {
-    title: string;
-    value: string | number;
-    subtitle: string;
-    icon: any;
-    bgGradient: string;
-    iconColor: string;
-    trend?: 'up' | 'down';
-    trendValue?: string;
-  }) => (
-    <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
-      darkMode 
-        ? 'bg-gray-800 border-gray-700' 
-        : 'bg-white border-gray-100'
-    }`}>
-      <div className="flex items-center gap-3 sm:gap-4">
-        <div className={`w-12 h-12 sm:w-14 sm:h-14 ${bgGradient} rounded-2xl flex items-center justify-center shadow-lg`}>
-          <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${iconColor}`} />
-        </div>
-        <div className="flex-1">
-          <p className={`text-xs sm:text-sm mb-1 transition-colors duration-300 ${
-            darkMode ? 'text-gray-400' : 'text-gray-500'
-          }`}>{title}</p>
-          <div className="flex items-baseline gap-1 sm:gap-2">
-            <span className={`text-lg sm:text-2xl font-bold transition-colors duration-300 ${
-              darkMode ? 'text-white' : 'text-gray-800'
-            }`}>{loading ? '...' : value}</span>
-            <span className={`text-xs sm:text-sm transition-colors duration-300 ${
-              darkMode ? 'text-gray-400' : 'text-gray-500'
-            }`}>{subtitle}</span>
-          </div>
-          {trend && trendValue && (
-            <div className={`flex items-center gap-1 mt-2 text-xs ${
-              trend === 'up' ? 'text-green-600' : 'text-red-600'
-            }`}>
-              <TrendingUp className={`w-3 h-3 ${trend === 'down' ? 'rotate-180' : ''}`} />
-              <span>{trendValue}</span>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
 
   // التبويبات
   const statusTabs = [
@@ -483,39 +490,17 @@ export default function SmartBlocksPage() {
             ? 'bg-gradient-to-r from-teal-900/30 to-cyan-900/30 border-teal-700' 
             : 'bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-100'
         }`}>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Grid3X3 className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-              </div>
-              <div>
-                <h2 className={`text-lg sm:text-xl font-bold transition-colors duration-300 ${
-                  darkMode ? 'text-white' : 'text-gray-800'
-                }`}>نظام البلوكات الذكية المتقدم</h2>
-                <p className={`text-xs sm:text-sm transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-600'
-                }`}>أدوات قوية لإنشاء محتوى تفاعلي وديناميكي يتكيف مع اهتمامات القراء</p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Grid3X3 className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
-            
-            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-              <Button
-                variant="outline"
-                onClick={() => setShowSettings(!showSettings)}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-sm"
-              >
-                <Settings className="w-4 h-4" />
-                <span className="hidden sm:inline">إعدادات النظام</span>
-                <span className="sm:hidden">إعدادات</span>
-              </Button>
-              
-              <Button
-                onClick={() => setShowCreateForm(true)}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
-              >
-                <Plus className="w-4 h-4" />
-                بلوك جديد
-              </Button>
+            <div>
+              <h2 className={`text-lg sm:text-xl font-bold transition-colors duration-300 ${
+                darkMode ? 'text-white' : 'text-gray-800'
+              }`}>نظام البلوكات الذكية المتقدم</h2>
+              <p className={`text-xs sm:text-sm transition-colors duration-300 ${
+                darkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>أدوات قوية لإنشاء محتوى تفاعلي وديناميكي يتكيف مع اهتمامات القراء</p>
             </div>
           </div>
         </div>
@@ -532,6 +517,8 @@ export default function SmartBlocksPage() {
           iconColor="text-white"
           trend="up"
           trendValue="+12% هذا الشهر"
+          darkMode={darkMode}
+          loading={loading}
         />
         <EnhancedStatsCard
           title="البلوكات المفعلة"
@@ -542,6 +529,8 @@ export default function SmartBlocksPage() {
           iconColor="text-white"
           trend="up"
           trendValue="+8% هذا الأسبوع"
+          darkMode={darkMode}
+          loading={loading}
         />
         <EnhancedStatsCard
           title="البلوكات الذكية"
@@ -550,6 +539,8 @@ export default function SmartBlocksPage() {
           icon={Sparkles}
           bgGradient="bg-gradient-to-br from-purple-500 to-pink-600"
           iconColor="text-white"
+          darkMode={darkMode}
+          loading={loading}
         />
         <EnhancedStatsCard
           title="البلوكات المخصصة"
@@ -558,6 +549,8 @@ export default function SmartBlocksPage() {
           icon={Target}
           bgGradient="bg-gradient-to-br from-blue-500 to-indigo-600"
           iconColor="text-white"
+          darkMode={darkMode}
+          loading={loading}
         />
         <EnhancedStatsCard
           title="بلوكات HTML"
@@ -566,6 +559,8 @@ export default function SmartBlocksPage() {
           icon={Code}
           bgGradient="bg-gradient-to-br from-orange-500 to-red-600"
           iconColor="text-white"
+          darkMode={darkMode}
+          loading={loading}
         />
       </div>
 
@@ -632,8 +627,21 @@ export default function SmartBlocksPage() {
               <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 {blocks.filter(b => b.status === 'active').length} مفعل
               </Badge>
-              <Button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
+              <Button 
+                onClick={() => {
+                  setShowCreateForm(true);
+                  // التمرير إلى النموذج بعد فتحه
+                  setTimeout(() => {
+                    const formElement = document.getElementById('smart-block-form');
+                    if (formElement) {
+                      formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
+                }} 
+                className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+                type="button"
+              >
+                <Plus className="h-5 w-5" />
                 إضافة بلوك جديد
               </Button>
             </div>
@@ -650,7 +658,16 @@ export default function SmartBlocksPage() {
               <p className={`transition-colors duration-300 mb-6 ${
                 darkMode ? 'text-gray-400' : 'text-gray-600'
               }`}>ابدأ بإنشاء أول بلوك ذكي لتخصيص الصفحة الرئيسية</p>
-              <Button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2 mx-auto">
+              <Button onClick={() => {
+                setShowCreateForm(true);
+                // التمرير إلى النموذج بعد فتحه
+                setTimeout(() => {
+                  const formElement = document.getElementById('smart-block-form');
+                  if (formElement) {
+                    formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }, 100);
+              }} className="flex items-center gap-2 mx-auto">
                 <Plus className="h-4 w-4" />
                 إنشاء بلوك جديد
               </Button>
@@ -670,18 +687,18 @@ export default function SmartBlocksPage() {
                           size="sm"
                           onClick={() => moveBlockUp(block.id)}
                           disabled={index === 0}
-                          className="h-8 w-8 p-0"
+                          className="h-10 w-10 p-0"
                         >
-                          <ArrowUp className="h-4 w-4" />
+                          <ArrowUp className="h-5 w-5" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => moveBlockDown(block.id)}
                           disabled={index === sortedBlocks.length - 1}
-                          className="h-8 w-8 p-0"
+                          className="h-10 w-10 p-0"
                         >
-                          <ArrowDown className="h-4 w-4" />
+                          <ArrowDown className="h-5 w-5" />
                         </Button>
                       </div>
                       
@@ -717,10 +734,10 @@ export default function SmartBlocksPage() {
                             <Layout className="w-4 h-4" />
                             {getPositionLabel(block.position)}
                           </span>
-                          {block.keyword && (
+                          {block.keywords && block.keywords.length > 0 && (
                             <span className="flex items-center gap-1">
                               <Target className="w-4 h-4" />
-                              {block.keyword}
+                              {block.keywords.join(', ')}
                             </span>
                           )}
                           <span className="flex items-center gap-1">
@@ -759,7 +776,7 @@ export default function SmartBlocksPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleBlockStatus(block.id)}
-                        className={`h-9 w-9 p-0 ${
+                        className={`h-11 w-11 p-0 ${
                           block.status === 'active' 
                             ? 'text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/30' 
                             : 'text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'
@@ -767,28 +784,28 @@ export default function SmartBlocksPage() {
                         title={block.status === 'active' ? 'إيقاف تشغيل البلوك' : 'تشغيل البلوك'}
                       >
                         {block.status === 'active' ? (
-                          <Power className="h-4 w-4" />
+                          <Power className="h-5 w-5" />
                         ) : (
-                          <PowerOff className="h-4 w-4" />
+                          <PowerOff className="h-5 w-5" />
                         )}
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => editBlock(block)}
-                        className="h-9 w-9 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700"
+                        className="h-11 w-11 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700"
                         title="تعديل البلوك"
                       >
-                        <Edit3 className="h-4 w-4" />
+                        <Edit3 className="h-5 w-5" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => deleteBlock(block.id)}
-                        className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+                        className="h-11 w-11 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
                         title="حذف البلوك"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-5 w-5" />
                       </Button>
                     </div>
                   </div>
@@ -799,14 +816,15 @@ export default function SmartBlocksPage() {
         </div>
       </div>
 
-      {/* نموذج إنشاء البلوك المحسن */}
+      {/* نموذج إنشاء البلوك مع المعاينة في جدول واحد */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className={`relative rounded-2xl shadow-2xl max-w-3xl w-full my-8 transition-all duration-300 ${
-            darkMode ? 'bg-gray-800' : 'bg-white'
+        <div className="mt-8 relative z-10" id="smart-block-form">
+          {/* جدول واحد يحتوي على النموذج والمعاينة */}
+          <div className={`rounded-2xl shadow-lg transition-all duration-300 overflow-hidden ${
+            darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
           }`}>
-            {/* رأس النموذج */}
-            <div className={`sticky top-0 z-10 p-6 border-b ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'} rounded-t-2xl`}>
+            {/* رأس الجدول */}
+            <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className={`text-xl font-bold transition-colors duration-300 ${
@@ -815,7 +833,7 @@ export default function SmartBlocksPage() {
                     {isEditing ? 'تعديل البلوك' : 'إنشاء بلوك جديد'}
                   </h2>
                   <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    قم بتخصيص البلوك وضبط إعداداته لعرضه في الصفحة الرئيسية
+                    قم بتخصيص البلوك وضبط إعداداته مع معاينة مباشرة
                   </p>
                 </div>
                 <Button
@@ -832,165 +850,219 @@ export default function SmartBlocksPage() {
               </div>
             </div>
 
-            {/* محتوى النموذج */}
-            <div className="p-6 space-y-6">
-
+            {/* محتوى الجدول: النموذج والمعاينة جنباً إلى جنب */}
+            <div className="grid grid-cols-1 lg:grid-cols-2">
+              {/* القسم الأيسر: النموذج */}
+              <div className={`p-6 space-y-6 ${darkMode ? 'border-l border-gray-700' : 'border-l border-gray-200'} lg:border-l-0 lg:border-r`}>
                 {/* المعلومات الأساسية */}
                 <div className={`space-y-4 p-4 rounded-lg border ${
                   darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
                 }`}>
-                    <h3 className={`font-semibold text-lg flex items-center gap-2 ${
-                      darkMode ? 'text-white' : 'text-gray-800'
+                  <h3 className={`font-semibold text-lg flex items-center gap-2 ${
+                    darkMode ? 'text-white' : 'text-gray-800'
+                  }`}>
+                    <FileText className="w-5 h-5" />
+                    المعلومات الأساسية
+                  </h3>
+                  
+                  <div>
+                    <Label htmlFor="block-name" className="mb-2">عنوان البلوك</Label>
+                    <Input
+                      id="block-name"
+                      value={newBlock.name}
+                      onChange={(e) => setNewBlock({ ...newBlock, name: e.target.value })}
+                      placeholder="مثال: اليوم الوطني 94"
+                      maxLength={50}
+                      className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
+                    />
+                    <p className={`text-xs mt-1 transition-colors duration-300 ${
+                      darkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}>
-                      <FileText className="w-5 h-5" />
-                      المعلومات الأساسية
-                    </h3>
-                    
+                      {newBlock.name?.length || 0}/50 حرف
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <Label htmlFor="block-name" className="mb-2">عنوان البلوك</Label>
-                      <Input
-                        id="block-name"
-                        value={newBlock.name}
-                        onChange={(e) => setNewBlock({ ...newBlock, name: e.target.value })}
-                        placeholder="مثال: اليوم الوطني 94"
-                        maxLength={50}
-                        className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
-                      />
-                      <p className={`text-xs mt-1 transition-colors duration-300 ${
-                        darkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>
-                        {newBlock.name?.length || 0}/50 حرف
-                      </p>
+                      <Label htmlFor="block-position" className="mb-2">موقع العرض</Label>
+                      <Select
+                        value={newBlock.position}
+                        onValueChange={(value) => setNewBlock({ ...newBlock, position: value as any })}
+                      >
+                        <SelectTrigger id="block-position" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-h-[300px] overflow-y-auto`}>
+                          {POSITIONS.map((pos) => (
+                            <SelectItem key={pos.value} value={pos.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
+                              <div className="flex items-center gap-2">
+                                <span>{pos.icon}</span>
+                                <div>
+                                  <div className="font-medium">{pos.label}</div>
+                                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    {pos.description}
+                                  </div>
+                                </div>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="block-position" className="mb-2">موقع العرض</Label>
-                        <Select
-                          value={newBlock.position}
-                          onValueChange={(value) => setNewBlock({ ...newBlock, position: value as any })}
-                        >
-                          <SelectTrigger id="block-position" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-h-[300px] overflow-y-auto`}>
-                            {POSITIONS.map((pos) => (
-                              <SelectItem key={pos.value} value={pos.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
+                    <div>
+                      <Label htmlFor="block-type" className="mb-2">نوع البلوك</Label>
+                      <Select
+                        value={newBlock.type}
+                        onValueChange={(value) => setNewBlock({ ...newBlock, type: value as any })}
+                      >
+                        <SelectTrigger id="block-type" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-h-[300px] overflow-y-auto`}>
+                          {BLOCK_TYPES.map((type) => {
+                            const Icon = type.icon;
+                            return (
+                              <SelectItem key={type.value} value={type.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
                                 <div className="flex items-center gap-2">
-                                  <span>{pos.icon}</span>
+                                  <Icon className={`w-4 h-4 ${type.color}`} />
                                   <div>
-                                    <div className="font-medium">{pos.label}</div>
+                                    <div className="font-medium">{type.label}</div>
                                     <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                      {pos.description}
+                                      {type.description}
                                     </div>
                                   </div>
                                 </div>
                               </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {newBlock.type === 'smart' && (
+                    <div>
+                      <Label htmlFor="block-keyword" className="mb-2">الكلمات المفتاحية</Label>
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Input
+                            id="block-keyword"
+                            value={currentKeyword}
+                            onChange={(e) => setCurrentKeyword(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && currentKeyword.trim()) {
+                                e.preventDefault();
+                                setNewBlock({
+                                  ...newBlock,
+                                  keywords: [...(newBlock.keywords || []), currentKeyword.trim()]
+                                });
+                                setCurrentKeyword('');
+                              }
+                            }}
+                            placeholder="اكتب كلمة واضغط Enter"
+                            className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (currentKeyword.trim()) {
+                                setNewBlock({
+                                  ...newBlock,
+                                  keywords: [...(newBlock.keywords || []), currentKeyword.trim()]
+                                });
+                                setCurrentKeyword('');
+                              }
+                            }}
+                            disabled={!currentKeyword.trim()}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        {newBlock.keywords && newBlock.keywords.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {newBlock.keywords.map((keyword, index) => (
+                              <Badge
+                                key={index}
+                                variant="secondary"
+                                className="flex items-center gap-1 px-2 py-1"
+                              >
+                                <span>{keyword}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNewBlock({
+                                      ...newBlock,
+                                      keywords: newBlock.keywords?.filter((_, i) => i !== index)
+                                    });
+                                  }}
+                                  className="ml-1 hover:text-red-500 transition-colors"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </Badge>
                             ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="block-type" className="mb-2">نوع البلوك</Label>
-                        <Select
-                          value={newBlock.type}
-                          onValueChange={(value) => setNewBlock({ ...newBlock, type: value as any })}
-                        >
-                          <SelectTrigger id="block-type" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-h-[300px] overflow-y-auto`}>
-                            {BLOCK_TYPES.map((type) => {
-                              const Icon = type.icon;
-                              return (
-                                <SelectItem key={type.value} value={type.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
-                                  <div className="flex items-center gap-2">
-                                    <Icon className={`w-4 h-4 ${type.color}`} />
-                                    <div>
-                                      <div className="font-medium">{type.label}</div>
-                                      <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                        {type.description}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
+                          </div>
+                        )}
                       </div>
                     </div>
+                  )}
 
-                    {newBlock.type === 'smart' && (
-                      <div>
-                        <Label htmlFor="block-keyword" className="mb-2">الكلمة المفتاحية</Label>
-                        <Input
-                          id="block-keyword"
-                          value={newBlock.keyword}
-                          onChange={(e) => setNewBlock({ ...newBlock, keyword: e.target.value })}
-                          placeholder="مثال: اليوم الوطني"
-                          className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
-                        />
-                        <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          سيتم عرض المقالات التي تحتوي على هذه الكلمة
-                        </p>
-                      </div>
-                    )}
-
-                    {newBlock.type === 'html' && (
-                      <div>
-                        <Label htmlFor="block-html" className="mb-2">كود HTML</Label>
-                        <Textarea
-                          id="block-html"
-                          value={newBlock.customHtml}
-                          onChange={(e) => setNewBlock({ ...newBlock, customHtml: e.target.value })}
-                          placeholder="أدخل كود HTML المخصص هنا..."
-                          rows={6}
-                          className={`font-mono text-sm ${darkMode ? 'bg-gray-800 border-gray-700' : ''}`}
-                        />
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="block-count" className="mb-2">عدد المقالات</Label>
-                        <Input
-                          id="block-count"
-                          type="number"
-                          min="1"
-                          max="20"
-                          value={newBlock.articlesCount}
-                          onChange={(e) => setNewBlock({ ...newBlock, articlesCount: parseInt(e.target.value) || 6 })}
-                          className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="block-display" className="mb-2">نوع العرض</Label>
-                        <Select
-                          value={newBlock.displayType}
-                          onValueChange={(value) => setNewBlock({ ...newBlock, displayType: value as any })}
-                        >
-                          <SelectTrigger id="block-display" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-h-[300px] overflow-y-auto`}>
-                            {DISPLAY_TYPES.map((type) => {
-                              const Icon = type.icon;
-                              return (
-                                <SelectItem key={type.value} value={type.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
-                                  <div className="flex items-center gap-2">
-                                    <Icon className={`w-4 h-4 ${type.color}`} />
-                                    <span>{type.label}</span>
-                                  </div>
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                  {newBlock.type === 'html' && (
+                    <div>
+                      <Label htmlFor="block-html" className="mb-2">كود HTML</Label>
+                      <Textarea
+                        id="block-html"
+                        value={newBlock.customHtml}
+                        onChange={(e) => setNewBlock({ ...newBlock, customHtml: e.target.value })}
+                        placeholder="أدخل كود HTML المخصص هنا..."
+                        rows={4}
+                        className={`font-mono text-sm ${darkMode ? 'bg-gray-800 border-gray-700' : ''}`}
+                      />
                     </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="block-count" className="mb-2">عدد المقالات</Label>
+                      <Input
+                        id="block-count"
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={newBlock.articlesCount}
+                        onChange={(e) => setNewBlock({ ...newBlock, articlesCount: parseInt(e.target.value) || 6 })}
+                        className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="block-display" className="mb-2">نوع العرض</Label>
+                      <Select
+                        value={newBlock.displayType}
+                        onValueChange={(value) => setNewBlock({ ...newBlock, displayType: value as any })}
+                      >
+                        <SelectTrigger id="block-display" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+                          {DISPLAY_TYPES.map((type) => {
+                            const Icon = type.icon;
+                            return (
+                              <SelectItem key={type.value} value={type.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
+                                <div className="flex items-center gap-2">
+                                  <Icon className={`w-4 h-4 ${type.color}`} />
+                                  <span>{type.label}</span>
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
 
                 {/* إعدادات الألوان */}
@@ -1004,80 +1076,44 @@ export default function SmartBlocksPage() {
                     إعدادات الألوان
                   </h3>
                   
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="color-primary" className="mb-2">اللون الأساسي</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="color-primary"
-                          type="color"
-                          value={newBlock.theme?.primaryColor}
-                          onChange={(e) => setNewBlock({
-                            ...newBlock,
-                            theme: { ...newBlock.theme!, primaryColor: e.target.value }
-                          })}
-                          className="w-full h-10"
-                        />
-                        <Input
-                          value={newBlock.theme?.primaryColor}
-                          onChange={(e) => setNewBlock({
-                            ...newBlock,
-                            theme: { ...newBlock.theme!, primaryColor: e.target.value }
-                          })}
-                          className={`w-24 text-xs ${darkMode ? 'bg-gray-800 border-gray-700' : ''}`}
-                          placeholder="#00BFA6"
-                        />
-                      </div>
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="color"
+                        value={newBlock.theme?.primaryColor}
+                        onChange={(e) => setNewBlock({
+                          ...newBlock,
+                          theme: { ...newBlock.theme!, primaryColor: e.target.value }
+                        })}
+                        className="w-16 h-10"
+                      />
+                      <Label className="flex-1">اللون الأساسي</Label>
                     </div>
 
-                    <div>
-                      <Label htmlFor="color-bg" className="mb-2">لون الخلفية</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="color-bg"
-                          type="color"
-                          value={newBlock.theme?.backgroundColor}
-                          onChange={(e) => setNewBlock({
-                            ...newBlock,
-                            theme: { ...newBlock.theme!, backgroundColor: e.target.value }
-                          })}
-                          className="w-full h-10"
-                        />
-                        <Input
-                          value={newBlock.theme?.backgroundColor}
-                          onChange={(e) => setNewBlock({
-                            ...newBlock,
-                            theme: { ...newBlock.theme!, backgroundColor: e.target.value }
-                          })}
-                          className={`w-24 text-xs ${darkMode ? 'bg-gray-800 border-gray-700' : ''}`}
-                          placeholder="#ffffff"
-                        />
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="color"
+                        value={newBlock.theme?.backgroundColor}
+                        onChange={(e) => setNewBlock({
+                          ...newBlock,
+                          theme: { ...newBlock.theme!, backgroundColor: e.target.value }
+                        })}
+                        className="w-16 h-10"
+                      />
+                      <Label className="flex-1">لون الخلفية</Label>
                     </div>
 
-                    <div>
-                      <Label htmlFor="color-text" className="mb-2">لون النص</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="color-text"
-                          type="color"
-                          value={newBlock.theme?.textColor}
-                          onChange={(e) => setNewBlock({
-                            ...newBlock,
-                            theme: { ...newBlock.theme!, textColor: e.target.value }
-                          })}
-                          className="w-full h-10"
-                        />
-                        <Input
-                          value={newBlock.theme?.textColor}
-                          onChange={(e) => setNewBlock({
-                            ...newBlock,
-                            theme: { ...newBlock.theme!, textColor: e.target.value }
-                          })}
-                          className={`w-24 text-xs ${darkMode ? 'bg-gray-800 border-gray-700' : ''}`}
-                          placeholder="#1a1a1a"
-                        />
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="color"
+                        value={newBlock.theme?.textColor}
+                        onChange={(e) => setNewBlock({
+                          ...newBlock,
+                          theme: { ...newBlock.theme!, textColor: e.target.value }
+                        })}
+                        className="w-16 h-10"
+                      />
+                      <Label className="flex-1">لون النص</Label>
                     </div>
                   </div>
                 </div>
@@ -1094,16 +1130,10 @@ export default function SmartBlocksPage() {
                   </h3>
                   
                   <div className="space-y-4">
-                    {/* خيار التفعيل الدائم */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="always-active" className="cursor-pointer">
-                          تفعيل دائم
-                        </Label>
-                        <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          البلوك سيكون مفعلاً دائماً بدون تاريخ انتهاء
-                        </p>
-                      </div>
+                      <Label htmlFor="always-active" className="cursor-pointer">
+                        تفعيل دائم
+                      </Label>
                       <Switch
                         id="always-active"
                         checked={newBlock.schedule?.isAlwaysActive || false}
@@ -1119,9 +1149,8 @@ export default function SmartBlocksPage() {
                       />
                     </div>
 
-                    {/* حقول التاريخ - تظهر فقط عندما لا يكون التفعيل دائم */}
                     {!newBlock.schedule?.isAlwaysActive && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-3">
                         <div>
                           <Label htmlFor="start-date" className="mb-2">تاريخ البداية</Label>
                           <Input
@@ -1137,9 +1166,6 @@ export default function SmartBlocksPage() {
                             })}
                             className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
                           />
-                          <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            متى يبدأ عرض البلوك
-                          </p>
                         </div>
 
                         <div>
@@ -1158,83 +1184,166 @@ export default function SmartBlocksPage() {
                             min={newBlock.schedule?.startDate || ''}
                             className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
                           />
-                          <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            متى يتوقف عرض البلوك
-                          </p>
                         </div>
                       </div>
                     )}
+                  </div>
+                </div>
+              </div>
 
-                    {/* معلومات الحالة الحالية */}
-                    {newBlock.schedule?.startDate && newBlock.schedule?.endDate && !newBlock.schedule?.isAlwaysActive && (
-                      <div className={`rounded-lg p-3 ${
-                        darkMode ? 'bg-gray-800' : 'bg-gray-100'
-                      }`}>
-                        <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          <span className="font-medium">مدة العرض:</span> من{' '}
-                          {new Date(newBlock.schedule.startDate).toLocaleString('ar-SA')} إلى{' '}
-                          {new Date(newBlock.schedule.endDate).toLocaleString('ar-SA')}
-                        </p>
+              {/* القسم الأيمن: المعاينة */}
+              <div className="p-6">
+                <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
+                  darkMode ? 'text-white' : 'text-gray-800'
+                }`}>
+                  <Eye className="w-5 h-5" />
+                  معاينة مباشرة
+                </h3>
+
+                {/* معاينة البلوك */}
+                <div 
+                  className="rounded-lg p-4 transition-all duration-300 shadow-sm"
+                  style={{
+                    backgroundColor: newBlock.theme?.backgroundColor || '#ffffff',
+                    borderColor: newBlock.theme?.primaryColor || '#00BFA6',
+                    borderWidth: '1px',
+                    borderStyle: 'solid'
+                  }}
+                >
+                  <h4 
+                    className="text-lg font-bold mb-3"
+                    style={{ color: newBlock.theme?.textColor || '#1a1a1a' }}
+                  >
+                    {newBlock.name || 'عنوان البلوك'}
+                  </h4>
+
+                  {/* معاينة حسب نوع العرض */}
+                  {newBlock.displayType === 'grid' && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {[1, 2, 3, 4].slice(0, Math.min(4, newBlock.articlesCount || 6)).map(i => (
+                        <div 
+                          key={i} 
+                          className="rounded p-2"
+                          style={{ 
+                            backgroundColor: `${newBlock.theme?.primaryColor}20` || '#00BFA620'
+                          }}
+                        >
+                          <div className="h-16 bg-gray-300 rounded mb-2 animate-pulse"></div>
+                          <div className="h-3 bg-gray-300 rounded mb-1 animate-pulse"></div>
+                          <div className="h-2 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {newBlock.displayType === 'list' && (
+                    <div className="space-y-2">
+                      {[1, 2, 3].slice(0, Math.min(3, newBlock.articlesCount || 6)).map(i => (
+                        <div 
+                          key={i} 
+                          className="flex items-center gap-2 p-2 rounded"
+                          style={{ 
+                            backgroundColor: `${newBlock.theme?.primaryColor}10` || '#00BFA610'
+                          }}
+                        >
+                          <div className="w-12 h-12 bg-gray-300 rounded animate-pulse"></div>
+                          <div className="flex-1">
+                            <div className="h-3 bg-gray-300 rounded mb-1 animate-pulse"></div>
+                            <div className="h-2 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {newBlock.displayType === 'cards' && (
+                    <div className="space-y-2">
+                      {[1].map(i => (
+                        <div 
+                          key={i} 
+                          className="rounded overflow-hidden shadow"
+                          style={{ 
+                            backgroundColor: newBlock.theme?.backgroundColor || '#ffffff'
+                          }}
+                        >
+                          <div className="h-24 bg-gray-300 animate-pulse"></div>
+                          <div className="p-2">
+                            <div className="h-3 bg-gray-300 rounded mb-1 animate-pulse"></div>
+                            <div className="h-2 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {newBlock.displayType === 'horizontal' && (
+                    <div className="flex gap-2 overflow-x-auto">
+                      {[1, 2, 3].slice(0, Math.min(3, newBlock.articlesCount || 6)).map(i => (
+                        <div 
+                          key={i} 
+                          className="flex-shrink-0 w-32 rounded p-2"
+                          style={{ 
+                            backgroundColor: `${newBlock.theme?.primaryColor}15` || '#00BFA615'
+                          }}
+                        >
+                          <div className="h-16 bg-gray-300 rounded mb-2 animate-pulse"></div>
+                          <div className="h-2 bg-gray-300 rounded animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {newBlock.displayType === 'gallery' && (
+                    <div className="grid grid-cols-3 gap-1">
+                      {[1, 2, 3, 4, 5, 6].slice(0, Math.min(6, newBlock.articlesCount || 6)).map(i => (
+                        <div key={i} className="aspect-square rounded overflow-hidden">
+                          <div className="w-full h-full bg-gray-300 animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {newBlock.type === 'html' && (
+                    <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded">
+                      <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
+                        محتوى HTML مخصص
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* معلومات البلوك */}
+                <div className={`mt-4 p-3 rounded-lg text-xs ${
+                  darkMode ? 'bg-gray-900/50' : 'bg-gray-50'
+                }`}>
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>الموقع:</span>
+                      <span className={darkMode ? 'text-white' : 'text-gray-800'}>
+                        {getPositionLabel(newBlock.position || 'topBanner')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>عدد المقالات:</span>
+                      <span className={darkMode ? 'text-white' : 'text-gray-800'}>
+                        {newBlock.articlesCount || 6}
+                      </span>
+                    </div>
+                    {newBlock.keywords && newBlock.keywords.length > 0 && (
+                      <div className="flex justify-between">
+                        <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>الكلمات المفتاحية:</span>
+                        <span className={darkMode ? 'text-white' : 'text-gray-800'}>
+                          {newBlock.keywords.join(', ')}
+                        </span>
                       </div>
                     )}
                   </div>
                 </div>
-
-                {/* معاينة البلوك */}
-                <div className={`space-y-4 p-4 rounded-lg border ${
-                  darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
-                }`}>
-                  <h3 className={`font-semibold text-lg flex items-center gap-2 ${
-                    darkMode ? 'text-white' : 'text-gray-800'
-                  }`}>
-                    <Eye className="w-5 h-5" />
-                    معاينة البلوك
-                  </h3>
-                  
-                  <div 
-                    className="p-4 rounded-lg border"
-                    style={{
-                      backgroundColor: newBlock.theme?.backgroundColor,
-                      borderColor: newBlock.theme?.primaryColor
-                    }}
-                  >
-                    <h4 
-                      className="text-lg font-bold mb-2"
-                      style={{ color: newBlock.theme?.textColor }}
-                    >
-                      {newBlock.name || 'عنوان البلوك'}
-                    </h4>
-                    <p 
-                      className="text-sm"
-                      style={{ color: newBlock.theme?.textColor, opacity: 0.8 }}
-                    >
-                      {newBlock.type === 'smart' && newBlock.keyword 
-                        ? `سيتم عرض ${newBlock.articlesCount} مقال تحتوي على "${newBlock.keyword}"`
-                        : newBlock.type === 'html'
-                        ? 'محتوى HTML مخصص'
-                        : `سيتم عرض ${newBlock.articlesCount} مقال`
-                      }
-                    </p>
-                  </div>
-                </div>
-
-                {/* رسالة تحذير */}
-                {!newBlock.name?.trim() && (
-                  <div className={`rounded-lg p-4 border ${
-                    darkMode 
-                      ? 'bg-yellow-900/20 border-yellow-800 text-yellow-400' 
-                      : 'bg-yellow-50 border-yellow-200 text-yellow-800'
-                  }`}>
-                    <div className="flex items-center gap-2">
-                      <span>⚠️</span>
-                      <span className="text-sm">يرجى إدخال عنوان البلوك لتفعيل زر الحفظ</span>
-                    </div>
-                  </div>
-                )}
+              </div>
             </div>
 
-            {/* أزرار الحفظ */}
-            <div className={`sticky bottom-0 p-6 border-t ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'} rounded-b-2xl`}>
+            {/* أزرار الحفظ في أسفل الجدول */}
+            <div className={`p-6 border-t ${darkMode ? 'border-gray-700 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
               <div className="flex items-center justify-between">
                 <Button
                   variant="outline"
@@ -1260,7 +1369,7 @@ export default function SmartBlocksPage() {
                   
                   <Button 
                     onClick={saveBlock} 
-                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
+                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white"
                     disabled={!newBlock.name?.trim()}
                   >
                     <Save className="h-4 w-4" />
@@ -1274,4 +1383,4 @@ export default function SmartBlocksPage() {
       )}
     </div>
   );
-} 
+}

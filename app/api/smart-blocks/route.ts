@@ -11,7 +11,7 @@ interface SmartBlock {
   type: 'smart' | 'custom' | 'html';
   status: 'active' | 'inactive' | 'scheduled';
   displayType: 'grid' | 'cards' | 'horizontal' | 'gallery' | 'list';
-  keyword?: string;
+  keywords?: string[];
   category?: string;
   articlesCount: number;
   theme: {
@@ -56,7 +56,7 @@ async function readBlocks(): Promise<SmartBlock[]> {
         type: 'smart',
         status: 'active',
         displayType: 'grid',
-        keyword: 'اليوم الوطني',
+        keywords: ['اليوم الوطني'],
         articlesCount: 6,
         theme: {
           primaryColor: '#00BFA6',
@@ -74,7 +74,7 @@ async function readBlocks(): Promise<SmartBlock[]> {
         type: 'smart',
         status: 'active',
         displayType: 'cards',
-        keyword: 'رياضة',
+        keywords: ['رياضة'],
         category: 'رياضة',
         articlesCount: 4,
         theme: {

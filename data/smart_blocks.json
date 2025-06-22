@@ -6,7 +6,6 @@
     "type": "smart",
     "status": "active",
     "displayType": "grid",
-    "keyword": "اليوم الوطني",
     "category": "",
     "articlesCount": 6,
     "theme": {
@@ -22,7 +21,10 @@
     },
     "order": 1,
     "createdAt": "2025-01-22T10:30:00.000Z",
-    "updatedAt": "2025-01-22T10:30:00.000Z"
+    "updatedAt": "2025-06-22T17:39:41.568Z",
+    "keywords": [
+      "اليوم الوطني"
+    ]
   },
   {
     "id": "2",
@@ -31,7 +33,6 @@
     "type": "smart",
     "status": "active",
     "displayType": "cards",
-    "keyword": "رياضة",
     "category": "رياضة",
     "articlesCount": 4,
     "theme": {
@@ -47,14 +48,17 @@
     },
     "order": 2,
     "createdAt": "2025-01-22T10:35:00.000Z",
-    "updatedAt": "2025-01-22T10:35:00.000Z"
+    "updatedAt": "2025-06-22T17:36:18.479Z",
+    "keywords": [
+      "رياضة"
+    ]
   },
   {
     "id": "3",
     "name": "إعلان مميز",
     "position": "afterCards",
     "type": "html",
-    "status": "active",
+    "status": "inactive",
     "displayType": "grid",
     "keyword": "",
     "category": "",
@@ -72,7 +76,8 @@
     },
     "order": 3,
     "createdAt": "2025-01-22T10:40:00.000Z",
-    "updatedAt": "2025-01-22T10:40:00.000Z"
+    "updatedAt": "2025-06-22T18:04:33.562Z",
+    "keywords": []
   },
   {
     "id": "4",
@@ -81,7 +86,6 @@
     "type": "smart",
     "status": "active",
     "displayType": "horizontal",
-    "keyword": "تقنية",
     "category": "تقنية",
     "articlesCount": 3,
     "theme": {
@@ -97,14 +101,17 @@
     },
     "order": 4,
     "createdAt": "2025-01-22T10:45:00.000Z",
-    "updatedAt": "2025-01-22T10:45:00.000Z"
+    "updatedAt": "2025-06-22T17:36:18.479Z",
+    "keywords": [
+      "تقنية"
+    ]
   },
   {
     "id": "5",
     "name": "بانر ترحيبي",
     "position": "topBanner",
     "type": "html",
-    "status": "active",
+    "status": "inactive",
     "displayType": "grid",
     "keyword": "",
     "category": "",
@@ -122,15 +129,15 @@
     },
     "order": 5,
     "createdAt": "2025-01-22T10:50:00.000Z",
-    "updatedAt": "2025-01-22T10:50:00.000Z"
+    "updatedAt": "2025-06-22T17:58:01.206Z",
+    "keywords": []
   },
   {
     "name": "بلوك تجريبي جديد",
     "position": "afterCards",
     "type": "smart",
-    "status": "active",
+    "status": "inactive",
     "displayType": "grid",
-    "keyword": "سعودي",
     "articlesCount": 4,
     "theme": {
       "primaryColor": "#ff6b6b",
@@ -139,8 +146,11 @@
     },
     "id": "1750597620768",
     "createdAt": "2025-06-22T13:07:00.768Z",
-    "updatedAt": "2025-06-22T13:07:00.768Z",
-    "order": 6
+    "updatedAt": "2025-06-22T18:00:35.149Z",
+    "order": 6,
+    "keywords": [
+      "سعودي"
+    ]
   },
   {
     "name": "الهلال في بطولة العالم",
@@ -148,8 +158,7 @@
     "type": "smart",
     "status": "active",
     "displayType": "hilal-special",
-    "keyword": "الهلال",
-    "category": "رياضة", 
+    "category": "رياضة",
     "articlesCount": 4,
     "theme": {
       "primaryColor": "#1e40af",
@@ -168,9 +177,16 @@
     "metadata": {
       "teamName": "نادي الهلال",
       "teamLogo": "⚽",
-      "teamColors": ["#1e40af", "#ffffff"],
+      "teamColors": [
+        "#1e40af",
+        "#ffffff"
+      ],
       "competition": "بطولة العالم للأندية",
-      "specialFeatures": ["تحديثات مباشرة", "إحصائيات متقدمة", "تحليلات خبراء"]
+      "specialFeatures": [
+        "تحديثات مباشرة",
+        "إحصائيات متقدمة",
+        "تحليلات خبراء"
+      ]
     },
     "schedule": {
       "startDate": "",
@@ -180,6 +196,9 @@
     "id": "1750599575769",
     "order": 7,
     "createdAt": "2025-06-22T13:39:35.769Z",
-    "updatedAt": "2025-12-22T15:30:00.000Z"
+    "updatedAt": "2025-06-22T17:36:18.480Z",
+    "keywords": [
+      "الهلال"
+    ]
   }
 ]
