@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Clock3, Heart, Bookmark, Share2, Brain } from "lucide-react";
+import { Eye, Clock3, Heart, Bookmark, Share2, Brain, User, Calendar, MessageSquare } from "lucide-react";
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
@@ -71,86 +71,92 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
     return views.toString();
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) {
+      return `منذ ${diffInMinutes} دقيقة`;
+    } else if (diffInMinutes < 1440) {
+      const hours = Math.floor(diffInMinutes / 60);
+      return `منذ ${hours} ${hours === 1 ? 'ساعة' : 'ساعات'}`;
+    } else {
+      const days = Math.floor(diffInMinutes / 1440);
+      return `منذ ${days} ${days === 1 ? 'يوم' : 'أيام'}`;
+    }
+  };
+
   return (
-    <section id="deep-analysis-highlight" className={`py-8 md:py-12 transition-colors duration-300 ${
+    <section id="deep-analysis-highlight" className={`py-12 md:py-16 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : 'bg-gray-50'
     }`}>
-      <div className="container px-4 mx-auto">
+      <div className="container px-4 mx-auto max-w-7xl">
         {/* العنوان والوصف */}
-        <div className="text-center mb-8">
-          <h2 className={`text-3xl md:text-4xl font-bold mb-2 flex items-center justify-center gap-2 ${
+        <div className="text-center mb-10">
+          <h2 className={`text-3xl md:text-4xl font-bold mb-3 ${
             darkMode ? 'text-white' : 'text-gray-900'
           }`}>
-            التحليل العميق من سبق 
-            <Brain className="w-8 h-8 text-purple-600" />
+            🧠 التحليل العميق من سبق
           </h2>
           <p className={`text-lg ${
-            darkMode ? 'text-gray-300' : 'text-gray-600'
+            darkMode ? 'text-gray-400' : 'text-gray-600'
           }`}>
             رؤى استراتيجية ودراسات معمقة بالذكاء الاصطناعي والخبرة البشرية
           </p>
         </div>
 
         {/* البطاقات */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           {insights.map((item) => (
-            <Card 
+            <div 
               key={item.id} 
-              className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
+              className={`relative rounded-2xl overflow-hidden transition-all duration-300 hover:transform hover:scale-[1.02] ${
                 darkMode 
-                  ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
-                  : item.type === 'AI'
-                    ? 'bg-purple-50 border-purple-200 hover:border-purple-300'
-                    : 'bg-blue-50 border-blue-200 hover:border-blue-300'
+                  ? 'bg-gray-800 shadow-xl' 
+                  : 'bg-white shadow-lg hover:shadow-xl'
               }`}
             >
-              <CardContent className="p-5">
+              <div className="p-6">
                 {/* الشريط العلوي */}
-                <div className="flex justify-between items-center mb-3">
-                  <Badge 
-                    variant="secondary" 
-                    className={`flex items-center gap-1 ${
-                      darkMode 
-                        ? 'bg-gray-700 text-gray-200' 
-                        : 'bg-white/80 text-gray-700'
-                    }`}
-                  >
-                    <Brain className="w-3 h-3" />
-                    تحليل عميق
-                  </Badge>
+                <div className="flex items-center gap-2 mb-4">
                   {item.type === "AI" && (
-                    <Badge 
-                      className="bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0"
-                      variant="outline"
-                    >
-                      AI
-                    </Badge>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      AI 🤖
+                    </span>
                   )}
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                    darkMode 
+                      ? 'bg-blue-900/50 text-blue-300' 
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    تحليل عميق
+                  </span>
                 </div>
 
                 {/* العنوان */}
-                <h3 className={`font-bold text-lg leading-snug mb-2 line-clamp-2 ${
+                <h3 className={`font-bold text-lg leading-relaxed mb-3 line-clamp-2 ${
                   darkMode ? 'text-white' : 'text-gray-900'
                 }`}>
                   {item.title}
                 </h3>
 
                 {/* الملخص */}
-                <p className={`text-sm mb-3 line-clamp-3 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-600'
+                <p className={`text-sm mb-4 line-clamp-2 leading-relaxed ${
+                  darkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}>
                   {item.summary}
                 </p>
 
                 {/* الوسوم */}
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-5">
                   {item.tags.slice(0, 3).map((tag, idx) => (
                     <span 
                       key={idx} 
-                      className={`text-xs rounded-full px-3 py-1 ${
+                      className={`text-xs px-2.5 py-1 rounded-md ${
                         darkMode 
                           ? 'bg-gray-700 text-gray-300' 
-                          : 'bg-gray-100 text-gray-600'
+                          : 'bg-gray-100 text-gray-700'
                       }`}
                     >
                       #{tag}
@@ -159,94 +165,120 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                 </div>
 
                 {/* الإحصائيات */}
-                <div className={`flex items-center text-xs gap-4 mb-4 ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
+                <div className={`flex items-center gap-4 text-xs mb-5 ${
+                  darkMode ? 'text-gray-500' : 'text-gray-500'
                 }`}>
                   <span className="flex items-center gap-1">
-                    <Eye className="w-3.5 h-3.5" /> 
-                    {formatViews(item.views)}
+                    <User className="w-3.5 h-3.5" />
+                    {item.author}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock3 className="w-3.5 h-3.5" /> 
                     {item.readTime} دقيقة
                   </span>
-                  <span className="truncate flex-1">
-                    {item.author}
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5" />
+                    {formatDate(item.createdAt)}
                   </span>
                 </div>
 
                 {/* الأزرار */}
-                <div className="flex gap-2 flex-wrap">
-                  <a href={item.url} className="flex-1">
-                    <Button 
-                      variant="outline" 
-                      className={`text-sm px-4 w-full ${
-                        darkMode 
-                          ? 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600' 
-                          : 'bg-white hover:bg-gray-50'
-                      }`}
-                    >
+                <div className="flex items-center justify-between">
+                  <a href={item.url} className="flex-1 ml-3">
+                    <button className={`w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}>
                       اقرأ التحليل كاملاً
-                    </Button>
+                    </button>
                   </a>
-                  <div className="flex gap-1">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
+                  <div className="flex items-center gap-2">
+                    <button
                       onClick={() => handleSave(item.id)}
-                      className={`p-2 ${
+                      className={`p-2 rounded-lg transition-colors ${
                         savedItems.includes(item.id) 
-                          ? 'text-purple-600' 
-                          : darkMode ? 'text-gray-400' : 'text-gray-600'
+                          ? 'text-blue-600 bg-blue-50' 
+                          : darkMode 
+                            ? 'text-gray-400 hover:bg-gray-700' 
+                            : 'text-gray-600 hover:bg-gray-100'
                       }`}
                     >
                       <Bookmark className={`w-4 h-4 ${
                         savedItems.includes(item.id) ? 'fill-current' : ''
                       }`} />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => handleShare(item)}
-                      className={`p-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                    >
-                      <Share2 className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
+                    </button>
+                    <button
                       onClick={() => handleLike(item.id)}
-                      className={`p-2 ${
+                      className={`p-2 rounded-lg transition-colors ${
                         likedItems.includes(item.id) 
-                          ? 'text-red-500' 
-                          : darkMode ? 'text-gray-400' : 'text-gray-600'
+                          ? 'text-red-500 bg-red-50' 
+                          : darkMode 
+                            ? 'text-gray-400 hover:bg-gray-700' 
+                            : 'text-gray-600 hover:bg-gray-100'
                       }`}
                     >
                       <Heart className={`w-4 h-4 ${
                         likedItems.includes(item.id) ? 'fill-current' : ''
                       }`} />
-                    </Button>
+                    </button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+
+                {/* شريط التفاعل السفلي */}
+                <div className={`flex items-center justify-between mt-4 pt-4 border-t ${
+                  darkMode ? 'border-gray-700' : 'border-gray-100'
+                }`}>
+                  <div className="flex items-center gap-4 text-xs">
+                    <span className={`flex items-center gap-1 ${
+                      darkMode ? 'text-gray-500' : 'text-gray-500'
+                    }`}>
+                      <Eye className="w-3.5 h-3.5" />
+                      {formatViews(item.views)}
+                    </span>
+                    <span className={`flex items-center gap-1 ${
+                      darkMode ? 'text-gray-500' : 'text-gray-500'
+                    }`}>
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      {Math.floor(item.views / 10)}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleShare(item)}
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      darkMode 
+                        ? 'text-gray-400 hover:bg-gray-700' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
 
         {/* زر استكشاف المزيد */}
-        <div className="text-center mt-8">
-          <a href="/dashboard/deep-analysis">
-            <Button 
-              className={`text-base px-6 py-2 ${
-                darkMode 
-                  ? 'border-gray-600 hover:bg-gray-800' 
-                  : ''
-              }`} 
-              variant="outline"
-            >
-              استكشف جميع التحليلات العميقة
-            </Button>
+        <div className="text-center">
+          <a href="/dashboard/deep-analysis" className="inline-block">
+            <button className={`px-8 py-3 rounded-xl font-medium text-base transition-all duration-300 transform hover:scale-105 ${
+              darkMode 
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg' 
+                : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg'
+            }`}>
+              📚 استكشف جميع التحليلات العميقة
+            </button>
           </a>
+        </div>
+        
+        {/* نص إضافي */}
+        <div className="text-center mt-6">
+          <p className={`text-sm ${
+            darkMode ? 'text-gray-500' : 'text-gray-500'
+          }`}>
+            • يتم تتم تحليلات جديدة يومياً
+          </p>
         </div>
       </div>
     </section>
