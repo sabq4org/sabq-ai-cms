@@ -323,7 +323,8 @@ export async function GET(request: NextRequest) {
         category_name: category?.name_ar || 'غير مصنف',
         category_color: category?.color_hex || '#6B7280',
         category_icon: category?.icon || '📁',
-        author_name: article.author?.name || 'كاتب غير معروف'
+        author_name: article.author?.name || 'كاتب غير معروف',
+        featured_image: article.featured_image
       };
     });
     
