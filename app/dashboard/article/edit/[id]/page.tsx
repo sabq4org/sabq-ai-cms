@@ -195,10 +195,10 @@ export default function EditArticlePage() {
         const res = await fetch('/api/team-members');
         const result = await res.json();
         if (res.ok && result.success && Array.isArray(result.data)) {
-          // في هذا المثال نعتبر كل أعضاء الفريق مراسلين إذا كان لديهم role يشمل كلمة "مراسل"
+          // فلترة أعضاء الفريق حسب الأدوار المطلوبة
           const reps = result.data
-            .filter((m: any) => m.status === 'active')
-            .map((m: any) => ({ id: m.userId || m.id, name: m.name, avatar: m.avatar }));
+            .filter((m: any) => m.isActive && ['admin', 'editor', 'media', 'correspondent', 'content-manager'].includes(m.roleId))
+            .map((m: any) => ({ id: m.id, name: m.name, avatar: m.avatar }));
           setReporters(reps);
         }
       } catch (err) {

@@ -189,6 +189,12 @@ async function filterArticles(query: URLSearchParams) {
   const articles = await loadArticles();
   let filteredArticles = [...articles];
 
+  // فلترة المقالات المحذوفة بشكل افتراضي (ما لم يطلبها المستخدم صراحة)
+  const requestedStatus = query.get('status');
+  if (requestedStatus !== 'deleted') {
+    filteredArticles = filteredArticles.filter(article => !article.is_deleted && article.status !== 'deleted');
+  }
+
   // فلترة حسب الحالة
   const status = query.get('status');
   if (status) {
@@ -316,7 +322,8 @@ export async function GET(request: NextRequest) {
         ...article,
         category_name: category?.name_ar || 'غير مصنف',
         category_color: category?.color_hex || '#6B7280',
-        category_icon: category?.icon || '📁'
+        category_icon: category?.icon || '📁',
+        author_name: article.author?.name || 'كاتب غير معروف'
       };
     });
     

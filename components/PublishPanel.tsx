@@ -34,6 +34,12 @@ interface PublishPanelProps {
   saving: boolean;
 }
 
+interface Author {
+  id: string;
+  name: string;
+  role: string;
+}
+
 export default function PublishPanel({ 
   formData, 
   setFormData, 
@@ -44,6 +50,7 @@ export default function PublishPanel({
   const [customTime, setCustomTime] = useState('');
   const [currentTimeDisplay, setCurrentTimeDisplay] = useState<string>('');
   const [mounted, setMounted] = useState(false);
+  const [authors, setAuthors] = useState<Author[]>([]);
 
   // إصلاح مشكلة Hydration للتوقيت
   useEffect(() => {
@@ -58,12 +65,44 @@ export default function PublishPanel({
     return () => clearInterval(interval);
   }, [formData.publish_time]);
 
-  const authors = [
-    { id: 'current_user', name: 'المحرر الحالي', role: 'محرر' },
-    { id: 'ahmad_ali', name: 'أحمد علي', role: 'مراسل' },
-    { id: 'sara_mohammed', name: 'سارة محمد', role: 'محررة أولى' },
-    { id: 'omar_hassan', name: 'عمر حسان', role: 'مراسل خاص' }
-  ];
+  // تحميل أعضاء الفريق من API
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      try {
+        const res = await fetch('/api/team-members');
+        const result = await res.json();
+        if (res.ok && result.success && Array.isArray(result.data)) {
+          const eligibleAuthors = result.data
+            .filter((member: any) => member.isActive && ['admin', 'editor', 'media', 'correspondent', 'content-manager'].includes(member.roleId))
+            .map((member: any) => ({
+              id: member.id,
+              name: member.name,
+              role: getRoleDisplayName(member.roleId)
+            }));
+          setAuthors(eligibleAuthors);
+        }
+      } catch (err) {
+        console.error('خطأ في تحميل أعضاء الفريق:', err);
+        // استخدام قائمة افتراضية في حالة الخطأ
+        setAuthors([
+          { id: 'current_user', name: 'المحرر الحالي', role: 'محرر' }
+        ]);
+      }
+    };
+
+    fetchAuthors();
+  }, []);
+
+  const getRoleDisplayName = (roleId: string): string => {
+    const roleNames: { [key: string]: string } = {
+      'admin': 'مدير',
+      'editor': 'محرر',
+      'media': 'إعلامي',
+      'correspondent': 'مراسل',
+      'content-manager': 'مدير محتوى'
+    };
+    return roleNames[roleId] || roleId;
+  };
 
   const handleScheduleTime = (mode: 'now' | 'schedule') => {
     setScheduleMode(mode);

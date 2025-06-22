@@ -79,11 +79,14 @@ const POSITIONS = [
 ];
 
 const DISPLAY_TYPES = [
-  { value: 'grid', label: 'شبكة', icon: Grid3X3, color: 'text-blue-500' },
-  { value: 'cards', label: 'بطاقات', icon: Layers, color: 'text-purple-500' },
-  { value: 'horizontal', label: 'شريط أفقي', icon: List, color: 'text-green-500' },
-  { value: 'gallery', label: 'معرض صور', icon: Image, color: 'text-orange-500' },
-  { value: 'list', label: 'قائمة', icon: FileText, color: 'text-gray-500' }
+  { value: 'cards', label: 'بطاقات (Card View)', icon: Layers, color: 'text-purple-500', description: 'شبكة من البطاقات بمقاس موحد' },
+  { value: 'headline', label: 'عناوين فقط (Headlines)', icon: FileText, color: 'text-gray-500', description: 'قائمة نصوص فقط بعناوين المقالات' },
+  { value: 'image-left', label: 'صورة يسار (Image Left)', icon: Image, color: 'text-orange-500', description: 'صورة مصغرة بجوار عنوان المقال' },
+  { value: 'carousel', label: 'كاروسيل (Carousel)', icon: List, color: 'text-green-500', description: 'تمرير أفقي للمحتوى' },
+  { value: 'grid', label: 'شبكة (Grid)', icon: Grid3X3, color: 'text-blue-500', description: 'شبكة بطاقات كلاسيكية' },
+  { value: 'list', label: 'قائمة (List)', icon: FileText, color: 'text-gray-500', description: 'قائمة عمودية بسيطة' },
+  { value: 'horizontal', label: 'شريط أفقي', icon: List, color: 'text-green-500', description: 'شريط أفقي قابل للتمرير' },
+  { value: 'gallery', label: 'معرض صور', icon: Image, color: 'text-orange-500', description: 'معرض صور بدون نصوص' }
 ];
 
 const BLOCK_TYPES = [

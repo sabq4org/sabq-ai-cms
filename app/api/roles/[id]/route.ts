@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requirePermission, logActivity } from '@/app/lib/auth';
+import fs from 'fs/promises';
+import path from 'path';
+import { Role } from '@/types/roles';
+
+const ROLES_FILE = path.join(process.cwd(), 'data', 'roles.json');
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -10,130 +14,165 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     
-    // استعلام الدور من قاعدة البيانات
-    // هنا نرجع بيانات تجريبية
-    const role = {
-      id: parseInt(id),
-      name: 'محرر',
-      slug: 'editor',
-      description: 'كتابة وتحرير المقالات',
-      is_system: true,
-      permissions: [
-        { id: 3, name: 'عرض جميع المقالات', slug: 'articles.view.all', category: 'articles' },
-        { id: 4, name: 'إنشاء مقال', slug: 'articles.create', category: 'articles' },
-        { id: 5, name: 'تعديل مقالاتي', slug: 'articles.edit.own', category: 'articles' },
-        { id: 6, name: 'حذف مقالاتي', slug: 'articles.delete.own', category: 'articles' },
-        { id: 9, name: 'جدولة مقالات', slug: 'articles.schedule', category: 'articles' },
-        { id: 17, name: 'إدارة الوسائط', slug: 'content.media.manage', category: 'content' },
-        { id: 25, name: 'عرض الإحصائيات', slug: 'system.stats.view', category: 'system' }
-      ],
-      users_count: 3,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    // قراءة الأدوار الحالية
+    const data = await fs.readFile(ROLES_FILE, 'utf-8');
+    const roles: Role[] = JSON.parse(data);
+    
+    // البحث عن الدور
+    const role = roles.find((r: Role) => r.id === id);
+    if (!role) {
+      return NextResponse.json(
+        { success: false, error: 'الدور غير موجود' },
+        { status: 404 }
+      );
+    }
+    
+    // تحديث عدد المستخدمين
+    const teamFile = path.join(process.cwd(), 'data', 'team-members.json');
+    try {
+      const teamData = await fs.readFile(teamFile, 'utf-8');
+      const teamMembers = JSON.parse(teamData);
+      role.users = teamMembers.filter((member: any) => member.roleId === id).length;
+    } catch {
+      role.users = 0;
+    }
     
     return NextResponse.json({
       success: true,
       data: role
     });
-  } catch (error: any) {
+  } catch (error) {
+    console.error('Error fetching role:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: 'حدث خطأ في جلب الدور' },
       { status: 500 }
     );
   }
 }
 
-// PUT /api/roles/[id] - تحديث دور
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+
+
+// PATCH - تحديث دور
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const user = await requirePermission('users.roles.manage');
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await request.json();
+    const { name, description, permissions, color } = body;
     
-    const { name, description, permissions } = body;
+    // قراءة الأدوار الحالية
+    const data = await fs.readFile(ROLES_FILE, 'utf-8');
+    const roles: Role[] = JSON.parse(data);
     
-    // التحقق من عدم تعديل الأدوار الأساسية للنظام
-    // في التطبيق الحقيقي، يجب التحقق من قاعدة البيانات
-    const systemRoleIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    if (systemRoleIds.includes(parseInt(id))) {
+    // البحث عن الدور
+    const roleIndex = roles.findIndex((r: Role) => r.id === id);
+    if (roleIndex === -1) {
       return NextResponse.json(
-        { success: false, error: 'لا يمكن تعديل أدوار النظام الأساسية' },
-        { status: 400 }
+        { success: false, error: 'الدور غير موجود' },
+        { status: 404 }
       );
     }
     
-    const updateData: any = {};
-    if (name) updateData.name = name;
-    if (description) updateData.description = description;
-    if (permissions) updateData.permissions = permissions;
+    // التحقق من عدم تكرار اسم الدور
+    if (name && name !== roles[roleIndex].name) {
+      const existingRole = roles.find((r: Role) => r.name === name && r.id !== id);
+      if (existingRole) {
+        return NextResponse.json(
+          { success: false, error: 'يوجد دور آخر بنفس الاسم' },
+          { status: 400 }
+        );
+      }
+    }
     
-    // تحديث الدور في قاعدة البيانات
-    const updatedRole = {
-      id: parseInt(id),
-      ...updateData,
-      updated_at: new Date().toISOString()
+    // تحديث الدور
+    roles[roleIndex] = {
+      ...roles[roleIndex],
+      ...(name && { name }),
+      ...(description && { description }),
+      ...(permissions && { permissions }),
+      ...(color && { color }),
+      updatedAt: new Date().toISOString()
     };
     
-    // تسجيل النشاط
-    await logActivity(
-      user.id,
-      'UPDATE_ROLE',
-      'role',
-      id,
-      updateData.name || 'Role'
-    );
+    await fs.writeFile(ROLES_FILE, JSON.stringify(roles, null, 2));
     
     return NextResponse.json({
       success: true,
-      data: updatedRole,
+      data: roles[roleIndex],
       message: 'تم تحديث الدور بنجاح'
     });
-  } catch (error: any) {
+    
+  } catch (error) {
+    console.error('Error updating role:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: error.message === 'Unauthorized' ? 401 : 403 }
+      { success: false, error: 'حدث خطأ في تحديث الدور' },
+      { status: 500 }
     );
   }
 }
 
-// DELETE /api/roles/[id] - حذف دور
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+// DELETE - حذف دور
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const user = await requirePermission('users.roles.manage');
-    const { id } = await params;
+    const { id } = await context.params;
     
-    // التحقق من عدم حذف الأدوار الأساسية للنظام
-    const systemRoleIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    if (systemRoleIds.includes(parseInt(id))) {
+    // قراءة الأدوار الحالية
+    const data = await fs.readFile(ROLES_FILE, 'utf-8');
+    const roles: Role[] = JSON.parse(data);
+    
+    // البحث عن الدور
+    const roleIndex = roles.findIndex((r: Role) => r.id === id);
+    if (roleIndex === -1) {
+      return NextResponse.json(
+        { success: false, error: 'الدور غير موجود' },
+        { status: 404 }
+      );
+    }
+    
+    // منع حذف أدوار النظام
+    if (roles[roleIndex].isSystem) {
       return NextResponse.json(
         { success: false, error: 'لا يمكن حذف أدوار النظام الأساسية' },
         { status: 400 }
       );
     }
     
-    // التحقق من عدم وجود مستخدمين مرتبطين بهذا الدور
-    // في التطبيق الحقيقي، يجب التحقق من قاعدة البيانات
+    // التحقق من عدم وجود مستخدمين مرتبطين بالدور
+    const teamFile = path.join(process.cwd(), 'data', 'team-members.json');
+    try {
+      const teamData = await fs.readFile(teamFile, 'utf-8');
+      const teamMembers = JSON.parse(teamData);
+      const usersWithRole = teamMembers.filter((member: any) => member.roleId === id);
+      
+      if (usersWithRole.length > 0) {
+        return NextResponse.json(
+          { success: false, error: `لا يمكن حذف الدور لأن هناك ${usersWithRole.length} مستخدم مرتبط به` },
+          { status: 400 }
+        );
+      }
+    } catch {
+      // إذا لم يكن هناك ملف أعضاء، تابع الحذف
+    }
     
-    // حذف الدور من قاعدة البيانات
-    
-    // تسجيل النشاط
-    await logActivity(
-      user.id,
-      'DELETE_ROLE',
-      'role',
-      id,
-      'Deleted Role'
-    );
+    // حذف الدور
+    roles.splice(roleIndex, 1);
+    await fs.writeFile(ROLES_FILE, JSON.stringify(roles, null, 2));
     
     return NextResponse.json({
       success: true,
       message: 'تم حذف الدور بنجاح'
     });
-  } catch (error: any) {
+    
+  } catch (error) {
+    console.error('Error deleting role:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: error.message === 'Unauthorized' ? 401 : 403 }
+      { success: false, error: 'حدث خطأ في حذف الدور' },
+      { status: 500 }
     );
   }
 } 

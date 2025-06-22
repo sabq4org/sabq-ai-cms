@@ -1,38 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, Search, Download, Bell, Shield, Mail, Phone, Calendar, Clock, CheckCircle, AlertCircle, UserPlus, Edit3, Trash2, Filter, X } from 'lucide-react';
-
-interface TeamMember {
-  id: string;
-  userId: string;
-  name: string;
-  email: string;
-  phone: string;
-  roleId: string;
-  role: string;
-  department: string;
-  joinDate: string;
-  lastActive: string;
-  status: 'active' | 'inactive' | 'pending';
-  avatar: string;
-  permissions: string[];
-}
-
-interface Role {
-  id: string;
-  name: string;
-  description: string;
-  permissions: string[];
-  color: string;
-}
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-}
+import { Users, Plus, Search, Download, Bell, Shield, Mail, Phone, Calendar, Clock, CheckCircle, AlertCircle, UserPlus, Edit3, Trash2, Filter, X, Camera, Eye, EyeOff, Upload } from 'lucide-react';
+import { Role } from '@/types/roles';
+import { TeamMember } from '@/types/team';
 
 interface Notification {
   id: number;
@@ -46,6 +17,7 @@ export default function TeamPage() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -53,38 +25,24 @@ export default function TeamPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState('');
   
   // بيانات إضافة عضو جديد
   const [formData, setFormData] = useState({
-    userId: '',
+    name: '',
+    email: '',
+    password: '',
+    avatar: '',
     roleId: '',
     department: '',
-    permissions: [] as string[]
+    phone: '',
+    bio: '',
+    isActive: true,
+    isVerified: false
   });
-  
-  // للبحث في المستخدمين
-  const [userSearchQuery, setUserSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<User[]>([]);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const availableDepartments = ['إدارة المحتوى', 'التقنية', 'التسويق', 'إدارة التفاعل', 'تحليل البيانات'];
-  const availablePermissions = [
-    { id: 'create_articles', name: 'إنشاء المقالات' },
-    { id: 'edit_articles', name: 'تعديل المقالات' },
-    { id: 'delete_articles', name: 'حذف المقالات' },
-    { id: 'publish_articles', name: 'نشر المقالات' },
-    { id: 'manage_users', name: 'إدارة المستخدمين' },
-    { id: 'system_settings', name: 'إعدادات النظام' },
-    { id: 'backup_system', name: 'النسخ الاحتياطي' },
-    { id: 'review_articles', name: 'مراجعة المقالات' },
-    { id: 'manage_media', name: 'إدارة الوسائط' },
-    { id: 'manage_ai', name: 'إدارة الذكاء الاصطناعي' },
-    { id: 'manage_comments', name: 'إدارة التعليقات' },
-    { id: 'view_analytics', name: 'عرض الإحصائيات' },
-    { id: 'share_articles', name: 'مشاركة المقالات' }
-  ];
+  const availableDepartments = ['التحرير', 'المراسلين', 'التقنية', 'التسويق', 'المراجعة والتدقيق', 'الإدارة'];
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
@@ -108,7 +66,7 @@ export default function TeamPage() {
       }
     } catch (error) {
       console.error('Error fetching team members:', error);
-      addNotification('حدث خطأ في جلب بيانات الفريق', 'warning');
+      addNotification('فشل تحميل أعضاء الفريق', 'warning');
     } finally {
       setLoading(false);
     }
@@ -127,49 +85,6 @@ export default function TeamPage() {
       console.error('Error fetching roles:', error);
     }
   };
-  
-  // البحث في المستخدمين
-  const searchUsers = async (query: string) => {
-    if (query.length < 2) {
-      setSearchResults([]);
-      setShowUserDropdown(false);
-      return;
-    }
-    
-    try {
-      const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      
-      if (data.success && data.data) {
-        setSearchResults(data.data);
-        setShowUserDropdown(true);
-      } else {
-        setSearchResults([]);
-        setShowUserDropdown(false);
-        if (data.error) {
-          console.error('Search error:', data.error);
-        }
-      }
-    } catch (error) {
-      console.error('Error searching users:', error);
-      setSearchResults([]);
-      setShowUserDropdown(false);
-    }
-  };
-  
-  // تأخير البحث
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (userSearchQuery) {
-        searchUsers(userSearchQuery);
-      } else {
-        setSearchResults([]);
-        setShowUserDropdown(false);
-      }
-    }, 300);
-    
-    return () => clearTimeout(delayDebounceFn);
-  }, [userSearchQuery]);
 
   const addNotification = (message: string, type: 'success' | 'info' | 'warning') => {
     const newNotification: Notification = {
@@ -185,7 +100,7 @@ export default function TeamPage() {
   };
 
   const handleAddMember = async () => {
-    if (!selectedUser || !formData.roleId || !formData.department) {
+    if (!formData.name || !formData.email || !formData.password || !formData.roleId) {
       addNotification('يرجى ملء جميع الحقول المطلوبة', 'warning');
       return;
     }
@@ -195,18 +110,21 @@ export default function TeamPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: selectedUser.id,
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          avatar: formData.avatar || undefined,
           roleId: formData.roleId,
-          department: formData.department,
-          permissions: formData.permissions
+          isActive: formData.isActive,
+          isVerified: formData.isVerified
         })
       });
       
       const data = await response.json();
       
       if (data.success) {
-        addNotification(data.message || 'تمت إضافة العضو بنجاح', 'success');
-        fetchTeamMembers(); // إعادة جلب البيانات
+        addNotification('تمت إضافة العضو بنجاح', 'success');
+        fetchTeamMembers();
         setShowAddModal(false);
         resetForm();
       } else {
@@ -219,35 +137,55 @@ export default function TeamPage() {
   };
   
   const resetForm = () => {
-    setFormData({ userId: '', roleId: '', department: '', permissions: [] });
-    setUserSearchQuery('');
-    setSelectedUser(null);
-    setSearchResults([]);
-    setShowUserDropdown(false);
+    setFormData({
+      name: '',
+      email: '',
+      password: '',
+      avatar: '',
+      roleId: '',
+      department: '',
+      phone: '',
+      bio: '',
+      isActive: true,
+      isVerified: false
+    });
+    setAvatarPreview('');
+    setShowPassword(false);
   };
 
   const handleEditMember = async () => {
     if (!selectedMember) return;
-    if (!formData.roleId || !formData.department) {
-      addNotification('يرجى ملء جميع الحقول المطلوبة', 'warning');
-      return;
-    }
-
+    
     try {
-      const response = await fetch(`/api/team-members?id=${selectedMember.id}`, {
-        method: 'PUT',
+      const updateData: any = {
+        name: formData.name,
+        email: formData.email,
+        roleId: formData.roleId,
+        department: formData.department,
+        phone: formData.phone,
+        bio: formData.bio,
+        isActive: formData.isActive,
+        isVerified: formData.isVerified
+      };
+      
+      if (formData.password) {
+        updateData.password = formData.password;
+      }
+      
+      if (formData.avatar !== selectedMember.avatar) {
+        updateData.avatar = formData.avatar;
+      }
+      
+      const response = await fetch(`/api/team-members/${selectedMember.id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roleId: formData.roleId,
-          department: formData.department,
-          permissions: formData.permissions
-        })
+        body: JSON.stringify(updateData)
       });
 
       const data = await response.json();
 
       if (data.success) {
-        addNotification(data.message || 'تم تحديث بيانات العضو', 'success');
+        addNotification('تم تحديث بيانات العضو', 'success');
         fetchTeamMembers();
         setShowEditModal(false);
       } else {
@@ -259,44 +197,111 @@ export default function TeamPage() {
     }
   };
 
-  const handleDeleteMember = (memberId: string) => {
-    // سيتم تنفيذها لاحقاً
-    addNotification('ميزة الحذف قيد التطوير', 'info');
-  };
-
-  const togglePermission = (permissionId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      permissions: prev.permissions.includes(permissionId)
-        ? prev.permissions.filter(p => p !== permissionId)
-        : [...prev.permissions, permissionId]
-    }));
+  const handleDeleteMember = async (memberId: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذا العضو؟')) return;
+    
+    try {
+      const response = await fetch(`/api/team-members/${memberId}`, {
+        method: 'DELETE'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        addNotification('تم حذف العضو بنجاح', 'success');
+        fetchTeamMembers();
+      } else {
+        addNotification(data.error || 'حدث خطأ في حذف العضو', 'warning');
+      }
+    } catch (error) {
+      console.error('Error deleting member:', error);
+      addNotification('حدث خطأ في حذف العضو', 'warning');
+    }
   };
 
   const openEditModal = (member: TeamMember) => {
     setSelectedMember(member);
     setFormData({
-      userId: member.userId,
+      name: member.name,
+      email: member.email,
+      password: '',
+      avatar: member.avatar || '',
       roleId: member.roleId,
-      department: member.department,
-      permissions: member.permissions
+      department: member.department || '',
+      phone: member.phone || '',
+      bio: member.bio || '',
+      isActive: member.isActive,
+      isVerified: member.isVerified
     });
+    setAvatarPreview(member.avatar || '');
     setShowEditModal(true);
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    console.log('بدء رفع الملف:', file.name, file.size, file.type);
+
+    try {
+      // عرض رسالة تحميل
+      setUploadingAvatar(true);
+      addNotification('جاري رفع الصورة...', 'info');
+      
+      // إنشاء FormData
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      console.log('إرسال الطلب إلى /api/upload');
+      
+      // رفع الصورة إلى الخادم
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      console.log('نتيجة الرفع:', result);
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'فشل رفع الصورة');
+      }
+      
+      // تحديث معاينة الصورة ورابط الصورة
+      console.log('تحديث معاينة الصورة:', result.data.url);
+      setAvatarPreview(result.data.url);
+      setFormData(prev => ({ ...prev, avatar: result.data.url }));
+      
+      addNotification('تم رفع الصورة بنجاح', 'success');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      addNotification(
+        error instanceof Error ? error.message : 'حدث خطأ أثناء رفع الصورة',
+        'warning'
+      );
+    } finally {
+      setUploadingAvatar(false);
+      // إعادة تعيين قيمة input لتمكين رفع نفس الملف مرة أخرى
+      e.target.value = '';
+    }
   };
 
   const exportToCSV = () => {
     const csvContent = [
-      ['الاسم', 'البريد الإلكتروني', 'الهاتف', 'الدور', 'القسم', 'تاريخ الانضمام', 'آخر نشاط', 'الحالة'],
-      ...filteredMembers.map(member => [
-        member.name,
-        member.email,
-        member.phone,
-        member.role,
-        member.department,
-        new Date(member.joinDate).toLocaleDateString('ar-SA'),
-        member.lastActive,
-        member.status === 'active' ? 'نشط' : member.status === 'inactive' ? 'غير نشط' : 'في الانتظار'
-      ])
+      ['الاسم', 'البريد الإلكتروني', 'الهاتف', 'الدور', 'القسم', 'تاريخ الانضمام', 'الحالة', 'التوثيق'],
+      ...filteredMembers.map(member => {
+        const role = roles.find(r => r.id === member.roleId);
+        return [
+          member.name,
+          member.email,
+          member.phone || '',
+          role?.name || '',
+          member.department || '',
+          new Date(member.createdAt).toLocaleDateString('ar-SA'),
+          member.isActive ? 'نشط' : 'غير نشط',
+          member.isVerified ? 'موثق' : 'غير موثق'
+        ];
+      })
     ].map(row => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -308,31 +313,18 @@ export default function TeamPage() {
   };
 
   const filteredMembers = teamMembers.filter(member => {
+    const role = roles.find(r => r.id === member.roleId);
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.role.toLowerCase().includes(searchTerm.toLowerCase());
+                         (role?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDepartment = !filterDepartment || member.department === filterDepartment;
-    const matchesStatus = !filterStatus || member.status === filterStatus;
+    const matchesStatus = !filterStatus || 
+                         (filterStatus === 'active' && member.isActive) ||
+                         (filterStatus === 'inactive' && !member.isActive) ||
+                         (filterStatus === 'verified' && member.isVerified) ||
+                         (filterStatus === 'unverified' && !member.isVerified);
     return matchesSearch && matchesDepartment && matchesStatus;
   });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'inactive': return 'bg-red-100 text-red-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'active': return 'نشط';
-      case 'inactive': return 'غير نشط';
-      case 'pending': return 'في الانتظار';
-      default: return 'غير محدد';
-    }
-  };
 
   if (loading) {
     return (
@@ -343,7 +335,7 @@ export default function TeamPage() {
   }
 
   return (
-    <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
+    <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`} dir="rtl">
       {/* الإشعارات */}
       {notifications.length > 0 && (
         <div className="fixed top-4 right-4 z-50 space-y-2">
@@ -397,7 +389,7 @@ export default function TeamPage() {
               <p className={`text-sm mb-1 transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>النشطون</p>
               <div className="flex items-baseline gap-2">
                 <span className={`text-2xl font-bold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                  {teamMembers.filter(m => m.status === 'active').length}
+                  {teamMembers.filter(m => m.isActive).length}
                 </span>
                 <span className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>عضو</span>
               </div>
@@ -480,7 +472,8 @@ export default function TeamPage() {
               <option value="">جميع الحالات</option>
               <option value="active">نشط</option>
               <option value="inactive">غير نشط</option>
-              <option value="pending">في الانتظار</option>
+              <option value="verified">موثق</option>
+              <option value="unverified">غير موثق</option>
             </select>
           </div>
 
@@ -495,7 +488,19 @@ export default function TeamPage() {
             
             <button 
               onClick={() => {
-                setFormData({ userId: '', roleId: '', department: '', permissions: [] });
+                setFormData({
+                  name: '',
+                  email: '',
+                  password: '',
+                  avatar: '',
+                  roleId: '',
+                  department: '',
+                  phone: '',
+                  bio: '',
+                  isActive: true,
+                  isVerified: false
+                });
+                setAvatarPreview('');
                 setShowAddModal(true);
               }}
               className="px-4 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 flex items-center gap-2 transition-all duration-300 shadow-md hover:shadow-lg"
@@ -517,7 +522,6 @@ export default function TeamPage() {
                 <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>الدور</th>
                 <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>القسم</th>
                 <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>الحالة</th>
-                <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>آخر نشاط</th>
                 <th className={`px-6 py-4 text-right text-sm font-medium transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>الإجراءات</th>
               </tr>
             </thead>
@@ -527,19 +531,25 @@ export default function TeamPage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <img
-                        src={member.avatar}
+                        src={member.avatar || '/default-avatar.png'}
                         alt={member.name}
-                        className="w-10 h-10 rounded-full"
+                        className="w-10 h-10 rounded-full object-cover"
                       />
                       <div>
                         <p className={`font-medium transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{member.name}</p>
                         <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.email}</p>
+                        {member.isVerified && (
+                          <span className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                            <CheckCircle className="w-3 h-3" />
+                            موثق
+                          </span>
+                        )}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`text-sm font-medium transition-colors duration-300 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                      {member.role}
+                      {roles.find(r => r.id === member.roleId)?.name}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -548,13 +558,8 @@ export default function TeamPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(member.status)}`}>
-                      {getStatusText(member.status)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {member.lastActive}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${member.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {member.isActive ? 'نشط' : 'غير نشط'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -604,54 +609,61 @@ export default function TeamPage() {
               </div>
 
               <div className="space-y-4">
-                {showAddModal && (
-                  <div className="relative">
-                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>البحث عن مستخدم</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الاسم</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>البريد الإلكتروني</label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      كلمة المرور {showEditModal && <span className="text-xs text-gray-500">(اتركها فارغة إذا لم ترد تغييرها)</span>}
+                    </label>
                     <div className="relative">
                       <input
-                        type="text"
-                        value={userSearchQuery}
-                        onChange={(e) => setUserSearchQuery(e.target.value)}
-                        className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
-                        placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        className={`w-full px-4 py-3 pr-12 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
+                        placeholder={showEditModal ? "••••••••" : ""}
                       />
-                      {selectedUser && (
-                        <div className={`mt-2 p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                          <div className="flex items-center gap-3">
-                            <img src={selectedUser.avatar} alt={selectedUser.name} className="w-10 h-10 rounded-full" />
-                            <div>
-                              <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{selectedUser.name}</p>
-                              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{selectedUser.email}</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
                     </div>
-                    
-                    {/* قائمة نتائج البحث */}
-                    {showUserDropdown && searchResults.length > 0 && (
-                      <div className={`absolute z-10 w-full mt-1 max-h-60 overflow-auto rounded-lg shadow-lg ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'}`}>
-                        {searchResults.map((user) => (
-                          <button
-                            key={user.id}
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setUserSearchQuery(user.name);
-                              setShowUserDropdown(false);
-                            }}
-                            className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
-                          >
-                            <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
-                            <div className="text-right flex-1">
-                              <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{user.name}</p>
-                              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{user.email}</p>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
                   </div>
-                )}
+
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الهاتف</label>
+                    <input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
+                    />
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -683,22 +695,134 @@ export default function TeamPage() {
                   </div>
                 </div>
 
-                <div>
-                  <label className={`block text-sm font-medium mb-3 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الصلاحيات</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {availablePermissions.map((permission) => (
-                      <label key={permission.id} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={formData.permissions.includes(permission.id)}
-                          onChange={() => togglePermission(permission.id)}
-                          className="mr-3 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                        />
-                        <span className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{permission.name}</span>
-                      </label>
-                    ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الحالة</label>
+                    <select
+                      value={formData.isActive ? "active" : "inactive"}
+                      onChange={(e) => setFormData({...formData, isActive: e.target.value === "active"})}
+                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
+                    >
+                      <option value="active">نشط</option>
+                      <option value="inactive">غير نشط</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>التوثيق</label>
+                    <select
+                      value={formData.isVerified ? "verified" : "unverified"}
+                      onChange={(e) => setFormData({...formData, isVerified: e.target.value === "verified"})}
+                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
+                    >
+                      <option value="verified">موثق</option>
+                      <option value="unverified">غير موثق</option>
+                    </select>
                   </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الصورة الشخصية</label>
+                    <div className="space-y-3">
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAvatarUpload}
+                          disabled={uploadingAvatar}
+                          id="avatar-upload"
+                          className="sr-only"
+                        />
+                        <label
+                          htmlFor="avatar-upload"
+                          className={`flex items-center justify-center w-full px-4 py-3 rounded-xl border-2 border-dashed transition-all duration-300 cursor-pointer ${
+                            uploadingAvatar
+                              ? 'opacity-50 cursor-not-allowed'
+                              : darkMode 
+                                ? 'border-gray-600 hover:border-gray-500 bg-gray-700 hover:bg-gray-600' 
+                                : 'border-gray-300 hover:border-gray-400 bg-gray-50 hover:bg-gray-100'
+                          }`}
+                        >
+                          {uploadingAvatar ? (
+                            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                              <Upload className="w-5 h-5 animate-bounce" />
+                              <span className="text-sm">جاري الرفع...</span>
+                            </div>
+                          ) : avatarPreview ? (
+                            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                              <CheckCircle className="w-5 h-5" />
+                              <span className="text-sm">تم رفع الصورة بنجاح</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                              <Camera className="w-5 h-5" />
+                              <span className="text-sm">اضغط لاختيار صورة</span>
+                            </div>
+                          )}
+                        </label>
+                      </div>
+                      {avatarPreview && !uploadingAvatar && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAvatarPreview('');
+                            setFormData(prev => ({ ...prev, avatar: '' }));
+                          }}
+                          className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center gap-1"
+                        >
+                          <X className="w-4 h-4" />
+                          حذف الصورة
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={avatarPreview ? 'block' : 'hidden'}>
+                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>معاينة الصورة</label>
+                    <div className="relative inline-block">
+                      <img
+                        src={avatarPreview || '/default-avatar.png'}
+                        alt="Avatar Preview"
+                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600"
+                      />
+                      {avatarPreview && (
+                        <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>نبذة شخصية</label>
+                  <textarea
+                    value={formData.bio}
+                    onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                    rows={3}
+                    className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
+                    placeholder="نبذة مختصرة عن العضو..."
+                  />
+                </div>
+
+                {/* عرض معلومات الدور المختار */}
+                {formData.roleId && (
+                  <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                    <h4 className={`text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      معلومات الدور
+                    </h4>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>
+                      {roles.find(r => r.id === formData.roleId)?.description}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-blue-500" />
+                      <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                        {roles.find(r => r.id === formData.roleId)?.permissions.length || 0} صلاحية
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">

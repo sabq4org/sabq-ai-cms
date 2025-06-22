@@ -2,27 +2,31 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Save, Eye, Send, AlertTriangle, Plus, ArrowUp, ArrowDown, 
-  Trash2, Image, Video, Quote, Type, List, Link, Palette,
-  Sparkles, Brain, MapPin, Clock, User, Globe, Settings,
-  Upload, Play, MessageSquare, Hash, FileText, CheckCircle,
-  XCircle, Lightbulb, Zap, Target, Star, RefreshCw,
-  Wand2, Layers, Layout, PenTool, BookOpen, Award,
-  TrendingUp, Activity, BarChart3, Rocket, Heart,
-  Shield, Crown, Gem, Flame, Coffee, Music,
-  Camera, Mic, Headphones, Wifi, Cpu, Database, Mail,
-  Share2, Calendar
+  PenTool, FileText, Save, Send, Eye, Settings, 
+  Plus, Image, Video, Hash, MapPin, Calendar, 
+  Sparkles, Brain, Target, TrendingUp, Clock,
+  AlertTriangle, CheckCircle, XCircle, RefreshCw,
+  Rocket, ChevronDown, ChevronUp, Info, Loader2,
+  Wand2, Globe, Zap, Activity, Shield, Heart, Share2, Star,
+  Mail, MessageSquare, BarChart3, Lightbulb
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+// import { logActions, getCurrentUser } from '@/lib/admin-activity-logs';
+import { TeamMember } from '@/types/team';
 
-// استيراد المكونات
-import ContentEditorWithBlocks from '../../../../components/ContentEditorWithBlocks';
-import FeaturedImageUpload from '../../../../components/FeaturedImageUpload';
-import { logActions, getCurrentUser } from '../../../../lib/log-activity';
-import { useDarkMode } from '../../../../hooks/useDarkMode';
+// Dynamic imports
+const ContentEditorWithBlocks = dynamic(() => import('@/components/ContentEditorWithBlocks'), {
+  ssr: false,
+  loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-xl" />
+});
 
-// ===============================
-// أنواع البيانات
-// ===============================
+const PublishPanel = dynamic(() => import('@/components/PublishPanel'), {
+  ssr: false
+});
+
+// Types
+type Block = any; // استخدام any مؤقتاً
 
 interface ArticleFormData {
   id?: string;
@@ -53,16 +57,16 @@ interface ArticleFormData {
   };
   scope: 'local' | 'international';
   status: 'draft' | 'review' | 'published';
-  content_blocks: ContentBlock[];
+  content_blocks: Block[];
   featured_image?: string;
   featured_image_alt?: string;
 }
 
 // استخدام أنواع Block من محرر البلوكات
-import { Block } from '../../../../components/BlockEditor/types';
+// import { Block } from '../../../../components/BlockEditor/types';
 
 // ContentBlock سيكون مرادف لـ Block
-type ContentBlock = Block;
+// type ContentBlock = Block;
 
 interface Category {
   id: number;
@@ -84,7 +88,7 @@ interface Author {
 }
 
 export default function CreateArticlePage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [formData, setFormData] = useState<ArticleFormData>({
     title: '',
     subtitle: '',
@@ -151,13 +155,23 @@ export default function CreateArticlePage() {
   useEffect(() => {
     const fetchAuthors = async () => {
       try {
-        const res = await fetch('/api/users');
+        const res = await fetch('/api/team-members');
         const result = await res.json();
-        if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل المستخدمين');
+        if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل أعضاء الفريق');
 
-        // فلترة المستخدمين حسب الأدوار المطلوبة
-        const eligibleAuthors = (result.data as Author[])
-          .filter(user => ['admin', 'editor', 'media'].includes(user.role))
+        // فلترة أعضاء الفريق حسب الأدوار المطلوبة
+        const eligibleAuthors = (result.data as any[])
+          .filter(member => {
+            // الحصول على دور العضو من roles.json
+            return member.isActive && ['admin', 'editor', 'media', 'correspondent', 'content-manager'].includes(member.roleId);
+          })
+          .map(member => ({
+            id: member.id,
+            name: member.name,
+            email: member.email,
+            avatar: member.avatar,
+            role: member.roleId
+          }))
           .sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
         setAuthors(eligibleAuthors);
@@ -376,12 +390,12 @@ export default function CreateArticlePage() {
       if (!res.ok || !result.success) throw new Error(result.error || 'فشل الحفظ');
 
       // تسجيل الحدث في سجلات النظام
-      const userInfo = getCurrentUser();
-      await logActions.createArticle(userInfo, result.data.id, formData.title);
+      // const userInfo = getCurrentUser();
+      // await logActions.createArticle(userInfo, result.data.id, formData.title);
       
-      if (status === 'published') {
-        await logActions.publishArticle(userInfo, result.data.id, formData.title);
-      }
+      // if (status === 'published') {
+      //   await logActions.publishArticle(userInfo, result.data.id, formData.title);
+      // }
 
       // عرض رسالة النجاح المناسبة
       if (statusMessage) {
@@ -764,11 +778,36 @@ export default function CreateArticlePage() {
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       الصورة البارزة
                     </label>
-                    <FeaturedImageUpload
-                      value={formData.featured_image || ''}
-                      onChange={(url) => setFormData(prev => ({ ...prev, featured_image: url }))}
-                      darkMode={darkMode}
-                    />
+                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-gray-400 transition-colors">
+                      {formData.featured_image ? (
+                        <img
+                          src={formData.featured_image}
+                          alt="معاينة الصورة البارزة"
+                          className="mx-auto mb-2 max-h-60 rounded-xl object-cover"
+                        />
+                      ) : (
+                        <>
+                          <Image className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                          <p className="text-sm text-gray-600">اسحب وأفلت الصورة هنا أو انقر للاختيار</p>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const url = URL.createObjectURL(file);
+                            setFormData(prev => ({ ...prev, featured_image: url }));
+                          }
+                        }}
+                        className="hidden"
+                        id="featured-image-upload"
+                      />
+                      <label htmlFor="featured-image-upload" className="cursor-pointer">
+                        <span className="text-blue-600 hover:text-blue-700 text-sm font-medium">{formData.featured_image ? 'تغيير الصورة' : 'اختر صورة'}</span>
+                      </label>
+                    </div>
                   </div>
 
                   {/* محرر المحتوى */}
@@ -1471,11 +1510,36 @@ export default function CreateArticlePage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">الصورة البارزة</label>
-                  <FeaturedImageUpload
-                    value={formData.featured_image || ''}
-                    onChange={(url) => setFormData(prev => ({ ...prev, featured_image: url }))}
-                    darkMode={darkMode}
-                  />
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-gray-400 transition-colors">
+                    {formData.featured_image ? (
+                      <img
+                        src={formData.featured_image}
+                        alt="معاينة الصورة البارزة"
+                        className="mx-auto mb-2 max-h-40 rounded-xl object-cover"
+                      />
+                    ) : (
+                      <>
+                        <Image className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                        <p className="text-sm text-gray-600">اسحب وأفلت الصورة هنا أو انقر للاختيار</p>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const url = URL.createObjectURL(file);
+                          setFormData(prev => ({ ...prev, featured_image: url }));
+                        }
+                      }}
+                      className="hidden"
+                      id="featured-image-sidebar"
+                    />
+                    <label htmlFor="featured-image-sidebar" className="cursor-pointer">
+                      <span className="text-blue-600 hover:text-blue-700 text-sm font-medium">{formData.featured_image ? 'تغيير الصورة' : 'اختر صورة'}</span>
+                    </label>
+                  </div>
                 </div>
                 
                 <div className="flex items-center justify-between text-sm">

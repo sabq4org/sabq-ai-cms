@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
+import { promises as fs } from 'fs';
 import path from 'path';
-const { v4: uuidv4 } = require('uuid');
+import { randomUUID } from 'crypto';
 
 // التحقق من أن المجلد موجود
 async function ensureUploadDir(uploadPath: string) {
   try {
-    await mkdir(uploadPath, { recursive: true });
+    await fs.mkdir(uploadPath, { recursive: true });
   } catch (error) {
     console.error('Error creating upload directory:', error);
   }
@@ -16,66 +16,66 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const type = formData.get('type') as string || 'general';
-
+    
     if (!file) {
       return NextResponse.json(
-        { error: 'لم يتم تحديد ملف' },
+        { success: false, error: 'لم يتم تحديد ملف' },
         { status: 400 }
       );
     }
 
     // التحقق من نوع الملف
-    if (!file.type.startsWith('image/')) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'نوع الملف غير مدعوم' },
+        { success: false, error: 'نوع الملف غير مدعوم. يُسمح بـ: JPG, PNG, GIF, WEBP' },
         { status: 400 }
       );
     }
 
-    // التحقق من حجم الملف (5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // التحقق من حجم الملف (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'حجم الملف كبير جداً (الحد الأقصى 5MB)' },
+        { success: false, error: 'حجم الملف كبير جداً. الحد الأقصى 5MB' },
         { status: 400 }
       );
     }
 
-    // قراءة الملف
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // توليد اسم فريد للملف
-    const fileExtension = file.name.split('.').pop();
-    const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+    // إنشاء اسم فريد للملف
+    const fileExtension = path.extname(file.name);
+    const fileName = `${randomUUID()}${fileExtension}`;
     
     // تحديد مسار الحفظ
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', type);
-    await ensureUploadDir(uploadDir);
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'avatars');
     
-    const filePath = path.join(uploadDir, uniqueFileName);
+    // إنشاء المجلد إذا لم يكن موجوداً
+    await fs.mkdir(uploadsDir, { recursive: true });
     
     // حفظ الملف
-    await writeFile(filePath, buffer);
+    const filePath = path.join(uploadsDir, fileName);
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
     
-    // إرجاع URL الصورة
-    const imageUrl = `/uploads/${type}/${uniqueFileName}`;
+    await fs.writeFile(filePath, buffer);
+    
+    // إرجاع مسار الملف
+    const fileUrl = `/uploads/avatars/${fileName}`;
     
     return NextResponse.json({
       success: true,
-      url: imageUrl,
-      filename: uniqueFileName,
-      size: file.size,
-      type: file.type
+      data: {
+        url: fileUrl,
+        fileName: fileName,
+        originalName: file.name,
+        size: file.size,
+        type: file.type
+      }
     });
-
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json(
-      { 
-        error: 'حدث خطأ أثناء رفع الملف',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { success: false, error: 'حدث خطأ أثناء رفع الملف' },
       { status: 500 }
     );
   }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { Role } from '@/types/roles';
 
 const ROLES_FILE = path.join(process.cwd(), 'data', 'roles.json');
 
@@ -81,10 +82,17 @@ async function initializeRoles() {
 // GET - جلب جميع الأدوار
 export async function GET(request: NextRequest) {
   try {
-    await initializeRoles();
+    await ensureDataDir();
     
-    const data = await fs.readFile(ROLES_FILE, 'utf-8');
-    const roles = JSON.parse(data);
+    // قراءة الأدوار من الملف
+    let roles: Role[] = [];
+    try {
+      const data = await fs.readFile(ROLES_FILE, 'utf-8');
+      roles = JSON.parse(data);
+    } catch (error) {
+      // إذا لم يكن الملف موجود، إرجاع قائمة فارغة
+      roles = [];
+    }
     
     // تحديث عدد المستخدمين لكل دور
     const teamFile = path.join(process.cwd(), 'data', 'team-members.json');
@@ -92,11 +100,16 @@ export async function GET(request: NextRequest) {
       const teamData = await fs.readFile(teamFile, 'utf-8');
       const teamMembers = JSON.parse(teamData);
       
-      roles.forEach((role: any) => {
-        role.users = teamMembers.filter((member: any) => member.roleId === role.id).length;
-      });
+      roles = roles.map((role: Role) => ({
+        ...role,
+        users: teamMembers.filter((member: any) => member.roleId === role.id).length
+      }));
     } catch {
-      // إذا لم يكن هناك أعضاء فريق
+      // إذا لم يكن هناك أعضاء فريق، استخدم القيمة الافتراضية
+      roles = roles.map((role: Role) => ({
+        ...role,
+        users: role.users || 0
+      }));
     }
     
     return NextResponse.json({
@@ -113,12 +126,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// POST - إنشاء دور جديد
 export async function POST(request: NextRequest) {
   try {
-    await initializeRoles();
+    await ensureDataDir();
     
     const body = await request.json();
-    const { name, description, permissions = [], color = 'blue' } = body;
+    const { name, description, permissions = [], color = '#4B82F2' } = body;
     
     if (!name || !description) {
       return NextResponse.json(
@@ -127,11 +141,17 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const data = await fs.readFile(ROLES_FILE, 'utf-8');
-    const roles = JSON.parse(data);
+    // قراءة الأدوار الحالية
+    let roles: Role[] = [];
+    try {
+      const data = await fs.readFile(ROLES_FILE, 'utf-8');
+      roles = JSON.parse(data);
+    } catch {
+      roles = [];
+    }
     
     // التحقق من عدم تكرار اسم الدور
-    const existingRole = roles.find((r: any) => r.name === name);
+    const existingRole = roles.find((r: Role) => r.name === name);
     if (existingRole) {
       return NextResponse.json(
         { success: false, error: 'يوجد دور بنفس الاسم' },
@@ -139,12 +159,14 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const newRole = {
+    const newRole: Role = {
       id: `role-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       name,
       description,
       permissions,
       color,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       users: 0
     };
     
