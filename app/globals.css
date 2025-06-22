@@ -510,3 +510,183 @@ img, video, iframe {
 .sabq-stat-card:hover {
   transform: translateY(-2px);
 }
+
+/* Deep Analysis Print Styles */
+@media print {
+  /* إخفاء العناصر غير المطلوبة في الطباعة */
+  .no-print,
+  button,
+  nav,
+  aside {
+    display: none !important;
+  }
+
+  /* تحسين تخطيط الطباعة */
+  body {
+    font-size: 12pt;
+    line-height: 1.6;
+    color: #000;
+    background: #fff;
+  }
+
+  /* عنوان المقال */
+  h1 {
+    font-size: 24pt;
+    margin-bottom: 12pt;
+    page-break-after: avoid;
+  }
+
+  h2 {
+    font-size: 18pt;
+    margin-top: 18pt;
+    margin-bottom: 8pt;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 14pt;
+    margin-top: 12pt;
+    margin-bottom: 6pt;
+    page-break-after: avoid;
+  }
+
+  /* منع كسر الصفحات داخل العناصر المهمة */
+  p, ul, ol, blockquote {
+    page-break-inside: avoid;
+  }
+
+  /* تحسين مظهر الروابط */
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  /* إظهار عناوين URL للروابط */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 10pt;
+    color: #666;
+  }
+
+  /* تحسين مظهر الاقتباسات */
+  blockquote {
+    border-right: 3px solid #000;
+    padding-right: 12pt;
+    margin: 12pt 0;
+    font-style: italic;
+  }
+
+  /* النقاط الرئيسية */
+  .key-insights {
+    border: 1px solid #000;
+    padding: 12pt;
+    margin: 12pt 0;
+    page-break-inside: avoid;
+  }
+
+  /* معلومات النشر */
+  .article-meta {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    padding: 8pt 0;
+    margin: 12pt 0;
+  }
+}
+
+/* Deep Analysis Specific Styles */
+.deep-analysis-content {
+  @apply prose prose-lg max-w-none;
+}
+
+.deep-analysis-content h1 {
+  @apply text-3xl font-bold mb-6 mt-8;
+}
+
+.deep-analysis-content h2 {
+  @apply text-2xl font-bold mb-4 mt-6;
+}
+
+.deep-analysis-content h3 {
+  @apply text-xl font-bold mb-3 mt-4;
+}
+
+.deep-analysis-content h4 {
+  @apply text-lg font-bold mb-2 mt-3;
+}
+
+.deep-analysis-content p {
+  @apply mb-4 leading-relaxed;
+}
+
+.deep-analysis-content ul {
+  @apply list-disc list-inside mb-4 space-y-2;
+}
+
+.deep-analysis-content blockquote {
+  @apply border-r-4 border-blue-500 pr-4 my-4 italic;
+}
+
+/* Table of Contents Styles */
+.toc-item {
+  @apply w-full text-right px-3 py-2 rounded-lg transition-all;
+}
+
+.toc-item.active {
+  @apply bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400;
+}
+
+.toc-item:not(.active) {
+  @apply text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar for Dark Mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* Deep Analysis Page Header Spacing */
+.deep-analysis-header {
+  top: 64px; /* ارتفاع الهيدر الرئيسي */
+}
+
+@media (min-width: 1024px) {
+  .deep-analysis-sidebar {
+    top: 128px; /* ارتفاع الهيدر الرئيسي + الهيدر الثانوي */
+  }
+}
+
+/* Content Width Optimization */
+.deep-analysis-container {
+  max-width: 72rem; /* 1152px */
+}
+
+/* Print Styles Update */
+@media print {
+  /* إخفاء الهيدر والفوتر في الطباعة */
+  header,
+  footer,
+  .no-print,
+  button,
+  nav,
+  aside {
+    display: none !important;
+  }
+}

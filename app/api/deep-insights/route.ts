@@ -13,59 +13,74 @@ const mockDeepInsights = [
     aiConfidence: 94,
     tags: ["الاقتصاد الرقمي", "رؤية 2030"],
     type: "AI",
-    url: "/insights/deep/deep-001"
+    url: "/insights/deep/deep-001",
+    isNew: true,
+    qualityScore: 94,
+    category: "تقنية"
   },
   {
     id: "deep-002",
     title: "جيوسياسية الطاقة في 2024: كيف تعيد السعودية تشكيل خريطة النفط العالمية",
     summary: "دراسة تحليلية لاستراتيجية المملكة في أسواق الطاقة العالمية، والتحولات الجيوسياسية الناشئة عن السياسات السعودية الجديدة",
-    author: "الطاقة",
+    author: "د. محمد الطاقة",
     createdAt: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(), // قبل يوم ونصف
     readTime: 10,
     views: 12840,
     aiConfidence: 0,
     tags: ["النفط", "الطاقة"],
     type: "تحرير بشري",
-    url: "/insights/deep/deep-002"
+    url: "/insights/deep/deep-002",
+    isNew: false,
+    qualityScore: 88,
+    category: "اقتصاد"
   },
   {
     id: "deep-003",
     title: "مستقبل التعليم في عصر الرقمنة: التجربة السعودية كنموذج عالمي",
     summary: "تحليل شامل للتحول الرقمي في قطاع التعليم السعودي وتأثيره على جودة التعليم ومخرجاته، مع مقارنات دولية ودروس مستفادة",
-    author: "التعليم الرقمي",
+    author: "أ. نورا التعليم",
     createdAt: new Date(Date.now() - 60 * 60 * 60 * 1000).toISOString(), // قبل يومين ونصف
     readTime: 8,
     views: 9650,
     aiConfidence: 0,
     tags: ["التعليم الرقمي", "التحول الرقمي"],
     type: "تحرير بشري",
-    url: "/insights/deep/deep-003"
+    url: "/insights/deep/deep-003",
+    isNew: false,
+    qualityScore: 85,
+    category: "ثقافة"
   },
   {
     id: "deep-004",
     title: "السياحة المستدامة في السعودية: رؤية جديدة للسفر المسؤول",
     summary: "تحليل شامل لمشاريع السياحة المستدامة في المملكة وكيفية تحقيق التوازن بين النمو السياحي والحفاظ على البيئة والتراث",
     author: "فريق الذكاء الصحفي",
-    createdAt: "2025-06-17T16:45:00Z",
+    createdAt: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(), // قبل 3 أيام
     readTime: 9,
     views: 4230,
     aiConfidence: 92,
     tags: ["السياحة المستدامة", "البيئة", "نيوم"],
     type: "AI",
-    url: "/insights/deep/deep-004"
+    url: "/insights/deep/deep-004",
+    isNew: true,
+    qualityScore: 92,
+    category: "سياحة"
   },
   {
     id: "deep-005",
     title: "الأمن السيبراني في عصر التحول الرقمي: التحديات والحلول",
     summary: "دراسة تحليلية للتهديدات السيبرانية المتزايدة وأفضل الممارسات لحماية البنية التحتية الرقمية في المملكة",
     author: "م. خالد الأمني",
-    createdAt: "2025-06-16T11:20:00Z",
+    createdAt: new Date(Date.now() - 96 * 60 * 60 * 1000).toISOString(), // قبل 4 أيام
     readTime: 15,
     views: 3560,
     aiConfidence: 0,
     tags: ["الأمن السيبراني", "الحماية الرقمية", "التقنية"],
     type: "تحرير بشري",
-    url: "/insights/deep/deep-005"
+    url: "/insights/deep/deep-005",
+    isNew: false,
+    qualityScore: 82,
+    category: "تقنية"
   }
 ];
 

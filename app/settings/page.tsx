@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Header from '@/components/Header';
-import { useDarkModeContext } from '@/components/DarkModeProvider';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface UserSettings {
   notifications: {

@@ -155,6 +155,7 @@ export default function NewspaperHomePage() {
   const { darkMode } = useDarkMode();
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // إضافة حالة التحقق من المصادقة
   const [userTracker, setUserTracker] = useState<UserIntelligenceTracker | null>(null);
   const [userPoints, setUserPoints] = useState(0);
   const [readingTime, setReadingTime] = useState<{ [key: string]: number }>({});
@@ -215,6 +216,9 @@ export default function NewspaperHomePage() {
     } else {
       setIsLoggedIn(false);
     }
+    
+    // الانتهاء من التحقق من المصادقة
+    setIsCheckingAuth(false);
     
     // جلب التصنيفات من API
     fetchCategories();
@@ -2283,7 +2287,18 @@ export default function NewspaperHomePage() {
         {/* Enhanced News Section */}
         <section className="mb-20">
           <div className="text-center mb-12">
-            {isLoggedIn ? (
+            {isCheckingAuth ? (
+              // عرض حالة تحميل أثناء التحقق من تسجيل الدخول
+              <div className="animate-pulse">
+                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 mb-6">
+                  <div className="w-5 h-5 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                  <div className="w-32 h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                  <div className="w-5 h-5 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                </div>
+                <div className="w-96 h-10 bg-gray-200 dark:bg-gray-700 rounded mx-auto mb-4"></div>
+                <div className="w-full max-w-2xl h-6 bg-gray-200 dark:bg-gray-700 rounded mx-auto"></div>
+              </div>
+            ) : (
               <>
                 <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-6">
                   <Brain className="w-5 h-5 text-blue-600" />
@@ -2301,25 +2316,6 @@ export default function NewspaperHomePage() {
                   darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
                 }`}>
                   مقالات وتحليلات مختارة بعناية تناسب اهتماماتك وتطلعاتك المعرفية
-                </p>
-              </>
-            ) : (
-              <>
-                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 dark:border-gray-700 mb-6">
-                  <Newspaper className="w-5 h-5 text-gray-600 dark:text-gray-400 dark:text-gray-500" />
-                  <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700 dark:text-gray-300'}`}>
-                    آخر الأخبار
-                  </span>
-                </div>
-                <h2 className={`text-4xl font-bold mb-4 ${
-                  darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'
-                }`}>
-                  أحدث المقالات والأخبار
-                </h2>
-                <p className={`text-xl max-w-2xl mx-auto ${
-                  darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-                }`}>
-                  تابع آخر المستجدات والأخبار المحلية والعالمية
                 </p>
               </>
             )}
@@ -2415,7 +2411,7 @@ export default function NewspaperHomePage() {
           {/* Enhanced Smart Blocks Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* ويدجت الذكاء الشخصي */}
-            {userTracker && isLoggedIn && (
+            {!isCheckingAuth && userTracker && isLoggedIn && (
               <div className="transform hover:scale-105 transition-all duration-300">
                 <UserIntelligenceWidget />
               </div>

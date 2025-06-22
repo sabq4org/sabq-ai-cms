@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
 import './globals.css'
-import { DarkModeProvider } from '@/components/DarkModeProvider'
+import { DarkModeProvider } from '@/contexts/DarkModeContext'
 import { Toaster } from 'react-hot-toast'
 
 const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({

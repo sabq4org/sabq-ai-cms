@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import './article-styles.css';
 import Footer from '@/components/Footer';
-import { useDarkModeContext } from '@/components/DarkModeProvider';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatFullDate, formatTimeOnly } from '@/lib/date-utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 

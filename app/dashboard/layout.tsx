@@ -508,6 +508,37 @@ export default function DashboardLayout({
                     </div>
                   </Link>
 
+                  <Link href="/dashboard/smart-blocks" 
+                    onClick={() => setSidebarOpen(false)}
+                    className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+                    darkMode 
+                      ? 'text-gray-300 hover:bg-gradient-to-r hover:from-cyan-900/30 hover:to-teal-900/30 hover:text-cyan-300' 
+                      : 'text-gray-700 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-teal-50 hover:text-cyan-700'
+                  }`}>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-cyan-900/40 group-hover:bg-cyan-500 group-hover:text-white' 
+                        : 'bg-cyan-100 group-hover:bg-cyan-500 group-hover:text-white'
+                    }`}>
+                      <Database className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-medium">البلوكات الذكية</span>
+                      <p className={`text-xs transition-colors duration-300 ${
+                        darkMode 
+                          ? 'text-gray-400 group-hover:text-cyan-300' 
+                          : 'text-gray-500 group-hover:text-cyan-600'
+                      }`}>إدارة المحتوى التفاعلي</p>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-bold transition-all ${
+                      darkMode 
+                        ? 'bg-cyan-900/40 text-cyan-300 group-hover:bg-cyan-500 group-hover:text-white' 
+                        : 'bg-cyan-100 text-cyan-700 group-hover:bg-cyan-500 group-hover:text-white'
+                    }`}>
+                      جديد
+                    </div>
+                  </Link>
+
                   <Link href="/dashboard/templates" 
                     onClick={() => setSidebarOpen(false)}
                     className={`group flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${

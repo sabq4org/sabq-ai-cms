@@ -290,4 +290,480 @@
   .print-break {
     page-break-after: always;
   }
+}
+
+/* ==================== */
+/* أنماط البلوكات الذكية المحسنة */
+/* ==================== */
+
+/* إزالة التأثيرات القديمة المعقدة */
+.smart-block-card {
+  /* إزالة backdrop-filter لأنه يسبب مشاكل في الأداء */
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* تبسيط تأثيرات Hover */
+.smart-block-card:hover {
+  transform: translateY(-2px);
+}
+
+/* شارة عاجل بدون animation مزعج */
+.urgent-badge {
+  animation: none;
+}
+
+/* أزرار التفاعل المحسنة */
+.smart-action-button {
+  transition: all 0.2s ease;
+}
+
+.smart-action-button:hover {
+  transform: scale(1.05);
+}
+
+/* تحسين أداء الصور */
+.smart-block-card img {
+  will-change: transform;
+}
+
+/* تأثيرات بسيطة للبطاقات */
+.smart-block-wrapper {
+  position: relative;
+}
+
+.smart-block-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(59, 130, 246, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.smart-block-wrapper:hover::before {
+  opacity: 1;
+}
+
+/* تحسين التباين في الوضع المظلم */
+@media (prefers-color-scheme: dark) {
+  .smart-block-card {
+    background-color: rgba(31, 41, 55, 0.95);
+  }
+  
+  .smart-block-card:hover {
+    background-color: rgba(31, 41, 55, 1);
+  }
+}
+
+/* تحسين الاستجابة */
+@media (max-width: 640px) {
+  .smart-block-card {
+    margin-bottom: 1rem;
+  }
+  
+  .smart-block-card h3 {
+    font-size: 1rem;
+  }
+  
+  .smart-block-card p {
+    font-size: 0.875rem;
+  }
+}
+
+/* إزالة الأنماط القديمة المعقدة */
+/* تم إزالة الحركات المعقدة لتحسين الأداء */
+
+/* تدرجات متقدمة للتصنيفات */
+.category-gradient-politics {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+}
+
+.category-gradient-economy {
+  background: linear-gradient(135deg, #10B981 0%, #047857 100%);
+}
+
+.category-gradient-sports {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+}
+
+.category-gradient-tech {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+}
+
+.category-gradient-health {
+  background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);
+}
+
+.category-gradient-education {
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+}
+
+.category-gradient-culture {
+  background: linear-gradient(135deg, #EAB308 0%, #CA8A04 100%);
+}
+
+.category-gradient-environment {
+  background: linear-gradient(135deg, #14B8A6 0%, #0F766E 100%);
+}
+
+/* تأثيرات الأزرار التفاعلية */
+.smart-action-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.smart-action-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.smart-action-button:hover::before {
+  width: 100px;
+  height: 100px;
+}
+
+/* تأثير التدرج المتحرك للخلفيات */
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.smart-block-bg-animated {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* تأثيرات النص المتدرجة */
+.smart-text-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .smart-text-gradient {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* تأثيرات التمرير السلس */
+.smart-scroll-smooth {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.smart-scroll-smooth::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.smart-scroll-smooth::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.smart-scroll-smooth::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.smart-scroll-smooth::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+/* تأثير الزجاج المصنفر */
+.smart-glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .smart-glass-effect {
+  background: rgba(31, 41, 55, 0.7);
+  border: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+/* منع الانتقالات أثناء التحميل */
+.no-transition * {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ==================== */
+/* بطاقات الأخبار */
+/* ==================== */
+.news-card {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.news-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+}
+
+.news-card img {
+  transition: transform 0.5s ease;
+}
+
+.news-card:hover img {
+  transform: scale(1.1);
+}
+
+/* ==================== */
+/* 11. وضع الظلام */
+/* ==================== */
+
+.dark {
+  --bg-primary: var(--bg-dark);
+  --bg-secondary: var(--bg-darker);
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+}
+
+.dark .gradient-hero {
+  background: linear-gradient(135deg, #374151 0%, #4B5563 50%, #6B7280 100%);
+}
+
+.dark .smart-block-bg {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(75, 85, 99, 0.3);
+}
+
+/* ==================== */
+/* 12. أنماط الطباعة */
+/* ==================== */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break {
+    page-break-after: always;
+  }
+  
+  .smart-block-card {
+    background: white !important;
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+  
+  .smart-block-card::before,
+  .smart-block-card::after {
+    display: none !important;
+  }
+}
+
+/* بلوك الهلال المخصص */
+.hilal-block-container {
+  position: relative;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(30, 64, 175, 0.25);
+}
+
+.hilal-block-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="0.5" opacity="0.1"/><circle cx="20" cy="20" r="15" fill="none" stroke="white" stroke-width="0.3" opacity="0.1"/><circle cx="80" cy="80" r="20" fill="none" stroke="white" stroke-width="0.4" opacity="0.1"/></svg>');
+  pointer-events: none;
+}
+
+.hilal-block-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 10;
+}
+
+.hilal-block-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.hilal-block-card:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* تأثيرات الحركة للبلوك */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.hilal-block-container .trophy-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* تدرج ألوان الهلال */
+.hilal-gradient {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+}
+
+.hilal-gradient-text {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* تأثير الجليتر */
+.hilal-glitter {
+  position: relative;
+  overflow: hidden;
+}
+
+.hilal-glitter::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  animation: glitter 3s linear infinite;
+}
+
+@keyframes glitter {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* تصميم responsive للبلوك */
+@media (max-width: 768px) {
+  .hilal-block-container {
+    margin: 1rem;
+    border-radius: 16px;
+  }
+  
+  .hilal-block-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .hilal-block-card {
+    margin-bottom: 1rem;
+  }
+}
+
+/* تأثيرات الهوفر للمقالات */
+.hilal-article-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hilal-article-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 25px 50px rgba(30, 64, 175, 0.3);
+}
+
+.hilal-article-card:hover .article-image {
+  transform: scale(1.1);
+}
+
+.hilal-article-card .article-image {
+  transition: transform 0.5s ease;
+}
+
+/* شارة الأولوية */
+.priority-badge {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* زر المزيد المخصص */
+.hilal-more-button {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  color: #1e40af;
+  border: 2px solid #1e40af;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hilal-more-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(30, 64, 175, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.hilal-more-button:hover::before {
+  left: 100%;
+}
+
+.hilal-more-button:hover {
+  background: #1e40af;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(30, 64, 175, 0.3);
+}
+
+/* تأثيرات النص */
+.hilal-text-glow {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.hilal-title-effect {
+  position: relative;
+  display: inline-block;
+}
+
+.hilal-title-effect::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.hilal-title-effect:hover::after {
+  transform: scaleX(1);
 } 

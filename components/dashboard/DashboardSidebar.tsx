@@ -21,7 +21,8 @@ import {
   Zap,
   Layout,
   Newspaper,
-  Brain
+  Brain,
+  Grid3X3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +38,7 @@ const sidebarItems: SidebarItem[] = [
   { icon: Zap, label: 'لوحة سبق الذكية', href: '/dashboard/console', badge: 'جديد' },
   { icon: Newspaper, label: 'الأخبار', href: '/dashboard/news' },
   { icon: Brain, label: 'التحليل العميق', href: '/dashboard/deep-analysis', badge: 'جديد' },
+  { icon: Grid3X3, label: 'البلوكات الذكية', href: '/dashboard/smart-blocks', badge: 'جديد' },
   { icon: Settings, label: 'الإعدادات', href: '/dashboard/settings' },
   { icon: FileText, label: 'المقالات', href: '/dashboard/articles' },
   { icon: Edit3, label: 'التحرير', href: '/dashboard/editor' },

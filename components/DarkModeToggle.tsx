@@ -1,7 +1,7 @@
 'use client';
 
 import { Moon, Sun } from 'lucide-react';
-import { useDarkModeContext } from './DarkModeProvider';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface DarkModeToggleProps {
   className?: string;

@@ -1,0 +1,185 @@
+[
+  {
+    "id": "1",
+    "name": "أخبار اليوم الوطني 94",
+    "position": "afterHighlights",
+    "type": "smart",
+    "status": "active",
+    "displayType": "grid",
+    "keyword": "اليوم الوطني",
+    "category": "",
+    "articlesCount": 6,
+    "theme": {
+      "primaryColor": "#00BFA6",
+      "backgroundColor": "#f8fafc",
+      "textColor": "#1a1a1a"
+    },
+    "customHtml": "",
+    "schedule": {
+      "startDate": "",
+      "endDate": "",
+      "isTemp": false
+    },
+    "order": 1,
+    "createdAt": "2025-01-22T10:30:00.000Z",
+    "updatedAt": "2025-01-22T10:30:00.000Z"
+  },
+  {
+    "id": "2",
+    "name": "أخبار الرياضة",
+    "position": "afterCards",
+    "type": "smart",
+    "status": "active",
+    "displayType": "cards",
+    "keyword": "رياضة",
+    "category": "رياضة",
+    "articlesCount": 4,
+    "theme": {
+      "primaryColor": "#3b82f6",
+      "backgroundColor": "#ffffff",
+      "textColor": "#1f2937"
+    },
+    "customHtml": "",
+    "schedule": {
+      "startDate": "",
+      "endDate": "",
+      "isTemp": false
+    },
+    "order": 2,
+    "createdAt": "2025-01-22T10:35:00.000Z",
+    "updatedAt": "2025-01-22T10:35:00.000Z"
+  },
+  {
+    "id": "3",
+    "name": "إعلان مميز",
+    "position": "afterCards",
+    "type": "html",
+    "status": "active",
+    "displayType": "grid",
+    "keyword": "",
+    "category": "",
+    "articlesCount": 0,
+    "theme": {
+      "primaryColor": "#8b5cf6",
+      "backgroundColor": "#f3f4f6",
+      "textColor": "#374151"
+    },
+    "customHtml": "<div class=\"bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-8 text-center text-white\"><h3 class=\"text-2xl font-bold mb-4\">🎉 عرض خاص</h3><p class=\"text-lg mb-6\">اشترك الآن واحصل على خصم 50% على الاشتراك السنوي</p><button class=\"bg-white text-purple-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors\">اشترك الآن</button></div>",
+    "schedule": {
+      "startDate": "",
+      "endDate": "",
+      "isTemp": false
+    },
+    "order": 3,
+    "createdAt": "2025-01-22T10:40:00.000Z",
+    "updatedAt": "2025-01-22T10:40:00.000Z"
+  },
+  {
+    "id": "4",
+    "name": "أخبار التقنية",
+    "position": "beforeFooter",
+    "type": "smart",
+    "status": "active",
+    "displayType": "horizontal",
+    "keyword": "تقنية",
+    "category": "تقنية",
+    "articlesCount": 3,
+    "theme": {
+      "primaryColor": "#10b981",
+      "backgroundColor": "#ecfdf5",
+      "textColor": "#065f46"
+    },
+    "customHtml": "",
+    "schedule": {
+      "startDate": "",
+      "endDate": "",
+      "isTemp": false
+    },
+    "order": 4,
+    "createdAt": "2025-01-22T10:45:00.000Z",
+    "updatedAt": "2025-01-22T10:45:00.000Z"
+  },
+  {
+    "id": "5",
+    "name": "بانر ترحيبي",
+    "position": "topBanner",
+    "type": "html",
+    "status": "active",
+    "displayType": "grid",
+    "keyword": "",
+    "category": "",
+    "articlesCount": 0,
+    "theme": {
+      "primaryColor": "#f59e0b",
+      "backgroundColor": "#fffbeb",
+      "textColor": "#92400e"
+    },
+    "customHtml": "<div class=\"bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 text-center rounded-lg\"><div class=\"flex items-center justify-center gap-2\"><span class=\"text-lg\">📰</span><span class=\"font-bold\">مرحباً بك في صحيفة سبق الإلكترونية</span><span class=\"text-lg\">✨</span></div><p class=\"text-sm mt-2 opacity-90\">آخر الأخبار والتحليلات من المملكة والعالم</p></div>",
+    "schedule": {
+      "startDate": "",
+      "endDate": "",
+      "isTemp": false
+    },
+    "order": 5,
+    "createdAt": "2025-01-22T10:50:00.000Z",
+    "updatedAt": "2025-01-22T10:50:00.000Z"
+  },
+  {
+    "name": "بلوك تجريبي جديد",
+    "position": "afterCards",
+    "type": "smart",
+    "status": "active",
+    "displayType": "grid",
+    "keyword": "سعودي",
+    "articlesCount": 4,
+    "theme": {
+      "primaryColor": "#ff6b6b",
+      "backgroundColor": "#fff5f5",
+      "textColor": "#333"
+    },
+    "id": "1750597620768",
+    "createdAt": "2025-06-22T13:07:00.768Z",
+    "updatedAt": "2025-06-22T13:07:00.768Z",
+    "order": 6
+  },
+  {
+    "name": "الهلال في بطولة العالم",
+    "position": "beforePersonalization",
+    "type": "smart",
+    "status": "active",
+    "displayType": "hilal-special",
+    "keyword": "الهلال",
+    "category": "رياضة", 
+    "articlesCount": 4,
+    "theme": {
+      "primaryColor": "#1e40af",
+      "secondaryColor": "#ffffff",
+      "backgroundColor": "linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%)",
+      "textColor": "#ffffff",
+      "accentColor": "#fbbf24",
+      "borderColor": "#1e40af"
+    },
+    "customStyles": {
+      "containerClass": "hilal-block-container",
+      "headerClass": "hilal-block-header",
+      "cardClass": "hilal-block-card"
+    },
+    "customHtml": "",
+    "metadata": {
+      "teamName": "نادي الهلال",
+      "teamLogo": "⚽",
+      "teamColors": ["#1e40af", "#ffffff"],
+      "competition": "بطولة العالم للأندية",
+      "specialFeatures": ["تحديثات مباشرة", "إحصائيات متقدمة", "تحليلات خبراء"]
+    },
+    "schedule": {
+      "startDate": "",
+      "endDate": "",
+      "isTemp": false
+    },
+    "id": "1750599575769",
+    "order": 7,
+    "createdAt": "2025-06-22T13:39:35.769Z",
+    "updatedAt": "2025-12-22T15:30:00.000Z"
+  }
+]

@@ -1,42 +1,1277 @@
 'use client';
 
-import React from 'react';
-import { SabqCard } from '@/components/ui/SabqCard';
-import { Layout, Puzzle, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { 
+  Plus, 
+  Edit3, 
+  Trash2, 
+  GripVertical, 
+  Eye, 
+  EyeOff,
+  Settings,
+  Palette,
+  Layout,
+  Calendar,
+  Target,
+  Save,
+  RotateCcw,
+  TrendingUp,
+  Grid3X3,
+  CheckCircle,
+  XCircle,
+  Sparkles,
+  Code,
+  Power,
+  PowerOff,
+  ArrowUp,
+  ArrowDown,
+  Clock,
+  FileText,
+  Image,
+  List,
+  Layers,
+  X
+} from 'lucide-react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { toast } from 'react-hot-toast';
 
-const smartBlocks = [
-  { id: 'breaking', name: 'عاجل', icon: Zap },
-  { id: 'topBanner', name: 'بانر علوي', icon: Layout },
-  { id: 'mostRead', name: 'الأكثر قراءة', icon: Puzzle },
-  { id: 'recommendations', name: 'توصيات مخصصة', icon: Puzzle },
-  { id: 'aiSummary', name: 'ملخص AI', icon: Zap },
+interface SmartBlock {
+  id: string;
+  name: string;
+  position: 'topBanner' | 'afterHighlights' | 'afterCards' | 'beforePersonalization' | 'beforeFooter';
+  type: 'smart' | 'custom' | 'html';
+  status: 'active' | 'inactive' | 'scheduled';
+  displayType: 'grid' | 'cards' | 'horizontal' | 'gallery' | 'list';
+  keyword?: string;
+  category?: string;
+  articlesCount: number;
+  theme: {
+    primaryColor: string;
+    backgroundColor: string;
+    textColor: string;
+  };
+  customHtml?: string;
+  schedule?: {
+    startDate: string;
+    endDate: string;
+    isAlwaysActive: boolean;
+  };
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const POSITIONS = [
+  { value: 'topBanner', label: 'أعلى الصفحة (أسفل الهيدر)', description: 'يظهر في أعلى الصفحة مباشرة', icon: '🔝' },
+  { value: 'afterHighlights', label: 'بعد الأخبار المميزة', description: 'بين الأخبار المميزة والبطاقات', icon: '⭐' },
+  { value: 'afterCards', label: 'بعد البطاقات', description: 'بين البطاقات والمحتوى الذكي', icon: '🎴' },
+  { value: 'beforePersonalization', label: 'قبل المحتوى المخصص', description: 'قبل قسم "محتوى مخصص لك"', icon: '🎯' },
+  { value: 'beforeFooter', label: 'قبل التذييل', description: 'في أسفل الصفحة قبل الفوتر', icon: '🔚' }
+];
+
+const DISPLAY_TYPES = [
+  { value: 'grid', label: 'شبكة', icon: Grid3X3, color: 'text-blue-500' },
+  { value: 'cards', label: 'بطاقات', icon: Layers, color: 'text-purple-500' },
+  { value: 'horizontal', label: 'شريط أفقي', icon: List, color: 'text-green-500' },
+  { value: 'gallery', label: 'معرض صور', icon: Image, color: 'text-orange-500' },
+  { value: 'list', label: 'قائمة', icon: FileText, color: 'text-gray-500' }
+];
+
+const BLOCK_TYPES = [
+  { value: 'smart', label: 'بلوك ذكي', description: 'يعرض المحتوى بناءً على كلمات مفتاحية', icon: Sparkles, color: 'text-purple-500' },
+  { value: 'custom', label: 'بلوك مخصص', description: 'اختيار يدوي للمقالات', icon: Target, color: 'text-blue-500' },
+  { value: 'html', label: 'بلوك HTML', description: 'كود HTML مخصص', icon: Code, color: 'text-green-500' }
 ];
 
 export default function SmartBlocksPage() {
+  const { darkMode } = useDarkModeContext();
+  const [blocks, setBlocks] = useState<SmartBlock[]>([]);
+  const [selectedBlock, setSelectedBlock] = useState<SmartBlock | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('all');
+  const [showSettings, setShowSettings] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+
+  // نموذج البلوك الجديد
+  const [newBlock, setNewBlock] = useState<Partial<SmartBlock>>({
+    name: '',
+    position: 'afterCards',
+    type: 'smart',
+    status: 'active',
+    displayType: 'grid',
+    keyword: '',
+    category: '',
+    articlesCount: 6,
+    theme: {
+      primaryColor: '#00BFA6',
+      backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+      textColor: darkMode ? '#f3f4f6' : '#1a1a1a'
+    },
+    customHtml: '',
+    schedule: {
+      startDate: '',
+      endDate: '',
+      isAlwaysActive: false
+    }
+  });
+
+  useEffect(() => {
+    fetchBlocks();
+  }, []);
+
+  const fetchBlocks = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/smart-blocks');
+      if (response.ok) {
+        const data = await response.json();
+        setBlocks(data);
+      }
+    } catch (error) {
+      console.error('خطأ في جلب البلوكات:', error);
+      toast.error('فشل في تحميل البلوكات');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const moveBlockUp = async (blockId: string) => {
+    const blockIndex = blocks.findIndex(b => b.id === blockId);
+    if (blockIndex === 0) return;
+
+    const newBlocks = [...blocks];
+    [newBlocks[blockIndex], newBlocks[blockIndex - 1]] = [newBlocks[blockIndex - 1], newBlocks[blockIndex]];
+    
+    // تحديث ترتيب البلوكات
+    const updatedBlocks = newBlocks.map((block, index) => ({
+      ...block,
+      order: index + 1
+    }));
+
+    setBlocks(updatedBlocks);
+
+    try {
+      await fetch('/api/smart-blocks/reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blocks: updatedBlocks })
+      });
+      toast.success('تم تحديث ترتيب البلوكات بنجاح');
+    } catch (error) {
+      toast.error('فشل في حفظ الترتيب الجديد');
+    }
+  };
+
+  const moveBlockDown = async (blockId: string) => {
+    const blockIndex = blocks.findIndex(b => b.id === blockId);
+    if (blockIndex === blocks.length - 1) return;
+
+    const newBlocks = [...blocks];
+    [newBlocks[blockIndex], newBlocks[blockIndex + 1]] = [newBlocks[blockIndex + 1], newBlocks[blockIndex]];
+    
+    // تحديث ترتيب البلوكات
+    const updatedBlocks = newBlocks.map((block, index) => ({
+      ...block,
+      order: index + 1
+    }));
+
+    setBlocks(updatedBlocks);
+
+    try {
+      await fetch('/api/smart-blocks/reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blocks: updatedBlocks })
+      });
+      toast.success('تم تحديث ترتيب البلوكات بنجاح');
+    } catch (error) {
+      toast.error('فشل في حفظ الترتيب الجديد');
+    }
+  };
+
+  const toggleBlockStatus = async (blockId: string) => {
+    try {
+      const block = blocks.find(b => b.id === blockId);
+      if (!block) return;
+
+      const newStatus = block.status === 'active' ? 'inactive' : 'active';
+      
+      const response = await fetch(`/api/smart-blocks/${blockId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        setBlocks(blocks.map(b => 
+          b.id === blockId ? { ...b, status: newStatus } : b
+        ));
+        toast.success(`تم ${newStatus === 'active' ? 'تفعيل' : 'إلغاء تفعيل'} البلوك`);
+      }
+    } catch (error) {
+      toast.error('فشل في تحديث حالة البلوك');
+    }
+  };
+
+  const saveBlock = async () => {
+    try {
+      // التحقق من صحة البيانات
+      if (!newBlock.name?.trim()) {
+        toast.error('يرجى إدخال عنوان البلوك');
+        return;
+      }
+
+      const blockData = {
+        ...newBlock,
+        id: isEditing ? selectedBlock?.id : `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        order: isEditing ? selectedBlock?.order : blocks.length + 1,
+        createdAt: isEditing ? selectedBlock?.createdAt : new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      const url = isEditing ? `/api/smart-blocks/${selectedBlock?.id}` : '/api/smart-blocks';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(blockData)
+      });
+
+      if (response.ok) {
+        const savedBlock = await response.json();
+        
+        if (isEditing) {
+          setBlocks(blocks.map(b => b.id === savedBlock.id ? savedBlock : b));
+          toast.success('✅ تم تحديث البلوك بنجاح وهو الآن مُفعل في الموقع');
+        } else {
+          setBlocks([...blocks, savedBlock]);
+          toast.success('✅ تم إنشاء البلوك بنجاح! يمكنك الآن رؤيته في الصفحة الرئيسية');
+        }
+
+        resetForm();
+        setShowCreateForm(false);
+      } else {
+        throw new Error('فشل في الحفظ');
+      }
+    } catch (error) {
+      console.error('خطأ في حفظ البلوك:', error);
+      toast.error('فشل في حفظ البلوك - يرجى المحاولة مرة أخرى');
+    }
+  };
+
+  const deleteBlock = async (blockId: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذا البلوك؟')) return;
+
+    try {
+      const response = await fetch(`/api/smart-blocks/${blockId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setBlocks(blocks.filter(b => b.id !== blockId));
+        toast.success('تم حذف البلوك بنجاح');
+      }
+    } catch (error) {
+      toast.error('فشل في حذف البلوك');
+    }
+  };
+
+  const editBlock = (block: SmartBlock) => {
+    setSelectedBlock(block);
+    setNewBlock(block);
+    setIsEditing(true);
+    setShowCreateForm(true);
+  };
+
+  const resetForm = () => {
+    setNewBlock({
+      name: '',
+      position: 'afterCards',
+      type: 'smart',
+      status: 'active',
+      displayType: 'grid',
+      keyword: '',
+      category: '',
+      articlesCount: 6,
+      theme: {
+        primaryColor: '#00BFA6',
+        backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+        textColor: darkMode ? '#f3f4f6' : '#1a1a1a'
+      },
+      customHtml: '',
+      schedule: {
+        startDate: '',
+        endDate: '',
+        isAlwaysActive: false
+      }
+    });
+    setSelectedBlock(null);
+    setIsEditing(false);
+    setShowPreview(false);
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      active: { label: 'مفعل', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle },
+      inactive: { label: 'معطل', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400', icon: XCircle },
+      scheduled: { label: 'مجدول', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400', icon: Clock }
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig];
+    const Icon = config.icon;
+    
+    return (
+      <Badge className={`${config.color} flex items-center gap-1`}>
+        <Icon className="w-3 h-3" />
+        {config.label}
+      </Badge>
+    );
+  };
+
+  const getPositionLabel = (position: string) => {
+    const pos = POSITIONS.find(p => p.value === position);
+    return pos ? `${pos.icon} ${pos.label}` : position;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>جاري تحميل البلوكات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // مكون بطاقة الإحصائية المحسّنة
+  const EnhancedStatsCard = ({ 
+    title, 
+    value, 
+    subtitle, 
+    icon: Icon, 
+    bgGradient,
+    iconColor,
+    trend,
+    trendValue
+  }: {
+    title: string;
+    value: string | number;
+    subtitle: string;
+    icon: any;
+    bgGradient: string;
+    iconColor: string;
+    trend?: 'up' | 'down';
+    trendValue?: string;
+  }) => (
+    <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+      darkMode 
+        ? 'bg-gray-800 border-gray-700' 
+        : 'bg-white border-gray-100'
+    }`}>
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className={`w-12 h-12 sm:w-14 sm:h-14 ${bgGradient} rounded-2xl flex items-center justify-center shadow-lg`}>
+          <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${iconColor}`} />
+        </div>
+        <div className="flex-1">
+          <p className={`text-xs sm:text-sm mb-1 transition-colors duration-300 ${
+            darkMode ? 'text-gray-400' : 'text-gray-500'
+          }`}>{title}</p>
+          <div className="flex items-baseline gap-1 sm:gap-2">
+            <span className={`text-lg sm:text-2xl font-bold transition-colors duration-300 ${
+              darkMode ? 'text-white' : 'text-gray-800'
+            }`}>{loading ? '...' : value}</span>
+            <span className={`text-xs sm:text-sm transition-colors duration-300 ${
+              darkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>{subtitle}</span>
+          </div>
+          {trend && trendValue && (
+            <div className={`flex items-center gap-1 mt-2 text-xs ${
+              trend === 'up' ? 'text-green-600' : 'text-red-600'
+            }`}>
+              <TrendingUp className={`w-3 h-3 ${trend === 'down' ? 'rotate-180' : ''}`} />
+              <span>{trendValue}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // التبويبات
+  const statusTabs = [
+    { 
+      id: 'all', 
+      name: 'جميع البلوكات', 
+      count: blocks.length,
+      icon: <Grid3X3 className="w-5 h-5" />
+    },
+    { 
+      id: 'active', 
+      name: 'مفعل', 
+      count: blocks.filter(item => item.status === 'active').length,
+      icon: <CheckCircle className="w-5 h-5" />
+    },
+    { 
+      id: 'inactive', 
+      name: 'غير مفعل', 
+      count: blocks.filter(item => item.status === 'inactive').length,
+      icon: <XCircle className="w-5 h-5" />
+    },
+    { 
+      id: 'smart', 
+      name: 'بلوكات ذكية', 
+      count: blocks.filter(item => item.type === 'smart').length,
+      icon: <Sparkles className="w-5 h-5" />
+    },
+    { 
+      id: 'html', 
+      name: 'بلوكات HTML', 
+      count: blocks.filter(item => item.type === 'html').length,
+      icon: <Code className="w-5 h-5" />
+    }
+  ];
+
+  // فلترة البلوكات حسب التبويب المحدد
+  const filteredBlocks = blocks.filter(block => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'active') return block.status === 'active';
+    if (activeTab === 'inactive') return block.status === 'inactive';
+    if (activeTab === 'smart') return block.type === 'smart';
+    if (activeTab === 'html') return block.type === 'html';
+    return true;
+  });
+
+  // ترتيب البلوكات: الأحدث أولاً (حسب تاريخ الإنشاء أو الترتيب اليدوي)
+  const sortedBlocks = filteredBlocks.sort((a, b) => {
+    if (a.order && b.order) {
+      return a.order - b.order;
+    }
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">إدارة البلوكات الذكية</h1>
-        <p className="text-gray-600 dark:text-gray-400">قائمة البلوكات الذكية في الموقع وإمكانية ترتيبها أو تفعيلها/تعطيلها.</p>
+    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+      darkMode ? 'bg-gray-900' : 'bg-gray-50'
+    }`} dir="rtl">
+      {/* عنوان وتعريف الصفحة */}
+      <div className="mb-6 sm:mb-8">
+        <h1 className={`text-2xl sm:text-3xl font-bold mb-2 transition-colors duration-300 ${
+          darkMode ? 'text-white' : 'text-gray-800'
+        }`}>مركز إدارة البلوكات الذكية</h1>
+        <p className={`text-sm sm:text-base transition-colors duration-300 ${
+          darkMode ? 'text-gray-300' : 'text-gray-600'
+        }`}>منصة متكاملة لإنشاء وإدارة البلوكات التفاعلية والمحتوى الديناميكي في الصفحة الرئيسية</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {smartBlocks.map((block) => {
-          const Icon = block.icon;
-          return (
-            <SabqCard key={block.id} className="flex items-center gap-4 p-6 hover:shadow-lg transition-all">
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+      {/* قسم النظام الذكي */}
+      <div className="mb-6 sm:mb-8">
+        <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
+          darkMode 
+            ? 'bg-gradient-to-r from-teal-900/30 to-cyan-900/30 border-teal-700' 
+            : 'bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-100'
+        }`}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Grid3X3 className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{block.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">معرّف: {block.id}</p>
+              <div>
+                <h2 className={`text-lg sm:text-xl font-bold transition-colors duration-300 ${
+                  darkMode ? 'text-white' : 'text-gray-800'
+                }`}>نظام البلوكات الذكية المتقدم</h2>
+                <p className={`text-xs sm:text-sm transition-colors duration-300 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-600'
+                }`}>أدوات قوية لإنشاء محتوى تفاعلي وديناميكي يتكيف مع اهتمامات القراء</p>
               </div>
-              <button className="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700">إعدادات</button>
-            </SabqCard>
-          );
-        })}
+            </div>
+            
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                onClick={() => setShowSettings(!showSettings)}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-sm"
+              >
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">إعدادات النظام</span>
+                <span className="sm:hidden">إعدادات</span>
+              </Button>
+              
+              <Button
+                onClick={() => setShowCreateForm(true)}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                بلوك جديد
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* بطاقات الإحصائيات المحسّنة */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+        <EnhancedStatsCard
+          title="إجمالي البلوكات"
+          value={blocks.length}
+          subtitle="بلوك"
+          icon={Grid3X3}
+          bgGradient="bg-gradient-to-br from-teal-500 to-cyan-600"
+          iconColor="text-white"
+          trend="up"
+          trendValue="+12% هذا الشهر"
+        />
+        <EnhancedStatsCard
+          title="البلوكات المفعلة"
+          value={blocks.filter(b => b.status === 'active').length}
+          subtitle="نشط"
+          icon={CheckCircle}
+          bgGradient="bg-gradient-to-br from-green-500 to-emerald-600"
+          iconColor="text-white"
+          trend="up"
+          trendValue="+8% هذا الأسبوع"
+        />
+        <EnhancedStatsCard
+          title="البلوكات الذكية"
+          value={blocks.filter(b => b.type === 'smart').length}
+          subtitle="ذكي"
+          icon={Sparkles}
+          bgGradient="bg-gradient-to-br from-purple-500 to-pink-600"
+          iconColor="text-white"
+        />
+        <EnhancedStatsCard
+          title="البلوكات المخصصة"
+          value={blocks.filter(b => b.type === 'custom').length}
+          subtitle="مخصص"
+          icon={Target}
+          bgGradient="bg-gradient-to-br from-blue-500 to-indigo-600"
+          iconColor="text-white"
+        />
+        <EnhancedStatsCard
+          title="بلوكات HTML"
+          value={blocks.filter(b => b.type === 'html').length}
+          subtitle="HTML"
+          icon={Code}
+          bgGradient="bg-gradient-to-br from-orange-500 to-red-600"
+          iconColor="text-white"
+        />
+      </div>
+
+      {/* أزرار التنقل المحسّنة */}
+      <div className={`rounded-2xl p-2 shadow-sm border mb-6 sm:mb-8 w-full transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {statusTabs.map((tab) => {
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`min-w-[100px] sm:min-w-[120px] lg:w-44 flex flex-col items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 sm:px-3 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 relative ${
+                  activeTab === tab.id
+                    ? 'bg-teal-500 text-white shadow-md transform scale-105'
+                    : darkMode
+                      ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <div className={`transition-transform duration-300 ${activeTab === tab.id ? 'scale-110' : ''}`}>
+                  {tab.icon}
+                </div>
+                <div className="text-center">
+                  <div className="whitespace-nowrap">{tab.name}</div>
+                </div>
+                {tab.count > 0 && (
+                  <span className={`absolute top-1 sm:top-2 left-1 sm:left-2 px-1.5 sm:px-2 py-0.5 text-xs rounded-full ${
+                    activeTab === tab.id
+                      ? 'bg-white text-teal-500'
+                      : darkMode
+                        ? 'bg-gray-700 text-gray-300'
+                        : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* جدول البلوكات المحسن */}
+      <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h2 className={`text-lg font-semibold transition-colors duration-300 ${
+                darkMode ? 'text-white' : 'text-gray-800'
+              }`}>البلوكات المُدارة ({sortedBlocks.length})</h2>
+              <p className={`text-sm transition-colors duration-300 ${
+                darkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}>إدارة وترتيب البلوكات الذكية في الصفحة الرئيسية</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                {blocks.filter(b => b.status === 'active').length} مفعل
+              </Badge>
+              <Button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                إضافة بلوك جديد
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-0">
+          {sortedBlocks.length === 0 ? (
+            <div className="p-12 text-center">
+              <div className="text-6xl mb-4">🧩</div>
+              <h3 className={`text-xl font-semibold mb-2 transition-colors duration-300 ${
+                darkMode ? 'text-white' : 'text-gray-800'
+              }`}>لا توجد بلوكات حتى الآن</h3>
+              <p className={`transition-colors duration-300 mb-6 ${
+                darkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}>ابدأ بإنشاء أول بلوك ذكي لتخصيص الصفحة الرئيسية</p>
+              <Button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2 mx-auto">
+                <Plus className="h-4 w-4" />
+                إنشاء بلوك جديد
+              </Button>
+            </div>
+          ) : (
+            sortedBlocks.map((block, index) => (
+              <div key={block.id} className={`border-b border-gray-200 dark:border-gray-700 last:border-b-0 transition-all duration-300 ${
+                darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'
+              }`}>
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 flex-1">
+                      {/* أزرار الترتيب */}
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveBlockUp(block.id)}
+                          disabled={index === 0}
+                          className="h-8 w-8 p-0"
+                        >
+                          <ArrowUp className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveBlockDown(block.id)}
+                          disabled={index === sortedBlocks.length - 1}
+                          className="h-8 w-8 p-0"
+                        >
+                          <ArrowDown className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* معلومات البلوك */}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className={`font-semibold text-lg transition-colors duration-300 ${
+                            darkMode ? 'text-white' : 'text-gray-800'
+                          }`}>{block.name}</h3>
+                          {getStatusBadge(block.status)}
+                          <Badge variant="outline" className="text-xs">
+                            {DISPLAY_TYPES.find(d => d.value === block.displayType)?.icon && (
+                              React.createElement(DISPLAY_TYPES.find(d => d.value === block.displayType)!.icon, {
+                                className: `w-3 h-3 ml-1 ${DISPLAY_TYPES.find(d => d.value === block.displayType)?.color}`
+                              })
+                            )}
+                            {DISPLAY_TYPES.find(d => d.value === block.displayType)?.label}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {BLOCK_TYPES.find(t => t.value === block.type)?.icon && (
+                              React.createElement(BLOCK_TYPES.find(t => t.value === block.type)!.icon, {
+                                className: `w-3 h-3 ml-1 ${BLOCK_TYPES.find(t => t.value === block.type)?.color}`
+                              })
+                            )}
+                            {BLOCK_TYPES.find(t => t.value === block.type)?.label}
+                          </Badge>
+                        </div>
+                        
+                        <div className={`flex flex-wrap items-center gap-4 text-sm transition-colors duration-300 ${
+                          darkMode ? 'text-gray-400' : 'text-gray-600'
+                        }`}>
+                          <span className="flex items-center gap-1">
+                            <Layout className="w-4 h-4" />
+                            {getPositionLabel(block.position)}
+                          </span>
+                          {block.keyword && (
+                            <span className="flex items-center gap-1">
+                              <Target className="w-4 h-4" />
+                              {block.keyword}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <FileText className="w-4 h-4" />
+                            {block.articlesCount} مقال
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Palette className="w-4 h-4" />
+                            <span 
+                              className="w-4 h-4 rounded-full border"
+                              style={{ backgroundColor: block.theme.primaryColor }}
+                            />
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(block.createdAt).toLocaleDateString('ar-SA')}
+                          </span>
+                          {block.schedule && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              {block.schedule.isAlwaysActive 
+                                ? 'دائم' 
+                                : block.schedule.startDate && block.schedule.endDate
+                                  ? `${new Date(block.schedule.startDate).toLocaleDateString('ar-SA')} - ${new Date(block.schedule.endDate).toLocaleDateString('ar-SA')}`
+                                  : 'غير محدد'
+                              }
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* الإجراءات */}
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleBlockStatus(block.id)}
+                        className={`h-9 w-9 p-0 ${
+                          block.status === 'active' 
+                            ? 'text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/30' 
+                            : 'text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'
+                        }`}
+                        title={block.status === 'active' ? 'إيقاف تشغيل البلوك' : 'تشغيل البلوك'}
+                      >
+                        {block.status === 'active' ? (
+                          <Power className="h-4 w-4" />
+                        ) : (
+                          <PowerOff className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => editBlock(block)}
+                        className="h-9 w-9 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700"
+                        title="تعديل البلوك"
+                      >
+                        <Edit3 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteBlock(block.id)}
+                        className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+                        title="حذف البلوك"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* نموذج إنشاء البلوك المحسن */}
+      {showCreateForm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className={`relative rounded-2xl shadow-2xl max-w-3xl w-full my-8 transition-all duration-300 ${
+            darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            {/* رأس النموذج */}
+            <div className={`sticky top-0 z-10 p-6 border-b ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'} rounded-t-2xl`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className={`text-xl font-bold transition-colors duration-300 ${
+                    darkMode ? 'text-white' : 'text-gray-800'
+                  }`}>
+                    {isEditing ? 'تعديل البلوك' : 'إنشاء بلوك جديد'}
+                  </h2>
+                  <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    قم بتخصيص البلوك وضبط إعداداته لعرضه في الصفحة الرئيسية
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowCreateForm(false);
+                    resetForm();
+                  }}
+                  className="h-10 w-10 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* محتوى النموذج */}
+            <div className="p-6 space-y-6">
+
+                {/* المعلومات الأساسية */}
+                <div className={`space-y-4 p-4 rounded-lg border ${
+                  darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+                }`}>
+                    <h3 className={`font-semibold text-lg flex items-center gap-2 ${
+                      darkMode ? 'text-white' : 'text-gray-800'
+                    }`}>
+                      <FileText className="w-5 h-5" />
+                      المعلومات الأساسية
+                    </h3>
+                    
+                    <div>
+                      <Label htmlFor="block-name" className="mb-2">عنوان البلوك</Label>
+                      <Input
+                        id="block-name"
+                        value={newBlock.name}
+                        onChange={(e) => setNewBlock({ ...newBlock, name: e.target.value })}
+                        placeholder="مثال: اليوم الوطني 94"
+                        maxLength={50}
+                        className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
+                      />
+                      <p className={`text-xs mt-1 transition-colors duration-300 ${
+                        darkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        {newBlock.name?.length || 0}/50 حرف
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="block-position" className="mb-2">موقع العرض</Label>
+                        <Select
+                          value={newBlock.position}
+                          onValueChange={(value) => setNewBlock({ ...newBlock, position: value as any })}
+                        >
+                          <SelectTrigger id="block-position" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-h-[300px] overflow-y-auto`}>
+                            {POSITIONS.map((pos) => (
+                              <SelectItem key={pos.value} value={pos.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
+                                <div className="flex items-center gap-2">
+                                  <span>{pos.icon}</span>
+                                  <div>
+                                    <div className="font-medium">{pos.label}</div>
+                                    <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                      {pos.description}
+                                    </div>
+                                  </div>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="block-type" className="mb-2">نوع البلوك</Label>
+                        <Select
+                          value={newBlock.type}
+                          onValueChange={(value) => setNewBlock({ ...newBlock, type: value as any })}
+                        >
+                          <SelectTrigger id="block-type" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-h-[300px] overflow-y-auto`}>
+                            {BLOCK_TYPES.map((type) => {
+                              const Icon = type.icon;
+                              return (
+                                <SelectItem key={type.value} value={type.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
+                                  <div className="flex items-center gap-2">
+                                    <Icon className={`w-4 h-4 ${type.color}`} />
+                                    <div>
+                                      <div className="font-medium">{type.label}</div>
+                                      <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        {type.description}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {newBlock.type === 'smart' && (
+                      <div>
+                        <Label htmlFor="block-keyword" className="mb-2">الكلمة المفتاحية</Label>
+                        <Input
+                          id="block-keyword"
+                          value={newBlock.keyword}
+                          onChange={(e) => setNewBlock({ ...newBlock, keyword: e.target.value })}
+                          placeholder="مثال: اليوم الوطني"
+                          className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
+                        />
+                        <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          سيتم عرض المقالات التي تحتوي على هذه الكلمة
+                        </p>
+                      </div>
+                    )}
+
+                    {newBlock.type === 'html' && (
+                      <div>
+                        <Label htmlFor="block-html" className="mb-2">كود HTML</Label>
+                        <Textarea
+                          id="block-html"
+                          value={newBlock.customHtml}
+                          onChange={(e) => setNewBlock({ ...newBlock, customHtml: e.target.value })}
+                          placeholder="أدخل كود HTML المخصص هنا..."
+                          rows={6}
+                          className={`font-mono text-sm ${darkMode ? 'bg-gray-800 border-gray-700' : ''}`}
+                        />
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="block-count" className="mb-2">عدد المقالات</Label>
+                        <Input
+                          id="block-count"
+                          type="number"
+                          min="1"
+                          max="20"
+                          value={newBlock.articlesCount}
+                          onChange={(e) => setNewBlock({ ...newBlock, articlesCount: parseInt(e.target.value) || 6 })}
+                          className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="block-display" className="mb-2">نوع العرض</Label>
+                        <Select
+                          value={newBlock.displayType}
+                          onValueChange={(value) => setNewBlock({ ...newBlock, displayType: value as any })}
+                        >
+                          <SelectTrigger id="block-display" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-h-[300px] overflow-y-auto`}>
+                            {DISPLAY_TYPES.map((type) => {
+                              const Icon = type.icon;
+                              return (
+                                <SelectItem key={type.value} value={type.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
+                                  <div className="flex items-center gap-2">
+                                    <Icon className={`w-4 h-4 ${type.color}`} />
+                                    <span>{type.label}</span>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                </div>
+
+                {/* إعدادات الألوان */}
+                <div className={`space-y-4 p-4 rounded-lg border ${
+                  darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+                }`}>
+                  <h3 className={`font-semibold text-lg flex items-center gap-2 ${
+                    darkMode ? 'text-white' : 'text-gray-800'
+                  }`}>
+                    <Palette className="w-5 h-5" />
+                    إعدادات الألوان
+                  </h3>
+                  
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="color-primary" className="mb-2">اللون الأساسي</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="color-primary"
+                          type="color"
+                          value={newBlock.theme?.primaryColor}
+                          onChange={(e) => setNewBlock({
+                            ...newBlock,
+                            theme: { ...newBlock.theme!, primaryColor: e.target.value }
+                          })}
+                          className="w-full h-10"
+                        />
+                        <Input
+                          value={newBlock.theme?.primaryColor}
+                          onChange={(e) => setNewBlock({
+                            ...newBlock,
+                            theme: { ...newBlock.theme!, primaryColor: e.target.value }
+                          })}
+                          className={`w-24 text-xs ${darkMode ? 'bg-gray-800 border-gray-700' : ''}`}
+                          placeholder="#00BFA6"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="color-bg" className="mb-2">لون الخلفية</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="color-bg"
+                          type="color"
+                          value={newBlock.theme?.backgroundColor}
+                          onChange={(e) => setNewBlock({
+                            ...newBlock,
+                            theme: { ...newBlock.theme!, backgroundColor: e.target.value }
+                          })}
+                          className="w-full h-10"
+                        />
+                        <Input
+                          value={newBlock.theme?.backgroundColor}
+                          onChange={(e) => setNewBlock({
+                            ...newBlock,
+                            theme: { ...newBlock.theme!, backgroundColor: e.target.value }
+                          })}
+                          className={`w-24 text-xs ${darkMode ? 'bg-gray-800 border-gray-700' : ''}`}
+                          placeholder="#ffffff"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="color-text" className="mb-2">لون النص</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="color-text"
+                          type="color"
+                          value={newBlock.theme?.textColor}
+                          onChange={(e) => setNewBlock({
+                            ...newBlock,
+                            theme: { ...newBlock.theme!, textColor: e.target.value }
+                          })}
+                          className="w-full h-10"
+                        />
+                        <Input
+                          value={newBlock.theme?.textColor}
+                          onChange={(e) => setNewBlock({
+                            ...newBlock,
+                            theme: { ...newBlock.theme!, textColor: e.target.value }
+                          })}
+                          className={`w-24 text-xs ${darkMode ? 'bg-gray-800 border-gray-700' : ''}`}
+                          placeholder="#1a1a1a"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* إعدادات التوقيت */}
+                <div className={`space-y-4 p-4 rounded-lg border ${
+                  darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+                }`}>
+                  <h3 className={`font-semibold text-lg flex items-center gap-2 ${
+                    darkMode ? 'text-white' : 'text-gray-800'
+                  }`}>
+                    <Clock className="w-5 h-5" />
+                    إعدادات التوقيت
+                  </h3>
+                  
+                  <div className="space-y-4">
+                    {/* خيار التفعيل الدائم */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="always-active" className="cursor-pointer">
+                          تفعيل دائم
+                        </Label>
+                        <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          البلوك سيكون مفعلاً دائماً بدون تاريخ انتهاء
+                        </p>
+                      </div>
+                      <Switch
+                        id="always-active"
+                        checked={newBlock.schedule?.isAlwaysActive || false}
+                        onCheckedChange={(checked) => setNewBlock({
+                          ...newBlock,
+                          schedule: {
+                            ...newBlock.schedule!,
+                            isAlwaysActive: checked,
+                            startDate: checked ? '' : newBlock.schedule?.startDate || '',
+                            endDate: checked ? '' : newBlock.schedule?.endDate || ''
+                          }
+                        })}
+                      />
+                    </div>
+
+                    {/* حقول التاريخ - تظهر فقط عندما لا يكون التفعيل دائم */}
+                    {!newBlock.schedule?.isAlwaysActive && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="start-date" className="mb-2">تاريخ البداية</Label>
+                          <Input
+                            id="start-date"
+                            type="datetime-local"
+                            value={newBlock.schedule?.startDate || ''}
+                            onChange={(e) => setNewBlock({
+                              ...newBlock,
+                              schedule: {
+                                ...newBlock.schedule!,
+                                startDate: e.target.value
+                              }
+                            })}
+                            className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
+                          />
+                          <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            متى يبدأ عرض البلوك
+                          </p>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="end-date" className="mb-2">تاريخ النهاية</Label>
+                          <Input
+                            id="end-date"
+                            type="datetime-local"
+                            value={newBlock.schedule?.endDate || ''}
+                            onChange={(e) => setNewBlock({
+                              ...newBlock,
+                              schedule: {
+                                ...newBlock.schedule!,
+                                endDate: e.target.value
+                              }
+                            })}
+                            min={newBlock.schedule?.startDate || ''}
+                            className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
+                          />
+                          <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            متى يتوقف عرض البلوك
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* معلومات الحالة الحالية */}
+                    {newBlock.schedule?.startDate && newBlock.schedule?.endDate && !newBlock.schedule?.isAlwaysActive && (
+                      <div className={`rounded-lg p-3 ${
+                        darkMode ? 'bg-gray-800' : 'bg-gray-100'
+                      }`}>
+                        <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <span className="font-medium">مدة العرض:</span> من{' '}
+                          {new Date(newBlock.schedule.startDate).toLocaleString('ar-SA')} إلى{' '}
+                          {new Date(newBlock.schedule.endDate).toLocaleString('ar-SA')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* معاينة البلوك */}
+                <div className={`space-y-4 p-4 rounded-lg border ${
+                  darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+                }`}>
+                  <h3 className={`font-semibold text-lg flex items-center gap-2 ${
+                    darkMode ? 'text-white' : 'text-gray-800'
+                  }`}>
+                    <Eye className="w-5 h-5" />
+                    معاينة البلوك
+                  </h3>
+                  
+                  <div 
+                    className="p-4 rounded-lg border"
+                    style={{
+                      backgroundColor: newBlock.theme?.backgroundColor,
+                      borderColor: newBlock.theme?.primaryColor
+                    }}
+                  >
+                    <h4 
+                      className="text-lg font-bold mb-2"
+                      style={{ color: newBlock.theme?.textColor }}
+                    >
+                      {newBlock.name || 'عنوان البلوك'}
+                    </h4>
+                    <p 
+                      className="text-sm"
+                      style={{ color: newBlock.theme?.textColor, opacity: 0.8 }}
+                    >
+                      {newBlock.type === 'smart' && newBlock.keyword 
+                        ? `سيتم عرض ${newBlock.articlesCount} مقال تحتوي على "${newBlock.keyword}"`
+                        : newBlock.type === 'html'
+                        ? 'محتوى HTML مخصص'
+                        : `سيتم عرض ${newBlock.articlesCount} مقال`
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                {/* رسالة تحذير */}
+                {!newBlock.name?.trim() && (
+                  <div className={`rounded-lg p-4 border ${
+                    darkMode 
+                      ? 'bg-yellow-900/20 border-yellow-800 text-yellow-400' 
+                      : 'bg-yellow-50 border-yellow-200 text-yellow-800'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      <span>⚠️</span>
+                      <span className="text-sm">يرجى إدخال عنوان البلوك لتفعيل زر الحفظ</span>
+                    </div>
+                  </div>
+                )}
+            </div>
+
+            {/* أزرار الحفظ */}
+            <div className={`sticky bottom-0 p-6 border-t ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'} rounded-b-2xl`}>
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowCreateForm(false);
+                    resetForm();
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  إلغاء
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={resetForm}
+                    className="flex items-center gap-2"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    إعادة تعيين
+                  </Button>
+                  
+                  <Button 
+                    onClick={saveBlock} 
+                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
+                    disabled={!newBlock.name?.trim()}
+                  >
+                    <Save className="h-4 w-4" />
+                    {isEditing ? 'حفظ التعديلات' : 'حفظ البلوك'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
