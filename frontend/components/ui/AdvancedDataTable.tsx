@@ -95,7 +95,7 @@ const styles = {
 
 // دالة ألوان التصنيفات
 const getCategoryStyle = (category: string) => {
-  const styles = {
+  const categoryStyles: { [key: string]: React.CSSProperties } = {
     'تقنية': {
       background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
       color: '#1e40af',
@@ -123,7 +123,7 @@ const getCategoryStyle = (category: string) => {
     },
   };
   
-  return styles[category] || {
+  return categoryStyles[category] || {
     background: 'linear-gradient(135deg, #f3f4f6, #e5e7eb)',
     color: '#4b5563',
     border: '1px solid #d1d5db',
@@ -132,7 +132,7 @@ const getCategoryStyle = (category: string) => {
 
 // دالة ألوان الحالة
 const getStatusStyle = (status: string) => {
-  const styles = {
+  const statusStyles: { [key: string]: { background: string; color: string; border: string; icon: React.ReactElement; } } = {
     'completed': {
       background: 'linear-gradient(135deg, #dcfce7, #bbf7d0)',
       color: '#14532d',
@@ -153,19 +153,33 @@ const getStatusStyle = (status: string) => {
     },
   };
   
-  return styles[status] || styles['pending'];
+  return statusStyles[status] || statusStyles['pending'];
 };
 
+interface DataRow {
+  id: number;
+  title: string;
+  category: string;
+  [key: string]: any;
+}
+
+interface AdvancedDataTableProps {
+  data: DataRow[];
+  onRowClick: (row: DataRow) => void;
+  onEdit: (row: DataRow) => void;
+  onDelete: (row: DataRow) => void;
+}
+
 // مكون الجدول المتقدم
-const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
+const AdvancedDataTable: React.FC<AdvancedDataTableProps> = ({ data, onRowClick, onEdit, onDelete }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [currentRow, setCurrentRow] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [currentRow, setCurrentRow] = useState<DataRow | null>(null);
 
-  const handleSelectAllClick = (event) => {
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = data.map((n) => n.id);
       setSelected(newSelected);
@@ -174,9 +188,9 @@ const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
     setSelected([]);
   };
 
-  const handleClick = (event, id) => {
+  const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
     const selectedIndex = selected.indexOf(id);
-    let newSelected = [];
+    let newSelected: number[] = [];
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id);
@@ -194,16 +208,16 @@ const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const handleMenuOpen = (event, row) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, row: DataRow) => {
     setAnchorEl(event.currentTarget);
     setCurrentRow(row);
   };
@@ -213,7 +227,21 @@ const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
     setCurrentRow(null);
   };
 
-  const isSelected = (id) => selected.indexOf(id) !== -1;
+  const handleEditClick = () => {
+    if (currentRow) {
+      onEdit(currentRow);
+    }
+    handleMenuClose();
+  };
+
+  const handleDeleteClick = () => {
+    if (currentRow) {
+      onDelete(currentRow);
+    }
+    handleMenuClose();
+  };
+
+  const isSelected = (id: number) => selected.indexOf(id) !== -1;
 
   // فلترة البيانات حسب البحث
   const filteredData = data.filter((row) =>
@@ -404,7 +432,7 @@ const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
                     </TableCell>
                     <TableCell sx={styles.dataCell}>
                       <Chip
-                        icon={statusStyle.icon}
+                        icon={statusStyle.icon || undefined}
                         label={
                           row.status === 'completed'
                             ? 'مكتمل'
@@ -532,20 +560,17 @@ const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
           },
         }}
       >
-        <MenuItem
-          onClick={() => {
-            onDelete(currentRow);
-            handleMenuClose();
-          }}
-          sx={{
-            color: '#ef4444',
-            '&:hover': {
-              background: 'rgba(239, 68, 68, 0.1)',
-            },
-          }}
-        >
-          <Delete sx={{ mr: 2, fontSize: 20 }} />
-          حذف
+        <MenuItem onClick={handleMenuClose}>
+          <Visibility sx={{ mr: 1 }} />
+          عرض التفاصيل
+        </MenuItem>
+        <MenuItem onClick={handleEditClick}>
+          <Edit sx={{ mr: 1 }} />
+          تعديل
+        </MenuItem>
+        <MenuItem onClick={handleDeleteClick}>
+          <Delete sx={{ mr: 1, color: 'error.main' }} />
+          <Typography color="error.main">حذف</Typography>
         </MenuItem>
       </Menu>
     </Box>

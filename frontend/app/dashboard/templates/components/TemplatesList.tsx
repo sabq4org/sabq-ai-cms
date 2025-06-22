@@ -4,25 +4,10 @@ import { useState, useEffect } from 'react'
 import { Edit, Trash2, ToggleLeft, ToggleRight, Calendar, Globe, Tag, Star } from 'lucide-react'
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
-
-interface Template {
-  id: number
-  name: string
-  description?: string
-  type: string
-  content: any
-  is_active: boolean
-  is_default: boolean
-  starts_at?: string
-  ends_at?: string
-  country_code?: string
-  category_id?: number
-  created_at: string
-  updated_at: string
-}
+import { Template, TemplateType } from '@/app/lib/types'
 
 interface TemplatesListProps {
-  type: string
+  type: TemplateType
   onEdit: (template: Template) => void
 }
 
@@ -144,10 +129,43 @@ export function TemplatesList({ type, onEdit }: TemplatesListProps) {
       country_code: 'SA',
       created_at: '2024-08-01T00:00:00Z',
       updated_at: '2024-08-15T00:00:00Z'
+    },
+    {
+      id: 4,
+      name: 'الفوتر الافتراضي',
+      description: 'قالب الفوتر الأساسي للموقع',
+      type: 'footer',
+      content: {},
+      is_active: true,
+      is_default: true,
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-15T00:00:00Z'
+    },
+    {
+        id: 5,
+        name: 'الشريط الجانبي للمقالات',
+        description: 'شريط جانبي يعرض آخر الأخبار',
+        type: 'sidebar',
+        content: {},
+        is_active: true,
+        is_default: true,
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-15T00:00:00Z'
+    },
+    {
+        id: 6,
+        name: 'بنر إعلاني رئيسي',
+        description: 'بنر إعلاني كبير في الصفحة الرئيسية',
+        type: 'banner',
+        content: {},
+        is_active: true,
+        is_default: false,
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-15T00:00:00Z'
     }
-  ].filter(t => t.type === type)
+  ];
 
-  const displayTemplates = templates.length > 0 ? templates : mockTemplates
+  const displayTemplates = templates.length > 0 ? templates : mockTemplates.filter(t => t.type === type);
 
   return (
     <div className="grid gap-4">

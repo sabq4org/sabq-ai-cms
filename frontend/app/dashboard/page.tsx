@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { FileText, Users, Eye, MessageSquare, TrendingUp, Clock, Award, Activity } from 'lucide-react';
 import { SabqCard } from '@/components/ui/SabqCard';
 import Link from 'next/link';
+import { AIInsights } from './console/components/AIInsights'
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('behavior');
@@ -172,7 +173,12 @@ export default function DashboardPage() {
           </div>
         </div>
 
-              {/* بطاقات الإحصائيات البسيطة */}
+        {/* قسم التحليل العميق */}
+        <div className="mb-10">
+          <AIInsights />
+        </div>
+
+        {/* بطاقات الإحصائيات البسيطة */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
           <StatsCard
             title="دقة التفضيلات"

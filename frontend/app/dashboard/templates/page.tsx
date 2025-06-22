@@ -4,25 +4,7 @@ import { useState } from 'react'
 import { Plus, Layout, Square, Sidebar, ImagePlus } from 'lucide-react'
 import { TemplatesList } from './components/TemplatesList'
 import { TemplateEditor } from './components/TemplateEditor'
-
-type TemplateType = 'header' | 'footer' | 'sidebar' | 'banner'
-
-interface Template {
-  id: number
-  name: string
-  description?: string
-  type: TemplateType
-  content: any
-  settings?: any
-  is_active: boolean
-  is_default: boolean
-  starts_at?: string
-  ends_at?: string
-  country_code?: string
-  category_id?: number
-  created_at: string
-  updated_at: string
-}
+import { Template, TemplateType } from '@/app/lib/types'
 
 export default function TemplatesPage() {
   const [selectedType, setSelectedType] = useState<TemplateType>('header')
@@ -49,7 +31,7 @@ export default function TemplatesPage() {
     setIsCreating(false)
   }
 
-  const handleSaveTemplate = async (templateData: Partial<Template>) => {
+  const handleSaveTemplate = (templateData: Partial<Template>) => {
     // حفظ القالب عبر API
     console.log('Saving template:', templateData)
     setIsEditing(false)

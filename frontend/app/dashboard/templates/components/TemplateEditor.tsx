@@ -4,25 +4,11 @@ import { useState, useEffect } from 'react'
 import { ArrowLeft, Save, Calendar, Globe, Tag, Eye, Plus, Trash2, Upload, Link } from 'lucide-react'
 import { HeaderEditor } from './editors/HeaderEditor'
 import { FooterEditor } from './editors/FooterEditor'
-
-interface Template {
-  id?: number
-  name: string
-  description?: string
-  type: string
-  content: any
-  settings?: any
-  is_active: boolean
-  is_default: boolean
-  starts_at?: string
-  ends_at?: string
-  country_code?: string
-  category_id?: number
-}
+import { Template, TemplateType } from '@/app/lib/types'
 
 interface TemplateEditorProps {
   template: Template | null
-  type: string
+  type: TemplateType
   isNew: boolean
   onSave: (template: Partial<Template>) => void
   onCancel: () => void

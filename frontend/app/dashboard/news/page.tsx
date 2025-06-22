@@ -19,7 +19,7 @@ import {
   TrendingDown,
   Activity,
   MessageSquare,
-  Refresh,
+  RefreshCcw,
   Plus,
   BookOpen,
   BarChart3
@@ -251,7 +251,7 @@ export default function NewsManagementPage() {
               disabled={refreshing}
               className="smart-btn-primary"
             >
-              <Refresh className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <RefreshCcw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               تحديث البيانات
             </button>
           </div>
