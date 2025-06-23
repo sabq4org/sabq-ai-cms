@@ -10,20 +10,48 @@ export async function POST(request: NextRequest) {
     // محاولة الحصول على API key من عدة مصادر
     let apiKey = process.env.OPENAI_API_KEY;
     
+    // طباعة معلومات تشخيصية (احذفها بعد حل المشكلة)
+    console.log('Environment API Key exists:', !!apiKey);
+    console.log('Environment API Key length:', apiKey?.length);
+    console.log('API Key starts with:', apiKey?.substring(0, 10));
+    
     // إذا لم يكن موجوداً في البيئة، نحاول من الإعدادات المحفوظة
     if (!apiKey && body.openaiKey) {
       apiKey = body.openaiKey;
+      console.log('Using API Key from request body');
     }
     
     // إذا لم يكن موجوداً، نحاول من localStorage (يُرسل من الواجهة)
     if (!apiKey && body.settings?.openaiKey) {
       apiKey = body.settings.openaiKey;
+      console.log('Using API Key from settings');
     }
     
     // التحقق من وجود API key
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'مفتاح OpenAI API غير موجود. يرجى إضافته من إعدادات الذكاء الاصطناعي.' },
+        { 
+          error: 'مفتاح OpenAI API غير موجود. يرجى إضافته من إعدادات الذكاء الاصطناعي.',
+          debug: {
+            envExists: !!process.env.OPENAI_API_KEY,
+            bodyKeyExists: !!body.openaiKey,
+            settingsKeyExists: !!body.settings?.openaiKey
+          }
+        },
+        { status: 401 }
+      );
+    }
+    
+    // التحقق من أن المفتاح كامل وليس مختصراً
+    if (apiKey === 'sk-...' || apiKey.length < 20) {
+      return NextResponse.json(
+        { 
+          error: 'مفتاح OpenAI API غير كامل. يرجى نسخ المفتاح الكامل من https://platform.openai.com/api-keys',
+          debug: {
+            keyLength: apiKey.length,
+            keyPreview: apiKey.substring(0, 10) + '...'
+          }
+        },
         { status: 401 }
       );
     }

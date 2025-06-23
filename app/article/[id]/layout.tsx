@@ -37,8 +37,9 @@ async function getArticle(id: string): Promise<Article | null> {
   }
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const article = await getArticle(params.id);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const article = await getArticle(id);
   
   if (!article) {
     return {
@@ -58,7 +59,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   } else if (article.author_name) {
     authorName = article.author_name;
   } else if (article.reporter || article.reporter_name) {
-    authorName = article.reporter || article.reporter_name;
+    authorName = article.reporter || article.reporter_name || 'فريق التحرير';
   }
 
   // استخراج الكلمات المفتاحية

@@ -54,11 +54,12 @@ async function writeBlocks(blocks: SmartBlock[]) {
 // GET - جلب بلوك واحد
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const blocks = await readBlocks();
-    const block = blocks.find(b => b.id === params.id);
+    const block = blocks.find(b => b.id === id);
     
     if (!block) {
       return NextResponse.json(
@@ -80,12 +81,13 @@ export async function GET(
 // PUT - تحديث بلوك
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const updateData = await request.json();
     const blocks = await readBlocks();
-    const blockIndex = blocks.findIndex(b => b.id === params.id);
+    const blockIndex = blocks.findIndex(b => b.id === id);
     
     if (blockIndex === -1) {
       return NextResponse.json(
@@ -98,7 +100,7 @@ export async function PUT(
     blocks[blockIndex] = {
       ...blocks[blockIndex],
       ...updateData,
-      id: params.id, // التأكد من عدم تغيير ID
+      id: id, // التأكد من عدم تغيير ID
       updatedAt: new Date().toISOString()
     };
     
@@ -117,12 +119,13 @@ export async function PUT(
 // PATCH - تحديث جزئي للبلوك (مثل تغيير الحالة)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const updateData = await request.json();
     const blocks = await readBlocks();
-    const blockIndex = blocks.findIndex(b => b.id === params.id);
+    const blockIndex = blocks.findIndex(b => b.id === id);
     
     if (blockIndex === -1) {
       return NextResponse.json(
@@ -153,11 +156,12 @@ export async function PATCH(
 // DELETE - حذف بلوك
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const blocks = await readBlocks();
-    const blockIndex = blocks.findIndex(b => b.id === params.id);
+    const blockIndex = blocks.findIndex(b => b.id === id);
     
     if (blockIndex === -1) {
       return NextResponse.json(
