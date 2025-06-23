@@ -16,39 +16,10 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { cn } from '@/lib/utils';
+import { DeepAnalysis } from '@/types/deep-analysis';
+import toast from 'react-hot-toast';
 
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
-
-interface DeepAnalysis {
-  id: string;
-  title: string;
-  summary: string;
-  content: string;
-  status: 'published' | 'draft' | 'editing' | 'analyzing';
-  source: 'manual' | 'gpt' | 'hybrid';
-  categories: string[];
-  articleId?: string;
-  analysisMetadata?: {
-    angle: string;
-    depthLevel: number;
-  };
-}
-
-// بيانات تجريبية
-const mockAnalysis: DeepAnalysis = {
-  id: '1',
-  title: 'تحليل تأثير الذكاء الاصطناعي على سوق العمل السعودي',
-  summary: 'دراسة معمقة حول كيفية تأثير تقنيات الذكاء الاصطناعي على فرص العمل والمهارات المطلوبة في السوق السعودي.',
-  content: `<h2>المقدمة</h2><p>يشهد العالم ثورة تقنية غير مسبوقة...</p>`,
-  status: 'published',
-  source: 'gpt',
-  categories: ['تقنية', 'اقتصاد'],
-  articleId: 'article-123',
-  analysisMetadata: {
-    angle: 'economic',
-    depthLevel: 4
-  }
-};
 
 export default function EditDeepAnalysisPage() {
   const params = useParams();
@@ -66,17 +37,108 @@ export default function EditDeepAnalysisPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // في الإنتاج، سيتم جلب البيانات من API
-    // fetchAnalysis();
-    setAnalysis(mockAnalysis);
-    setFormData({
-      title: mockAnalysis.title,
-      summary: mockAnalysis.summary,
-      categories: mockAnalysis.categories,
-      content: mockAnalysis.content
-    });
-    setLoading(false);
+    fetchAnalysis();
   }, [params.id]);
+
+  const fetchAnalysis = async () => {
+    try {
+      const response = await fetch(`/api/deep-analyses/${params.id}`);
+      if (!response.ok) throw new Error('Failed to fetch analysis');
+      
+      const data: DeepAnalysis = await response.json();
+      setAnalysis(data);
+      
+      // استخدام rawContent إذا كان موجوداً، أو تحويل الأقسام إلى HTML
+      let content = data.rawContent;
+      
+      if (!content && data.content && data.content.sections) {
+        // تحويل الأقسام إلى HTML منسق
+        content = formatSectionsToHTML(data.content);
+      }
+      
+      setFormData({
+        title: data.title,
+        summary: data.summary,
+        categories: data.categories,
+        content: content || ''
+      });
+    } catch (error) {
+      console.error('Error fetching analysis:', error);
+      toast.error('فشل في تحميل التحليل');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // دالة تحويل الأقسام إلى HTML
+  const formatSectionsToHTML = (content: any): string => {
+    const parts: string[] = [];
+
+    // الفهرس
+    if (content.tableOfContents?.length) {
+      parts.push('<h2>الفهرس</h2>');
+      parts.push('<ul>');
+      content.tableOfContents.forEach((item: string) => {
+        parts.push(`<li>${item}</li>`);
+      });
+      parts.push('</ul>');
+    }
+
+    // الأقسام
+    if (content.sections?.length) {
+      content.sections.forEach((section: any) => {
+        if (section.title) {
+          parts.push(`<h2>${section.title}</h2>`);
+        }
+        if (section.content) {
+          // تقسيم المحتوى إلى فقرات
+          const paragraphs = section.content.split('\n\n').filter((p: string) => p.trim());
+          paragraphs.forEach((p: string) => {
+            if (p.trim().startsWith('- ') || p.trim().startsWith('• ')) {
+              // قائمة
+              const items = p.split('\n').filter((item: string) => item.trim());
+              parts.push('<ul>');
+              items.forEach((item: string) => {
+                parts.push(`<li>${item.replace(/^[-•]\s*/, '')}</li>`);
+              });
+              parts.push('</ul>');
+            } else {
+              parts.push(`<p>${p}</p>`);
+            }
+          });
+        }
+        if (section.points?.length) {
+          parts.push('<ul>');
+          section.points.forEach((point: string) => {
+            parts.push(`<li>${point}</li>`);
+          });
+          parts.push('</ul>');
+        }
+      });
+    }
+
+    // الرؤى
+    if (content.keyInsights?.length) {
+      parts.push('<h2>أبرز الرؤى</h2>');
+      parts.push('<ul>');
+      content.keyInsights.forEach((insight: string) => {
+        parts.push(`<li>${insight}</li>`);
+      });
+      parts.push('</ul>');
+    }
+
+    // التوصيات
+    if (content.recommendations?.length) {
+      parts.push('<h2>التوصيات</h2>');
+      parts.push('<ul>');
+      content.recommendations.forEach((rec: string) => {
+        parts.push(`<li>${rec}</li>`);
+      });
+      parts.push('</ul>');
+    }
+
+    return parts.join('\n');
+  };
 
   const handleCategoryToggle = (category: string) => {
     if (formData.categories.includes(category)) {
@@ -93,33 +155,43 @@ export default function EditDeepAnalysisPage() {
   };
 
   const handleRegenerate = async () => {
-    if (!analysis || analysis.source !== 'gpt') return;
+    if (!analysis || analysis.sourceType !== 'gpt') return;
 
     setRegenerating(true);
     try {
-      const response = await fetch('/api/ai/deep-analysis', {
+      // الحصول على مفتاح OpenAI من localStorage
+      const openaiApiKey = localStorage.getItem('openai_api_key');
+      
+      const response = await fetch('/api/deep-analyses/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: formData.title,
-          articleId: analysis.articleId,
-          analysisAngle: analysis.analysisMetadata?.angle || 'general',
-          depthLevel: analysis.analysisMetadata?.depthLevel || 3,
-          categories: formData.categories
+          sourceType: 'topic',
+          topic: formData.title,
+          category: formData.categories[0],
+          openaiApiKey
         })
       });
 
       if (response.ok) {
         const data = await response.json();
+        
+        // استخدام المحتوى المنسق مباشرة من الاستجابة
         setFormData({
           ...formData,
-          content: data.content,
+          content: data.content, // هذا الآن HTML منسق جاهز للمحرر
           summary: data.summary || formData.summary
         });
+        
+        toast.success('تم إعادة توليد المحتوى بنجاح');
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'فشل في إعادة توليد المحتوى');
       }
     } catch (error) {
       console.error('خطأ في إعادة توليد التحليل:', error);
-      setErrors({ general: 'حدث خطأ في إعادة توليد التحليل' });
+      toast.error('حدث خطأ في إعادة توليد التحليل');
     } finally {
       setRegenerating(false);
     }
@@ -140,23 +212,24 @@ export default function EditDeepAnalysisPage() {
 
     setSaving(true);
     try {
-      // في الإنتاج، سيتم إرسال البيانات إلى API
-      // const response = await fetch(`/api/deep-analysis/${params.id}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     ...formData,
-      //     status: publish ? 'published' : analysis?.status
-      //   })
-      // });
+      const response = await fetch(`/api/deep-analyses/${params.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          status: publish ? 'published' : analysis?.status
+        })
+      });
 
-      // محاكاة النجاح
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      router.push(`/dashboard/deep-analysis/${params.id}`);
+      if (response.ok) {
+        toast.success(publish ? 'تم نشر التحليل بنجاح' : 'تم حفظ التغييرات بنجاح');
+        router.push(`/dashboard/deep-analysis`);
+      } else {
+        throw new Error('Failed to save');
+      }
     } catch (error) {
       console.error('خطأ في حفظ التحليل:', error);
-      setErrors({ general: 'حدث خطأ في حفظ التحليل' });
+      toast.error('حدث خطأ في حفظ التحليل');
     } finally {
       setSaving(false);
     }
@@ -263,14 +336,19 @@ export default function EditDeepAnalysisPage() {
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((category) => (
-                    <Badge
+                    <button
                       key={category}
-                      variant={formData.categories.includes(category) ? "default" : "outline"}
-                      className="cursor-pointer"
+                      type="button"
                       onClick={() => handleCategoryToggle(category)}
+                      className="focus:outline-none"
                     >
-                      {category}
-                    </Badge>
+                      <Badge
+                        variant={formData.categories.includes(category) ? "default" : "outline"}
+                        className="cursor-pointer"
+                      >
+                        {category}
+                      </Badge>
+                    </button>
                   ))}
                 </div>
                 {errors.categories && (
@@ -284,7 +362,7 @@ export default function EditDeepAnalysisPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>محتوى التحليل</CardTitle>
-              {analysis.source === 'gpt' && (
+              {(analysis.sourceType === 'gpt' || analysis.sourceType === 'hybrid') && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -335,9 +413,9 @@ export default function EditDeepAnalysisPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">المصدر:</span>
                   <Badge variant="outline">
-                    {analysis.source === 'manual' && 'يدوي'}
-                    {analysis.source === 'gpt' && 'ذكاء اصطناعي'}
-                    {analysis.source === 'hybrid' && 'مزيج'}
+                    {analysis.sourceType === 'manual' && 'يدوي'}
+                    {analysis.sourceType === 'gpt' && 'ذكاء اصطناعي'}
+                    {analysis.sourceType === 'hybrid' && 'مزيج'}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
@@ -345,39 +423,29 @@ export default function EditDeepAnalysisPage() {
                   <Badge variant={analysis.status === 'published' ? 'default' : 'secondary'}>
                     {analysis.status === 'published' && 'منشور'}
                     {analysis.status === 'draft' && 'مسودة'}
-                    {analysis.status === 'editing' && 'تحت التحرير'}
-                    {analysis.status === 'analyzing' && 'قيد التحليل'}
+                    {analysis.status === 'archived' && 'مؤرشف'}
                   </Badge>
                 </div>
-                {analysis.analysisMetadata && (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">زاوية التحليل:</span>
-                      <span className="font-medium">
-                        {analysis.analysisMetadata.angle === 'economic' && 'اقتصادي'}
-                        {analysis.analysisMetadata.angle === 'social' && 'اجتماعي'}
-                        {analysis.analysisMetadata.angle === 'political' && 'سياسي'}
-                        {analysis.analysisMetadata.angle === 'environmental' && 'بيئي'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">مستوى العمق:</span>
-                      <div className="flex gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <div
-                            key={i}
-                            className={cn(
-                              "w-4 h-1 rounded",
-                              i < analysis.analysisMetadata!.depthLevel
-                                ? "bg-blue-500"
-                                : "bg-gray-200 dark:bg-gray-700"
-                            )}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">المشاهدات:</span>
+                  <span className="font-medium">{analysis.views}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">جودة المحتوى:</span>
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          "w-4 h-1 rounded",
+                          i < Math.round(analysis.qualityScore * 5)
+                            ? "bg-blue-500"
+                            : "bg-gray-200 dark:bg-gray-700"
+                        )}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -439,7 +507,7 @@ export default function EditDeepAnalysisPage() {
                   <span className="text-blue-500 mt-0.5">•</span>
                   <span>أضف المصادر والمراجع إن وجدت</span>
                 </li>
-                {analysis.source === 'gpt' && (
+                {(analysis.sourceType === 'gpt' || analysis.sourceType === 'hybrid') && (
                   <li className="flex items-start gap-2">
                     <Brain className="w-4 h-4 text-purple-500 mt-0.5" />
                     <span>يمكنك إعادة توليد المحتوى بالذكاء الاصطناعي</span>

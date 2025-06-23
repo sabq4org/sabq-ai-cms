@@ -173,6 +173,7 @@ export interface CreateAnalysisRequest {
   authorName?: string;
   generateWithGPT?: boolean;
   gptPrompt?: string;
+  openaiApiKey?: string;
   isActive?: boolean;
   isFeatured?: boolean;
   displayPosition?: DisplayPosition;

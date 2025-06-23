@@ -162,22 +162,50 @@ export async function POST(request: NextRequest) {
       '-' + Date.now();
     
     let analysisContent = null;
+    let rawContent = '';
     let qualityScore = 0;
     let readingTime = 5;
     
     // إذا كان المطلوب توليد بـ GPT
     if (body.generateWithGPT) {
       // التحقق من وجود API key
-      const gptApiKey = process.env.OPENAI_API_KEY;
-      if (!gptApiKey) {
+      let gptApiKey = process.env.OPENAI_API_KEY;
+      
+      // إذا كان هناك مفتاح مرسل من الواجهة، استخدمه
+      if (body.openaiApiKey && body.openaiApiKey.length > 10) {
+        gptApiKey = body.openaiApiKey;
+      }
+      
+      // تسجيل معلومات المفتاح للتشخيص
+      console.log('Checking OpenAI API key for publishing...');
+      console.log('Environment key exists:', !!process.env.OPENAI_API_KEY);
+      console.log('Environment key length:', process.env.OPENAI_API_KEY?.length || 0);
+      console.log('Request body key exists:', !!body.openaiApiKey);
+      console.log('Request body key length:', body.openaiApiKey?.length || 0);
+      console.log('Using key from:', body.openaiApiKey && body.openaiApiKey.length > 10 ? 'request body' : 'environment');
+      
+      if (!gptApiKey || gptApiKey.length < 10) {
+        console.error('OpenAI API key validation failed');
         return NextResponse.json(
-          { error: 'OpenAI API key not configured' },
+          { 
+            error: 'OpenAI API key not configured or invalid',
+            details: 'Please ensure you have a valid OpenAI API key in your settings or environment variables'
+          },
           { status: 500 }
         );
       }
       
-      // تهيئة OpenAI
-      initializeOpenAI(gptApiKey);
+      try {
+        // تهيئة OpenAI
+        initializeOpenAI(gptApiKey);
+        console.log('OpenAI initialized successfully');
+      } catch (error) {
+        console.error('Error initializing OpenAI:', error);
+        return NextResponse.json(
+          { error: 'Failed to initialize OpenAI client' },
+          { status: 500 }
+        );
+      }
       
       // توليد التحليل
       const gptResponse = await generateDeepAnalysis({
@@ -203,6 +231,12 @@ export async function POST(request: NextRequest) {
       analysisContent = gptResponse.analysis.content;
       qualityScore = gptResponse.analysis.qualityScore;
       readingTime = gptResponse.analysis.estimatedReadingTime;
+      
+      // تحويل المحتوى إلى HTML للعرض في المحرر
+      rawContent = convertSectionsToHTML(analysisContent.sections);
+    } else {
+      // إذا لم يكن توليد GPT، استخدم المحتوى المرسل
+      rawContent = body.content || '';
     }
     
     // إنشاء التحليل الجديد
@@ -215,7 +249,7 @@ export async function POST(request: NextRequest) {
         sections: [{
           id: 'section-1',
           title: 'المحتوى الرئيسي',
-          content: body.content || '',
+          content: rawContent,
           order: 1,
           type: 'text'
         }],
@@ -224,7 +258,7 @@ export async function POST(request: NextRequest) {
         keyInsights: [],
         dataPoints: []
       },
-      rawContent: body.content,
+      rawContent: rawContent, // حفظ المحتوى الخام للعرض في المحرر
       categories: body.categories,
       tags: body.tags,
       authorId: undefined, // سيتم تحديده من الجلسة
@@ -237,7 +271,7 @@ export async function POST(request: NextRequest) {
       qualityScore,
       contentScore: {
         overall: qualityScore,
-        contentLength: body.content?.length || 0,
+        contentLength: rawContent.length,
         hasSections: true,
         hasData: false,
         hasRecommendations: false,
@@ -275,4 +309,13 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// دالة تحويل الأقسام إلى HTML
+function convertSectionsToHTML(sections: any[]): string {
+  if (!sections || sections.length === 0) return '';
+  
+  return sections.map(section => {
+    return `<h2>${section.title}</h2>\n${section.content}`;
+  }).join('\n\n');
 } 

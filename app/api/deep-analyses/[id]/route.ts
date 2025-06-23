@@ -84,6 +84,19 @@ export async function PUT(
       ...currentAnalysis,
       ...(body.title && { title: body.title }),
       ...(body.summary && { summary: body.summary }),
+      ...(body.content && { 
+        rawContent: body.content,
+        content: {
+          ...currentAnalysis.content,
+          sections: [{
+            id: 'section-1',
+            title: 'المحتوى الرئيسي',
+            content: body.content,
+            order: 1,
+            type: 'text'
+          }]
+        }
+      }),
       ...(body.categories && { categories: body.categories }),
       ...(body.tags && { tags: body.tags }),
       ...(body.status && { status: body.status }),

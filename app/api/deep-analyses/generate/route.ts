@@ -15,6 +15,12 @@ export async function POST(request: NextRequest) {
     console.log('Environment API Key length:', apiKey?.length);
     console.log('API Key starts with:', apiKey?.substring(0, 10));
     
+    // إذا كان المفتاح في البيئة موجود لكنه مختصر، ونملك مفتاحاً كاملاً في جسم الطلب، فسنستبدله
+    if (apiKey && apiKey.length < 20 && body.openaiKey && body.openaiKey.length >= 20) {
+      console.log('Overriding short env key with full key from request body');
+      apiKey = body.openaiKey;
+    }
+    
     // إذا لم يكن موجوداً في البيئة، نحاول من الإعدادات المحفوظة
     if (!apiKey && body.openaiKey) {
       apiKey = body.openaiKey;
@@ -77,10 +83,14 @@ export async function POST(request: NextRequest) {
     const result = await generateDeepAnalysis(generateRequest);
 
     if (result.success && result.analysis) {
+      // تحويل محتوى JSON إلى HTML منسق لمحرر Tiptap
+      const formattedContent = formatAnalysisContent(result.analysis.content);
+      
       return NextResponse.json({
         title: result.analysis.title,
         summary: result.analysis.summary,
-        content: JSON.stringify(result.analysis.content),
+        content: formattedContent, // إرسال النص المنسق مباشرة
+        rawContent: result.analysis.content, // الاحتفاظ بالمحتوى الخام إذا احتجناه
         tags: extractTagsFromContent(result.analysis.content),
         categories: body.categories || [body.category].filter(Boolean),
         qualityScore: result.analysis.qualityScore,
@@ -116,6 +126,116 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// دالة تحويل محتوى JSON إلى HTML منسق لمحرر Tiptap
+function formatAnalysisContent(content: any): string {
+  if (!content || typeof content !== 'object') {
+    return typeof content === 'string' ? content : '';
+  }
+
+  const parts: string[] = [];
+
+  // الفهرس
+  if (Array.isArray(content.tableOfContents) && content.tableOfContents.length) {
+    parts.push('<h2>الفهرس</h2>');
+    parts.push('<ul>');
+    content.tableOfContents.forEach((item: any) => {
+      parts.push(`<li>${item}</li>`);
+    });
+    parts.push('</ul>');
+  }
+
+  // الأقسام الرئيسية
+  if (Array.isArray(content.sections)) {
+    content.sections.forEach((section: any) => {
+      if (section.title) {
+        parts.push(`<h2>${section.title}</h2>`);
+      }
+      if (section.content) {
+        // تقسيم المحتوى إلى فقرات
+        const paragraphs = section.content.split('\n\n').filter((p: string) => p.trim());
+        paragraphs.forEach((paragraph: string) => {
+          // التحقق من القوائم
+          if (paragraph.trim().startsWith('- ') || paragraph.trim().startsWith('• ')) {
+            const items = paragraph.split('\n').filter((item: string) => item.trim());
+            parts.push('<ul>');
+            items.forEach((item: string) => {
+              const cleanItem = item.replace(/^[-•]\s*/, '');
+              parts.push(`<li>${cleanItem}</li>`);
+            });
+            parts.push('</ul>');
+          } else if (paragraph.trim().match(/^\d+\.\s/)) {
+            // قوائم مرقمة
+            const items = paragraph.split('\n').filter((item: string) => item.trim());
+            parts.push('<ol>');
+            items.forEach((item: string) => {
+              const cleanItem = item.replace(/^\d+\.\s*/, '');
+              parts.push(`<li>${cleanItem}</li>`);
+            });
+            parts.push('</ol>');
+          } else {
+            // فقرة عادية
+            parts.push(`<p>${paragraph}</p>`);
+          }
+        });
+      }
+      
+      // نقاط فرعية إن وجدت
+      if (Array.isArray(section.points)) {
+        parts.push('<ul>');
+        section.points.forEach((point: string) => {
+          parts.push(`<li>${point}</li>`);
+        });
+        parts.push('</ul>');
+      }
+    });
+  }
+
+  // الرؤى الرئيسية
+  if (Array.isArray(content.keyInsights) && content.keyInsights.length) {
+    parts.push('<h2>أبرز الرؤى</h2>');
+    parts.push('<ul>');
+    content.keyInsights.forEach((insight: string) => {
+      parts.push(`<li>${insight}</li>`);
+    });
+    parts.push('</ul>');
+  }
+
+  // التوصيات
+  if (Array.isArray(content.recommendations) && content.recommendations.length) {
+    parts.push('<h2>التوصيات</h2>');
+    parts.push('<ul>');
+    content.recommendations.forEach((rec: string) => {
+      parts.push(`<li>${rec}</li>`);
+    });
+    parts.push('</ul>');
+  }
+
+  // نقاط البيانات
+  if (Array.isArray(content.dataPoints) && content.dataPoints.length) {
+    parts.push('<h2>نقاط البيانات</h2>');
+    parts.push('<ul>');
+    content.dataPoints.forEach((dp: any) => {
+      if (dp.label && dp.value) {
+        parts.push(`<li><strong>${dp.label}:</strong> ${dp.value}</li>`);
+      } else if (typeof dp === 'string') {
+        parts.push(`<li>${dp}</li>`);
+      }
+    });
+    parts.push('</ul>');
+  }
+
+  // الخاتمة إن وجدت
+  if (content.conclusion) {
+    parts.push('<h2>الخاتمة</h2>');
+    const conclusionParagraphs = content.conclusion.split('\n\n').filter((p: string) => p.trim());
+    conclusionParagraphs.forEach((paragraph: string) => {
+      parts.push(`<p>${paragraph}</p>`);
+    });
+  }
+
+  return parts.join('\n');
 }
 
 // استخراج الوسوم من المحتوى

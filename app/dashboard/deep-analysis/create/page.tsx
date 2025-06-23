@@ -29,7 +29,9 @@ import {
   Activity,
   FileCheck,
   RefreshCw,
-  CheckCircle
+  CheckCircle,
+  Eye,
+  Edit
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CreateAnalysisRequest, SourceType, CreationType, DisplayPosition } from '@/types/deep-analysis';
@@ -43,6 +45,7 @@ const CreateDeepAnalysisPage = () => {
   const [articles, setArticles] = useState<any[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   
   // حقول النموذج
   const [title, setTitle] = useState('');
@@ -151,9 +154,16 @@ const CreateDeepAnalysisPage = () => {
       if (response.ok) {
         setTitle(data.title || 'تحليل عميق');
         setSummary(data.summary || '');
+        // المحتوى الآن يأتي منسقاً من الخادم
         setContent(data.content || '');
         setTags(data.tags || []);
-        toast.success('تم توليد المحتوى بنجاح');
+        
+        // إضافة رسالة نجاح مع معلومات إضافية
+        if (data.qualityScore) {
+          toast.success(`تم توليد المحتوى بنجاح (جودة: ${data.qualityScore}%)`);
+        } else {
+          toast.success('تم توليد المحتوى بنجاح');
+        }
       } else {
         toast.error(data.error || 'فشل توليد المحتوى');
       }
@@ -174,6 +184,12 @@ const CreateDeepAnalysisPage = () => {
 
     setLoading(true);
     try {
+      // الحصول على مفتاح OpenAI من localStorage
+      const openaiKey = localStorage.getItem('openai_api_key');
+      
+      // تحديد ما إذا كان يجب استخدام GPT
+      const shouldUseGPT = (creationType === 'gpt' || creationType === 'mixed') && !content;
+      
       const analysisData: CreateAnalysisRequest = {
         title,
         summary,
@@ -189,9 +205,15 @@ const CreateDeepAnalysisPage = () => {
         status: status === 'published' ? 'published' : 'draft',
         sourceArticleId: selectedArticle?.id,
         externalLink: sourceType === 'external' ? externalLink : undefined,
-        generateWithGPT: creationType === 'gpt',
-        gptPrompt: creationType === 'gpt' ? gptPrompt : undefined
+        generateWithGPT: shouldUseGPT,
+        gptPrompt: shouldUseGPT ? (gptPrompt || title) : undefined,
+        openaiApiKey: openaiKey || undefined
       };
+
+      console.log('Submitting analysis with data:', {
+        ...analysisData,
+        openaiApiKey: analysisData.openaiApiKey ? 'PROVIDED' : 'NOT PROVIDED'
+      });
 
       const response = await fetch('/api/deep-analyses', {
         method: 'POST',
@@ -200,13 +222,15 @@ const CreateDeepAnalysisPage = () => {
       });
 
       const data = await response.json();
-      if (data.success) {
+      if (response.ok) {
         toast.success(status === 'published' ? 'تم نشر التحليل بنجاح' : 'تم حفظ المسودة بنجاح');
         router.push('/dashboard/deep-analysis');
       } else {
+        console.error('Error response:', data);
         toast.error(data.error || 'فشل حفظ التحليل');
       }
     } catch (error) {
+      console.error('Submit error:', error);
       toast.error('حدث خطأ أثناء حفظ التحليل');
     } finally {
       setLoading(false);
@@ -516,19 +540,73 @@ const CreateDeepAnalysisPage = () => {
           </div>
 
           <div>
-            <Label htmlFor="content">المحتوى التفصيلي</Label>
-            <Textarea
-              id="content"
-              placeholder="المحتوى الكامل للتحليل..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={10}
-              className={`mt-2 transition-colors duration-300 ${
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="content">المحتوى التفصيلي</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPreview(!showPreview)}
+                className="flex items-center gap-2"
+              >
+                {showPreview ? (
+                  <>
+                    <Edit className="w-4 h-4" />
+                    تحرير
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4" />
+                    معاينة
+                  </>
+                )}
+              </Button>
+            </div>
+            {showPreview ? (
+              <div className={`mt-2 p-4 rounded-lg border min-h-[300px] overflow-auto transition-colors duration-300 ${
                 darkMode 
                   ? 'bg-gray-700 border-gray-600 text-gray-200' 
-                  : 'bg-white border-gray-200'
-              }`}
-            />
+                  : 'bg-gray-50 border-gray-200'
+              }`}>
+                <div className="prose prose-lg max-w-none" dir="rtl">
+                  {content.split('\n').map((line, index) => {
+                    if (line.startsWith('## ')) {
+                      return <h2 key={index} className="text-xl font-bold mt-4 mb-2">{line.substring(3)}</h2>;
+                    } else if (line.startsWith('### ')) {
+                      return <h3 key={index} className="text-lg font-semibold mt-3 mb-2">{line.substring(4)}</h3>;
+                    } else if (line.startsWith('- ')) {
+                      const text = line.substring(2);
+                      const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                      return (
+                        <li key={index} className="mr-6 mb-1" 
+                            dangerouslySetInnerHTML={{ __html: formattedText }} />
+                      );
+                    } else if (line.trim() === '') {
+                      return <br key={index} />;
+                    } else {
+                      const formattedText = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                      return (
+                        <p key={index} className="mb-2" 
+                           dangerouslySetInnerHTML={{ __html: formattedText }} />
+                      );
+                    }
+                  })}
+                </div>
+              </div>
+            ) : (
+              <Textarea
+                id="content"
+                placeholder="المحتوى الكامل للتحليل..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={10}
+                className={`mt-2 transition-colors duration-300 font-mono ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-gray-200' 
+                    : 'bg-white border-gray-200'
+                }`}
+              />
+            )}
           </div>
 
           {/* التصنيفات */}
