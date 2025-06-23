@@ -12,7 +12,8 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw,
-  Brain
+  Brain,
+  X
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { cn } from '@/lib/utils';
@@ -32,9 +33,11 @@ export default function EditDeepAnalysisPage() {
     title: '',
     summary: '',
     categories: [] as string[],
+    tags: [] as string[],
     content: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [currentTag, setCurrentTag] = useState('');
 
   useEffect(() => {
     fetchAnalysis();
@@ -60,6 +63,7 @@ export default function EditDeepAnalysisPage() {
         title: data.title,
         summary: data.summary,
         categories: data.categories,
+        tags: data.tags || [],
         content: content || ''
       });
     } catch (error) {
@@ -355,6 +359,72 @@ export default function EditDeepAnalysisPage() {
                   <p className="text-red-500 text-sm mt-1">{errors.categories}</p>
                 )}
               </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  الوسوم
+                </label>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={currentTag}
+                      onChange={(e) => setCurrentTag(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (currentTag && !formData.tags.includes(currentTag)) {
+                            setFormData({
+                              ...formData,
+                              tags: [...formData.tags, currentTag]
+                            });
+                            setCurrentTag('');
+                          }
+                        }
+                      }}
+                      placeholder="أدخل وسم واضغط Enter"
+                      className="flex-1 px-4 py-2 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (currentTag && !formData.tags.includes(currentTag)) {
+                          setFormData({
+                            ...formData,
+                            tags: [...formData.tags, currentTag]
+                          });
+                          setCurrentTag('');
+                        }
+                      }}
+                    >
+                      إضافة
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.tags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => setFormData({
+                            ...formData,
+                            tags: formData.tags.filter(t => t !== tag)
+                          })}
+                          className="ml-1 hover:text-red-500"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -389,9 +459,13 @@ export default function EditDeepAnalysisPage() {
                 <Editor
                   content={formData.content}
                   onChange={(content) => {
-                    setFormData({ ...formData, content });
+                    // حفظ HTML المنسق
+                    const htmlContent = typeof content === 'string' ? content : content.html;
+                    setFormData({ ...formData, content: htmlContent });
                     setErrors({ ...errors, content: '' });
                   }}
+                  autoSaveKey={`deep-analysis-draft-${params.id}`}
+                  autoSaveInterval={15000} // حفظ كل 15 ثانية
                 />
               </div>
               {errors.content && (

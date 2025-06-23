@@ -263,7 +263,7 @@ export async function POST(request: NextRequest) {
       tags: body.tags,
       authorId: undefined, // سيتم تحديده من الجلسة
       authorName: body.authorName || 'محرر سبق',
-      sourceType: body.sourceType,
+      sourceType: body.generateWithGPT ? 'gpt' : body.sourceType,
       creationType: body.creationType,
       sourceArticleId: body.sourceArticleId,
       externalLink: body.externalLink,
@@ -291,7 +291,10 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       lastGptUpdate: body.generateWithGPT ? new Date().toISOString() : undefined,
-      metadata: {}
+      metadata: {
+        generatedByAI: body.generateWithGPT || false,
+        aiModel: body.generateWithGPT ? 'gpt-4o' : undefined
+      }
     };
     
     // إضافة التحليل الجديد

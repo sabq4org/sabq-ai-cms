@@ -37,7 +37,10 @@ import {
   ChevronRight,
   Layers,
   Send,
-  Archive
+  Archive,
+  Save,
+  RefreshCw,
+  ExternalLink
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -47,6 +50,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useDarkMode } from '@/hooks/useDarkMode';
@@ -471,7 +480,7 @@ export default function DeepAnalysisPage() {
           <table className="w-full">
             <thead>
               <tr className={`border-b ${darkMode ? 'border-gray-700 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
-                <th className={`px-6 py-4 text-right text-xs font-medium uppercase tracking-wider ${
+                <th className={`px-6 py-4 text-right text-xs font-medium uppercase tracking-wider w-2/5 ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>التحليل</th>
                 <th className={`px-6 py-4 text-right text-xs font-medium uppercase tracking-wider ${
@@ -482,17 +491,11 @@ export default function DeepAnalysisPage() {
                 }`}>الحالة</th>
                 <th className={`px-6 py-4 text-right text-xs font-medium uppercase tracking-wider ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>الكاتب</th>
-                <th className={`px-6 py-4 text-right text-xs font-medium uppercase tracking-wider ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>الجودة</th>
                 <th className={`px-6 py-4 text-right text-xs font-medium uppercase tracking-wider ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>المشاهدات</th>
-                <th className={`px-6 py-4 text-right text-xs font-medium uppercase tracking-wider ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>التاريخ</th>
-                <th className={`px-6 py-4 text-right text-xs font-medium uppercase tracking-wider ${
+                <th className={`px-6 py-4 text-center text-xs font-medium uppercase tracking-wider ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>الإجراءات</th>
               </tr>
@@ -500,7 +503,7 @@ export default function DeepAnalysisPage() {
             <tbody className={`divide-y ${darkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-12">
+                  <td colSpan={6} className="text-center py-12">
                     <div className="flex justify-center items-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                     </div>
@@ -508,7 +511,7 @@ export default function DeepAnalysisPage() {
                 </tr>
               ) : analyses.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-12">
+                  <td colSpan={6} className="text-center py-12">
                     <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       لا توجد تحليلات متاحة
                     </div>
@@ -524,11 +527,14 @@ export default function DeepAnalysisPage() {
                         <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
                           <Brain className="w-5 h-5 text-white" />
                         </div>
-                        <div className="flex-1">
-                          <h3 className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`text-sm font-medium truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                             {analysis.title}
                           </h3>
-                          <p className={`text-xs mt-1 line-clamp-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          <p className={`text-xs mt-0.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            بواسطة: {analysis.authorName}
+                          </p>
+                          <p className={`text-xs mt-1 line-clamp-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                             {analysis.summary}
                           </p>
                         </div>
@@ -550,11 +556,6 @@ export default function DeepAnalysisPage() {
                       </Badge>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {analysis.authorName}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <div className={`w-16 h-2 rounded-full overflow-hidden ${
                           darkMode ? 'bg-gray-700' : 'bg-gray-200'
@@ -571,14 +572,6 @@ export default function DeepAnalysisPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
-                        <Eye className={`h-4 w-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                        <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {analysis.views.toLocaleString()}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1">
                         <Calendar className={`h-4 w-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                         <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           {new Date(analysis.createdAt).toLocaleDateString('ar-SA')}
@@ -586,66 +579,149 @@ export default function DeepAnalysisPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className={darkMode ? 'hover:bg-gray-700' : ''}>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
-                          <DropdownMenuItem
-                            onClick={() => router.push(`/insights/deep/${analysis.slug}`)}
-                            className={darkMode ? 'hover:bg-gray-700' : ''}
-                          >
-                            <Eye className="h-4 w-4 ml-2" />
-                            عرض
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => router.push(`/dashboard/deep-analysis/${analysis.id}/edit`)}
-                            className={darkMode ? 'hover:bg-gray-700' : ''}
-                          >
-                            <Edit className="h-4 w-4 ml-2" />
-                            تعديل
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              navigator.clipboard.writeText(`${window.location.origin}/insights/deep/${analysis.slug}`);
-                              toast.success('تم نسخ الرابط');
-                            }}
-                            className={darkMode ? 'hover:bg-gray-700' : ''}
-                          >
-                            <Copy className="h-4 w-4 ml-2" />
-                            نسخ الرابط
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator className={darkMode ? 'bg-gray-700' : ''} />
-                          {analysis.status === 'draft' && (
-                            <DropdownMenuItem
-                              onClick={() => handleStatusUpdate(analysis.id, 'published')}
-                              className={darkMode ? 'hover:bg-gray-700' : ''}
-                            >
-                              <Send className="h-4 w-4 ml-2" />
-                              نشر
-                            </DropdownMenuItem>
-                          )}
+                      <div className="flex items-center justify-center gap-1">
+                        <TooltipProvider>
+                          {/* زر التحرير */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => router.push(`/dashboard/deep-analysis/${analysis.id}/edit`)}
+                                className={`hover:bg-purple-100 dark:hover:bg-purple-900/20 ${
+                                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                                }`}
+                              >
+                                <Edit className="h-4 w-4 text-purple-600" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>تحرير التحليل</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                          {/* زر العرض */}
                           {analysis.status === 'published' && (
-                            <DropdownMenuItem
-                              onClick={() => handleStatusUpdate(analysis.id, 'archived')}
-                              className={darkMode ? 'hover:bg-gray-700' : ''}
-                            >
-                              <Archive className="h-4 w-4 ml-2" />
-                              أرشفة
-                            </DropdownMenuItem>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => window.open(`/insights/deep/${analysis.slug}`, '_blank')}
+                                  className={`hover:bg-blue-100 dark:hover:bg-blue-900/20 ${
+                                    darkMode ? 'text-gray-400' : 'text-gray-600'
+                                  }`}
+                                >
+                                  <ExternalLink className="h-4 w-4 text-blue-600" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>عرض في الموقع</p>
+                              </TooltipContent>
+                            </Tooltip>
                           )}
-                          <DropdownMenuSeparator className={darkMode ? 'bg-gray-700' : ''} />
-                          <DropdownMenuItem
-                            onClick={() => handleDelete(analysis.id)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                          >
-                            <Trash2 className="h-4 w-4 ml-2" />
-                            حذف
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+
+                          {/* زر النشر */}
+                          {analysis.status === 'draft' && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleStatusUpdate(analysis.id, 'published')}
+                                  className={`hover:bg-green-100 dark:hover:bg-green-900/20 ${
+                                    darkMode ? 'text-gray-400' : 'text-gray-600'
+                                  }`}
+                                >
+                                  <Send className="h-4 w-4 text-green-600" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>نشر التحليل</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+
+                          {/* قائمة الإجراءات الإضافية */}
+                          <DropdownMenu>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuTrigger asChild>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                                      darkMode ? 'text-gray-400' : 'text-gray-600'
+                                    }`}
+                                  >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>المزيد</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            <DropdownMenuContent 
+                              align="end" 
+                              className={`w-56 ${darkMode ? 'bg-gray-800 border-gray-700' : ''}`}
+                            >
+                              {/* حفظ كمؤرشف */}
+                              {analysis.status !== 'archived' && (
+                                <DropdownMenuItem
+                                  onClick={() => handleStatusUpdate(analysis.id, 'archived')}
+                                  className={`cursor-pointer ${
+                                    darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                                  }`}
+                                >
+                                  <Archive className="h-4 w-4 ml-2 text-gray-600" />
+                                  <span className="text-gray-700 dark:text-gray-400">حفظ كمؤرشف</span>
+                                </DropdownMenuItem>
+                              )}
+                              
+                              {/* إعادة توليد بالذكاء الاصطناعي */}
+                              {(analysis.sourceType === 'gpt' || analysis.status === 'draft') && (
+                                <DropdownMenuItem
+                                  onClick={() => router.push(`/dashboard/deep-analysis/${analysis.id}/edit?regenerate=true`)}
+                                  className={`cursor-pointer ${
+                                    darkMode ? 'hover:bg-gray-700' : 'hover:bg-orange-50'
+                                  }`}
+                                >
+                                  <RefreshCw className="h-4 w-4 ml-2 text-orange-600" />
+                                  <span className="text-orange-700 dark:text-orange-400">إعادة توليد بالذكاء الاصطناعي</span>
+                                </DropdownMenuItem>
+                              )}
+                              
+                              <DropdownMenuSeparator className={darkMode ? 'bg-gray-700' : ''} />
+                              
+                              {/* نسخ الرابط */}
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`${window.location.origin}/insights/deep/${analysis.slug}`);
+                                  toast.success('تم نسخ الرابط');
+                                }}
+                                className={`cursor-pointer ${
+                                  darkMode ? 'hover:bg-gray-700' : ''
+                                }`}
+                              >
+                                <Copy className="h-4 w-4 ml-2 text-gray-600" />
+                                <span>نسخ الرابط</span>
+                              </DropdownMenuItem>
+                              
+                              <DropdownMenuSeparator className={darkMode ? 'bg-gray-700' : ''} />
+                              
+                              {/* حذف التحليل */}
+                              <DropdownMenuItem
+                                onClick={() => handleDelete(analysis.id)}
+                                className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              >
+                                <Trash2 className="h-4 w-4 ml-2" />
+                                <span>حذف التحليل</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TooltipProvider>
+                      </div>
                     </td>
                   </tr>
                 ))
