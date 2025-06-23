@@ -18,6 +18,9 @@ interface SmartBlock {
     primaryColor: string;
     backgroundColor: string;
     textColor: string;
+    secondaryColor?: string;
+    accentColor?: string;
+    borderColor?: string;
   };
   customHtml?: string;
   articlesCount: number;
@@ -33,17 +36,23 @@ interface SmartBlock {
 interface Article {
   id: string;
   title: string;
-  slug: string;
+  slug?: string;
   excerpt?: string;
+  content?: string;
+  image?: string;
+  featured_image?: string;
   imageUrl?: string;
   category?: string;
   author?: {
     name: string;
     avatar?: string;
   };
-  publishedAt: string;
+  published_at?: string;
+  created_at?: string;
+  publishedAt?: string;
   views?: number;
   readTime?: number;
+  breaking?: boolean;
 }
 
 interface SmartBlockRendererProps {
@@ -52,6 +61,17 @@ interface SmartBlockRendererProps {
   userType?: 'guest' | 'user';
 }
 
+/**
+ * SmartBlockRenderer - المكون الرئيسي لعرض البلوكات الذكية
+ * 
+ * يدعم الألوان المخصصة من خلال:
+ * - theme.primaryColor: اللون الأساسي للعناصر التفاعلية والأيقونات
+ * - theme.backgroundColor: لون خلفية البلوك
+ * - theme.textColor: لون النص الأساسي
+ * - theme.secondaryColor: لون ثانوي للخلفيات الفرعية
+ * 
+ * جميع المكونات تطبق هذه الألوان ديناميكياً عبر inline styles
+ */
 export const SmartBlockRenderer: React.FC<SmartBlockRendererProps> = ({
   block,
   articles,
@@ -75,28 +95,28 @@ export const SmartBlockRenderer: React.FC<SmartBlockRendererProps> = ({
     switch (block.displayType) {
       case 'cards':
       case 'grid':
-        return <CardGridBlock block={block} articles={displayArticles} />;
+        return <CardGridBlock block={block} articles={displayArticles as any} />;
       
       case 'headline':
       case 'list':
-        return <HeadlineListBlock block={block} articles={displayArticles} />;
+        return <HeadlineListBlock block={block} articles={displayArticles as any} />;
       
       case 'image-left':
       case 'horizontal':
-        return <ImageLeftBlock block={block} articles={displayArticles} />;
+        return <ImageLeftBlock block={block} articles={displayArticles as any} />;
       
       case 'carousel':
       case 'gallery':
-        return <CarouselBlock block={block} articles={displayArticles} />;
+        return <CarouselBlock block={block} articles={displayArticles as any} />;
       
       case 'hero-slider':
-        return <HeroSliderBlock block={block} articles={displayArticles} />;
+        return <HeroSliderBlock block={block} articles={displayArticles as any} />;
       
       case 'magazine':
-        return <MagazineLayoutBlock block={block} articles={displayArticles} />;
+        return <MagazineLayoutBlock block={block} articles={displayArticles as any} />;
       
       default:
-        return <CardGridBlock block={block} articles={displayArticles} />;
+        return <CardGridBlock block={block} articles={displayArticles as any} />;
     }
   };
 

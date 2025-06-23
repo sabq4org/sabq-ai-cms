@@ -14,6 +14,13 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const displayArticles = articles.slice(0, block.config?.itemsCount || 5);
+  
+  // استخراج الألوان من theme البلوك
+  const theme = block.theme || {};
+  const primaryColor = theme.primaryColor || '#f97316'; // اللون الافتراضي
+  const backgroundColor = theme.backgroundColor || '#ffffff';
+  const textColor = theme.textColor || '#1a1a1a';
+  const secondaryColor = theme.secondaryColor || '#f8fafc';
 
   useEffect(() => {
     if (!isPlaying || displayArticles.length <= 1) return;
@@ -35,17 +42,39 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
 
   if (displayArticles.length === 0) {
     return (
-      <div className="smart-block-container">
+      <div 
+        className="smart-block-container"
+        style={{
+          backgroundColor: backgroundColor,
+          color: textColor
+        }}
+      >
         <div className="smart-block-header">
           <div className="smart-block-header-content">
             <div className="smart-block-title-wrapper">
-              <ImageIcon className="smart-block-icon" />
-              <h2 className="smart-block-title">{block.name || 'معرض الصور'}</h2>
+              <ImageIcon 
+                className="smart-block-icon" 
+                style={{ color: primaryColor }}
+              />
+              <h2 
+                className="smart-block-title"
+                style={{ color: textColor }}
+              >
+                {block.name || 'معرض الصور'}
+              </h2>
             </div>
             {block.keywords && block.keywords.length > 0 && (
               <div className="smart-block-keywords">
                 {block.keywords.map((keyword: string, index: number) => (
-                  <span key={index} className="keyword-badge">
+                  <span 
+                    key={index} 
+                    className="keyword-badge"
+                    style={{
+                      backgroundColor: `${primaryColor}20`,
+                      color: primaryColor,
+                      borderColor: `${primaryColor}40`
+                    }}
+                  >
                     {keyword}
                   </span>
                 ))}
@@ -66,24 +95,50 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
   const currentArticle = displayArticles[currentIndex];
 
   return (
-    <div className="smart-block-container">
+    <div 
+      className="smart-block-container"
+      style={{
+        backgroundColor: backgroundColor,
+        color: textColor
+      }}
+    >
       <div className="smart-block-header">
         <div className="smart-block-header-content">
           <div className="smart-block-title-wrapper">
-            <ImageIcon className="smart-block-icon" />
-            <h2 className="smart-block-title">{block.name || 'معرض الصور'}</h2>
+            <ImageIcon 
+              className="smart-block-icon" 
+              style={{ color: primaryColor }}
+            />
+            <h2 
+              className="smart-block-title"
+              style={{ color: textColor }}
+            >
+              {block.name || 'معرض الصور'}
+            </h2>
           </div>
           {block.keywords && block.keywords.length > 0 && (
             <div className="smart-block-keywords">
               {block.keywords.map((keyword: string, index: number) => (
-                <span key={index} className="keyword-tag">
+                <span 
+                  key={index} 
+                  className="keyword-tag"
+                  style={{
+                    backgroundColor: `${primaryColor}20`,
+                    color: primaryColor,
+                    borderColor: `${primaryColor}40`
+                  }}
+                >
                   {keyword}
                 </span>
               ))}
             </div>
           )}
         </div>
-        <Link href="/news" className="view-all-link">
+        <Link 
+          href="/news" 
+          className="view-all-link"
+          style={{ color: primaryColor }}
+        >
           عرض الكل
           <ChevronLeft className="w-4 h-4" />
         </Link>
@@ -100,8 +155,16 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
                 className="object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900/20 dark:to-orange-800/10">
-                <ImageIcon className="w-20 h-20 text-orange-400 dark:text-orange-500" />
+              <div 
+                className="w-full h-full flex items-center justify-center"
+                style={{
+                  background: `linear-gradient(135deg, ${primaryColor}20, ${primaryColor}10)`
+                }}
+              >
+                <ImageIcon 
+                  className="w-20 h-20" 
+                  style={{ color: primaryColor }}
+                />
               </div>
             )}
             
@@ -110,6 +173,10 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
                   className="carousel-control-btn"
+                  style={{ 
+                    backgroundColor: primaryColor,
+                    color: '#ffffff'
+                  }}
                   aria-label={isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
                 >
                   {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
@@ -118,16 +185,34 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
             </div>
           </div>
 
-          <div className="carousel-info-section">
+          <div 
+            className="carousel-info-section"
+            style={{
+              backgroundColor: secondaryColor || `${backgroundColor}f8`,
+              borderColor: `${primaryColor}20`
+            }}
+          >
             <Link href={`/article/${currentArticle.id}`} className="carousel-article-link">
-              <span className="carousel-category">
+              <span 
+                className="carousel-category"
+                style={{
+                  backgroundColor: primaryColor,
+                  color: '#ffffff'
+                }}
+              >
                 {currentArticle.category || 'أخبار'}
               </span>
-              <h3 className="carousel-title">
+              <h3 
+                className="carousel-title"
+                style={{ color: textColor }}
+              >
                 {currentArticle.title}
               </h3>
               {currentArticle.excerpt && (
-                <p className="carousel-excerpt">
+                <p 
+                  className="carousel-excerpt"
+                  style={{ color: `${textColor}cc` }}
+                >
                   {currentArticle.excerpt}
                 </p>
               )}
@@ -147,6 +232,10 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
               <button
                 onClick={goToPrevious}
                 className="carousel-nav-btn"
+                style={{
+                  backgroundColor: primaryColor,
+                  color: '#ffffff'
+                }}
                 aria-label="السابق"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -158,6 +247,9 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
                     key={index}
                     onClick={() => setCurrentIndex(index)}
                     className={`carousel-indicator ${index === currentIndex ? 'active' : ''}`}
+                    style={{
+                      backgroundColor: index === currentIndex ? primaryColor : `${primaryColor}40`
+                    }}
                     aria-label={`الانتقال إلى الشريحة ${index + 1}`}
                   />
                 ))}
@@ -166,6 +258,10 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
               <button
                 onClick={goToNext}
                 className="carousel-nav-btn"
+                style={{
+                  backgroundColor: primaryColor,
+                  color: '#ffffff'
+                }}
                 aria-label="التالي"
               >
                 <ChevronLeft className="w-5 h-5" />
