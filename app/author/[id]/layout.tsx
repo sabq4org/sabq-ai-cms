@@ -2,6 +2,10 @@ import { Metadata } from 'next';
 import fs from 'fs/promises';
 import path from 'path';
 
+interface PageParams {
+  params: Promise<{ id: string }>;
+}
+
 interface Author {
   id: string;
   name: string;
@@ -86,8 +90,9 @@ function getAuthorBio(authorId: string, authorName: string): string {
   return bios[authorId] || `${authorName} - كاتب صحفي في صحيفة سبق الإلكترونية`;
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const author = await getAuthorInfo(params.id);
+export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
+  const { id } = await params;
+  const author = await getAuthorInfo(id);
   
   if (!author) {
     return {
@@ -125,7 +130,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       images: [`https://ui-avatars.com/api/?name=${encodeURIComponent(author.name)}&background=3B82F6&color=fff&size=200&font-size=0.5&bold=true`],
     },
     alternates: {
-      canonical: `https://sabq.org/author/${params.id}`
+      canonical: `https://sabq.org/author/${id}`
     }
   };
 }

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
 interface Author {
   id: string;
   name: string;
@@ -23,10 +27,10 @@ interface Author {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
-    const authorId = params.id;
+    const { id: authorId } = await params;
     
     // قراءة المقالات من الملف
     const articlesPath = path.join(process.cwd(), 'data', 'articles.json');

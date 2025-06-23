@@ -4,6 +4,10 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import { TeamMember, UpdateTeamMemberInput } from '@/types/team';
 
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
 const TEAM_MEMBERS_FILE = path.join(process.cwd(), 'data', 'team-members.json');
 
 async function getTeamMembers(): Promise<TeamMember[]> {
@@ -23,11 +27,12 @@ async function saveTeamMembers(members: TeamMember[]): Promise<void> {
 // GET: جلب بيانات عضو محدد
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
+    const { id } = await params;
     const members = await getTeamMembers();
-    const member = members.find(m => m.id === params.id);
+    const member = members.find(m => m.id === id);
     
     if (!member) {
       return NextResponse.json(
@@ -55,12 +60,13 @@ export async function GET(
 // PATCH: تحديث بيانات عضو
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
+    const { id } = await params;
     const body: UpdateTeamMemberInput = await request.json();
     const members = await getTeamMembers();
-    const memberIndex = members.findIndex(m => m.id === params.id);
+    const memberIndex = members.findIndex(m => m.id === id);
     
     if (memberIndex === -1) {
       return NextResponse.json(
@@ -82,7 +88,7 @@ export async function PATCH(
       }
       
       const emailExists = members.some(member => 
-        member.id !== params.id && 
+        member.id !== id && 
         member.email.toLowerCase() === body.email!.toLowerCase()
       );
       
@@ -154,11 +160,12 @@ export async function PATCH(
 // DELETE: حذف عضو
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
+    const { id } = await params;
     const members = await getTeamMembers();
-    const memberIndex = members.findIndex(m => m.id === params.id);
+    const memberIndex = members.findIndex(m => m.id === id);
     
     if (memberIndex === -1) {
       return NextResponse.json(
