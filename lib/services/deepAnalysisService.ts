@@ -280,8 +280,11 @@ export async function generateDeepAnalysis(
     const qualityScore = calculateQualityScore(content);
     
     // حساب وقت القراءة (250 كلمة في الدقيقة)
-    const wordCount = countWords(parsedResponse.content || '');
-    const estimatedReadingTime = Math.ceil(wordCount / 250);
+    // حساب مجموع الكلمات من جميع الأقسام
+    const totalWords = content.sections.reduce((total, section) => {
+      return total + countWords(section.content);
+    }, 0);
+    const estimatedReadingTime = Math.ceil(totalWords / 250);
 
     return {
       success: true,

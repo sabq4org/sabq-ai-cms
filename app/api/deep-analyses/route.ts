@@ -229,7 +229,7 @@ export async function POST(request: NextRequest) {
       }
       
       analysisContent = gptResponse.analysis.content;
-      qualityScore = gptResponse.analysis.qualityScore;
+      qualityScore = gptResponse.analysis.qualityScore || 0;
       readingTime = gptResponse.analysis.estimatedReadingTime;
       
       // تحويل المحتوى إلى HTML للعرض في المحرر
@@ -237,6 +237,8 @@ export async function POST(request: NextRequest) {
     } else {
       // إذا لم يكن توليد GPT، استخدم المحتوى المرسل
       rawContent = body.content || '';
+      // حساب جودة المحتوى اليدوي
+      qualityScore = 0; // يمكن إضافة منطق لحساب الجودة للمحتوى اليدوي
     }
     
     // إنشاء التحليل الجديد

@@ -8,6 +8,35 @@ export default function EditorStyles() {
         font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         direction: rtl;
         text-align: right;
+        padding-top: 2rem !important;
+        padding-bottom: 1rem;
+        min-height: 500px;
+        scroll-padding-top: 2rem;
+      }
+
+      /* التأكد من عدم اختفاء المحتوى */
+      .editor-content .ProseMirror > *:first-child {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+      }
+
+      /* إصلاح مشكلة overflow */
+      .editor-content {
+        overflow-y: auto;
+        max-height: calc(100vh - 300px);
+        position: relative;
+      }
+
+      /* إضافة مؤشر مرئي للمساحة العلوية */
+      .editor-content .ProseMirror::before {
+        content: '';
+        display: block;
+        height: 1rem;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
       }
 
       /* Placeholder style */

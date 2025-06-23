@@ -163,8 +163,8 @@
     "theme": {
       "primaryColor": "#1e40af",
       "secondaryColor": "#ffffff",
-      "backgroundColor": "linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%)",
-      "textColor": "#ffffff",
+      "backgroundColor": "#caf0fe",
+      "textColor": "#002e7a",
       "accentColor": "#fbbf24",
       "borderColor": "#1e40af"
     },
@@ -196,7 +196,7 @@
     "id": "1750599575769",
     "order": 7,
     "createdAt": "2025-06-22T13:39:35.769Z",
-    "updatedAt": "2025-06-22T20:23:01.015Z",
+    "updatedAt": "2025-06-23T11:23:00.393Z",
     "keywords": [
       "الهلال"
     ]

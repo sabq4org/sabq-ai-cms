@@ -126,11 +126,12 @@ const Editor = forwardRef<EditorRef, EditorProps>(({
     content,
     editorProps: {
       attributes: {
-        class: `prose prose-lg dark:prose-invert max-w-full focus:outline-none min-h-[400px] px-6 py-4 ${
+        class: `prose prose-lg dark:prose-invert max-w-full focus:outline-none min-h-[500px] px-6 py-4 ${
           darkMode ? 'text-gray-100' : 'text-gray-900'
         }`,
         dir: 'rtl',
-        spellcheck: 'false'
+        spellcheck: 'false',
+        style: 'padding-top: 1rem;'
       }
     },
     onUpdate: ({ editor }) => {
@@ -240,12 +241,31 @@ const Editor = forwardRef<EditorRef, EditorProps>(({
         } else {
           editor.commands.setContent(newContent);
         }
+        // التمرير إلى أعلى المحرر بعد تحميل المحتوى
+        setTimeout(() => {
+          const editorElement = document.querySelector('.editor-content .ProseMirror');
+          if (editorElement) {
+            editorElement.scrollTop = 0;
+          }
+        }, 100);
       }
     },
     clearContent: () => editor?.commands.clearContent(),
     undo: () => editor?.commands.undo(),
     redo: () => editor?.commands.redo()
   }));
+
+  // التمرير إلى أعلى المحرر عند تحميل المحتوى لأول مرة
+  useEffect(() => {
+    if (editor && content) {
+      setTimeout(() => {
+        const editorElement = document.querySelector('.editor-content .ProseMirror');
+        if (editorElement) {
+          editorElement.scrollTop = 0;
+        }
+      }, 100);
+    }
+  }, [editor, content]);
 
   // معالج لإجراءات الذكاء الاصطناعي
   const handleAIAction = (action: string) => {

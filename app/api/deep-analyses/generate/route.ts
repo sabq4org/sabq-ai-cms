@@ -86,6 +86,10 @@ export async function POST(request: NextRequest) {
       // تحويل محتوى JSON إلى HTML منسق لمحرر Tiptap
       const formattedContent = formatAnalysisContent(result.analysis.content);
       
+      // تسجيل معلومات التشخيص
+      console.log('Analysis quality score:', result.analysis.qualityScore);
+      console.log('Analysis content sections:', result.analysis.content?.sections?.length);
+      
       return NextResponse.json({
         title: result.analysis.title,
         summary: result.analysis.summary,
@@ -93,7 +97,7 @@ export async function POST(request: NextRequest) {
         rawContent: result.analysis.content, // الاحتفاظ بالمحتوى الخام إذا احتجناه
         tags: extractTagsFromContent(result.analysis.content),
         categories: body.categories || [body.category].filter(Boolean),
-        qualityScore: result.analysis.qualityScore,
+        qualityScore: Math.round(result.analysis.qualityScore || 0),
         readingTime: result.analysis.estimatedReadingTime
       });
     } else {
@@ -141,7 +145,10 @@ function formatAnalysisContent(content: any): string {
     parts.push('<h2>الفهرس</h2>');
     parts.push('<ul>');
     content.tableOfContents.forEach((item: any) => {
-      parts.push(`<li>${item}</li>`);
+      // التحقق من نوع العنصر وتحويله إلى نص
+      const title = typeof item === 'string' ? item : 
+                   (item.title || item.name || item.text || 'قسم');
+      parts.push(`<li>${title}</li>`);
     });
     parts.push('</ul>');
   }

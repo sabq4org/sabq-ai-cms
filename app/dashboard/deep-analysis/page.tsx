@@ -220,7 +220,7 @@ export default function DeepAnalysisPage() {
     published: analyses.filter(a => a.status === 'published').length,
     draft: analyses.filter(a => a.status === 'draft').length,
     avgQuality: analyses.length > 0 
-      ? Math.round(analyses.reduce((acc, a) => acc + a.qualityScore, 0) / analyses.length * 100)
+      ? Math.min(Math.round(analyses.reduce((acc, a) => acc + a.qualityScore, 0) / analyses.length), 100)
       : 0,
     totalViews: analyses.reduce((acc, a) => acc + a.views, 0),
     gptAnalyses: analyses.filter(a => a.sourceType === 'gpt').length
@@ -562,11 +562,11 @@ export default function DeepAnalysisPage() {
                         }`}>
                           <div
                             className="h-full bg-gradient-to-r from-purple-500 to-indigo-600"
-                            style={{ width: `${analysis.qualityScore * 100}%` }}
+                            style={{ width: `${Math.min(analysis.qualityScore, 100)}%` }}
                           />
                         </div>
                         <span className={`text-xs font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {Math.round(analysis.qualityScore * 100)}%
+                          {Math.min(Math.round(analysis.qualityScore), 100)}%
                         </span>
                       </div>
                     </td>

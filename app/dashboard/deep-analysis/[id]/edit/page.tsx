@@ -13,7 +13,8 @@ import {
   AlertCircle,
   RefreshCw,
   Brain,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { cn } from '@/lib/utils';
@@ -43,6 +44,48 @@ export default function EditDeepAnalysisPage() {
     fetchAnalysis();
   }, [params.id]);
 
+  useEffect(() => {
+    if (analysis) {
+      let contentToLoad = '';
+      
+      // محاولة تحميل المحتوى من مصادر مختلفة
+      if (analysis.rawContent && typeof analysis.rawContent === 'string') {
+        // تنظيف المحتوى الخام من [object Object]
+        contentToLoad = analysis.rawContent.replace(/\[object Object\]/g, '');
+      } else if (analysis.content) {
+        if (typeof analysis.content === 'string') {
+          contentToLoad = (analysis.content as string).replace(/\[object Object\]/g, '');
+        } else if (typeof analysis.content === 'object' && analysis.content !== null && 'sections' in analysis.content) {
+          // تحويل الأقسام إلى HTML
+          contentToLoad = formatSectionsToHTML(analysis.content);
+        }
+      }
+      
+      // التأكد من أن المحتوى يبدأ بشكل صحيح
+      if (contentToLoad && !contentToLoad.trim().startsWith('<')) {
+        // إذا كان المحتوى نص عادي، نحوله إلى فقرات
+        contentToLoad = contentToLoad
+          .split('\n\n')
+          .filter(p => p.trim())
+          .map(p => `<p>${p.trim()}</p>`)
+          .join('\n');
+      }
+      
+      // إضافة مساحة في البداية إذا لم تكن موجودة
+      if (contentToLoad && !contentToLoad.trim().startsWith('<h') && !contentToLoad.trim().startsWith('<p>&nbsp;')) {
+        contentToLoad = '<p>&nbsp;</p>' + contentToLoad;
+      }
+      
+      setFormData({
+        title: analysis.title,
+        summary: analysis.summary || '',
+        categories: analysis.categories || [],
+        tags: analysis.tags || [],
+        content: contentToLoad
+      });
+    }
+  }, [analysis]);
+
   const fetchAnalysis = async () => {
     try {
       const response = await fetch(`/api/deep-analyses/${params.id}`);
@@ -64,7 +107,7 @@ export default function EditDeepAnalysisPage() {
         summary: data.summary,
         categories: data.categories,
         tags: data.tags || [],
-        content: content || ''
+        content: content || '',
       });
     } catch (error) {
       console.error('Error fetching analysis:', error);
@@ -78,12 +121,21 @@ export default function EditDeepAnalysisPage() {
   const formatSectionsToHTML = (content: any): string => {
     const parts: string[] = [];
 
+    // إضافة مقدمة إذا كانت موجودة
+    if (content.introduction) {
+      parts.push(`<h2>مقدمة</h2>`);
+      parts.push(`<p>${content.introduction}</p>`);
+    }
+
     // الفهرس
     if (content.tableOfContents?.length) {
       parts.push('<h2>الفهرس</h2>');
       parts.push('<ul>');
-      content.tableOfContents.forEach((item: string) => {
-        parts.push(`<li>${item}</li>`);
+      content.tableOfContents.forEach((item: any) => {
+        // تحويل كائن الفهرس إلى نص
+        const title = typeof item === 'string' ? item : 
+                     (item.title || item.name || item.text || 'قسم');
+        parts.push(`<li>${title}</li>`);
       });
       parts.push('</ul>');
     }
@@ -91,32 +143,21 @@ export default function EditDeepAnalysisPage() {
     // الأقسام
     if (content.sections?.length) {
       content.sections.forEach((section: any) => {
-        if (section.title) {
+        if (section.title && section.content) {
           parts.push(`<h2>${section.title}</h2>`);
-        }
-        if (section.content) {
-          // تقسيم المحتوى إلى فقرات
-          const paragraphs = section.content.split('\n\n').filter((p: string) => p.trim());
-          paragraphs.forEach((p: string) => {
-            if (p.trim().startsWith('- ') || p.trim().startsWith('• ')) {
-              // قائمة
-              const items = p.split('\n').filter((item: string) => item.trim());
-              parts.push('<ul>');
-              items.forEach((item: string) => {
-                parts.push(`<li>${item.replace(/^[-•]\s*/, '')}</li>`);
-              });
-              parts.push('</ul>');
-            } else {
-              parts.push(`<p>${p}</p>`);
-            }
+          // التأكد من أن المحتوى نص وليس كائن
+          const sectionContent = typeof section.content === 'string' 
+            ? section.content 
+            : JSON.stringify(section.content);
+          
+          // تنظيف المحتوى من [object Object]
+          const cleanContent = sectionContent.replace(/\[object Object\]/g, '');
+          
+          // تحويل الأسطر الجديدة إلى فقرات
+          const paragraphs = cleanContent.split('\n\n').filter((p: string) => p.trim());
+          paragraphs.forEach((paragraph: string) => {
+            parts.push(`<p>${paragraph.trim()}</p>`);
           });
-        }
-        if (section.points?.length) {
-          parts.push('<ul>');
-          section.points.forEach((point: string) => {
-            parts.push(`<li>${point}</li>`);
-          });
-          parts.push('</ul>');
         }
       });
     }
@@ -141,7 +182,16 @@ export default function EditDeepAnalysisPage() {
       parts.push('</ul>');
     }
 
-    return parts.join('\n');
+    // تنظيف المحتوى النهائي
+    let finalHTML = parts.join('\n');
+    
+    // إزالة أي [object Object] متبقي
+    finalHTML = finalHTML.replace(/\[object Object\]/g, '');
+    
+    // إزالة الفراغات الزائدة
+    finalHTML = finalHTML.replace(/\n{3,}/g, '\n\n');
+    
+    return finalHTML;
   };
 
   const handleCategoryToggle = (category: string) => {
@@ -432,41 +482,63 @@ export default function EditDeepAnalysisPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>محتوى التحليل</CardTitle>
-              {(analysis.sourceType === 'gpt' || analysis.sourceType === 'hybrid') && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRegenerate}
-                  disabled={regenerating}
-                  className="flex items-center gap-2"
-                >
-                  {regenerating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      جاري إعادة التوليد...
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="w-4 h-4" />
-                      إعادة توليد بالذكاء الاصطناعي
-                    </>
-                  )}
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {(analysis.sourceType === 'gpt' || analysis.sourceType === 'hybrid') && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRegenerate}
+                    disabled={regenerating}
+                    className="flex items-center gap-2"
+                  >
+                    {regenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        جاري إعادة التوليد...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-4 h-4" />
+                        إعادة توليد بالذكاء الاصطناعي
+                      </>
+                    )}
+                  </Button>
+                )}
+                {analysis.rawContent && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // تحميل المحتوى الخام في المحرر
+                      let cleanContent = analysis.rawContent || '';
+                      // إزالة [object Object] إن وجد
+                      cleanContent = cleanContent.replace(/\[object Object\]/g, '');
+                      setFormData({ ...formData, content: cleanContent });
+                      toast.success('تم تحميل المحتوى الأصلي');
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    استعادة المحتوى الأصلي
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="min-h-[400px] border rounded-lg p-4 bg-white dark:bg-gray-800">
-                <Editor
-                  content={formData.content}
-                  onChange={(content) => {
-                    // حفظ HTML المنسق
-                    const htmlContent = typeof content === 'string' ? content : content.html;
-                    setFormData({ ...formData, content: htmlContent });
-                    setErrors({ ...errors, content: '' });
-                  }}
-                  autoSaveKey={`deep-analysis-draft-${params.id}`}
-                  autoSaveInterval={15000} // حفظ كل 15 ثانية
-                />
+              <div className="min-h-[500px] border rounded-lg bg-white dark:bg-gray-800 overflow-hidden">
+                <div className="p-6 pt-8">
+                  <Editor
+                    content={formData.content}
+                    onChange={(content) => {
+                      // حفظ HTML المنسق
+                      const htmlContent = typeof content === 'string' ? content : content.html;
+                      setFormData({ ...formData, content: htmlContent });
+                      setErrors({ ...errors, content: '' });
+                    }}
+                    autoSaveKey={`deep-analysis-draft-${params.id}`}
+                    autoSaveInterval={15000} // حفظ كل 15 ثانية
+                  />
+                </div>
               </div>
               {errors.content && (
                 <p className="text-red-500 text-sm mt-1">{errors.content}</p>
