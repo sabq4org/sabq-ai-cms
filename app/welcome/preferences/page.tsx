@@ -6,42 +6,42 @@ import { Heart, BookOpen, TrendingUp, Globe, Users, Zap, CheckCircle } from 'luc
 import toast from 'react-hot-toast';
 
 const interests = [
-  { id: 'tech', name: 'تقنية', icon: Zap, color: 'from-blue-500 to-cyan-500' },
-  { id: 'business', name: 'اقتصاد', icon: TrendingUp, color: 'from-green-500 to-emerald-500' },
-  { id: 'sports', name: 'رياضة', icon: Users, color: 'from-orange-500 to-red-500' },
-  { id: 'culture', name: 'ثقافة', icon: BookOpen, color: 'from-purple-500 to-pink-500' },
-  { id: 'health', name: 'صحة', icon: Heart, color: 'from-pink-500 to-rose-500' },
-  { id: 'international', name: 'دولي', icon: Globe, color: 'from-indigo-500 to-blue-500' }
+  { id: 'tech', name: 'تقنية', icon: Zap, color: 'from-blue-500 to-cyan-500', categoryId: 1 },
+  { id: 'business', name: 'اقتصاد', icon: TrendingUp, color: 'from-green-500 to-emerald-500', categoryId: 2 },
+  { id: 'sports', name: 'رياضة', icon: Users, color: 'from-orange-500 to-red-500', categoryId: 3 },
+  { id: 'culture', name: 'ثقافة', icon: BookOpen, color: 'from-purple-500 to-pink-500', categoryId: 4 },
+  { id: 'health', name: 'صحة', icon: Heart, color: 'from-pink-500 to-rose-500', categoryId: 5 },
+  { id: 'international', name: 'دولي', icon: Globe, color: 'from-indigo-500 to-blue-500', categoryId: 6 }
 ];
 
 export default function PreferencesPage() {
   const router = useRouter();
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [loadingPreferences, setLoadingPreferences] = useState(true);
   const [initialInterestsCount, setInitialInterestsCount] = useState(0);
 
-    // تحميل الاهتمامات المحفوظة سابقاً
-    useEffect(() => {
-      const loadSavedInterests = () => {
-        try {
-          const userData = localStorage.getItem('user');
-          if (userData) {
-            const user = JSON.parse(userData);
-            if (user.interests && Array.isArray(user.interests)) {
-              setSelectedInterests(user.interests);
-              setInitialInterestsCount(user.interests.length);
-            }
+  // تحميل الاهتمامات المحفوظة سابقاً
+  useEffect(() => {
+    const loadSavedInterests = () => {
+      try {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const user = JSON.parse(userData);
+          if (user.interests && Array.isArray(user.interests)) {
+            setSelectedInterests(user.interests);
+            setInitialInterestsCount(user.interests.length);
           }
-        } catch (error) {
-          console.error('خطأ في تحميل الاهتمامات:', error);
-        } finally {
-          setLoadingPreferences(false);
         }
-      };
+      } catch (error) {
+        console.error('خطأ في تحميل الاهتمامات:', error);
+      } finally {
+        setLoadingPreferences(false);
+      }
+    };
 
-      loadSavedInterests();
-    }, []);
+    loadSavedInterests();
+  }, []);
 
   const handleInterestToggle = (interestId: string) => {
     setSelectedInterests(prev => 
@@ -59,7 +59,7 @@ export default function PreferencesPage() {
 
     setLoading(true);
     try {
-      // حفظ الاهتمامات في localStorage مؤقتاً
+      // حفظ الاهتمامات في localStorage
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       const updatedUser = {
         ...currentUser,
@@ -69,15 +69,57 @@ export default function PreferencesPage() {
       };
       
       localStorage.setItem('user', JSON.stringify(updatedUser));
+
+      // حفظ الاهتمامات في قاعدة البيانات
+      if (currentUser.id) {
+        const categoryIds = selectedInterests.map(interestId => {
+          const interest = interests.find(i => i.id === interestId);
+          return interest?.categoryId;
+        }).filter(Boolean);
+
+        const response = await fetch('/api/user/preferences', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            categoryIds: categoryIds,
+            source: initialInterestsCount > 0 ? 'update' : 'welcome'
+          }),
+        });
+
+        if (response.ok) {
+          // إضافة نقاط الولاء لإتمام الاهتمامات
+          await fetch('/api/user/loyalty-points', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: currentUser.id,
+              points: 5,
+              action: 'complete_preferences',
+              description: 'إتمام اختيار الاهتمامات'
+            }),
+          });
+        }
+      }
       
       // رسالة نجاح مختلفة بناءً على السياق
       const isUpdate = currentUser.interests && currentUser.interests.length > 0;
       toast.success(isUpdate ? 'تم تحديث اهتماماتك بنجاح! ✨' : 'تم حفظ اهتماماتك! 🎉');
       
       // التوجيه إلى الصفحة المناسبة
-      router.push(isUpdate ? '/profile' : '/newspaper');
+      if (isUpdate) {
+        router.push('/profile');
+      } else {
+        // للمستخدمين الجدد، توجيههم إلى صفحة التجربة المخصصة
+        router.push('/welcome/feed');
+      }
       
     } catch (error) {
+      console.error('خطأ في حفظ الاهتمامات:', error);
       toast.error('حدث خطأ في حفظ اهتماماتك');
     } finally {
       setLoading(false);
@@ -194,7 +236,7 @@ export default function PreferencesPage() {
           {/* أزرار الإجراءات */}
           <div className="flex gap-4 justify-center">
             <button
-              onClick={() => router.push(initialInterestsCount > 0 ? '/profile' : '/newspaper')}
+              onClick={() => router.push(initialInterestsCount > 0 ? '/profile' : '/')}
               className="px-6 py-3 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               {initialInterestsCount > 0 ? 'إلغاء' : 'تخطي الآن'}

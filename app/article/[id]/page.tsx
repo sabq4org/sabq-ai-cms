@@ -388,13 +388,36 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       shared: interaction.shared
     }));
     
-    // تسجيل التفاعل
-    await trackInteraction({
-      userId,
-      articleId: article.id,
-      interactionType: 'like',
-      source: 'article_page'
-    });
+    // تسجيل التفاعل باستخدام النظام الجديد
+    try {
+      const response = await fetch('/api/interactions/track-activity', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          articleId: article.id,
+          interactionType: newLiked ? 'like' : 'unlike',
+          metadata: {
+            source: 'article_page',
+            timestamp: new Date().toISOString()
+          }
+        }),
+      });
+      
+      const result = await response.json();
+      if (result.success && result.points_earned > 0) {
+        // عرض إشعار بالنقاط
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+        toast.textContent = `🎉 ${result.message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => document.body.removeChild(toast), 3000);
+      }
+    } catch (error) {
+      console.error('خطأ في تسجيل التفاعل:', error);
+    }
   };
 
   const handleSave = async () => {
@@ -417,12 +440,36 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       shared: interaction.shared
     }));
     
-    await trackInteraction({
-      userId,
-      articleId: article.id,
-      interactionType: 'save',
-      source: 'article_page'
-    });
+    // تسجيل التفاعل باستخدام النظام الجديد
+    try {
+      const response = await fetch('/api/interactions/track-activity', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          articleId: article.id,
+          interactionType: newSaved ? 'save' : 'unsave',
+          metadata: {
+            source: 'article_page',
+            timestamp: new Date().toISOString()
+          }
+        }),
+      });
+      
+      const result = await response.json();
+      if (result.success && result.points_earned > 0) {
+        // عرض إشعار بالنقاط
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+        toast.textContent = `🎉 ${result.message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => document.body.removeChild(toast), 3000);
+      }
+    } catch (error) {
+      console.error('خطأ في تسجيل التفاعل:', error);
+    }
   };
 
   const handleShare = async (platform: string) => {
@@ -470,12 +517,36 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     
     // تسجيل التفاعل للمستخدمين المسجلين
     if (userId) {
-      await trackInteraction({
-        userId,
-        articleId: article.id,
-        interactionType: 'share',
-        source: `share_${platform}`
-      });
+      try {
+        const response = await fetch('/api/interactions/track-activity', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId,
+            articleId: article.id,
+            interactionType: 'share',
+            metadata: {
+              source: `share_${platform}`,
+              platform: platform,
+              timestamp: new Date().toISOString()
+            }
+          }),
+        });
+        
+        const result = await response.json();
+        if (result.success && result.points_earned > 0) {
+          // عرض إشعار بالنقاط
+          const toast = document.createElement('div');
+          toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+          toast.textContent = `🎉 ${result.message}`;
+          document.body.appendChild(toast);
+          setTimeout(() => document.body.removeChild(toast), 3000);
+        }
+      } catch (error) {
+        console.error('خطأ في تسجيل التفاعل:', error);
+      }
     }
   };
 
