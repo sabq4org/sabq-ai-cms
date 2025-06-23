@@ -187,52 +187,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// تحديث نقاط الولاء
-async function updateLoyaltyPoints(userId: string, interactionType: string) {
-  try {
-    const pointsPath = path.join(process.cwd(), 'data', 'loyalty_points.json');
-    let loyaltyData: any = {};
-    
-    try {
-      const fileContent = await fs.readFile(pointsPath, 'utf-8');
-      loyaltyData = JSON.parse(fileContent);
-    } catch (error) {
-      // ملف جديد
-    }
 
-    // نظام النقاط
-    const pointRules: { [key: string]: number } = {
-      view: 1,
-      read: 10,
-      like: 5,
-      share: 15,
-      comment: 20,
-      save: 8,
-      unlike: -5,
-      unsave: -8
-    };
-
-    const points = pointRules[interactionType] || 0;
-    
-    if (!loyaltyData[userId]) {
-      loyaltyData[userId] = {
-        totalPoints: 0,
-        history: []
-      };
-    }
-
-    loyaltyData[userId].totalPoints += points;
-    loyaltyData[userId].history.push({
-      points,
-      action: interactionType,
-      timestamp: new Date().toISOString()
-    });
-
-    await fs.writeFile(pointsPath, JSON.stringify(loyaltyData, null, 2));
-  } catch (error) {
-    console.error('Error updating loyalty points:', error);
-  }
-}
 
 // تحديث عدد المشاهدات للمقال
 async function updateArticleViews(articleId: string) {
@@ -399,7 +354,7 @@ async function checkLimits(userId: string, articleId: string, interactionType: s
   }
 }
 
-// دالة تحديث نقاط الولاء
+// دالة تحديث نقاط الولاء المحسنة
 async function updateLoyaltyPoints(userId: string, points: number, action: string, articleId?: string, description?: string): Promise<void> {
   try {
     const fileContent = await fs.readFile(loyaltyFilePath, 'utf-8');
@@ -407,17 +362,23 @@ async function updateLoyaltyPoints(userId: string, points: number, action: strin
     
     if (!data.users) data.users = [];
 
-    let userIndex = data.users.findIndex((user: LoyaltyPoints) => user.user_id === userId);
+    let userIndex = data.users.findIndex((user: any) => user.user_id === userId);
     
     if (userIndex === -1) {
       // إنشاء مستخدم جديد
-      const newUser: LoyaltyPoints = {
+      const newUser = {
         user_id: userId,
         total_points: Math.max(0, points),
         earned_points: points > 0 ? points : 0,
         redeemed_points: 0,
         tier: 'bronze',
-        history: [],
+        history: [] as Array<{
+          action: string;
+          points: number;
+          timestamp: string;
+          article_id?: string;
+          description?: string;
+        }>,
         created_at: new Date().toISOString(),
         last_updated: new Date().toISOString()
       };

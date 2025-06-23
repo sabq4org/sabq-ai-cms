@@ -442,19 +442,69 @@ export default function ContentEditor({
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (file) {
-                              // في بيئة حقيقية، سترفع الملف إلى السيرفر
-                              // هنا سنستخدم URL مؤقت للمعاينة
-                              const reader = new FileReader();
-                              reader.onloadend = () => {
-                                setFormData((prev: any) => ({ 
-                                  ...prev, 
-                                  featured_image: reader.result as string 
-                                }));
-                              };
-                              reader.readAsDataURL(file);
+                              // التحقق من نوع الملف
+                              const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/svg+xml'];
+                              if (!supportedTypes.includes(file.type)) {
+                                alert(`نوع الملف غير مدعوم (${file.type}). الصيغ المدعومة: JPG, PNG, GIF, WEBP, AVIF, SVG`);
+                                return;
+                              }
+
+                              // التحقق من حجم الملف (5MB كحد أقصى)
+                              if (file.size > 5 * 1024 * 1024) {
+                                alert('حجم الصورة يجب أن يكون أقل من 5MB');
+                                return;
+                              }
+
+                              try {
+                                // إنشاء FormData لرفع الصورة
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                formData.append('type', 'featured');
+
+                                console.log('🚀 بدء رفع الصورة:', {
+                                  fileName: file.name,
+                                  fileSize: file.size,
+                                  fileType: file.type
+                                });
+
+                                // رفع الصورة إلى الخادم
+                                const response = await fetch('/api/upload', {
+                                  method: 'POST',
+                                  body: formData
+                                });
+
+                                console.log('📡 استجابة الخادم:', {
+                                  status: response.status,
+                                  statusText: response.statusText,
+                                  ok: response.ok
+                                });
+
+                                const data = await response.json();
+                                console.log('📋 بيانات الاستجابة:', data);
+
+                                if (!response.ok) {
+                                  throw new Error(data.error || `خطأ في الخادم: ${response.status}`);
+                                }
+                                
+                                if (data.success) {
+                                  console.log('✅ تم رفع الصورة بنجاح');
+                                  // استخدام URL الدائم من الخادم
+                                  setFormData((prev: any) => ({ 
+                                    ...prev, 
+                                    featured_image: data.data.url,
+                                    featured_image_alt: data.data.originalName.split('.')[0]
+                                  }));
+                                } else {
+                                  throw new Error(data.error || 'حدث خطأ أثناء رفع الصورة');
+                                }
+                              } catch (error) {
+                                console.error('💥 خطأ في رفع الصورة:', error);
+                                const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير معروف';
+                                alert(`فشل رفع الصورة: ${errorMessage}`);
+                              }
                             }
                           }}
                         />

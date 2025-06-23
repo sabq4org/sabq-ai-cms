@@ -10,10 +10,11 @@ import {
   Sparkles, Brain, Bot, Headphones, Mic, Download, PauseCircle,
   PlayCircle, Users, Flame, AlertCircle, Lightbulb, Target,
   Compass, Globe2, Newspaper, Activity, ChevronDown, ArrowLeft,
-  Crown, Leaf, Book, Tag, X
+  Crown, Leaf, Book, Tag, X, Bookmark
 } from 'lucide-react';
 import Link from 'next/link';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import toast from 'react-hot-toast';
 
 import CategoryBadge, { CategoryNavigation } from './components/CategoryBadge';
 import Header from '../components/Header';
@@ -748,6 +749,59 @@ export default function NewspaperHomePage() {
     const confidenceScore = userTracker ? userTracker.calculateConfidence(news.category) : 1;
     const isPersonalized = confidenceScore > 2.5;
     
+    // حالات التفاعل المحلية لردود الفعل البصرية الفورية
+    const [isLiked, setIsLiked] = useState(false);
+    const [isShared, setIsShared] = useState(false);
+    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [interactionLoading, setInteractionLoading] = useState<string | null>(null);
+    
+    // دالة محسنة للتفاعل مع ردود فعل بصرية فورية
+    const handleInteraction = async (interactionType: string) => {
+      setInteractionLoading(interactionType);
+      
+      try {
+        // تحديث الواجهة فوراً لتحسين تجربة المستخدم
+        if (interactionType === 'like') {
+          setIsLiked(!isLiked);
+          // إشعار فوري
+          toast.success(isLiked ? 'تم إلغاء الإعجاب' : 'تم الإعجاب! ❤️', {
+            duration: 2000,
+            position: 'bottom-center'
+          });
+        } else if (interactionType === 'share') {
+          setIsShared(true);
+          toast.success('تم تسجيل المشاركة! 📤', {
+            duration: 2000,
+            position: 'bottom-center'
+          });
+          // إعادة تعيين حالة المشاركة بعد ثانيتين
+          setTimeout(() => setIsShared(false), 2000);
+        } else if (interactionType === 'save') {
+          setIsBookmarked(!isBookmarked);
+          toast.success(isBookmarked ? 'تم إلغاء الحفظ' : 'تم حفظ المقال! 🔖', {
+            duration: 2000,
+            position: 'bottom-center'
+          });
+        }
+        
+        // إرسال التفاعل إلى الخادم
+        await trackInteraction(news.id, interactionType, news.categoryId);
+        
+      } catch (error) {
+        // في حالة الفشل، إعادة الحالة إلى ما كانت عليه
+        if (interactionType === 'like') {
+          setIsLiked(isLiked);
+        } else if (interactionType === 'save') {
+          setIsBookmarked(isBookmarked);
+        }
+        
+        console.error('خطأ في التفاعل:', error);
+        toast.error('حدث خطأ، يرجى المحاولة مرة أخرى');
+      } finally {
+        setInteractionLoading(null);
+      }
+    };
+    
     return (
       <Link href={`/article/${news.id}`} className="block" prefetch={true}>
               <div 
@@ -862,29 +916,67 @@ export default function NewspaperHomePage() {
               </div>
               
               <div className="flex items-center gap-2">
+                {/* زر الإعجاب المحسن */}
                 <button 
                   onClick={(e) => {
                     e.preventDefault();
-                    trackInteraction(news.id, 'like', news.categoryId);
+                    handleInteraction('like');
                   }}
-                  className="p-2 rounded-lg transition-colors duration-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <Heart className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  disabled={interactionLoading === 'like'}
+                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
+                    isLiked 
+                      ? 'bg-red-100 dark:bg-red-900/30 text-red-500' 
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400'
+                  } ${interactionLoading === 'like' ? 'animate-pulse' : ''}`}
+                  title={isLiked ? 'إلغاء الإعجاب' : 'إعجاب'}
+                >
+                  {interactionLoading === 'like' ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                  )}
                 </button>
+                
+                {/* زر المشاركة المحسن */}
                 <button 
                   onClick={(e) => {
                     e.preventDefault();
-                    trackInteraction(news.id, 'share', news.categoryId);
+                    handleInteraction('share');
                   }}
-                  className="p-2 rounded-lg transition-colors duration-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <Share2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  disabled={interactionLoading === 'share'}
+                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
+                    isShared 
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-500' 
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400'
+                  } ${interactionLoading === 'share' ? 'animate-pulse' : ''}`}
+                  title="مشاركة"
+                >
+                  {interactionLoading === 'share' ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Share2 className="w-4 h-4" />
+                  )}
                 </button>
+                
+                {/* زر الحفظ المحسن */}
                 <button 
                   onClick={(e) => {
                     e.preventDefault();
-                    trackInteraction(news.id, 'read', news.categoryId);
+                    handleInteraction('save');
                   }}
-                  className="p-2 rounded-lg transition-colors duration-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <Headphones className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  disabled={interactionLoading === 'save'}
+                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
+                    isBookmarked 
+                      ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-500' 
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400'
+                  } ${interactionLoading === 'save' ? 'animate-pulse' : ''}`}
+                  title={isBookmarked ? 'إلغاء الحفظ' : 'حفظ'}
+                >
+                  {interactionLoading === 'save' ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                  )}
                 </button>
               </div>
             </div>
@@ -897,20 +989,71 @@ export default function NewspaperHomePage() {
   // تسجيل تفاعل المستخدم مع API
   const trackInteraction = async (articleId: string, interactionType: string, categoryId?: number) => {
     try {
-      // التحقق من تسجيل الدخول
+      // فحص شامل لحالة تسجيل الدخول
+      const userId = localStorage.getItem('user_id');
+      const userData = localStorage.getItem('user');
+      const currentUserData = localStorage.getItem('currentUser');
+      
+      console.log('🔍 فحص تفصيلي لحالة تسجيل الدخول:');
+      console.log('- user_id من localStorage:', userId);
+      console.log('- user من localStorage:', userData ? 'موجود' : 'غير موجود');
+      console.log('- currentUser من localStorage:', currentUserData ? 'موجود' : 'غير موجود');
+      console.log('- isLoggedIn state:', isLoggedIn);
+      
+      // شروط التحقق الصارمة
+      const hasUserId = userId && userId.trim() !== '' && userId !== 'null' && userId !== 'undefined';
+      const isNotAnonymous = userId !== 'anonymous';
+      const hasUserData = userData && userData.trim() !== '' && userData !== 'null' && userData !== 'undefined';
+      
+      console.log('📋 نتائج الفحص:');
+      console.log('- hasUserId:', hasUserId);
+      console.log('- isNotAnonymous:', isNotAnonymous);
+      console.log('- hasUserData:', hasUserData);
+      
+      // التحقق النهائي من تسجيل الدخول
+      const isUserLoggedIn = hasUserId && isNotAnonymous && hasUserData;
+      
+      console.log('🎯 النتيجة النهائية:', isUserLoggedIn ? 'مسجل دخول' : 'غير مسجل دخول');
+      
+      if (!isUserLoggedIn) {
+        console.log('❌ المستخدم غير مسجل دخول - عرض رسالة التنبيه');
+        
+        // تشخيص مفصل للمشكلة
+        if (!hasUserId) {
+          console.log('🔧 السبب: user_id غير صالح أو فارغ');
+        } else if (!isNotAnonymous) {
+          console.log('🔧 السبب: المستخدم مجهول (anonymous)');
+        } else if (!hasUserData) {
+          console.log('🔧 السبب: بيانات المستخدم غير موجودة أو غير صالحة');
+        }
+        
+        // عرض رسالة تفاعلية بدلاً من alert
+        toast.warning('يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯', {
+          duration: 4000,
+          position: 'top-center',
+          action: {
+            label: 'تسجيل الدخول',
+            onClick: () => window.location.href = '/login'
+          }
+        });
+        
+        // تحديث حالة تسجيل الدخول إذا كانت خاطئة
+        if (isLoggedIn) {
+          console.log('🔄 تصحيح حالة isLoggedIn إلى false');
+          setIsLoggedIn(false);
+        }
+        return;
+      }
+      
+      // تحديث حالة تسجيل الدخول إذا كانت خاطئة
       if (!isLoggedIn) {
-        alert('يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯');
-        return;
+        console.log('🔄 تصحيح حالة isLoggedIn إلى true');
+        setIsLoggedIn(true);
       }
       
-      // الحصول على user_id الحقيقي من localStorage أو الجلسة
-      const userId = localStorage.getItem('user_id') || 'anonymous';
+      console.log('✅ المستخدم مسجل دخول - إرسال التفاعل إلى API');
       
-      if (userId === 'anonymous') {
-        alert('يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯');
-        return;
-      }
-      
+      // إرسال التفاعل إلى API
       const response = await fetch('/api/interactions/track', {
         method: 'POST',
         headers: {
@@ -928,26 +1071,56 @@ export default function NewspaperHomePage() {
 
       if (response.ok) {
         const result = await response.json();
+        console.log('✅ تم إرسال التفاعل بنجاح:', result);
         
         // تحديث النقاط إذا تم منحها
         if (result.points_earned) {
           const newPoints = userPoints + result.points_earned;
           setUserPoints(newPoints);
           localStorage.setItem('user_points', JSON.stringify(newPoints));
+          console.log(`🎉 تم كسب ${result.points_earned} نقطة! المجموع: ${newPoints}`);
         }
         
         // إعادة جلب المحتوى المخصص بعد التفاعل
         if (interactionType === 'like' || interactionType === 'share') {
-          setTimeout(() => fetchPersonalizedContent(), 1000);
+          setTimeout(() => {
+            console.log('🔄 إعادة جلب المحتوى المخصص...');
+            fetchPersonalizedContent();
+          }, 1000);
         }
+        
+        // إشعار نجاح التفاعل
+        if (interactionType === 'like') {
+          console.log('❤️ تم تسجيل الإعجاب');
+        } else if (interactionType === 'share') {
+          console.log('📤 تم تسجيل المشاركة');
+        } else if (interactionType === 'read') {
+          console.log('📖 تم تسجيل القراءة');
+        }
+        
       } else {
         const error = await response.json();
+        console.error('❌ خطأ في API التفاعل:', error);
+        
         if (response.status === 401) {
+          console.log('🔐 خطأ في المصادقة - عرض رسالة تسجيل الدخول');
           alert(error.message || 'يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯');
+          
+          // إعادة تعيين حالة تسجيل الدخول
+          setIsLoggedIn(false);
+        } else {
+          console.log('⚠️ خطأ آخر في API:', response.status, error.message);
         }
       }
     } catch (error) {
-      console.error('Error tracking interaction:', error);
+      console.error('💥 خطأ في دالة trackInteraction:', error);
+      console.log('🔧 تفاصيل الخطأ:', {
+        message: error.message,
+        stack: error.stack,
+        articleId,
+        interactionType,
+        categoryId
+      });
     }
   };
 

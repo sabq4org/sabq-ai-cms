@@ -147,9 +147,9 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
       <div className="carousel-container">
         <div className="carousel-content">
           <div className="carousel-image-section">
-            {currentArticle.image || currentArticle.featured_image ? (
+            {currentArticle.imageUrl ? (
               <Image
-                src={currentArticle.image || currentArticle.featured_image}
+                src={currentArticle.imageUrl}
                 alt={currentArticle.title}
                 fill
                 className="object-cover"

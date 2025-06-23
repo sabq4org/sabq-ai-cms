@@ -12,7 +12,7 @@ import {
   TrendingUp, Activity, BarChart3, Rocket, Heart,
   Shield, Crown, Gem, Flame, Coffee, Music,
   Camera, Mic, Headphones, Wifi, Cpu, Database, Mail,
-  Share2, Calendar, ArrowLeft, Loader2, Edit3
+  Share2, Calendar, ArrowLeft, Loader2, Edit3, Info
 } from 'lucide-react';
 
 // استيراد المكونات
@@ -138,8 +138,18 @@ export default function EditArticlePage() {
           is_breaking: articleData.is_breaking || false,
           is_featured: articleData.is_featured || false,
           is_smart_newsletter: articleData.is_smart_newsletter || false,
-          keywords: Array.isArray(articleData.seo_keywords) ? articleData.seo_keywords : 
-                   (typeof articleData.seo_keywords === 'string' ? articleData.seo_keywords.split(',').map((k: string) => k.trim()).filter((k: string) => k) : []),
+          keywords: (() => {
+            // دعم مختلف أنواع البيانات للكلمات المفتاحية
+            const keywordsData = articleData.seo_keywords || articleData.keywords || articleData.tags || [];
+            console.log('Loading keywords:', keywordsData);
+            
+            if (Array.isArray(keywordsData)) {
+              return keywordsData.filter(k => k && typeof k === 'string' && k.trim());
+            } else if (typeof keywordsData === 'string' && keywordsData.trim()) {
+              return keywordsData.split(',').map((k: string) => k.trim()).filter((k: string) => k);
+            }
+            return [];
+          })(),
           cover_image: articleData.featured_image || '',
           cover_video: articleData.featured_video || '',
           publish_time: articleData.publish_at || new Date().toISOString(),
@@ -1413,12 +1423,17 @@ export default function EditArticlePage() {
                     ))}
                   </div>
 
-                  {/* الكلمات المفتاحية */}
+                  {/* الكلمات المفتاحية المحسنة */}
                   <div className="border-2 border-gray-100 rounded-2xl p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                         <Hash className="w-5 h-5 text-purple-600" />
                         الكلمات المفتاحية
+                        {formData.keywords && formData.keywords.length > 0 && (
+                          <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
+                            {formData.keywords.length}
+                          </span>
+                        )}
                       </h3>
                       <button
                         onClick={generateKeywords}
@@ -1433,31 +1448,38 @@ export default function EditArticlePage() {
                         اقتراح بالذكاء الاصطناعي
                       </button>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    
+                    {/* عرض الكلمات المفتاحية الحالية */}
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {formData.keywords && Array.isArray(formData.keywords) && formData.keywords.map((keyword, index) => (
-                        <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium flex items-center gap-1">
+                        <span key={index} className="px-3 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-purple-200 transition-colors">
+                          <Hash className="w-3 h-3" />
                           {keyword}
                           <button
                             onClick={() => setFormData(prev => ({ 
                               ...prev, 
                               keywords: prev.keywords.filter((_, i) => i !== index) 
                             }))}
-                            className="ml-1 hover:text-purple-900"
+                            className="ml-1 hover:text-purple-900 hover:bg-purple-300 rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                            title="حذف الكلمة المفتاحية"
                           >
                             ×
                           </button>
                         </span>
                       ))}
-                  <input
-                    type="text"
-                        placeholder="أضف كلمة مفتاحية..."
-                        className="px-3 py-1 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      
+                      {/* حقل إدخال جديد */}
+                      <input
+                        type="text"
+                        placeholder="أضف كلمة مفتاحية واضغط Enter..."
+                        className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-w-[200px]"
                         onKeyPress={(e) => {
                           if (e.key === 'Enter') {
+                            e.preventDefault();
                             const value = (e.target as HTMLInputElement).value.trim();
-                            if (value) {
+                            if (value && !formData.keywords.includes(value)) {
                               setFormData(prev => ({ 
-                      ...prev, 
+                                ...prev, 
                                 keywords: [...prev.keywords, value] 
                               }));
                               (e.target as HTMLInputElement).value = '';
@@ -1465,8 +1487,45 @@ export default function EditArticlePage() {
                           }
                         }}
                       />
-                </div>
-              </div>
+                    </div>
+                    
+                    {/* اقتراحات سريعة */}
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                        <Lightbulb className="w-4 h-4 text-yellow-500" />
+                        اقتراحات سريعة
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {['السعودية', 'الرياض', 'أخبار', 'عاجل', 'تقنية', 'اقتصاد', 'رياضة', 'صحة'].map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            onClick={() => {
+                              if (!formData.keywords.includes(suggestion)) {
+                                setFormData(prev => ({ 
+                                  ...prev, 
+                                  keywords: [...prev.keywords, suggestion] 
+                                }));
+                              }
+                            }}
+                            disabled={formData.keywords.includes(suggestion)}
+                            className="px-3 py-1 bg-white border border-gray-200 text-gray-600 rounded-full text-xs hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            + {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* نصائح للكلمات المفتاحية */}
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                      <p className="text-xs text-blue-700 flex items-start gap-2">
+                        <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <span>
+                          استخدم 3-5 كلمات مفتاحية ذات صلة بالمحتوى. تجنب تكرار نفس الكلمات وركز على المصطلحات التي يبحث عنها القراء.
+                        </span>
+                      </p>
+                    </div>
+                  </div>
             </div>
           </div>
         )}

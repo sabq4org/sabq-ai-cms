@@ -102,8 +102,8 @@ export default function LoginPage() {
           redirectPath = '/dashboard';
           console.log('توجيه مدير إلى لوحة التحكم');
         } else {
-          redirectPath = '/newspaper';
-          console.log('توجيه مستخدم عادي إلى الصحيفة');
+          redirectPath = '/';  // توجيه المستخدم العادي للصفحة الرئيسية
+          console.log('توجيه مستخدم عادي إلى الصفحة الرئيسية');
         }
       }
       

@@ -7,17 +7,23 @@ export function useDarkMode() {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
 
-  // دالة تحديث الوضع الليلي
+  // دالة تحديث الوضع الليلي المحسنة
   const updateDarkMode = useCallback((isDark: boolean) => {
     const root = document.documentElement;
     
-    // تحديث الكلاسات مباشرة
+    // تطبيق التغيير فوراً على المستند
     if (isDark) {
       root.classList.add('dark');
       root.style.colorScheme = 'dark';
+      // تحديث متغيرات CSS مباشرة
+      root.style.setProperty('--tw-bg-opacity', '1');
+      root.style.setProperty('--tw-text-opacity', '1');
     } else {
       root.classList.remove('dark');
       root.style.colorScheme = 'light';
+      // تحديث متغيرات CSS مباشرة
+      root.style.setProperty('--tw-bg-opacity', '1');
+      root.style.setProperty('--tw-text-opacity', '1');
     }
     
     // تحديث meta theme-color
@@ -26,22 +32,23 @@ export function useDarkMode() {
       metaThemeColor.setAttribute('content', isDark ? '#1f2937' : '#ffffff');
     }
     
-    // فرض إعادة حساب الأنماط بطريقة أكثر فعالية
-    // استخدام CSS transition لتجنب الوميض
-    root.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+    // فرض إعادة حساب جميع الأنماط فوراً
+    const allElements = document.querySelectorAll('*');
+    allElements.forEach(element => {
+      if (element instanceof HTMLElement) {
+        // فرض إعادة حساب الأنماط
+        element.offsetHeight;
+      }
+    });
     
-    // تحديث CSS variables
-    root.style.setProperty('--tw-bg-opacity', '1');
-    
-    // فرض إعادة الرسم
-    void root.offsetHeight;
+    // إرسال حدث تغيير الثيم
+    window.dispatchEvent(new CustomEvent('theme-changed', { 
+      detail: { isDark } 
+    }));
   }, []);
 
   useEffect(() => {
     setMounted(true);
-    
-    // منع الانتقالات عند التحميل الأولي
-    document.documentElement.classList.add('no-transition');
     
     // التحقق من localStorage أولاً
     const stored = localStorage.getItem('darkMode');
@@ -55,11 +62,6 @@ export function useDarkMode() {
       setDarkMode(prefersDark);
       updateDarkMode(prefersDark);
     }
-    
-    // إزالة منع الانتقالات بعد التحميل
-    requestAnimationFrame(() => {
-      document.documentElement.classList.remove('no-transition');
-    });
 
     // الاستماع لتغييرات تفضيل النظام
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -91,26 +93,15 @@ export function useDarkMode() {
 
   const toggleDarkMode = useCallback(() => {
     const newValue = !darkMode;
+    
+    // تحديث الحالة فوراً
     setDarkMode(newValue);
+    
+    // حفظ في localStorage فوراً
     localStorage.setItem('darkMode', JSON.stringify(newValue));
+    
+    // تطبيق التغيير فوراً
     updateDarkMode(newValue);
-    
-    // فرض إعادة رسم الصفحة للتأكد من التحديث الفوري
-    requestAnimationFrame(() => {
-      window.dispatchEvent(new Event('dark-mode-changed'));
-      
-      // تحديث جميع العناصر التي تستخدم Tailwind classes
-      document.querySelectorAll('*').forEach(el => {
-        if (el instanceof HTMLElement) {
-          const computedStyle = window.getComputedStyle(el);
-          el.style.cssText = el.style.cssText; // Force style recalculation
-        }
-      });
-    });
-    
-    // بث الحدث لجميع المكونات
-    const event = new CustomEvent('dark-mode-toggled', { detail: { darkMode: newValue } });
-    window.dispatchEvent(event);
     
     // إظهار رسالة toast
     toast.success(

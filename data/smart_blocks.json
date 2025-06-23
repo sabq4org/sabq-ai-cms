@@ -1,7 +1,7 @@
 [
   {
     "id": "1",
-    "name": "أخبار اليوم الوطني 94",
+    "name": "أخبار الهلال",
     "position": "afterHighlights",
     "type": "smart",
     "status": "inactive",
@@ -21,9 +21,9 @@
     },
     "order": 1,
     "createdAt": "2025-01-22T10:30:00.000Z",
-    "updatedAt": "2025-06-22T18:11:53.208Z",
+    "updatedAt": "2025-06-23T15:16:30.661Z",
     "keywords": [
-      "اليوم الوطني"
+      "الهلال"
     ]
   },
   {

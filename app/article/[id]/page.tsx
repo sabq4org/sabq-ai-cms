@@ -1148,7 +1148,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                 
                 <div className="meta-item-hero">
                   <Eye className="w-5 h-5" />
-                  <span>{article.views_count.toLocaleString('ar-SA')} مشاهدة</span>
+                  <span>{(article.views_count || article.views || 0).toLocaleString('ar-SA')} مشاهدة</span>
                 </div>
                 
                 {article.reading_time && (

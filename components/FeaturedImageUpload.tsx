@@ -52,12 +52,17 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
 
       const data = await response.json();
       
-      // تحديث قيمة URL
-      onChange(data.url);
+      // تحديث قيمة URL - إصلاح الوصول إلى البيانات الصحيحة
+      if (data.success && data.data && data.data.url) {
+        onChange(data.data.url);
+      } else {
+        throw new Error(data.error || 'فشل في الحصول على رابط الصورة');
+      }
       
     } catch (error) {
       console.error('Error uploading image:', error);
-      setUploadError('حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى.');
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى.';
+      setUploadError(errorMessage);
     } finally {
       setUploading(false);
     }
@@ -146,7 +151,7 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
           </div>
 
           <p className={`text-xs mt-3 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-            JPG, PNG, WebP (أقصى حجم: 5MB)
+            JPG, PNG, GIF, WebP, AVIF, SVG (أقصى حجم: 5MB)
           </p>
 
           {uploadError && (

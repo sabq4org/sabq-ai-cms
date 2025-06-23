@@ -148,7 +148,7 @@ export default function SmartSlot({ position, userType = 'guest' }: SmartSlotPro
           title: article.title,
           slug: article.slug || article.id,
           excerpt: article.summary || article.excerpt || '',
-          imageUrl: article.featured_image || article.image || article.imageUrl || null,
+          imageUrl: article.featuredImage || article.featured_image || article.image || article.imageUrl || null,
           category: article.category_name || article.category || 'عام',
           author: article.author_name ? {
             name: article.author_name,

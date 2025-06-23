@@ -135,9 +135,9 @@ export function CardGridBlock({ block, articles }: CardGridBlockProps) {
             }}
           >
             <div className="article-card-image">
-              {article.image || article.featured_image ? (
+              {article.imageUrl ? (
                 <Image
-                  src={article.image || article.featured_image}
+                  src={article.imageUrl}
                   alt={article.title}
                   fill
                   className="object-cover"

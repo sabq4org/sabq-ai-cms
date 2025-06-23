@@ -110,6 +110,7 @@ export default function ProfilePage() {
       if (!userData) return;
       
       const user = JSON.parse(userData);
+      console.log('📱 بيانات المستخدم من localStorage:', user);
       setUser(user); // تحديث state بأحدث بيانات المستخدم
       
       // جلب نقاط الولاء
@@ -127,20 +128,33 @@ export default function ProfilePage() {
       }
 
       // جلب التفضيلات - جرب أولاً من API ثم من localStorage
+      console.log('🔍 محاولة جلب التفضيلات من API للمستخدم:', user.id);
       try {
         const prefsResponse = await fetch(`/api/user/preferences/${user.id}`);
+        console.log('📡 استجابة API التفضيلات:', prefsResponse.status);
+        
         if (prefsResponse.ok) {
           const prefsData = await prefsResponse.json();
-          setPreferences(prefsData.data);
+          console.log('✅ تم جلب التفضيلات من API:', prefsData);
+          
+          if (prefsData.success && prefsData.data && prefsData.data.length > 0) {
+            setPreferences(prefsData.data);
+          } else {
+            console.log('⚠️ لا توجد تفضيلات في API، محاولة جلبها من localStorage');
+            throw new Error('No preferences in API');
+          }
         } else {
+          console.log('❌ فشل API التفضيلات:', prefsResponse.status);
           throw new Error('API not available');
         }
       } catch (error) {
+        console.log('🔄 محاولة جلب الاهتمامات من localStorage...');
         // إذا فشل API، احصل على الاهتمامات من localStorage
         const currentUserData = localStorage.getItem('user');
         if (currentUserData) {
           const currentUser = JSON.parse(currentUserData);
           const userInterests = currentUser.interests || [];
+          console.log('🏠 اهتمامات المستخدم من localStorage:', userInterests);
           
           const interestMap: any = {
             'tech': { category_id: 1, category_name: 'تقنية', category_icon: '⚡', category_color: '#3B82F6' },
@@ -155,7 +169,39 @@ export default function ProfilePage() {
             return interestMap[interestId];
           }).filter(Boolean);
           
+          console.log('🎯 التفضيلات المحولة:', mappedPreferences);
           setPreferences(mappedPreferences);
+          
+          // إذا كانت هناك اهتمامات في localStorage ولكن ليس في API، احفظها في API
+          if (mappedPreferences.length > 0) {
+            console.log('💾 حفظ التفضيلات في API...');
+            try {
+              const categoryIds = userInterests.map((interestId: string) => {
+                const interest = Object.entries(interestMap).find(([key]) => key === interestId);
+                return interest ? interest[1].category_id : null;
+              }).filter(Boolean);
+
+              const saveResponse = await fetch('/api/user/preferences', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  userId: user.id,
+                  categoryIds: categoryIds,
+                  source: 'sync_from_localstorage'
+                }),
+              });
+
+              if (saveResponse.ok) {
+                console.log('✅ تم حفظ التفضيلات في API بنجاح');
+              } else {
+                console.log('❌ فشل حفظ التفضيلات في API');
+              }
+            } catch (saveError) {
+              console.error('❌ خطأ في حفظ التفضيلات:', saveError);
+            }
+          }
         }
       }
 
@@ -192,8 +238,6 @@ export default function ProfilePage() {
     router.push('/login');
   };
 
-
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ar-SA', {
       year: 'numeric',
@@ -227,43 +271,59 @@ export default function ProfilePage() {
       formData.append('type', 'avatar');
       formData.append('userId', user.id);
 
-      const response = await fetch('/api/upload', {
+      console.log('📤 رفع الصورة للمستخدم:', user.id);
+
+      const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        
-        // تحديث بيانات المستخدم
-        const updatedUser = { ...user, avatar: data.url };
-        setUser(updatedUser);
-        
-        // تحديث localStorage
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+      if (uploadResponse.ok) {
+        const uploadData = await uploadResponse.json();
+        console.log('✅ تم رفع الصورة:', uploadData);
         
         // تحديث في قاعدة البيانات
-        await fetch('/api/user/update-avatar', {
+        console.log('💾 تحديث قاعدة البيانات...');
+        const updateResponse = await fetch('/api/user/update-avatar', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             userId: user.id,
-            avatarUrl: data.url
+            avatarUrl: uploadData.data.url
           })
         });
-        
-        toast.success('تم تحديث الصورة الشخصية بنجاح');
-        
-        // تحديث الصفحة
-        window.location.reload();
+
+        if (updateResponse.ok) {
+          const updateData = await updateResponse.json();
+          console.log('✅ تم تحديث قاعدة البيانات:', updateData);
+          
+          // تحديث بيانات المستخدم المحلية
+          const updatedUser = { ...user, avatar: uploadData.data.url };
+          setUser(updatedUser);
+          
+          // تحديث localStorage
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          
+          toast.success('تم تحديث الصورة الشخصية بنجاح');
+          
+          // تحديث الصفحة لضمان ظهور الصورة في جميع الأماكن
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } else {
+          const updateError = await updateResponse.json() as { error?: string };
+          console.error('❌ خطأ في تحديث قاعدة البيانات:', updateError);
+          toast.error(updateError.error || 'حدث خطأ في تحديث قاعدة البيانات');
+        }
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'حدث خطأ في رفع الصورة');
+        const uploadError = await uploadResponse.json();
+        console.error('❌ خطأ في رفع الصورة:', uploadError);
+        toast.error(uploadError.error || 'حدث خطأ في رفع الصورة');
       }
     } catch (error) {
-      console.error('خطأ في رفع الصورة:', error);
+      console.error('💥 خطأ عام في رفع الصورة:', error);
       toast.error('حدث خطأ في رفع الصورة');
     } finally {
       setUploadingAvatar(false);

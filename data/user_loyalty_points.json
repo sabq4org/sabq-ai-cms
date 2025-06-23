@@ -1,113 +1,66 @@
 {
-  "user-1750236579398-3h4rt6gu7": {
-    "user_id": "user-1750236579398-3h4rt6gu7",
-    "total_points": 49,
-    "earned_points": 49,
+  "user_id": "علي الحازمي",
+  "total_points": 0,
+  "level": "برونزي",
+  "transactions": [],
+  "created_at": "2025-06-23T13:35:10.779Z",
+  "updated_at": "2025-06-23T15:37:47.704Z",
+  "user-1750594786667-pwihpdx51": {
+    "user_id": "user-1750594786667-pwihpdx51",
+    "total_points": 3,
+    "earned_points": 3,
     "redeemed_points": 0,
     "history": [
       {
-        "points": 5,
-        "action": "read على المقال",
+        "points": 1,
+        "action": "view على المقال",
         "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
+          "article_id": "article-1750688021715-og56vs051"
         },
-        "timestamp": "2025-06-20T08:14:06.476Z"
-      },
-      {
-        "points": 5,
-        "action": "read على المقال",
-        "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
-        },
-        "timestamp": "2025-06-20T08:14:06.718Z"
-      },
-      {
-        "points": 5,
-        "action": "read على المقال",
-        "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
-        },
-        "timestamp": "2025-06-20T08:14:06.722Z"
-      },
-      {
-        "points": 5,
-        "action": "read على المقال",
-        "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
-        },
-        "timestamp": "2025-06-20T08:14:06.839Z"
-      },
-      {
-        "points": 5,
-        "action": "read على المقال",
-        "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
-        },
-        "timestamp": "2025-06-20T08:14:06.840Z"
-      },
-      {
-        "points": 5,
-        "action": "read على المقال",
-        "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
-        },
-        "timestamp": "2025-06-20T08:14:06.953Z"
-      },
-      {
-        "points": 5,
-        "action": "read على المقال",
-        "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
-        },
-        "timestamp": "2025-06-20T08:14:07.074Z"
-      },
-      {
-        "points": 5,
-        "action": "read على المقال",
-        "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
-        },
-        "timestamp": "2025-06-20T08:14:07.193Z"
-      },
-      {
-        "points": 5,
-        "action": "read على المقال",
-        "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
-        },
-        "timestamp": "2025-06-20T08:14:07.195Z"
+        "timestamp": "2025-06-23T15:30:03.144Z"
       },
       {
         "points": 1,
         "action": "view على المقال",
         "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
+          "article_id": "article-1750688021715-og56vs051"
         },
-        "timestamp": "2025-06-20T08:14:07.301Z"
+        "timestamp": "2025-06-23T15:31:41.540Z"
       },
       {
         "points": 1,
         "action": "view على المقال",
         "details": {
-          "article_id": "article-1750405448031-4ib72tmub"
+          "article_id": "article-1750688021715-og56vs051"
         },
-        "timestamp": "2025-06-20T08:14:07.307Z"
-      },
+        "timestamp": "2025-06-23T15:32:31.450Z"
+      }
+    ]
+  },
+  "users": [
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "total_points": 5,
+      "earned_points": 5,
+      "redeemed_points": 0,
+      "tier": "bronze",
+      "created_at": "2025-06-23T15:37:47.704Z",
+      "last_updated": "2025-06-23T15:37:47.704Z"
+    }
+  ],
+  "user-1750693026418-zdcy23jow": {
+    "user_id": "user-1750693026418-zdcy23jow",
+    "total_points": 1,
+    "earned_points": 1,
+    "redeemed_points": 0,
+    "history": [
       {
         "points": 1,
         "action": "view على المقال",
         "details": {
-          "article_id": "article-1750222780833-tech1"
+          "article_id": "article-1750687587617-5q2ppvwbx"
         },
-        "timestamp": "2025-06-20T08:14:07.666Z"
-      },
-      {
-        "points": 1,
-        "action": "view على المقال",
-        "details": {
-          "article_id": "article-1750222780833-tech1"
-        },
-        "timestamp": "2025-06-20T08:14:07.667Z"
+        "timestamp": "2025-06-23T16:22:22.784Z"
       }
     ]
   }

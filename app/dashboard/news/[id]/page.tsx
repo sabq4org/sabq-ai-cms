@@ -303,7 +303,7 @@ export default function ArticleViewPage() {
             </span>
             <div className="flex items-center gap-1 text-sm text-gray-600">
               <Eye className="w-4 h-4" />
-              {article.views_count.toLocaleString()} مشاهدة
+              {(article.views_count || article.views || 0).toLocaleString()} مشاهدة
             </div>
           </div>
         </div>
@@ -620,7 +620,7 @@ export default function ArticleViewPage() {
           <div className="grid grid-cols-2 gap-4">
             <CircularStatsCard
               title="المشاهدات"
-              value={article.views_count.toLocaleString()}
+              value={(article.views_count || article.views || 0).toLocaleString()}
               subtitle="مشاهدة"
               icon={Eye}
               bgColor="bg-blue-100"

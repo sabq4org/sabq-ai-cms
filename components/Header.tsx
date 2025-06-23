@@ -58,6 +58,9 @@ export default function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [headerTemplate, setHeaderTemplate] = useState<Template | null>(null);
+  const [templateLoading, setTemplateLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -74,13 +77,19 @@ export default function Header() {
 
   const fetchActiveHeaderTemplate = async () => {
     try {
+      setTemplateLoading(true);
       const response = await fetch('/api/templates/active-header');
       if (response.ok) {
         const template = await response.json();
+        console.log('Header template loaded:', template); // Debug log
         setHeaderTemplate(template);
+      } else {
+        console.error('Failed to fetch header template:', response.status);
       }
     } catch (error) {
       console.error('Error fetching header template:', error);
+    } finally {
+      setTemplateLoading(false);
     }
   };
 
@@ -117,16 +126,50 @@ export default function Header() {
       .toUpperCase();
   };
 
-  // استخدام بيانات القالب للشعار
+  // استخدام بيانات القالب للشعار مع تحسينات
   const getLogoUrl = () => {
-    if (headerTemplate?.logo_url) {
+    if (!headerTemplate) {
+      console.log('No headerTemplate loaded yet');
+      return null;
+    }
+    
+    // أولوية للـ logo_url المباشر
+    if (headerTemplate.logo_url) {
+      console.log('Using direct logo_url:', headerTemplate.logo_url);
       return headerTemplate.logo_url;
     }
-    if (headerTemplate?.content?.logo?.url) {
+    
+    // ثم content.logo.url
+    if (headerTemplate.content?.logo?.url) {
+      console.log('Using content.logo.url:', headerTemplate.content.logo.url);
       return headerTemplate.content.logo.url;
     }
+    
+    console.log('No logo URL found in template');
     return null;
   };
+
+  // إجبار إعادة رسم المكون عند تحميل القالب
+  useEffect(() => {
+    if (headerTemplate && !templateLoading) {
+      console.log('Template loaded, forcing re-render with logo:', getLogoUrl());
+      // فرض إعادة رسم المكون
+      setShowDropdown(false);
+    }
+  }, [headerTemplate, templateLoading]);
+
+  // إعادة تحميل قسرية بعد 3 ثواني إذا لم يتم تحميل القالب
+  useEffect(() => {
+    const forceReloadTimer = setTimeout(() => {
+      if (templateLoading) {
+        console.log('Force reloading template after 3 seconds...');
+        setTemplateLoading(false);
+        fetchActiveHeaderTemplate();
+      }
+    }, 3000);
+
+    return () => clearTimeout(forceReloadTimer);
+  }, [templateLoading]);
 
   const getLogoAlt = () => {
     if (headerTemplate?.logo_alt) {
@@ -211,20 +254,54 @@ export default function Header() {
           style={{ height: `${getHeaderHeight()}px` }}
         >
           {/* الشعار في اليمين */}
-          <Link href="/" className="flex-shrink-0">
+          <Link href="/" className="flex-shrink-0 min-w-[120px]">
             {/* شعار سبق - من القالب أو افتراضي */}
-            {getLogoUrl() ? (
-              <img 
-                src={getLogoUrl()!} 
-                alt={getLogoAlt()} 
-                className="object-contain"
-                style={{
-                  width: getLogoWidth() === 'auto' ? 'auto' : `${getLogoWidth()}px`,
-                  height: `${getLogoHeight()}px`
-                }}
-              />
+            {templateLoading ? (
+              // مؤشر تحميل للشعار
+              <div className="w-20 h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            ) : getLogoUrl() && !imageError ? (
+              <div className="relative">
+                <img 
+                  src={getLogoUrl()!} 
+                  alt={getLogoAlt()} 
+                  className={`object-contain max-w-[120px] transition-opacity duration-300 ${
+                    imageLoaded ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  style={{
+                    width: getLogoWidth() === 'auto' ? 'auto' : `${getLogoWidth()}px`,
+                    height: `${getLogoHeight()}px`
+                  }}
+                  onError={(e) => {
+                    console.error('Logo image failed to load:', getLogoUrl());
+                    setImageError(true);
+                    setImageLoaded(false);
+                  }}
+                  onLoad={() => {
+                    console.log('Logo loaded successfully:', getLogoUrl());
+                    setImageLoaded(true);
+                    setImageError(false);
+                  }}
+                />
+                {/* مؤشر تحميل أثناء تحميل الصورة */}
+                {!imageLoaded && !imageError && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+                {/* Fallback logo في حالة الخطأ */}
+                {imageError && (
+                  <div className="flex items-center gap-2">
+                    <SabqLogo />
+                    <span className="text-xl font-bold text-blue-600 dark:text-blue-400">سبق</span>
+                  </div>
+                )}
+              </div>
             ) : (
-              <SabqLogo />
+              // Fallback logo الافتراضي
+              <div className="flex items-center gap-2">
+                <SabqLogo />
+                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">سبق</span>
+              </div>
             )}
           </Link>
 
