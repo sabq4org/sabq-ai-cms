@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,42 +12,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // في الإنتاج، يمكن اختبار الاتصال الفعلي بـ OpenAI
-    // const { OpenAI } = await import('openai');
-    // const openai = new OpenAI({ apiKey });
-    
-    // try {
-    //   // اختبار بسيط للتحقق من صحة المفتاح
-    //   const models = await openai.models.list();
-    //   return NextResponse.json({ 
-    //     success: true, 
-    //     message: 'تم الاتصال بنجاح',
-    //     modelsCount: models.data.length 
-    //   });
-    // } catch (error) {
-    //   return NextResponse.json(
-    //     { error: 'مفتاح API غير صحيح أو منتهي الصلاحية' },
-    //     { status: 401 }
-    //   );
-    // }
+    // إنشاء عميل OpenAI مؤقت للاختبار
+    const openai = new OpenAI({
+      apiKey: apiKey.trim(),
+    });
 
-    // محاكاة للتطوير
-    if (apiKey.startsWith('sk-') && apiKey.length > 20) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'تم الاتصال بنجاح (محاكاة)',
-        modelsCount: 5
+    // محاولة استدعاء بسيط للتحقق من صحة المفتاح
+    try {
+      const response = await openai.models.list();
+      
+      // إذا نجح الاستدعاء، المفتاح صحيح
+      return NextResponse.json({
+        success: true,
+        message: 'تم الاتصال بنجاح!',
+        modelsCount: response.data.length
       });
-    } else {
-      return NextResponse.json(
-        { error: 'مفتاح API غير صحيح' },
-        { status: 401 }
-      );
+    } catch (openaiError: any) {
+      // التعامل مع أخطاء OpenAI المحددة
+      if (openaiError.status === 401) {
+        return NextResponse.json(
+          { 
+            error: 'مفتاح API غير صحيح',
+            details: 'تأكد من نسخ المفتاح كاملاً من لوحة تحكم OpenAI'
+          },
+          { status: 401 }
+        );
+      } else if (openaiError.status === 429) {
+        return NextResponse.json(
+          { 
+            error: 'تم تجاوز حد الاستخدام',
+            details: 'تحقق من رصيدك في OpenAI أو حدود الاستخدام'
+          },
+          { status: 429 }
+        );
+      } else {
+        return NextResponse.json(
+          { 
+            error: 'خطأ في الاتصال بـ OpenAI',
+            details: openaiError.message || 'حدث خطأ غير متوقع'
+          },
+          { status: 500 }
+        );
+      }
     }
-  } catch (error) {
-    console.error('Error testing API connection:', error);
+  } catch (error: any) {
+    console.error('Error testing OpenAI connection:', error);
     return NextResponse.json(
-      { error: 'حدث خطأ أثناء اختبار الاتصال' },
+      { 
+        error: 'حدث خطأ في الخادم',
+        details: error.message || 'حدث خطأ غير متوقع'
+      },
       { status: 500 }
     );
   }

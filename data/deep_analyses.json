@@ -1,0 +1,238 @@
+[
+  {
+    "id": "analysis-1750630000000-abc123",
+    "title": "تحليل عميق: مستقبل الذكاء الاصطناعي في المملكة العربية السعودية",
+    "slug": "تحليل-عميق-مستقبل-الذكاء-الاصطناعي-في-المملكة-العربية-السعودية-1750630000000",
+    "summary": "دراسة شاملة حول تطور تقنيات الذكاء الاصطناعي وتأثيرها على الاقتصاد السعودي في إطار رؤية 2030",
+    "content": {
+      "sections": [
+        {
+          "id": "section-1",
+          "title": "مقدمة",
+          "content": "يشهد العالم ثورة تقنية غير مسبوقة في مجال الذكاء الاصطناعي، والمملكة العربية السعودية ليست بمعزل عن هذه التطورات...",
+          "order": 1,
+          "type": "text"
+        },
+        {
+          "id": "section-2",
+          "title": "الوضع الحالي",
+          "content": "تستثمر المملكة بشكل كبير في تطوير البنية التحتية للذكاء الاصطناعي...",
+          "order": 2,
+          "type": "text"
+        },
+        {
+          "id": "section-3",
+          "title": "التحديات والفرص",
+          "content": "رغم التقدم الملحوظ، تواجه المملكة عدة تحديات في رحلتها نحو التحول الرقمي...",
+          "order": 3,
+          "type": "text"
+        }
+      ],
+      "tableOfContents": [
+        {
+          "id": "toc-1",
+          "title": "مقدمة",
+          "level": 1,
+          "sectionId": "section-1"
+        },
+        {
+          "id": "toc-2",
+          "title": "الوضع الحالي",
+          "level": 1,
+          "sectionId": "section-2"
+        },
+        {
+          "id": "toc-3",
+          "title": "التحديات والفرص",
+          "level": 1,
+          "sectionId": "section-3"
+        }
+      ],
+      "recommendations": [
+        "زيادة الاستثمار في البحث والتطوير",
+        "تطوير المواهب المحلية في مجال الذكاء الاصطناعي",
+        "إنشاء شراكات استراتيجية مع الشركات العالمية"
+      ],
+      "keyInsights": [
+        "المملكة تحتل المرتبة الأولى عربياً في مؤشر جاهزية الذكاء الاصطناعي",
+        "استثمارات تتجاوز 20 مليار ريال في قطاع الذكاء الاصطناعي",
+        "توقعات بنمو القطاع بنسبة 35% سنوياً حتى 2030"
+      ],
+      "dataPoints": [
+        {
+          "label": "الاستثمار في الذكاء الاصطناعي",
+          "value": 20,
+          "unit": "مليار ريال",
+          "trend": "up",
+          "description": "إجمالي الاستثمارات المخصصة لتطوير الذكاء الاصطناعي"
+        },
+        {
+          "label": "نمو القطاع",
+          "value": 35,
+          "unit": "%",
+          "trend": "up",
+          "description": "معدل النمو السنوي المتوقع"
+        }
+      ]
+    },
+    "categories": ["تقنية", "اقتصاد"],
+    "tags": ["ذكاء اصطناعي", "رؤية 2030", "التحول الرقمي", "الاقتصاد السعودي"],
+    "authorName": "د. أحمد الشمري",
+    "sourceType": "gpt",
+    "creationType": "new",
+    "readingTime": 12,
+    "qualityScore": 0.92,
+    "contentScore": {
+      "overall": 0.92,
+      "contentLength": 3500,
+      "hasSections": true,
+      "hasData": true,
+      "hasRecommendations": true,
+      "readability": 0.88,
+      "uniqueness": 0.95
+    },
+    "status": "published",
+    "isActive": true,
+    "isFeatured": true,
+    "displayPosition": "top",
+    "views": 15420,
+    "likes": 892,
+    "shares": 234,
+    "saves": 156,
+    "commentsCount": 45,
+    "avgReadTime": 720,
+    "createdAt": "2024-01-15T10:00:00Z",
+    "updatedAt": "2024-01-15T10:00:00Z",
+    "publishedAt": "2024-01-15T12:00:00Z",
+    "lastGptUpdate": "2024-01-15T10:00:00Z",
+    "metadata": {}
+  },
+  {
+    "id": "analysis-1750630000001-def456",
+    "title": "التحول الرقمي في القطاع المصرفي: التحديات والفرص",
+    "slug": "التحول-الرقمي-في-القطاع-المصرفي-التحديات-والفرص-1750630000001",
+    "summary": "تحليل شامل للتحديات التي تواجه البنوك السعودية في رحلة التحول الرقمي وأبرز الفرص المتاحة",
+    "content": {
+      "sections": [
+        {
+          "id": "section-1",
+          "title": "المشهد الحالي",
+          "content": "يشهد القطاع المصرفي السعودي تحولاً جذرياً نحو الرقمنة...",
+          "order": 1,
+          "type": "text"
+        },
+        {
+          "id": "section-2",
+          "title": "التحديات الرئيسية",
+          "content": "تواجه البنوك عدة تحديات في رحلتها نحو التحول الرقمي...",
+          "order": 2,
+          "type": "text"
+        }
+      ],
+      "tableOfContents": [
+        {
+          "id": "toc-1",
+          "title": "المشهد الحالي",
+          "level": 1,
+          "sectionId": "section-1"
+        },
+        {
+          "id": "toc-2",
+          "title": "التحديات الرئيسية",
+          "level": 1,
+          "sectionId": "section-2"
+        }
+      ],
+      "recommendations": [
+        "تحسين البنية التحتية الرقمية",
+        "الاستثمار في الأمن السيبراني",
+        "تطوير تجربة العملاء الرقمية"
+      ],
+      "keyInsights": [
+        "70% من العملاء يفضلون الخدمات المصرفية الرقمية",
+        "انخفاض تكاليف التشغيل بنسبة 40% مع التحول الرقمي"
+      ],
+      "dataPoints": []
+    },
+    "categories": ["اقتصاد", "تقنية"],
+    "tags": ["بنوك", "تحول رقمي", "فينتك", "خدمات مالية"],
+    "authorName": "سارة القحطاني",
+    "sourceType": "hybrid",
+    "creationType": "new",
+    "readingTime": 10,
+    "qualityScore": 0.85,
+    "contentScore": {
+      "overall": 0.85,
+      "contentLength": 2800,
+      "hasSections": true,
+      "hasData": false,
+      "hasRecommendations": true,
+      "readability": 0.90,
+      "uniqueness": 0.88
+    },
+    "status": "published",
+    "isActive": true,
+    "isFeatured": false,
+    "displayPosition": "middle",
+    "views": 8930,
+    "likes": 567,
+    "shares": 123,
+    "saves": 89,
+    "commentsCount": 23,
+    "avgReadTime": 600,
+    "createdAt": "2024-01-14T09:00:00Z",
+    "updatedAt": "2024-01-14T09:00:00Z",
+    "publishedAt": "2024-01-14T11:00:00Z",
+    "metadata": {}
+  },
+  {
+    "id": "analysis-1750630000002-ghi789",
+    "title": "مستقبل الطاقة المتجددة في دول الخليج",
+    "slug": "مستقبل-الطاقة-المتجددة-في-دول-الخليج-1750630000002",
+    "summary": "رؤية تحليلية لمشاريع الطاقة المتجددة في المنطقة وتأثيرها على أسواق النفط العالمية",
+    "content": {
+      "sections": [
+        {
+          "id": "section-1",
+          "title": "مقدمة",
+          "content": "تسعى دول الخليج لتنويع مصادر الطاقة...",
+          "order": 1,
+          "type": "text"
+        }
+      ],
+      "tableOfContents": [],
+      "recommendations": [],
+      "keyInsights": [],
+      "dataPoints": []
+    },
+    "categories": ["طاقة", "بيئة"],
+    "tags": ["طاقة متجددة", "استدامة", "نفط", "طاقة شمسية"],
+    "authorName": "محمد العتيبي",
+    "sourceType": "manual",
+    "creationType": "new",
+    "readingTime": 8,
+    "qualityScore": 0.75,
+    "contentScore": {
+      "overall": 0.75,
+      "contentLength": 2000,
+      "hasSections": true,
+      "hasData": false,
+      "hasRecommendations": false,
+      "readability": 0.85,
+      "uniqueness": 0.80
+    },
+    "status": "draft",
+    "isActive": true,
+    "isFeatured": false,
+    "displayPosition": "middle",
+    "views": 0,
+    "likes": 0,
+    "shares": 0,
+    "saves": 0,
+    "commentsCount": 0,
+    "avgReadTime": 0,
+    "createdAt": "2024-01-13T14:00:00Z",
+    "updatedAt": "2024-01-13T14:00:00Z",
+    "metadata": {}
+  }
+] 

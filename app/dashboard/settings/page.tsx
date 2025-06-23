@@ -139,17 +139,25 @@ export default function SettingsPage() {
     setTestResult(null);
 
     try {
-      const response = await fetch('/api/ai/test-key', {
+      const response = await fetch('/api/ai/test-connection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apiKey: aiSettings.openaiKey })
       });
       
       const data = await response.json();
-      setTestResult({ 
-        success: data.valid, 
-        message: data.valid ? 'تم الاتصال بنجاح! المفتاح صالح.' : 'فشل الاتصال. تحقق من صحة المفتاح.' 
-      });
+      
+      if (response.ok) {
+        setTestResult({ 
+          success: true, 
+          message: data.message || 'تم الاتصال بنجاح! المفتاح صالح.' 
+        });
+      } else {
+        setTestResult({ 
+          success: false, 
+          message: data.error || 'فشل الاتصال. تحقق من صحة المفتاح.' 
+        });
+      }
     } catch (error) {
       setTestResult({ success: false, message: 'فشل الاتصال. تحقق من صحة المفتاح.' });
     } finally {
@@ -679,7 +687,7 @@ export default function SettingsPage() {
                     <div>
                       <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>رابط تطبيق iOS</label>
                       <div className="flex items-center gap-3">
-                        <SmartphoneIcon className="w-5 h-5 text-gray-600" />
+                        <Smartphone className="w-5 h-5 text-gray-600" />
                         <input
                           type="url"
                           value={socialSettings.iosAppUrl}
@@ -693,7 +701,7 @@ export default function SettingsPage() {
                     <div>
                       <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>رابط تطبيق Android</label>
                       <div className="flex items-center gap-3">
-                        <SmartphoneIcon className="w-5 h-5 text-gray-600" />
+                        <Smartphone className="w-5 h-5 text-gray-600" />
                         <input
                           type="url"
                           value={socialSettings.androidAppUrl}
