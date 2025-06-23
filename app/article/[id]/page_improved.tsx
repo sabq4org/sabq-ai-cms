@@ -511,7 +511,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                 case 'heading':
                   const headingText = blockData.text || block.text || '';
                   const level = blockData.level || 2;
-                  const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
+                  const HeadingTag = `h${level}` as keyof React.JSX.IntrinsicElements;
                   const headingClasses = {
                     1: 'text-3xl font-bold mt-8 mb-4',
                     2: 'text-2xl font-bold mt-6 mb-3',
@@ -754,7 +754,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                 className="inline-flex items-center gap-1.5 px-4 py-2 text-white text-sm font-bold rounded-full shadow-md hover:shadow-lg transition-all"
                 style={{ backgroundColor: categoryData.color_hex }}
               >
-                {categoryData.icon && <span>{categoryData.icon}</span>}
+                {'icon' in categoryData && categoryData.icon && <span>{categoryData.icon}</span>}
                 {categoryData.name_ar}
               </Link>
               
