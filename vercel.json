@@ -15,7 +15,8 @@
   },
   "build": {
     "env": {
-      "NODE_ENV": "production"
+      "NODE_ENV": "production",
+      "BUILD_ID": "v1.0.1"
     }
   }
 }
