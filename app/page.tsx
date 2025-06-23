@@ -20,6 +20,7 @@ import CategoryBadge, { CategoryNavigation } from './components/CategoryBadge';
 import Header from '../components/Header';
 import SmartSlot from '@/components/home/SmartSlot';
 import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
+import { AlHilalWorldCupBlock } from '../components/smart-blocks/AlHilalWorldCupBlock';
 
 // ===============================
 // نظام ذكاء المستخدم والتخصيص
@@ -1028,13 +1029,10 @@ export default function NewspaperHomePage() {
         }
         
         // عرض رسالة تفاعلية بدلاً من alert
-        toast.warning('يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯', {
+        toast('يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯', {
           duration: 4000,
           position: 'top-center',
-          action: {
-            label: 'تسجيل الدخول',
-            onClick: () => window.location.href = '/login'
-          }
+          icon: '⚠️'
         });
         
         // تحديث حالة تسجيل الدخول إذا كانت خاطئة
@@ -1115,8 +1113,8 @@ export default function NewspaperHomePage() {
     } catch (error) {
       console.error('💥 خطأ في دالة trackInteraction:', error);
       console.log('🔧 تفاصيل الخطأ:', {
-        message: error.message,
-        stack: error.stack,
+        message: error instanceof Error ? error.message : 'خطأ غير معروف',
+        stack: error instanceof Error ? error.stack : undefined,
         articleId,
         interactionType,
         categoryId
@@ -2453,6 +2451,11 @@ export default function NewspaperHomePage() {
             </div>
           )}
         </div>
+      </section>
+
+      {/* بلوك الهلال في بطولة العالم */}
+      <section className="max-w-7xl mx-auto px-6 mb-16">
+        <AlHilalWorldCupBlock />
       </section>
 
       {/* Main Content */}

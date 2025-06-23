@@ -50,8 +50,8 @@
   ],
   "user-1750693026418-zdcy23jow": {
     "user_id": "user-1750693026418-zdcy23jow",
-    "total_points": 1,
-    "earned_points": 1,
+    "total_points": 2,
+    "earned_points": 2,
     "redeemed_points": 0,
     "history": [
       {
@@ -61,6 +61,14 @@
           "article_id": "article-1750687587617-5q2ppvwbx"
         },
         "timestamp": "2025-06-23T16:22:22.784Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "article-1750688021715-og56vs051"
+        },
+        "timestamp": "2025-06-23T20:05:00.635Z"
       }
     ]
   }

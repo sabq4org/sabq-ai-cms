@@ -137,16 +137,18 @@
   "user-1750693026418-zdcy23jow": {
     "user_id": "user-1750693026418-zdcy23jow",
     "categories": {
+      "2": 1,
       "4": 1
     },
     "authors": {},
     "topics": [],
     "reading_time": {
       "preferred_hours": [
-        19
+        19,
+        23
       ],
       "average_duration": 0
     },
-    "last_updated": "2025-06-23T16:22:22.785Z"
+    "last_updated": "2025-06-23T20:05:00.637Z"
   }
 }
