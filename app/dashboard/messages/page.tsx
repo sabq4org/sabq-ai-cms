@@ -258,6 +258,12 @@ function MessagesContent() {
 
   // تصدير CSV
   const exportToCSV = () => {
+    // التحقق من أن الكود يعمل في المتصفح فقط
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      console.warn("Export CSV is only available in browser environment");
+      return;
+    }
+
     const headers = ['التاريخ', 'البريد الإلكتروني', 'النوع', 'الموضوع', 'الرسالة', 'الحالة'];
     const csvContent = [
       headers.join(','),

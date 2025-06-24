@@ -61,9 +61,12 @@ export default function BehaviorInsightsPage() {
 
   // استرجاع حالة الوضع الليلي من localStorage
   useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
+    // التحقق من أن الكود يعمل في المتصفح فقط
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      const savedDarkMode = localStorage.getItem('darkMode');
+      if (savedDarkMode !== null) {
+        setDarkMode(JSON.parse(savedDarkMode));
+      }
     }
   }, []);
 
@@ -226,6 +229,12 @@ export default function BehaviorInsightsPage() {
 
   const exportToCSV = () => {
     if (!insights) return;
+    
+    // التحقق من أن الكود يعمل في المتصفح فقط
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      console.warn("Export CSV is only available in browser environment");
+      return;
+    }
     
     const headers = ['المستخدم', 'البريد الإلكتروني', 'التفاعلات', 'النقاط', 'المستوى', 'التصنيف المفضل', 'آخر نشاط'];
     const csvContent = [

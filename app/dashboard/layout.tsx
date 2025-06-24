@@ -50,7 +50,9 @@ export default function DashboardLayout({
     localStorage.removeItem('currentUser');
     
     // توجيه المستخدم إلى صفحة تسجيل الدخول
-    window.location.href = '/login';
+          if (typeof window !== "undefined") {
+        window.location.href = '/login';
+      }
   };
 
   // إغلاق القائمة عند النقر خارجها
@@ -71,13 +73,15 @@ export default function DashboardLayout({
   // إغلاق الـ sidebar عند تغيير حجم الشاشة
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
+      if (typeof window !== "undefined" && window.innerWidth >= 1024) {
         setSidebarOpen(false);
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    if (typeof window !== "undefined") {
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
   }, []);
 
   // Toggle expanded section
@@ -296,7 +300,7 @@ export default function DashboardLayout({
                   <ChevronRight className={`w-4 h-4 transition-transform lg:hidden ${expandedSection === 'ai' ? 'rotate-90' : ''}`} />
                 </button>
                 
-                <div className={`space-y-1 lg:space-y-2 ${expandedSection === 'ai' || window.innerWidth >= 1024 ? 'block' : 'hidden'}`}>
+                <div className={`space-y-1 lg:space-y-2 ${expandedSection === 'ai' ? 'block' : 'hidden'} lg:block`}>
                   <Link href="/dashboard/insights/behavior" 
                     onClick={() => setSidebarOpen(false)}
                     className={`group flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
@@ -431,7 +435,7 @@ export default function DashboardLayout({
                   <ChevronRight className={`w-4 h-4 transition-transform lg:hidden ${expandedSection === 'content' ? 'rotate-90' : ''}`} />
                 </button>
                 
-                <div className={`space-y-1 lg:space-y-2 ${expandedSection === 'content' || window.innerWidth >= 1024 ? 'block' : 'hidden'}`}>
+                <div className={`space-y-1 lg:space-y-2 ${expandedSection === 'content' ? 'block' : 'hidden'} lg:block`}>
                   <Link href="/dashboard/news" 
                     onClick={() => setSidebarOpen(false)}
                     className={`group flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
@@ -625,7 +629,7 @@ export default function DashboardLayout({
                   <ChevronRight className={`w-4 h-4 transition-transform lg:hidden ${expandedSection === 'loyalty' ? 'rotate-90' : ''}`} />
                 </button>
                 
-                <div className={`space-y-1 lg:space-y-2 ${expandedSection === 'loyalty' || window.innerWidth >= 1024 ? 'block' : 'hidden'}`}>
+                <div className={`space-y-1 lg:space-y-2 ${expandedSection === 'loyalty' ? 'block' : 'hidden'} lg:block`}>
                   <Link href="/dashboard/loyalty" 
                     onClick={() => setSidebarOpen(false)}
                     className={`group flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
@@ -695,7 +699,7 @@ export default function DashboardLayout({
                   <ChevronRight className={`w-4 h-4 transition-transform lg:hidden ${expandedSection === 'management' ? 'rotate-90' : ''}`} />
                 </button>
                 
-                <div className={`space-y-1 lg:space-y-2 ${expandedSection === 'management' || window.innerWidth >= 1024 ? 'block' : 'hidden'}`}>
+                <div className={`space-y-1 lg:space-y-2 ${expandedSection === 'management' ? 'block' : 'hidden'} lg:block`}>
                   <Link href="/dashboard/users" 
                     onClick={() => setSidebarOpen(false)}
                     className={`group flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
@@ -789,7 +793,7 @@ export default function DashboardLayout({
                   <ChevronRight className={`w-4 h-4 transition-transform lg:hidden ${expandedSection === 'system' ? 'rotate-90' : ''}`} />
                 </button>
                 
-                <div className={`space-y-1 lg:space-y-2 ${expandedSection === 'system' || window.innerWidth >= 1024 ? 'block' : 'hidden'}`}>
+                <div className={`space-y-1 lg:space-y-2 ${expandedSection === 'system' ? 'block' : 'hidden'} lg:block`}>
                   <Link href="/dashboard" 
                     onClick={() => setSidebarOpen(false)}
                     className={`group flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
