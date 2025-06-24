@@ -1,30 +1,24 @@
 import nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
 import { emailConfig } from '@/config/email.config';
+import { getCorrectEmailConfig } from './email-config-fix';
 
 // إنشاء transporter للبريد الإلكتروني
 let transporter: Transporter | null = null;
 
 // تهيئة البريد الإلكتروني
 export function initializeEmail() {
-  try {
-    // استخدام الإعدادات من emailConfig أو متغيرات البيئة
-    const smtpConfig = {
-      host: process.env.SMTP_HOST || emailConfig.smtp.host,
-      port: parseInt(process.env.SMTP_PORT || String(emailConfig.smtp.port)),
-      secure: process.env.SMTP_SECURE === 'true' || emailConfig.smtp.secure,
-      auth: {
-        user: process.env.SMTP_USER || emailConfig.smtp.auth.user,
-        pass: process.env.SMTP_PASS || emailConfig.smtp.auth.pass,
-      },
-      connectionTimeout: emailConfig.settings.connectionTimeout,
-      greetingTimeout: emailConfig.settings.connectionTimeout,
-      socketTimeout: emailConfig.settings.connectionTimeout,
-      logger: process.env.EMAIL_DEBUG === 'true',
-      debug: process.env.EMAIL_DEBUG === 'true',
-    };
+  // تخطي التهيئة أثناء البناء أو إذا كان مطلوباً
+  if (process.env.SKIP_EMAIL_VERIFICATION === 'true' || process.env.NODE_ENV === 'test') {
+    console.log('⏭️  تخطي تهيئة البريد الإلكتروني');
+    return;
+  }
 
-    transporter = nodemailer.createTransport(smtpConfig);
+  try {
+    // استخدام الإعدادات المصححة
+    const smtpConfig = getCorrectEmailConfig();
+
+    transporter = nodemailer.createTransport(smtpConfig as any);
 
     // التحقق من الاتصال
     if (transporter) {

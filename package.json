@@ -13,7 +13,9 @@
     "setup-email": "node scripts/setup-email.js",
     "test-email": "node scripts/test-email.js",
     "fix-upload": "node scripts/fix-upload-permissions.js",
-    "test-upload": "node scripts/test-upload-production.js"
+    "test-upload": "node scripts/test-upload-production.js",
+    "build:safe": "node scripts/create-build-env.js && cp .env.build .env && next build && rm .env",
+    "build:production": "SKIP_EMAIL_VERIFICATION=true next build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
