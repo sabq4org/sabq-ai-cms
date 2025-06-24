@@ -154,7 +154,7 @@
   },
   {
     "name": "الهلال في بطولة العالم",
-    "position": "beforePersonalization",
+    "position": "afterCards",
     "type": "custom",
     "status": "active",
     "displayType": "grid",
@@ -196,7 +196,7 @@
     "id": "1750599575769",
     "order": 7,
     "createdAt": "2025-06-22T13:39:35.769Z",
-    "updatedAt": "2025-06-24T06:27:16.662Z",
+    "updatedAt": "2025-06-24T07:07:26.697Z",
     "keywords": [
       "الهلال"
     ]

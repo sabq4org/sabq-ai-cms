@@ -23,6 +23,7 @@ interface AlHilalWorldCupBlockProps {
   backgroundColor?: string;
   primaryColor?: string;
   textColor?: string;
+  maxArticles?: number;
 }
 
 export function AlHilalWorldCupBlock({
@@ -30,21 +31,23 @@ export function AlHilalWorldCupBlock({
   className = '',
   backgroundColor = '#f0f7ff', // أزرق فاتح جداً
   primaryColor = '#005eb8', // الأزرق الملكي للهلال
-  textColor = '#1a1a1a'
+  textColor = '#1a1a1a',
+  maxArticles = 5
 }: AlHilalWorldCupBlockProps) {
   
   // مقال تجريبي إذا لم تكن هناك مقالات
   const defaultArticle: AlHilalArticle = {
-    id: 'hilal-1',
-    title: 'الهلال يتأهب لمواجهة الأهلي المصري في نصف نهائي كأس العالم للأندية',
-    imageUrl: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+    id: 'demo-1',
+    title: 'الهلال يستعد لمواجهة حاسمة في كأس العالم للأندية',
+    imageUrl: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
     publishedAt: new Date().toISOString(),
     views: 1250,
     isNew: true,
     category: 'الهلال'
   };
 
-  const article = articles.length > 0 ? articles[0] : defaultArticle;
+  // استخدم المقالات المرسلة أو المقال التجريبي
+  const displayArticles = articles.length > 0 ? articles.slice(0, maxArticles) : [defaultArticle];
 
   const formatDate = (date: string) => {
     const now = new Date();
@@ -138,7 +141,7 @@ export function AlHilalWorldCupBlock({
       {/* محتوى البلوك - كرت واحد */}
       <div className="mt-6">
         <Link
-          href={`/article/${article.id}`}
+          href={`/article/${displayArticles[0].id}`}
           className="block"
         >
           <div 
@@ -168,10 +171,10 @@ export function AlHilalWorldCupBlock({
                 position: 'relative'
               }}
             >
-              {article.imageUrl ? (
+              {displayArticles[0].imageUrl ? (
                 <Image
-                  src={article.imageUrl}
-                  alt={article.title}
+                  src={displayArticles[0].imageUrl}
+                  alt={displayArticles[0].title}
                   fill
                   className="object-cover"
                 />
@@ -190,7 +193,7 @@ export function AlHilalWorldCupBlock({
               )}
               
               {/* شارة جديد */}
-              {article.isNew && (
+              {displayArticles[0].isNew && (
                 <span 
                   className="absolute top-2 right-2 text-white text-xs px-3 py-1.5 rounded-full font-bold"
                   style={{ 
@@ -223,7 +226,7 @@ export function AlHilalWorldCupBlock({
                   lineHeight: '1.5'
                 }}
               >
-                {article.title}
+                {displayArticles[0].title}
               </h3>
               
               {/* معلومات المقال */}
@@ -240,14 +243,14 @@ export function AlHilalWorldCupBlock({
                   style={{ color: '#64748b' }}
                 >
                   <Clock className="w-4 h-4" />
-                  {article.publishedAt ? formatDate(article.publishedAt) : 'منذ قليل'}
+                  {displayArticles[0].publishedAt ? formatDate(displayArticles[0].publishedAt) : 'منذ قليل'}
                 </span>
                 <span 
                   className="flex items-center gap-1.5"
                   style={{ color: '#64748b' }}
                 >
                   <Eye className="w-4 h-4" />
-                  {article.views || 0} مشاهدة
+                  {displayArticles[0].views || 0} مشاهدة
                 </span>
               </div>
             </div>
