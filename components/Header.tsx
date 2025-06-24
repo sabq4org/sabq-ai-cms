@@ -110,16 +110,31 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    // إزالة جميع بيانات المستخدم
-    localStorage.removeItem('user');
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('user_loyalty_points');
-    
-    setUser(null);
-    toast.success('تم تسجيل الخروج بنجاح');
-    router.push('/');
+  const handleLogout = async () => {
+    try {
+      // استدعاء API لتسجيل الخروج
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include' // مهم لإرسال الكوكيز
+      });
+
+      if (response.ok) {
+        // إزالة جميع بيانات المستخدم من localStorage
+        localStorage.removeItem('user');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('user_loyalty_points');
+        
+        setUser(null);
+        toast.success('تم تسجيل الخروج بنجاح');
+        router.push('/');
+      } else {
+        toast.error('حدث خطأ في تسجيل الخروج');
+      }
+    } catch (error) {
+      console.error('خطأ في تسجيل الخروج:', error);
+      toast.error('حدث خطأ في تسجيل الخروج');
+    }
   };
 
   const getInitials = (name: string) => {
