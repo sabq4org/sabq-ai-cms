@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
-  Menu, Search, ChevronDown 
+  Menu, Search, ChevronDown, User, LogIn, UserPlus 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SabqLogo from './SabqLogo';
@@ -57,11 +57,13 @@ export default function Header() {
   const [user, setUser] = useState<UserData | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showMobileAuthMenu, setShowMobileAuthMenu] = useState(false);
   const [headerTemplate, setHeaderTemplate] = useState<Template | null>(null);
   const [templateLoading, setTemplateLoading] = useState(true);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileAuthRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // جلب بيانات المستخدم من localStorage
@@ -98,6 +100,9 @@ export default function Header() {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
+      }
+      if (mobileAuthRef.current && !mobileAuthRef.current.contains(event.target as Node)) {
+        setShowMobileAuthMenu(false);
       }
     }
 
@@ -324,7 +329,7 @@ export default function Header() {
           </nav>
 
           {/* الجزء الأيسر - البحث والمستخدم وزر القائمة */}
-          <div className="flex items-center gap-4 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             {/* البحث */}
             <button 
               className="p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -349,14 +354,14 @@ export default function Header() {
                     <img 
                       src={user.avatar} 
                       alt={user.name}
-                      className="w-10 h-10 rounded-full object-cover shadow-md dark:shadow-gray-900/50"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shadow-md dark:shadow-gray-900/50"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-md dark:shadow-gray-900/50">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs sm:text-sm shadow-md dark:shadow-gray-900/50">
                       {getInitials(user.name)}
                     </div>
                   )}
-                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 transition-transform ${
+                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 transition-transform hidden sm:block ${
                     showDropdown ? 'rotate-180' : ''
                   }`} />
                 </button>
@@ -371,20 +376,57 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/login"
-                  className="text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
-                >
-                  تسجيل الدخول
-                </Link>
-                <Link
-                  href="/register"
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all"
-                >
-                  إنشاء حساب
-                </Link>
-              </div>
+              <>
+                {/* للشاشات الكبيرة - الأزرار العادية */}
+                <div className="hidden sm:flex items-center gap-3">
+                  <Link
+                    href="/login"
+                    className="text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                  >
+                    تسجيل الدخول
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all"
+                  >
+                    إنشاء حساب
+                  </Link>
+                </div>
+
+                {/* للموبايل - أيقونة مستخدم بسيطة */}
+                <div className="sm:hidden relative" ref={mobileAuthRef}>
+                  <button
+                    onClick={() => setShowMobileAuthMenu(!showMobileAuthMenu)}
+                    className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <User className="w-5 h-5" style={{
+                      color: darkMode ? '#d1d5db' : '#4b5563'
+                    }} />
+                  </button>
+
+                  {/* قائمة منسدلة للموبايل */}
+                  {showMobileAuthMenu && (
+                    <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                      <Link
+                        href="/login"
+                        onClick={() => setShowMobileAuthMenu(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      >
+                        <LogIn className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                        <span className="text-gray-700 dark:text-gray-300">تسجيل الدخول</span>
+                      </Link>
+                      <Link
+                        href="/register"
+                        onClick={() => setShowMobileAuthMenu(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-t border-gray-100 dark:border-gray-700"
+                      >
+                        <UserPlus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-gray-700 dark:text-gray-300">إنشاء حساب جديد</span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
 
             {/* زر القائمة للموبايل */}

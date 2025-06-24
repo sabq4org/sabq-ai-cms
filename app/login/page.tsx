@@ -127,32 +127,33 @@ function LoginForm() {
 
       <div className="relative z-10 w-full max-w-md">
         {/* الشعار والعنوان */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg mb-4">
-            <Sparkles className="w-10 h-10 text-white" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg mb-3 sm:mb-4">
+            <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">مرحباً بعودتك</h1>
-          <p className="text-gray-600">سجل دخولك للاستمتاع بمحتوى مخصص لك</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">مرحباً بعودتك</h1>
+          <p className="text-sm sm:text-base text-gray-600">سجل دخولك للاستمتاع بمحتوى مخصص لك</p>
         </div>
 
         {/* نموذج تسجيل الدخول */}
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/50">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-6 sm:p-8 border border-white/50">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {/* البريد الإلكتروني */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                 البريد الإلكتروني
               </label>
               <div className="relative">
-                <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className={`w-full pr-10 pl-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  className={`w-full pr-9 sm:pr-10 pl-3 sm:pl-4 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                     errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="example@email.com"
+                  autoComplete="email"
                 />
               </div>
               {errors.email && (
@@ -165,26 +166,27 @@ function LoginForm() {
 
             {/* كلمة المرور */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                 كلمة المرور
               </label>
               <div className="relative">
-                <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`w-full pr-10 pl-10 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  className={`w-full pr-9 sm:pr-10 pl-9 sm:pl-10 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                     errors.password ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="••••••••"
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
               {errors.password && (
@@ -196,7 +198,7 @@ function LoginForm() {
             </div>
 
             {/* تذكرني ونسيت كلمة المرور */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -204,9 +206,9 @@ function LoginForm() {
                   onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">تذكرني</span>
+                <span className="text-gray-700">تذكرني</span>
               </label>
-              <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              <Link href="/forgot-password" className="text-blue-600 hover:underline">
                 نسيت كلمة المرور؟
               </Link>
             </div>
@@ -215,23 +217,23 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 sm:py-3 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg text-sm sm:text-base"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>جارٍ تسجيل الدخول...</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2">
-                  <LogIn className="w-5 h-5" />
+                  <LogIn className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>تسجيل الدخول</span>
                 </div>
               )}
             </button>
 
             {/* رابط إنشاء حساب */}
-            <div className="text-center pt-4 border-t">
+            <div className="text-center pt-3 sm:pt-4 border-t">
               <p className="text-sm text-gray-600">
                 ليس لديك حساب؟{' '}
                 <Link href="/register" className="text-blue-600 hover:underline font-medium">
@@ -243,7 +245,7 @@ function LoginForm() {
         </div>
 
         {/* روابط سريعة */}
-        <div className="mt-8 text-center">
+        <div className="mt-6 sm:mt-8 text-center">
           <Link href="/" className="text-sm text-gray-600 hover:text-gray-800 transition-colors">
             العودة للصفحة الرئيسية
           </Link>

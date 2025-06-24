@@ -97,7 +97,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 py-8">
       {/* خلفية ديناميكية */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse"></div>
@@ -107,32 +107,33 @@ export default function RegisterPage() {
 
       <div className="relative z-10 w-full max-w-md">
         {/* الشعار والعنوان */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg mb-4">
-            <Sparkles className="w-10 h-10 text-white" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg mb-3 sm:mb-4">
+            <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">أهلاً بك في سبق</h1>
-          <p className="text-gray-600">انضم لأكبر منصة إخبارية ذكية في المملكة</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">أهلاً بك في سبق</h1>
+          <p className="text-sm sm:text-base text-gray-600">انضم لأكبر منصة إخبارية ذكية في المملكة</p>
         </div>
 
         {/* نموذج التسجيل */}
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/50">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-6 sm:p-8 border border-white/50">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {/* الاسم الكامل */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                 الاسم الكامل
               </label>
               <div className="relative">
-                <User className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <User className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
                   type="text"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className={`w-full pr-10 pl-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  className={`w-full pr-9 sm:pr-10 pl-3 sm:pl-4 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                     errors.fullName ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="أدخل اسمك الكامل"
+                  autoComplete="name"
                 />
               </div>
               {errors.fullName && (
@@ -145,19 +146,20 @@ export default function RegisterPage() {
 
             {/* البريد الإلكتروني */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                 البريد الإلكتروني
               </label>
               <div className="relative">
-                <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className={`w-full pr-10 pl-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  className={`w-full pr-9 sm:pr-10 pl-3 sm:pl-4 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                     errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="example@email.com"
+                  autoComplete="email"
                 />
               </div>
               {errors.email && (
@@ -170,26 +172,27 @@ export default function RegisterPage() {
 
             {/* كلمة المرور */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                 كلمة المرور
               </label>
               <div className="relative">
-                <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`w-full pr-10 pl-10 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  className={`w-full pr-9 sm:pr-10 pl-9 sm:pl-10 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                     errors.password ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
               {errors.password && (
@@ -202,26 +205,27 @@ export default function RegisterPage() {
 
             {/* تأكيد كلمة المرور */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                 تأكيد كلمة المرور
               </label>
               <div className="relative">
-                <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className={`w-full pr-10 pl-10 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  className={`w-full pr-9 sm:pr-10 pl-9 sm:pl-10 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
                     errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
               {errors.confirmPassword && (
@@ -234,14 +238,14 @@ export default function RegisterPage() {
 
             {/* الموافقة على الشروط */}
             <div>
-              <label className="flex items-center gap-3 cursor-pointer">
+              <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.agreeToTerms}
                   onChange={(e) => setFormData({ ...formData, agreeToTerms: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-xs sm:text-sm text-gray-700">
                   أوافق على{' '}
                   <Link href="/terms" className="text-blue-600 hover:underline">
                     الشروط والأحكام
@@ -264,23 +268,23 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 sm:py-3 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg text-sm sm:text-base"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>جارٍ إنشاء حسابك...</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2">
-                  <CheckCircle className="w-5 h-5" />
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>إنشاء حساب جديد</span>
                 </div>
               )}
             </button>
 
             {/* رابط تسجيل الدخول */}
-            <div className="text-center pt-4 border-t">
+            <div className="text-center pt-3 sm:pt-4 border-t">
               <p className="text-sm text-gray-600">
                 لديك حساب بالفعل؟{' '}
                 <Link href="/login" className="text-blue-600 hover:underline font-medium">
@@ -292,17 +296,17 @@ export default function RegisterPage() {
         </div>
 
         {/* الميزات */}
-        <div className="mt-8 text-center space-y-2">
-          <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-500" />
+        <div className="mt-6 sm:mt-8 text-center space-y-2">
+          <p className="text-xs sm:text-sm text-gray-600 flex items-center justify-center gap-2">
+            <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
             50 نقطة ترحيبية مجانية
           </p>
-          <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-500" />
+          <p className="text-xs sm:text-sm text-gray-600 flex items-center justify-center gap-2">
+            <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
             محتوى مخصص حسب اهتماماتك
           </p>
-          <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-500" />
+          <p className="text-xs sm:text-sm text-gray-600 flex items-center justify-center gap-2">
+            <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
             تنبيهات ذكية للأخبار المهمة
           </p>
         </div>
