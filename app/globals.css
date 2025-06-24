@@ -1425,3 +1425,72 @@ html {
 .dark .empty-subtext {
   color: #6b7280;
 }
+
+/* تأثيرات حركية لصفحة اتصل بنا */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-up.delay-100 {
+  animation-delay: 100ms;
+}
+
+.animate-fade-in-up.delay-200 {
+  animation-delay: 200ms;
+}
+
+.animate-fade-in-up.delay-300 {
+  animation-delay: 300ms;
+}
+
+.animate-fade-in-up.delay-400 {
+  animation-delay: 400ms;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-pulse.delay-1000 {
+  animation-delay: 1s;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* تأثير التدرج على النص */
+.bg-clip-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.text-transparent {
+  color: transparent;
+}
+
+/* تحسينات إضافية */
+.shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
