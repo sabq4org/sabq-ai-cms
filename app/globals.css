@@ -653,10 +653,6 @@ button:not(.bg-blue-500):not(.bg-green-500):not(.bg-red-500) {
 }
 
 /* تحسين خلفيات الوضع المظلم */
-.dark .bg-gray-800 {
-  background-color: #1f2937 !important;
-}
-
 .dark .bg-gray-900 {
   background-color: var(--background-soft) !important;
 }
