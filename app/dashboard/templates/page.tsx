@@ -20,24 +20,7 @@ import {
 } from 'lucide-react';
 import { TemplatesList } from './components/TemplatesList';
 import { TemplateEditor } from './components/TemplateEditor';
-
-type TemplateType = 'header' | 'footer' | 'sidebar' | 'article' | 'category' | 'special';
-
-interface Template {
-  id: number;
-  name: string;
-  description?: string;
-  type: string;
-  content: any;
-  is_active: boolean;
-  is_default: boolean;
-  starts_at?: string;
-  ends_at?: string;
-  country_code?: string;
-  category_id?: number;
-  created_at: string;
-  updated_at: string;
-}
+import { Template, TemplateType } from '@/types/template';
 
 export default function TemplatesPage() {
   const [activeTab, setActiveTab] = useState<TemplateType>('header');

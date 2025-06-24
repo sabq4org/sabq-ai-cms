@@ -5,25 +5,10 @@ import { Edit, Trash2, ToggleLeft, ToggleRight, Calendar, Globe, Tag, Star, Eye 
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
 import { useTemplatePreview } from '@/hooks/useTemplate'
-
-interface Template {
-  id: number
-  name: string
-  description?: string
-  type: string
-  content: any
-  is_active: boolean
-  is_default: boolean
-  starts_at?: string
-  ends_at?: string
-  country_code?: string
-  category_id?: number
-  created_at: string
-  updated_at: string
-}
+import { Template, TemplateType } from '@/types/template'
 
 interface TemplatesListProps {
-  type: string
+  type: TemplateType | string
   onEdit: (template: Template) => void
 }
 
@@ -120,7 +105,7 @@ export function TemplatesList({ type, onEdit }: TemplatesListProps) {
       id: 1,
       name: 'الهيدر الافتراضي',
       description: 'قالب الهيدر الأساسي للموقع',
-      type: 'header',
+      type: 'header' as TemplateType,
       content: {},
       is_active: true,
       is_default: true,
@@ -131,7 +116,7 @@ export function TemplatesList({ type, onEdit }: TemplatesListProps) {
       id: 2,
       name: 'هيدر رمضان',
       description: 'قالب خاص بشهر رمضان المبارك',
-      type: 'header',
+      type: 'header' as TemplateType,
       content: {},
       is_active: false,
       is_default: false,
@@ -144,7 +129,7 @@ export function TemplatesList({ type, onEdit }: TemplatesListProps) {
       id: 3,
       name: 'هيدر اليوم الوطني',
       description: 'قالب خاص باليوم الوطني السعودي',
-      type: 'header',
+      type: 'header' as TemplateType,
       content: {},
       is_active: false,
       is_default: false,
