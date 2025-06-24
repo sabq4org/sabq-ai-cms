@@ -39,7 +39,8 @@ import {
   Image,
   List,
   Layers,
-  X
+  X,
+  ExternalLink
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { toast } from 'react-hot-toast';
@@ -305,6 +306,14 @@ export default function SmartBlocksPage() {
         updatedAt: new Date().toISOString()
       };
 
+      console.log('[SmartBlocks Dashboard] حفظ البلوك:', {
+        isEditing,
+        blockId: blockData.id,
+        position: blockData.position,
+        oldPosition: selectedBlock?.position,
+        fullData: blockData
+      });
+
       const url = isEditing ? `/api/smart-blocks/${selectedBlock?.id}` : '/api/smart-blocks';
       const method = isEditing ? 'PUT' : 'POST';
 
@@ -316,23 +325,49 @@ export default function SmartBlocksPage() {
 
       if (response.ok) {
         const savedBlock = await response.json();
+        console.log('[SmartBlocks Dashboard] البلوك المحفوظ:', savedBlock);
         
         if (isEditing) {
           setBlocks(blocks.map(b => b.id === savedBlock.id ? savedBlock : b));
-          toast.success('✅ تم تحديث البلوك بنجاح وهو الآن مُفعل في الموقع');
+          toast.success(
+            <div>
+              <p className="font-bold">✅ تم تحديث البلوك بنجاح!</p>
+              <p className="text-sm mt-1">الموضع: {getPositionLabel(savedBlock.position)}</p>
+              <p className="text-xs mt-2 text-gray-500">قد تحتاج لتحديث الصفحة الرئيسية لرؤية التغييرات</p>
+            </div>,
+            { duration: 5000 }
+          );
         } else {
           setBlocks([...blocks, savedBlock]);
-          toast.success('✅ تم إنشاء البلوك بنجاح! يمكنك الآن رؤيته في الصفحة الرئيسية');
+          toast.success(
+            <div>
+              <p className="font-bold">✅ تم إنشاء البلوك بنجاح!</p>
+              <p className="text-sm mt-1">الموضع: {getPositionLabel(savedBlock.position)}</p>
+              <p className="text-xs mt-2 text-gray-500">افتح الصفحة الرئيسية في تبويب جديد لرؤية البلوك</p>
+            </div>,
+            { duration: 5000 }
+          );
         }
+
+        // إعادة جلب البيانات للتأكد من التحديث
+        setTimeout(() => {
+          fetchBlocks();
+        }, 500);
 
         resetForm();
         setShowCreateForm(false);
       } else {
-        throw new Error('فشل في الحفظ');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'فشل في الحفظ');
       }
     } catch (error) {
       console.error('خطأ في حفظ البلوك:', error);
-      toast.error('فشل في حفظ البلوك - يرجى المحاولة مرة أخرى');
+      toast.error(
+        <div>
+          <p className="font-bold">❌ فشل في حفظ البلوك</p>
+          <p className="text-sm mt-1">{error instanceof Error ? error.message : 'يرجى المحاولة مرة أخرى'}</p>
+        </div>
+      );
     }
   };
 
@@ -354,10 +389,19 @@ export default function SmartBlocksPage() {
   };
 
   const editBlock = (block: SmartBlock) => {
+    console.log('[SmartBlocks Dashboard] تحرير البلوك:', block);
     setSelectedBlock(block);
     setNewBlock(block);
     setIsEditing(true);
     setShowCreateForm(true);
+    
+    // التمرير إلى النموذج بعد فتحه
+    setTimeout(() => {
+      const formElement = document.getElementById('smart-block-form');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   const resetForm = () => {
@@ -632,6 +676,15 @@ export default function SmartBlocksPage() {
               <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 {blocks.filter(b => b.status === 'active').length} مفعل
               </Badge>
+              <Button
+                onClick={() => window.open('/', '_blank')}
+                variant="outline"
+                className="flex items-center gap-2"
+                type="button"
+              >
+                <ExternalLink className="h-4 w-4" />
+                عرض الصفحة الرئيسية
+              </Button>
               <Button 
                 onClick={() => {
                   setShowCreateForm(true);
@@ -760,6 +813,12 @@ export default function SmartBlocksPage() {
                             <Calendar className="w-4 h-4" />
                             {new Date(block.createdAt).toLocaleDateString('ar-SA')}
                           </span>
+                          {block.updatedAt && block.updatedAt !== block.createdAt && (
+                            <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+                              <Clock className="w-4 h-4" />
+                              محدث {new Date(block.updatedAt).toLocaleDateString('ar-SA')}
+                            </span>
+                          )}
                           {block.schedule && (
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
@@ -823,10 +882,12 @@ export default function SmartBlocksPage() {
 
       {/* نموذج إنشاء البلوك مع المعاينة في جدول واحد */}
       {showCreateForm && (
-        <div className="mt-8 relative z-10" id="smart-block-form">
+        <div className="mt-8 relative z-10 transition-all duration-300 transform animate-in fade-in slide-in-from-bottom-4" id="smart-block-form">
           {/* جدول واحد يحتوي على النموذج والمعاينة */}
-          <div className={`rounded-2xl shadow-lg transition-all duration-300 overflow-hidden ${
-            darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+          <div className={`rounded-2xl shadow-2xl transition-all duration-300 overflow-hidden ring-2 ${
+            darkMode 
+              ? 'bg-gray-800 border border-gray-700 ring-teal-500/50' 
+              : 'bg-white border border-gray-200 ring-teal-500/30'
           }`}>
             {/* رأس الجدول */}
             <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>

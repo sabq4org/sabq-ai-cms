@@ -2,67 +2,47 @@
 
 import React, { useState, useEffect } from 'react';
 import { SmartBlockRenderer } from '@/components/smart-blocks/SmartBlockRenderer';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { SmartBlock } from '@/types/smart-block';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
-interface SmartBlock {
-  id: string;
-  name: string;
+interface SmartSlotProps {
   position: 'topBanner' | 'afterHighlights' | 'afterCards' | 'beforePersonalization' | 'beforeFooter';
-  type: 'smart' | 'custom' | 'html';
-  status: 'active' | 'inactive' | 'scheduled';
-  displayType: 'grid' | 'cards' | 'horizontal' | 'gallery' | 'list' | 'headline' | 'image-left' | 'carousel';
-  keywords?: string[];
-  category?: string;
-  articlesCount: number;
-  theme: {
-    primaryColor: string;
-    backgroundColor: string;
-    textColor: string;
-  };
-  customHtml?: string;
-  schedule?: {
-    startDate: string;
-    endDate: string;
-    isAlwaysActive: boolean;
-  };
-  order: number;
-  padding?: string;
-  margin?: string;
-  bgColor?: string;
-  visibility?: 'all' | 'guest' | 'user';
-  maxItems?: number;
+  className?: string;
 }
 
 interface Article {
   id: string;
   title: string;
-  slug: string;
+  slug?: string;
   excerpt?: string;
+  content?: string;
+  image?: string;
+  featured_image?: string;
   imageUrl?: string;
   category?: string;
+  category_id?: number;
   author?: {
     name: string;
     avatar?: string;
   };
-  publishedAt: string;
+  published_at?: string;
+  created_at?: string;
+  publishedAt?: string;
   views?: number;
   readTime?: number;
-}
-
-interface SmartSlotProps {
-  position: 'topBanner' | 'afterHighlights' | 'afterCards' | 'beforePersonalization' | 'beforeFooter';
-  userType?: 'guest' | 'user';
+  breaking?: boolean;
+  seo_keywords?: string[];
 }
 
 /**
  * SmartSlot: Placeholder لبلوكات ذكية يتم حقنها ديناميكياً لاحقاً.
  * حالياً يعرض حاوية بسيطة لتجنب أخطاء البناء.
  */
-export default function SmartSlot({ position, userType = 'guest' }: SmartSlotProps) {
-  const { darkMode } = useDarkModeContext();
+export function SmartSlot({ position, className = '' }: SmartSlotProps) {
   const [blocks, setBlocks] = useState<SmartBlock[]>([]);
-  const [articles, setArticles] = useState<{ [blockId: string]: Article[] }>({});
+  const [blockArticles, setBlockArticles] = useState<{ [key: string]: any[] }>({});
   const [loading, setLoading] = useState(true);
+  const { darkMode } = useDarkMode();
 
   useEffect(() => {
     fetchBlocks();
@@ -78,12 +58,21 @@ export default function SmartSlot({ position, userType = 'guest' }: SmartSlotPro
       }
 
       const data = await response.json();
-      const activeBlocks = data.filter((block: SmartBlock) => block.status === 'active');
+      console.log(`[SmartSlot] البلوكات المستلمة للموضع ${position}:`, data);
       
-      setBlocks(activeBlocks);
+      const activeBlocks = data.filter((block: SmartBlock) => block.status === 'active');
+      console.log(`[SmartSlot] البلوكات النشطة:`, activeBlocks);
+      
+      // ترتيب البلوكات حسب قيمة order
+      const sortedBlocks = activeBlocks.sort((a: SmartBlock, b: SmartBlock) => {
+        return (a.order || 999) - (b.order || 999);
+      });
+      console.log(`[SmartSlot] البلوكات بعد الترتيب:`, sortedBlocks);
+      
+      setBlocks(sortedBlocks);
       
       // جلب المقالات لكل بلوك
-      for (const block of activeBlocks) {
+      for (const block of sortedBlocks) {
         await fetchArticlesForBlock(block);
       }
     } catch (error) {
@@ -95,9 +84,12 @@ export default function SmartSlot({ position, userType = 'guest' }: SmartSlotPro
 
   const fetchArticlesForBlock = async (block: SmartBlock) => {
     try {
+      console.log(`[SmartSlot] جلب المقالات للبلوك:`, block.name, block);
+      
       // إذا لم تكن هناك كلمات مفتاحية، لا نعرض أي مقالات
       if (!block.keywords || block.keywords.length === 0) {
-        setArticles(prev => ({
+        console.log(`[SmartSlot] لا توجد كلمات مفتاحية للبلوك ${block.name}`);
+        setBlockArticles(prev => ({
           ...prev,
           [block.id]: []
         }));
@@ -141,7 +133,7 @@ export default function SmartSlot({ position, userType = 'guest' }: SmartSlotPro
       // أخذ العدد المطلوب فقط
       const limitedArticles = filteredArticles.slice(0, block.articlesCount || 6);
       
-      setArticles(prev => ({
+      setBlockArticles(prev => ({
         ...prev,
         [block.id]: limitedArticles.map((article: any) => ({
           id: article.id,
@@ -161,7 +153,7 @@ export default function SmartSlot({ position, userType = 'guest' }: SmartSlotPro
       }));
     } catch (error) {
       console.error('Error fetching articles for block:', error);
-      setArticles(prev => ({
+      setBlockArticles(prev => ({
         ...prev,
         [block.id]: []
       }));
@@ -186,16 +178,14 @@ export default function SmartSlot({ position, userType = 'guest' }: SmartSlotPro
   }
 
   return (
-    <div className={`smart-slots-container ${darkMode ? 'dark' : ''}`}>
-      {blocks.map(block => (
-        <div key={block.id} className="mb-8 lg:mb-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SmartBlockRenderer 
-              block={block} 
-              articles={articles[block.id] || []} 
-              userType={userType}
-            />
-          </div>
+    <div className={`smart-slot smart-slot-${position} ${className}`}>
+      {blocks.map((block) => (
+        <div key={block.id} className="mb-8">
+          <SmartBlockRenderer 
+            block={block} 
+            articles={blockArticles[block.id] || []} 
+            darkMode={darkMode}
+          />
         </div>
       ))}
     </div>

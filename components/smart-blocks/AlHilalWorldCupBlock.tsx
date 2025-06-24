@@ -35,19 +35,37 @@ export function AlHilalWorldCupBlock({
   maxArticles = 5
 }: AlHilalWorldCupBlockProps) {
   
-  // مقال تجريبي إذا لم تكن هناك مقالات
-  const defaultArticle: AlHilalArticle = {
-    id: 'demo-1',
-    title: 'الهلال يستعد لمواجهة حاسمة في كأس العالم للأندية',
-    imageUrl: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
-    publishedAt: new Date().toISOString(),
-    views: 1250,
-    isNew: true,
-    category: 'الهلال'
-  };
+  // مقالات تجريبية إذا لم تكن هناك مقالات
+  const defaultArticles: AlHilalArticle[] = [
+    {
+      id: 'demo-1',
+      title: 'الهلال يستعد لمواجهة حاسمة في كأس العالم للأندية',
+      imageUrl: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+      publishedAt: new Date().toISOString(),
+      views: 1250,
+      isNew: true,
+      category: 'الهلال'
+    },
+    {
+      id: 'demo-2',
+      title: 'نيمار يقود الهلال لفوز كبير في البطولة',
+      imageUrl: 'https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?auto=format&fit=crop&w=800&q=80',
+      publishedAt: new Date(Date.now() - 86400000).toISOString(),
+      views: 980,
+      category: 'الهلال'
+    },
+    {
+      id: 'demo-3',
+      title: 'جماهير الهلال تستعد لدعم الفريق في المونديال',
+      imageUrl: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+      publishedAt: new Date(Date.now() - 172800000).toISOString(),
+      views: 750,
+      category: 'الهلال'
+    }
+  ];
 
-  // استخدم المقالات المرسلة أو المقال التجريبي
-  const displayArticles = articles.length > 0 ? articles.slice(0, maxArticles) : [defaultArticle];
+  // استخدم المقالات المرسلة أو المقالات التجريبية
+  const displayArticles = articles.length > 0 ? articles.slice(0, maxArticles) : defaultArticles;
 
   const formatDate = (date: string) => {
     const now = new Date();
@@ -138,137 +156,144 @@ export function AlHilalWorldCupBlock({
         </Link>
       </div>
 
-      {/* محتوى البلوك - كرت واحد */}
-      <div className="mt-6">
-        <Link
-          href={`/article/${displayArticles[0].id}`}
-          className="block"
-        >
-          <div 
-            className="article-card group"
-            style={{
-              backgroundColor: 'white',
-              borderColor: `${primaryColor}20`,
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              height: 'auto',
-              display: 'flex',
-              flexDirection: 'row',
-              gap: '1.5rem',
-              padding: '1rem',
-              alignItems: 'center'
-            }}
+      {/* محتوى البلوك - عرض شبكي للمقالات */}
+      <div className={`mt-6 ${displayArticles.length === 1 ? '' : 'grid gap-4'} ${
+        displayArticles.length === 2 ? 'md:grid-cols-2' : 
+        displayArticles.length >= 3 ? 'md:grid-cols-2 lg:grid-cols-3' : ''
+      }`}>
+        {displayArticles.map((article, index) => (
+          <Link
+            key={article.id}
+            href={`/article/${article.id}`}
+            className="block"
           >
-            {/* صورة المقال */}
             <div 
-              className="article-card-image"
+              className="article-card group h-full"
               style={{
-                width: '280px',
-                height: '180px',
-                flexShrink: 0,
-                borderRadius: '12px',
-                overflow: 'hidden',
-                position: 'relative'
+                backgroundColor: 'white',
+                borderColor: `${primaryColor}20`,
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%'
               }}
             >
-              {displayArticles[0].imageUrl ? (
-                <Image
-                  src={displayArticles[0].imageUrl}
-                  alt={displayArticles[0].title}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div 
-                  className="w-full h-full flex items-center justify-center"
-                  style={{
-                    background: `linear-gradient(135deg, ${primaryColor}20, ${primaryColor}10)`
-                  }}
-                >
-                  <Trophy 
-                    className="w-12 h-12" 
-                    style={{ color: primaryColor }}
-                  />
-                </div>
-              )}
-              
-              {/* شارة جديد */}
-              {displayArticles[0].isNew && (
-                <span 
-                  className="absolute top-2 right-2 text-white text-xs px-3 py-1.5 rounded-full font-bold"
-                  style={{ 
-                    backgroundColor: '#ff4444',
-                    boxShadow: '0 2px 8px rgba(255, 68, 68, 0.3)'
-                  }}
-                >
-                  جديد
-                </span>
-              )}
-
-              {/* وسم الهلال */}
-              <span 
-                className="absolute bottom-2 right-2 text-white text-xs px-3 py-1.5 rounded-full font-medium"
-                style={{ 
-                  backgroundColor: primaryColor,
-                  boxShadow: `0 2px 8px ${primaryColor}40`
-                }}
-              >
-                الهلال
-              </span>
-            </div>
-            
-            {/* محتوى المقال */}
-            <div className="flex-1 py-2">
-              <h3 
-                className="article-card-title text-xl font-bold mb-3 line-clamp-2"
-                style={{ 
-                  color: textColor,
-                  lineHeight: '1.5'
-                }}
-              >
-                {displayArticles[0].title}
-              </h3>
-              
-              {/* معلومات المقال */}
+              {/* صورة المقال */}
               <div 
-                className="article-card-meta"
+                className="article-card-image"
                 style={{
-                  borderTop: 'none',
-                  paddingTop: '0',
-                  gap: '1.5rem'
+                  height: '200px',
+                  borderRadius: '12px 12px 0 0',
+                  overflow: 'hidden',
+                  position: 'relative'
                 }}
               >
+                {article.imageUrl ? (
+                  <Image
+                    src={article.imageUrl}
+                    alt={article.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div 
+                    className="w-full h-full flex items-center justify-center"
+                    style={{
+                      background: `linear-gradient(135deg, ${primaryColor}20, ${primaryColor}10)`
+                    }}
+                  >
+                    <Trophy 
+                      className="w-12 h-12" 
+                      style={{ color: primaryColor }}
+                    />
+                  </div>
+                )}
+                
+                {/* شارة جديد للمقال الأول */}
+                {index === 0 && article.isNew && (
+                  <span 
+                    className="absolute top-2 right-2 text-white text-xs px-3 py-1.5 rounded-full font-bold"
+                    style={{ 
+                      backgroundColor: '#ff4444',
+                      boxShadow: '0 2px 8px rgba(255, 68, 68, 0.3)'
+                    }}
+                  >
+                    جديد
+                  </span>
+                )}
+
+                {/* وسم الهلال */}
                 <span 
-                  className="flex items-center gap-1.5"
-                  style={{ color: '#64748b' }}
+                  className="absolute bottom-2 right-2 text-white text-xs px-3 py-1.5 rounded-full font-medium"
+                  style={{ 
+                    backgroundColor: primaryColor,
+                    boxShadow: `0 2px 8px ${primaryColor}40`
+                  }}
                 >
-                  <Clock className="w-4 h-4" />
-                  {displayArticles[0].publishedAt ? formatDate(displayArticles[0].publishedAt) : 'منذ قليل'}
-                </span>
-                <span 
-                  className="flex items-center gap-1.5"
-                  style={{ color: '#64748b' }}
-                >
-                  <Eye className="w-4 h-4" />
-                  {displayArticles[0].views || 0} مشاهدة
+                  الهلال
                 </span>
               </div>
+              
+              {/* محتوى المقال */}
+              <div className="flex-1 p-4">
+                <h3 
+                  className="article-card-title font-bold mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors"
+                  style={{ 
+                    color: textColor,
+                    fontSize: displayArticles.length === 1 ? '1.25rem' : '1rem',
+                    lineHeight: '1.5'
+                  }}
+                >
+                  {article.title}
+                </h3>
+                
+                {/* معلومات المقال */}
+                <div 
+                  className="article-card-meta mt-auto"
+                  style={{
+                    borderTop: 'none',
+                    paddingTop: '0',
+                    gap: '1rem',
+                    fontSize: '0.875rem'
+                  }}
+                >
+                  <span 
+                    className="flex items-center gap-1.5"
+                    style={{ color: '#64748b' }}
+                  >
+                    <Clock className="w-4 h-4" />
+                    {article.publishedAt ? formatDate(article.publishedAt) : 'منذ قليل'}
+                  </span>
+                  <span 
+                    className="flex items-center gap-1.5"
+                    style={{ color: '#64748b' }}
+                  >
+                    <Eye className="w-4 h-4" />
+                    {article.views || 0} مشاهدة
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
+        ))}
       </div>
+
+      {/* رسالة عندما لا توجد مقالات */}
+      {displayArticles.length === 0 && (
+        <div className="text-center py-12">
+          <Trophy className="w-16 h-16 mx-auto mb-4" style={{ color: primaryColor, opacity: 0.3 }} />
+          <p className="text-lg" style={{ color: textColor, opacity: 0.7 }}>
+            لا توجد أخبار متاحة حالياً عن الهلال في بطولة العالم
+          </p>
+        </div>
+      )}
 
       {/* نسخة موبايل */}
       <style jsx>{`
         @media (max-width: 768px) {
           .article-card {
-            flex-direction: column !important;
-            gap: 0 !important;
-          }
-          
-          .article-card-image {
-            width: 100% !important;
-            height: 200px !important;
+            margin-bottom: 1rem;
           }
           
           .article-card-title {

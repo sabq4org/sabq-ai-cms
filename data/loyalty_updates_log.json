@@ -178,5 +178,23 @@
       "article_id": "article-1750708946470-lkewt106o"
     },
     "timestamp": "2025-06-24T06:51:29.418Z"
+  },
+  {
+    "user_id": "user-1750693026418-zdcy23jow",
+    "points_earned": 1,
+    "action": "view على المقال",
+    "details": {
+      "article_id": "article-1750746249333-psei475jb"
+    },
+    "timestamp": "2025-06-24T07:22:22.891Z"
+  },
+  {
+    "user_id": "user-1750693026418-zdcy23jow",
+    "points_earned": 1,
+    "action": "view على المقال",
+    "details": {
+      "article_id": "article-1750688021715-og56vs051"
+    },
+    "timestamp": "2025-06-24T07:25:46.811Z"
   }
 ]

@@ -86,6 +86,8 @@ export async function PUT(
   try {
     const { id } = await params;
     const updateData = await request.json();
+    console.log(`[SmartBlocks API] تحديث البلوك ${id} بالبيانات:`, updateData);
+    
     const blocks = await readBlocks();
     const blockIndex = blocks.findIndex(b => b.id === id);
     
@@ -103,6 +105,8 @@ export async function PUT(
       id: id, // التأكد من عدم تغيير ID
       updatedAt: new Date().toISOString()
     };
+    
+    console.log(`[SmartBlocks API] البلوك بعد التحديث:`, blocks[blockIndex]);
     
     await writeBlocks(blocks);
     

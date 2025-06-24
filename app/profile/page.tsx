@@ -178,7 +178,7 @@ export default function ProfilePage() {
             try {
               const categoryIds = userInterests.map((interestId: string) => {
                 const interest = Object.entries(interestMap).find(([key]) => key === interestId);
-                return interest ? interest[1].category_id : null;
+                return interest ? (interest[1] as any).category_id : null;
               }).filter(Boolean);
 
               const saveResponse = await fetch('/api/user/preferences', {

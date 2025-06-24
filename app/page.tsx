@@ -18,7 +18,7 @@ import toast from 'react-hot-toast';
 
 import CategoryBadge, { CategoryNavigation } from './components/CategoryBadge';
 import Header from '../components/Header';
-import SmartSlot from '@/components/home/SmartSlot';
+import { SmartSlot } from '@/components/home/SmartSlot';
 import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
 
 
@@ -1949,7 +1949,9 @@ export default function NewspaperHomePage() {
       <Header />
 
       {/* Smart Blocks - Top Banner */}
-      <SmartSlot position="topBanner" />
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <SmartSlot position="topBanner" />
+      </div>
 
       {/* Deep Analysis Widget - After Header */}
       {!deepInsightsLoading && deepInsights.length > 0 && (
@@ -2453,8 +2455,6 @@ export default function NewspaperHomePage() {
         </div>
       </section>
 
-
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Enhanced News Section */}
@@ -2526,6 +2526,9 @@ export default function NewspaperHomePage() {
             </div>
           )}
         </section>
+
+        {/* Smart Blocks - After Highlights */}
+        <SmartSlot position="afterHighlights" />
 
         {/* Smart Blocks - After Cards */}
         <SmartSlot position="afterCards" />

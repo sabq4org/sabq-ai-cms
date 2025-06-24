@@ -16,7 +16,8 @@ import {
   User,
   Sparkles,
   Timer,
-  AlertCircle
+  AlertCircle,
+  Settings
 } from 'lucide-react';
 import Link from 'next/link';
 import { AlHilalWorldCupBlock } from '@/components/smart-blocks/AlHilalWorldCupBlock';
@@ -468,31 +469,10 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* جرعة سبق الذكية */}
-        <SmartDoseSection />
-
         {/* بلوك الهلال في بطولة العالم */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <AlHilalWorldCupBlock />
         </div>
-
-        {/* البلوكات الذكية */}
-        {topBannerBlocks.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <Flame className="w-6 h-6 text-red-500 animate-pulse" />
-              <h2 className={`text-2xl font-bold transition-colors duration-300 ${
-                darkMode ? 'text-white' : 'text-gray-900'
-              }`}>البلوكات الذكية</h2>
-            </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {topBannerBlocks.map((block) => (
-                <ArticleCard key={block.id} article={block} variant="featured" />
-              ))}
-            </div>
-          </section>
-        )}
       </div>
     </div>
   );

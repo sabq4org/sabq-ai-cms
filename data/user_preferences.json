@@ -97,7 +97,7 @@
   "user-1750693026418-zdcy23jow": {
     "user_id": "user-1750693026418-zdcy23jow",
     "categories": {
-      "2": 1,
+      "2": 3,
       "4": 1,
       "8": 2
     },
@@ -109,10 +109,11 @@
       "preferred_hours": [
         19,
         23,
-        9
+        9,
+        10
       ],
       "average_duration": 0
     },
-    "last_updated": "2025-06-24T06:51:29.420Z"
+    "last_updated": "2025-06-24T07:25:46.812Z"
   }
 }
