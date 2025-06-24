@@ -24,4 +24,53 @@
 .dark .analysis-card:hover {
   background-color: #374151;
   transform: translateY(-2px);
-} 
+}
+
+/* ===== تحسينات عامة لكافة الصفحات في الوضع الليلي ===== */
+.dark {
+  /* لون نص افتراضي أوضح */
+  --text-primary-dark: #d1d5db;
+  --text-secondary-dark: #9ca3af;
+  --border-dark: #374151;
+}
+
+/* نصوص رمادية شائعة */
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: var(--text-primary-dark) !important;
+}
+
+/* خلفيات رمادية فاتحة تتحول للداكنة الناعمة */
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .bg-gray-200,
+.dark .bg-soft-white,
+.dark .bg-soft-gray {
+  background-color: var(--background-hover) !important;
+}
+
+/* حدود رمادية فاتحة تتحول لرمادي داكن */
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: var(--border-dark) !important;
+}
+
+/* بطاقات وخلفيات بيضاء داخل الوضع الداكن */
+.dark .bg-white {
+  background-color: var(--background-card) !important;
+}
+
+/* عناصر hover ذات خلفية بيضاء */
+.dark .hover\:bg-white:hover {
+  background-color: var(--background-hover) !important;
+}
+
+/* أزرار ذات نص رمادي */
+.dark button {
+  color: var(--text-primary-dark);
+}
+
+/* ===== نهاية التحسينات العامة ===== */ 
