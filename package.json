@@ -11,7 +11,9 @@
     "cleanup": "./scripts/cleanup.sh",
     "analyze": "cross-env ANALYZE=true next build",
     "setup-email": "node scripts/setup-email.js",
-    "test-email": "node scripts/test-email.js"
+    "test-email": "node scripts/test-email.js",
+    "fix-upload": "node scripts/fix-upload-permissions.js",
+    "test-upload": "node scripts/test-upload-production.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
