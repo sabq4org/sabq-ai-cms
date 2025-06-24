@@ -652,16 +652,16 @@ button:not(.bg-blue-500):not(.bg-green-500):not(.bg-red-500) {
   background-color: var(--background-hover) !important;
 }
 
-/* تحسين خلفيات الوضع المظلم - بدون circular dependency */
-.dark [class*="bg-gray-800"] {
+/* تحسين خلفيات الوضع المظلم */
+.dark .bg-gray-800 {
   background-color: var(--background-card) !important;
 }
 
-.dark [class*="bg-gray-900"] {
+.dark .bg-gray-900 {
   background-color: var(--background-soft) !important;
 }
 
-.dark [class*="bg-slate-900"] {
+.dark .bg-slate-900 {
   background-color: var(--background-soft) !important;
 }
 
