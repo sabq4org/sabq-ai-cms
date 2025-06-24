@@ -1,13 +1,14 @@
 // إصلاح إعدادات البريد الإلكتروني بناءً على الخادم والمنفذ
 
 export function getCorrectEmailConfig() {
+  // استخدام mail.jur3a.ai كخادم افتراضي بدلاً من gmail
   const host = process.env.SMTP_HOST || 'mail.jur3a.ai';
   const port = parseInt(process.env.SMTP_PORT || '465');
   
   // تحديد إعدادات secure بناءً على المنفذ
   let secure: boolean;
   let requireTLS: boolean = false;
-  let rejectUnauthorized: boolean = false;
+  let rejectUnauthorized: boolean = true;
   
   if (port === 465) {
     // SSL/TLS مباشر
@@ -40,7 +41,7 @@ export function getCorrectEmailConfig() {
       pass: process.env.SMTP_PASS || 'oFWD[H,A8~8;iw7('
     },
     tls: {
-      rejectUnauthorized: process.env.NODE_ENV === 'production',
+      rejectUnauthorized: process.env.NODE_ENV === 'production' ? true : false,
       minVersion: 'TLSv1.2'
     },
     connectionTimeout: 30000,

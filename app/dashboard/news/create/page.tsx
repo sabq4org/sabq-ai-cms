@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import FeaturedImageUpload from '@/components/FeaturedImageUpload';
 // import { logActions, getCurrentUser } from '@/lib/admin-activity-logs';
 import { TeamMember } from '@/types/team';
 
@@ -130,7 +131,6 @@ export default function CreateArticlePage() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [wordCount, setWordCount] = useState(0);
   const [readingTime, setReadingTime] = useState(0);
-  const [uploadingImage, setUploadingImage] = useState(false);
 
   // تحميل التصنيفات الحقيقية من API
   useEffect(() => {
@@ -784,72 +784,11 @@ export default function CreateArticlePage() {
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       الصورة البارزة
                     </label>
-                    <div className="relative group">
-                      {formData.featured_image ? (
-                        <div className="relative rounded-xl overflow-hidden">
-                          <img 
-                            src={formData.featured_image} 
-                            alt="الصورة البارزة" 
-                            className="w-full h-64 object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, featured_image: '' }))}
-                            className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : uploadingImage ? (
-                        <div className="h-64 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center bg-gray-50">
-                          <RefreshCw className="w-12 h-12 text-blue-600 animate-spin mb-3" />
-                          <p className="text-sm text-gray-600">جاري رفع الصورة...</p>
-                        </div>
-                      ) : (
-                        <div className="h-64 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-50">
-                          <UploadCloud className="w-12 h-12 text-gray-400" />
-                        </div>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            try {
-                              setUploadingImage(true);
-                              
-                              const formData = new FormData();
-                              formData.append('file', file);
-                              formData.append('type', 'featured');
-                              
-                              const response = await fetch('/api/upload', {
-                                method: 'POST',
-                                body: formData
-                              });
-                              
-                              const result = await response.json();
-                              
-                              if (result.success) {
-                                setFormData(prev => ({ ...prev, featured_image: result.data.url }));
-                              } else {
-                                alert(result.error || 'فشل رفع الصورة');
-                              }
-                            } catch (error) {
-                              console.error('خطأ في رفع الصورة:', error);
-                              alert('حدث خطأ أثناء رفع الصورة');
-                            } finally {
-                              setUploadingImage(false);
-                            }
-                          }
-                        }}
-                        className="hidden"
-                        id="featured-image-upload"
-                      />
-                      <label htmlFor="featured-image-upload" className="cursor-pointer">
-                        <span className="text-blue-600 hover:text-blue-700 text-sm font-medium">{formData.featured_image ? 'تغيير الصورة' : 'اختر صورة'}</span>
-                      </label>
-                    </div>
+                    <FeaturedImageUpload 
+                      value={formData.featured_image || ''}
+                      onChange={(url) => setFormData(prev => ({ ...prev, featured_image: url }))}
+                      darkMode={darkMode}
+                    />
                   </div>
 
                   {/* محرر المحتوى */}
@@ -1552,68 +1491,11 @@ export default function CreateArticlePage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">الصورة البارزة</label>
-                  <div className="relative group">
-                    {formData.featured_image ? (
-                      <div className="relative rounded-xl overflow-hidden">
-                        <img 
-                          src={formData.featured_image} 
-                          alt="الصورة البارزة" 
-                          className="w-full h-64 object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, featured_image: '' }))}
-                          className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="h-64 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-50">
-                        <UploadCloud className="w-12 h-12 text-gray-400" />
-                      </div>
-                    )}
-                                          <input
-                        type="file"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            try {
-                              setUploadingImage(true);
-                              
-                              const formData = new FormData();
-                              formData.append('file', file);
-                              formData.append('type', 'featured');
-                              
-                              const response = await fetch('/api/upload', {
-                                method: 'POST',
-                                body: formData
-                              });
-                              
-                              const result = await response.json();
-                              
-                              if (result.success) {
-                                setFormData(prev => ({ ...prev, featured_image: result.data.url }));
-                              } else {
-                                alert(result.error || 'فشل رفع الصورة');
-                              }
-                            } catch (error) {
-                              console.error('خطأ في رفع الصورة:', error);
-                              alert('حدث خطأ أثناء رفع الصورة');
-                            } finally {
-                              setUploadingImage(false);
-                            }
-                          }
-                        }}
-                        className="hidden"
-                        id="featured-image-upload"
-                        disabled={uploadingImage}
-                      />
-                    <label htmlFor="featured-image-upload" className="cursor-pointer">
-                      <span className="text-blue-600 hover:text-blue-700 text-sm font-medium">{formData.featured_image ? 'تغيير الصورة' : 'اختر صورة'}</span>
-                    </label>
-                  </div>
+                  <FeaturedImageUpload 
+                    value={formData.featured_image || ''}
+                    onChange={(url) => setFormData(prev => ({ ...prev, featured_image: url }))}
+                    darkMode={darkMode}
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between text-sm">
