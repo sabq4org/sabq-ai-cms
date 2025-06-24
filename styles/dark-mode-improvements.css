@@ -1,3 +1,60 @@
+/* تحسينات بسيطة ومحددة للوضع الليلي */
+
+/* تحسين widget التحليل العميق فقط */
+.dark .deep-analysis-widget {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.dark .deep-analysis-widget h3 {
+  color: #f9fafb;
+  font-size: 1.5rem;
+}
+
+.dark .deep-analysis-widget p {
+  color: #e5e7eb;
+}
+
+/* تحسين بطاقات التحليل */
+.dark .analysis-card {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.dark .analysis-card:hover {
+  background-color: #374151;
+  transform: translateY(-2px);
+}
+
+/* تحسين الأيقونات الملونة في صفحة التحليل العميق */
+.dark .deep-analysis-page .text-blue-500 { color: #60a5fa; }
+.dark .deep-analysis-page .text-green-500 { color: #34d399; }
+.dark .deep-analysis-page .text-yellow-500 { color: #fbbf24; }
+.dark .deep-analysis-page .text-purple-500 { color: #a78bfa; }
+
+/* تحسين العناوين في widget التحليل العميق */
+.dark .deep-analysis-widget h1,
+.dark .deep-analysis-widget h2,
+.dark .deep-analysis-widget h3 {
+  color: #f9fafb;
+}
+
+/* تحسين النصوص في صفحة التحليل العميق */
+.dark .insights-deep-page p {
+  color: #e5e7eb;
+}
+
+/* تحسين خلفية صفحة التحليل العميق */
+.dark .insights-deep-page {
+  background-color: #111827;
+}
+
+/* إزالة الظلال الزائدة في الوضع الليلي */
+.dark .deep-analysis-widget,
+.dark .analysis-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
 /* تحسينات الوضع الليلي - Dark Mode Improvements */
 
 /* ===== تحسين التباين والألوان ===== */
@@ -567,32 +624,6 @@ html.dark body {
 .dark .text-red-500 { color: #f87171 !important; }
 .dark .text-purple-500 { color: #a78bfa !important; }
 .dark .text-indigo-500 { color: #818cf8 !important; }
-
-/* تحسين widget التحليل العميق */
-.dark .deep-analysis-widget {
-  background-color: #141414 !important;
-  border-color: #262626 !important;
-}
-
-.dark .deep-analysis-widget h3 {
-  color: #fafafa !important;
-  font-size: 1.5rem !important;
-}
-
-.dark .deep-analysis-widget p {
-  color: #e5e5e5 !important;
-}
-
-/* تحسين بطاقات التحليل */
-.dark .analysis-card {
-  background-color: #1a1a1a !important;
-  border-color: #262626 !important;
-}
-
-.dark .analysis-card:hover {
-  background-color: #1f1f1f !important;
-  transform: translateY(-2px) !important;
-}
 
 /* تحسين الشارات والبادجات */
 .dark .badge,
