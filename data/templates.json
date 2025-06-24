@@ -4,12 +4,7 @@
     "name": "الهيدر الافتراضي",
     "description": "قالب الهيدر الأساسي للموقع",
     "type": "header",
-    "content": {
-      "logo": {
-        "url": "/uploads/logos/1750251843592-o8l84n.png",
-        "alt": "شعار الموقع"
-      }
-    },
+    "content": {},
     "is_active": true,
     "is_default": true,
     "logo_url": "/uploads/logos/1750251843592-o8l84n.png",

@@ -153,14 +153,14 @@ export default function Header() {
       return null;
     }
     
-    // أولوية للـ logo_url المباشر
+    // أولوية للـ logo_url المباشر (تجنب التكرار)
     if (headerTemplate.logo_url) {
       console.log('Using direct logo_url:', headerTemplate.logo_url);
       return headerTemplate.logo_url;
     }
     
-    // ثم content.logo.url
-    if (headerTemplate.content?.logo?.url) {
+    // فقط في حالة عدم وجود logo_url، استخدم content.logo.url
+    if (headerTemplate.content?.logo?.url && !headerTemplate.logo_url) {
       console.log('Using content.logo.url:', headerTemplate.content.logo.url);
       return headerTemplate.content.logo.url;
     }
@@ -275,11 +275,11 @@ export default function Header() {
         >
           {/* الشعار في اليمين */}
           <Link href="/" className="flex-shrink-0 min-w-[120px]">
-            {/* شعار سبق - من القالب أو افتراضي */}
             {templateLoading ? (
               // مؤشر تحميل للشعار
               <div className="w-20 h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
             ) : getLogoUrl() && !imageError ? (
+              // عرض الشعار من القالب
               <div className="relative">
                 <img 
                   src={getLogoUrl()!} 
@@ -308,16 +308,9 @@ export default function Header() {
                     <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                   </div>
                 )}
-                {/* Fallback logo في حالة الخطأ */}
-                {imageError && (
-                  <div className="flex items-center gap-2">
-                    <SabqLogo />
-                    <span className="text-xl font-bold text-blue-600 dark:text-blue-400">سبق</span>
-                  </div>
-                )}
               </div>
             ) : (
-              // Fallback logo الافتراضي
+              // الشعار الافتراضي (سبق) - يظهر فقط عند عدم وجود شعار من القالب أو في حالة الخطأ
               <div className="flex items-center gap-2">
                 <SabqLogo />
                 <span className="text-xl font-bold text-blue-600 dark:text-blue-400">سبق</span>
