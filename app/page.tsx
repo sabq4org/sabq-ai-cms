@@ -20,7 +20,7 @@ import CategoryBadge, { CategoryNavigation } from './components/CategoryBadge';
 import Header from '../components/Header';
 import SmartSlot from '@/components/home/SmartSlot';
 import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
-import { AlHilalWorldCupBlock } from '../components/smart-blocks/AlHilalWorldCupBlock';
+
 
 // ===============================
 // نظام ذكاء المستخدم والتخصيص
@@ -2453,10 +2453,7 @@ export default function NewspaperHomePage() {
         </div>
       </section>
 
-      {/* بلوك الهلال في بطولة العالم */}
-      <section className="max-w-7xl mx-auto px-6 mb-16">
-        <AlHilalWorldCupBlock />
-      </section>
+
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-12">

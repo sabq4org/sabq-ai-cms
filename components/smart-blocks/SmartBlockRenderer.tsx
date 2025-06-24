@@ -8,6 +8,7 @@ import { CarouselBlock } from './CarouselBlock';
 import { HtmlBlock } from './HtmlBlock';
 import { HeroSliderBlock } from './HeroSliderBlock';
 import { MagazineLayoutBlock } from './MagazineLayoutBlock';
+import { AlHilalWorldCupBlock } from './AlHilalWorldCupBlock';
 
 interface SmartBlock {
   id: string;
@@ -88,6 +89,30 @@ export const SmartBlockRenderer: React.FC<SmartBlockRendererProps> = ({
   // عرض البلوك HTML المخصص
   if (block.type === 'html' && block.customHtml) {
     return <HtmlBlock block={block} />;
+  }
+
+  // عرض البلوكات المخصصة
+  if (block.type === 'custom') {
+    // بلوك الهلال في بطولة العالم
+    if (block.name === 'الهلال في بطولة العالم' || block.id === '1750599575769') {
+      return (
+        <AlHilalWorldCupBlock 
+          articles={displayArticles.map(article => ({
+            id: article.id,
+            title: article.title,
+            slug: article.slug,
+            imageUrl: article.imageUrl || article.featured_image || article.image,
+            category: article.category,
+            publishedAt: article.publishedAt || article.published_at || article.created_at,
+            views: article.views,
+            isNew: true // يمكن تحديد هذا بناءً على تاريخ النشر
+          }))}
+          backgroundColor={block.theme.backgroundColor}
+          primaryColor={block.theme.primaryColor}
+          textColor={block.theme.textColor}
+        />
+      );
+    }
   }
 
   // تحديد نوع البلوك المناسب بناءً على displayType
