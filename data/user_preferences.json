@@ -71,52 +71,12 @@
       "updated_at": "2025-06-23T15:21:27.483Z"
     },
     {
-      "id": "pref-1750693067252-mssplln8f",
-      "user_id": "user-1750693026418-zdcy23jow",
-      "category_id": 2,
-      "source": "welcome",
-      "created_at": "2025-06-23T15:37:47.252Z",
-      "updated_at": "2025-06-23T15:37:47.252Z"
-    },
-    {
-      "id": "pref-1750693067252-hen288ljv",
-      "user_id": "user-1750693026418-zdcy23jow",
-      "category_id": 1,
-      "source": "welcome",
-      "created_at": "2025-06-23T15:37:47.252Z",
-      "updated_at": "2025-06-23T15:37:47.252Z"
-    },
-    {
-      "id": "pref-1750693067252-b2d4thylf",
-      "user_id": "user-1750693026418-zdcy23jow",
-      "category_id": 4,
-      "source": "welcome",
-      "created_at": "2025-06-23T15:37:47.252Z",
-      "updated_at": "2025-06-23T15:37:47.252Z"
-    },
-    {
-      "id": "pref-1750693067252-kolxy35j3",
-      "user_id": "user-1750693026418-zdcy23jow",
-      "category_id": 5,
-      "source": "welcome",
-      "created_at": "2025-06-23T15:37:47.252Z",
-      "updated_at": "2025-06-23T15:37:47.252Z"
-    },
-    {
-      "id": "pref-1750693067252-yb0ehjal2",
-      "user_id": "user-1750693026418-zdcy23jow",
-      "category_id": 6,
-      "source": "welcome",
-      "created_at": "2025-06-23T15:37:47.252Z",
-      "updated_at": "2025-06-23T15:37:47.252Z"
-    },
-    {
-      "id": "pref-1750693067252-oxaar37wc",
+      "id": "pref-1750709375440-z8ihdrciq",
       "user_id": "user-1750693026418-zdcy23jow",
       "category_id": 3,
       "source": "welcome",
-      "created_at": "2025-06-23T15:37:47.252Z",
-      "updated_at": "2025-06-23T15:37:47.252Z"
+      "created_at": "2025-06-23T20:09:35.440Z",
+      "updated_at": "2025-06-23T20:09:35.440Z"
     }
   ],
   "user-1750594786667-pwihpdx51": {
@@ -138,17 +98,21 @@
     "user_id": "user-1750693026418-zdcy23jow",
     "categories": {
       "2": 1,
-      "4": 1
+      "4": 1,
+      "8": 2
     },
-    "authors": {},
+    "authors": {
+      "tm-1750618269861-zhxswwcg3": 1
+    },
     "topics": [],
     "reading_time": {
       "preferred_hours": [
         19,
-        23
+        23,
+        9
       ],
       "average_duration": 0
     },
-    "last_updated": "2025-06-23T20:05:00.637Z"
+    "last_updated": "2025-06-24T06:51:29.420Z"
   }
 }
