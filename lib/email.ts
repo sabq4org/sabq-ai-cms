@@ -1,34 +1,40 @@
 import nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
+import { emailConfig } from '@/config/email.config';
 
 // إنشاء transporter للبريد الإلكتروني
 let transporter: Transporter | null = null;
 
 // تهيئة البريد الإلكتروني
 export function initializeEmail() {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn('⚠️ تحذير: إعدادات البريد الإلكتروني غير مكتملة');
-    return;
-  }
+  try {
+    transporter = nodemailer.createTransport({
+      host: emailConfig.smtp.host,
+      port: emailConfig.smtp.port,
+      secure: emailConfig.smtp.secure,
+      auth: {
+        user: emailConfig.smtp.auth.user,
+        pass: emailConfig.smtp.auth.pass,
+      },
+      connectionTimeout: emailConfig.settings.connectionTimeout,
+      greetingTimeout: emailConfig.settings.connectionTimeout,
+      socketTimeout: emailConfig.settings.connectionTimeout,
+    });
 
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-
-  // التحقق من الاتصال
-  transporter.verify((error) => {
-    if (error) {
-      console.error('❌ خطأ في إعدادات البريد الإلكتروني:', error);
-    } else {
-      console.log('✅ البريد الإلكتروني جاهز للإرسال');
+    // التحقق من الاتصال
+    if (transporter) {
+      transporter.verify((error) => {
+        if (error) {
+          console.error('❌ خطأ في إعدادات البريد الإلكتروني:', error);
+        } else {
+          console.log('✅ البريد الإلكتروني جاهز للإرسال');
+          console.log(`📧 البريد المستخدم: ${emailConfig.smtp.auth.user}`);
+        }
+      });
     }
-  });
+  } catch (error) {
+    console.error('❌ فشل في تهيئة البريد الإلكتروني:', error);
+  }
 }
 
 // قوالب البريد الإلكتروني

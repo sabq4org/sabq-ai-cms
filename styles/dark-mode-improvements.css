@@ -1,0 +1,234 @@
+/* تحسينات الوضع الليلي - Dark Mode Improvements */
+
+/* ===== تحسين التباين والألوان ===== */
+
+/* تحسين ألوان النصوص */
+.dark .text-gray-400 {
+  color: #9ca3af !important; /* رمادي أفتح */
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+.dark .text-gray-300 {
+  color: #e5e7eb !important; /* رمادي فاتح جداً للنصوص المهمة */
+}
+
+/* تحسين ألوان الأيقونات */
+.dark .text-gray-400 svg,
+.dark .text-gray-500 svg {
+  color: #60a5fa !important; /* أزرق فاتح للأيقونات */
+}
+
+.dark .hover\:text-blue-400:hover svg {
+  color: #93c5fd !important;
+}
+
+.dark .hover\:text-purple-400:hover svg {
+  color: #c084fc !important;
+}
+
+.dark .hover\:text-red-400:hover svg {
+  color: #f87171 !important;
+}
+
+.dark .hover\:text-green-400:hover svg {
+  color: #4ade80 !important;
+}
+
+/* ===== تحسين البطاقات ===== */
+
+/* خلفيات البطاقات */
+.dark .bg-gray-800 {
+  background-color: #1e293b !important; /* رمادي-أزرق داكن */
+}
+
+.dark .bg-gray-700 {
+  background-color: #334155 !important;
+}
+
+.dark .bg-gray-700\/50 {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+/* حدود البطاقات */
+.dark .border-gray-700 {
+  border-color: #475569 !important;
+}
+
+.dark .border-gray-600 {
+  border-color: #475569 !important;
+}
+
+/* ===== تحسين العناوين والنصوص ===== */
+
+/* عناوين المقالات */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark .font-bold {
+  color: #f3f4f6 !important; /* أبيض ناعم */
+  font-weight: 700;
+}
+
+/* نصوص الملخصات */
+.dark p,
+.dark .line-clamp-3 {
+  color: #d1d5db !important; /* رمادي فاتح */
+  line-height: 1.75;
+}
+
+/* ===== تحسين الأزرار ===== */
+
+/* زر القراءة الأساسي */
+.dark .bg-blue-600\/20 {
+  background-color: rgba(37, 99, 235, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+.dark .bg-blue-600\/20:hover {
+  background-color: rgba(37, 99, 235, 0.3) !important;
+  border-color: rgba(59, 130, 246, 0.6) !important;
+}
+
+/* أزرار التفاعل */
+.dark button[class*="hover:bg-gray-700"] {
+  transition: all 0.2s ease;
+}
+
+.dark button[class*="hover:bg-gray-700"]:hover {
+  background-color: rgba(55, 65, 81, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+/* ===== تحسين الوسوم والبادجات ===== */
+
+/* الوسوم */
+.dark .bg-gray-700\/50 {
+  background-color: rgba(55, 65, 81, 0.3) !important;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.dark .text-gray-200 {
+  color: #e5e7eb !important;
+}
+
+/* البادجات */
+.dark .bg-purple-900\/30 {
+  background-color: rgba(88, 28, 135, 0.3) !important;
+  border: 1px solid rgba(147, 51, 234, 0.3);
+}
+
+.dark .bg-blue-900\/30 {
+  background-color: rgba(30, 58, 138, 0.3) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* ===== تحسين شريط البحث والفلاتر ===== */
+
+.dark input[type="text"],
+.dark input[type="search"],
+.dark select {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f3f4f6 !important;
+}
+
+.dark input::placeholder {
+  color: #9ca3af !important;
+}
+
+.dark input:focus,
+.dark select:focus {
+  border-color: #3b82f6 !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===== تحسين التأثيرات ===== */
+
+/* ظلال البطاقات */
+.dark .shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 
+              0 10px 10px -5px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .hover\:shadow-2xl:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* تأثير التمرير */
+.dark [class*="hover:transform"]:hover {
+  transform: translateY(-4px) !important;
+}
+
+/* ===== تحسين الإحصائيات ===== */
+
+/* بطاقات الإحصائيات في الهيدر */
+.dark .bg-gray-800 .text-3xl {
+  color: #f3f4f6 !important;
+  font-weight: 700;
+}
+
+.dark .bg-gray-800 .text-sm {
+  color: #d1d5db !important;
+}
+
+/* أيقونات الإحصائيات */
+.dark .text-purple-400,
+.dark .text-blue-400,
+.dark .text-green-400,
+.dark .text-orange-400 {
+  filter: brightness(1.2);
+}
+
+/* ===== تحسين التوافق مع الموبايل ===== */
+
+@media (max-width: 768px) {
+  /* تكبير النصوص على الموبايل */
+  .dark h3 {
+    font-size: 1.25rem !important;
+  }
+  
+  .dark p {
+    font-size: 1rem !important;
+  }
+  
+  /* تحسين الأزرار للمس */
+  .dark button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* تحسين المسافات */
+  .dark .p-6 {
+    padding: 1.25rem !important;
+  }
+}
+
+/* ===== إضافات خاصة ===== */
+
+/* تأثير التوهج للعناصر المميزة */
+.dark .glow-effect {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+/* تحسين قابلية القراءة */
+.dark .reading-optimized {
+  font-size: 1.125rem;
+  line-height: 1.75;
+  letter-spacing: 0.025em;
+}
+
+/* تحسين التباين للنصوص الصغيرة */
+.dark .text-xs {
+  font-size: 0.875rem !important;
+  font-weight: 500;
+}
+
+/* إزالة التأثيرات غير الضرورية */
+.dark .no-effects {
+  box-shadow: none !important;
+  text-shadow: none !important;
+} 

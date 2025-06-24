@@ -230,15 +230,15 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                     </div>
 
                     {/* العنوان */}
-                    <h3 className={`font-bold text-lg leading-relaxed mb-3 line-clamp-2 ${
+                    <h3 className={`font-bold text-xl leading-tight mb-3 line-clamp-2 ${
                       darkMode ? 'text-white' : 'text-gray-900'
                     }`}>
                       {item.title}
                     </h3>
 
-                    {/* الملخص - خط خفيف */}
-                    <p className={`text-sm mb-4 line-clamp-3 leading-relaxed font-light ${
-                      darkMode ? 'text-gray-400' : 'text-gray-600'
+                    {/* الملخص - محسّن */}
+                    <p className={`text-base mb-4 line-clamp-3 leading-relaxed ${
+                      darkMode ? 'text-gray-300' : 'text-gray-600'
                     }`}>
                       {item.summary}
                     </p>
@@ -250,7 +250,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                           key={idx} 
                           className={`text-xs px-2 py-0.5 rounded-md ${
                             darkMode 
-                              ? 'bg-gray-700/50 text-gray-400' 
+                              ? 'bg-gray-700/50 text-gray-200' 
                               : 'bg-gray-100 text-gray-600'
                           }`}
                         >
@@ -259,55 +259,38 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                       ))}
                     </div>
 
-                    {/* الإحصائيات */}
-                    <div className={`flex items-center gap-3 text-xs mb-5 ${
-                      darkMode ? 'text-gray-500' : 'text-gray-500'
+                    {/* الإحصائيات - مبسطة */}
+                    <div className={`flex items-center justify-between text-sm mb-5 ${
+                      darkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="flex items-center gap-1 cursor-help">
-                            <User className="w-3 h-3" />
-                            {truncateAuthor(item.author)}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{item.author}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <span className="flex items-center gap-1">
-                        <Clock3 className="w-3 h-3" /> 
-                        {item.readTime} د
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {formatDate(item.createdAt)}
+                      <span className="flex items-center gap-2">
+                        <Clock3 className={`w-4 h-4 ${darkMode ? 'text-blue-400' : 'text-gray-400'}`} /> 
+                        {item.readTime} دقيقة • {formatDate(item.createdAt)}
                       </span>
                     </div>
 
-                    {/* زر القراءة - مصغر وخافت */}
+                    {/* زر القراءة - محسّن */}
                     <div className="mb-4">
                       <a href={item.url} onClick={() => markAsRead(item.id)}>
-                        <button className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-all duration-300 border group-hover:border-blue-500 ${
+                        <button className={`w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
                           darkMode 
-                            ? 'border-gray-700 text-gray-300 hover:text-blue-400 hover:bg-gray-700/50' 
-                            : 'border-gray-200 text-gray-700 hover:text-blue-600 hover:bg-blue-50/50'
+                            ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-600/30' 
+                            : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
                         }`}>
-                          <span className="flex items-center justify-center gap-2">
-                            اقرأ التحليل
-                            <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                          </span>
+                          <span>اقرأ التحليل</span>
+                          <TrendingUp className="w-4 h-4" />
                         </button>
                       </a>
                     </div>
 
-                    {/* عناصر التفاعل - موسطة */}
+                    {/* عناصر التفاعل - محسّنة */}
                     <div className="flex items-center justify-center gap-4">
                       <button
                         onClick={() => handleShare(item)}
                         className={`p-2 rounded-lg transition-all duration-300 ${
                           darkMode 
-                            ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-700/50' 
-                            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                            ? 'text-gray-400 hover:text-blue-400 hover:bg-gray-700/50' 
+                            : 'text-gray-400 hover:text-blue-600 hover:bg-gray-100'
                         }`}
                         title="مشاركة"
                       >
@@ -320,8 +303,8 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                           savedItems.includes(item.id) 
                             ? 'text-blue-500' 
                             : darkMode 
-                              ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-700/50' 
-                              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                              ? 'text-gray-400 hover:text-purple-400 hover:bg-gray-700/50' 
+                              : 'text-gray-400 hover:text-purple-600 hover:bg-gray-100'
                         }`}
                         title="حفظ"
                       >
@@ -336,8 +319,8 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                           likedItems.includes(item.id) 
                             ? 'text-red-500' 
                             : darkMode 
-                              ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-700/50' 
-                              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                              ? 'text-gray-400 hover:text-red-400 hover:bg-gray-700/50' 
+                              : 'text-gray-400 hover:text-red-600 hover:bg-gray-100'
                         }`}
                         title="إعجاب"
                       >

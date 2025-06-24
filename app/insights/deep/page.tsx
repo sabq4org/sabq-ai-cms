@@ -267,15 +267,15 @@ export default function DeepInsightsPage() {
                     </div>
 
                     {/* العنوان */}
-                    <h3 className={`font-bold text-xl mb-3 line-clamp-2 ${
+                    <h3 className={`font-bold text-2xl mb-3 line-clamp-2 leading-tight ${
                       darkMode ? 'text-white' : 'text-gray-900'
                     }`}>
                       {insight.title}
                     </h3>
 
                     {/* الملخص */}
-                    <p className={`text-sm mb-4 line-clamp-3 leading-relaxed ${
-                      darkMode ? 'text-gray-400' : 'text-gray-600'
+                    <p className={`text-base mb-4 line-clamp-3 leading-relaxed ${
+                      darkMode ? 'text-gray-300' : 'text-gray-600'
                     }`}>
                       {insight.summary}
                     </p>
@@ -287,7 +287,7 @@ export default function DeepInsightsPage() {
                           key={idx} 
                           className={`text-xs px-2.5 py-1 rounded-md ${
                             darkMode 
-                              ? 'bg-gray-700 text-gray-300' 
+                              ? 'bg-gray-700/50 text-gray-200' 
                               : 'bg-gray-100 text-gray-700'
                           }`}
                         >
@@ -296,24 +296,34 @@ export default function DeepInsightsPage() {
                       ))}
                     </div>
 
-                    {/* المعلومات السفلية */}
-                    <div className={`flex items-center justify-between text-xs pt-4 border-t ${
-                      darkMode ? 'text-gray-500 border-gray-700' : 'text-gray-500 border-gray-100'
+                    {/* المعلومات السفلية - مبسطة */}
+                    <div className={`flex items-center justify-between pt-4 border-t ${
+                      darkMode ? 'border-gray-700' : 'border-gray-100'
                     }`}>
-                      <div className="flex items-center gap-4">
-                        <span className="flex items-center gap-1">
-                          <User className="w-3.5 h-3.5" />
-                          {insight.author}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock3 className="w-3.5 h-3.5" /> 
-                          {insight.readTime} دقيقة
-                        </span>
+                      <div className={`flex items-center gap-2 text-sm ${
+                        darkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        <Clock3 className={`w-4 h-4 ${darkMode ? 'text-blue-400' : 'text-gray-400'}`} /> 
+                        <span>{insight.readTime} دقيقة • {formatDate(insight.createdAt)}</span>
                       </div>
-                      <span className="flex items-center gap-1">
-                        <Eye className="w-3.5 h-3.5" />
-                        {formatViews(insight.views)}
-                      </span>
+                      <div className={`flex items-center gap-1 text-sm ${
+                        darkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        <Eye className={`w-4 h-4 ${darkMode ? 'text-green-400' : 'text-gray-400'}`} />
+                        <span>{formatViews(insight.views)}</span>
+                      </div>
+                    </div>
+
+                    {/* زر اقرأ التحليل - محسّن */}
+                    <div className="mt-4">
+                      <button className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                        darkMode 
+                          ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-600/30' 
+                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
+                      }`}>
+                        <span>اقرأ التحليل</span>
+                        <TrendingUp className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 </div>

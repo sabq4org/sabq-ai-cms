@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "next lint",
     "cleanup": "./scripts/cleanup.sh",
-    "analyze": "cross-env ANALYZE=true next build"
+    "analyze": "cross-env ANALYZE=true next build",
+    "setup-email": "node scripts/setup-email.js",
+    "test-email": "node scripts/test-email.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -50,6 +52,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.5.0",
     "framer-motion": "^12.18.1",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.515.0",

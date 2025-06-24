@@ -13,6 +13,9 @@
 /* استيراد الألوان الناعمة المريحة للعين */
 @import '../styles/soft-colors.css';
 
+/* استيراد تحسينات الوضع الليلي */
+@import '../styles/dark-mode-improvements.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
