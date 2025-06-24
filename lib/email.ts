@@ -8,27 +8,39 @@ let transporter: Transporter | null = null;
 // تهيئة البريد الإلكتروني
 export function initializeEmail() {
   try {
-    transporter = nodemailer.createTransport({
-      host: emailConfig.smtp.host,
-      port: emailConfig.smtp.port,
-      secure: emailConfig.smtp.secure,
+    // استخدام الإعدادات من emailConfig أو متغيرات البيئة
+    const smtpConfig = {
+      host: process.env.SMTP_HOST || emailConfig.smtp.host,
+      port: parseInt(process.env.SMTP_PORT || String(emailConfig.smtp.port)),
+      secure: process.env.SMTP_SECURE === 'true' || emailConfig.smtp.secure,
       auth: {
-        user: emailConfig.smtp.auth.user,
-        pass: emailConfig.smtp.auth.pass,
+        user: process.env.SMTP_USER || emailConfig.smtp.auth.user,
+        pass: process.env.SMTP_PASS || emailConfig.smtp.auth.pass,
       },
       connectionTimeout: emailConfig.settings.connectionTimeout,
       greetingTimeout: emailConfig.settings.connectionTimeout,
       socketTimeout: emailConfig.settings.connectionTimeout,
-    });
+      logger: process.env.EMAIL_DEBUG === 'true',
+      debug: process.env.EMAIL_DEBUG === 'true',
+    };
+
+    transporter = nodemailer.createTransport(smtpConfig);
 
     // التحقق من الاتصال
     if (transporter) {
       transporter.verify((error) => {
         if (error) {
           console.error('❌ خطأ في إعدادات البريد الإلكتروني:', error);
+          console.error('📧 الإعدادات المستخدمة:', {
+            host: smtpConfig.host,
+            port: smtpConfig.port,
+            secure: smtpConfig.secure,
+            user: smtpConfig.auth.user,
+          });
         } else {
           console.log('✅ البريد الإلكتروني جاهز للإرسال');
-          console.log(`📧 البريد المستخدم: ${emailConfig.smtp.auth.user}`);
+          console.log(`📧 البريد المستخدم: ${smtpConfig.auth.user}`);
+          console.log(`📬 الخادم: ${smtpConfig.host}:${smtpConfig.port}`);
         }
       });
     }
@@ -188,6 +200,14 @@ const emailTemplates = {
 
 // إرسال بريد التحقق
 export async function sendVerificationEmail(to: string, name: string, code: string) {
+  // إعادة تهيئة البريد إذا لم يكن مهيأ
+  if (!transporter) {
+    console.log('🔄 إعادة تهيئة البريد الإلكتروني...');
+    initializeEmail();
+    // انتظار قليلاً للتهيئة
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+
   if (!transporter) {
     console.error('❌ البريد الإلكتروني غير مهيأ');
     return false;
@@ -195,17 +215,36 @@ export async function sendVerificationEmail(to: string, name: string, code: stri
 
   try {
     const template = emailTemplates.verification(name, code);
-    await transporter.sendMail({
-      from: `"سبق الذكية" <${process.env.SMTP_USER}>`,
+    const fromEmail = process.env.SMTP_USER || emailConfig.smtp.auth.user;
+    
+    console.log(`📧 محاولة إرسال بريد التحقق إلى ${to} برمز ${code}`);
+    
+    const info = await transporter.sendMail({
+      from: `"صحيفة سبق الإلكترونية" <${fromEmail}>`,
       to,
       subject: template.subject,
       html: template.html,
     });
     
     console.log(`✅ تم إرسال بريد التحقق إلى ${to}`);
+    console.log(`📬 معرف الرسالة: ${info.messageId}`);
+    console.log(`📨 الرد من الخادم: ${info.response}`);
+    
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ خطأ في إرسال البريد:', error);
+    console.error('📧 تفاصيل الخطأ:', {
+      code: error.code,
+      command: error.command,
+      response: error.response,
+      responseCode: error.responseCode,
+    });
+    
+    // في حالة الفشل، عرض الرمز في الكونسول للتطوير
+    if (process.env.NODE_ENV === 'development' || process.env.EMAIL_DEBUG === 'true') {
+      console.log(`🔑 رمز التحقق للمستخدم ${to}: ${code}`);
+    }
+    
     return false;
   }
 }
