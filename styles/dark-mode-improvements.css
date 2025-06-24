@@ -309,8 +309,8 @@
 }
 
 /* إصلاح الخلفيات المتضاربة */
-.dark .bg-gray-800.dark\:bg-gray-700,
-.dark .bg-gray-700.dark\:bg-gray-800 {
+.dark .bg-gray-800,
+.dark .bg-gray-700 {
   background-color: var(--card-bg-dark) !important;
 }
 
