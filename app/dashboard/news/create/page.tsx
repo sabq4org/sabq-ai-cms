@@ -93,16 +93,17 @@ export default function CreateArticlePage() {
     title: '',
     subtitle: '',
     description: '',
-    category_id: 1, // تغيير القيمة الافتراضية من 0 إلى 1
+    category_id: 0,
     is_breaking: false,
     is_featured: false,
     is_smart_newsletter: false,
     keywords: [],
     publish_time: '',
-    author_id: 'current_user',
+    author_id: '',
     scope: 'local',
     status: 'draft',
-    content_blocks: []
+    content_blocks: [],
+    featured_image: ''
   });
 
   // إصلاح مشكلة Hydration للتوقيت الأولي
@@ -117,14 +118,19 @@ export default function CreateArticlePage() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [previewMode, setPreviewMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'seo' | 'ai' | 'publish'>('content');
-  const [aiLoading, setAiLoading] = useState<{ [key: string]: boolean }>({});
+  const [activeTab, setActiveTab] = useState<'content' | 'ai' | 'publish' | 'settings' | 'seo'>('content');
+  const [aiLoading, setAiLoading] = useState({
+    title: false,
+    description: false,
+    keywords: false
+  });
   const [qualityScore, setQualityScore] = useState(0);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [wordCount, setWordCount] = useState(0);
   const [readingTime, setReadingTime] = useState(0);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // تحميل التصنيفات الحقيقية من API
   useEffect(() => {
@@ -794,6 +800,11 @@ export default function CreateArticlePage() {
                             <X className="w-4 h-4" />
                           </button>
                         </div>
+                      ) : uploadingImage ? (
+                        <div className="h-64 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center bg-gray-50">
+                          <RefreshCw className="w-12 h-12 text-blue-600 animate-spin mb-3" />
+                          <p className="text-sm text-gray-600">جاري رفع الصورة...</p>
+                        </div>
                       ) : (
                         <div className="h-64 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-50">
                           <UploadCloud className="w-12 h-12 text-gray-400" />
@@ -806,8 +817,7 @@ export default function CreateArticlePage() {
                           const file = e.target.files?.[0];
                           if (file) {
                             try {
-                              // إظهار رسالة تحميل
-                              setFormData(prev => ({ ...prev, featured_image: '' }));
+                              setUploadingImage(true);
                               
                               const formData = new FormData();
                               formData.append('file', file);
@@ -828,6 +838,8 @@ export default function CreateArticlePage() {
                             } catch (error) {
                               console.error('خطأ في رفع الصورة:', error);
                               alert('حدث خطأ أثناء رفع الصورة');
+                            } finally {
+                              setUploadingImage(false);
                             }
                           }
                         }}
@@ -872,15 +884,15 @@ export default function CreateArticlePage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
-                    { icon: Wand2, title: 'توليد عنوان جذاب', desc: 'اقتراحات عناوين مُحسّنة', color: 'from-blue-500 to-indigo-600', action: generateTitle },
-                    { icon: FileText, title: 'كتابة الوصف', desc: 'وصف مُحسّن لمحركات البحث', color: 'from-purple-500 to-pink-600', action: generateDescription },
-                    { icon: Hash, title: 'اقتراح الوسوم', desc: 'كلمات مفتاحية ذكية', color: 'from-green-500 to-emerald-600', action: generateKeywords },
-                    { icon: Sparkles, title: 'تحسين المحتوى', desc: 'مراجعة وتحسين النص', color: 'from-orange-500 to-red-600', action: () => {} },
-                    { icon: Target, title: 'تحليل SEO', desc: 'نصائح لتحسين الظهور', color: 'from-cyan-500 to-blue-600', action: () => {} },
-                    { icon: Globe, title: 'ترجمة ذكية', desc: 'ترجمة احترافية للإنجليزية', color: 'from-indigo-500 to-purple-600', action: () => {} }
+                    { icon: Wand2, title: 'توليد عنوان جذاب', desc: 'اقتراحات عناوين مُحسّنة', color: 'from-blue-500 to-indigo-600', action: generateTitle, loadingKey: 'title' as const },
+                    { icon: FileText, title: 'كتابة الوصف', desc: 'وصف مُحسّن لمحركات البحث', color: 'from-purple-500 to-pink-600', action: generateDescription, loadingKey: 'description' as const },
+                    { icon: Hash, title: 'اقتراح الوسوم', desc: 'كلمات مفتاحية ذكية', color: 'from-green-500 to-emerald-600', action: generateKeywords, loadingKey: 'keywords' as const },
+                    { icon: Sparkles, title: 'تحسين المحتوى', desc: 'مراجعة وتحسين النص', color: 'from-orange-500 to-red-600', action: () => {}, loadingKey: null },
+                    { icon: Target, title: 'تحليل SEO', desc: 'نصائح لتحسين الظهور', color: 'from-cyan-500 to-blue-600', action: () => {}, loadingKey: null },
+                    { icon: Globe, title: 'ترجمة ذكية', desc: 'ترجمة احترافية للإنجليزية', color: 'from-indigo-500 to-purple-600', action: () => {}, loadingKey: null }
                   ].map((tool, index) => {
                     const Icon = tool.icon;
-                    const isLoading = aiLoading[tool.title];
+                    const isLoading = tool.loadingKey ? aiLoading[tool.loadingKey] : false;
                     return (
                       <button
                         key={index}
@@ -1561,41 +1573,43 @@ export default function CreateArticlePage() {
                         <UploadCloud className="w-12 h-12 text-gray-400" />
                       </div>
                     )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          try {
-                            // إظهار رسالة تحميل
-                            setFormData(prev => ({ ...prev, featured_image: '' }));
-                            
-                            const formData = new FormData();
-                            formData.append('file', file);
-                            formData.append('type', 'featured');
-                            
-                            const response = await fetch('/api/upload', {
-                              method: 'POST',
-                              body: formData
-                            });
-                            
-                            const result = await response.json();
-                            
-                            if (result.success) {
-                              setFormData(prev => ({ ...prev, featured_image: result.data.url }));
-                            } else {
-                              alert(result.error || 'فشل رفع الصورة');
+                                          <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            try {
+                              setUploadingImage(true);
+                              
+                              const formData = new FormData();
+                              formData.append('file', file);
+                              formData.append('type', 'featured');
+                              
+                              const response = await fetch('/api/upload', {
+                                method: 'POST',
+                                body: formData
+                              });
+                              
+                              const result = await response.json();
+                              
+                              if (result.success) {
+                                setFormData(prev => ({ ...prev, featured_image: result.data.url }));
+                              } else {
+                                alert(result.error || 'فشل رفع الصورة');
+                              }
+                            } catch (error) {
+                              console.error('خطأ في رفع الصورة:', error);
+                              alert('حدث خطأ أثناء رفع الصورة');
+                            } finally {
+                              setUploadingImage(false);
                             }
-                          } catch (error) {
-                            console.error('خطأ في رفع الصورة:', error);
-                            alert('حدث خطأ أثناء رفع الصورة');
                           }
-                        }
-                      }}
-                      className="hidden"
-                      id="featured-image-upload"
-                    />
+                        }}
+                        className="hidden"
+                        id="featured-image-upload"
+                        disabled={uploadingImage}
+                      />
                     <label htmlFor="featured-image-upload" className="cursor-pointer">
                       <span className="text-blue-600 hover:text-blue-700 text-sm font-medium">{formData.featured_image ? 'تغيير الصورة' : 'اختر صورة'}</span>
                     </label>
