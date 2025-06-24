@@ -11,8 +11,12 @@ const protectedPaths = [
   '/api/roles',
   '/api/team-members',
   '/api/permissions',
-  '/api/templates',
-  '/api/smart-blocks',
+  '/api/templates/create',
+  '/api/templates/update',
+  '/api/templates/delete',
+  '/api/smart-blocks/create',
+  '/api/smart-blocks/update',
+  '/api/smart-blocks/delete',
   '/api/deep-analyses',
   '/api/analytics',
   '/api/ai/settings',
@@ -55,12 +59,16 @@ const publicPaths = [
   '/api/auth/verify-email',
   '/api/articles',
   '/api/categories',
+  '/api/templates/active',
   '/api/templates/active-header',
   '/api/smart-blocks',
   '/api/deep-insights',
   '/api/content/personalized',
   '/api/interactions/track',
-  '/api/interactions/track-activity'
+  '/api/interactions/track-activity',
+  '/test',
+  '/for-you',
+  '/home'
 ];
 
 export function middleware(request: NextRequest) {
