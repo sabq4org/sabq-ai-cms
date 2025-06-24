@@ -1,8 +1,11 @@
 // إصلاح إعدادات البريد الإلكتروني بناءً على الخادم والمنفذ
 
 export function getCorrectEmailConfig() {
-  // استخدام mail.jur3a.ai كخادم افتراضي بدلاً من gmail
-  const host = process.env.SMTP_HOST || 'mail.jur3a.ai';
+  // إذا كان المضيف في متغير البيئة يشير إلى Gmail فسنستبدله بالخادم الصحيح
+  let host = process.env.SMTP_HOST || 'mail.jur3a.ai';
+  if (host.includes('gmail.com')) {
+    host = 'mail.jur3a.ai';
+  }
   const port = parseInt(process.env.SMTP_PORT || '465');
   
   // تحديد إعدادات secure بناءً على المنفذ
