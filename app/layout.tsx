@@ -112,7 +112,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
       </head>
-      <body className={`${ibmPlexSansArabic.variable} font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
+      <body className={`${ibmPlexSansArabic.variable} font-sans antialiased bg-soft-cream dark:bg-soft-dark-cream text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
         <DarkModeProvider>
           {children}
           <Toaster 

@@ -145,16 +145,17 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   
-  // إضافة CSP للحماية
+  // إضافة CSP للحماية مع السماح بمصادر Next.js
   response.headers.set(
     'Content-Security-Policy',
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://platform.twitter.com https://cdn.jsdelivr.net; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "img-src 'self' data: https: blob:; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "connect-src 'self' https://api.openai.com https://images.unsplash.com; " +
-    "frame-src https://platform.twitter.com;"
+    "img-src 'self' data: https: blob: http://localhost:*; " +
+    "font-src 'self' data: https://fonts.gstatic.com; " +
+    "connect-src 'self' http://localhost:* ws://localhost:* https://api.openai.com https://images.unsplash.com; " +
+    "frame-src https://platform.twitter.com; " +
+    "media-src 'self' blob: data:;"
   );
 
   return response;

@@ -1955,7 +1955,9 @@ export default function NewspaperHomePage() {
 
       {/* Deep Analysis Widget - After Header */}
       {!deepInsightsLoading && deepInsights.length > 0 && (
-        <DeepAnalysisWidget insights={deepInsights} />
+        <div className="mt-4 mb-6">
+          <DeepAnalysisWidget insights={deepInsights} />
+        </div>
       )}
 
       {/* Welcome Section - Full Width */}
@@ -1971,19 +1973,6 @@ export default function NewspaperHomePage() {
         }`}></div>
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center relative">
-            {/* Background Decoration */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className={`absolute top-10 right-10 w-32 h-32 rounded-full animate-pulse backdrop-blur-sm ${
-                darkMode ? 'bg-blue-400/10' : 'bg-white dark:bg-gray-800/10'
-              }`}></div>
-              <div className={`absolute bottom-20 left-20 w-24 h-24 rounded-full animate-pulse backdrop-blur-sm ${
-                darkMode ? 'bg-indigo-400/10' : 'bg-white dark:bg-gray-800/10'
-              }`} style={{ animationDelay: '1s' }}></div>
-              <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full animate-pulse backdrop-blur-sm ${
-                darkMode ? 'bg-purple-400/5' : 'bg-white dark:bg-gray-800/5'
-              }`} style={{ animationDelay: '2s' }}></div>
-            </div>
-
             {/* Main Title */}
             <div className="mb-16 relative z-10">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white leading-tight drop-shadow-lg dark:shadow-gray-900/50">

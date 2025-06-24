@@ -10,14 +10,20 @@
 /* استيراد تحسينات لوحة التحكم للموبايل */
 @import '../styles/dashboard-mobile.css';
 
+/* استيراد الألوان الناعمة المريحة للعين */
+@import '../styles/soft-colors.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --background-start-rgb: 250, 250, 249; /* #FAFAF9 - لون دافئ ناعم */
+  --background-end-rgb: 247, 247, 245; /* #F7F7F5 - لون كريمي خفيف */
+  --background-soft: #FAFAF9;
+  --background-card: #FFFFFF;
+  --background-hover: #F5F5F4;
   --font-ibm-plex-arabic: 'IBM Plex Sans Arabic', 'Tajawal', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
   --smart-block-radius: 20px;
   --smart-block-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
@@ -26,15 +32,18 @@
   --primary-color: #2563eb;
   --secondary-color: #7c3aed;
   --accent-orange: #f97316;
-  --soft-bg: #f8fafc;
+  --soft-bg: #FAFAF9;
   --soft-border: #e2e8f0;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --background-start-rgb: 15, 15, 17; /* خلفية داكنة ناعمة */
+    --background-end-rgb: 20, 20, 22;
+    --background-soft: #0F0F11;
+    --background-card: #18181B;
+    --background-hover: #27272A;
   }
 }
 
@@ -47,6 +56,7 @@ body {
   direction: rtl;
   text-align: right;
   color: rgb(var(--foreground-rgb));
+  background-color: var(--background-soft);
   background: linear-gradient(
       to bottom,
       transparent,
@@ -108,7 +118,7 @@ a:hover {
 /* تحسينات responsive للجداول */
 @layer components {
   .table-responsive {
-    @apply overflow-x-auto;
+    overflow-x: auto;
   }
   
   .table-responsive::-webkit-scrollbar {
@@ -116,11 +126,20 @@ a:hover {
   }
   
   .table-responsive::-webkit-scrollbar-track {
-    @apply bg-gray-100 dark:bg-gray-800;
+    background-color: #f3f4f6;
+  }
+  
+  .dark .table-responsive::-webkit-scrollbar-track {
+    background-color: #1f2937;
   }
   
   .table-responsive::-webkit-scrollbar-thumb {
-    @apply bg-gray-400 dark:bg-gray-600 rounded;
+    background-color: #9ca3af;
+    border-radius: 0.25rem;
+  }
+  
+  .dark .table-responsive::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
   }
 }
 
@@ -512,51 +531,171 @@ img, video, iframe {
   transition: none !important;
 }
 
-/* Ensure dark mode classes take priority */
-.dark .bg-white {
-  background-color: rgb(31 41 55) !important; /* gray-800 */
+/* تطبيق الخلفيات الناعمة على العناصر الأساسية */
+.bg-white {
+  background-color: var(--background-card) !important;
 }
 
-.dark .bg-gray-50 {
-  background-color: rgb(17 24 39) !important; /* gray-900 */
+.bg-gray-50 {
+  background-color: var(--background-soft) !important;
 }
 
-.dark .bg-gray-100 {
-  background-color: rgb(31 41 55) !important; /* gray-800 */
+.bg-slate-50 {
+  background-color: var(--background-soft) !important;
 }
 
-.dark .text-gray-900 {
-  color: rgb(243 244 246) !important; /* gray-100 */
+/* خلفية الصفحة الرئيسية */
+html {
+  background-color: var(--background-soft) !important;
 }
 
-.dark .text-gray-800 {
-  color: rgb(229 231 235) !important; /* gray-200 */
+/* فئات إضافية للخلفيات الناعمة */
+.bg-soft-cream {
+  background-color: #FAFAF9 !important;
 }
 
-.dark .text-gray-700 {
-  color: rgb(209 213 219) !important; /* gray-300 */
+.bg-soft-white {
+  background-color: #F7F7F5 !important;
 }
 
-.dark .text-gray-600 {
-  color: rgb(156 163 175) !important; /* gray-400 */
+.bg-soft-gray {
+  background-color: #F5F5F4 !important;
 }
 
-.dark .border-gray-200 {
-  border-color: rgb(55 65 81) !important; /* gray-700 */
+.bg-soft-beige {
+  background-color: #F9F7F4 !important;
 }
 
-.dark .border-gray-300 {
-  border-color: rgb(75 85 99) !important; /* gray-600 */
+/* الوضع المظلم */
+.dark .bg-soft-cream {
+  background-color: #0F0F11 !important;
+}
+
+.dark .bg-soft-white {
+  background-color: #18181B !important;
+}
+
+.dark .bg-soft-gray {
+  background-color: #27272A !important;
+}
+
+.dark .bg-soft-beige {
+  background-color: #1C1C1F !important;
+}
+
+/* ظلال ناعمة */
+.shadow-soft {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.shadow-medium {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+.shadow-large {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* تحسين البطاقات */
+.card,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl {
+  background-color: var(--background-card);
+}
+
+/* تحسين خلفيات المقالات */
+article {
+  background-color: var(--background-card);
+}
+
+/* تحسين خلفية لوحة التحكم */
+.dashboard-container,
+[class*="dashboard"] {
+  background-color: var(--background-soft);
+}
+
+/* تحسين الجداول */
+table {
+  background-color: var(--background-card);
+}
+
+/* تحسين النماذج */
+form,
+input,
+textarea,
+select {
+  background-color: var(--background-card);
+}
+
+/* تحسين القوائم المنسدلة */
+[role="menu"],
+[role="listbox"],
+.dropdown {
+  background-color: var(--background-card);
+}
+
+/* تحسين الأزرار */
+button:not(.bg-blue-500):not(.bg-green-500):not(.bg-red-500) {
+  background-color: var(--background-hover);
+}
+
+/* تحسين hover states */
+.hover\:bg-gray-50:hover {
+  background-color: var(--background-hover) !important;
+}
+
+.hover\:bg-gray-100:hover {
+  background-color: var(--background-hover) !important;
+}
+
+/* تحسين خلفيات الوضع المظلم - بدون circular dependency */
+.dark [class*="bg-gray-800"] {
+  background-color: var(--background-card) !important;
+}
+
+.dark [class*="bg-gray-900"] {
+  background-color: var(--background-soft) !important;
+}
+
+.dark [class*="bg-slate-900"] {
+  background-color: var(--background-soft) !important;
+}
+
+/* تحسين التباين للقراءة */
+.article-content {
+  background-color: var(--background-card);
+  padding: 2rem;
+  border-radius: 1rem;
+}
+
+/* تحسين خلفية الكود */
+pre, code {
+  background-color: var(--background-hover) !important;
+}
+
+.dark pre,
+.dark code {
+  background-color: #1a1a1c !important;
 }
 
 /* أنماط مكون SabqCard */
 .sabq-card {
-  @apply bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm;
+  background-color: var(--background-card);
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
 
+.dark .sabq-card {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
 .sabq-card.hover:hover {
-  @apply shadow-md transform -translate-y-0.5;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transform: translateY(-0.125rem);
 }
 
 .sabq-shadow-blue {
@@ -568,12 +707,17 @@ img, video, iframe {
 }
 
 .sabq-stat-card {
-  @apply hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-800;
   transition: all 0.3s ease;
 }
 
 .sabq-stat-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: #dbeafe;
   transform: translateY(-2px);
+}
+
+.dark .sabq-stat-card:hover {
+  border-color: #1e40af;
 }
 
 /* Deep Analysis Print Styles */
@@ -660,48 +804,96 @@ img, video, iframe {
 
 /* Deep Analysis Specific Styles */
 .deep-analysis-content {
-  @apply prose prose-lg max-w-none;
+  max-width: none;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: #374151;
 }
 
 .deep-analysis-content h1 {
-  @apply text-3xl font-bold mb-6 mt-8;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
 }
 
 .deep-analysis-content h2 {
-  @apply text-2xl font-bold mb-4 mt-6;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
 }
 
 .deep-analysis-content h3 {
-  @apply text-xl font-bold mb-3 mt-4;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  margin-top: 1rem;
 }
 
 .deep-analysis-content h4 {
-  @apply text-lg font-bold mb-2 mt-3;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 .deep-analysis-content p {
-  @apply mb-4 leading-relaxed;
+  margin-bottom: 1rem;
+  line-height: 1.75;
 }
 
 .deep-analysis-content ul {
-  @apply list-disc list-inside mb-4 space-y-2;
+  list-style-type: disc;
+  list-style-position: inside;
+  margin-bottom: 1rem;
+}
+
+.deep-analysis-content ul li {
+  margin-bottom: 0.5rem;
 }
 
 .deep-analysis-content blockquote {
-  @apply border-r-4 border-blue-500 pr-4 my-4 italic;
+  border-right: 4px solid #3b82f6;
+  padding-right: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-style: italic;
 }
 
 /* Table of Contents Styles */
 .toc-item {
-  @apply w-full text-right px-3 py-2 rounded-lg transition-all;
+  width: 100%;
+  text-align: right;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
 }
 
 .toc-item.active {
-  @apply bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400;
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.dark .toc-item.active {
+  background-color: rgba(30, 58, 138, 0.3);
+  color: #60a5fa;
 }
 
 .toc-item:not(.active) {
-  @apply text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700;
+  color: #4b5563;
+}
+
+.toc-item:not(.active):hover {
+  background-color: #f9fafb;
+}
+
+.dark .toc-item:not(.active) {
+  color: #9ca3af;
+}
+
+.dark .toc-item:not(.active):hover {
+  background-color: #374151;
 }
 
 /* Smooth Scrolling */
@@ -716,15 +908,16 @@ html {
 }
 
 .dark ::-webkit-scrollbar-track {
-  @apply bg-gray-800;
+  background-color: #1f2937;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  @apply bg-gray-600 rounded;
+  background-color: #4b5563;
+  border-radius: 0.25rem;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+  background-color: #6b7280;
 }
 
 /* Deep Analysis Page Header Spacing */

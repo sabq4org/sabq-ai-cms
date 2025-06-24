@@ -46,8 +46,6 @@ const nextConfig: NextConfig = {
 
     return config;
   },
-  // تعطيل SWC minification في التطوير
-  swcMinify: process.env.NODE_ENV === 'production',
   // إعدادات إضافية
   reactStrictMode: true,
   poweredByHeader: false,

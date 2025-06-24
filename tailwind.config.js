@@ -9,6 +9,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // ألوان ناعمة مريحة للعين
+        'soft': {
+          cream: '#FAFAF9',
+          white: '#F7F7F5',
+          gray: '#F5F5F4',
+          beige: '#F9F7F4',
+          dark: {
+            cream: '#0F0F11',
+            white: '#18181B',
+            gray: '#27272A',
+            beige: '#1C1C1F',
+          }
+        },
+        
         // ألوان جرعة الأساسية
         'jura-primary': {
           50: '#eff6ff',
