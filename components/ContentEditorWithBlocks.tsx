@@ -114,7 +114,15 @@ export default function ContentEditorWithBlocks({
             const newData = { ...b.data };
             if (b.type === 'paragraph' || b.type === 'heading' || b.type === 'quote') {
               const existingData = newData[b.type] || {};
-              newData[b.type] = { ...existingData, text: data.result };
+              if (b.type === 'heading') {
+                newData[b.type] = { 
+                  ...existingData, 
+                  text: data.result, 
+                  level: (existingData as any).level || 2 
+                };
+              } else {
+                newData[b.type] = { ...existingData, text: data.result };
+              }
             }
             return { ...b, data: newData };
           }

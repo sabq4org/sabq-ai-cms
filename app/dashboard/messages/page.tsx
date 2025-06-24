@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { 
@@ -69,7 +69,7 @@ const statusConfig = {
   archived: { label: 'مؤرشف', color: 'yellow', icon: Archive }
 };
 
-export default function MessagesPage() {
+function MessagesContent() {
   const { darkMode } = useDarkMode();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -867,5 +867,20 @@ export default function MessagesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 mx-auto animate-spin text-blue-500" />
+          <p className="mt-4 text-gray-600">جارٍ التحميل...</p>
+        </div>
+      </div>
+    }>
+      <MessagesContent />
+    </Suspense>
   );
 } 

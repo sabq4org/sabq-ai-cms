@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, Loader2, AlertTriangle, Hash, Calendar, ArrowLeft } from "lucide-react";
@@ -20,7 +20,7 @@ interface Article {
   reading_time?: number;
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const params = useSearchParams();
   const query = params?.get("q") ?? "";
   const [loading, setLoading] = useState(false);
@@ -135,5 +135,20 @@ export default function SearchPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 mx-auto animate-spin text-blue-500" />
+          <p className="mt-4 text-gray-600">جارٍ التحميل...</p>
+        </div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 } 

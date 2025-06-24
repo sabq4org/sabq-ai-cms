@@ -21,9 +21,7 @@ const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
   if (!contentBlocks || contentBlocks.length === 0) {
     if (fallbackContent) {
       // تحويل النص العادي إلى فقرات
-      const paragraphs = fallbackContent.split('
-
-').filter(p => p.trim());
+      const paragraphs = fallbackContent.split('\n\n').filter(p => p.trim());
       return (
         <div className="prose prose-lg max-w-none" style={{ direction: 'rtl' }}>
           {paragraphs.map((paragraph, index) => (
@@ -54,12 +52,25 @@ const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
         );
 
       case 'heading':
-        const HeadingTag = `h${block.content.level || 2}` as keyof JSX.IntrinsicElements;
-        return (
-          <HeadingTag className="font-bold mt-8 mb-4 text-gray-800">
-            {block.content.text}
-          </HeadingTag>
-        );
+        const level = block.content.level || 2;
+        const headingClass = "font-bold mt-8 mb-4 text-gray-800";
+        
+        switch (level) {
+          case 1:
+            return <h1 className={headingClass}>{block.content.text}</h1>;
+          case 2:
+            return <h2 className={headingClass}>{block.content.text}</h2>;
+          case 3:
+            return <h3 className={headingClass}>{block.content.text}</h3>;
+          case 4:
+            return <h4 className={headingClass}>{block.content.text}</h4>;
+          case 5:
+            return <h5 className={headingClass}>{block.content.text}</h5>;
+          case 6:
+            return <h6 className={headingClass}>{block.content.text}</h6>;
+          default:
+            return <h2 className={headingClass}>{block.content.text}</h2>;
+        }
 
       case 'quote':
         return (

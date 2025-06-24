@@ -123,7 +123,7 @@ const getCategoryStyle = (category: string) => {
     },
   };
   
-  return styles[category] || {
+  return styles[category as keyof typeof styles] || {
     background: 'linear-gradient(135deg, #f3f4f6, #e5e7eb)',
     color: '#4b5563',
     border: '1px solid #d1d5db',
@@ -153,19 +153,39 @@ const getStatusStyle = (status: string) => {
     },
   };
   
-  return styles[status] || styles['pending'];
+  return styles[status as keyof typeof styles] || styles['pending'];
 };
 
+// تعريف الأنواع
+interface TableData {
+  id: number;
+  title: string;
+  author: string;
+  category: string;
+  status: string;
+  views: number;
+  trend: string;
+  trendValue: number;
+  date: Date;
+}
+
+interface AdvancedDataTableProps {
+  data: TableData[];
+  onRowClick: (row: TableData) => void;
+  onEdit: (row: TableData) => void;
+  onDelete: (row: TableData) => void;
+}
+
 // مكون الجدول المتقدم
-const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
+const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }: AdvancedDataTableProps) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [currentRow, setCurrentRow] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [currentRow, setCurrentRow] = useState<TableData | null>(null);
 
-  const handleSelectAllClick = (event) => {
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = data.map((n) => n.id);
       setSelected(newSelected);
@@ -174,9 +194,9 @@ const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
     setSelected([]);
   };
 
-  const handleClick = (event, id) => {
+  const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
     const selectedIndex = selected.indexOf(id);
-    let newSelected = [];
+    let newSelected: number[] = [];
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id);
@@ -194,16 +214,16 @@ const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const handleMenuOpen = (event, row) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, row: TableData) => {
     setAnchorEl(event.currentTarget);
     setCurrentRow(row);
   };
@@ -213,7 +233,7 @@ const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
     setCurrentRow(null);
   };
 
-  const isSelected = (id) => selected.indexOf(id) !== -1;
+  const isSelected = (id: number) => selected.indexOf(id) !== -1;
 
   // فلترة البيانات حسب البحث
   const filteredData = data.filter((row) =>
@@ -534,7 +554,9 @@ const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }) => {
       >
         <MenuItem
           onClick={() => {
-            onDelete(currentRow);
+            if (currentRow) {
+              onDelete(currentRow);
+            }
             handleMenuClose();
           }}
           sx={{

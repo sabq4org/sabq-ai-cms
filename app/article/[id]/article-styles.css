@@ -764,6 +764,19 @@
   gap: 0.5rem;
   font-size: 0.9rem;
   color: #ffffff;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.meta-item-hero:hover {
+  background: rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+  text-decoration: none;
 }
 
 .meta-item-hero svg {
@@ -771,6 +784,20 @@
   height: 18px;
   opacity: 0.9;
   color: #ffffff;
+  flex-shrink: 0;
+}
+
+/* تنسيق خاص لبطاقة المراسل */
+.meta-item-hero.reporter-meta {
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  background: rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.meta-item-hero.reporter-meta:hover {
+  background: rgba(59, 130, 246, 0.4);
+  border-color: rgba(59, 130, 246, 0.5);
 }
 
 /* ===== محتوى المقال ===== */
@@ -982,12 +1009,10 @@
   gap: 0.5rem;
   box-shadow: 0 10px 40px rgba(0,0,0,0.15);
   z-index: 40;
-  transition: var(--transition);
 }
 
 .interaction-dock:hover {
   box-shadow: 0 15px 50px rgba(0,0,0,0.2);
-  transform: translateX(-50%) translateY(-2px);
 }
 
 .interaction-btn {
@@ -999,7 +1024,6 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: var(--transition);
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--text-secondary);
@@ -1013,13 +1037,11 @@
   inset: 0;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   opacity: 0;
-  transition: opacity 0.3s ease;
   border-radius: 50px;
 }
 
 .interaction-btn:hover {
   color: var(--text-primary);
-  transform: translateY(-2px);
 }
 
 .interaction-btn:hover::before {
@@ -1038,7 +1060,6 @@
 .interaction-btn svg {
   width: 20px;
   height: 20px;
-  transition: var(--transition);
 }
 
 .interaction-btn span {
@@ -1316,13 +1337,7 @@
   margin: 0;
 }
 
-/* ===== تحسين شريط المعلومات في البطل ===== */
-.meta-item-hero.reporter-meta {
-  background: rgba(255,255,255,0.15);
-  padding: 0.5rem 1rem;
-  border-radius: 25px;
-  font-weight: 600;
-}
+
 
 /* ===== إزالة تنسيقات شريط التقدم ===== */
 .reading-progress,

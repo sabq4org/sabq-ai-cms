@@ -17,7 +17,7 @@ import {
 import './article-styles.css';
 import Footer from '@/components/Footer';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { formatFullDate, formatTimeOnly } from '@/lib/date-utils';
+import { formatFullDate, formatTimeOnly, formatRelativeDate } from '@/lib/date-utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 
 // تعريف نوع twttr لتويتر
@@ -571,8 +571,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
   };
 
   // استخدام دوال التاريخ الموحدة
-  const formatDate = formatFullDate;
-  const formatTime = formatTimeOnly;
+
 
   const getCategoryColor = (category?: any) => {
     if (category?.color_hex) {
@@ -1119,41 +1118,37 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                 </div>
               )}
 
-              {/* شريط المعلومات */}
+              {/* شريط المعلومات المحسن - بدون تكرار */}
               <div className="article-meta-bar fade-in-up" style={{ animationDelay: '0.2s' }}>
+                {/* اسم المراسل مرة واحدة فقط */}
                 {(article.reporter || article.reporter_name || article.author || article.author_name) && (
-                  <div className="meta-item-hero reporter-meta">
-                    <PenTool className="w-5 h-5" />
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-1">المراسل الصحفي</p>
-                      <Link 
-                        href={`/author/${article.author_id || 'team'}`}
-                        className="text-lg font-bold text-gray-900 dark:text-white dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                      >
-                        {typeof article.author === 'string' ? article.author : article.author?.name || article.reporter || article.reporter_name || article.author_name || 'فريق التحرير'}
-                      </Link>
-                    </div>
-                  </div>
+                  <Link 
+                    href={`/author/${article.author_id || 'team'}`}
+                    className="meta-item-hero reporter-meta hover:scale-105 transition-transform"
+                  >
+                    <PenTool className="w-5 h-5 text-blue-500" />
+                    <span className="font-semibold">
+                      {typeof article.author === 'string' ? article.author : article.author?.name || article.reporter || article.reporter_name || article.author_name || 'فريق التحرير'}
+                    </span>
+                  </Link>
                 )}
                 
+                {/* التاريخ والوقت النسبي */}
                 <div className="meta-item-hero">
-                  <Calendar className="w-5 h-5" />
-                  <span>{formatDate(article.created_at)}</span>
+                  <Clock className="w-5 h-5 text-green-500" />
+                  <span className="font-medium">{formatRelativeDate(article.created_at)}</span>
                 </div>
                 
+                {/* عدد المشاهدات */}
                 <div className="meta-item-hero">
-                  <Clock className="w-5 h-5" />
-                  <span>{formatTime(article.created_at)}</span>
-                </div>
-                
-                <div className="meta-item-hero">
-                  <Eye className="w-5 h-5" />
+                  <Eye className="w-5 h-5 text-purple-500" />
                   <span>{(article.views_count || article.stats?.views || 0).toLocaleString('ar-SA')} مشاهدة</span>
                 </div>
                 
+                {/* وقت القراءة */}
                 {article.reading_time && (
                   <div className="meta-item-hero">
-                    <BookOpen className="w-5 h-5" />
+                    <BookOpen className="w-5 h-5 text-orange-500" />
                     <span>{article.reading_time} دقيقة قراءة</span>
                   </div>
                 )}
@@ -1163,111 +1158,9 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
 
           {/* محتوى المقال */}
           <article className="article-body" ref={contentRef}>
-            {/* شريط معلومات المراسل - بتصميم محسن */}
-            <div className="my-8 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 py-5 px-6 rounded-2xl border border-gray-200 dark:border-gray-700 dark:border-gray-700">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg dark:shadow-gray-900/50">
-                    <PenTool className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-1">المراسل الصحفي</p>
-                    <Link 
-                      href={`/author/${article.author_id || 'team'}`}
-                      className="text-lg font-bold text-gray-900 dark:text-white dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                    >
-                      {typeof article.author === 'string' ? article.author : article.author?.name || article.reporter || article.reporter_name || article.author_name || 'فريق التحرير'}
-                    </Link>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleLike}
-                    className={`p-2 rounded-lg transition-all ${
-                      interaction.liked 
-                        ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' 
-                        : 'bg-gray-100 dark:bg-gray-800 dark:bg-gray-800 text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-700'
-                    }`}
-                    title={isLoggedIn ? 'أعجبني' : 'سجل دخول للتفاعل'}
-                  >
-                    <Heart className={`w-5 h-5 ${interaction.liked ? 'fill-current' : ''}`} />
-                  </button>
-                  
-                  <button
-                    onClick={handleSave}
-                    className={`p-2 rounded-lg transition-all ${
-                      interaction.saved 
-                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
-                        : 'bg-gray-100 dark:bg-gray-800 dark:bg-gray-800 text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-700'
-                    }`}
-                    title={isLoggedIn ? 'حفظ' : 'سجل دخول للتفاعل'}
-                  >
-                    <Bookmark className={`w-5 h-5 ${interaction.saved ? 'fill-current' : ''}`} />
-                  </button>
-                  
-                  <button
-                    onClick={() => setShowShareMenu(!showShareMenu)}
-                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 dark:bg-gray-800 text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-700 transition-all relative"
-                  >
-                    <Share2 className="w-5 h-5" />
-                    
-                    {showShareMenu && (
-                      <div className="absolute left-0 top-full mt-2 bg-white dark:bg-gray-800 dark:bg-gray-800 rounded-xl shadow-xl dark:shadow-gray-900/50 border border-gray-200 dark:border-gray-700 dark:border-gray-700 p-2 min-w-[200px] z-50">
-                        <button
-                          onClick={() => handleShare('twitter')}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors text-right"
-                        >
-                          <Twitter className="w-4 h-4 text-[#1DA1F2]" />
-                          <span className="text-sm">تويتر</span>
-                        </button>
-                        
-                        <button
-                          onClick={() => handleShare('facebook')}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors text-right"
-                        >
-                          <Facebook className="w-4 h-4 text-[#1877F2]" />
-                          <span className="text-sm">فيسبوك</span>
-                        </button>
-                        
-                        <button
-                          onClick={() => handleShare('whatsapp')}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors text-right"
-                        >
-                          <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                          <span className="text-sm">واتساب</span>
-                        </button>
-                        
-                        <button
-                          onClick={() => handleShare('telegram')}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors text-right"
-                        >
-                          <Send className="w-4 h-4 text-[#0088CC]" />
-                          <span className="text-sm">تيليجرام</span>
-                        </button>
-                        
-                        <div className="border-t border-gray-200 dark:border-gray-700 dark:border-gray-700 my-2"></div>
-                        
-                        <button
-                          onClick={() => handleShare('copy')}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors text-right"
-                        >
-                          {copySuccess ? (
-                            <Check className="w-4 h-4 text-green-500" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                          <span className="text-sm">{copySuccess ? 'تم النسخ!' : 'نسخ الرابط'}</span>
-                        </button>
-                      </div>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-
             {/* الملخص الذكي المحسن */}
             {article.summary && (
-              <div className="smart-summary fade-in-up">
+              <div className="smart-summary fade-in-up" style={{ marginTop: '3rem' }}>
                 <div className="smart-summary-content">
                   <div className="smart-summary-header">
                     <div className="smart-summary-title">
@@ -1299,13 +1192,127 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
             )}
 
             {/* محتوى المقال */}
-            <div className="article-content-enhanced">
+            <div className="article-content-enhanced" style={{ 
+              paddingBottom: article.seo_keywords ? '0' : '6rem',
+              marginTop: !article.summary ? '3rem' : '0'
+            }}>
               {renderArticleContent(article.content)}
+            </div>
+
+            {/* شريط التفاعل الثابت في الأسفل */}
+            <div className="fixed bottom-4 left-0 right-0 z-40">
+              <div className="max-w-3xl mx-auto px-4">
+                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={handleLike}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
+                          interaction.liked 
+                            ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' 
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        }`}
+                        style={{ transition: 'none' }}
+                        title={isLoggedIn ? 'أعجبني' : 'سجل دخول للتفاعل'}
+                      >
+                        <Heart className={`w-5 h-5 ${interaction.liked ? 'fill-current' : ''}`} />
+                        <span>{interaction.likesCount || 0}</span>
+                      </button>
+                      
+                      <button
+                        onClick={handleSave}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
+                          interaction.saved 
+                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        }`}
+                        style={{ transition: 'none' }}
+                        title={isLoggedIn ? 'حفظ' : 'سجل دخول للتفاعل'}
+                      >
+                        <Bookmark className={`w-5 h-5 ${interaction.saved ? 'fill-current' : ''}`} />
+                        <span>{interaction.savesCount || 0}</span>
+                      </button>
+                    </div>
+                    
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowShareMenu(!showShareMenu)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 font-medium"
+                        style={{ transition: 'none' }}
+                      >
+                        <Share2 className="w-5 h-5" />
+                        <span>مشاركة</span>
+                      </button>
+                      
+                      {showShareMenu && (
+                        <div className="absolute left-0 bottom-full mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-2 min-w-[200px] z-50" style={{ transition: 'none' }}>
+                          <button
+                            onClick={() => handleShare('twitter')}
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-right"
+                            style={{ transition: 'none' }}
+                          >
+                            <Twitter className="w-4 h-4 text-[#1DA1F2]" />
+                            <span className="text-sm">تويتر</span>
+                          </button>
+                          
+                          <button
+                            onClick={() => handleShare('facebook')}
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-right"
+                            style={{ transition: 'none' }}
+                          >
+                            <Facebook className="w-4 h-4 text-[#1877F2]" />
+                            <span className="text-sm">فيسبوك</span>
+                          </button>
+                          
+                          <button
+                            onClick={() => handleShare('whatsapp')}
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-right"
+                            style={{ transition: 'none' }}
+                          >
+                            <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                            <span className="text-sm">واتساب</span>
+                          </button>
+                          
+                          <button
+                            onClick={() => handleShare('telegram')}
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-right"
+                            style={{ transition: 'none' }}
+                          >
+                            <Send className="w-4 h-4 text-[#0088CC]" />
+                            <span className="text-sm">تيليجرام</span>
+                          </button>
+                          
+                          <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                          
+                          <button
+                            onClick={() => handleShare('copy')}
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-right"
+                            style={{ transition: 'none' }}
+                          >
+                            {copySuccess ? (
+                              <Check className="w-4 h-4 text-green-500" />
+                            ) : (
+                              <Copy className="w-4 h-4" />
+                            )}
+                            <span className="text-sm">{copySuccess ? 'تم النسخ!' : 'نسخ الرابط'}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* معلومات إضافية عند التمرير */}
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                    <span>التاريخ: {formatFullDate(article.created_at)}</span>
+                    <span>تقدم القراءة: {Math.round(readProgress)}%</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* الكلمات المفتاحية */}
             {article.seo_keywords && (
-              <div className="mt-12 mb-8">
+              <div className="mt-12 mb-24">
                 <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 dark:text-white mb-4">الكلمات المفتاحية</h3>
                 <div className="flex items-center gap-2 flex-wrap">
                   {(typeof article.seo_keywords === 'string' 
@@ -1376,12 +1383,12 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                           </h3>
                           <div className="recommendation-meta text-gray-600 dark:text-gray-400">
                             <span className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              {formatDate(item.created_at || item.published_at || '')}
+                              <Clock className="w-4 h-4" />
+                              {formatRelativeDate(item.created_at || item.published_at || '')}
                             </span>
                             {item.reading_time && (
                               <span className="flex items-center gap-1">
-                                <Clock className="w-4 h-4" />
+                                <BookOpen className="w-4 h-4" />
                                 {item.reading_time} دقيقة
                               </span>
                             )}

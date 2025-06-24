@@ -197,6 +197,992 @@
       "timestamp": "2025-06-24T07:25:46.809Z",
       "source": "article_page",
       "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:47:53.995Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:48:10.757Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:48:24.154Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:48:24.158Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:52:00.601Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:52:01.204Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:52:04.849Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:52:05.483Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:53:05.192Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:53:10.995Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:53:11.415Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:53:15.094Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:53:15.644Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:55:01.203Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:55:59.806Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:55:59.886Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:56:14.778Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750688021715-og56vs051",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:56:15.374Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:57:25.996Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:57:29.908Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:57:29.955Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:57:30.489Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:57:36.509Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:57:37.112Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:00.708Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:01.553Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:03.269Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:03.877Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:10.800Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:10.809Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:12.562Z",
+      "duration": 1,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:12.569Z",
+      "duration": 1,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:12.584Z",
+      "duration": 1,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:12.602Z",
+      "duration": 1,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:12.616Z",
+      "duration": 1,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:12.633Z",
+      "duration": 1,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:17.342Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:17.641Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:18.209Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.076Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.086Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.101Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.119Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.135Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.151Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.168Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.184Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.234Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.251Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.267Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.283Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.301Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.319Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.333Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.349Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.368Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.383Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.399Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.418Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.433Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.450Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.469Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.484Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.500Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.518Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.533Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.550Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.567Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.583Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.600Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.617Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.634Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.650Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.666Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.684Z",
+      "duration": 8,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.700Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.717Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.734Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.750Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.766Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.784Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.799Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.903Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.926Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.938Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.956Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:19.973Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:20.001Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:20.018Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "read",
+      "timestamp": "2025-06-24T07:58:20.035Z",
+      "duration": 9,
+      "completed": true,
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:20.457Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750687587617-5q2ppvwbx",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:21.040Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T07:58:25.875Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:00:34.191Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:00:37.533Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:00:37.734Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:00:39.743Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:00:40.375Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:00:44.958Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:00:45.122Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:00:45.725Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:01:19.270Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:01:19.858Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:01:21.606Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:01:22.190Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:02:10.682Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:02:12.450Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:02:12.523Z",
+      "device": "web",
+      "source": "article_page"
+    },
+    {
+      "user_id": "user-1750693026418-zdcy23jow",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-24T08:02:13.096Z",
+      "device": "web",
+      "source": "article_page"
     }
   ]
 }
