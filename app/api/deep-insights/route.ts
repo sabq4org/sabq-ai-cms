@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     // تحويل البيانات إلى التنسيق المطلوب للواجهة الأمامية
     let insights: DeepInsightResponse[] = publishedAnalyses.map(analysis => ({
-      id: analysis.slug || analysis.id,
+      id: analysis.id,
       title: analysis.title,
       summary: analysis.summary,
       author: analysis.authorName,
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       aiConfidence: analysis.sourceType === 'gpt' ? analysis.qualityScore * 100 : 0,
       tags: analysis.tags.slice(0, 2), // أول وسمين فقط
       type: analysis.sourceType === 'gpt' ? 'AI' : 'تحرير بشري',
-      url: `/insights/deep/${analysis.slug || analysis.id}`,
+      url: `/insights/deep/${analysis.id}`,
       isNew: isNewAnalysis(analysis.publishedAt || analysis.createdAt),
       qualityScore: analysis.qualityScore * 100,
       category: analysis.categories[0] || 'تحليل عميق'

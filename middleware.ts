@@ -74,6 +74,16 @@ const publicPaths = [
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // تسجيل المسار للتشخيص
+  console.log('Middleware processing:', pathname);
+  
+  // استثناء جميع مسارات API من معالجة الأمان لتجنب مشاكل body
+  // سنطبق الأمان فقط على الصفحات وليس على API endpoints
+  if (pathname.startsWith('/api/')) {
+    console.log('Skipping API route:', pathname);
+    return NextResponse.next();
+  }
+  
   // التحقق من ملفات الأصول الثابتة
   if (
     pathname.startsWith('/_next') ||
@@ -113,6 +123,7 @@ export function middleware(request: NextRequest) {
     try {
       user = JSON.parse(userCookie.value);
     } catch (e) {
+      console.error('Failed to parse user cookie:', e);
       // كوكيز غير صالحة
     }
   }
@@ -121,6 +132,7 @@ export function middleware(request: NextRequest) {
   if (isProtectedPath) {
     // إذا لم يكن المستخدم مسجل دخول
     if (!user && !tokenCookie) {
+      console.log('Redirecting to login, no auth found for:', pathname);
       // حفظ الصفحة المطلوبة للعودة إليها بعد تسجيل الدخول
       const url = request.nextUrl.clone();
       url.pathname = '/login';
@@ -135,6 +147,7 @@ export function middleware(request: NextRequest) {
                      user.role === 'super_admin';
       
       if (!isAdmin) {
+        console.log('Access denied for non-admin user:', pathname);
         // توجيه إلى صفحة عدم الصلاحية
         const url = request.nextUrl.clone();
         url.pathname = '/dashboard';

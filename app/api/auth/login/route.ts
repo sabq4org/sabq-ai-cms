@@ -9,7 +9,26 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-pro
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // التحقق من content-type
+    const contentType = request.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      return NextResponse.json(
+        { success: false, error: 'Content-Type must be application/json' },
+        { status: 400 }
+      );
+    }
+
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('خطأ في parsing JSON:', parseError);
+      return NextResponse.json(
+        { success: false, error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
+
     const { email, password } = body;
 
     console.log('محاولة تسجيل دخول:', { email });
@@ -24,7 +43,17 @@ export async function POST(request: NextRequest) {
 
     // قراءة ملف المستخدمين
     const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-    const fileContents = await readFile(usersFilePath, 'utf8');
+    let fileContents;
+    try {
+      fileContents = await readFile(usersFilePath, 'utf8');
+    } catch (fileError) {
+      console.error('خطأ في قراءة ملف المستخدمين:', fileError);
+      return NextResponse.json(
+        { success: false, error: 'خطأ في النظام' },
+        { status: 500 }
+      );
+    }
+
     const data = JSON.parse(fileContents);
     const users = data.users || [];
 
@@ -117,7 +146,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('خطأ في تسجيل الدخول:', error);
     return NextResponse.json(
-      { success: false, error: 'حدث خطأ في عملية تسجيل الدخول' },
+      { 
+        success: false, 
+        error: 'حدث خطأ في عملية تسجيل الدخول',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

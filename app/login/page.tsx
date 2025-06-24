@@ -78,13 +78,16 @@ function LoginForm() {
       // حفظ user_id للتوافق مع نظام التوصيات
       localStorage.setItem('user_id', data.user.id);
       
-      // تسجيل حدث تسجيل الدخول
+      // تسجيل حدث تسجيل الدخول - معطل مؤقتاً
+      // TODO: نقل هذا إلى server-side أو استخدام setTimeout
+      /*
       await logActions.login({
         user_id: data.user.id,
         user_name: data.user.name,
         email: data.user.email,
         role: data.user.role
       });
+      */
       
       toast.success('مرحباً بعودتك! 🎉');
       

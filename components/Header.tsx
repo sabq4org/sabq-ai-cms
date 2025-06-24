@@ -344,7 +344,7 @@ export default function Header() {
           </nav>
 
           {/* الجزء الأيسر - البحث والمستخدم وزر القائمة */}
-          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 header-mobile-icons">
             {/* البحث */}
             <button 
               className="p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -421,7 +421,7 @@ export default function Header() {
 
                   {/* قائمة منسدلة للموبايل */}
                   {showMobileAuthMenu && (
-                    <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                       <Link
                         href="/login"
                         onClick={() => setShowMobileAuthMenu(false)}

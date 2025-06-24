@@ -35,7 +35,7 @@ export async function GET(
   try {
     const { id } = await params;
     const analyses = await readAnalyses();
-    const analysis = analyses.find(a => a.id === id || a.slug === id);
+    const analysis = analyses.find(a => a.id === id);
     
     if (!analysis) {
       return NextResponse.json(
