@@ -60,6 +60,22 @@
   border-bottom-color: #3c4043;
 }
 
+/* إصلاحات شريط المعلومات المساعدة المحسن */
+.dark .sticky.bg-white\/95 {
+  background-color: rgba(26, 26, 26, 0.95) !important;
+}
+
+/* تم إزالة خلفية خلية المراسل والتاريخ - لم تعد مطلوبة */
+
+/* إصلاح أزرار المشاركة في الشريط */
+.dark .sticky button[class*="hover:bg-gray-100"] {
+  background-color: transparent !important;
+}
+
+.dark .sticky button[class*="hover:bg-gray-100"]:hover {
+  background-color: #3c4043 !important;
+}
+
 .dark .meta-item,
 .dark .modern-meta-item {
   color: #9aa0a6;
@@ -323,4 +339,71 @@
     color: #000000 !important;
     background-color: #ffffff !important;
   }
+}
+
+/* === إصلاحات إضافية محددة لشريط المعلومات === */
+
+/* إصلاح شريط المعلومات اللاصق */
+.dark .sticky[class*="bg-white"] {
+  background-color: rgba(26, 26, 26, 0.95) !important;
+}
+
+/* إصلاح خلية معلومات المراسل */
+/* إصلاح خلية معلومات المراسل - تم إزالة الخلفية والإطار
+.dark .sticky .flex .bg-gray-50 {
+  background-color: #2d2d2d !important;
+  border: 1px solid #3c4043;
+}
+*/
+
+/* إصلاح الأيقونات في شريط المعلومات */
+.dark .sticky svg {
+  color: #9aa0a6 !important;
+}
+
+/* إصلاح أزرار المشاركة */
+.dark .sticky button {
+  color: #9aa0a6 !important;
+}
+
+.dark .sticky button:hover {
+  background-color: #3c4043 !important;
+  color: #ffffff !important;
+}
+
+/* إصلاح الخط الفاصل */
+.dark .sticky .bg-gray-300 {
+  background-color: #3c4043 !important;
+}
+
+/* إصلاح الحدود */
+.dark .sticky .border-gray-200 {
+  border-color: #3c4043 !important;
+}
+
+/* === إصلاحات إضافية لإزالة الخلفيات === */
+.dark .prose {
+  background: transparent !important;
+}
+
+.dark .prose p {
+  background: transparent !important;
+}
+
+.dark article {
+  background: transparent !important;
+}
+
+.dark main {
+  background: transparent !important;
+}
+
+/* إزالة أي خلفيات من العناصر الداخلية */
+.dark .prose > * {
+  background: transparent !important;
+}
+
+/* التأكد من عدم وجود padding زائد */
+.dark article.rounded-2xl {
+  padding: 0 !important;
 } 

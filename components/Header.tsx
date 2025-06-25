@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
-  Menu, ChevronDown 
+  Menu, ChevronDown, LogIn 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import UserDropdown from './UserDropdown';
@@ -149,7 +149,9 @@ export default function Header() {
         setUser(null);
         toast.success('تم تسجيل الخروج بنجاح');
         
-        window.location.href = '/';
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 500);
       } else {
         toast.error('حدث خطأ في تسجيل الخروج');
       }
@@ -234,7 +236,16 @@ export default function Header() {
                   />
                 )}
               </div>
-            ) : null}
+            ) : (
+              <Link
+                href="/login"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md text-sm sm:text-base"
+              >
+                <LogIn className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">تسجيل الدخول</span>
+                <span className="sm:hidden">دخول</span>
+              </Link>
+            )}
 
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}

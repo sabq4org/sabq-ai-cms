@@ -269,8 +269,9 @@ export default function TeamPage() {
       
       // تحديث معاينة الصورة ورابط الصورة
       console.log('تحديث معاينة الصورة:', result.data.url);
-      setAvatarPreview(result.data.url);
-      setFormData(prev => ({ ...prev, avatar: result.data.url }));
+      const imageUrl = result.data.url; // استخدام URL الملف وليس data URL
+      setAvatarPreview(imageUrl);
+      setFormData(prev => ({ ...prev, avatar: imageUrl }));
       
       addNotification('تم رفع الصورة بنجاح', 'success');
     } catch (error) {

@@ -17,7 +17,7 @@
       "is_pinned": false,
       "publish_at": "2025-06-24T06:22:30.993Z",
       "published_at": "2025-06-24T06:22:30.993Z",
-      "views_count": 59,
+      "views_count": 66,
       "reading_time": 1,
       "content_blocks": [
         {
@@ -40,8 +40,9 @@
         "الهلال"
       ],
       "author_name": "علي عبده",
+      "author_avatar": "/uploads/authors/ali-abduh.jpg",
       "stats": {
-        "views": 59,
+        "views": 66,
         "likes": 0,
         "shares": 0,
         "comments": 0,
@@ -66,7 +67,7 @@
       "is_pinned": false,
       "publish_at": "2025-06-23T20:00:57.140Z",
       "published_at": "2025-06-23T20:00:57.140Z",
-      "views_count": 6,
+      "views_count": 7,
       "reading_time": 1,
       "content_blocks": [
         {
@@ -85,7 +86,7 @@
       "is_deleted": false,
       "author": "علي عبده",
       "stats": {
-        "views": 6,
+        "views": 7,
         "likes": 0,
         "shares": 0,
         "comments": 0,
@@ -94,7 +95,8 @@
       },
       "featured_image_alt": "",
       "seo_keywords": [],
-      "author_name": "علي عبده"
+      "author_name": "علي عبده",
+      "author_avatar": "/uploads/authors/ali-abduh.jpg"
     },
     {
       "id": "article-1750688021715-og56vs051",
@@ -327,6 +329,7 @@
       "summary": "سجل النجم البرازيلي نيمار هدفين رائعين ليقود فريقه الهلال السعودي لفوز مستحق في بطولة كأس العالم للأندية.",
       "content": "في مباراة مثيرة شهدتها بطولة كأس العالم للأندية، تألق النجم البرازيلي نيمار بتسجيله هدفين رائعين قاد بهما فريقه الهلال السعودي لتحقيق فوز ثمين...",
       "author_name": "أحمد الرياضي",
+      "author_avatar": "/uploads/authors/ahmad-riadi.jpg",
       "category_id": 3,
       "category_name": "رياضة",
       "status": "published",
@@ -355,6 +358,7 @@
       "summary": "تستعد جماهير نادي الهلال السعودي للسفر بأعداد كبيرة لدعم فريقهم في بطولة كأس العالم للأندية.",
       "content": "في مشهد يعكس عشق الجماهير الهلالية لناديهم، بدأت الاستعدادات على قدم وساق للسفر ومؤازرة الفريق في بطولة كأس العالم للأندية...",
       "author_name": "محمد الخبير",
+      "author_avatar": "/uploads/authors/mohammad-khabir.jpg",
       "category_id": 3,
       "category_name": "رياضة",
       "status": "published",
@@ -383,6 +387,7 @@
       "summary": "يواجه نادي الهلال السعودي تحديات فنية وبدنية كبيرة في مشواره ببطولة كأس العالم للأندية.",
       "content": "مع اقتراب المواجهات الحاسمة في بطولة كأس العالم للأندية، يجد نادي الهلال السعودي نفسه أمام تحديات متعددة...",
       "author_name": "سارة التحليلية",
+      "author_avatar": "/uploads/authors/sara-analyst.jpg",
       "category_id": 3,
       "category_name": "رياضة",
       "status": "published",
@@ -393,9 +398,17 @@
         "كأس العالم",
         "تحليل"
       ],
-      "views_count": 1200,
+      "views_count": 1201,
       "created_at": "2025-06-24T04:26:03.783Z",
-      "published_at": "2025-06-24T04:26:03.783Z"
+      "published_at": "2025-06-24T04:26:03.783Z",
+      "stats": {
+        "views": 1,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "saves": 0,
+        "read_time_avg": 0
+      }
     }
   ]
 }
