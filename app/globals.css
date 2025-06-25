@@ -1966,3 +1966,54 @@ button[title="إجراءات الذكاء الاصطناعي"] {
   }
 }
 
+/* ===================== */
+/* إصلاح تفاعل المحرر */
+/* ===================== */
+
+/* التأكد من أن المحرر قابل للتفاعل */
+.block-editor-container {
+  pointer-events: auto !important;
+  user-select: text !important;
+}
+
+.block-editor-container * {
+  pointer-events: auto !important;
+}
+
+/* التأكد من أن المحرر قابل للنقر والكتابة */
+.ProseMirror,
+[contenteditable="true"] {
+  cursor: text !important;
+  pointer-events: auto !important;
+  user-select: text !important;
+}
+
+/* إصلاح مناطق الإدخال في المحرر */
+.block-editor-container input,
+.block-editor-container textarea,
+.block-editor-container [contenteditable="true"] {
+  pointer-events: auto !important;
+  user-select: text !important;
+  cursor: text !important;
+}
+
+/* التأكد من ظهور المؤشر عند التمرير */
+.block-editor-container:hover {
+  cursor: text !important;
+}
+
+/* إصلاح z-index للمحرر */
+.block-editor-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* التأكد من أن البلوكات قابلة للتحرير */
+.block-item {
+  pointer-events: auto !important;
+}
+
+.block-item:hover {
+  cursor: text !important;
+}
+

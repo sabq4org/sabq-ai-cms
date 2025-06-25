@@ -152,6 +152,7 @@ export default function ContentEditorWithBlocks({
           onChange={handleBlocksChange}
           onAIAction={handleAIAction}
           placeholder="ابدأ كتابة محتوى مقالك أو اضغط على + لإضافة بلوك..."
+          readOnly={false}
         />
       </div>
 

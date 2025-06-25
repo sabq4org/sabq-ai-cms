@@ -786,7 +786,14 @@ export default function CreateArticlePage() {
                     </label>
                     <FeaturedImageUpload 
                       value={formData.featured_image || ''}
-                      onChange={(url) => setFormData(prev => ({ ...prev, featured_image: url }))}
+                      onChange={(url) => {
+                        console.log('تم تحديث الصورة البارزة:', url);
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          featured_image: url,
+                          cover_image: url // تحديث كلا الحقلين للتأكد
+                        }))
+                      }}
                       darkMode={darkMode}
                     />
                   </div>
