@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
-  Menu, ChevronDown, LogIn 
+  Menu, ChevronDown, LogIn, User 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import UserDropdown from './UserDropdown';
@@ -25,6 +25,7 @@ export default function Header() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileDropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchUserData = async () => {
     try {
@@ -123,6 +124,9 @@ export default function Header() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
+      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
     }
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -179,81 +183,141 @@ export default function Header() {
 
   return (
     <header className="bg-white dark:bg-gray-900 shadow-lg dark:shadow-black/50 sticky top-0 z-50 transition-colors duration-300 h-16">
-      <div className="max-w-7xl mx-auto px-6 h-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full">
         <div className="flex items-center justify-between h-full">
-          <Link href="/" className="flex-shrink-0 min-w-[120px]">
-            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">سبق</span>
-          </Link>
-
-          <nav className="hidden lg:flex items-center gap-8 flex-1 justify-center">
-            {navigationItems.map((item) => (
-              <Link 
-                key={item.url}
-                href={item.url} 
-                className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium text-lg hover:font-semibold"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-            <ThemeToggle />
-
-            {isLoading ? (
-              <div className="w-8 h-8 sm:w-10 sm:h-10" />
-            ) : user ? (
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  aria-label="قائمة المستخدم"
-                >
-                  {user.avatar ? (
-                    <img 
-                      src={user.avatar} 
-                      alt={user.name}
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shadow-md"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                      }}
-                    />
-                  ) : null}
-                  <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs sm:text-sm shadow-md ${user.avatar ? 'hidden' : ''}`}>
-                    {getInitials(user.name)}
-                  </div>
-                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform hidden sm:block ${
-                    showDropdown ? 'rotate-180' : ''
-                  }`} />
-                </button>
-
-                {showDropdown && (
-                  <UserDropdown 
-                    user={user}
-                    onClose={() => setShowDropdown(false)}
-                    onLogout={handleLogout}
-                  />
-                )}
-              </div>
-            ) : (
-              <Link
-                href="/login"
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md text-sm sm:text-base"
-              >
-                <LogIn className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="hidden sm:inline">تسجيل الدخول</span>
-                <span className="sm:hidden">دخول</span>
-              </Link>
-            )}
-
+          {/* Mobile Layout */}
+          <div className="flex lg:hidden items-center justify-between w-full">
+            {/* زر المينيو على اليمين */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
               aria-label="القائمة الرئيسية"
             >
               <Menu className="w-6 h-6" />
             </button>
+
+            {/* الشعار في المنتصف */}
+            <Link href="/" className="flex-shrink-0">
+              <span className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">سبق</span>
+            </Link>
+
+            {/* أزرار التحكم على اليسار */}
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              
+              {isLoading ? (
+                <div className="w-8 h-8" />
+              ) : user ? (
+                <div className="relative" ref={mobileDropdownRef}>
+                  <button
+                    onClick={() => setShowDropdown(!showDropdown)}
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    aria-label="قائمة المستخدم"
+                  >
+                    {user.avatar ? (
+                      <img 
+                        src={user.avatar} 
+                        alt={user.name}
+                        className="w-8 h-8 rounded-full object-cover shadow-md"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : (
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-md">
+                        {getInitials(user.name)}
+                      </div>
+                    )}
+                  </button>
+
+                  {showDropdown && (
+                    <UserDropdown 
+                      user={user}
+                      onClose={() => setShowDropdown(false)}
+                      onLogout={handleLogout}
+                    />
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                  aria-label="تسجيل الدخول"
+                >
+                  <User className="w-6 h-6" />
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden lg:flex items-center justify-between w-full">
+            <Link href="/" className="flex-shrink-0 min-w-[120px]">
+              <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">سبق</span>
+            </Link>
+
+            <nav className="flex items-center gap-8 flex-1 justify-center">
+              {navigationItems.map((item) => (
+                <Link 
+                  key={item.url}
+                  href={item.url} 
+                  className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium text-lg hover:font-semibold"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="flex items-center gap-4 flex-shrink-0">
+              <ThemeToggle />
+
+              {isLoading ? (
+                <div className="w-10 h-10" />
+              ) : user ? (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setShowDropdown(!showDropdown)}
+                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    aria-label="قائمة المستخدم"
+                  >
+                    {user.avatar ? (
+                      <img 
+                        src={user.avatar} 
+                        alt={user.name}
+                        className="w-10 h-10 rounded-full object-cover shadow-md"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <div className={`w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-md ${user.avatar ? 'hidden' : ''}`}>
+                      {getInitials(user.name)}
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
+                      showDropdown ? 'rotate-180' : ''
+                    }`} />
+                  </button>
+
+                  {showDropdown && (
+                    <UserDropdown 
+                      user={user}
+                      onClose={() => setShowDropdown(false)}
+                      onLogout={handleLogout}
+                    />
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md text-base"
+                >
+                  <LogIn className="w-5 h-5" />
+                  <span>تسجيل الدخول</span>
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 
