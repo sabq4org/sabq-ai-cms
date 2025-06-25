@@ -2,12 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import path from 'path';
 
+type RouteParams = {
+  params: Promise<{ path: string[] }>
+};
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: RouteParams
 ) {
   try {
-    const imagePath = params.path.join('/');
+    const resolvedParams = await params;
+    const imagePath = resolvedParams.path.join('/');
     const fullPath = path.join(process.cwd(), 'public', 'uploads', imagePath);
     
     try {
