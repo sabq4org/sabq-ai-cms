@@ -119,21 +119,25 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  const theme = localStorage.getItem('theme') || 'light';
+                  const theme = localStorage.getItem('theme') || 'system';
                   const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                   
-                  // إذا لم يكن هناك تفضيل محفوظ، استخدم تفضيل النظام
+                  // حساب ما إذا كان يجب تفعيل الوضع الليلي
                   const shouldBeDark = theme === 'dark' || (theme === 'system' && systemPrefersDark);
                   
+                  // تطبيق الكلاس على العنصر الجذر
                   if (shouldBeDark) {
                     document.documentElement.classList.add('dark');
+                    document.documentElement.style.colorScheme = 'dark';
                   } else {
                     document.documentElement.classList.remove('dark');
+                    document.documentElement.style.colorScheme = 'light';
                   }
                   
-                  // حفظ التفضيل الأولي إذا لم يكن موجوداً
-                  if (!localStorage.getItem('theme')) {
-                    localStorage.setItem('theme', systemPrefersDark ? 'dark' : 'light');
+                  // تحديث meta theme-color
+                  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+                  if (metaThemeColor) {
+                    metaThemeColor.setAttribute('content', shouldBeDark ? '#111827' : '#1e40af');
                   }
                 } catch (e) {
                   console.error('خطأ في تهيئة الوضع الليلي:', e);

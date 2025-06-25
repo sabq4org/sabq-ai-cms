@@ -119,13 +119,38 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme, resolvedTheme, mounted]);
 
   const toggleTheme = useCallback(() => {
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
     setThemeState(prev => {
       // دورة: light -> dark -> system -> light
-      if (prev === 'light') return 'dark';
-      if (prev === 'dark') return 'system';
-      return 'light';
+      let newTheme: Theme;
+      if (prev === 'light') newTheme = 'dark';
+      else if (prev === 'dark') newTheme = 'system';
+      else newTheme = 'light';
+      
+      // تطبيق التغيير فوراً
+      const resolved = getResolvedTheme(newTheme, systemPrefersDark);
+      setResolvedTheme(resolved);
+      
+      // تطبيق الكلاس فوراً
+      if (resolved === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.style.colorScheme = 'dark';
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
+      }
+      
+      // حفظ في localStorage
+      try {
+        localStorage.setItem('theme', newTheme);
+      } catch (error) {
+        console.error('خطأ في حفظ الثيم:', error);
+      }
+      
+      return newTheme;
     });
-  }, []);
+  }, [getResolvedTheme]);
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
@@ -134,6 +159,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const resolved = getResolvedTheme(newTheme, systemPrefersDark);
     setResolvedTheme(resolved);
+    
+    // تطبيق الكلاس فوراً
+    if (resolved === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.colorScheme = 'dark';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.style.colorScheme = 'light';
+    }
+    
+    // تحديث meta theme-color
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', resolved === 'dark' ? '#111827' : '#1e40af');
+    }
+    
+    // حفظ في localStorage
+    try {
+      localStorage.setItem('theme', newTheme);
+    } catch (error) {
+      console.error('خطأ في حفظ الثيم:', error);
+    }
   }, [getResolvedTheme]);
 
   return (
