@@ -1,0 +1,38 @@
+/* إصلاحات صفحة التصنيفات */
+
+/* إزالة أي فراغات بيضاء */
+body {
+  background-color: rgb(249 250 251);
+}
+
+.dark body {
+  background-color: rgb(17 24 39);
+}
+
+/* التأكد من عدم وجود فراغات بين الأقسام */
+header + main {
+  margin-top: 0 !important;
+}
+
+main + footer {
+  margin-top: 0 !important;
+}
+
+/* إصلاح الخط الأبيض أسفل الهيدر */
+header {
+  border-bottom-color: rgb(229 231 235);
+}
+
+.dark header {
+  border-bottom-color: rgb(55 65 81);
+}
+
+/* التأكد من امتداد الخلفية */
+main {
+  background-color: inherit;
+}
+
+/* إصلاح CTA Section */
+main > section:last-of-type {
+  margin-bottom: 0;
+} 

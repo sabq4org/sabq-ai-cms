@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import './categories-fixes.css';
 import { 
   Tag, Globe, Zap, Heart, Shield, Trophy, Users, Building2, 
   Laptop, Leaf, TrendingUp, Activity, BookOpen, ArrowRight,
@@ -142,13 +143,13 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Header />
       
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col">
         {/* Hero Section */}
-        <section className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <section className="border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="text-center">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
@@ -372,7 +373,7 @@ export default function CategoriesPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 py-16 border-t border-gray-200 dark:border-gray-700">
+        <section className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800 py-16 border-t border-gray-200 dark:border-gray-700 mt-auto">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               لم تجد ما تبحث عنه؟

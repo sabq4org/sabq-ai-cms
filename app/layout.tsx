@@ -121,12 +121,7 @@ export default function RootLayout({
         "transition-all duration-300"
       )}>
         <Providers>
-          <main className="relative min-h-screen w-full">
-            <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-white/90 dark:from-gray-900 dark:to-gray-900 transition-colors duration-300" />
-            <div className="relative z-10">
-              {children}
-            </div>
-          </main>
+          {children}
           <Toaster 
             position="top-center"
             toastOptions={{
