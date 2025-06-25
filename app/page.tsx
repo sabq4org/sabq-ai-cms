@@ -750,8 +750,8 @@ function NewspaperHomePage() {
     
     return (
       <Link href={`/article/${news.id}`} className="block" prefetch={true}>
-              <div 
-        className={`group rounded-3xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] bg-white dark:bg-gray-800 ${isPersonalized ? 'ring-2 ring-blue-400/30' : ''} shadow-lg dark:shadow-gray-900/50 overflow-hidden`}
+        <div 
+        className="group rounded-3xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] bg-white dark:bg-gray-800 ${isPersonalized ? 'ring-2 ring-blue-400/30' : ''} shadow-lg dark:shadow-gray-900/50 overflow-hidden"
       >
           <div className="relative h-48 overflow-hidden">
             <img 
@@ -869,17 +869,13 @@ function NewspaperHomePage() {
                     handleInteraction('like');
                   }}
                   disabled={interactionLoading === 'like'}
-                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
-                    isLiked 
-                      ? 'bg-red-100 dark:bg-red-900/30 text-red-500' 
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400'
-                  } ${interactionLoading === 'like' ? 'animate-pulse' : ''}`}
+                  className="p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${ isLiked ? 'bg-red-100 dark:bg-red-900/30 text-red-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400' } ${interactionLoading === 'like' ? 'animate-pulse' : ''}"
                   title={isLiked ? 'إلغاء الإعجاب' : 'إعجاب'}
                 >
                   {interactionLoading === 'like' ? (
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                    <Heart className="w-4 h-4 ${isLiked ? 'fill-current' : ''}" />
                   )}
                 </button>
                 
@@ -890,11 +886,7 @@ function NewspaperHomePage() {
                     handleInteraction('share');
                   }}
                   disabled={interactionLoading === 'share'}
-                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
-                    isShared 
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-500' 
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400'
-                  } ${interactionLoading === 'share' ? 'animate-pulse' : ''}`}
+                  className="p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${ isShared ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400' } ${interactionLoading === 'share' ? 'animate-pulse' : ''}"
                   title="مشاركة"
                 >
                   {interactionLoading === 'share' ? (
@@ -911,17 +903,13 @@ function NewspaperHomePage() {
                     handleInteraction('save');
                   }}
                   disabled={interactionLoading === 'save'}
-                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
-                    isBookmarked 
-                      ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-500' 
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400'
-                  } ${interactionLoading === 'save' ? 'animate-pulse' : ''}`}
+                  className="p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${ isBookmarked ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400' } ${interactionLoading === 'save' ? 'animate-pulse' : ''}"
                   title={isBookmarked ? 'إلغاء الحفظ' : 'حفظ'}
                 >
                   {interactionLoading === 'save' ? (
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                    <Bookmark className="w-4 h-4 ${isBookmarked ? 'fill-current' : ''}" />
                   )}
                 </button>
               </div>
@@ -1096,33 +1084,31 @@ function NewspaperHomePage() {
 
         {/* الاهتمامات الرئيسية */}
         <div className="mb-6">
-          <h3 className={`text-sm font-semibold mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+          <h3 className="text-sm font-semibold mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
             اهتماماتك الرئيسية:
           </h3>
           <div className="space-y-2">
             {topCategories.length > 0 ? (
               topCategories.map(([category, score], index) => (
                 <div key={category} className="flex items-center justify-between">
-                  <span className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+                  <span className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                     {categories.find(c => c.id.toString() === category)?.name_ar || category}
                   </span>
                   <div className="flex items-center gap-2">
-                    <div className={`h-2 w-24 rounded-full overflow-hidden ${
-                      darkMode ? 'bg-gray-700' : 'bg-gray-200 dark:bg-gray-700'
-                    }`}>
+                    <div className="h-2 w-24 rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-gray-200 dark:bg-gray-700'}">
                       <div 
                         className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
                         style={{ width: `${Math.min(100, score * 20)}%` }}
                       />
                     </div>
-                    <span className={`text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`}>
+                    <span className="text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}">
                       {score.toFixed(1)}
                     </span>
                   </div>
                 </div>
               ))
             ) : (
-              <p className={`text-sm ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`}>
+              <p className="text-sm ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}">
                 ابدأ بقراءة المقالات لبناء ملفك الشخصي
               </p>
             )}
@@ -1130,30 +1116,26 @@ function NewspaperHomePage() {
         </div>
 
         {/* إحصائيات سريعة */}
-        <div className={`grid grid-cols-2 gap-3 p-4 rounded-xl ${
-          darkMode ? 'bg-gray-700/30' : 'bg-gray-50 dark:bg-gray-900'
-        }`}>
+        <div className="grid grid-cols-2 gap-3 p-4 rounded-xl ${darkMode ? 'bg-gray-700/30' : 'bg-gray-50 dark:bg-gray-900'}">
           <div className="text-center">
-            <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
+            <div className="text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">
               {Object.keys(readingTime).length}
             </div>
-            <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+            <div className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
               مقال مقروء
             </div>
           </div>
           <div className="text-center">
-            <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
+            <div className="text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">
               {Math.round(Object.values(readingTime).reduce((a, b) => a + b, 0) / 60)}
             </div>
-            <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+            <div className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
               دقيقة قراءة
             </div>
           </div>
         </div>
 
-        <button className={`w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-          darkMode ? 'bg-blue-900/30 hover:bg-blue-800/30 text-blue-300' : 'bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 text-blue-700'
-        }`}>
+        <button className="w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-blue-900/30 hover:bg-blue-800/30 text-blue-300' : 'bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 text-blue-700'}">
           عرض التقرير الكامل
         </button>
       </div>
@@ -1162,24 +1144,18 @@ function NewspaperHomePage() {
 
   // مكونات البلوكات الذكية المحسنة
   const BriefingBlock = () => (
-    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${
-      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-    }`}>
+    <div className="rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            darkMode ? 'bg-blue-600/30' : 'bg-blue-500'
-          }`}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-blue-600/30' : 'bg-blue-500'}">
             <Activity className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>موجز الآن</h2>
-            <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>ابدأ من هنا</p>
+            <h2 className="text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">موجز الآن</h2>
+            <p className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">ابدأ من هنا</p>
           </div>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-          darkMode ? 'bg-blue-600/30 text-blue-300' : 'bg-blue-500 text-white'
-        }`}>
+        <span className="px-3 py-1 rounded-full text-xs font-medium ${darkMode ? 'bg-blue-600/30 text-blue-300' : 'bg-blue-500 text-white'}">
           {briefingData.length} تحديث
         </span>
       </div>
@@ -1187,23 +1163,21 @@ function NewspaperHomePage() {
       <div className="space-y-4">
         {briefingData.map((item) => (
           <Link key={item.id} href={`/article/briefing-${item.id}`} className="block">
-            <div className={`p-4 rounded-2xl border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 cursor-pointer ${
-              darkMode ? 'bg-gray-700/50 border-gray-600 hover:bg-gray-700' : 'bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'
-            }`}>
+            <div className="p-4 rounded-2xl border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 cursor-pointer ${darkMode ? 'bg-gray-700/50 border-gray-600 hover:bg-gray-700' : 'bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'}">
               <div className="flex items-start gap-3">
-                <div className={`w-2 h-2 rounded-full mt-2 ${item.isNew ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                <div className="w-2 h-2 rounded-full mt-2 ${item.isNew ? 'bg-green-500' : 'bg-gray-400'}"></div>
                 <div className="flex-1">
                   <div className="mb-2">
-                    <h4 className={`text-sm font-medium leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>{item.title}</h4>
+                    <h4 className="text-sm font-medium leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">{item.title}</h4>
                     {item.isNew && (
                       <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium mt-2 inline-block">جديد</span>
                     )}
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>{item.time}</span>
+                    <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">{item.time}</span>
                     <div className="flex items-center gap-1">
-                      <Eye className={`w-3 h-3 ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`} />
-                      <span className={`text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`}>2.3K</span>
+                      <Eye className="w-3 h-3 ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}" />
+                      <span className="text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}">2.3K</span>
                     </div>
                   </div>
                 </div>
@@ -1213,33 +1187,25 @@ function NewspaperHomePage() {
         ))}
       </div>
       
-      <button className={`w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-        darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-      }`}>
+      <button className="w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}">
         عرض جميع التحديثات
       </button>
     </div>
   );
 
   const TrendingBlock = () => (
-    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${
-      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-    }`}>
+    <div className="rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            darkMode ? 'bg-orange-900/30' : 'bg-orange-50'
-          }`}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-orange-900/30' : 'bg-orange-50'}">
             <Flame className="w-5 h-5 text-orange-600" />
           </div>
           <div>
-            <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>يتم قراءته الآن</h2>
-            <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>الأكثر شعبية في آخر ساعة</p>
+            <h2 className="text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">يتم قراءته الآن</h2>
+            <p className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">الأكثر شعبية في آخر ساعة</p>
           </div>
         </div>
-        <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
-          darkMode ? 'bg-orange-900/30' : 'bg-orange-50'
-        }`}>
+        <div className="flex items-center gap-1 px-2 py-1 rounded-full ${darkMode ? 'bg-orange-900/30' : 'bg-orange-50'}">
           <TrendingUp className="w-3 h-3 text-orange-600" />
           <span className="text-xs font-medium text-orange-600">+24%</span>
         </div>
@@ -1248,20 +1214,12 @@ function NewspaperHomePage() {
       {trendingLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className={`p-4 rounded-2xl border ${
-              darkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-200'
-            }`}>
+            <div key={i} className="p-4 rounded-2xl border ${darkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-200'}">
               <div className="flex items-center gap-4 animate-pulse">
-                <div className={`w-8 h-8 rounded-full ${
-                  darkMode ? 'bg-gray-600' : 'bg-gray-300'
-                }`}></div>
+                <div className="w-8 h-8 rounded-full ${darkMode ? 'bg-gray-600' : 'bg-gray-300'}"></div>
                 <div className="flex-1">
-                  <div className={`h-4 rounded mb-2 ${
-                    darkMode ? 'bg-gray-600' : 'bg-gray-300'
-                  }`}></div>
-                  <div className={`h-3 rounded w-1/3 ${
-                    darkMode ? 'bg-gray-600' : 'bg-gray-300'
-                  }`}></div>
+                  <div className="h-4 rounded mb-2 ${darkMode ? 'bg-gray-600' : 'bg-gray-300'}"></div>
+                  <div className="h-3 rounded w-1/3 ${darkMode ? 'bg-gray-600' : 'bg-gray-300'}"></div>
                 </div>
               </div>
             </div>
@@ -1271,31 +1229,24 @@ function NewspaperHomePage() {
         <div className="space-y-4">
           {trendingData.map((item, index) => (
           <Link key={item.id} href={`/article/trending-${item.id}`} className="block">
-            <div className={`p-4 rounded-2xl border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 cursor-pointer ${
-              darkMode ? 'bg-gray-700/50 border-gray-600 hover:bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'
-            }`}>
+            <div className="p-4 rounded-2xl border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 cursor-pointer ${darkMode ? 'bg-gray-700/50 border-gray-600 hover:bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'}">
               <div className="flex items-center gap-4">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                  index === 0 ? 'bg-yellow-100 text-yellow-700' : 
-                  index === 1 ? 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 dark:text-gray-500' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 dark:text-gray-500'
-                }`}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${ index === 0 ? 'bg-yellow-100 text-yellow-700' : index === 1 ? 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 dark:text-gray-500' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 dark:text-gray-500' }">
                   {index + 1}
                 </div>
                 <div className="flex-1">
-                  <h4 className={`text-sm font-medium mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>{item.title}</h4>
+                  <h4 className="text-sm font-medium mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">{item.title}</h4>
                   <div className="flex items-center justify-between">
-                    <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-                      darkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500'
-                    }`}>
+                    <span className="px-2 py-1 rounded-md text-xs font-medium ${darkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                       {item.category}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+                      <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
                         {item.views.toLocaleString()} قراءة
                       </span>
                       <div className="flex items-center gap-1">
-                        <Heart className={`w-3 h-3 ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`} />
-                        <span className={`text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`}>1.2K</span>
+                        <Heart className="w-3 h-3 ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}" />
+                        <span className="text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}">1.2K</span>
                       </div>
                     </div>
                   </div>
@@ -1306,16 +1257,16 @@ function NewspaperHomePage() {
         ))}
       </div>
       ) : (
-        <div className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+        <div className="text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}">
           لا توجد مقالات متداولة حالياً
         </div>
       )}
       
       {!trendingLoading && trendingData.length > 0 && (
-        <div className={`mt-4 p-3 rounded-lg ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900'}`}>
+        <div className="mt-4 p-3 rounded-lg ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900'}">
           <div className="flex items-center justify-between text-xs">
             <span className={darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}>إجمالي القراءات اليوم</span>
-            <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
+            <span className="font-medium ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">
               {trendingData.reduce((sum, item) => sum + item.views, 0).toLocaleString()} قراءة
             </span>
           </div>
@@ -1325,51 +1276,35 @@ function NewspaperHomePage() {
   );
 
   const AnalysisBlock = () => (
-    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${
-      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-    }`}>
+    <div className="rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            darkMode ? 'bg-purple-900/30' : 'bg-purple-50'
-          }`}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-purple-900/30' : 'bg-purple-50'}">
             <Lightbulb className="w-5 h-5 text-purple-600" />
           </div>
           <div>
-            <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>موجز اليوم الذكي</h2>
+            <h2 className="text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">موجز اليوم الذكي</h2>
             <div className="flex items-center gap-2">
               <Sparkles className="w-3 h-3 text-purple-600" />
               <span className="text-xs font-medium text-purple-600">AI</span>
-              <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>محدث كل ساعتين</span>
+              <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">محدث كل ساعتين</span>
             </div>
           </div>
         </div>
-        <div className={`w-3 h-3 rounded-full animate-pulse ${
-          darkMode ? 'bg-green-400' : 'bg-green-500'
-        }`}></div>
+        <div className="w-3 h-3 rounded-full animate-pulse ${darkMode ? 'bg-green-400' : 'bg-green-500'}"></div>
       </div>
       
       {analysisLoading ? (
         <div className="space-y-5">
           {[1, 2, 3].map((i) => (
-            <div key={i} className={`p-4 rounded-2xl border ${
-              darkMode ? 'bg-gray-700/50 border-gray-600/30' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'
-            }`}>
+            <div key={i} className="p-4 rounded-2xl border ${darkMode ? 'bg-gray-700/50 border-gray-600/30' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'}">
               <div className="animate-pulse">
                 <div className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded ${
-                    darkMode ? 'bg-gray-600' : 'bg-gray-300'
-                  }`}></div>
+                  <div className="w-5 h-5 rounded ${darkMode ? 'bg-gray-600' : 'bg-gray-300'}"></div>
                   <div className="flex-1">
-                    <div className={`h-4 rounded mb-2 w-1/3 ${
-                      darkMode ? 'bg-gray-600' : 'bg-gray-300'
-                    }`}></div>
-                    <div className={`h-4 rounded mb-3 ${
-                      darkMode ? 'bg-gray-600' : 'bg-gray-300'
-                    }`}></div>
-                    <div className={`h-3 rounded w-1/4 ${
-                      darkMode ? 'bg-gray-600' : 'bg-gray-300'
-                    }`}></div>
+                    <div className="h-4 rounded mb-2 w-1/3 ${darkMode ? 'bg-gray-600' : 'bg-gray-300'}"></div>
+                    <div className="h-4 rounded mb-3 ${darkMode ? 'bg-gray-600' : 'bg-gray-300'}"></div>
+                    <div className="h-3 rounded w-1/4 ${darkMode ? 'bg-gray-600' : 'bg-gray-300'}"></div>
                   </div>
                 </div>
               </div>
@@ -1379,21 +1314,17 @@ function NewspaperHomePage() {
       ) : (
         <div className="space-y-5">
           {analysisData.mainEvent && (
-            <div className={`p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${
-              darkMode ? 'bg-blue-900/20 border-blue-700/30' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200'
-            }`}>
+            <div className="p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'bg-blue-900/20 border-blue-700/30' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200'}">
               <div className="flex items-start gap-3">
                 <Star className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
                 <div>
-                  <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>أبرز حدث اليوم</h4>
-                  <p className={`text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>{analysisData.mainEvent}</p>
+                  <h4 className="text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">أبرز حدث اليوم</h4>
+                  <p className="text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">{analysisData.mainEvent}</p>
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-md text-xs ${
-                      darkMode ? 'bg-blue-800/50 text-blue-300' : 'bg-blue-100 text-blue-700'
-                    }`}>
+                    <span className="px-2 py-1 rounded-md text-xs ${darkMode ? 'bg-blue-800/50 text-blue-300' : 'bg-blue-100 text-blue-700'}">
                       تأثير عالي
                     </span>
-                    <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ 3 ساعات</span>
+                    <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">منذ 3 ساعات</span>
                   </div>
                 </div>
               </div>
@@ -1401,21 +1332,17 @@ function NewspaperHomePage() {
           )}
 
           {analysisData.alert && (
-            <div className={`p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${
-              darkMode ? 'bg-orange-900/20 border-orange-700/30' : 'bg-orange-50 border-orange-200'
-            }`}>
+            <div className="p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'bg-orange-900/20 border-orange-700/30' : 'bg-orange-50 border-orange-200'}">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-orange-600 mt-1 flex-shrink-0" />
                 <div>
-                  <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>تنبيه مهم</h4>
-                  <p className={`text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>{analysisData.alert}</p>
+                  <h4 className="text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">تنبيه مهم</h4>
+                  <p className="text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">{analysisData.alert}</p>
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-md text-xs ${
-                      darkMode ? 'bg-orange-800/50 text-orange-300' : 'bg-orange-100 text-orange-700'
-                    }`}>
+                    <span className="px-2 py-1 rounded-md text-xs ${darkMode ? 'bg-orange-800/50 text-orange-300' : 'bg-orange-100 text-orange-700'}">
                       متوسط الأهمية
                     </span>
-                    <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ ساعة</span>
+                    <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">منذ ساعة</span>
                   </div>
                 </div>
               </div>
@@ -1423,21 +1350,17 @@ function NewspaperHomePage() {
           )}
 
           {analysisData.trend && (
-            <div className={`p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${
-              darkMode ? 'bg-green-900/20 border-green-700/30' : 'bg-green-50 border-green-200'
-            }`}>
+            <div className="p-4 rounded-2xl border shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'bg-green-900/20 border-green-700/30' : 'bg-green-50 border-green-200'}">
               <div className="flex items-start gap-3">
                 <TrendingUp className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
                 <div>
-                  <h4 className={`text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>توجه إيجابي</h4>
-                  <p className={`text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>{analysisData.trend}</p>
+                  <h4 className="text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">توجه إيجابي</h4>
+                  <p className="text-sm mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">{analysisData.trend}</p>
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-md text-xs ${
-                      darkMode ? 'bg-green-800/50 text-green-300' : 'bg-green-100 text-green-700'
-                    }`}>
+                    <span className="px-2 py-1 rounded-md text-xs ${darkMode ? 'bg-green-800/50 text-green-300' : 'bg-green-100 text-green-700'}">
                       نمو +34%
                     </span>
-                    <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>هذا الأسبوع</span>
+                    <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">هذا الأسبوع</span>
                   </div>
                 </div>
               </div>
@@ -1445,16 +1368,14 @@ function NewspaperHomePage() {
           )}
           
           {!analysisData.mainEvent && !analysisData.alert && !analysisData.trend && (
-            <div className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <div className="text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}">
               لا توجد تحليلات متاحة حالياً
             </div>
           )}
         </div>
       )}
       
-      <button className={`w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-        darkMode ? 'bg-purple-900/30 hover:bg-purple-800/30 text-purple-300' : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
-      }`}>
+      <button className="w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-purple-900/30 hover:bg-purple-800/30 text-purple-300' : 'bg-purple-50 hover:bg-purple-100 text-purple-700'}">
         عرض التحليل الكامل
       </button>
     </div>
@@ -1465,38 +1386,28 @@ function NewspaperHomePage() {
     if (!isLoggedIn) return null;
     
     return (
-      <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${
-        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-      }`}>
+      <div className="rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-              darkMode ? 'bg-green-900/30' : 'bg-green-50'
-            }`}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-green-900/30' : 'bg-green-50'}">
               <Target className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>اقترحنا لك هذا</h2>
-              <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>بناءً على اهتماماتك</p>
+              <h2 className="text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">اقترحنا لك هذا</h2>
+              <p className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">بناءً على اهتماماتك</p>
             </div>
           </div>
-          <span className={`px-2 py-1 rounded-full text-xs ${
-            darkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-600'
-          }`}>
+          <span className="px-2 py-1 rounded-full text-xs ${darkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-50 text-green-600'}">
             98% مطابقة
           </span>
         </div>
       
-      <div className={`rounded-2xl overflow-hidden border shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 transition-all duration-300 ${
-        darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'
-      }`}>
+      <div className="rounded-2xl overflow-hidden border shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}">
         <div className="relative h-40 overflow-hidden group">
           <img src={userRecommendation.image} alt={userRecommendation.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="absolute top-3 right-3">
-            <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-              darkMode ? 'bg-gray-900/80 text-white' : 'bg-white dark:bg-gray-800/90 text-gray-800 dark:text-gray-100'
-            }`}>
+            <span className="px-2 py-1 rounded-md text-xs font-medium ${darkMode ? 'bg-gray-900/80 text-white' : 'bg-white dark:bg-gray-800/90 text-gray-800 dark:text-gray-100'}">
               {userRecommendation.category}
             </span>
           </div>
@@ -1508,32 +1419,30 @@ function NewspaperHomePage() {
           </div>
         </div>
         
-        <div className={`p-4 ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900'}`}>
-          <h4 className={`text-sm font-medium mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
+        <div className="p-4 ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900'}">
+          <h4 className="text-sm font-medium mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">
             {userRecommendation.title}
           </h4>
           
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
-                <Eye className={`w-3 h-3 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`} />
-                <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>4.2K</span>
+                <Eye className="w-3 h-3 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}" />
+                <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">4.2K</span>
               </div>
               <div className="flex items-center gap-1">
-                <Heart className={`w-3 h-3 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`} />
-                <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>156</span>
+                <Heart className="w-3 h-3 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}" />
+                <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">156</span>
               </div>
             </div>
             <div className="flex items-center gap-1">
               <Star className="w-3 h-3 text-yellow-500" />
-              <span className={`text-xs font-medium ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>4.8</span>
+              <span className="text-xs font-medium ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">4.8</span>
             </div>
           </div>
           
           <Link href="/article/recommendation-1" className="block">
-            <button className={`w-full py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-              darkMode ? 'bg-green-900/30 hover:bg-green-800/30 text-green-300' : 'bg-green-50 hover:bg-green-100 text-green-700'
-            }`}>
+            <button className="w-full py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-green-900/30 hover:bg-green-800/30 text-green-300' : 'bg-green-50 hover:bg-green-100 text-green-700'}">
               اقرأ المقال كاملاً
             </button>
           </Link>
@@ -1541,14 +1450,10 @@ function NewspaperHomePage() {
       </div>
       
       <div className="mt-4 flex gap-2">
-        <button className={`flex-1 py-2 text-xs font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-          darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500'
-        }`}>
+        <button className="flex-1 py-2 text-xs font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
           المزيد من هذا النوع
         </button>
-        <button className={`flex-1 py-2 text-xs font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-          darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500'
-        }`}>
+        <button className="flex-1 py-2 text-xs font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
           حفظ للاحقاً
         </button>
       </div>
@@ -1557,52 +1462,44 @@ function NewspaperHomePage() {
   };
 
   const CategoriesBlock = () => (
-    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${
-      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-    }`}>
+    <div className="rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            darkMode ? 'bg-indigo-900/30' : 'bg-indigo-50'
-          }`}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-indigo-900/30' : 'bg-indigo-50'}">
             <Compass className="w-5 h-5 text-indigo-600" />
           </div>
           <div>
-            <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>استكشف بحسب اهتماماتك</h2>
-            <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>أقسام مختارة لك</p>
+            <h2 className="text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">استكشف بحسب اهتماماتك</h2>
+            <p className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">أقسام مختارة لك</p>
           </div>
         </div>
       </div>
       
       <div className="grid grid-cols-1 gap-4">
         {categoriesData.map((category, index) => (
-          <div key={index} className={`p-4 rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 hover:scale-[1.02] ${
-            darkMode ? 'bg-gray-700/30 border-gray-600 hover:bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'
-          }`}>
+          <div key={index} className="p-4 rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 hover:scale-[1.02] ${darkMode ? 'bg-gray-700/30 border-gray-600 hover:bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'}">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <span className="text-xl">{category.icon}</span>
                 <div>
-                  <h4 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>{category.name}</h4>
-                  <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+                  <h4 className="font-semibold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">{category.name}</h4>
+                  <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
                     {category.articles.length} مقال متاح
                   </span>
                 </div>
               </div>
-              <ChevronRight className={`w-4 h-4 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`} />
+              <ChevronRight className="w-4 h-4 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}" />
             </div>
             
             <div className="space-y-2">
                              {category.articles.slice(0, 2).map((article, i) => (
                  <div key={i} className="flex items-start justify-between">
-                   <p className={`text-sm hover:text-indigo-600 cursor-pointer transition-colors leading-relaxed whitespace-pre-line flex-1 ${
-                     darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-                   }`}>
+                   <p className="text-sm hover:text-indigo-600 cursor-pointer transition-colors leading-relaxed whitespace-pre-line flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                      • {article}
                    </p>
                   <div className="flex items-center gap-1">
-                    <Eye className={`w-3 h-3 ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`} />
-                    <span className={`text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`}>
+                    <Eye className="w-3 h-3 ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}" />
+                    <span className="text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}">
                       {((i + 1) * 1.2).toFixed(1)}K
                     </span>
                   </div>
@@ -1613,39 +1510,31 @@ function NewspaperHomePage() {
         ))}
       </div>
       
-      <button className={`w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-        darkMode ? 'bg-indigo-900/30 hover:bg-indigo-800/30 text-indigo-300' : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700'
-      }`}>
+      <button className="w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-indigo-900/30 hover:bg-indigo-800/30 text-indigo-300' : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700'}">
         استكشف جميع الأقسام
       </button>
     </div>
   );
 
   const AudioBlock = () => (
-    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${
-      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-    }`}>
+    <div className="rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            darkMode ? 'bg-pink-900/30' : 'bg-pink-50'
-          }`}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-pink-900/30' : 'bg-pink-50'}">
             <Volume2 className="w-5 h-5 text-pink-600" />
           </div>
           <div>
-            <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>استمع لأبرز الأخبار</h2>
-            <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>النشرة الصوتية اليومية</p>
+            <h2 className="text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">استمع لأبرز الأخبار</h2>
+            <p className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">النشرة الصوتية اليومية</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>مباشر</span>
+          <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">مباشر</span>
         </div>
       </div>
       
-      <div className={`rounded-2xl p-5 border shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 transition-all duration-300 ${
-        darkMode ? 'bg-gray-700/30 border-gray-600' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'
-      }`}>
+      <div className="rounded-2xl p-5 border shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'bg-gray-700/30 border-gray-600' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'}">
         <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 relative group">
             <img 
@@ -1656,14 +1545,14 @@ function NewspaperHomePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
           <div>
-            <h4 className={`font-medium mb-1 leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>{audioData.title}</h4>
+            <h4 className="font-medium mb-1 leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">{audioData.title}</h4>
             <div className="flex items-center gap-3 text-xs">
               <div className="flex items-center gap-1">
-                <Clock className={`w-3 h-3 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`} />
+                <Clock className="w-3 h-3 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}" />
                 <span className={darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}>{audioData.duration}</span>
               </div>
               <div className="flex items-center gap-1">
-                <Users className={`w-3 h-3 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`} />
+                <Users className="w-3 h-3 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}" />
                 <span className={darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}>2.1K مستمع</span>
               </div>
             </div>
@@ -1671,38 +1560,28 @@ function NewspaperHomePage() {
         </div>
         
         <div className="flex items-center gap-4 mb-4">
-          <button className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-            darkMode ? 'bg-pink-900/50 hover:bg-pink-800/50 text-pink-300' : 'bg-pink-100 hover:bg-pink-200 text-pink-700'
-          }`}>
+          <button className="w-12 h-12 rounded-full flex items-center justify-center transition-colors ${darkMode ? 'bg-pink-900/50 hover:bg-pink-800/50 text-pink-300' : 'bg-pink-100 hover:bg-pink-200 text-pink-700'}">
             <PlayCircle className="w-6 h-6" />
           </button>
           <div className="flex-1">
-            <div className={`h-2 rounded-full overflow-hidden ${
-              darkMode ? 'bg-gray-600' : 'bg-gray-200 dark:bg-gray-700'
-            }`}>
+            <div className="h-2 rounded-full overflow-hidden ${darkMode ? 'bg-gray-600' : 'bg-gray-200 dark:bg-gray-700'}">
               <div className="w-1/3 h-full bg-pink-500 rounded-full"></div>
             </div>
             <div className="flex justify-between mt-1">
-              <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>4:20</span>
-              <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>12:45</span>
+              <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">4:20</span>
+              <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">12:45</span>
             </div>
           </div>
-          <button className={`p-2 rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-            darkMode ? 'bg-gray-600 hover:bg-gray-500 text-gray-300' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-600 dark:text-gray-400 dark:text-gray-500'
-          }`}>
+          <button className="p-2 rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-600 hover:bg-gray-500 text-gray-300' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
             <Download className="w-4 h-4" />
           </button>
         </div>
         
         <div className="flex gap-2">
-          <button className={`flex-1 py-2 text-xs font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-            darkMode ? 'bg-gray-600 hover:bg-gray-500 text-gray-300' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-600 dark:text-gray-400 dark:text-gray-500'
-          }`}>
+          <button className="flex-1 py-2 text-xs font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-600 hover:bg-gray-500 text-gray-300' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
             النشرة السابقة
           </button>
-          <button className={`flex-1 py-2 text-xs font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-            darkMode ? 'bg-pink-900/50 hover:bg-pink-800/50 text-pink-300' : 'bg-pink-100 hover:bg-pink-200 text-pink-700'
-          }`}>
+          <button className="flex-1 py-2 text-xs font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-pink-900/50 hover:bg-pink-800/50 text-pink-300' : 'bg-pink-100 hover:bg-pink-200 text-pink-700'}">
             تشغيل تلقائي
           </button>
         </div>
@@ -1712,27 +1591,21 @@ function NewspaperHomePage() {
 
   const TodayEventBlock = () => (
     todayEvent.isActive ? (
-      <div className={`rounded-2xl p-6 shadow-sm dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 ${
-        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-      }`}>
+      <div className="rounded-2xl p-6 shadow-sm dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}">
         <div className="flex items-center gap-3 mb-6">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            darkMode ? 'bg-red-900/30' : 'bg-red-50'
-          }`}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-red-900/30' : 'bg-red-50'}">
             <Calendar className="w-5 h-5 text-red-600" />
           </div>
           <div>
-            <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>حدث اليوم</h2>
-            <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>مناسبة وطنية مهمة</p>
+            <h2 className="text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">حدث اليوم</h2>
+            <p className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">مناسبة وطنية مهمة</p>
           </div>
         </div>
         
         <div className="text-center">
-          <h3 className={`text-lg font-bold mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>{todayEvent.title}</h3>
-          <p className={`text-sm mb-4 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>{todayEvent.description}</p>
-          <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${
-            darkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-50 text-red-700'
-          }`}>
+          <h3 className="text-lg font-bold mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">{todayEvent.title}</h3>
+          <p className="text-sm mb-4 leading-relaxed whitespace-pre-line ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">{todayEvent.description}</p>
+          <span className="inline-block px-4 py-2 rounded-full text-sm font-medium ${darkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-50 text-red-700'}">
             {todayEvent.date}
           </span>
         </div>
@@ -1741,49 +1614,37 @@ function NewspaperHomePage() {
   );
 
   const RegionsBlock = () => (
-    <div className={`rounded-2xl p-6 shadow-sm dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 ${
-      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-    }`}>
+    <div className="rounded-2xl p-6 shadow-sm dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            darkMode ? 'bg-teal-900/30' : 'bg-teal-50'
-          }`}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-teal-900/30' : 'bg-teal-50'}">
             <Globe2 className="w-5 h-5 text-teal-600" />
           </div>
           <div>
-            <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>جغرافيا الأخبار</h2>
-            <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>أخبار المناطق السعودية</p>
+            <h2 className="text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">جغرافيا الأخبار</h2>
+            <p className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">أخبار المناطق السعودية</p>
           </div>
         </div>
-        <span className={`px-2 py-1 rounded-full text-xs ${
-          darkMode ? 'bg-teal-900/30 text-teal-400' : 'bg-teal-50 text-teal-600'
-        }`}>
+        <span className="px-2 py-1 rounded-full text-xs ${darkMode ? 'bg-teal-900/30 text-teal-400' : 'bg-teal-50 text-teal-600'}">
           4 مناطق
         </span>
       </div>
       
       <div className="grid grid-cols-2 gap-3">
         {regionsData.map((region, index) => (
-          <div key={index} className={`p-4 rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 hover:scale-[1.02] ${
-            darkMode ? 'bg-gray-700/30 border-gray-600 hover:bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'
-          }`}>
+          <div key={index} className="p-4 rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 hover:scale-[1.02] ${darkMode ? 'bg-gray-700/30 border-gray-600 hover:bg-gray-700/50' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'}">
             <div className="flex items-center justify-between mb-2">
-              <h4 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>{region.name}</h4>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                darkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700'
-              }`}>
+              <h4 className="font-semibold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">{region.name}</h4>
+              <span className="px-2 py-1 rounded-full text-xs font-medium ${darkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700'}">
                 {region.newsCount}
               </span>
             </div>
-            <p className={`text-xs mb-2 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+            <p className="text-xs mb-2 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
               آخر تحديث: {region.lastUpdate}
             </p>
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${
-                index < 2 ? 'bg-green-500' : 'bg-yellow-500'
-              }`}></div>
-              <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+              <div className="w-2 h-2 rounded-full ${ index < 2 ? 'bg-green-500' : 'bg-yellow-500' }"></div>
+              <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
                 {index < 2 ? 'نشط' : 'هادئ'}
               </span>
             </div>
@@ -1791,9 +1652,7 @@ function NewspaperHomePage() {
         ))}
       </div>
       
-      <button className={`w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${
-        darkMode ? 'bg-teal-900/30 hover:bg-teal-800/30 text-teal-300' : 'bg-teal-50 hover:bg-teal-100 text-teal-700'
-      }`}>
+      <button className="w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-teal-900/30 hover:bg-teal-800/30 text-teal-300' : 'bg-teal-50 hover:bg-teal-100 text-teal-700'}">
         خريطة الأخبار التفاعلية
       </button>
     </div>
@@ -1857,17 +1716,13 @@ function NewspaperHomePage() {
     if (!isLoggedIn) return null;
     
     return (
-      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-        darkMode 
-          ? 'bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border border-yellow-700/50' 
-          : 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300'
-      }`}>
-        <Crown className={`w-5 h-5 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`} />
+      <div className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${darkMode ? 'bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border border-yellow-700/50' : 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300'}">
+        <Crown className="w-5 h-5 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}" />
         <div className="flex flex-col">
-          <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+          <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
             رصيد النقاط
           </span>
-          <span className={`text-lg font-bold ${darkMode ? 'text-yellow-400' : 'text-yellow-700'}`}>
+          <span className="text-lg font-bold ${darkMode ? 'text-yellow-400' : 'text-yellow-700'}">
             {loading ? (
               <span className="animate-pulse">...</span>
             ) : (
@@ -1883,9 +1738,7 @@ function NewspaperHomePage() {
 
   return (
     <div 
-      className={`min-h-screen transition-colors duration-300 ${
-        darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'
-      }`}
+      className="min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'}"
       style={{
         direction: 'rtl'
       }}
@@ -1906,16 +1759,8 @@ function NewspaperHomePage() {
       )}
 
       {/* Welcome Section - Full Width */}
-      <section className={`w-full py-20 mb-12 relative overflow-hidden transition-all duration-500 ${
-        darkMode 
-          ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
-          : 'bg-gradient-to-br from-[#0f52ba] to-[#3783ff]'
-      } shadow-2xl`}>
-        <div className={`absolute inset-0 opacity-40 ${
-          darkMode
-            ? 'bg-gradient-to-br from-blue-900/20 via-transparent to-indigo-900/20'
-            : 'bg-gradient-to-br from-[#1f3f75] via-transparent to-[#5fa9ff]'
-        }`}></div>
+      <section className="w-full py-20 mb-12 relative overflow-hidden transition-all duration-500 ${darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-[#0f52ba] to-[#3783ff]'} shadow-2xl">
+        <div className="absolute inset-0 opacity-40 ${darkMode ? 'bg-gradient-to-br from-blue-900/20 via-transparent to-indigo-900/20' : 'bg-gradient-to-br from-[#1f3f75] via-transparent to-[#5fa9ff]'}"></div>
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center relative">
             {/* Main Title */}
@@ -1923,9 +1768,7 @@ function NewspaperHomePage() {
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white leading-tight drop-shadow-lg dark:shadow-gray-900/50">
                 {smartDosePhrase}
               </h1>
-              <p className={`text-xl sm:text-2xl mb-4 drop-shadow ${
-                darkMode ? 'text-gray-200' : 'text-white/95'
-              }`}>
+              <p className="text-xl sm:text-2xl mb-4 drop-shadow ${darkMode ? 'text-gray-200' : 'text-white/95'}">
                 {smartDoseSubtitle}
               </p>
             </div>
@@ -1934,11 +1777,7 @@ function NewspaperHomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 relative z-10">
               {/* Card 1 - Breaking News */}
               <Link href="/article/article-1" className="block">
-                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${
-                  darkMode 
-                    ? 'bg-gray-800/95 hover:bg-gray-800' 
-                    : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'
-                }`}>
+                <div className="group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'}">
                   {/* Card Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
@@ -1956,25 +1795,15 @@ function NewspaperHomePage() {
                   
                   {/* Card Content */}
                   <div className="flex-1 p-5 flex flex-col">
-                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${
-                      darkMode 
-                        ? 'text-white group-hover:text-blue-400' 
-                        : 'text-gray-900 dark:text-white group-hover:text-blue-700'
-                    }`}>
+                    <h3 className="text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 dark:text-white group-hover:text-blue-700'}">
                       إطلاق مشروع نيوم للهيدروجين الأخضر
                     </h3>
-                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-                    }`}>
+                    <p className="text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                       أكبر مشروع للطاقة النظيفة في المنطقة بقيمة 8.4 مليار دولار
                     </p>
-                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${
-                      darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'
-                    }`}>
-                      <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ 5 دقائق</span>
-                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${
-                        darkMode ? 'text-blue-400' : 'text-blue-600'
-                      }`}>
+                    <div className="flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}">
+                      <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">منذ 5 دقائق</span>
+                      <span className="flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}">
                         اقرأ المزيد
                         <ArrowLeft className="w-4 h-4" />
                       </span>
@@ -1985,11 +1814,7 @@ function NewspaperHomePage() {
 
               {/* Card 2 - Featured - تحسين البلوك الثاني */}
               <Link href="/article/article-2" className="block">
-                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${
-                  darkMode 
-                    ? 'bg-gray-800/95 hover:bg-gray-800' 
-                    : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'
-                }`}>
+                <div className="group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'}">
                   {/* Card Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
@@ -2007,25 +1832,15 @@ function NewspaperHomePage() {
                   
                   {/* Card Content */}
                   <div className="flex-1 p-5 flex flex-col">
-                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${
-                      darkMode 
-                        ? 'text-white group-hover:text-blue-400' 
-                        : 'text-gray-900 dark:text-white group-hover:text-blue-700'
-                    }`}>
+                    <h3 className="text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 dark:text-white group-hover:text-blue-700'}">
                       السعودية تستضيف قمة الذكاء الاصطناعي العالمية 2025
                     </h3>
-                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-                    }`}>
+                    <p className="text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                       حدث عالمي يجمع رواد التقنية والذكاء الاصطناعي من جميع أنحاء العالم
                     </p>
-                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${
-                      darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'
-                    }`}>
-                      <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ ساعة</span>
-                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${
-                        darkMode ? 'text-blue-400' : 'text-blue-600'
-                      }`}>
+                    <div className="flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}">
+                      <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">منذ ساعة</span>
+                      <span className="flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}">
                         اقرأ المزيد
                         <ArrowLeft className="w-4 h-4" />
                       </span>
@@ -2036,11 +1851,7 @@ function NewspaperHomePage() {
 
               {/* Card 3 - Environment */}
               <Link href="/article/article-3" className="block">
-                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${
-                  darkMode 
-                    ? 'bg-gray-800/95 hover:bg-gray-800' 
-                    : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'
-                }`}>
+                <div className="group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'}">
                   {/* Card Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
@@ -2058,25 +1869,15 @@ function NewspaperHomePage() {
                   
                   {/* Card Content */}
                   <div className="flex-1 p-5 flex flex-col">
-                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${
-                      darkMode 
-                        ? 'text-white group-hover:text-blue-400' 
-                        : 'text-gray-900 dark:text-white group-hover:text-blue-700'
-                    }`}>
+                    <h3 className="text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 dark:text-white group-hover:text-blue-700'}">
                       مشروع البحر الأحمر يحقق إنجازاً بيئياً عالمياً
                     </h3>
-                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-                    }`}>
+                    <p className="text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                       حماية 75% من الشعاب المرجانية وزراعة 50 مليون شجرة مانجروف
                     </p>
-                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${
-                      darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'
-                    }`}>
-                      <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ 3 ساعات</span>
-                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${
-                        darkMode ? 'text-blue-400' : 'text-blue-600'
-                      }`}>
+                    <div className="flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}">
+                      <span className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">منذ 3 ساعات</span>
+                      <span className="flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}">
                         اقرأ المزيد
                         <ArrowLeft className="w-4 h-4" />
                       </span>
@@ -2108,9 +1909,7 @@ function NewspaperHomePage() {
       <div className="max-w-7xl mx-auto px-6 mb-12">
         <div className="flex items-center justify-center">
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-          <div className={`px-6 py-2 rounded-full ${
-            darkMode ? 'bg-gray-800 text-gray-400 dark:text-gray-500' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 dark:text-gray-500'
-          }`}>
+          <div className="px-6 py-2 rounded-full ${darkMode ? 'bg-gray-800 text-gray-400 dark:text-gray-500' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
               <span className="text-sm font-medium">المحتوى الذكي</span>
@@ -2123,9 +1922,7 @@ function NewspaperHomePage() {
 
       {/* شريط التنقل بالتصنيفات */}
       <section className="max-w-7xl mx-auto px-6 mb-16">
-        <div className={`rounded-3xl p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
-          darkMode ? 'bg-blue-900/10 border border-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50'
-        }`} style={{ 
+        <div className="rounded-3xl p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${darkMode ? 'bg-blue-900/10 border border-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50'}" style={{ 
           backdropFilter: 'blur(10px)',
           background: darkMode 
             ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)' 
@@ -2133,25 +1930,17 @@ function NewspaperHomePage() {
         }}>
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-4 mb-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                darkMode ? 'bg-blue-600' : 'bg-blue-500'
-              }`}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center ${darkMode ? 'bg-blue-600' : 'bg-blue-500'}">
                 <Tag className="w-6 h-6 text-white" />
               </div>
             </div>
-            <h2 className={`text-2xl font-bold mb-2 transition-colors duration-300 ${
-              darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'
-            }`}>
+            <h2 className="text-2xl font-bold mb-2 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">
               استكشف بحسب التصنيفات
             </h2>
-            <p className={`text-sm transition-colors duration-300 ${
-              darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-            }`}>
+            <p className="text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
               اختر التصنيف الذي يهمك لتصفح الأخبار المتخصصة
             </p>
-            <p className={`text-xs mt-2 transition-colors duration-300 ${
-              darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'
-            }`}>
+            <p className="text-xs mt-2 transition-colors duration-300 ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
               <span className="opacity-75">التصنيفات مرتبطة بنظام إدارة المحتوى</span>
             </p>
           </div>
@@ -2167,26 +1956,14 @@ function NewspaperHomePage() {
                   <button
                     key={category.id}
                     onClick={() => handleCategoryClick(category.id)}
-                    className={`group px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                      selectedCategory === category.id
-                        ? darkMode 
-                          ? 'bg-blue-600 text-white border-2 border-blue-500 shadow-lg dark:shadow-gray-900/50' 
-                          : 'bg-blue-500 text-white border-2 border-blue-400 shadow-lg dark:shadow-gray-900/50'
-                        : darkMode 
-                          ? 'bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50' 
-                          : 'bg-white dark:bg-gray-800/80 hover:bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-blue-600 border border-blue-200/50 hover:border-blue-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 backdrop-blur-sm'
-                    }`}
+                    className="group px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${ selectedCategory === category.id ? darkMode ? 'bg-blue-600 text-white border-2 border-blue-500 shadow-lg dark:shadow-gray-900/50' : 'bg-blue-500 text-white border-2 border-blue-400 shadow-lg dark:shadow-gray-900/50' : darkMode ? 'bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50' : 'bg-white dark:bg-gray-800/80 hover:bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-blue-600 border border-blue-200/50 hover:border-blue-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 backdrop-blur-sm' }"
                   >
                     <div className="flex items-center gap-2">
                       {category.icon && (
                         <span className="text-lg group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
                       )}
                       <span>{category.name_ar || category.name}</span>
-                      <span className={`text-xs ${
-                        selectedCategory === category.id
-                          ? 'text-white/90'
-                          : darkMode ? 'text-blue-200 opacity-60' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500 opacity-60'
-                      }`}>
+                      <span className="text-xs ${ selectedCategory === category.id ? 'text-white/90' : darkMode ? 'text-blue-200 opacity-60' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500 opacity-60' }">
                         ({category.articles_count || 0})
                       </span>
                     </div>
@@ -2196,15 +1973,9 @@ function NewspaperHomePage() {
 
               {/* عرض المقالات المرتبطة بالتصنيف المختار */}
               {selectedCategory && (
-                <div className={`mt-8 p-6 rounded-3xl shadow-lg dark:shadow-gray-900/50 ${
-                  darkMode ? 'bg-gray-800/50' : 'bg-white dark:bg-gray-800/70'
-                } backdrop-blur-sm border ${
-                  darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'
-                }`}>
+                <div className="mt-8 p-6 rounded-3xl shadow-lg dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-800/50' : 'bg-white dark:bg-gray-800/70'} backdrop-blur-sm border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className={`text-lg font-bold ${
-                      darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'
-                    }`}>
+                    <h3 className="text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">
                       مقالات {categories.find(c => c.id === selectedCategory)?.name_ar}
                     </h3>
                     <button
@@ -2212,13 +1983,9 @@ function NewspaperHomePage() {
                         setSelectedCategory(null);
                         setCategoryArticles([]);
                       }}
-                      className={`p-2 rounded-lg transition-colors ${
-                        darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'
-                      }`}
+                      className="p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'}"
                     >
-                      <X className={`w-5 h-5 ${
-                        darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-                      }`} />
+                      <X className="w-5 h-5 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}" />
                     </button>
                   </div>
 
@@ -2232,11 +1999,7 @@ function NewspaperHomePage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {categoryArticles.map((article: any) => (
                           <Link key={article.id} href={`/article/${article.id}`} className="group">
-                            <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${
-                              darkMode 
-                                ? 'bg-gray-800 border border-gray-700' 
-                                : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'
-                            }`}>
+                            <article className="h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'}">
                               {/* صورة المقال */}
                               <div className="relative h-48 overflow-hidden">
                                 {article.featured_image ? (
@@ -2246,12 +2009,8 @@ function NewspaperHomePage() {
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                   />
                                 ) : (
-                                  <div className={`w-full h-full flex items-center justify-center ${
-                                    darkMode ? 'bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'
-                                  }`}>
-                                    <BookOpen className={`w-16 h-16 ${
-                                      darkMode ? 'text-gray-600 dark:text-gray-400 dark:text-gray-500' : 'text-gray-300'
-                                    }`} />
+                                  <div className="w-full h-full flex items-center justify-center ${darkMode ? 'bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'}">
+                                    <BookOpen className="w-16 h-16 ${darkMode ? 'text-gray-600 dark:text-gray-400 dark:text-gray-500' : 'text-gray-300'}" />
                                   </div>
                                 )}
                                 
@@ -2260,11 +2019,7 @@ function NewspaperHomePage() {
                                 
                                 {/* Category Badge */}
                                 <div className="absolute top-3 right-3">
-                                  <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
-                                    darkMode
-                                      ? 'bg-blue-900/80 text-blue-200 backdrop-blur-sm'
-                                      : 'bg-blue-500/90 text-white backdrop-blur-sm'
-                                  }`}>
+                                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${darkMode ? 'bg-blue-900/80 text-blue-200 backdrop-blur-sm' : 'bg-blue-500/90 text-white backdrop-blur-sm'}">
                                     <Tag className="w-3 h-3" />
                                     {categories.find(c => c.id === selectedCategory)?.name_ar}
                                   </span>
@@ -2274,32 +2029,24 @@ function NewspaperHomePage() {
                               {/* محتوى البطاقة */}
                               <div className="p-5">
                                 {/* العنوان */}
-                                <h4 className={`font-bold text-lg mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors ${
-                                  darkMode ? 'text-white' : 'text-gray-900 dark:text-white'
-                                }`}>
+                                <h4 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors ${darkMode ? 'text-white' : 'text-gray-900 dark:text-white'}">
                                   {article.title}
                                 </h4>
 
                                 {/* الملخص */}
                                 {article.summary && (
-                                  <p className={`text-sm mb-4 line-clamp-3 leading-relaxed ${
-                                    darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-                                  }`}>
+                                  <p className="text-sm mb-4 line-clamp-3 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                                     {article.summary}
                                   </p>
                                 )}
 
                                 {/* التفاصيل السفلية */}
-                                <div className={`flex items-center justify-between pt-4 border-t ${
-                                  darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'
-                                }`}>
+                                <div className="flex items-center justify-between pt-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}">
                                   {/* المعلومات */}
                                   <div className="flex flex-col gap-1">
                                     {/* التاريخ والوقت */}
                                     <div className="flex items-center gap-3 text-xs">
-                                      <span className={`flex items-center gap-1 ${
-                                        darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'
-                                      }`}>
+                                      <span className="flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
                                         <Calendar className="w-3 h-3" />
                                         {new Date(article.created_at).toLocaleDateString('en-US', {
                                     year: 'numeric',
@@ -2308,9 +2055,7 @@ function NewspaperHomePage() {
                                   })}
                                       </span>
                                       {article.reading_time && (
-                                        <span className={`flex items-center gap-1 ${
-                                          darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'
-                                        }`}>
+                                        <span className="flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
                                           <Clock className="w-3 h-3" />
                                           {article.reading_time} د
                                         </span>
@@ -2320,16 +2065,12 @@ function NewspaperHomePage() {
                                     {/* الكاتب والمشاهدات */}
                                     <div className="flex items-center gap-3 text-xs">
                                       {article.author_name && (
-                                        <span className={`flex items-center gap-1 ${
-                                          darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'
-                                        }`}>
+                                        <span className="flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
                                           <User className="w-3 h-3" />
                                           {article.author_name}
                                         </span>
                                       )}
-                                      <span className={`flex items-center gap-1 ${
-                                        darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'
-                                      }`}>
+                                      <span className="flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
                                         <Eye className="w-3 h-3" />
                                         {article.views_count || 0}
                                       </span>
@@ -2337,14 +2078,8 @@ function NewspaperHomePage() {
                                   </div>
 
                                   {/* زر القراءة */}
-                                  <div className={`p-2 rounded-xl transition-all ${
-                                    darkMode 
-                                      ? 'bg-blue-900/20 group-hover:bg-blue-800/30' 
-                                      : 'bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100'
-                                  }`}>
-                                    <ArrowLeft className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${
-                                      darkMode ? 'text-blue-400' : 'text-blue-600'
-                                    }`} />
+                                  <div className="p-2 rounded-xl transition-all ${darkMode ? 'bg-blue-900/20 group-hover:bg-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100'}">
+                                    <ArrowLeft className="w-4 h-4 transition-transform group-hover:translate-x-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}" />
                                   </div>
                                 </div>
                               </div>
@@ -2357,11 +2092,7 @@ function NewspaperHomePage() {
                       <div className="text-center mt-8">
                         <Link 
                           href={`/categories/${categories.find(c => c.id === selectedCategory)?.slug || categories.find(c => c.id === selectedCategory)?.name_ar?.toLowerCase().replace(/\s+/g, '-')}`}
-                          className={`group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 ${
-                            darkMode
-                              ? 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white'
-                              : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white'
-                          }`}>
+                          className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 ${darkMode ? 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white' : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white'}">
                           <span>عرض جميع مقالات {categories.find(c => c.id === selectedCategory)?.name_ar}</span>
                           <ArrowLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Link>
@@ -2369,9 +2100,7 @@ function NewspaperHomePage() {
                     </>
                     
                   ) : (
-                    <div className={`text-center py-8 ${
-                      darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'
-                    }`}>
+                    <div className="text-center py-8 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
                       <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
                       <p>لا توجد مقالات منشورة في هذا التصنيف حالياً</p>
                     </div>
@@ -2380,9 +2109,7 @@ function NewspaperHomePage() {
               )}
             </>
           ) : (
-            <div className={`text-center py-8 ${
-              darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'
-            }`}>
+            <div className="text-center py-8 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
               <p className="text-sm">لا توجد تصنيفات متاحة حالياً</p>
             </div>
           )}
@@ -2409,19 +2136,15 @@ function NewspaperHomePage() {
               <>
                 <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-6">
                   <Brain className="w-5 h-5 text-blue-600" />
-                  <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                  <span className="font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700 dark:text-gray-300'}">
                     مدعوم بالذكاء الاصطناعي
                   </span>
                   <Sparkles className="w-5 h-5 text-purple-600" />
                 </div>
-                <h2 className={`text-4xl font-bold mb-4 ${
-                  darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'
-                }`}>
+                <h2 className="text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">
                   محتوى ذكي مخصص لك
                 </h2>
-                <p className={`text-xl max-w-2xl mx-auto ${
-                  darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-                }`}>
+                <p className="text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                   مقالات وتحليلات مختارة بعناية تناسب اهتماماتك وتطلعاتك المعرفية
                 </p>
               </>
@@ -2432,7 +2155,7 @@ function NewspaperHomePage() {
           <div className="flex items-center justify-end mb-8">
             <Link 
               href="/for-you"
-              className={`group inline-flex items-center gap-2 px-6 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 hover:scale-105`}>
+              className="group inline-flex items-center gap-2 px-6 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 hover:scale-105">
               <span>عرض الكل</span>
               <ArrowLeft className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -2443,7 +2166,7 @@ function NewspaperHomePage() {
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>جاري تحميل المقالات...</p>
+                <p className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">جاري تحميل المقالات...</p>
               </div>
             </div>
           ) : articles.length > 0 ? (
@@ -2453,7 +2176,7 @@ function NewspaperHomePage() {
               ))}
             </div>
           ) : (
-            <div className={`text-center py-20 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+            <div className="text-center py-20 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}">
               <Newspaper className="w-16 h-16 mx-auto mb-4 opacity-50" />
               <p className="text-lg mb-2">لا توجد مقالات منشورة حالياً</p>
               <p className="text-sm">تحقق لاحقاً للحصول على آخر الأخبار والمقالات</p>
@@ -2484,36 +2207,26 @@ function NewspaperHomePage() {
                 </div>
               </div>
             </div>
-            <h2 className={`text-4xl font-bold mb-6 ${
-              darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'
-            }`}>
+            <h2 className="text-4xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">
               تجربة مخصصة لك
             </h2>
-            <p className={`text-xl max-w-3xl mx-auto ${
-              darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-            }`}>
+            <p className="text-xl max-w-3xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
               استكشف المحتوى المنظم والمقسم بذكاء حسب اهتماماتك وتفضيلاتك الشخصية
             </p>
             
             {/* Stats */}
             <div className="flex items-center justify-center gap-8 mt-8">
-              <div className={`text-center px-6 py-4 rounded-xl ${
-                darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'
-              }`}>
+              <div className="text-center px-6 py-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}">
                 <div className="text-2xl font-bold text-blue-600 mb-1">8</div>
-                <div className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>بلوك ذكي</div>
+                <div className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">بلوك ذكي</div>
               </div>
-              <div className={`text-center px-6 py-4 rounded-xl ${
-                darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'
-              }`}>
+              <div className="text-center px-6 py-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}">
                 <div className="text-2xl font-bold text-green-600 mb-1">24/7</div>
-                <div className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>تحديث مستمر</div>
+                <div className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">تحديث مستمر</div>
               </div>
-              <div className={`text-center px-6 py-4 rounded-xl ${
-                darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'
-              }`}>
+              <div className="text-center px-6 py-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}">
                 <div className="text-2xl font-bold text-purple-600 mb-1">AI</div>
-                <div className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>ذكاء اصطناعي</div>
+                <div className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">ذكاء اصطناعي</div>
               </div>
             </div>
           </div>
@@ -2555,26 +2268,16 @@ function NewspaperHomePage() {
 
           {/* Action Center */}
           <div className="text-center mt-16">
-            <div className={`inline-flex flex-wrap items-center gap-4 p-6 rounded-2xl ${
-              darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700'
-            }`}>
+            <div className="inline-flex flex-wrap items-center gap-4 p-6 rounded-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700'}">
               <button className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold transition-colors">
                 <Settings className="w-4 h-4" />
                 تخصيص البلوكات
               </button>
-              <button className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${
-                darkMode 
-                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
-                  : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border'
-              }`}>
+              <button className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border'}">
                 <Eye className="w-4 h-4" />
                 عرض الإحصائيات
               </button>
-              <button className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${
-                darkMode 
-                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
-                  : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border'
-              }`}>
+              <button className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border'}">
                 <Share2 className="w-4 h-4" />
                 مشاركة التفضيلات
               </button>
@@ -2587,9 +2290,7 @@ function NewspaperHomePage() {
       <SmartSlot position="beforeFooter" />
 
       {/* Enhanced Footer */}
-      <footer className={`mt-20 ${
-        darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'
-      }`}>
+      <footer className="mt-20 ${darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'}">
 
         {/* Border */}
         <div className="h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
@@ -2599,16 +2300,14 @@ function NewspaperHomePage() {
             {/* Logo Section */}
             <div className="mb-8">
               <div className="inline-flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-                  darkMode ? 'bg-gradient-to-br from-blue-600 to-purple-700' : 'bg-gradient-to-br from-blue-500 to-purple-600'
-                }`}>
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center ${darkMode ? 'bg-gradient-to-br from-blue-600 to-purple-700' : 'bg-gradient-to-br from-blue-500 to-purple-600'}">
                   <span className="text-white font-bold text-xl">س</span>
                 </div>
                 <div className="text-left">
-                  <h3 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
+                  <h3 className="text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}">
                     سبق
                   </h3>
-                  <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+                  <p className="text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                     صحيفة المستقبل الذكية
                   </p>
                 </div>
@@ -2617,58 +2316,44 @@ function NewspaperHomePage() {
 
             {/* Stats */}
             <div className="flex items-center justify-center gap-8 mb-8">
-              <div className={`text-center px-4 py-3 rounded-xl ${
-                darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'
-              } border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}`}>
+              <div className="text-center px-4 py-3 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'} border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}">
                 <div className="text-2xl font-bold text-blue-600 mb-1">1.2M+</div>
-                <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>قارئ نشط</div>
+                <div className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">قارئ نشط</div>
               </div>
-              <div className={`text-center px-4 py-3 rounded-xl ${
-                darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'
-              } border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}`}>
+              <div className="text-center px-4 py-3 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'} border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}">
                 <div className="text-2xl font-bold text-green-600 mb-1">50K+</div>
-                <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>مقال يومياً</div>
+                <div className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">مقال يومياً</div>
               </div>
-              <div className={`text-center px-4 py-3 rounded-xl ${
-                darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'
-              } border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}`}>
+              <div className="text-center px-4 py-3 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'} border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}">
                 <div className="text-2xl font-bold text-purple-600 mb-1">AI</div>
-                <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>ذكاء اصطناعي</div>
+                <div className="text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">ذكاء اصطناعي</div>
               </div>
             </div>
 
             {/* Links */}
             <div className="flex items-center justify-center gap-6 mb-8">
-              <a href="#" className={`text-sm hover:text-blue-500 transition-colors ${
-                darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-              }`}>
+              <a href="#" className="text-sm hover:text-blue-500 transition-colors ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                 سياسة الخصوصية
               </a>
-              <a href="#" className={`text-sm hover:text-blue-500 transition-colors ${
-                darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-              }`}>
+              <a href="#" className="text-sm hover:text-blue-500 transition-colors ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                 شروط الاستخدام
               </a>
-              <a href="#" className={`text-sm hover:text-blue-500 transition-colors ${
-                darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-              }`}>
+              <a href="#" className="text-sm hover:text-blue-500 transition-colors ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                 تواصل معنا
               </a>
-              <a href="#" className={`text-sm hover:text-blue-500 transition-colors ${
-                darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'
-              }`}>
+              <a href="#" className="text-sm hover:text-blue-500 transition-colors ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                 عن سبق
               </a>
             </div>
 
             {/* Copyright */}
             <div className="flex items-center justify-center gap-2">
-              <p className={`text-sm ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+              <p className="text-sm ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                 © 2025 صحيفة سبق – جميع الحقوق محفوظة
               </p>
               <div className="flex items-center gap-1">
                 <Heart className="w-4 h-4 text-red-500" />
-                <span className={`text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+                <span className="text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}">
                   صُنع بحب في المملكة العربية السعودية
                 </span>
               </div>
