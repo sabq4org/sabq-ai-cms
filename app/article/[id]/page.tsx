@@ -15,6 +15,7 @@ import { useInteractions } from '../../../hooks/useInteractions';
 //   Share, MessageSquare, MoreHorizontal, X, Home
 // } from 'lucide-react';
 import './article-styles.css';
+import './article-dark-mode-fixes.css';
 import Footer from '@/components/Footer';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatFullDate, formatTimeOnly, formatRelativeDate } from '@/lib/date-utils';

@@ -1,0 +1,326 @@
+/* ===== إصلاحات الوضع الليلي لصفحة المقال ===== */
+
+/* === إصلاحات عامة للوضع الليلي === */
+.dark {
+  /* تحديث الألوان الأساسية */
+  --primary-color: #8ab4f8;
+  --primary-hover: #aecbfa;
+  --secondary-color: #f28b82;
+  --accent-color: #81c995;
+  
+  /* ألوان النصوص المحسنة */
+  --text-primary: #e8eaed;
+  --text-secondary: #9aa0a6;
+  --text-muted: #80868b;
+  
+  /* الخلفيات المحسنة */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-elevated: #2d2d2d;
+  --bg-card: #2d2d2d;
+  --bg-overlay: rgba(0, 0, 0, 0.85);
+  
+  /* الحدود المحسنة */
+  --border-color: #3c4043;
+  --border-light: #4a4a4a;
+  
+  /* الظلال المحسنة */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.6);
+  --shadow-lg: 0 8px 16px rgba(0,0,0,0.7);
+}
+
+/* === إصلاحات المحتوى الرئيسي === */
+.dark .article-content,
+.dark .modern-article-body {
+  color: #e8eaed;
+  font-weight: 300;
+}
+
+.dark .article-content p,
+.dark .modern-article-body p {
+  color: #e8eaed;
+}
+
+.dark .article-content h1,
+.dark .article-content h2,
+.dark .article-content h3,
+.dark .article-content h4,
+.dark .modern-article-body h1,
+.dark .modern-article-body h2,
+.dark .modern-article-body h3,
+.dark .modern-article-body h4 {
+  color: #ffffff;
+}
+
+/* === إصلاحات شريط المعلومات === */
+.dark .article-meta-bar,
+.dark .modern-info-bar {
+  background: rgba(26, 26, 26, 0.95);
+  border-bottom-color: #3c4043;
+}
+
+.dark .meta-item,
+.dark .modern-meta-item {
+  color: #9aa0a6;
+}
+
+.dark .meta-item svg,
+.dark .modern-meta-item svg {
+  color: #80868b;
+}
+
+/* === إصلاحات الاقتباسات === */
+.dark .article-content blockquote,
+.dark .modern-article-body blockquote {
+  background: #2d2d2d;
+  border-right-color: #81c995;
+  color: #e8eaed;
+}
+
+.dark .article-content blockquote::before,
+.dark .modern-article-body blockquote::before {
+  color: #81c995;
+  opacity: 0.3;
+}
+
+/* === إصلاحات الروابط === */
+.dark .article-content a,
+.dark .modern-article-body a {
+  color: #8ab4f8;
+}
+
+.dark .article-content a:hover,
+.dark .modern-article-body a:hover {
+  background: rgba(138, 180, 248, 0.1);
+  border-bottom-color: #8ab4f8;
+}
+
+/* === إصلاحات الجداول === */
+.dark .article-content table,
+.dark .modern-article-body table {
+  background: #2d2d2d;
+  box-shadow: 0 0 0 1px #3c4043;
+}
+
+.dark .article-content th,
+.dark .modern-article-body th {
+  background: #242424;
+  color: #ffffff;
+}
+
+.dark .article-content td,
+.dark .modern-article-body td {
+  border-bottom-color: #3c4043;
+  color: #e8eaed;
+}
+
+.dark .article-content tr:hover,
+.dark .modern-article-body tr:hover {
+  background: #242424;
+}
+
+/* === إصلاحات الشريط الجانبي === */
+.dark .article-sidebar,
+.dark .sidebar-section {
+  background: #2d2d2d;
+  color: #e8eaed;
+}
+
+.dark .sidebar-section h3 {
+  color: #ffffff;
+}
+
+.dark .related-article:hover {
+  background: #242424;
+}
+
+.dark .related-article-title {
+  color: #e8eaed;
+}
+
+.dark .related-article-meta {
+  color: #80868b;
+}
+
+/* === إصلاحات قسم المشاركة === */
+.dark .article-share-section,
+.dark .modern-share-section {
+  background: #2d2d2d;
+}
+
+.dark .share-title,
+.dark .modern-share-title {
+  color: #ffffff;
+}
+
+/* === إصلاحات الأزرار العائمة === */
+.dark .interaction-dock,
+.dark .modern-floating-bar {
+  background: #2d2d2d;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  border-color: #3c4043;
+}
+
+.dark .interaction-btn,
+.dark .modern-action-btn {
+  color: #9aa0a6;
+}
+
+.dark .interaction-btn:hover,
+.dark .modern-action-btn:hover {
+  background: #242424;
+  color: #8ab4f8;
+}
+
+.dark .interaction-btn.active,
+.dark .modern-action-btn.active {
+  background: #8ab4f8;
+  color: #1a1a1a;
+}
+
+/* === إصلاحات الصور === */
+.dark .article-content img,
+.dark .modern-article-body img {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.dark .article-content img:hover,
+.dark .modern-article-body img:hover {
+  box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+}
+
+/* === إصلاحات القوائم === */
+.dark .article-content ul li::marker,
+.dark .modern-article-body ul li::marker {
+  color: #8ab4f8;
+}
+
+.dark .article-content li,
+.dark .modern-article-body li {
+  color: #e8eaed;
+}
+
+/* === إصلاحات مؤشر القراءة === */
+.dark .reading-progress,
+.dark .modern-reading-indicator {
+  background: #3c4043;
+}
+
+.dark .reading-progress-bar,
+.dark .modern-reading-bar {
+  background: linear-gradient(90deg, #8ab4f8, #81c995);
+}
+
+/* === إصلاحات القائمة المنبثقة للمشاركة === */
+.dark .share-menu-popup {
+  background: #2d2d2d;
+  border-color: #3c4043;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+}
+
+.dark .share-menu-popup h4 {
+  color: #ffffff;
+}
+
+.dark .share-menu-popup span {
+  color: #e8eaed;
+}
+
+/* === إصلاحات إضافية للعناصر المخصصة === */
+.dark .category-badge {
+  filter: brightness(0.9);
+}
+
+.dark .author-info {
+  background: #2d2d2d;
+  border-color: #3c4043;
+}
+
+.dark .author-name {
+  color: #ffffff;
+}
+
+.dark .author-bio {
+  color: #9aa0a6;
+}
+
+/* === تحسين التباين في الوضع الليلي === */
+.dark .text-gray-500 {
+  color: #9aa0a6 !important;
+}
+
+.dark .text-gray-600 {
+  color: #9aa0a6 !important;
+}
+
+.dark .text-gray-700 {
+  color: #e8eaed !important;
+}
+
+.dark .text-gray-800 {
+  color: #ffffff !important;
+}
+
+.dark .text-gray-900 {
+  color: #ffffff !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #2d2d2d !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #242424 !important;
+}
+
+.dark .bg-gray-200 {
+  background-color: #1a1a1a !important;
+}
+
+.dark .border-gray-200 {
+  border-color: #3c4043 !important;
+}
+
+.dark .border-gray-300 {
+  border-color: #4a4a4a !important;
+}
+
+/* === إصلاحات الحركات والانتقالات === */
+.dark * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* === إصلاحات خاصة بالمقال === */
+.dark .article-hero-overlay {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.6) 50%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+}
+
+.dark .modern-hero-overlay {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.6) 50%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+}
+
+/* === إصلاحات الطباعة في الوضع الليلي === */
+@media print {
+  .dark {
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+  }
+  
+  .dark * {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+  }
+} 
