@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { Sparkles, Image as ImageIcon } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import BlockEditor from './BlockEditor/BlockEditor';
 import { Block, AIAction } from './BlockEditor/types';
 import { createBlock } from './BlockEditor/utils';
@@ -33,7 +33,7 @@ export default function ContentEditorWithBlocks({
   onGenerateDescription,
   aiLoading = {}
 }: ContentEditorProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [aiProcessing, setAiProcessing] = useState<string | null>(null);
 
   // تحويل البلوكات القديمة إلى تنسيق البلوكات الجديد إذا لزم الأمر

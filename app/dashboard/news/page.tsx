@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 type NewsStatus = 'published' | 'draft' | 'pending' | 'deleted' | 'scheduled';
 type NewsItem = {
@@ -79,7 +79,7 @@ export default function NewsManagementPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [categories, setCategories] = useState<any[]>([]);
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const router = useRouter();
 
   // جلب التصنيفات
@@ -163,8 +163,6 @@ export default function NewsManagementPage() {
 
     fetchNewsData();
   }, []);
-
-  // darkMode يتم إدارته الآن بواسطة useDarkMode hook
 
   // دوال المساعدة للأزرار
   const handleDelete = async (id: string) => {

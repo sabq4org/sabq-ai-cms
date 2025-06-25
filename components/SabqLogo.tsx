@@ -8,6 +8,9 @@ interface SabqLogoProps {
 }
 
 export default function SabqLogo({ className = "", width = 80, height = 32, isWhite = false }: SabqLogoProps) {
+  // التحقق من الوضع الليلي
+  const isDarkMode = typeof window !== 'undefined' && document.documentElement.classList.contains('dark');
+  
   return (
     <svg 
       width={width} 
@@ -24,7 +27,7 @@ export default function SabqLogo({ className = "", width = 80, height = 32, isWh
         fontFamily="Arial, sans-serif" 
         fontSize="20" 
         fontWeight="bold" 
-        fill={isWhite ? "#FFFFFF" : "#1F2937"}
+        fill={isWhite ? "#FFFFFF" : (isDarkMode ? "#E5E7EB" : "#1F2937")}
         textAnchor="end"
         className="select-none"
       >
@@ -34,19 +37,19 @@ export default function SabqLogo({ className = "", width = 80, height = 32, isWh
       {/* الأعمدة - تصميم عصري في الجهة اليسرى */}
       <g transform="translate(2, 4)">
         {/* العمود الأول */}
-        <rect x="0" y="10" width="4" height="14" rx="2" fill="#3B82F6" opacity="0.6"/>
+        <rect x="0" y="10" width="4" height="14" rx="2" fill={isDarkMode ? "#60A5FA" : "#3B82F6"} opacity="0.6"/>
         
         {/* العمود الثاني */}
-        <rect x="6" y="6" width="4" height="18" rx="2" fill="#3B82F6" opacity="0.7"/>
+        <rect x="6" y="6" width="4" height="18" rx="2" fill={isDarkMode ? "#60A5FA" : "#3B82F6"} opacity="0.7"/>
         
         {/* العمود الثالث */}
-        <rect x="12" y="2" width="4" height="22" rx="2" fill="#3B82F6" opacity="0.85"/>
+        <rect x="12" y="2" width="4" height="22" rx="2" fill={isDarkMode ? "#60A5FA" : "#3B82F6"} opacity="0.85"/>
         
         {/* العمود الرابع - الأطول */}
-        <rect x="18" y="0" width="4" height="24" rx="2" fill="#3B82F6"/>
+        <rect x="18" y="0" width="4" height="24" rx="2" fill={isDarkMode ? "#60A5FA" : "#3B82F6"}/>
         
         {/* نقطة زخرفية */}
-        <circle cx="26" cy="12" r="2" fill="#3B82F6"/>
+        <circle cx="26" cy="12" r="2" fill={isDarkMode ? "#60A5FA" : "#3B82F6"}/>
       </g>
     </svg>
   );

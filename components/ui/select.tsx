@@ -6,7 +6,36 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-const Select = SelectPrimitive.Root
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  children?: React.ReactNode;
+}
+
+interface OptionProps extends React.OptionHTMLAttributes<HTMLOptionElement> {
+  children?: React.ReactNode;
+}
+
+const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <select
+        className={cn(
+          "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          "dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:ring-offset-gray-900",
+          "dark:focus-visible:ring-blue-400",
+          "dark:placeholder-gray-400",
+          "transition-colors duration-200",
+          className
+        )}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </select>
+    )
+  }
+)
 
 const SelectGroup = SelectPrimitive.Group
 
@@ -146,6 +175,24 @@ const SelectSeparator = React.forwardRef<
 ))
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName
 
+const SelectOption = React.forwardRef<HTMLOptionElement, OptionProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <option
+        className={cn(
+          "bg-white text-gray-900",
+          "dark:bg-gray-900 dark:text-gray-100",
+          className
+        )}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </option>
+    )
+  }
+)
+
 export {
   Select,
   SelectGroup,
@@ -157,4 +204,5 @@ export {
   SelectSeparator,
   SelectScrollUpButton,
   SelectScrollDownButton,
+  SelectOption,
 } 

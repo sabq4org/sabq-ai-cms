@@ -953,7 +953,7 @@ export default function SmartBlocksPage() {
                       <Label htmlFor="block-position" className="mb-2">موقع العرض</Label>
                       <Select
                         value={newBlock.position}
-                        onValueChange={(value) => setNewBlock({ ...newBlock, position: value as any })}
+                        onChange={(e) => setNewBlock({ ...newBlock, position: e.target.value as any })}
                       >
                         <SelectTrigger id="block-position" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
                           <SelectValue />
@@ -980,7 +980,7 @@ export default function SmartBlocksPage() {
                       <Label htmlFor="block-type" className="mb-2">نوع البلوك</Label>
                       <Select
                         value={newBlock.type}
-                        onValueChange={(value) => setNewBlock({ ...newBlock, type: value as any })}
+                        onChange={(e) => setNewBlock({ ...newBlock, type: e.target.value as any })}
                       >
                         <SelectTrigger id="block-type" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
                           <SelectValue />
@@ -1108,7 +1108,7 @@ export default function SmartBlocksPage() {
                       <Label htmlFor="block-display" className="mb-2">نوع العرض</Label>
                       <Select
                         value={newBlock.displayType}
-                        onValueChange={(value) => setNewBlock({ ...newBlock, displayType: value as any })}
+                        onChange={(e) => setNewBlock({ ...newBlock, displayType: e.target.value as any })}
                       >
                         <SelectTrigger id="block-display" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
                           <SelectValue />

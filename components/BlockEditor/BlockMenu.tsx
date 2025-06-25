@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { BlockType } from './types';
 import { getBlockTitle } from './utils';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface BlockMenuProps {
   onSelect: (type: BlockType) => void;
@@ -32,7 +32,7 @@ export default function BlockMenu({ onSelect, trigger }: BlockMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -5,15 +5,15 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '../../../components/Header';
 import { useInteractions } from '../../../hooks/useInteractions';
-import { 
-  ArrowRight, Calendar, Clock, User, Eye, Tag, 
-  ThumbsUp, Share2, Volume2, VolumeX, Loader2,
-  BookOpen, Heart, MessageCircle, Bookmark, Twitter,
-  Facebook, Send, Copy, ChevronRight, Award, Hash,
-  Zap, Globe, BookOpen as BookOpenIcon, PenTool, RefreshCw,
-  Sparkles, TrendingUp, Check, Brain, Bot, FileText,
-  Share, MessageSquare, MoreHorizontal, X, Home
-} from 'lucide-react';
+// import { 
+//   ArrowRight, Calendar, Clock, User, Eye, Tag, 
+//   ThumbsUp, Share2, Volume2, VolumeX, Loader2,
+//   BookOpen, Heart, MessageCircle, Bookmark, Twitter,
+//   Facebook, Send, Copy, ChevronRight, Award, Hash,
+//   Zap, Globe, BookOpen as BookOpenIcon, PenTool, RefreshCw,
+//   Sparkles, TrendingUp, Check, Brain, Bot, FileText,
+//   Share, MessageSquare, MoreHorizontal, X, Home
+// } from 'lucide-react';
 import './article-styles.css';
 import Footer from '@/components/Footer';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -149,10 +149,10 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     sharesCount: 0,
     savesCount: 0
   });
+  const [showShareMenu, setShowShareMenu] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
   const [copySuccess, setCopySuccess] = useState(false);
-  const [showShareMenu, setShowShareMenu] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef<number>(Date.now());
   const [articleId, setArticleId] = useState<string>('');
@@ -162,6 +162,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
   const [userDataLoaded, setUserDataLoaded] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [readingTime, setReadingTime] = useState(0);
+  const [relatedArticles, setRelatedArticles] = useState<RelatedArticle[]>([]);
 
   useEffect(() => {
     async function loadArticle() {
@@ -277,6 +278,37 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
         // ليس محتوى JSON
       }
     }
+  }, [article]);
+
+  // جلب المقالات ذات الصلة
+  useEffect(() => {
+    async function fetchRelatedArticles() {
+      if (!article) return;
+      
+      try {
+        // جلب مقالات من نفس التصنيف
+        const categoryName = article.category?.name_ar || article.category_id;
+        const response = await fetch(`/api/articles?status=published&category=${encodeURIComponent(categoryName)}&limit=6`);
+        
+        if (response.ok) {
+          const resJson = await response.json();
+          
+          // بعض الـ APIs ترجع المصفوفة داخل خاصية articles أو data
+          const list: any[] = Array.isArray(resJson)
+            ? resJson
+            : resJson.articles || resJson.data || [];
+          
+          if (Array.isArray(list)) {
+            const filtered = list.filter((a: any) => a.id !== article.id);
+            setRelatedArticles(filtered.slice(0, 4));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching related articles:', error);
+      }
+    }
+    
+    fetchRelatedArticles();
   }, [article]);
 
   const fetchArticle = async (id: string) => {
@@ -653,7 +685,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                     
                   if (!finalParagraphText) return null;
                   return (
-                    <p key={block.id || index} className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 dark:text-gray-300">
+                    <p key={block.id || index} className="text-lg leading-relaxed text-gray-900 dark:text-gray-100">
                       {finalParagraphText}
                     </p>
                   );
@@ -695,7 +727,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                     : 'list-disc list-inside';
                   
                   return (
-                    <ListTag key={block.id || index} className={`${listClass} space-y-2 text-gray-700 dark:text-gray-300 dark:text-gray-300`}>
+                    <ListTag key={block.id || index} className={`${listClass} space-y-2 text-gray-900 dark:text-gray-100`}>
                       {items.map((item: string, i: number) => (
                         <li key={i} className="text-lg leading-relaxed pr-2">
                           {item}
@@ -718,7 +750,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                       key={block.id || index} 
                       className="border-r-4 border-blue-500 pr-6 py-4 my-6 bg-gray-50 dark:bg-gray-900 dark:bg-gray-800 rounded-lg"
                     >
-                      <p className="text-lg italic text-gray-700 dark:text-gray-300 dark:text-gray-300 mb-2">
+                      <p className="text-lg italic text-gray-900 dark:text-gray-100 dark:text-gray-100 mb-2">
                         "{finalQuoteText}"
                       </p>
                       {finalQuoteAuthor && (
@@ -799,12 +831,12 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                     <div key={block.id || index} className="my-8 overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         {tableData.headers && tableData.headers.length > 0 && (
-                          <thead className="bg-gray-50 dark:bg-gray-900 dark:bg-gray-800">
+                          <thead className="bg-gray-50 dark:bg-gray-800">
                             <tr>
                               {tableData.headers.map((header: string, i: number) => (
                                 <th
                                   key={i}
-                                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider"
+                                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                                 >
                                   {header}
                                 </th>
@@ -812,13 +844,13 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                             </tr>
                           </thead>
                         )}
-                        <tbody className="bg-white dark:bg-gray-800 dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                           {tableData.rows.map((row: string[], rowIndex: number) => (
                             <tr key={rowIndex}>
                               {row.map((cell: string, cellIndex: number) => (
                                 <td
                                   key={cellIndex}
-                                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white dark:text-gray-100"
+                                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"
                                 >
                                   {cell}
                                 </td>
@@ -857,7 +889,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                         href={linkUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -869,7 +901,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                 
                 case 'divider':
                   return (
-                    <hr key={block.id || index} className="my-8 border-gray-300 dark:border-gray-600 dark:border-gray-700" />
+                    <hr key={block.id || index} className="my-8 border-gray-300 dark:border-gray-700" />
                   );
                 
                 case 'video':
@@ -904,7 +936,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                     (defaultText.text || JSON.stringify(defaultText)) : defaultText;
                   if (!finalDefaultText) return null;
                   return (
-                    <p key={block.id || index} className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 dark:text-gray-300">
+                    <p key={block.id || index} className="text-lg leading-relaxed text-gray-900 dark:text-gray-100">
                       {finalDefaultText}
                     </p>
                   );
@@ -949,14 +981,14 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
               }
               
               return chunks.map((chunk, chunkIndex) => (
-                <p key={`${index}-${chunkIndex}`} className="text-lg leading-[1.9] text-gray-700 dark:text-gray-300 dark:text-gray-300">
+                <p key={`${index}-${chunkIndex}`} className="text-lg leading-[1.9] text-gray-900 dark:text-gray-100">
                   {chunk}
                 </p>
               ));
             }
             
             return (
-              <p key={index} className="text-lg leading-[1.9] text-gray-700 dark:text-gray-300 dark:text-gray-300">
+              <p key={index} className="text-lg leading-[1.9] text-gray-900 dark:text-gray-100">
                 {paragraph}
               </p>
             );
@@ -970,21 +1002,27 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       <div 
         dangerouslySetInnerHTML={{ __html: content }}
         className="prose prose-lg max-w-none dark:prose-invert
-                   prose-headings:font-bold prose-headings:text-gray-900 dark:text-white dark:prose-headings:text-gray-100
-                   prose-p:text-gray-700 dark:text-gray-300 dark:prose-p:text-gray-300 prose-p:leading-[1.9] prose-p:mb-6
+                   prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100
+                   prose-p:text-gray-900 dark:prose-p:text-gray-100 prose-p:leading-[1.9] prose-p:mb-6
                    prose-blockquote:border-r-4 prose-blockquote:border-blue-500 prose-blockquote:pr-6
                    prose-ul:list-disc prose-ol:list-decimal
-                   prose-img:rounded-lg prose-img:shadow-lg dark:shadow-gray-900/50"
+                   prose-img:rounded-lg prose-img:shadow-lg dark:prose-img:shadow-gray-900/50
+                   prose-strong:text-gray-900 dark:prose-strong:text-gray-100
+                   prose-li:text-gray-900 dark:prose-li:text-gray-100"
       />
     );
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-500 dark:text-blue-400 mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500">جاري تحميل المقال...</p>
+          <div className="w-12 h-12 animate-spin text-blue-500 dark:text-blue-400 mx-auto mb-4">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400">جاري تحميل المقال...</p>
         </div>
       </div>
     );
@@ -995,19 +1033,23 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     <>
       <Header />
       {article && <ArticleJsonLd article={article} />}
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 dark:bg-gray-900">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-full mb-6 shadow-lg dark:shadow-gray-900/50">
-              <BookOpenIcon className="w-12 h-12 text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500" />
+              <svg className="w-12 h-12 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white dark:text-white mb-3">المقال غير موجود</h3>
-            <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-8 text-lg">عذراً، لم نتمكن من العثور على المقال المطلوب</p>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">المقال غير موجود</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">عذراً، لم نتمكن من العثور على المقال المطلوب</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link 
                 href="/" 
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg dark:shadow-gray-900/50 hover:shadow-xl"
               >
-                <ArrowRight className="w-5 h-5" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
                 العودة إلى الرئيسية
               </Link>
             </div>
@@ -1039,373 +1081,413 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-800 dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <Header />
       
       {/* المحتوى الرئيسي */}
       {loading ? (
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 dark:text-gray-500">جاري تحميل المقال...</p>
+            <div className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <p className="text-gray-500 dark:text-gray-400">جاري تحميل المقال...</p>
           </div>
         </div>
       ) : !article ? (
         <div className="min-h-[60vh] flex items-center justify-center">
           <div className="text-center">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white dark:text-white mb-3">المقال غير موجود</h3>
-            <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-8">عذراً، لم نتمكن من العثور على المقال المطلوب</p>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">المقال غير موجود</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-8">عذراً، لم نتمكن من العثور على المقال المطلوب</p>
             <Link 
               href="/" 
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-lg dark:shadow-gray-900/50 transition-all"
             >
-              <ArrowRight className="w-5 h-5" />
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
               العودة إلى الرئيسية
             </Link>
           </div>
         </div>
       ) : (
         <>
-          {/* قسم البطل مع الصورة */}
-          <section className="article-hero">
+          <ArticleJsonLd article={article} />
+          
+          {/* مؤشر تقدم القراءة */}
+          <div className="reading-progress">
+            <div className="reading-progress-bar" id="reading-progress"></div>
+          </div>
+          
+          {/* قسم البطل مع الصورة المحسن */}
+          <section className="relative h-[75vh] max-h-[700px] overflow-hidden bg-black">
             <img
               src={article.featured_image || generatePlaceholderImage(article.title)}
               alt={article.featured_image_alt || article.title}
-              className="article-hero-image"
+              className="w-full h-full object-cover opacity-75 transform scale-105 transition-transform duration-[2s] hover:scale-100"
             />
-            
-            <div className="article-hero-content">
-              {/* التصنيف الرئيسي */}
-              <div className="flex items-center gap-2 mb-3">
-                <Link 
-                  href={`/category/${article.category_id}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-white text-sm font-bold rounded-full backdrop-blur-sm transition-all hover:scale-105 shadow-lg dark:shadow-gray-900/50"
-                  style={{ 
-                    backgroundColor: article.category?.color_hex || getCategoryColor(article.category) || '#3b82f6'
-                  }}
-                >
-                  {article.category?.icon && <span className="text-base">{article.category.icon}</span>}
-                  <span>{article.category?.name_ar || article.category_name || 'عام'}</span>
-                </Link>
-              </div>
-
-              {/* العنوان والعنوان الفرعي */}
-              <h1 className="article-title-hero fade-in-up">
-                {article.title}
-              </h1>
-              {article.subtitle && (
-                <p className="article-subtitle-hero fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  {article.subtitle}
-                </p>
-              )}
-
-              {/* العلامات الخاصة */}
-              {(article.is_breaking || article.is_featured) && (
-                <div className="flex items-center gap-3 mt-3 mb-4 justify-center">
-                  {article.is_breaking && (
-                    <span className="inline-flex items-center gap-1 px-4 py-2 bg-red-500/90 backdrop-blur-sm text-white text-sm font-bold rounded-full animate-pulse shadow-lg dark:shadow-gray-900/50">
-                      <Zap className="w-4 h-4" />
-                      عاجل
-                    </span>
-                  )}
-                  
-                  {article.is_featured && (
-                    <span className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-yellow-400/90 to-orange-500/90 backdrop-blur-sm text-white text-sm font-bold rounded-full shadow-lg dark:shadow-gray-900/50">
-                      <Award className="w-4 h-4" />
-                      مميز
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {/* شريط المعلومات المحسن - بدون تكرار */}
-              <div className="article-meta-bar fade-in-up" style={{ animationDelay: '0.2s' }}>
-                {/* اسم المراسل مرة واحدة فقط */}
-                {(article.reporter || article.reporter_name || article.author || article.author_name) && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent">
+              <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-12 max-w-7xl mx-auto">
+                <div className="mb-6">
                   <Link 
-                    href={`/author/${article.author_id || 'team'}`}
-                    className="meta-item-hero reporter-meta hover:scale-105 transition-transform"
+                    href={`/categories/${article.category?.name_ar || article.category_id}`}
+                    className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold text-white backdrop-blur-sm transition-all hover:scale-105"
+                    style={{ 
+                      backgroundColor: article.category?.color_hex ? `${article.category.color_hex}CC` : '#3b82f6CC'
+                    }}
                   >
-                    <PenTool className="w-5 h-5 text-blue-500" />
-                    <span className="font-semibold">
-                      {typeof article.author === 'string' ? article.author : article.author?.name || article.reporter || article.reporter_name || article.author_name || 'فريق التحرير'}
-                    </span>
+                    {article.category?.name_ar || article.category_id}
                   </Link>
-                )}
-                
-                {/* التاريخ والوقت النسبي */}
-                <div className="meta-item-hero">
-                  <Clock className="w-5 h-5 text-green-500" />
-                  <span className="font-medium">{formatRelativeDate(article.created_at)}</span>
                 </div>
-                
-                {/* عدد المشاهدات */}
-                <div className="meta-item-hero">
-                  <Eye className="w-5 h-5 text-purple-500" />
-                  <span>{(article.views_count || article.stats?.views || 0).toLocaleString('ar-SA')} مشاهدة</span>
-                </div>
-                
-                {/* وقت القراءة */}
-                {article.reading_time && (
-                  <div className="meta-item-hero">
-                    <BookOpen className="w-5 h-5 text-orange-500" />
-                    <span>{article.reading_time} دقيقة قراءة</span>
-                  </div>
+                <h1 className="text-4xl lg:text-6xl font-black text-white mb-4 leading-tight">
+                  {article.title}
+                </h1>
+                {article.subtitle && (
+                  <p className="text-xl lg:text-2xl text-gray-200 max-w-4xl">
+                    {article.subtitle}
+                  </p>
                 )}
               </div>
             </div>
           </section>
 
-          {/* محتوى المقال */}
-          <article className="article-body" ref={contentRef}>
-            {/* الملخص الذكي المحسن */}
-            {article.summary && (
-              <div className="smart-summary fade-in-up" style={{ marginTop: '3rem' }}>
-                <div className="smart-summary-content">
-                  <div className="smart-summary-header">
-                    <div className="smart-summary-title">
-                      <div className="smart-summary-icon">
-                        <Sparkles className="w-5 h-5" />
+          {/* شريط المعلومات المساعدة المحسن */}
+          <div className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                      {(article.author_name || 'س')[0]}
+                    </div>
+                    <div>
+                      <div className="font-bold text-gray-900 dark:text-white">
+                        {article.author_name || 'سبق'}
                       </div>
-                      <span>الملخص الذكي</span>
-                    </div>
-                    <button
-                      onClick={speakSummary}
-                      className={`p-2 rounded-lg transition-all ${
-                        isSpeaking 
-                          ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' 
-                          : 'bg-gray-100 dark:bg-gray-800 dark:bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-600 dark:text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-300'
-                      }`}
-                    >
-                      {isSpeaking ? (
-                        <VolumeX className="w-5 h-5" />
-                      ) : (
-                        <Volume2 className="w-5 h-5" />
-                      )}
-                    </button>
-                  </div>
-                  <p className="smart-summary-text">
-                    {article.summary}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* محتوى المقال */}
-            <div className="article-content-enhanced" style={{ 
-              paddingBottom: article.seo_keywords ? '0' : '6rem',
-              marginTop: !article.summary ? '3rem' : '0'
-            }}>
-              {renderArticleContent(article.content)}
-            </div>
-
-            {/* شريط التفاعل الثابت في الأسفل */}
-            <div className="fixed bottom-4 left-0 right-0 z-40">
-              <div className="max-w-3xl mx-auto px-4">
-                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <button
-                        onClick={handleLike}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
-                          interaction.liked 
-                            ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' 
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
-                        style={{ transition: 'none' }}
-                        title={isLoggedIn ? 'أعجبني' : 'سجل دخول للتفاعل'}
-                      >
-                        <Heart className={`w-5 h-5 ${interaction.liked ? 'fill-current' : ''}`} />
-                        <span>{interaction.likesCount || 0}</span>
-                      </button>
-                      
-                      <button
-                        onClick={handleSave}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
-                          interaction.saved 
-                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
-                        style={{ transition: 'none' }}
-                        title={isLoggedIn ? 'حفظ' : 'سجل دخول للتفاعل'}
-                      >
-                        <Bookmark className={`w-5 h-5 ${interaction.saved ? 'fill-current' : ''}`} />
-                        <span>{interaction.savesCount || 0}</span>
-                      </button>
-                    </div>
-                    
-                    <div className="relative">
-                      <button
-                        onClick={() => setShowShareMenu(!showShareMenu)}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 font-medium"
-                        style={{ transition: 'none' }}
-                      >
-                        <Share2 className="w-5 h-5" />
-                        <span>مشاركة</span>
-                      </button>
-                      
-                      {showShareMenu && (
-                        <div className="absolute left-0 bottom-full mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-2 min-w-[200px] z-50" style={{ transition: 'none' }}>
-                          <button
-                            onClick={() => handleShare('twitter')}
-                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-right"
-                            style={{ transition: 'none' }}
-                          >
-                            <Twitter className="w-4 h-4 text-[#1DA1F2]" />
-                            <span className="text-sm">تويتر</span>
-                          </button>
-                          
-                          <button
-                            onClick={() => handleShare('facebook')}
-                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-right"
-                            style={{ transition: 'none' }}
-                          >
-                            <Facebook className="w-4 h-4 text-[#1877F2]" />
-                            <span className="text-sm">فيسبوك</span>
-                          </button>
-                          
-                          <button
-                            onClick={() => handleShare('whatsapp')}
-                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-right"
-                            style={{ transition: 'none' }}
-                          >
-                            <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                            <span className="text-sm">واتساب</span>
-                          </button>
-                          
-                          <button
-                            onClick={() => handleShare('telegram')}
-                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-right"
-                            style={{ transition: 'none' }}
-                          >
-                            <Send className="w-4 h-4 text-[#0088CC]" />
-                            <span className="text-sm">تيليجرام</span>
-                          </button>
-                          
-                          <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-                          
-                          <button
-                            onClick={() => handleShare('copy')}
-                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-right"
-                            style={{ transition: 'none' }}
-                          >
-                            {copySuccess ? (
-                              <Check className="w-4 h-4 text-green-500" />
-                            ) : (
-                              <Copy className="w-4 h-4" />
-                            )}
-                            <span className="text-sm">{copySuccess ? 'تم النسخ!' : 'نسخ الرابط'}</span>
-                          </button>
-                        </div>
-                      )}
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {formatFullDate(article.published_at || article.created_at || '')}
+                      </div>
                     </div>
                   </div>
                   
-                  {/* معلومات إضافية عند التمرير */}
-                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                    <span>التاريخ: {formatFullDate(article.created_at)}</span>
-                    <span>تقدم القراءة: {Math.round(readProgress)}%</span>
+                  <div className="h-8 w-px bg-gray-300 dark:bg-gray-700"></div>
+                  
+                  <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-1">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="font-medium">{article.views_count || 0}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                      <span className="font-medium">{calculateReadingTime(article.content)} دقائق</span>
+                    </div>
                   </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => shareOnSocial('twitter', article.title, window.location.href)}
+                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    title="مشاركة على تويتر"
+                  >
+                    <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                    </svg>
+                  </button>
+                  
+                  <button
+                    onClick={() => shareOnSocial('whatsapp', article.title, window.location.href)}
+                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    title="مشاركة على واتساب"
+                  >
+                    <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.89 3.488"/>
+                    </svg>
+                  </button>
+                  
+                  <button
+                    onClick={() => copyToClipboard(window.location.href)}
+                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    title="نسخ الرابط"
+                  >
+                    <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* الكلمات المفتاحية */}
-            {article.seo_keywords && (
-              <div className="mt-12 mb-24">
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 dark:text-white mb-4">الكلمات المفتاحية</h3>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {(typeof article.seo_keywords === 'string' 
-                    ? article.seo_keywords.split(',') 
-                    : article.seo_keywords
-                  ).map((keyword: string, index: number) => (
-                    <Link
-                      key={index}
-                      href={`/search?q=${encodeURIComponent(keyword.trim())}`}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:text-gray-300 rounded-full text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-700 transition-all"
-                    >
-                      <Hash className="w-3 h-3" />
-                      {keyword.trim()}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </article>
-
-          {/* قسم التوصيات المحسن */}
-          {((article.related_articles && article.related_articles.length > 0) || 
-            (isLoggedIn && recommendations.length > 0)) && (
-            <section className="recommendations-section bg-gray-50 dark:bg-gray-900">
-              <div className="max-w-7xl mx-auto px-4">
-                <div className="recommendations-header">
-                  <h2 className="recommendations-title text-gray-900 dark:text-white">
-                    {isLoggedIn && recommendations.length > 0 ? 'محتوى مخصص لك' : 'أخبار ذات صلة'}
-                  </h2>
-                  <p className="recommendations-subtitle text-gray-600 dark:text-gray-400">
-                    {isLoggedIn && recommendations.length > 0 
-                      ? 'مقالات مختارة بناءً على اهتماماتك' 
-                      : 'اكتشف المزيد من المحتوى المميز'}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {(isLoggedIn && recommendations.length > 0 ? recommendations : article.related_articles || [])
-                    .slice(0, 6)
-                    .map((item: any) => (
-                      <Link
-                        key={item.id}
-                        href={`/article/${item.id}`}
-                        className="recommendation-card-enhanced bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+          {/* محتوى المقال والجزء الجانبي */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+              {/* المحتوى الرئيسي */}
+              <main className="lg:col-span-8">
+                <article className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-8 lg:p-12">
+                  <div className="prose prose-lg max-w-none dark:prose-invert
+                               prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100
+                               prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-p:text-lg
+                               prose-blockquote:border-r-4 prose-blockquote:border-blue-500 prose-blockquote:pr-6 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-800 prose-blockquote:rounded-lg prose-blockquote:p-6
+                               prose-ul:list-disc prose-ol:list-decimal
+                               prose-img:rounded-xl prose-img:shadow-lg dark:prose-img:shadow-gray-900/50
+                               prose-strong:text-gray-900 dark:prose-strong:text-gray-100
+                               prose-li:text-gray-700 dark:prose-li:text-gray-300
+                               prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+                               prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:border-r-4 prose-h2:border-blue-500 prose-h2:pr-4
+                               prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4">
+                    {renderArticleContent(article.content)}
+                  </div>
+                  
+                  {/* قسم المشاركة في نهاية المقال */}
+                  <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+                      شارك هذا المقال
+                    </h3>
+                    <div className="flex flex-wrap gap-3 justify-center">
+                      <button 
+                        className="flex items-center gap-2 px-6 py-3 bg-[#1DA1F2] text-white rounded-full hover:bg-[#1a8cd8] transition-all hover:scale-105 font-medium"
+                        onClick={() => shareOnSocial('twitter', article.title, window.location.href)}
                       >
-                        <div className="recommendation-image-wrapper">
-                          <img
-                            src={item.featured_image || item.image_url || generatePlaceholderImage(item.title)}
-                            alt={item.title}
-                            className="recommendation-image-enhanced"
-                            loading="lazy"
-                          />
-                        </div>
-                        <div className="recommendation-content">
-                          {item.category_name && (
-                            <span 
-                              className="recommendation-category"
-                              style={{
-                                backgroundColor: darkMode ? `${getCategoryColor({ name_ar: item.category_name })}30` : `${getCategoryColor({ name_ar: item.category_name })}20`,
-                                color: getCategoryColor({ name_ar: item.category_name })
-                              }}
-                            >
-                              {item.category_name}
-                            </span>
-                          )}
-                          <h3 className="recommendation-title-enhanced text-gray-900 dark:text-white">
-                            {item.title}
-                          </h3>
-                          <div className="recommendation-meta text-gray-600 dark:text-gray-400">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              {formatRelativeDate(item.created_at || item.published_at || '')}
-                            </span>
-                            {item.reading_time && (
-                              <span className="flex items-center gap-1">
-                                <BookOpen className="w-4 h-4" />
-                                {item.reading_time} دقيقة
-                              </span>
-                            )}
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                        </svg>
+                        تويتر
+                      </button>
+                      
+                      <button 
+                        className="flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white rounded-full hover:bg-[#128C7E] transition-all hover:scale-105 font-medium"
+                        onClick={() => shareOnSocial('whatsapp', article.title, window.location.href)}
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.89 3.488"/>
+                        </svg>
+                        واتساب
+                      </button>
+                      
+                      <button 
+                        className="flex items-center gap-2 px-6 py-3 bg-gray-700 text-white rounded-full hover:bg-gray-800 transition-all hover:scale-105 font-medium"
+                        onClick={() => copyToClipboard(window.location.href)}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        نسخ الرابط
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              </main>
+
+              {/* الشريط الجانبي */}
+              <aside className="lg:col-span-4 mt-8 lg:mt-0">
+                <div className="sticky top-24 space-y-6">
+                  {/* مواضيع ذات صلة */}
+                  <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                      <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
+                      مواضيع ذات صلة
+                    </h3>
+                    <div className="space-y-4">
+                      {relatedArticles.slice(0, 4).map((relatedArticle) => (
+                        <Link
+                          key={relatedArticle.id}
+                          href={`/article/${relatedArticle.id}`}
+                          className="group block"
+                        >
+                          <div className="flex gap-4 p-3 -m-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                            <img
+                              src={relatedArticle.featured_image || generatePlaceholderImage(relatedArticle.title)}
+                              alt={relatedArticle.title}
+                              className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+                            />
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2 transition-colors">
+                                {relatedArticle.title}
+                              </h4>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                {formatFullDate(relatedArticle.published_at || relatedArticle.created_at || '')}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* إحصائيات المقال */}
+                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                      <span className="w-1 h-6 bg-purple-500 rounded-full"></span>
+                      إحصائيات المقال
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 bg-white/70 dark:bg-gray-900/50 rounded-lg">
+                        <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                          </svg>
+                          المشاهدات
+                        </span>
+                        <span className="font-bold text-gray-900 dark:text-white">{article.views_count || 0}</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-white/70 dark:bg-gray-900/50 rounded-lg">
+                        <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                          </svg>
+                          وقت القراءة
+                        </span>
+                        <span className="font-bold text-gray-900 dark:text-white">{calculateReadingTime(article.content)} دقائق</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-white/70 dark:bg-gray-900/50 rounded-lg">
+                        <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                          </svg>
+                          تاريخ النشر
+                        </span>
+                        <span className="font-bold text-gray-900 dark:text-white text-sm">{formatFullDate(article.published_at || article.created_at)}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </section>
-          )}
+              </aside>
+            </div>
+          </div>
 
-
+          {/* شريط التفاعل العائم */}
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+            <div className="bg-white dark:bg-gray-900 rounded-full shadow-2xl border border-gray-200 dark:border-gray-700 px-2 py-2 flex items-center gap-1">
+              <button
+                onClick={handleLike}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+                  interaction.liked 
+                    ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' 
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
+                }`}
+              >
+                <svg className="w-5 h-5" fill={interaction.liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span className="font-medium hidden sm:inline">{interaction.likesCount || 0}</span>
+              </button>
+              
+              <button
+                onClick={handleSave}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+                  interaction.saved 
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
+                }`}
+              >
+                <svg className="w-5 h-5" fill={interaction.saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+                <span className="font-medium hidden sm:inline">حفظ</span>
+              </button>
+              
+              <button
+                onClick={() => setShowShareMenu(!showShareMenu)}
+                className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-all"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a3 3 0 10-2.684 0m2.684 0A5.972 5.972 0 0112 18c-1.99 0-3.75-.97-4.842-2.458m9.032-4.026a5.972 5.972 0 00-1.348-6.358m-9.032 4.026A5.972 5.972 0 016 5.758m9.032 4.026A5.972 5.972 0 0112 6c1.99 0 3.75.97 4.842 2.458M6 5.758a3 3 0 102.684 0" />
+                </svg>
+                <span className="font-medium hidden sm:inline">مشاركة</span>
+              </button>
+            </div>
+          </div>
         </>
       )}
       
+      {/* القائمة المنبثقة للمشاركة */}
+      {showShareMenu && (
+        <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-[60] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl p-4 w-80 animate-fade-in-up">
+          <h4 className="text-center font-bold text-gray-900 dark:text-white mb-4">شارك عبر</h4>
+          <div className="grid grid-cols-3 gap-3">
+            <button onClick={() => shareOnSocial('twitter', article.title, window.location.href)} className="flex flex-col items-center gap-1 hover:opacity-90">
+              <svg className="w-6 h-6 text-[#1DA1F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M23.954 4.569a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 9.93 9.93 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.096 4.067 6.13 1.639 3.161a4.822 4.822 0 00-.666 2.475 4.92 4.92 0 002.188 4.097 4.904 4.904 0 01-2.228-.617v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417A9.867 9.867 0 010 19.54a13.94 13.94 0 007.548 2.209c9.05 0 13.999-7.496 13.999-13.985 0-.209-.004-.423-.014-.635A9.935 9.935 0 0024 4.59z"/></svg>
+              <span className="text-xs text-gray-700 dark:text-gray-300">تويتر</span>
+            </button>
+            <button onClick={() => shareOnSocial('whatsapp', article.title, window.location.href)} className="flex flex-col items-center gap-1 hover:opacity-90">
+              <svg className="w-6 h-6 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884"/></svg>
+              <span className="text-xs text-gray-700 dark:text-gray-300">واتساب</span>
+            </button>
+            <button onClick={() => copyToClipboard(window.location.href)} className="flex flex-col items-center gap-1 hover:opacity-90">
+              <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              <span className="text-xs text-gray-700 dark:text-gray-300">نسخ</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       <Footer />
+      
+      {/* سكريبت مؤشر تقدم القراءة */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          window.addEventListener('scroll', function() {
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight || window.innerHeight;
+            const scrolled = (scrollTop / (scrollHeight - clientHeight)) * 100;
+            const progressBar = document.getElementById('reading-progress');
+            if (progressBar) {
+              progressBar.style.width = scrolled + '%';
+            }
+          });
+        `
+      }} />
     </div>
   );
+}
+
+// دوال مساعدة
+function shareOnSocial(platform: string, title: string, url: string) {
+  const encodedTitle = encodeURIComponent(title);
+  const encodedUrl = encodeURIComponent(url);
+  
+  const urls = {
+    twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+    whatsapp: `https://wa.me/?text=${encodedTitle} ${encodedUrl}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
+  };
+  
+  if (urls[platform as keyof typeof urls]) {
+    window.open(urls[platform as keyof typeof urls], '_blank', 'width=600,height=400');
+  }
+}
+
+function copyToClipboard(text: string) {
+  navigator.clipboard.writeText(text).then(() => {
+    // يمكن إضافة toast notification هنا
+    alert('تم نسخ الرابط!');
+  });
+}
+
+function calculateReadingTime(content: any): number {
+  if (!content) return 1;
+  
+  let wordCount = 0;
+  if (typeof content === 'string') {
+    wordCount = content.split(' ').length;
+  } else if (Array.isArray(content)) {
+    content.forEach((block: any) => {
+      if (block.text) {
+        wordCount += block.text.split(' ').length;
+      }
+    });
+  }
+  
+  return Math.max(1, Math.ceil(wordCount / 200)); // 200 كلمة في الدقيقة
 } 

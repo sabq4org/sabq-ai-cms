@@ -19,7 +19,7 @@ import History from '@tiptap/extension-history';
 import { useEffect, forwardRef, useImperativeHandle, useRef, useState, useCallback } from 'react';
 import EditorToolbar from './EditorToolbar';
 import EditorStyles from './EditorStyles';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Button } from '@/components/ui/button';
 import { Undo2, Redo2, Save, RotateCcw, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -52,7 +52,7 @@ const Editor = forwardRef<EditorRef, EditorProps>(({
   autoSaveKey = 'editor-draft',
   autoSaveInterval = 30000 // 30 ثانية
 }, ref) => {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [showRestorePrompt, setShowRestorePrompt] = useState(false);
   const previousContentRef = useRef<string>('');

@@ -26,15 +26,15 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { getCurrentUser, logActions } from '@/lib/log-activity';
-import { DarkModeToggle } from '@/components/DarkModeToggle';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import DarkModeToggle from '@/components/DarkModeToggle';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { darkMode, mounted } = useDarkMode();
+  const { darkMode, mounted } = useDarkModeContext();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);

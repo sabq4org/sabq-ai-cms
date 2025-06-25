@@ -17,7 +17,7 @@
       "is_pinned": false,
       "publish_at": "2025-06-24T06:22:30.993Z",
       "published_at": "2025-06-24T06:22:30.993Z",
-      "views_count": 32,
+      "views_count": 58,
       "reading_time": 1,
       "content_blocks": [
         {
@@ -41,7 +41,7 @@
       ],
       "author_name": "علي عبده",
       "stats": {
-        "views": 32,
+        "views": 58,
         "likes": 0,
         "shares": 0,
         "comments": 0,
@@ -66,7 +66,7 @@
       "is_pinned": false,
       "publish_at": "2025-06-23T20:00:57.140Z",
       "published_at": "2025-06-23T20:00:57.140Z",
-      "views_count": 4,
+      "views_count": 6,
       "reading_time": 1,
       "content_blocks": [
         {
@@ -85,7 +85,7 @@
       "is_deleted": false,
       "author": "علي عبده",
       "stats": {
-        "views": 4,
+        "views": 6,
         "likes": 0,
         "shares": 0,
         "comments": 0,
@@ -113,7 +113,7 @@
       "is_pinned": false,
       "publish_at": "2025-06-23T14:12:27.008Z",
       "published_at": "2025-06-23T14:12:27.008Z",
-      "views_count": 27,
+      "views_count": 33,
       "reading_time": 1,
       "content_blocks": [
         {
@@ -132,7 +132,7 @@
       "is_deleted": false,
       "author": "علي عبده",
       "stats": {
-        "views": 27,
+        "views": 33,
         "likes": 0,
         "shares": 0,
         "comments": 0,
@@ -337,9 +337,17 @@
         "كأس العالم للأندية",
         "كرة القدم"
       ],
-      "views_count": 2500,
+      "views_count": 2506,
       "created_at": "2025-06-24T06:26:03.783Z",
-      "published_at": "2025-06-24T06:26:03.783Z"
+      "published_at": "2025-06-24T06:26:03.783Z",
+      "stats": {
+        "views": 6,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "saves": 0,
+        "read_time_avg": 0
+      }
     },
     {
       "id": "article-hilal-1750749963783-2",
@@ -357,9 +365,17 @@
         "مونديال الأندية",
         "دعم"
       ],
-      "views_count": 1800,
+      "views_count": 1810,
       "created_at": "2025-06-24T05:26:03.783Z",
-      "published_at": "2025-06-24T05:26:03.783Z"
+      "published_at": "2025-06-24T05:26:03.783Z",
+      "stats": {
+        "views": 10,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "saves": 0,
+        "read_time_avg": 0
+      }
     },
     {
       "id": "article-hilal-1750749963783-3",

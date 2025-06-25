@@ -19,7 +19,7 @@ import {
 import ContentEditorWithBlocks from '../../../../../components/ContentEditorWithBlocks';
 import FeaturedImageUpload from '../../../../../components/FeaturedImageUpload';
 import { logActions, getCurrentUser } from '../../../../../lib/log-activity';
-import { useDarkMode } from '../../../../../hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 // ===============================
 // أنواع البيانات
@@ -81,7 +81,7 @@ interface Reporter {
 export default function EditArticlePage() {
   const params = useParams();
   const router = useRouter();
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const articleId = params?.id as string;
 
   const [formData, setFormData] = useState<ArticleFormData>({

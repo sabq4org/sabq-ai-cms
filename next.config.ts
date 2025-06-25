@@ -41,24 +41,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // إعدادات webpack لحل مشاكل الملفات المفقودة
-  webpack: (config, { isServer }) => {
-    // تعطيل cache في بيئة التطوير
-    if (!isServer) {
-      config.cache = false;
-    }
-    
-    // إضافة fallback للملفات المفقودة
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-    };
-
-    return config;
-  },
-  // إعدادات إضافية
   reactStrictMode: true,
   poweredByHeader: false,
 };

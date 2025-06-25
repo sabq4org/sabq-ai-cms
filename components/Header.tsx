@@ -4,13 +4,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
-  Menu, Search, ChevronDown, User, LogIn, UserPlus 
+  Menu, Search, ChevronDown 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import SabqLogo from './SabqLogo';
 import UserDropdown from './UserDropdown';
-import { DarkModeToggle } from './DarkModeToggle';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
+// import DarkModeToggle from './DarkModeToggle'; // تم تعطيل الوضع الليلي
 
 interface UserData {
   id: string;
@@ -19,51 +17,12 @@ interface UserData {
   avatar?: string;
 }
 
-interface Template {
-  id: number;
-  name: string;
-  type: string;
-  is_active: boolean;
-  is_default: boolean;
-  logo_url?: string;
-  logo_alt?: string;
-  logo_width?: number;
-  logo_height?: number;
-  primary_color?: string;
-  secondary_color?: string;
-  header_height?: number;
-  content?: {
-    logo?: {
-      url: string;
-      alt: string;
-      width?: number;
-      height?: number;
-    };
-    navigation?: {
-      items: Array<{
-        label: string;
-        url: string;
-        order: number;
-      }>;
-    };
-    theme?: {
-      headerHeight?: number;
-    };
-  };
-}
-
 export default function Header() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showMobileAuthMenu, setShowMobileAuthMenu] = useState(false);
-  const [headerTemplate, setHeaderTemplate] = useState<Template | null>(null);
-  const [templateLoading, setTemplateLoading] = useState(true);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const mobileAuthRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // جلب بيانات المستخدم من localStorage
@@ -72,37 +31,13 @@ export default function Header() {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
     }
-
-    // جلب القالب النشط من API
-    fetchActiveHeaderTemplate();
   }, []);
-
-  const fetchActiveHeaderTemplate = async () => {
-    try {
-      setTemplateLoading(true);
-      const response = await fetch('/api/templates/active-header');
-      if (response.ok) {
-        const template = await response.json();
-        console.log('Header template loaded:', template); // Debug log
-        setHeaderTemplate(template);
-      } else {
-        console.error('Failed to fetch header template:', response.status);
-      }
-    } catch (error) {
-      console.error('Error fetching header template:', error);
-    } finally {
-      setTemplateLoading(false);
-    }
-  };
 
   // إغلاق القائمة المنسدلة عند النقر خارجها
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
-      }
-      if (mobileAuthRef.current && !mobileAuthRef.current.contains(event.target as Node)) {
-        setShowMobileAuthMenu(false);
       }
     }
 
@@ -112,14 +47,12 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      // استدعاء API لتسجيل الخروج
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
-        credentials: 'include' // مهم لإرسال الكوكيز
+        credentials: 'include'
       });
 
       if (response.ok) {
-        // إزالة جميع بيانات المستخدم من localStorage
         localStorage.removeItem('user');
         localStorage.removeItem('user_id');
         localStorage.removeItem('currentUser');
@@ -146,235 +79,69 @@ export default function Header() {
       .toUpperCase();
   };
 
-  // استخدام بيانات القالب للشعار مع تحسينات
-  const getLogoUrl = () => {
-    if (!headerTemplate) {
-      console.log('No headerTemplate loaded yet');
-      return null;
-    }
-    
-    // أولوية للـ logo_url المباشر (تجنب التكرار)
-    if (headerTemplate.logo_url) {
-      console.log('Using direct logo_url:', headerTemplate.logo_url);
-      return headerTemplate.logo_url;
-    }
-    
-    // فقط في حالة عدم وجود logo_url، استخدم content.logo.url
-    if (headerTemplate.content?.logo?.url && !headerTemplate.logo_url) {
-      console.log('Using content.logo.url:', headerTemplate.content.logo.url);
-      return headerTemplate.content.logo.url;
-    }
-    
-    console.log('No logo URL found in template');
-    return null;
-  };
-
-  // إجبار إعادة رسم المكون عند تحميل القالب
-  useEffect(() => {
-    if (headerTemplate && !templateLoading) {
-      console.log('Template loaded, forcing re-render with logo:', getLogoUrl());
-      // فرض إعادة رسم المكون
-      setShowDropdown(false);
-    }
-  }, [headerTemplate, templateLoading]);
-
-  // إعادة تحميل قسرية بعد 3 ثواني إذا لم يتم تحميل القالب
-  useEffect(() => {
-    const forceReloadTimer = setTimeout(() => {
-      if (templateLoading) {
-        console.log('Force reloading template after 3 seconds...');
-        setTemplateLoading(false);
-        fetchActiveHeaderTemplate();
-      }
-    }, 3000);
-
-    return () => clearTimeout(forceReloadTimer);
-  }, [templateLoading]);
-
-  const getLogoAlt = () => {
-    if (headerTemplate?.logo_alt) {
-      return headerTemplate.logo_alt;
-    }
-    if (headerTemplate?.content?.logo?.alt) {
-      return headerTemplate.content.logo.alt;
-    }
-    return 'سبق';
-  };
-
-  // استخدام روابط التنقل من القالب
-  const getNavigationItems = () => {
-    if (headerTemplate?.content?.navigation?.items) {
-      return headerTemplate.content.navigation.items
-        .filter(item => item.label !== 'عن سبق')
-        .sort((a, b) => a.order - b.order);
-    }
-    // الروابط الافتراضية
-    return [
-      { label: 'الرئيسية', url: '/', order: 1 },
-      { label: 'الأخبار', url: '/news', order: 2 },
-      { label: 'التصنيفات', url: '/categories', order: 3 },
-      { label: 'تواصل معنا', url: '/contact', order: 4 }
-    ];
-  };
-
-  // الحصول على ارتفاع الهيدر
-  const getHeaderHeight = () => {
-    if (headerTemplate?.header_height) {
-      return headerTemplate.header_height;
-    }
-    if (headerTemplate?.content?.theme?.headerHeight) {
-      return headerTemplate.content.theme.headerHeight;
-    }
-    return 64; // الارتفاع الافتراضي
-  };
-
-  // الحصول على أبعاد الشعار
-  const getLogoWidth = () => {
-    return headerTemplate?.logo_width || headerTemplate?.content?.logo?.width || 'auto';
-  };
-
-  const getLogoHeight = () => {
-    return headerTemplate?.logo_height || headerTemplate?.content?.logo?.height || 40;
-  };
-
-  // استخدام useDarkMode hook
-  const { darkMode } = useDarkModeContext();
-
-  // الاستماع لتغييرات الوضع المظلم
-  useEffect(() => {
-    const handleDarkModeChange = () => {
-      // فرض إعادة رسم المكون
-      setShowDropdown(false);
-      setShowMobileMenu(false);
-    };
-
-    window.addEventListener('dark-mode-changed', handleDarkModeChange);
-    window.addEventListener('dark-mode-toggled', handleDarkModeChange);
-
-    return () => {
-      window.removeEventListener('dark-mode-changed', handleDarkModeChange);
-      window.removeEventListener('dark-mode-toggled', handleDarkModeChange);
-    };
-  }, []);
+  // روابط التنقل الثابتة
+  const navigationItems = [
+    { label: 'الرئيسية', url: '/', order: 1 },
+    { label: 'الأخبار', url: '/news', order: 2 },
+    { label: 'التصنيفات', url: '/categories', order: 3 },
+    { label: 'تواصل معنا', url: '/contact', order: 4 }
+  ];
 
   return (
-    <header 
-      className="shadow-md dark:shadow-gray-900/50 sticky top-0 z-50 border-b transition-colors duration-300"
-      style={{
-        backgroundColor: darkMode 
-          ? '#1f2937' // gray-800 في الوضع المظلم
-          : (headerTemplate?.primary_color || '#ffffff'), // أبيض أو لون القالب في الوضع العادي
-        borderColor: darkMode ? '#374151' : '#e5e7eb', // gray-700 / gray-200
-        color: headerTemplate?.secondary_color || undefined
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-6">
-        <div 
-          className="flex items-center justify-between"
-          style={{ height: `${getHeaderHeight()}px` }}
-        >
+    <header className="bg-white dark:bg-gray-900 shadow-lg dark:shadow-black/50 sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700 transition-colors duration-300 h-16">
+      <div className="max-w-7xl mx-auto px-6 h-full">
+        <div className="flex items-center justify-between h-full">
           {/* الشعار في اليمين */}
           <Link href="/" className="flex-shrink-0 min-w-[120px]">
-            {templateLoading ? (
-              // مؤشر تحميل للشعار
-              <div className="w-20 h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            ) : getLogoUrl() && !imageError ? (
-              // عرض الشعار من القالب
-              <div className="relative">
-                <img 
-                  src={getLogoUrl()!} 
-                  alt={getLogoAlt()} 
-                  className={`object-contain max-w-[120px] transition-opacity duration-300 ${
-                    imageLoaded ? 'opacity-100' : 'opacity-0'
-                  }`}
-                  style={{
-                    width: getLogoWidth() === 'auto' ? 'auto' : `${getLogoWidth()}px`,
-                    height: `${getLogoHeight()}px`
-                  }}
-                  onError={(e) => {
-                    console.error('Logo image failed to load:', getLogoUrl());
-                    setImageError(true);
-                    setImageLoaded(false);
-                  }}
-                  onLoad={() => {
-                    console.log('Logo loaded successfully:', getLogoUrl());
-                    setImageLoaded(true);
-                    setImageError(false);
-                  }}
-                />
-                {/* مؤشر تحميل أثناء تحميل الصورة */}
-                {!imageLoaded && !imageError && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              // الشعار الافتراضي (سبق) - يظهر فقط عند عدم وجود شعار من القالب أو في حالة الخطأ
-              <div className="flex items-center gap-2">
-                <SabqLogo />
-                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">سبق</span>
-              </div>
-            )}
+            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">سبق</span>
           </Link>
 
           {/* روابط التنقل في الوسط */}
           <nav className="hidden lg:flex items-center gap-8 flex-1 justify-center">
-            {getNavigationItems().map((item) => (
+            {navigationItems.map((item) => (
               <Link 
                 key={item.url}
                 href={item.url} 
-                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium text-lg"
-                style={{
-                  color: darkMode 
-                    ? '#d1d5db' // gray-300 في الوضع المظلم
-                    : (headerTemplate?.secondary_color || '#374151') // gray-700 أو لون القالب
-                }}
+                className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium text-lg hover:font-semibold"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          {/* الجزء الأيسر - البحث والمستخدم وزر القائمة */}
-          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 header-mobile-icons">
+          {/* الجزء الأيسر */}
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             {/* البحث */}
-            <button 
-              className="p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              style={{
-                color: darkMode ? '#d1d5db' : '#4b5563' // gray-300 / gray-600
-              }}
-            >
+            <button className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
               <Search className="w-5 h-5" />
             </button>
 
-            {/* زر التبديل للوضع الليلي */}
-            <DarkModeToggle />
+            {/* زر التبديل للوضع الليلي - تم تعطيله */}
+            {/* <DarkModeToggle /> */}
 
             {/* معلومات المستخدم */}
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   {user.avatar ? (
                     <img 
                       src={user.avatar} 
                       alt={user.name}
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shadow-md dark:shadow-gray-900/50"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shadow-md"
                     />
                   ) : (
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs sm:text-sm shadow-md dark:shadow-gray-900/50">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs sm:text-sm shadow-md">
                       {getInitials(user.name)}
                     </div>
                   )}
-                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 transition-transform hidden sm:block ${
+                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform hidden sm:block ${
                     showDropdown ? 'rotate-180' : ''
                   }`} />
                 </button>
 
-                {/* القائمة المنسدلة الجديدة */}
                 {showDropdown && (
                   <UserDropdown 
                     user={user}
@@ -383,67 +150,12 @@ export default function Header() {
                   />
                 )}
               </div>
-            ) : (
-              <>
-                {/* للشاشات الكبيرة - الأزرار العادية */}
-                <div className="hidden sm:flex items-center gap-3">
-                  <Link
-                    href="/login"
-                    className="text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
-                  >
-                    تسجيل الدخول
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all"
-                  >
-                    إنشاء حساب
-                  </Link>
-                </div>
-
-                {/* للموبايل - أيقونة مستخدم بسيطة */}
-                <div className="sm:hidden relative" ref={mobileAuthRef}>
-                  <button
-                    onClick={() => setShowMobileAuthMenu(!showMobileAuthMenu)}
-                    className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <User className="w-5 h-5" style={{
-                      color: darkMode ? '#d1d5db' : '#4b5563'
-                    }} />
-                  </button>
-
-                  {/* قائمة منسدلة للموبايل */}
-                  {showMobileAuthMenu && (
-                    <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-                      <Link
-                        href="/login"
-                        onClick={() => setShowMobileAuthMenu(false)}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <LogIn className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                        <span className="text-gray-700 dark:text-gray-300">تسجيل الدخول</span>
-                      </Link>
-                      <Link
-                        href="/register"
-                        onClick={() => setShowMobileAuthMenu(false)}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-t border-gray-100 dark:border-gray-700"
-                      >
-                        <UserPlus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                        <span className="text-gray-700 dark:text-gray-300">إنشاء حساب جديد</span>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+            ) : null}
 
             {/* زر القائمة للموبايل */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="lg:hidden p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              style={{
-                color: darkMode ? '#d1d5db' : '#4b5563' // gray-300 / gray-600
-              }}
+              className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -452,28 +164,13 @@ export default function Header() {
 
         {/* القائمة للموبايل */}
         {showMobileMenu && (
-          <div 
-            className="lg:hidden py-4 border-t"
-            style={{
-              borderColor: darkMode ? '#374151' : '#e5e7eb' // gray-700 / gray-200
-            }}
-          >
+          <div className="lg:hidden py-4 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900">
             <nav className="flex flex-col gap-2">
-              {getNavigationItems().map((item) => (
+              {navigationItems.map((item) => (
                 <Link
                   key={item.url}
                   href={item.url}
-                  className="px-4 py-2 rounded-lg transition-colors"
-                  style={{
-                    color: darkMode ? '#d1d5db' : '#4b5563', // gray-300 / gray-600
-                    backgroundColor: 'transparent'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = darkMode ? '#374151' : '#f9fafb'; // gray-700 / gray-50
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
+                  className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
                   onClick={() => setShowMobileMenu(false)}
                 >
                   {item.label}
@@ -485,4 +182,4 @@ export default function Header() {
       </div>
     </header>
   );
-} 
+}

@@ -5,7 +5,7 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'class',
+
   theme: {
     extend: {
       colors: {
@@ -15,12 +15,7 @@ module.exports = {
           white: '#F7F7F5',
           gray: '#F5F5F4',
           beige: '#F9F7F4',
-          dark: {
-            cream: '#0F0F11',
-            white: '#18181B',
-            gray: '#27272A',
-            beige: '#1C1C1F',
-          }
+
         },
         
         // ألوان جرعة الأساسية

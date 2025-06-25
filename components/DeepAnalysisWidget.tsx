@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock3, Heart, Bookmark, Brain, User, Calendar, Search, Share2, TrendingUp, Globe, FileText, ChevronLeft } from "lucide-react";
-import { useDarkMode } from '@/hooks/useDarkMode';
+// import { useDarkMode } from '@/hooks/useDarkMode'; // تم تعطيل الوضع الليلي
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
@@ -36,7 +36,7 @@ interface DeepAnalysisWidgetProps {
 }
 
 export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps) {
-  const { darkMode } = useDarkMode();
+  const darkMode = false; // تم تعطيل الوضع الليلي
   const [savedItems, setSavedItems] = useState<string[]>([]);
   const [likedItems, setLikedItems] = useState<string[]>([]);
   const [readItems, setReadItems] = useState<string[]>([]);
@@ -180,14 +180,9 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                   key={item.id} 
                   className={`relative rounded-2xl overflow-hidden transition-all duration-300 hover:transform hover:-translate-y-1 group ${
                     darkMode 
-                      ? 'bg-gray-800 shadow-lg hover:shadow-xl' 
-                      : 'bg-white shadow-md hover:shadow-lg'
+                      ? 'bg-gray-800 !bg-gray-800 shadow-lg hover:shadow-xl border border-gray-700' 
+                      : 'bg-white shadow-md hover:shadow-lg border border-gray-200'
                   }`}
-                  style={{
-                    boxShadow: darkMode 
-                      ? '0 2px 6px rgba(0, 0, 0, 0.3)' 
-                      : '0 2px 6px rgba(0, 0, 0, 0.05)'
-                  }}
                 >
                   <div className="p-6">
                     {/* مؤشر جديد - نقطة حمراء صغيرة */}
@@ -213,16 +208,17 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                         </div>
                         
                         {/* بادج تحليل عميق - محدث بتدرج ناعم */}
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
-                          style={{
-                            background: 'linear-gradient(135deg, #d0e3ff 0%, #84aef3 100%)',
-                            color: '#1e40af'
-                          }}>
+                        <span className={
+                          `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-300
+                          ${darkMode ? 'bg-gradient-to-r from-blue-900 to-blue-700 text-blue-200' : 'bg-gradient-to-r from-blue-100 to-blue-300 text-blue-900'}`
+                        }>
                           تحليل عميق
                         </span>
                         
                         {isAI && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-300
+                            ${darkMode ? 'bg-purple-900 text-purple-200' : 'bg-purple-100 text-purple-800'}`
+                          }>
                             AI
                           </span>
                         )}
@@ -231,14 +227,14 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
 
                     {/* العنوان */}
                     <h3 className={`font-bold text-xl leading-tight mb-3 line-clamp-2 ${
-                      darkMode ? 'text-white' : 'text-gray-900'
+                      darkMode ? 'text-gray-200' : 'text-gray-900'
                     }`}>
                       {item.title}
                     </h3>
 
                     {/* الملخص - محسّن */}
                     <p className={`text-base mb-4 line-clamp-3 leading-relaxed ${
-                      darkMode ? 'text-gray-300' : 'text-gray-600'
+                      darkMode ? 'text-gray-400' : 'text-gray-600'
                     }`}>
                       {item.summary}
                     </p>
@@ -250,7 +246,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                           key={idx} 
                           className={`text-xs px-2 py-0.5 rounded-md ${
                             darkMode 
-                              ? 'bg-gray-700/50 text-gray-200' 
+                              ? 'bg-gray-700/50 text-gray-300' 
                               : 'bg-gray-100 text-gray-600'
                           }`}
                         >
@@ -261,7 +257,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
 
                     {/* الإحصائيات - مبسطة */}
                     <div className={`flex items-center justify-between text-sm mb-5 ${
-                      darkMode ? 'text-gray-400' : 'text-gray-500'
+                      darkMode ? 'text-gray-500' : 'text-gray-500'
                     }`}>
                       <span className="flex items-center gap-2">
                         <Clock3 className={`w-4 h-4 ${darkMode ? 'text-blue-400' : 'text-gray-400'}`} /> 
@@ -274,7 +270,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                       <a href={item.url} onClick={() => markAsRead(item.id)}>
                         <button className={`w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
                           darkMode 
-                            ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-600/30' 
+                            ? 'bg-blue-900/40 text-blue-200 hover:bg-blue-900/60 border border-blue-800/40' 
                             : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
                         }`}>
                           <span>اقرأ التحليل</span>

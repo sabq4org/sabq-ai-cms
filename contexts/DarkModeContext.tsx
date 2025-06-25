@@ -1,30 +1,23 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode } from 'react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import React, { createContext, useContext } from 'react';
 
 interface DarkModeContextType {
   darkMode: boolean;
-  toggleDarkMode: () => void;
-  mounted: boolean;
 }
 
-const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined);
+const DarkModeContext = createContext<DarkModeContextType>({
+  darkMode: false
+});
 
-export function DarkModeProvider({ children }: { children: ReactNode }) {
-  const darkModeData = useDarkMode();
-
+export function DarkModeProvider({ children }: { children: React.ReactNode }) {
   return (
-    <DarkModeContext.Provider value={darkModeData}>
+    <DarkModeContext.Provider value={{ darkMode: false }}>
       {children}
     </DarkModeContext.Provider>
   );
 }
 
 export function useDarkModeContext() {
-  const context = useContext(DarkModeContext);
-  if (context === undefined) {
-    throw new Error('useDarkModeContext must be used within a DarkModeProvider');
-  }
-  return context;
+  return useContext(DarkModeContext);
 } 

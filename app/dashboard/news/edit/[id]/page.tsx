@@ -19,7 +19,7 @@ import {
 import ContentEditorWithBlocks from '../../../../../components/ContentEditorWithBlocks';
 import FeaturedImageUpload from '../../../../../components/FeaturedImageUpload';
 import { logActions, getCurrentUser } from '../../../../../lib/log-activity';
-import { useDarkMode } from '../../../../../hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 // ===============================
 // أنواع البيانات
@@ -72,7 +72,7 @@ interface Category {
 }
 
 export default function EditArticlePage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const params = useParams();
   const router = useRouter();
   const articleId = params?.id as string;

@@ -12,11 +12,11 @@ import {
   Star,
   UserCheck
 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('behavior');
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [stats, setStats] = useState({
     users: 0,
     points: 0,
@@ -30,8 +30,6 @@ export default function DashboardPage() {
   });
   const [tableData, setTableData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // darkMode يتم إدارته الآن بواسطة useDarkMode hook
 
   // جلب البيانات الحقيقية
   useEffect(() => {

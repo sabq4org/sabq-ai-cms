@@ -423,7 +423,7 @@ export default function DeepAnalysisPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as AnalysisStatus | 'all')}>
+            <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as AnalysisStatus | 'all')}>
               <SelectTrigger className={`w-40 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}>
                 <SelectValue placeholder="الحالة" />
               </SelectTrigger>
@@ -435,7 +435,7 @@ export default function DeepAnalysisPage() {
               </SelectContent>
             </Select>
 
-            <Select value={sourceTypeFilter} onValueChange={(value) => setSourceTypeFilter(value as SourceType | 'all')}>
+            <Select value={sourceTypeFilter} onChange={(e) => setSourceTypeFilter(e.target.value as SourceType | 'all')}>
               <SelectTrigger className={`w-40 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}>
                 <SelectValue placeholder="النوع" />
               </SelectTrigger>
@@ -447,7 +447,7 @@ export default function DeepAnalysisPage() {
               </SelectContent>
             </Select>
 
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
               <SelectTrigger className={`w-40 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}>
                 <SelectValue placeholder="الترتيب" />
               </SelectTrigger>

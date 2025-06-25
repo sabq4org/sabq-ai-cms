@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { SmartBlockRenderer } from '@/components/smart-blocks/SmartBlockRenderer';
 import { SmartBlock } from '@/types/smart-block';
-import { useDarkMode } from '@/hooks/useDarkMode';
+// import { useDarkModeContext } from '@/contexts/DarkModeContext'; // تم تعطيل الوضع الليلي
 
 interface SmartSlotProps {
   position: 'topBanner' | 'afterHighlights' | 'afterCards' | 'beforePersonalization' | 'beforeFooter';
@@ -42,7 +42,7 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
   const [blocks, setBlocks] = useState<SmartBlock[]>([]);
   const [blockArticles, setBlockArticles] = useState<{ [key: string]: any[] }>({});
   const [loading, setLoading] = useState(true);
-  const { darkMode } = useDarkMode();
+  const darkMode = false; // تم تعطيل الوضع الليلي
 
   useEffect(() => {
     fetchBlocks();

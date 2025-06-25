@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Link, ExternalLink } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface LinkBlockProps {
   data: {
@@ -14,7 +14,7 @@ interface LinkBlockProps {
 }
 
 export default function LinkBlock({ data, onChange, readOnly }: LinkBlockProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   
   const handleChange = (field: 'url' | 'text', value: string) => {
     onChange({

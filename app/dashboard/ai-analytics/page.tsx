@@ -43,7 +43,7 @@ import {
   ChartLine,
   Beaker
 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -98,7 +98,7 @@ interface PerformanceData {
 }
 
 export default function AIAnalyticsPage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState('7d');

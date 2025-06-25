@@ -1,7 +1,7 @@
 'use client';
 
 import { Editor } from '@tiptap/react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import {
   Bold,
   Italic,
@@ -36,7 +36,7 @@ interface EditorToolbarProps {
 }
 
 export default function EditorToolbar({ editor, enableAI = true, onAIAction }: EditorToolbarProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [showAIMenu, setShowAIMenu] = useState(false);
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [showYoutubeDialog, setShowYoutubeDialog] = useState(false);

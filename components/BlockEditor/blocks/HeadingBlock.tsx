@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface HeadingBlockProps {
   data: { text: string; level: 1 | 2 | 3 | 4 | 5 | 6; alignment?: 'left' | 'center' | 'right' };
@@ -18,7 +18,7 @@ export default function HeadingBlock({
   readOnly = false,
   autoFocus = false 
 }: HeadingBlockProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
 

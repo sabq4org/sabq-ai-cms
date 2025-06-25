@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Twitter } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface TweetBlockProps {
   data: {
@@ -16,7 +16,7 @@ interface TweetBlockProps {
 }
 
 export default function TweetBlock({ data, onChange, readOnly }: TweetBlockProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   
   // استخراج URL من البيانات المحفوظة
   const tweetUrl = data.tweet?.url || data.url || '';

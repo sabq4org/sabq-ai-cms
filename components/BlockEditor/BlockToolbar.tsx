@@ -6,7 +6,7 @@ import {
   Sparkles, Copy, MoreVertical, Wand2, RefreshCw,
   Lightbulb, Languages, Hash
 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { AIAction } from './types';
 
 interface BlockToolbarProps {
@@ -36,7 +36,7 @@ export default function BlockToolbar({
 }: BlockToolbarProps) {
   const [showAIMenu, setShowAIMenu] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
 
   const aiActions = [
     { type: 'generate' as const, label: 'توليد محتوى', icon: Wand2 },

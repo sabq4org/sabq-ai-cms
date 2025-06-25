@@ -15,7 +15,7 @@ import {
   Zap,
   CheckCircle
 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface Article {
   id: string;
@@ -40,7 +40,7 @@ interface PersonalizationStats {
 }
 
 export default function PersonalizedContent() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [stats, setStats] = useState<PersonalizationStats | null>(null);
   const [loading, setLoading] = useState(true);

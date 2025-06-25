@@ -7,7 +7,7 @@ import {
   Quote, Type, Plus, Trash2, ArrowUp, ArrowDown,
   Hash, Sparkles, Wand2, FileText, Lightbulb
 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 // Dynamic import for the Editor to avoid SSR issues
 const Editor = dynamic(() => import('./Editor/Editor'), { 
@@ -48,7 +48,7 @@ export default function ContentEditorWithTiptap({
   onGenerateDescription,
   aiLoading = {}
 }: ContentEditorProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const editorRef = useRef<any>(null);
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [aiAction, setAiAction] = useState<string>('');

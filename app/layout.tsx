@@ -1,9 +1,9 @@
-import type { Metadata } from 'next'
-import { IBM_Plex_Sans_Arabic } from 'next/font/google'
+import { Metadata } from 'next'
 import './globals.css'
-import '../styles/dark-mode-comprehensive-fix.css'
-import { DarkModeProvider } from '@/contexts/DarkModeContext'
+import { IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
+import { cn } from '@/lib/utils'
+import { Providers } from './providers'
 
 const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
   subsets: ['arabic'],
@@ -104,7 +104,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" className="transition-colors duration-300">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta name="theme-color" content="#1e40af" />
@@ -113,9 +113,20 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
       </head>
-      <body className={`${ibmPlexSansArabic.variable} font-sans antialiased bg-soft-cream dark:bg-soft-dark-cream text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
-        <DarkModeProvider>
-          {children}
+      <body className={cn(
+        ibmPlexSansArabic.variable,
+        "font-sans antialiased min-h-screen w-full",
+        "bg-white text-gray-900",
+        "dark:bg-gray-900 dark:text-gray-100",
+        "transition-all duration-300"
+      )}>
+        <Providers>
+          <main className="relative min-h-screen w-full">
+                          <div className="absolute inset-0 bg-gradient-to-b from-gray-50/80 to-white/90 transition-colors duration-300" />
+            <div className="relative z-10">
+              {children}
+            </div>
+          </main>
           <Toaster 
             position="top-center"
             toastOptions={{
@@ -139,7 +150,7 @@ export default function RootLayout({
               },
             }}
           />
-        </DarkModeProvider>
+        </Providers>
       </body>
     </html>
   )
