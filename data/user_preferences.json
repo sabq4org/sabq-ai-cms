@@ -121,16 +121,17 @@
   "user-1750236579398-3h4rt6gu7": {
     "user_id": "user-1750236579398-3h4rt6gu7",
     "categories": {
-      "3": 3
+      "3": 4
     },
     "authors": {},
     "topics": [],
     "reading_time": {
       "preferred_hours": [
-        16
+        16,
+        18
       ],
       "average_duration": 0
     },
-    "last_updated": "2025-06-25T13:25:27.207Z"
+    "last_updated": "2025-06-25T15:20:43.554Z"
   }
 }

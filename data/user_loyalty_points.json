@@ -1034,8 +1034,8 @@
   },
   "user-1750236579398-3h4rt6gu7": {
     "user_id": "user-1750236579398-3h4rt6gu7",
-    "total_points": 3,
-    "earned_points": 3,
+    "total_points": 4,
+    "earned_points": 4,
     "redeemed_points": 0,
     "history": [
       {
@@ -1061,6 +1061,14 @@
           "article_id": "article-hilal-1750749963783-1"
         },
         "timestamp": "2025-06-25T13:25:27.204Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "article-hilal-1750749963783-1"
+        },
+        "timestamp": "2025-06-25T15:20:43.551Z"
       }
     ]
   }

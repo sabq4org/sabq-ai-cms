@@ -128,49 +128,52 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Header />
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 dark:bg-gray-900">
+        <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="w-12 h-12 animate-spin text-blue-500 dark:text-blue-400 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500">جاري تحميل التصنيفات...</p>
+            <p className="text-gray-500 dark:text-gray-400">جاري تحميل التصنيفات...</p>
           </div>
         </div>
-      </>
+        <Footer />
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
-      <div className="bg-gray-50 dark:bg-gray-900 dark:bg-gray-900 min-h-screen transition-colors">
-        {/* Hero Section - تصميم بسيط */}
-        <section className="bg-gray-50 dark:bg-gray-900 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 dark:border-gray-700">
+      
+      {/* Main Content */}
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white dark:text-white mb-3">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
                 التصنيفات
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 max-w-2xl mx-auto">
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                 تصفح مجموعة متنوعة من المواضيع والأقسام، واختر ما يناسب اهتماماتك
               </p>
             </div>
           </div>
         </section>
 
-        {/* Controls Section - تصميم بسيط */}
-        <section className="sticky top-0 z-10 bg-white dark:bg-gray-800 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 dark:border-gray-700">
+        {/* Controls Section */}
+        <section className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               {/* Search */}
               <div className="relative w-full md:w-96">
-                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500" />
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="ابحث في التصنيفات..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2.5 bg-gray-50 dark:bg-gray-900 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 dark:border-gray-600 rounded-lg focus:outline-none focus:bg-white dark:bg-gray-800 dark:focus:bg-gray-600 focus:border-blue-400 dark:focus:border-blue-500 transition-colors text-sm text-gray-900 dark:text-white dark:text-white"
+                  className="w-full pr-10 pl-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-400 dark:focus:border-blue-500 transition-colors text-sm text-gray-900 dark:text-white"
                 />
               </div>
 
@@ -180,20 +183,20 @@ export default function CategoriesPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'name' | 'articles')}
-                  className="px-4 py-2.5 bg-gray-50 dark:bg-gray-900 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 dark:border-gray-600 rounded-lg focus:outline-none focus:bg-white dark:bg-gray-800 dark:focus:bg-gray-600 focus:border-blue-400 dark:focus:border-blue-500 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300 dark:text-gray-300"
+                  className="px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-400 dark:focus:border-blue-500 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   <option value="articles">الأكثر مقالات</option>
                   <option value="name">أبجدياً</option>
                 </select>
 
                 {/* View Mode */}
-                <div className="flex items-center bg-gray-50 dark:bg-gray-900 dark:bg-gray-700 rounded-lg p-1 border border-gray-200 dark:border-gray-700 dark:border-gray-600">
+                <div className="flex items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-1 border border-gray-200 dark:border-gray-600">
                   <button
                     onClick={() => setViewMode('grid')}
                     className={`p-2 rounded transition-colors ${
                       viewMode === 'grid'
-                        ? 'bg-white dark:bg-gray-800 dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm dark:shadow-gray-900/50'
-                        : 'text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-300'
+                        ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
                   >
                     <Grid className="w-4 h-4" />
@@ -202,8 +205,8 @@ export default function CategoriesPage() {
                     onClick={() => setViewMode('list')}
                     className={`p-2 rounded transition-colors ${
                       viewMode === 'list'
-                        ? 'bg-white dark:bg-gray-800 dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm dark:shadow-gray-900/50'
-                        : 'text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-300'
+                        ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
                   >
                     <List className="w-4 h-4" />
@@ -213,13 +216,13 @@ export default function CategoriesPage() {
             </div>
 
             {/* Stats */}
-            <div className="flex items-center gap-4 mt-4 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500">
+            <div className="flex items-center gap-4 mt-4 text-sm text-gray-600 dark:text-gray-400">
               <span>
-                <strong className="text-gray-900 dark:text-white dark:text-white">{sortedCategories.length}</strong> تصنيف
+                <strong className="text-gray-900 dark:text-white">{sortedCategories.length}</strong> تصنيف
               </span>
-              <span className="text-gray-300 dark:text-gray-600 dark:text-gray-400 dark:text-gray-500">•</span>
+              <span className="text-gray-300 dark:text-gray-600">•</span>
               <span>
-                <strong className="text-gray-900 dark:text-white dark:text-white">
+                <strong className="text-gray-900 dark:text-white">
                   {sortedCategories.reduce((acc, cat) => acc + (cat.articles_count || 0), 0)}
                 </strong> مقال
               </span>
@@ -231,8 +234,8 @@ export default function CategoriesPage() {
         <section className="max-w-7xl mx-auto px-6 py-12">
           {sortedCategories.length === 0 ? (
             <div className="text-center py-20">
-              <Tag className="w-16 h-16 text-gray-300 dark:text-gray-600 dark:text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 text-lg">لا توجد تصنيفات تطابق البحث</p>
+              <Tag className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-500 dark:text-gray-400 text-lg">لا توجد تصنيفات تطابق البحث</p>
             </div>
           ) : (
             <>
@@ -249,7 +252,7 @@ export default function CategoriesPage() {
                         href={`/categories/${categorySlug}`}
                         className="group"
                       >
-                        <div className="bg-white dark:bg-gray-800 dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:scale-105">
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl dark:hover:shadow-gray-900/50 transition-all duration-300 overflow-hidden transform hover:scale-105">
                           {/* Cover Image */}
                           <div className="relative h-48 overflow-hidden">
                             <img
@@ -260,7 +263,7 @@ export default function CategoriesPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                             
                             {/* Icon Badge */}
-                            <div className={`absolute top-4 right-4 w-12 h-12 bg-gradient-to-br ${colorGradient} rounded-xl flex items-center justify-center shadow-lg dark:shadow-gray-900/50`}>
+                            <div className={`absolute top-4 right-4 w-12 h-12 bg-gradient-to-br ${colorGradient} rounded-xl flex items-center justify-center shadow-lg`}>
                               {category.icon ? (
                                 <span className="text-2xl">{category.icon}</span>
                               ) : (
@@ -271,18 +274,18 @@ export default function CategoriesPage() {
 
                           {/* Content */}
                           <div className="p-5">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                               {category.name_ar}
                             </h3>
                             
                             {category.description && (
-                              <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 text-sm mb-4 line-clamp-2">
+                              <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
                                 {category.description}
                               </p>
                             )}
 
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500">
+                              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                 <BookOpen className="w-4 h-4" />
                                 <span>{category.articles_count || 0} مقال</span>
                               </div>
@@ -311,7 +314,7 @@ export default function CategoriesPage() {
                         href={`/categories/${categorySlug}`}
                         className="block"
                       >
-                        <div className="bg-white dark:bg-gray-800 dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 transition-all duration-300 p-6 flex items-center gap-6 group">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg dark:hover:shadow-gray-900/50 transition-all duration-300 p-6 flex items-center gap-6 group">
                           {/* Image */}
                           <div className="relative w-32 h-32 rounded-xl overflow-hidden flex-shrink-0">
                             <img
@@ -323,7 +326,7 @@ export default function CategoriesPage() {
                           </div>
 
                           {/* Icon */}
-                          <div className={`w-16 h-16 bg-gradient-to-br ${colorGradient} rounded-xl flex items-center justify-center shadow-md dark:shadow-gray-900/50 flex-shrink-0`}>
+                          <div className={`w-16 h-16 bg-gradient-to-br ${colorGradient} rounded-xl flex items-center justify-center shadow-md flex-shrink-0`}>
                             {category.icon ? (
                               <span className="text-3xl">{category.icon}</span>
                             ) : (
@@ -333,23 +336,23 @@ export default function CategoriesPage() {
 
                           {/* Content */}
                           <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                               {category.name_ar}
                             </h3>
                             
                             {category.description && (
-                              <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-3 line-clamp-2">
+                              <p className="text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
                                 {category.description}
                               </p>
                             )}
 
                             <div className="flex items-center gap-6 text-sm">
-                              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500">
+                              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                                 <BookOpen className="w-4 h-4" />
                                 <span>{category.articles_count || 0} مقال</span>
                               </div>
                               
-                              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500">
+                              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                                 <Activity className="w-4 h-4" />
                                 <span>نشط</span>
                               </div>
@@ -357,7 +360,7 @@ export default function CategoriesPage() {
                           </div>
 
                           {/* Arrow */}
-                          <ArrowRight className="w-6 h-6 text-gray-400 dark:text-gray-500 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+                          <ArrowRight className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
                         </div>
                       </Link>
                     );
@@ -369,22 +372,23 @@ export default function CategoriesPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 py-16">
+        <section className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 py-16 border-t border-gray-200 dark:border-gray-700">
           <div className="max-w-4xl mx-auto px-6 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white dark:text-white mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               لم تجد ما تبحث عنه؟
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-8 text-lg">
+            <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
               اقترح علينا تصنيفاً جديداً أو موضوعاً تود أن نغطيه
             </p>
-            <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 transform hover:scale-105 transition-all">
+            <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
               <Shield className="w-5 h-5" />
               اقترح تصنيفاً
             </button>
           </div>
         </section>
-      </div>
+      </main>
+      
       <Footer />
-    </>
+    </div>
   );
 } 
