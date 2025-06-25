@@ -123,22 +123,24 @@ export async function POST(request: NextRequest) {
     // إضافة الكوكيز الآمنة
     const isProduction = process.env.NODE_ENV === 'production';
     
-    // كوكيز للمستخدم
+    // كوكيز للمستخدم (بدون httpOnly ليمكن قراءته من JavaScript)
     response.cookies.set('user', JSON.stringify(responseUser), {
-      httpOnly: true,
+      httpOnly: false, // السماح بقراءته من JavaScript لدعم Safari
       secure: isProduction,
-      sameSite: 'strict',
+      sameSite: isProduction ? 'none' : 'lax', // تغيير لدعم Safari
       maxAge: 60 * 60 * 24 * 7, // 7 أيام
-      path: '/'
+      path: '/',
+      domain: undefined // السماح للمتصفح بتحديد النطاق
     });
 
     // كوكيز للتوكن
     response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'strict',
+      sameSite: isProduction ? 'none' : 'lax', // تغيير لدعم Safari
       maxAge: 60 * 60 * 24 * 7, // 7 أيام
-      path: '/'
+      path: '/',
+      domain: undefined // السماح للمتصفح بتحديد النطاق
     });
 
     return response;

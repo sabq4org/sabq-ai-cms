@@ -1631,6 +1631,22 @@
       "timestamp": "2025-06-25T07:43:58.355Z",
       "source": "article_page",
       "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest",
+      "article_id": "article-1750746249333-psei475jb",
+      "interaction_type": "view",
+      "timestamp": "2025-06-25T08:27:10.720Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest",
+      "article_id": "article-hilal-1750749963783-2",
+      "interaction_type": "view",
+      "timestamp": "2025-06-25T08:45:00.675Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.0 Safari/605.1.15"
     }
   ]
 }

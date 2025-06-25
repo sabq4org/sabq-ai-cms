@@ -152,6 +152,7 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
                 src={currentArticle.imageUrl}
                 alt={currentArticle.title}
                 fill
+                sizes="(max-width: 768px) 100vw, 66vw"
                 className="object-cover"
               />
             ) : (

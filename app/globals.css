@@ -1425,3 +1425,242 @@ html {
   transition: background-color 0.2s !important;
 }
 
+/* ===================== */
+/* أنماط الوضع الليلي */
+/* ===================== */
+
+/* متغيرات الوضع الليلي */
+.dark {
+  --foreground-rgb: 248, 250, 252;
+  --background-start-rgb: 15, 23, 42;
+  --background-end-rgb: 30, 41, 59;
+  --background-soft: #0f172a;
+  --background-card: #1e293b;
+  --background-hover: #334155;
+  --soft-bg: #0f172a;
+  --soft-border: #334155;
+  --primary-color: #3b82f6;
+  --secondary-color: #8b5cf6;
+  --accent-orange: #fb923c;
+}
+
+/* خلفيات الوضع الليلي */
+.dark body {
+  background-color: var(--background-soft);
+  color: rgb(var(--foreground-rgb));
+}
+
+.dark .bg-white {
+  background-color: var(--background-card) !important;
+}
+
+.dark .bg-gray-50,
+.dark .bg-slate-50 {
+  background-color: var(--background-soft) !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1e293b !important;
+}
+
+.dark .bg-gray-200 {
+  background-color: #334155 !important;
+}
+
+/* النصوص في الوضع الليلي */
+.dark .text-gray-900 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-gray-800 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* الحدود في الوضع الليلي */
+.dark .border-gray-200 {
+  border-color: #334155 !important;
+}
+
+.dark .border-gray-300 {
+  border-color: #475569 !important;
+}
+
+.dark .divide-gray-200 > * + * {
+  border-color: #334155 !important;
+}
+
+/* البطاقات والعناصر */
+.dark .card,
+.dark article,
+.dark .dashboard-container,
+.dark .smart-block-container {
+  background-color: var(--background-card) !important;
+  border-color: var(--soft-border) !important;
+}
+
+/* الجداول */
+.dark table {
+  background-color: var(--background-card) !important;
+}
+
+.dark th {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+.dark td {
+  background-color: var(--background-card) !important;
+  border-color: #334155 !important;
+}
+
+.dark tr:hover td {
+  background-color: #334155 !important;
+}
+
+/* النماذج */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* الأزرار */
+.dark button:not(.bg-blue-500):not(.bg-green-500):not(.bg-red-500) {
+  background-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark button:hover:not(.bg-blue-500):not(.bg-green-500):not(.bg-red-500) {
+  background-color: #475569 !important;
+}
+
+/* القوائم المنسدلة */
+.dark [role="menu"],
+.dark .dropdown-menu {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.dark [role="menuitem"]:hover {
+  background-color: #334155 !important;
+}
+
+/* الظلال */
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* شريط التمرير في الوضع الليلي */
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* المحرر في الوضع الليلي */
+.dark .ProseMirror {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .ProseMirror-focused {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* الكود في الوضع الليلي */
+.dark pre,
+.dark code {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* الروابط في الوضع الليلي */
+.dark a {
+  color: #60a5fa !important;
+}
+
+.dark a:hover {
+  color: #93bbfc !important;
+}
+
+/* تحسينات إضافية للوضع الليلي */
+.dark .hover\:bg-gray-50:hover {
+  background-color: #334155 !important;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #475569 !important;
+}
+
+/* الرسوم البيانية في الوضع الليلي */
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: #334155 !important;
+}
+
+.dark .recharts-text {
+  fill: #94a3b8 !important;
+}
+
+/* التنبيهات في الوضع الليلي */
+.dark .alert {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.dark .alert-info {
+  background-color: #1e3a5f !important;
+  border-color: #2563eb !important;
+}
+
+.dark .alert-success {
+  background-color: #14532d !important;
+  border-color: #16a34a !important;
+}
+
+.dark .alert-warning {
+  background-color: #713f12 !important;
+  border-color: #f59e0b !important;
+}
+
+.dark .alert-error {
+  background-color: #7f1d1d !important;
+  border-color: #dc2626 !important;
+}
+

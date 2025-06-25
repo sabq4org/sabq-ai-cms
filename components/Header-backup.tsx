@@ -9,7 +9,7 @@ import {
 import toast from 'react-hot-toast';
 import SabqLogo from './SabqLogo';
 import UserDropdown from './UserDropdown';
-import DarkModeToggle from './DarkModeToggle';
+import ThemeToggle from './ThemeToggle';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface UserData {
@@ -283,7 +283,7 @@ export default function Header() {
             </button>
 
             {/* زر التبديل للوضع الليلي */}
-            <DarkModeToggle />
+            <ThemeToggle />
 
             {/* معلومات المستخدم */}
             {user ? (

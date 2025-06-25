@@ -26,7 +26,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { getCurrentUser, logActions } from '@/lib/log-activity';
-import DarkModeToggle from '@/components/DarkModeToggle';
+import ThemeToggle from '@/components/ThemeToggle';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 export default function DashboardLayout({
@@ -140,7 +140,7 @@ export default function DashboardLayout({
           {/* الجهة اليسرى - الأدوات */}
           <div className="flex items-center gap-1 sm:gap-4">
             {/* زر التبديل للوضع الليلي */}
-            <DarkModeToggle />
+            <ThemeToggle />
 
             {/* الإشعارات */}
             <button className={`relative p-2 rounded-lg transition-colors duration-300 ${

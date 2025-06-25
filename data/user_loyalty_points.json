@@ -46,6 +46,14 @@
       "tier": "bronze",
       "created_at": "2025-06-23T15:37:47.704Z",
       "last_updated": "2025-06-23T20:09:35.675Z"
+    },
+    {
+      "user_id": "user-1750229554450-9uudnk37n",
+      "total_points": 100,
+      "earned_points": 100,
+      "redeemed_points": 0,
+      "created_at": "2025-06-25T08:32:24.704Z",
+      "last_updated": "2025-06-25T08:32:24.704Z"
     }
   ],
   "user-1750693026418-zdcy23jow": {

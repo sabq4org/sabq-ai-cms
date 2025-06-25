@@ -140,6 +140,7 @@ export function CardGridBlock({ block, articles }: CardGridBlockProps) {
                   src={article.imageUrl}
                   alt={article.title}
                   fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
                   className="object-cover"
                 />
               ) : (

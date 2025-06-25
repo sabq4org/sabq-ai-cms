@@ -46,74 +46,59 @@ function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
-
     setLoading(true);
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password
-        })
+        }),
+        credentials: 'include',
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'فشل تسجيل الدخول');
-      }
-
-      // حفظ بيانات المستخدم
-      localStorage.setItem('user', JSON.stringify(data.user));
-      localStorage.setItem('currentUser', JSON.stringify({
-        user_id: data.user.id,
-        user_name: data.user.name,
-        email: data.user.email,
-        role: data.user.role
-      }));
-      
-      // حفظ user_id للتوافق مع نظام التوصيات
-      localStorage.setItem('user_id', data.user.id);
-      
-      // تسجيل حدث تسجيل الدخول - معطل مؤقتاً
-      // TODO: نقل هذا إلى server-side أو استخدام setTimeout
-      /*
-      await logActions.login({
-        user_id: data.user.id,
-        user_name: data.user.name,
-        email: data.user.email,
-        role: data.user.role
-      });
-      */
-      
-      toast.success('مرحباً بعودتك! 🎉');
-      
-      // التوجيه الذكي
-      let redirectPath = '/';
-      
-      // إذا كان هناك رابط محدد للعودة إليه
-      if (callbackUrl && callbackUrl.startsWith('/')) {
-        // استخدام الرابط المطلوب مباشرة (بغض النظر عن نوع المستخدم)
-        redirectPath = callbackUrl;
-        console.log('توجيه إلى الرابط المطلوب:', redirectPath);
-      } else {
-        // التوجيه بناءً على نوع المستخدم فقط إذا لم يكن هناك رابط محدد
-        if (data.user.is_admin === true || data.user.role === 'admin') {
-          redirectPath = '/dashboard';
-          console.log('توجيه مدير إلى لوحة التحكم');
-        } else {
-          redirectPath = '/';  // توجيه المستخدم العادي للصفحة الرئيسية
-          console.log('توجيه مستخدم عادي إلى الصفحة الرئيسية');
+      if (response.ok && data.success) {
+        // حفظ بيانات المستخدم في localStorage و sessionStorage
+        if (data.user) {
+          try {
+            // حفظ في localStorage
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('user_id', data.user.id);
+            
+            // حفظ في sessionStorage كـ backup
+            sessionStorage.setItem('user', JSON.stringify(data.user));
+            
+            // حفظ الكوكيز يدوياً لدعم Safari
+            const userCookie = encodeURIComponent(JSON.stringify(data.user));
+            document.cookie = `user=${userCookie}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+            
+            console.log('[Safari Debug] User data saved successfully');
+          } catch (e) {
+            console.error('[Safari Debug] Error saving user data:', e);
+          }
         }
-      }
-      
-      router.push(redirectPath);
 
+        toast.success(data.message || 'تم تسجيل الدخول بنجاح');
+        
+        // تحديد مسار إعادة التوجيه
+        const redirectPath = data.user?.is_admin ? '/dashboard' : '/';
+        
+        // استخدام window.location لضمان إعادة تحميل كاملة (مهم لـ Safari)
+        setTimeout(() => {
+          window.location.href = redirectPath;
+        }, 500);
+      } else {
+        toast.error(data.error || 'حدث خطأ في تسجيل الدخول');
+      }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'حدث خطأ في تسجيل الدخول');
+      console.error('Login error:', error);
+      toast.error('حدث خطأ في الاتصال بالخادم');
     } finally {
       setLoading(false);
     }

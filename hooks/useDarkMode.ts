@@ -1,9 +1,12 @@
 'use client';
 
+import { useTheme } from '@/contexts/ThemeContext';
+
 export function useDarkMode() {
+  const { theme, toggleTheme } = useTheme();
+  
   return {
-    darkMode: false,
-    toggleDarkMode: () => {},
-    setDarkMode: () => {}
+    darkMode: theme === 'dark',
+    toggleDarkMode: toggleTheme
   };
 } 

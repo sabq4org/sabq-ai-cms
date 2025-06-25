@@ -218,6 +218,7 @@ export default function PersonalizedFeed({ userId, limit = 10 }: PersonalizedFee
                     src={article.featured_image}
                     alt={article.title}
                     fill
+                    sizes="(max-width: 768px) 128px, 160px"
                     className="object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                   />
                   {recommendInfo && (

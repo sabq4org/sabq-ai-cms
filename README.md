@@ -17,40 +17,20 @@
 
 ## العربية
 
-### 📝 نظرة عامة
+### 📋 نظرة عامة
 
-منصة إخبارية ذكية متطورة مبنية بأحدث التقنيات، تقدم تجربة مستخدم استثنائية مع الذكاء الاصطناعي ونظام نقاط ولاء مبتكر.
+نظام إدارة محتوى ذكي لصحيفة سبق الإلكترونية، مبني باستخدام Next.js 15 مع دعم الذكاء الاصطناعي والتخصيص الذكي للمحتوى.
 
-### ✨ المميزات الرئيسية
+### 🌟 Features / المميزات
 
-#### 🏠 الصفحة الرئيسية
-- **Hero Section** مذهل مع شريط أخبار عاجلة متحرك
-- تحية ذكية حسب وقت اليوم
-- 8 بلوكات ذكية (موجز الآن، يتم قراءته الآن، تحليلات، توصيات، إلخ)
-- نظام تصنيفات تفاعلي مع عرض المقالات
-
-#### 📄 صفحة المقال
-- عرض محتوى متقدم (JSON blocks أو HTML)
-- ملخص ذكي مع تحويل نص إلى صوت
-- شريط تقدم القراءة
-- نظام تفاعلات كامل (إعجاب، حفظ، مشاركة)
-- توصيات ذكية مخصصة (6 مقالات)
-
-#### 📁 نظام التصنيفات
-- صفحة رئيسية لجميع التصنيفات
-- صفحة مفصلة لكل تصنيف
-- بحث وفرز متقدم
-- عرض شبكي وقائمة
-
-#### 🎯 نظام نقاط الولاء
-- 4 مستويات: برونزي، فضي، ذهبي، بلاتيني
-- كسب النقاط من القراءة والتفاعل
-- عرض مباشر للنقاط في الواجهة
-
-#### 👤 نظام المستخدمين
-- تسجيل دخول/تسجيل محسن
-- قائمة منسدلة متطورة
-- رمز تحقق تطويري: `000000`
+- **🤖 ذكاء اصطناعي متقدم**: تحليل عميق للمقالات وتوصيات ذكية
+- **📱 تصميم متجاوب**: يعمل على جميع الأجهزة والشاشات
+- **🌙 وضع ليلي/نهاري**: تجربة قراءة مريحة في جميع الأوقات
+- **🎯 محتوى مخصص**: توصيات مخصصة حسب اهتمامات القارئ
+- **🏆 نظام نقاط الولاء**: مكافآت للقراء النشطين
+- **📊 لوحة تحكم متقدمة**: إحصائيات وتحليلات شاملة
+- **🔐 نظام مصادقة آمن**: تسجيل دخول وإدارة صلاحيات
+- **⚡ أداء فائق**: تحميل سريع وتجربة سلسة
 
 ### 🛠️ التقنيات المستخدمة
 
@@ -63,59 +43,191 @@
 
 ### 🚀 البدء السريع
 
+### Prerequisites / المتطلبات
+
+- Node.js 18+ 
+- npm or yarn
+- Git
+
+### Installation / التثبيت
+
 ```bash
-# استنساخ المشروع
-git clone https://github.com/sabq4org/sabq-ai-cms.git
+# Clone the repository
+git clone https://github.com/your-username/sabq-ai-cms.git
 cd sabq-ai-cms
 
-# تثبيت التبعيات
+# Install dependencies
 npm install
 
-# تشغيل خادم التطوير
-npm run dev
+# Copy environment variables
+cp .env.example .env.local
 
-# فتح المتصفح على
-http://localhost:3001
+# Run development server
+npm run dev
 ```
 
-### 🎨 نظام الألوان
+### Environment Variables / متغيرات البيئة
 
-```css
-/* التدرجات الرئيسية */
-Hero Section: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)
-Primary: from-blue-500 to-purple-600
-User Dropdown: from-blue-600 via-purple-600 to-pink-600
+Create a `.env.local` file:
+
+```env
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Authentication
+JWT_SECRET=your-secret-key-here
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret
+
+# AI Configuration (Optional)
+OPENAI_API_KEY=your-openai-key
+ANTHROPIC_API_KEY=your-anthropic-key
+
+# Database (if using external DB)
+DATABASE_URL=your-database-url
+
+# Email (Optional)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
 ```
 
 ### 📁 بنية المشروع
 
 ```
 sabq-ai-cms/
-├── app/                    # صفحات التطبيق
-│   ├── page.tsx           # الصفحة الرئيسية
-│   ├── article/[id]/      # صفحة المقال
-│   ├── categories/        # صفحات التصنيفات
-│   └── api/              # نقاط النهاية
-├── components/           # المكونات
-├── styles/              # الأنماط المخصصة
-├── public/              # الملفات العامة
-└── data/               # البيانات المحلية
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── dashboard/         # Admin dashboard
+│   └── ...               # Other pages
+├── components/            # React components
+├── contexts/             # React contexts
+├── hooks/                # Custom hooks
+├── lib/                  # Utility functions
+├── public/               # Static files
+├── styles/               # CSS files
+├── types/                # TypeScript types
+└── data/                 # JSON data files
 ```
 
-### 📚 التوثيق
+### 🛠️ Scripts / الأوامر
 
-للمزيد من التفاصيل، راجع:
-- [PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md) - التوثيق الشامل
-- [WORK_SUMMARY.md](WORK_SUMMARY.md) - ملخص العمل
-- [FINAL_WORK_ARCHIVE.md](FINAL_WORK_ARCHIVE.md) - الأرشيف النهائي
+```bash
+# Development
+npm run dev              # Start development server
+
+# Production
+npm run build           # Build for production
+npm run start          # Start production server
+
+# Testing
+npm run test           # Run tests
+npm run lint          # Run ESLint
+
+# Database
+npm run db:seed       # Seed database with sample data
+npm run db:reset     # Reset database
+```
+
+### 🌐 Deployment / النشر
+
+### Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/sabq-ai-cms)
+
+### Manual Deployment
+
+1. **Build the project:**
+```bash
+npm run build
+```
+
+2. **Set production environment variables**
+
+3. **Start the server:**
+```bash
+npm run start
+```
+
+### Docker
+
+```bash
+# Build image
+docker build -t sabq-ai-cms .
+
+# Run container
+docker run -p 3000:3000 sabq-ai-cms
+```
+
+### 📱 Default Accounts / الحسابات الافتراضية
+
+### حساب المدير:
+- **البريد**: ali@alhazm.org
+- **كلمة المرور**: 123456
+
+### حساب المستخدم:
+- **البريد**: sabq@icloud.com
+- **كلمة المرور**: 123456
+
+### 🔧 Configuration / الإعدادات
+
+### AI Features
+- Enable/disable AI features in `config/ai.config.ts`
+- Configure AI models and parameters
+
+### Theme Customization
+- Edit theme colors in `tailwind.config.js`
+- Modify dark mode settings in `contexts/ThemeContext.tsx`
+
+### Content Management
+- Articles are stored in `data/articles.json`
+- Categories in `data/categories.json`
+- Users in `data/users.json`
 
 ### 🤝 المساهمة
 
-نرحب بمساهماتك! يرجى قراءة دليل المساهمة قبل البدء.
+<div dir="rtl">
+
+1. Fork المشروع
+2. أنشئ فرع للميزة (`git checkout -b feature/amazing-feature`)
+3. Commit التغييرات (`git commit -m 'Add amazing feature'`)
+4. Push للفرع (`git push origin feature/amazing-feature`)
+5. افتح Pull Request
+
+</div>
 
 ### 📄 الترخيص
 
-هذا المشروع مرخص تحت رخصة MIT.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### 🙏 Acknowledgments / شكر وتقدير
+
+<div dir="rtl">
+
+- فريق Next.js للإطار الرائع
+- مجتمع React للمكونات والأدوات
+- جميع المساهمين في المشروع
+
+</div>
+
+### 📞 Support / الدعم
+
+<div dir="rtl">
+
+للدعم والاستفسارات:
+- 📧 Email: support@sabq-ai.com
+- 💬 Discord: [Join our server](https://discord.gg/sabq-ai)
+- 📱 Twitter: [@sabq_ai](https://twitter.com/sabq_ai)
+
+</div>
+
+---
+
+<div align="center" dir="rtl">
+صنع بـ ❤️ لصحيفة سبق
+</div>
 
 </div>
 

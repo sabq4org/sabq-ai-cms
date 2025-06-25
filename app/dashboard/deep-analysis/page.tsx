@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectOption } from '@/components/ui/select';
 import { 
   Brain, 
   Plus, 
@@ -58,14 +58,15 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useDarkMode } from '@/hooks/useDarkMode';
+// import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { DeepAnalysis, AnalysisStatus, SourceType } from '@/types/deep-analysis';
 
 export default function DeepAnalysisPage() {
   const router = useRouter();
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [analyses, setAnalyses] = useState<DeepAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -423,40 +424,37 @@ export default function DeepAnalysisPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as AnalysisStatus | 'all')}>
-              <SelectTrigger className={`w-40 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}>
-                <SelectValue placeholder="الحالة" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">جميع الحالات</SelectItem>
-                <SelectItem value="published">منشور</SelectItem>
-                <SelectItem value="draft">مسودة</SelectItem>
-                <SelectItem value="archived">مؤرشف</SelectItem>
-              </SelectContent>
+            <Select 
+              value={statusFilter} 
+              onChange={(e) => setStatusFilter(e.target.value as AnalysisStatus | 'all')}
+              className={`w-40 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}
+            >
+              <SelectOption value="all">جميع الحالات</SelectOption>
+              <SelectOption value="published">منشور</SelectOption>
+              <SelectOption value="draft">مسودة</SelectOption>
+              <SelectOption value="archived">مؤرشف</SelectOption>
             </Select>
 
-            <Select value={sourceTypeFilter} onChange={(e) => setSourceTypeFilter(e.target.value as SourceType | 'all')}>
-              <SelectTrigger className={`w-40 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}>
-                <SelectValue placeholder="النوع" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">جميع الأنواع</SelectItem>
-                <SelectItem value="manual">يدوي</SelectItem>
-                <SelectItem value="gpt">GPT</SelectItem>
-                <SelectItem value="hybrid">مختلط</SelectItem>
-              </SelectContent>
+            <Select 
+              value={sourceTypeFilter} 
+              onChange={(e) => setSourceTypeFilter(e.target.value as SourceType | 'all')}
+              className={`w-40 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}
+            >
+              <SelectOption value="all">جميع الأنواع</SelectOption>
+              <SelectOption value="manual">يدوي</SelectOption>
+              <SelectOption value="gpt">GPT</SelectOption>
+              <SelectOption value="hybrid">مختلط</SelectOption>
             </Select>
 
-            <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <SelectTrigger className={`w-40 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}>
-                <SelectValue placeholder="الترتيب" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="createdAt">تاريخ الإنشاء</SelectItem>
-                <SelectItem value="publishedAt">تاريخ النشر</SelectItem>
-                <SelectItem value="views">المشاهدات</SelectItem>
-                <SelectItem value="qualityScore">الجودة</SelectItem>
-              </SelectContent>
+            <Select 
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value)}
+              className={`w-40 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}
+            >
+              <SelectOption value="createdAt">تاريخ الإنشاء</SelectOption>
+              <SelectOption value="publishedAt">تاريخ النشر</SelectOption>
+              <SelectOption value="views">المشاهدات</SelectOption>
+              <SelectOption value="qualityScore">الجودة</SelectOption>
             </Select>
 
             <Button

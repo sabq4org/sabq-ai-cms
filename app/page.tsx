@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { useTheme } from '@/contexts/ThemeContext';
 
 import CategoryBadge, { CategoryNavigation } from './components/CategoryBadge';
 import Header from '../components/Header';
@@ -152,8 +153,9 @@ class UserIntelligenceTracker {
   }
 }
 
-export default function NewspaperHomePage() {
-  const darkMode = false; // تم تعطيل الوضع الليلي
+function NewspaperHomePage() {
+  const { theme } = useTheme();
+  const darkMode = theme === 'dark';
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true); // إضافة حالة التحقق من المصادقة
@@ -558,8 +560,6 @@ export default function NewspaperHomePage() {
     }
   };
 
-  // toggleDarkMode removed - using useDarkMode hook instead
-
   // دالة تتبع التفاعلات الذكية
   const trackUserInteraction = useCallback((articleId: string, type: UserInteraction['interaction_type'], category: string, additionalData: any = {}) => {
     if (!userTracker) return;
@@ -624,60 +624,6 @@ export default function NewspaperHomePage() {
           { title: "حملة تطوير الأحياء تتوسع", desc: "مشاريع تنموية في جميع المناطق", category: "تطوير", image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=800&q=60" }
         ]
       };
-    }
-  };
-
-  // دالة جديدة للحصول على العبارات الذكية
-  const getSmartDosePhrase = () => {
-    // التحويل إلى توقيت السعودية
-    const saudiTime = new Date();
-    if (currentTime) {
-      // إضافة 3 ساعات للحصول على توقيت السعودية من UTC
-      const offset = 3 * 60 * 60 * 1000;
-      saudiTime.setTime(currentTime.getTime() + offset);
-    }
-    
-    const hour = saudiTime.getHours();
-    const day = saudiTime.getDay(); // لاستخدامه في اختيار العبارة بدلاً من random
-    
-    // الفترة الصباحية (06:00 ص – 11:59 ص)
-    if (hour >= 6 && hour < 12) {
-      const morningPhrases = [
-        "هل بدأت يومك بفهم المشهد؟",
-        "صباحك مع سبق.. أكثر وعيًا",
-        "ابدأ يومك بمعرفة تُشبِهك"
-      ];
-      return morningPhrases[day % morningPhrases.length];
-    }
-    
-    // فترة الظهيرة (12:00 ظ – 05:59 م)
-    else if (hour >= 12 && hour < 18) {
-      const afternoonPhrases = [
-        "وقفة تحليلية لمنتصف اليوم",
-        "الظهيرة.. ما الذي تصدر المشهد؟",
-        "نصف اليوم، ونصف الصورة 📊"
-      ];
-      return afternoonPhrases[day % afternoonPhrases.length];
-    }
-    
-    // الفترة المسائية (06:00 م – 12:00 ص)
-    else if (hour >= 18 && hour <= 23) {
-      const eveningPhrases = [
-        "هل فاتك شيء اليوم؟",
-        "موجز نهاية اليوم.. قبل أن تنام",
-        "الذكاء يلخص لك المشهد"
-      ];
-      return eveningPhrases[day % eveningPhrases.length];
-    }
-    
-    // الفترة الليلية (12:00 ص – 05:59 ص) - استخدم عبارات المساء
-    else {
-      const eveningPhrases = [
-        "هل فاتك شيء اليوم؟",
-        "موجز نهاية اليوم.. قبل أن تنام",
-        "الذكاء يلخص لك المشهد"
-      ];
-      return eveningPhrases[day % eveningPhrases.length];
     }
   };
 
@@ -1407,7 +1353,7 @@ export default function NewspaperHomePage() {
         <div className="space-y-5">
           {[1, 2, 3].map((i) => (
             <div key={i} className={`p-4 rounded-2xl border ${
-              darkMode ? 'bg-gray-700/20 border-gray-700/30' : 'bg-gray-50 border-gray-200'
+              darkMode ? 'bg-gray-700/50 border-gray-600/30' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'
             }`}>
               <div className="animate-pulse">
                 <div className="flex items-start gap-3">
@@ -2771,4 +2717,9 @@ export default function NewspaperHomePage() {
       `}</style>
     </div>
   );
+}
+
+// Export with client-side wrapper to ensure ThemeProvider is available
+export default function Page() {
+  return <NewspaperHomePage />;
 } 
