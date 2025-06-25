@@ -250,41 +250,45 @@ export default function DeepAnalysisSettingsPage() {
       </div>
 
       {/* التبويبات */}
-      <div className={`rounded-2xl p-2 shadow-sm border mb-6 sm:mb-8 w-full transition-colors duration-300 ${
-        darkMode 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-100'
-      }`}>
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {tabsConfig.map((tab) => {
-            return (
-              <button
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className={`h-auto p-1.5 rounded-2xl shadow-sm w-full transition-all duration-300 ${
+          darkMode 
+            ? 'bg-gray-800/90 backdrop-blur-sm border border-gray-700' 
+            : 'bg-white/90 backdrop-blur-sm border border-gray-100'
+        }`}>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {tabsConfig.map((tab) => (
+              <TabsTrigger
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`min-w-[100px] sm:min-w-[120px] lg:w-44 flex flex-col items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 sm:px-3 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 relative ${
-                  activeTab === tab.id
-                    ? 'bg-purple-500 text-white shadow-md border-b-4 border-purple-600'
-                    : darkMode
-                      ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
-                      : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
+                value={tab.id}
+                className={`min-w-[100px] sm:min-w-[120px] lg:flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 sm:px-3 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 ${
+                  darkMode
+                    ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50 data-[state=inactive]:hover:bg-gray-700/50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 data-[state=inactive]:hover:bg-gray-50'
                 }`}
               >
-                <div className={`transition-transform duration-300 ${activeTab === tab.id ? 'scale-110' : ''}`}>
-                  {React.cloneElement(tab.icon, { className: 'w-4 h-4 sm:w-5 sm:h-5' })}
+                {/* خط سفلي للتاب النشط */}
+                <div className="absolute bottom-0 left-4 right-4 h-1 bg-white/30 rounded-full opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300" />
+                
+                <div className="transition-transform duration-300 group-data-[state=active]:scale-110">
+                  {React.cloneElement(tab.icon, { 
+                    className: `w-4 h-4 sm:w-5 sm:h-5` 
+                  })}
                 </div>
                 <div className="text-center">
-                  <div className="whitespace-nowrap">{tab.name}</div>
+                  <div className="whitespace-nowrap font-medium">
+                    {tab.name}
+                  </div>
                 </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+              </TabsTrigger>
+            ))}
+          </div>
+        </TabsList>
 
-      {/* محتوى التبويبات */}
-      <div className="space-y-6">
-        {/* تبويب البرومبت */}
-        {activeTab === 'prompt' && (
+        {/* محتوى التبويبات */}
+        <div className="space-y-6 mt-6">
+          {/* تبويب البرومبت */}
+          <TabsContent value="prompt" className="mt-0">
           <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
             darkMode 
               ? 'bg-gray-800 border-gray-700' 
@@ -330,10 +334,10 @@ export default function DeepAnalysisSettingsPage() {
               </div>
             </div>
           </div>
-        )}
+          </TabsContent>
 
-        {/* تبويب إعدادات AI */}
-        {activeTab === 'ai' && (
+          {/* تبويب إعدادات AI */}
+          <TabsContent value="ai" className="mt-0">
           <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
             darkMode 
               ? 'bg-gray-800 border-gray-700' 
@@ -427,10 +431,10 @@ export default function DeepAnalysisSettingsPage() {
               </div>
             </div>
           </div>
-        )}
+          </TabsContent>
 
-        {/* تبويب API */}
-        {activeTab === 'api' && (
+          {/* تبويب API */}
+          <TabsContent value="api" className="mt-0">
           <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
             darkMode 
               ? 'bg-gray-800 border-gray-700' 
@@ -499,10 +503,10 @@ export default function DeepAnalysisSettingsPage() {
               </div>
             </div>
           </div>
-        )}
+          </TabsContent>
 
-        {/* تبويب المميزات */}
-        {activeTab === 'features' && (
+          {/* تبويب المميزات */}
+          <TabsContent value="features" className="mt-0">
           <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
             darkMode 
               ? 'bg-gray-800 border-gray-700' 
@@ -610,8 +614,9 @@ export default function DeepAnalysisSettingsPage() {
               </div>
             </div>
           </div>
-        )}
-      </div>
+          </TabsContent>
+        </div>
+      </Tabs>
 
       {/* أزرار الإجراءات */}
       <div className="flex justify-end gap-3 mt-8">

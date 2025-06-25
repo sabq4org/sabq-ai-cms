@@ -463,7 +463,7 @@ export default function DashboardLayout({
                         ? 'bg-green-900/40 text-green-300 group-hover:bg-green-500 group-hover:text-white' 
                         : 'bg-green-100 text-green-700 group-hover:bg-green-500 group-hover:text-white'
                     }`}>
-                      24
+                      8
                     </div>
                   </Link>
 
@@ -494,7 +494,7 @@ export default function DashboardLayout({
                         ? 'bg-indigo-900/40 text-indigo-300 group-hover:bg-indigo-500 group-hover:text-white' 
                         : 'bg-indigo-100 text-indigo-700 group-hover:bg-indigo-500 group-hover:text-white'
                     }`}>
-                      7
+                      0
                     </div>
                   </Link>
 
@@ -657,7 +657,7 @@ export default function DashboardLayout({
                         ? 'bg-yellow-900/40 text-yellow-300 group-hover:bg-yellow-500 group-hover:text-white' 
                         : 'bg-yellow-100 text-yellow-700 group-hover:bg-yellow-500 group-hover:text-white'
                     }`}>
-                      456K
+                      4
                     </div>
                   </Link>
 
@@ -727,7 +727,7 @@ export default function DashboardLayout({
                         ? 'bg-purple-900/40 text-purple-300 group-hover:bg-purple-500 group-hover:text-white' 
                         : 'bg-purple-100 text-purple-700 group-hover:bg-purple-500 group-hover:text-white'
                     }`}>
-                      1.2M
+                      4
                     </div>
                   </Link>
 

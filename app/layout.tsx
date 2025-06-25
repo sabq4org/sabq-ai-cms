@@ -128,10 +128,8 @@ export default function RootLayout({
                   // تطبيق الكلاس على العنصر الجذر
                   if (shouldBeDark) {
                     document.documentElement.classList.add('dark');
-                    document.documentElement.style.colorScheme = 'dark';
                   } else {
                     document.documentElement.classList.remove('dark');
-                    document.documentElement.style.colorScheme = 'light';
                   }
                   
                   // تحديث meta theme-color

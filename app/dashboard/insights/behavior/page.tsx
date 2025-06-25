@@ -194,27 +194,33 @@ export default function BehaviorInsightsPage() {
         <div className="flex gap-2 justify-start pr-8">
           {tabs.map((tab) => {
             const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-48 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 relative ${
-                  activeTab === tab.id
-                    ? 'bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
+                  isActive
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
                     : darkMode
-                      ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
-                      : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
-                <Icon className="w-5 h-5" />
-                {tab.name}
+                {/* خط سفلي للتاب النشط */}
+                {isActive && (
+                  <div className="absolute bottom-0 left-6 right-6 h-1 bg-white/30 rounded-full" />
+                )}
+                
+                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
+                <span className={isActive ? 'font-semibold' : ''}>{tab.name}</span>
                 {tab.count > 0 && (
-                  <span className={`absolute top-2 left-2 px-2 py-0.5 text-xs rounded-full ${
-                    activeTab === tab.id
-                      ? 'bg-white text-blue-500'
+                  <span className={`absolute -top-1 -right-1 px-2 py-0.5 text-xs rounded-full font-bold ${
+                    isActive
+                      ? 'bg-white text-blue-600 shadow-md'
                       : darkMode
-                        ? 'bg-gray-700 text-gray-300'
-                        : 'bg-gray-100 text-gray-600'
+                        ? 'bg-gray-700 text-gray-300 border border-gray-600'
+                        : 'bg-gray-100 text-gray-700 border border-gray-200'
                   }`}>
                     {tab.count}
                   </span>

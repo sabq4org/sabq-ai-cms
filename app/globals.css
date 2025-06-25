@@ -21,6 +21,55 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+    color-scheme: light;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+    color-scheme: dark;
+  }
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 250, 250, 249; /* #FAFAF9 - لون دافئ ناعم */
@@ -2015,5 +2064,287 @@ button[title="إجراءات الذكاء الاصطناعي"] {
 
 .block-item:hover {
   cursor: text !important;
+}
+
+/* تنسيقات القائمة الجانبية في لوحة التحكم */
+.sabq-sidebar {
+  background-color: #ffffff;
+  border-left: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.dark .sabq-sidebar {
+  background-color: #1f2937;
+  border-left-color: #374151;
+}
+
+.sabq-sidebar-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  text-decoration: none;
+  will-change: transform, background-color;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dark .sabq-sidebar-item {
+  color: #d1d5db;
+}
+
+.sabq-sidebar-item:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+  transform: translateX(-2px);
+}
+
+.sabq-sidebar-item.active {
+  background-color: #3b82f6;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+}
+
+.dark .sabq-sidebar-item.active {
+  background-color: #2563eb;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+}
+
+.sabq-sidebar-item.active:hover {
+  background-color: #2563eb;
+  transform: none;
+}
+
+/* تحسين أداء الانتقالات */
+.sabq-sidebar-item * {
+  pointer-events: none;
+}
+
+/* تحسين الأداء على الأجهزة المحمولة */
+@media (hover: none) {
+  .sabq-sidebar-item:active {
+    background-color: #e5e7eb;
+  }
+  
+  .dark .sabq-sidebar-item:active {
+    background-color: #4b5563;
+  }
+}
+
+/* إصلاح مشكلة التابات في جميع الأقسام */
+.tabs-container {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dark .tabs-container {
+  background-color: #1f2937;
+}
+
+.tab-button {
+  flex-shrink: 0;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #6b7280;
+  background-color: transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+  border: none;
+  outline: none;
+}
+
+.dark .tab-button {
+  color: #9ca3af;
+}
+
+.tab-button:hover {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+
+.tab-button.active {
+  background-color: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+}
+
+.dark .tab-button.active {
+  background-color: #2563eb;
+}
+
+/* تحسين الأداء العام */
+.sabq-sidebar,
+.sabq-sidebar-item,
+.tab-button {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* منع تحديد النص في القوائم */
+.sabq-sidebar,
+.tabs-container {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* تحسين أداء التمرير */
+.sabq-sidebar {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.sabq-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sabq-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sabq-sidebar::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 3px;
+}
+
+.dark .sabq-sidebar::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+}
+
+/* إصلاحات إضافية للوضع الليلي */
+.dark .sabq-sidebar-item:hover {
+  background-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+.dark .sabq-sidebar-item.active:hover {
+  background-color: #1d4ed8 !important;
+}
+
+.dark .tab-button:hover {
+  background-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+.dark .tab-button.active {
+  background-color: #2563eb !important;
+}
+
+/* إصلاح ألوان التابات في برنامج الولاء */
+.dark .rounded-2xl.p-2.shadow-sm {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .w-32.flex.flex-col:hover:not(.bg-blue-500) {
+  background-color: #374151 !important;
+}
+
+/* إصلاح أساسي للقائمة الجانبية */
+aside.w-64 {
+  background-color: #ffffff !important;
+  border-left: 1px solid #e5e7eb !important;
+}
+
+.dark aside.w-64 {
+  background-color: #1f2937 !important;
+  border-left-color: #374151 !important;
+}
+
+/* إصلاحات نهائية للقائمة الجانبية والتابات */
+/* تأكد من أن القائمة الجانبية لها الخلفية الصحيحة */
+aside.sabq-sidebar,
+aside[class*="w-64"] {
+  background-color: #ffffff !important;
+  border-right: 1px solid #e5e7eb !important;
+}
+
+.dark aside.sabq-sidebar,
+.dark aside[class*="w-64"] {
+  background-color: #1f2937 !important;
+  border-right-color: #374151 !important;
+}
+
+/* إصلاح ألوان عناصر القائمة */
+a[class*="flex items-center gap-3"] {
+  color: #4b5563 !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.dark a[class*="flex items-center gap-3"] {
+  color: #d1d5db !important;
+}
+
+a[class*="flex items-center gap-3"]:hover {
+  background-color: #f3f4f6 !important;
+  color: #1f2937 !important;
+  transform: translateX(-2px) !important;
+}
+
+.dark a[class*="flex items-center gap-3"]:hover {
+  background-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+/* العنصر النشط */
+a[class*="flex items-center gap-3"].active,
+a[class*="flex items-center gap-3"][class*="bg-blue"] {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.dark a[class*="flex items-center gap-3"].active,
+.dark a[class*="flex items-center gap-3"][class*="bg-blue"] {
+  background-color: #2563eb !important;
+}
+
+/* إصلاح التابات */
+.tabs-container button,
+.tabs-container a {
+  transition: all 0.2s ease !important;
+}
+
+.tabs-container button:hover:not(.active),
+.tabs-container a:hover:not(.active) {
+  background-color: #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+.dark .tabs-container button:hover:not(.active),
+.dark .tabs-container a:hover:not(.active) {
+  background-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+/* زر التاب النشط */
+.tabs-container button.active,
+.tabs-container button[class*="bg-blue-500"] {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.dark .tabs-container button.active,
+.dark .tabs-container button[class*="bg-blue-500"] {
+  background-color: #2563eb !important;
 }
 

@@ -236,7 +236,7 @@ export default function LoyaltyPage() {
     ];
 
     return (
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 transition-colors duration-300 ${
+      <div className={`tabs-container rounded-2xl p-2 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
       }`}>
         <div className="flex gap-2 justify-start">
@@ -248,7 +248,7 @@ export default function LoyaltyPage() {
                 <Link
                   key={tab.id}
                   href={tab.href}
-                  className={`w-32 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
+                  className={`tab-button w-32 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
                     darkMode
                       ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
                       : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
@@ -264,9 +264,9 @@ export default function LoyaltyPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-32 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
+                className={`tab-button w-32 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
                   activeTab === tab.id
-                    ? 'bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
+                    ? 'active bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
                     : darkMode
                       ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
                       : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
@@ -453,51 +453,26 @@ export default function LoyaltyPage() {
                   darkMode ? 'text-white' : 'text-gray-800'
                 }`}>📊 إحصائيات التفاعل</h3>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className={`text-sm flex items-center gap-2 transition-colors duration-300 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      <BookOpen className="w-4 h-4" />
-                      قراءة ({loyaltyStats.interactions.breakdown.read})
-                    </span>
-                    <span className="text-blue-600 font-bold">+{loyaltyStats.interactions.pointsByType.read}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={`text-sm flex items-center gap-2 transition-colors duration-300 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      <Heart className="w-4 h-4" />
-                      إعجاب ({loyaltyStats.interactions.breakdown.like})
-                    </span>
-                    <span className="text-red-600 font-bold">+{loyaltyStats.interactions.pointsByType.like}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={`text-sm flex items-center gap-2 transition-colors duration-300 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      <Share2 className="w-4 h-4" />
-                      مشاركة ({loyaltyStats.interactions.breakdown.share})
-                    </span>
-                    <span className="text-green-600 font-bold">+{loyaltyStats.interactions.pointsByType.share}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={`text-sm flex items-center gap-2 transition-colors duration-300 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      <Bookmark className="w-4 h-4" />
-                      حفظ ({loyaltyStats.interactions.breakdown.save})
-                    </span>
-                    <span className="text-purple-600 font-bold">+{loyaltyStats.interactions.pointsByType.save}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={`text-sm flex items-center gap-2 transition-colors duration-300 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      <Eye className="w-4 h-4" />
-                      مشاهدة ({loyaltyStats.interactions.breakdown.view})
-                    </span>
-                    <span className="text-indigo-600 font-bold">+{loyaltyStats.interactions.pointsByType.view}</span>
-                  </div>
+                  {[
+                    { key: 'read', icon: BookOpen, label: 'قراءة', count: loyaltyStats.interactions.breakdown.read, points: loyaltyStats.interactions.pointsByType.read, color: 'text-blue-600' },
+                    { key: 'like', icon: Heart, label: 'إعجاب', count: loyaltyStats.interactions.breakdown.like, points: loyaltyStats.interactions.pointsByType.like, color: 'text-red-600' },
+                    { key: 'share', icon: Share2, label: 'مشاركة', count: loyaltyStats.interactions.breakdown.share, points: loyaltyStats.interactions.pointsByType.share, color: 'text-green-600' },
+                    { key: 'save', icon: Bookmark, label: 'حفظ', count: loyaltyStats.interactions.breakdown.save, points: loyaltyStats.interactions.pointsByType.save, color: 'text-purple-600' },
+                    { key: 'view', icon: Eye, label: 'مشاهدة', count: loyaltyStats.interactions.breakdown.view, points: loyaltyStats.interactions.pointsByType.view, color: 'text-indigo-600' }
+                  ].map((interaction) => {
+                    const Icon = interaction.icon;
+                    return (
+                      <div key={interaction.key} className="flex justify-between items-center">
+                        <span className={`text-sm flex items-center gap-2 transition-colors duration-300 ${
+                          darkMode ? 'text-gray-300' : 'text-gray-700'
+                        }`}>
+                          <Icon className="w-4 h-4" />
+                          {interaction.label} ({interaction.count})
+                        </span>
+                        <span className={`font-bold ${interaction.color}`}>+{interaction.points}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -508,42 +483,22 @@ export default function LoyaltyPage() {
                   darkMode ? 'text-white' : 'text-gray-800'
                 }`}>🎯 توزيع المستويات</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                    <span className={`text-sm transition-colors duration-300 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                      }`}>برونزي (0-100)</span>
+                  {[
+                    { key: 'bronze', color: 'bg-orange-500', textColor: 'text-orange-600', label: 'برونزي (0-100)', value: loyaltyStats.tierDistribution.bronze },
+                    { key: 'silver', color: 'bg-gray-400', textColor: 'text-gray-600', label: 'فضي (101-500)', value: loyaltyStats.tierDistribution.silver },
+                    { key: 'gold', color: 'bg-yellow-500', textColor: 'text-yellow-600', label: 'ذهبي (501-2000)', value: loyaltyStats.tierDistribution.gold },
+                    { key: 'ambassador', color: 'bg-purple-500', textColor: 'text-purple-600', label: 'سفير (2001+)', value: loyaltyStats.tierDistribution.ambassador }
+                  ].map((tier) => (
+                    <div key={tier.key} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 ${tier.color} rounded-full`}></div>
+                        <span className={`text-sm transition-colors duration-300 ${
+                          darkMode ? 'text-gray-300' : 'text-gray-700'
+                        }`}>{tier.label}</span>
+                      </div>
+                      <span className={`font-bold ${tier.textColor}`}>{tier.value}</span>
                     </div>
-                    <span className="font-bold text-orange-600">{loyaltyStats.tierDistribution.bronze}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                    <span className={`text-sm transition-colors duration-300 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                      }`}>فضي (101-500)</span>
-                    </div>
-                    <span className="font-bold text-gray-600">{loyaltyStats.tierDistribution.silver}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <span className={`text-sm transition-colors duration-300 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                      }`}>ذهبي (501-2000)</span>
-                    </div>
-                    <span className="font-bold text-yellow-600">{loyaltyStats.tierDistribution.gold}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                    <span className={`text-sm transition-colors duration-300 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                      }`}>سفير (2001+)</span>
-                    </div>
-                    <span className="font-bold text-purple-600">{loyaltyStats.tierDistribution.ambassador}</span>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>

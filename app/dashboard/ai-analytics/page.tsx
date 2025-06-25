@@ -566,21 +566,46 @@ export default function AIAnalyticsPage() {
 
       {/* التابات المحسنة */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className={`grid w-full grid-cols-3 ${
-          darkMode ? 'bg-gray-800' : 'bg-gray-100'
+        <TabsList className={`h-auto p-1.5 rounded-2xl shadow-sm w-full transition-all duration-300 ${
+          darkMode 
+            ? 'bg-gray-800/90 backdrop-blur-sm border border-gray-700' 
+            : 'bg-white/90 backdrop-blur-sm border border-gray-100'
         }`}>
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
-            نظرة عامة
-          </TabsTrigger>
-          <TabsTrigger value="models" className="flex items-center gap-2">
-            <Bot className="w-4 h-4" />
-            النماذج النشطة
-          </TabsTrigger>
-          <TabsTrigger value="insights" className="flex items-center gap-2">
-            <Lightbulb className="w-4 h-4" />
-            الرؤى الذكية
-          </TabsTrigger>
+          <div className="grid grid-cols-3 gap-2">
+            <TabsTrigger 
+              value="overview" 
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium text-sm transition-all duration-300 relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 ${
+                darkMode
+                  ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50 data-[state=inactive]:hover:bg-gray-700/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 data-[state=inactive]:hover:bg-gray-50'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              نظرة عامة
+            </TabsTrigger>
+            <TabsTrigger 
+              value="models" 
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium text-sm transition-all duration-300 relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 ${
+                darkMode
+                  ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50 data-[state=inactive]:hover:bg-gray-700/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 data-[state=inactive]:hover:bg-gray-50'
+              }`}
+            >
+              <Bot className="w-4 h-4" />
+              النماذج النشطة
+            </TabsTrigger>
+            <TabsTrigger 
+              value="insights" 
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium text-sm transition-all duration-300 relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 ${
+                darkMode
+                  ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50 data-[state=inactive]:hover:bg-gray-700/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 data-[state=inactive]:hover:bg-gray-50'
+              }`}
+            >
+              <Lightbulb className="w-4 h-4" />
+              الرؤى الذكية
+            </TabsTrigger>
+          </div>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
