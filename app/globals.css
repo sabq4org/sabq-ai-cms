@@ -1788,3 +1788,181 @@ main + footer {
   border-bottom-color: rgb(55 65 81) !important;
 }
 
+/* ===================== */
+/* إصلاحات محرر سبق الذكي */
+/* ===================== */
+
+/* ضمان ظهور أدوات المحرر */
+.editor-tools,
+.block-toolbar-dropdown,
+.ai-menu-dropdown {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 9999 !important;
+}
+
+/* ضمان ظهور شريط الأدوات عند hover */
+.group:hover .absolute.-right-12 {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* إصلاح موضع القوائم المنسدلة */
+.block-toolbar-dropdown,
+.ai-menu-dropdown {
+  position: absolute !important;
+  background: white !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 0.5rem !important;
+}
+
+/* دعم الوضع الليلي للقوائم */
+.dark .block-toolbar-dropdown,
+.dark .ai-menu-dropdown {
+  background: rgb(31 41 55) !important;
+  border-color: rgb(55 65 81) !important;
+}
+
+/* إصلاح z-index للتأكد من ظهور الأدوات فوق المحتوى */
+.block-toolbar,
+[class*="absolute -right-12"] {
+  z-index: 50 !important;
+}
+
+/* تحسين انتقالات الظهور */
+.group .absolute.-right-12 {
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* إصلاح مشكلة اختفاء الأدوات في الوضع الليلي */
+.dark .group:hover button {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* تحسين مظهر أزرار الأدوات */
+.group:hover button[title] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* إصلاح القوائم المنسدلة في محرر البلوكات */
+.relative > div[class*="absolute left-full"] {
+  z-index: 999999 !important;
+  display: block !important;
+}
+
+/* تحسين تباين الألوان للأزرار */
+.dark .group:hover button:hover {
+  background-color: rgb(55 65 81) !important;
+}
+
+/* إصلاح عرض محرر البلوكات */
+.block-editor-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* ضمان ظهور أدوات AI */
+button[title="إجراءات الذكاء الاصطناعي"] {
+  display: flex !important;
+  opacity: 1 !important;
+}
+
+/* إصلاح موضع شريط الأدوات للـ RTL */
+[dir="rtl"] .absolute.-right-12 {
+  right: auto !important;
+  left: -48px !important;
+}
+
+/* تحسين مساحة النقر للأزرار الصغيرة */
+.group button[class*="p-1.5"] {
+  min-width: 32px;
+  min-height: 32px;
+}
+
+/* إصلاح hover states للأدوات */
+.group:hover .block-toolbar {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+}
+
+/* تحسين visibility في محرر المحتوى */
+#content-editor-container .group:hover > div {
+  opacity: 1 !important;
+}
+
+/* إصلاح أزرار المحرر في الوضع الليلي */
+.dark .block-toolbar button {
+  background-color: rgb(55 65 81) !important;
+  color: rgb(209 213 219) !important;
+}
+
+.dark .block-toolbar button:hover {
+  background-color: rgb(75 85 99) !important;
+  color: rgb(243 244 246) !important;
+}
+
+/* تحسين القوائم المنسدلة */
+.block-menu-dropdown,
+.ai-menu-dropdown {
+  min-width: 12rem !important;
+  max-height: 20rem !important;
+  overflow-y: auto !important;
+}
+
+/* إصلاح مشكلة الـ hover في الموبايل */
+@media (hover: none) {
+  .group .absolute.-right-12 {
+    opacity: 1 !important;
+  }
+}
+
+/* تحسين التباعد في محرر البلوكات */
+.block-editor-container > div > div {
+  margin-bottom: 0.5rem;
+}
+
+/* إصلاح عرض الأيقونات */
+.block-toolbar svg {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+/* تحسين حجم النص في القوائم */
+.block-toolbar-dropdown button,
+.ai-menu-dropdown button {
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+/* إضافة مؤشر لأزرار الأدوات */
+.block-toolbar button {
+  cursor: pointer !important;
+}
+
+/* إصلاح مشكلة تداخل الأدوات */
+.group {
+  position: relative !important;
+}
+
+.group > .absolute.-right-12 {
+  position: absolute !important;
+  right: -3rem !important;
+}
+
+/* تحسين الاستجابة للشاشات الصغيرة */
+@media (max-width: 768px) {
+  .group > .absolute.-right-12 {
+    right: -2.5rem !important;
+  }
+  
+  .block-toolbar button {
+    padding: 0.375rem !important;
+  }
+}
+
