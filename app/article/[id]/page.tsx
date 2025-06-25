@@ -1162,11 +1162,11 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
                       {(article.author_name || 'س')[0]}
                     </div>
-                    <div>
+                    <div className="bg-gray-50 dark:bg-gray-800 px-3 py-1 rounded-lg">
                       <div className="font-bold text-gray-900 dark:text-white">
                         {article.author_name || 'سبق'}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
                         {formatFullDate(article.published_at || article.created_at || '')}
                       </div>
                     </div>
@@ -1324,39 +1324,39 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                   </div>
 
                   {/* إحصائيات المقال */}
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6">
+                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                       <span className="w-1 h-6 bg-purple-500 rounded-full"></span>
                       إحصائيات المقال
                     </h3>
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between p-3 bg-white/70 dark:bg-gray-900/50 rounded-lg">
-                        <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+                        <span className="text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                          <svg className="w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                             <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
                           </svg>
                           المشاهدات
                         </span>
-                        <span className="font-bold text-gray-900 dark:text-white">{article.views_count || 0}</span>
+                        <span className="font-bold text-gray-900 dark:text-white bg-purple-100 dark:bg-purple-900/30 px-3 py-1 rounded-full">{article.views_count || 0}</span>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-white/70 dark:bg-gray-900/50 rounded-lg">
-                        <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+                        <span className="text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                          <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                           </svg>
                           وقت القراءة
                         </span>
-                        <span className="font-bold text-gray-900 dark:text-white">{calculateReadingTime(article.content)} دقائق</span>
+                        <span className="font-bold text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">{calculateReadingTime(article.content)} دقائق</span>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-white/70 dark:bg-gray-900/50 rounded-lg">
-                        <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+                        <span className="text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                          <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                           </svg>
                           تاريخ النشر
                         </span>
-                        <span className="font-bold text-gray-900 dark:text-white text-sm">{formatFullDate(article.published_at || article.created_at)}</span>
+                        <span className="font-bold text-gray-900 dark:text-white text-sm bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-full">{formatFullDate(article.published_at || article.created_at)}</span>
                       </div>
                     </div>
                   </div>

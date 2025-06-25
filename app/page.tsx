@@ -2290,7 +2290,7 @@ function NewspaperHomePage() {
       <SmartSlot position="beforeFooter" />
 
       {/* Enhanced Footer */}
-      <footer className={`mt-20 ${darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'}`}>
+      <footer className={`${darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'}`}>
 
         {/* Border */}
         <div className="h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>

@@ -200,7 +200,7 @@ export default function NewsPage() {
 
   const ArticleCard = ({ article }: { article: Article }) => (
     <Link href={`/article/${article.id}`}>
-      <div className={`group h-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-gray-900/50 hover:shadow-2xl dark:hover:shadow-gray-900/70 transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-transparent transform hover:-translate-y-1 ${
+      <div className={`group h-full bg-white dark:bg-gray-800/90 rounded-2xl shadow-sm dark:shadow-gray-900/50 hover:shadow-2xl dark:hover:shadow-gray-900/70 transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-700/50 hover:border-transparent transform hover:-translate-y-1 ${
         viewMode === 'list' ? 'flex gap-6' : 'flex flex-col'
       }`}>
         {/* صورة المقال */}
@@ -324,7 +324,7 @@ export default function NewsPage() {
         </div>
 
         {/* Controls Section - تصميم بسيط وأنيق */}
-        <div className="sticky top-0 bg-white dark:bg-gray-800 z-40 border-b border-gray-100 dark:border-gray-700">
+        <div className="sticky top-0 bg-white dark:bg-gray-900 z-40 border-b border-gray-100 dark:border-gray-800">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
               {/* Search - تصميم بسيط */}
@@ -335,7 +335,7 @@ export default function NewsPage() {
                   placeholder="ابحث في الأخبار..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-400 dark:focus:border-blue-500 transition-colors text-sm text-gray-900 dark:text-white"
+                  className="w-full pr-10 pl-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:bg-white dark:focus:bg-gray-700 focus:border-blue-400 dark:focus:border-blue-500 transition-colors text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 />
               </div>
 
@@ -345,7 +345,7 @@ export default function NewsPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-400 dark:focus:border-blue-500 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"
+                  className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:bg-white dark:focus:bg-gray-700 focus:border-blue-400 dark:focus:border-blue-500 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   <option value="latest">الأحدث</option>
                   <option value="popular">الأكثر مشاهدة</option>
@@ -353,12 +353,12 @@ export default function NewsPage() {
                 </select>
 
                 {/* View Mode - تصميم بسيط */}
-                <div className="flex items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-1 border border-gray-200 dark:border-gray-600">
+                <div className="flex items-center bg-gray-50 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
                   <button
                     onClick={() => setViewMode('grid')}
                     className={`p-2 rounded transition-colors ${
                       viewMode === 'grid' 
-                        ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
+                        ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' 
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
                   >
@@ -368,7 +368,7 @@ export default function NewsPage() {
                     onClick={() => setViewMode('list')}
                     className={`p-2 rounded transition-colors ${
                       viewMode === 'list' 
-                        ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
+                        ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' 
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
                   >
@@ -385,7 +385,7 @@ export default function NewsPage() {
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                   selectedCategory === null
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
               >
                 جميع الأخبار
@@ -404,7 +404,7 @@ export default function NewsPage() {
                       className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                         isSelected
                           ? 'text-white'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                       }`}
                       style={{
                         backgroundColor: isSelected ? categoryColor : undefined
@@ -469,7 +469,7 @@ export default function NewsPage() {
               )}
             </>
           ) : (
-            <div className="text-center py-20">
+            <div className="text-center py-20 bg-transparent">
               <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full mb-6">
                 <Newspaper className="w-12 h-12 text-gray-400 dark:text-gray-500" />
               </div>

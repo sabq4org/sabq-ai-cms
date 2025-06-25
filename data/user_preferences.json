@@ -117,5 +117,20 @@
       "average_duration": 3.610757638469039
     },
     "last_updated": "2025-06-24T10:08:30.130Z"
+  },
+  "user-1750236579398-3h4rt6gu7": {
+    "user_id": "user-1750236579398-3h4rt6gu7",
+    "categories": {
+      "3": 2
+    },
+    "authors": {},
+    "topics": [],
+    "reading_time": {
+      "preferred_hours": [
+        16
+      ],
+      "average_duration": 0
+    },
+    "last_updated": "2025-06-25T13:20:18.555Z"
   }
 }

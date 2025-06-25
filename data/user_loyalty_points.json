@@ -1031,5 +1031,29 @@
         "timestamp": "2025-06-24T10:08:30.126Z"
       }
     ]
+  },
+  "user-1750236579398-3h4rt6gu7": {
+    "user_id": "user-1750236579398-3h4rt6gu7",
+    "total_points": 2,
+    "earned_points": 2,
+    "redeemed_points": 0,
+    "history": [
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "article-hilal-1750749963783-1"
+        },
+        "timestamp": "2025-06-25T13:20:13.448Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "article-hilal-1750749963783-1"
+        },
+        "timestamp": "2025-06-25T13:20:18.552Z"
+      }
+    ]
   }
 }

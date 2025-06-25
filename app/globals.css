@@ -1664,3 +1664,73 @@ html {
   border-color: #dc2626 !important;
 }
 
+/* ===================== */
+/* إصلاح المستطيل الأبيض قبل الفوتر */
+/* ===================== */
+
+/* إزالة أي margin زائد قبل الفوتر */
+main + footer,
+div + footer,
+section + footer,
+.smart-slot + footer {
+  margin-top: 0 !important;
+}
+
+/* التأكد من عدم وجود خلفيات بيضاء في SmartSlot */
+.smart-slot {
+  background-color: transparent !important;
+}
+
+.smart-slot-beforeFooter {
+  background-color: transparent !important;
+  margin-bottom: 0 !important;
+}
+
+/* إصلاح الخلفيات في الوضع الليلي */
+.dark main,
+.dark section,
+.dark .smart-slot {
+  background-color: transparent !important;
+}
+
+/* إزالة أي padding أو margin زائد في نهاية الصفحة */
+main > *:last-child {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* التأكد من أن الفوتر يلتصق بالمحتوى */
+footer {
+  margin-top: 0 !important;
+}
+
+/* إصلاح خاص للصفحة الرئيسية */
+.dark footer + footer {
+  display: none; /* إخفاء الفوتر المكرر إن وجد */
+}
+
+/* إزالة الخلفيات البيضاء من العناصر الفارغة */
+.dark .empty-block-message {
+  background-color: transparent !important;
+}
+
+/* التأكد من عدم وجود خلفيات بيضاء في نهاية الصفحة */
+body > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* إصلاح خاص لصفحة الأخبار */
+.news-content + footer {
+  margin-top: 0 !important;
+}
+
+/* إصلاح المساحة البيضاء في الوضع الليلي */
+.dark .min-h-screen {
+  background-color: rgb(17, 24, 39) !important;
+}
+
+/* التأكد من أن جميع الأقسام شفافة */
+.dark section:not([class*="bg-"]) {
+  background-color: transparent !important;
+}
+
