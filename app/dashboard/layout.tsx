@@ -26,7 +26,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { getCurrentUser, logActions } from '@/lib/log-activity';
-import ThemeToggle from '@/components/ThemeToggle';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 export default function DashboardLayout({

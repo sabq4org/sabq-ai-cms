@@ -90,9 +90,9 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
   const TierIcon = loyaltyLevel ? getTierIcon(loyaltyLevel.name) : Trophy;
 
   return (
-    <div className="absolute left-0 mt-3 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:shadow-gray-900/50 border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div className="absolute right-0 mt-3 w-80 max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:shadow-gray-900/50 border border-gray-100 dark:border-gray-700 overflow-hidden z-[100]">
       {/* رأس القائمة - معلومات المستخدم */}
-      <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-700 dark:via-gray-800 dark:to-gray-700 p-6">
+      <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-700 dark:via-gray-800 dark:to-gray-700 p-6 pointer-events-none">
         <div className="space-y-3">
           {/* الاسم */}
           <div className="flex items-center gap-3">
@@ -104,8 +104,6 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
               <p className="text-xs text-gray-500 dark:text-gray-400">مرحباً بك في سبق الذكية</p>
             </div>
           </div>
-
-
 
           {/* المستوى */}
           {loyaltyLevel && (
@@ -139,7 +137,7 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
             </div>
             <button
               onClick={fetchLoyaltyPoints}
-              className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-all ${
+              className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-all pointer-events-auto ${
                 isRefreshing ? 'animate-spin' : ''
               }`}
               title="تحديث النقاط"
@@ -155,7 +153,10 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
         <Link
           href="/profile"
           className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          onClick={onClose}
+          onClick={(e) => {
+            console.log('Profile link clicked');
+            onClose();
+          }}
         >
           <User className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <span>الملف الشخصي</span>
@@ -164,7 +165,10 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
         <Link
           href="/welcome/preferences"
           className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          onClick={onClose}
+          onClick={(e) => {
+            console.log('Preferences link clicked');
+            onClose();
+          }}
         >
           <Heart className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <span>اهتماماتي</span>
@@ -173,7 +177,10 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
         <Link
           href="/settings"
           className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          onClick={onClose}
+          onClick={(e) => {
+            console.log('Settings link clicked');
+            onClose();
+          }}
         >
           <Settings className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <span>الإعدادات</span>
@@ -182,7 +189,10 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
         <Link
           href="/notifications"
           className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          onClick={onClose}
+          onClick={(e) => {
+            console.log('Notifications link clicked');
+            onClose();
+          }}
         >
           <Bell className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <span>الإشعارات</span>
@@ -192,7 +202,10 @@ export default function UserDropdown({ user, onClose, onLogout }: UserDropdownPr
       {/* زر تسجيل الخروج */}
       <div className="border-t border-gray-100 dark:border-gray-700">
         <button
-          onClick={onLogout}
+          onClick={(e) => {
+            console.log('Logout button clicked');
+            onLogout();
+          }}
           className="flex items-center gap-3 px-6 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full text-right"
         >
           <LogOut className="w-4 h-4" />

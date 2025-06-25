@@ -84,7 +84,7 @@ export default function ImageBlock({ data, onChange, readOnly = false }: ImageBl
       // تحديث بيانات البلوك بعنوان URL الجديد
       onChange({ 
         image: { 
-          url: data.url,
+          url: data.data?.url || data.url, // التعامل مع كلا التنسيقين
           alt: file.name.split('.')[0], // استخدام اسم الملف كنص بديل افتراضي
           caption: ''
         } 
@@ -113,7 +113,11 @@ export default function ImageBlock({ data, onChange, readOnly = false }: ImageBl
               alt={data.alt || ''} 
               className="w-full rounded-lg shadow-md object-cover"
               onError={(e) => {
-                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect width="400" height="300" fill="%23ddd"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-family="sans-serif" font-size="20"%3EImage Error%3C/text%3E%3C/svg%3E';
+                console.error('خطأ في تحميل الصورة:', {
+                  src: e.currentTarget.src,
+                  alt: e.currentTarget.alt
+                });
+                e.currentTarget.src = '/default-avatar.png';
               }}
             />
             {data.caption && (
@@ -224,7 +228,11 @@ export default function ImageBlock({ data, onChange, readOnly = false }: ImageBl
               alt={data.alt || ''} 
               className="w-full rounded-lg shadow-md object-cover"
               onError={(e) => {
-                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect width="400" height="300" fill="%23ddd"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-family="sans-serif" font-size="20"%3EImage Error%3C/text%3E%3C/svg%3E';
+                console.error('خطأ في تحميل الصورة:', {
+                  src: e.currentTarget.src,
+                  alt: e.currentTarget.alt
+                });
+                e.currentTarget.src = '/default-avatar.png';
               }}
             />
             <button

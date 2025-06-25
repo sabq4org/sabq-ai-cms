@@ -11,17 +11,17 @@ interface DarkModeContextType {
 
 const DarkModeContext = createContext<DarkModeContextType>({
   darkMode: false,
-  mounted: true,
+  mounted: false,
   toggleDarkMode: () => {}
 });
 
 export function DarkModeProvider({ children }: { children: React.ReactNode }) {
-  const { theme, toggleTheme } = useTheme();
+  const { resolvedTheme, toggleTheme, mounted } = useTheme();
   
   return (
     <DarkModeContext.Provider value={{ 
-      darkMode: theme === 'dark', 
-      mounted: true,
+      darkMode: resolvedTheme === 'dark', 
+      mounted,
       toggleDarkMode: toggleTheme 
     }}>
       {children}

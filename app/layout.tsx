@@ -112,6 +112,36 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        
+        {/* سكريبت تهيئة الوضع الليلي قبل تحميل React */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const theme = localStorage.getItem('theme') || 'light';
+                  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  
+                  // إذا لم يكن هناك تفضيل محفوظ، استخدم تفضيل النظام
+                  const shouldBeDark = theme === 'dark' || (theme === 'system' && systemPrefersDark);
+                  
+                  if (shouldBeDark) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                  
+                  // حفظ التفضيل الأولي إذا لم يكن موجوداً
+                  if (!localStorage.getItem('theme')) {
+                    localStorage.setItem('theme', systemPrefersDark ? 'dark' : 'light');
+                  }
+                } catch (e) {
+                  console.error('خطأ في تهيئة الوضع الليلي:', e);
+                }
+              })();
+            `,
+          }}
+        />
       </head>
       <body className={cn(
         ibmPlexSansArabic.variable,

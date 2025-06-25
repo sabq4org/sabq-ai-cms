@@ -1,11 +1,13 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark' | 'system';
+type ResolvedTheme = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
+  resolvedTheme: ResolvedTheme;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
   mounted: boolean;
@@ -14,47 +16,128 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light');
+  const [theme, setThemeState] = useState<Theme>('system');
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
   const [mounted, setMounted] = useState(false);
 
-  // Load theme from localStorage on mount
-  useEffect(() => {
-    setMounted(true);
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme) {
-      setThemeState(savedTheme);
-    } else if (prefersDark) {
-      setThemeState('dark');
+  // حساب الثيم الفعلي بناءً على التفضيل وإعدادات النظام
+  const getResolvedTheme = useCallback((theme: Theme, systemPrefersDark: boolean): ResolvedTheme => {
+    if (theme === 'system') {
+      return systemPrefersDark ? 'dark' : 'light';
     }
+    return theme as ResolvedTheme;
   }, []);
 
-  // Apply theme to document
+  // تحميل الثيم من localStorage عند التحميل
+  useEffect(() => {
+    setMounted(true);
+    
+    try {
+      const savedTheme = localStorage.getItem('theme') as Theme | null;
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      // استخدام الثيم المحفوظ أو الافتراضي للنظام
+      const initialTheme = savedTheme || 'system';
+      setThemeState(initialTheme);
+      
+      // حساب الثيم الفعلي
+      const resolved = getResolvedTheme(initialTheme, systemPrefersDark);
+      setResolvedTheme(resolved);
+      
+      // التأكد من تطبيق الكلاس الصحيح
+      if (resolved === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (error) {
+      console.error('خطأ في تحميل إعدادات الثيم:', error);
+    }
+  }, [getResolvedTheme]);
+
+  // الاستماع لتغييرات تفضيل النظام
+  useEffect(() => {
+    if (!mounted) return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (theme === 'system') {
+        const resolved = e.matches ? 'dark' : 'light';
+        setResolvedTheme(resolved);
+        
+        if (resolved === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+    };
+
+    // دعم المتصفحات القديمة
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleChange);
+    } else {
+      mediaQuery.addListener(handleChange);
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleChange);
+      } else {
+        mediaQuery.removeListener(handleChange);
+      }
+    };
+  }, [theme, mounted]);
+
+  // تطبيق الثيم على document
   useEffect(() => {
     if (!mounted) return;
     
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+    try {
+      const root = document.documentElement;
+      
+      if (resolvedTheme === 'dark') {
+        root.classList.add('dark');
+        root.style.colorScheme = 'dark';
+      } else {
+        root.classList.remove('dark');
+        root.style.colorScheme = 'light';
+      }
+      
+      // تحديث meta theme-color
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', resolvedTheme === 'dark' ? '#111827' : '#1e40af');
+      }
+      
+      // حفظ في localStorage
+      localStorage.setItem('theme', theme);
+    } catch (error) {
+      console.error('خطأ في تطبيق الثيم:', error);
     }
-    
-    // Save to localStorage
-    localStorage.setItem('theme', theme);
-  }, [theme, mounted]);
+  }, [theme, resolvedTheme, mounted]);
 
-  const toggleTheme = () => {
-    setThemeState(prev => prev === 'light' ? 'dark' : 'light');
-  };
+  const toggleTheme = useCallback(() => {
+    setThemeState(prev => {
+      // دورة: light -> dark -> system -> light
+      if (prev === 'light') return 'dark';
+      if (prev === 'dark') return 'system';
+      return 'light';
+    });
+  }, []);
 
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
-  };
+    
+    // حساب وتطبيق الثيم الفعلي فوراً
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const resolved = getResolvedTheme(newTheme, systemPrefersDark);
+    setResolvedTheme(resolved);
+  }, [getResolvedTheme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, mounted }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme, toggleTheme, setTheme, mounted }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -63,9 +146,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    console.warn('useTheme: ThemeProvider not found, using default values');
+    // إرجاع قيم افتراضية آمنة
     return {
       theme: 'light' as Theme,
+      resolvedTheme: 'light' as ResolvedTheme,
       toggleTheme: () => {
         console.warn('toggleTheme: ThemeProvider not available');
       },

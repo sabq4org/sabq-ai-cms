@@ -13,6 +13,10 @@
 /* استيراد الألوان الناعمة المريحة للعين */
 @import '../styles/soft-colors.css';
 
+/* استيراد ملفات CSS المخصصة */
+@import '../styles/custom-styles.css';
+@import '../styles/article-editor.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -1702,21 +1706,6 @@ main > *:last-child {
 /* التأكد من أن الفوتر يلتصق بالمحتوى */
 footer {
   margin-top: 0 !important;
-}
-
-/* إصلاح خاص للصفحة الرئيسية */
-.dark footer + footer {
-  display: none; /* إخفاء الفوتر المكرر إن وجد */
-}
-
-/* إزالة الخلفيات البيضاء من العناصر الفارغة */
-.dark .empty-block-message {
-  background-color: transparent !important;
-}
-
-/* التأكد من عدم وجود خلفيات بيضاء في نهاية الصفحة */
-body > *:last-child {
-  margin-bottom: 0 !important;
 }
 
 /* إصلاح خاص لصفحة الأخبار */

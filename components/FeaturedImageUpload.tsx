@@ -171,7 +171,12 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
             alt="صورة بارزة" 
             className="w-full h-48 object-cover rounded-xl shadow-md"
             onError={(e) => {
-              e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200"%3E%3Crect width="400" height="200" fill="%23ddd"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-family="sans-serif" font-size="16"%3EImage Error%3C/text%3E%3C/svg%3E';
+              console.error('خطأ في تحميل الصورة:', {
+                src: e.currentTarget.src,
+                alt: e.currentTarget.alt
+              });
+              // استخدام صورة افتراضية بدلاً من SVG inline
+              e.currentTarget.src = '/default-avatar.png';
             }}
           />
           
