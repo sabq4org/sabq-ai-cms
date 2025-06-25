@@ -2,16 +2,17 @@
 
 /* إزالة أي فراغات بيضاء */
 body {
-  background-color: rgb(249 250 251);
+  background-color: rgb(249 250 251) !important;
 }
 
 .dark body {
-  background-color: rgb(17 24 39);
+  background-color: rgb(17 24 39) !important;
 }
 
 /* التأكد من عدم وجود فراغات بين الأقسام */
 header + main {
   margin-top: 0 !important;
+  padding-top: 0 !important;
 }
 
 main + footer {
@@ -20,19 +21,52 @@ main + footer {
 
 /* إصلاح الخط الأبيض أسفل الهيدر */
 header {
-  border-bottom-color: rgb(229 231 235);
+  border-bottom: 1px solid rgb(229 231 235) !important;
 }
 
 .dark header {
-  border-bottom-color: rgb(55 65 81);
+  border-bottom: 1px solid rgb(55 65 81) !important;
 }
 
 /* التأكد من امتداد الخلفية */
 main {
-  background-color: inherit;
+  background-color: transparent !important;
+}
+
+main.flex-1.flex.flex-col {
+  background-color: transparent !important;
 }
 
 /* إصلاح CTA Section */
 main > section:last-of-type {
-  margin-bottom: 0;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* إصلاح البطاقات في الوضع الليلي */
+.dark .bg-white.dark\:bg-gray-800 {
+  background-color: rgb(31 41 55) !important;
+}
+
+/* إصلاح الحدود في الوضع الليلي */
+.dark .border-gray-200.dark\:border-gray-700 {
+  border-color: rgb(55 65 81) !important;
+}
+
+/* إصلاح خلفية الصفحة */
+.min-h-screen.flex.flex-col.bg-gray-50.dark\:bg-gray-900 {
+  background-color: rgb(249 250 251) !important;
+}
+
+.dark .min-h-screen.flex.flex-col.bg-gray-50.dark\:bg-gray-900 {
+  background-color: rgb(17 24 39) !important;
+}
+
+/* إصلاح الأقسام */
+section.border-b {
+  background-color: transparent !important;
+}
+
+.dark section.border-b {
+  background-color: transparent !important;
 } 

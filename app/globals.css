@@ -1734,3 +1734,68 @@ body > *:last-child {
   background-color: transparent !important;
 }
 
+/* ===================== */
+/* إصلاحات نهائية للخط الأبيض والفراغات - صفحة التصنيفات */
+/* ===================== */
+
+/* إزالة الخط الأبيض أسفل الهيدر */
+header {
+  border-bottom: 1px solid transparent !important;
+}
+
+.dark header {
+  border-bottom: 1px solid rgb(55 65 81) !important;
+  background-color: rgb(17 24 39) !important;
+}
+
+/* إزالة أي margins بين العناصر */
+header + * {
+  margin-top: 0 !important;
+}
+
+main {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+main > section:first-child {
+  margin-top: 0 !important;
+  border-top: none !important;
+}
+
+/* إصلاح الفراغ قبل الفوتر */
+main > section:last-child {
+  margin-bottom: 0 !important;
+}
+
+main + footer {
+  margin-top: 0 !important;
+}
+
+/* إصلاح خاص لصفحة التصنيفات */
+.min-h-screen.flex.flex-col {
+  background-color: rgb(249 250 251);
+}
+
+.dark .min-h-screen.flex.flex-col {
+  background-color: rgb(17 24 39) !important;
+}
+
+/* التأكد من عدم وجود خلفيات مكررة */
+.bg-gray-50.dark\:bg-gray-900 {
+  background-color: rgb(249 250 251);
+}
+
+.dark .bg-gray-50.dark\:bg-gray-900 {
+  background-color: rgb(17 24 39) !important;
+}
+
+/* إصلاح الحدود */
+.border-b.border-gray-200.dark\:border-gray-700 {
+  border-bottom-width: 1px;
+}
+
+.dark .border-b.border-gray-200.dark\:border-gray-700 {
+  border-bottom-color: rgb(55 65 81) !important;
+}
+

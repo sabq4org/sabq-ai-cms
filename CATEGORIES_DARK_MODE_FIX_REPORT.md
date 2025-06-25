@@ -97,4 +97,48 @@ return (
 ## الملفات المعدلة (التحديث)
 - `app/layout.tsx`
 - `app/categories/page.tsx`
-- `app/categories/categories-fixes.css` (جديد) 
+- `app/categories/categories-fixes.css` (جديد)
+
+## تحديث: إصلاحات نهائية (المحاولة الثالثة)
+
+### المشكلة المستمرة
+- الخط الأبيض أسفل الهيدر والفراغ فوق الفوتر ما زالا موجودين
+
+### الحلول النهائية
+
+#### 1. إصلاحات في app/globals.css
+- إضافة قواعد CSS نهائية في نهاية الملف
+- تحديد الحدود والخلفيات بشكل صريح
+- استخدام !important لضمان الأولوية
+
+#### 2. تحديث app/categories/categories-fixes.css
+- تحسين القواعد الموجودة
+- إضافة قواعد خاصة للبطاقات والأقسام
+- إصلاح خلفيات الصفحة بشكل كامل
+
+### القواعد الرئيسية المضافة
+```css
+/* إزالة الخط الأبيض */
+header {
+  border-bottom: 1px solid transparent !important;
+}
+
+.dark header {
+  border-bottom: 1px solid rgb(55 65 81) !important;
+}
+
+/* إزالة الفراغات */
+header + * {
+  margin-top: 0 !important;
+}
+
+main + footer {
+  margin-top: 0 !important;
+}
+```
+
+## الملفات المعدلة (النهائية)
+- `app/layout.tsx`
+- `app/categories/page.tsx`
+- `app/categories/categories-fixes.css`
+- `app/globals.css` 
