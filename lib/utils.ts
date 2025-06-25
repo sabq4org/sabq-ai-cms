@@ -112,4 +112,30 @@ export function formatCompactNumberAr(num: number): string {
   if (num < 1000000) return `${formatNumberAr(Math.floor(num / 1000))} ألف`;
   if (num < 1000000000) return `${formatNumberAr(Math.floor(num / 1000000))} مليون`;
   return `${formatNumberAr(Math.floor(num / 1000000000))} مليار`;
+}
+
+export function getImageUrl(imagePath: string | undefined | null): string {
+  if (!imagePath) return '';
+  
+  // إذا كان المسار URL كامل، أرجعه كما هو
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+  
+  // إذا كان المسار يبدأ بـ /uploads، تحقق من البيئة
+  if (imagePath.startsWith('/uploads/')) {
+    // في بيئة الإنتاج، استخدم الدومين الكامل
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      return `${window.location.origin}${imagePath}`;
+    }
+    // في بيئة التطوير، أرجع المسار كما هو
+    return imagePath;
+  }
+  
+  // إذا كان المسار نسبي، أضف / في البداية
+  if (!imagePath.startsWith('/')) {
+    return `/${imagePath}`;
+  }
+  
+  return imagePath;
 } 

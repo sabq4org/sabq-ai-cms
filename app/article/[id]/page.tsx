@@ -19,6 +19,7 @@ import './article-dark-mode-fixes.css';
 import Footer from '@/components/Footer';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatFullDate, formatTimeOnly, formatRelativeDate } from '@/lib/date-utils';
+import { getImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 
 // تعريف نوع twttr لتويتر
@@ -1125,9 +1126,13 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
           {/* قسم البطل مع الصورة المحسن */}
           <section className="relative h-[75vh] max-h-[700px] overflow-hidden bg-black">
             <img
-              src={article.featured_image || generatePlaceholderImage(article.title)}
+              src={getImageUrl(article.featured_image) || generatePlaceholderImage(article.title)}
               alt={article.featured_image_alt || article.title}
               className="w-full h-full object-cover opacity-75 transform scale-105 transition-transform duration-[2s] hover:scale-100"
+              onError={(e) => {
+                console.error('خطأ في تحميل الصورة:', article.featured_image);
+                e.currentTarget.src = generatePlaceholderImage(article.title);
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent">
               <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-12 max-w-7xl mx-auto">
@@ -1284,9 +1289,12 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
                         >
                           <div className="flex gap-4 p-3 -m-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                             <img
-                              src={relatedArticle.featured_image || generatePlaceholderImage(relatedArticle.title)}
+                              src={getImageUrl(relatedArticle.featured_image) || generatePlaceholderImage(relatedArticle.title)}
                               alt={relatedArticle.title}
                               className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+                              onError={(e) => {
+                                e.currentTarget.src = generatePlaceholderImage(relatedArticle.title);
+                              }}
                             />
                             <div className="flex-1">
                               <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2 transition-colors">

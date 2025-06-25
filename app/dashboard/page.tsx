@@ -62,24 +62,24 @@ export default function DashboardPage() {
         let totalInteractions = 0;
         let totalPoints = 0;
         try {
-          const interactionsRes = await fetch('/api/user-interactions');
+          const interactionsRes = await fetch('/api/interactions/all');
           if (interactionsRes.ok) {
             const interactionsData = await interactionsRes.json();
-            totalInteractions = interactionsData.length || 0;
+            totalInteractions = interactionsData.data?.length || 0;
           }
         } catch (error) {
-          // في حالة عدم وجود API للتفاعلات
+          console.log('تفاعلات غير متوفرة');
         }
 
         // جلب بيانات النقاط (إن وجدت)
         try {
-          const pointsRes = await fetch('/api/loyalty-points');
+          const pointsRes = await fetch('/api/loyalty/stats');
           if (pointsRes.ok) {
             const pointsData = await pointsRes.json();
-            totalPoints = pointsData.totalPoints || 0;
+            totalPoints = pointsData.data?.totalPoints || 0;
           }
         } catch (error) {
-          // في حالة عدم وجود API للنقاط
+          console.log('نقاط الولاء غير متوفرة');
         }
 
         // تحديث الإحصائيات بالبيانات الحقيقية
