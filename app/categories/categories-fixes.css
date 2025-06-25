@@ -98,4 +98,22 @@ main > section:last-child {
 
 .dark main > section:last-child {
   background-color: rgb(17 24 39) !important;
+}
+
+/* إصلاح حدود قسم التحكم */
+section.sticky.top-0 {
+  border-bottom-width: 1px !important;
+}
+
+.dark section.sticky.top-0 {
+  border-bottom-color: rgb(55 65 81) !important;
+}
+
+/* التأكد من عدم ظهور حدود بيضاء */
+.border-gray-100 {
+  border-color: rgb(229 231 235) !important;
+}
+
+.dark .border-gray-100 {
+  border-color: rgb(55 65 81) !important;
 } 

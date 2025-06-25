@@ -163,7 +163,7 @@ export default function CategoriesPage() {
         </section>
 
         {/* Controls Section */}
-        <section className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+        <section className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               {/* Search */}
