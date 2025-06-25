@@ -807,7 +807,7 @@ html {
   position: relative;
   overflow: hidden;
   transition: var(--smart-block-transition);
-  background: white;
+  /* background: white; */ /* تم التعطيل للسماح بالخلفيات المخصصة */
   border-radius: var(--smart-block-radius);
   padding: 2rem;
   margin-bottom: 2rem;

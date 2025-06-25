@@ -71,6 +71,13 @@ export function SmartBlockRenderer({ block, articles = [], darkMode = false }: S
 
   const style = getBlockStyle(block.type);
 
+  // التصميم الافتراضي الموحد مع دعم الألوان المخصصة
+  const customStyle = block.theme ? {
+    backgroundColor: block.theme.backgroundColor || (darkMode ? '#1f2937' : '#ffffff'),
+    color: block.theme.textColor || (darkMode ? '#f3f4f6' : '#1f2937'),
+    borderColor: block.theme.primaryColor ? `${block.theme.primaryColor}20` : (darkMode ? '#4b5563' : '#e5e7eb')
+  } : {};
+
   // معالجة البلوكات المخصصة
   if (block.type === 'custom') {
     if (block.name === 'الهلال في بطولة العالم') {
@@ -81,27 +88,51 @@ export function SmartBlockRenderer({ block, articles = [], darkMode = false }: S
 
   // التصميم الافتراضي الموحد
   return (
-    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${
-      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-    }`}>
+    <div 
+      className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${
+        !block.theme ? (darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200') : ''
+      }`}
+      style={customStyle}
+    >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${style.bgColor}`}>
-            {style.icon}
+          <div 
+            className={`w-10 h-10 rounded-xl flex items-center justify-center`}
+            style={{ 
+              backgroundColor: block.theme ? `${block.theme.primaryColor}20` : style.bgColor,
+              color: block.theme ? block.theme.primaryColor : style.textColor
+            }}
+          >
+            {React.cloneElement(style.icon, {
+              className: `w-5 h-5`,
+              style: { color: block.theme ? block.theme.primaryColor : '' }
+            })}
           </div>
           <div>
-            <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
+            <h2 
+              className={`text-lg font-bold`}
+              style={{ color: customStyle.color }}
+            >
               {block.name}
             </h2>
             {block.settings?.subtitle && (
-              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <p 
+                className={`text-sm`}
+                style={{ color: `${customStyle.color}B3` }} // 70% opacity
+              >
                 {block.settings.subtitle}
               </p>
             )}
           </div>
         </div>
         {articles.length > 0 && (
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${style.bgColor} ${style.textColor}`}>
+          <span 
+            className={`px-3 py-1 rounded-full text-xs font-medium`}
+            style={{
+              backgroundColor: block.theme ? `${block.theme.primaryColor}20` : style.bgColor,
+              color: block.theme ? block.theme.primaryColor : style.textColor
+            }}
+          >
             {articles.length} {articles.length === 1 ? 'مقال' : 'مقالات'}
           </span>
         )}
