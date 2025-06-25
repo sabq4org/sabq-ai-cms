@@ -121,16 +121,27 @@ export default function Header() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      
+      // تجاهل النقرات على الروابط داخل القائمة
+      if ((target as HTMLElement).closest('a') || (target as HTMLElement).closest('button')) {
+        return;
+      }
+      
+      // للديسكتوب
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setShowDropdown(false);
       }
-      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target as Node)) {
+      
+      // للموبايل
+      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(target)) {
         setShowDropdown(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    // استخدام click بدلاً من mousedown لتجنب التداخل مع النقرات
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   const handleLogout = async () => {

@@ -24,6 +24,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.sabq-ai.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'jur3a.ai',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.jur3a.ai',
       }
     ],
     formats: ['image/avif', 'image/webp'],

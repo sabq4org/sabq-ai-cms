@@ -124,9 +124,11 @@ export function getImageUrl(imagePath: string | undefined | null): string {
   
   // إذا كان المسار يبدأ بـ /uploads، تحقق من البيئة
   if (imagePath.startsWith('/uploads/')) {
-    // في بيئة الإنتاج، استخدم الدومين الكامل
+    // في بيئة الإنتاج، استخدم API route للصور
     if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-      return `${window.location.origin}${imagePath}`;
+      // استخدم API route الذي يتعامل مع الصور غير الموجودة
+      const cleanPath = imagePath.replace('/uploads/', '');
+      return `/api/images/${cleanPath}`;
     }
     // في بيئة التطوير، أرجع المسار كما هو
     return imagePath;

@@ -77,6 +77,18 @@ export function middleware(request: NextRequest) {
   // تسجيل المسار للتشخيص
   console.log('Middleware processing:', pathname);
   
+  // معالجة طلبات الصور من /uploads
+  if (pathname.startsWith('/uploads/')) {
+    // في بيئة الإنتاج، تحقق من وجود الملف محلياً أولاً
+    // إذا لم يكن موجوداً، أعد توجيه إلى صورة افتراضية
+    const url = request.nextUrl.clone();
+    
+    // يمكن إضافة منطق للتحقق من وجود الملف هنا
+    // لكن حالياً سنترك Next.js يتعامل مع الملفات الثابتة
+    
+    return NextResponse.next();
+  }
+  
   // استثناء جميع مسارات API من معالجة الأمان لتجنب مشاكل body
   // سنطبق الأمان فقط على الصفحات وليس على API endpoints
   if (pathname.startsWith('/api/')) {
