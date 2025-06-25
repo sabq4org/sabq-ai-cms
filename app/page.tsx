@@ -751,8 +751,8 @@ function NewspaperHomePage() {
     return (
       <Link href={`/article/${news.id}`} className="block" prefetch={true}>
         <div 
-        className="group rounded-3xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] bg-white dark:bg-gray-800 ${isPersonalized ? 'ring-2 ring-blue-400/30' : ''} shadow-lg dark:shadow-gray-900/50 overflow-hidden"
-      >
+          className={`group rounded-3xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] bg-white dark:bg-gray-800 ${isPersonalized ? 'ring-2 ring-blue-400/30' : ''} shadow-lg dark:shadow-gray-900/50 overflow-hidden`}
+        >
           <div className="relative h-48 overflow-hidden">
             <img 
               src={news.image} 
@@ -869,13 +869,13 @@ function NewspaperHomePage() {
                     handleInteraction('like');
                   }}
                   disabled={interactionLoading === 'like'}
-                  className="p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${ isLiked ? 'bg-red-100 dark:bg-red-900/30 text-red-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400' } ${interactionLoading === 'like' ? 'animate-pulse' : ''}"
+                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${isLiked ? 'bg-red-100 dark:bg-red-900/30 text-red-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400'} ${interactionLoading === 'like' ? 'animate-pulse' : ''}`}
                   title={isLiked ? 'إلغاء الإعجاب' : 'إعجاب'}
                 >
                   {interactionLoading === 'like' ? (
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <Heart className="w-4 h-4 ${isLiked ? 'fill-current' : ''}" />
+                    <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
                   )}
                 </button>
                 
@@ -886,7 +886,7 @@ function NewspaperHomePage() {
                     handleInteraction('share');
                   }}
                   disabled={interactionLoading === 'share'}
-                  className="p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${ isShared ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400' } ${interactionLoading === 'share' ? 'animate-pulse' : ''}"
+                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${isShared ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400'} ${interactionLoading === 'share' ? 'animate-pulse' : ''}`}
                   title="مشاركة"
                 >
                   {interactionLoading === 'share' ? (
@@ -903,13 +903,13 @@ function NewspaperHomePage() {
                     handleInteraction('save');
                   }}
                   disabled={interactionLoading === 'save'}
-                  className="p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${ isBookmarked ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400' } ${interactionLoading === 'save' ? 'animate-pulse' : ''}"
+                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${isBookmarked ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400'} ${interactionLoading === 'save' ? 'animate-pulse' : ''}`}
                   title={isBookmarked ? 'إلغاء الحفظ' : 'حفظ'}
                 >
                   {interactionLoading === 'save' ? (
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <Bookmark className="w-4 h-4 ${isBookmarked ? 'fill-current' : ''}" />
+                    <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
                   )}
                 </button>
               </div>
