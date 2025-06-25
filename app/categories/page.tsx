@@ -373,7 +373,7 @@ export default function CategoriesPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800 py-16 border-t border-gray-200 dark:border-gray-700 mt-auto">
+        <section className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-900 py-16 border-t border-gray-200 dark:border-gray-700 mt-auto">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               لم تجد ما تبحث عنه؟

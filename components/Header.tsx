@@ -176,7 +176,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-lg dark:shadow-black/50 sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700 transition-colors duration-300 h-16">
+    <header className="bg-white dark:bg-gray-900 shadow-lg dark:shadow-black/50 sticky top-0 z-50 transition-colors duration-300 h-16">
       <div className="max-w-7xl mx-auto px-6 h-full">
         <div className="flex items-center justify-between h-full">
           <Link href="/" className="flex-shrink-0 min-w-[120px]">

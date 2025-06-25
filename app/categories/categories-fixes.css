@@ -69,4 +69,33 @@ section.border-b {
 
 .dark section.border-b {
   background-color: transparent !important;
+}
+
+/* إصلاح قسم CTA */
+section.bg-gradient-to-r {
+  background: rgb(239 246 255) !important; /* blue-50 */
+}
+
+.dark section.bg-gradient-to-r {
+  background: rgb(17 24 39) !important; /* gray-900 */
+}
+
+/* إزالة الخط الأبيض نهائياً */
+header.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  border-bottom: none !important;
+}
+
+.dark header.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+  border-bottom: none !important;
+}
+
+/* التأكد من عدم وجود فراغ أبيض */
+main > section:last-child {
+  background-color: rgb(17 24 39) !important;
+}
+
+.dark main > section:last-child {
+  background-color: rgb(17 24 39) !important;
 } 
