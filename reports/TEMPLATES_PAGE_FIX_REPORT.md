@@ -61,6 +61,33 @@ if (!mounted) {
 ## الملفات المعدلة
 - `app/dashboard/templates/page.tsx`
 
+## إصلاح إضافي - أخطاء 404
+
+### المشكلة
+ظهور أخطاء 404 للملفات التالية:
+- layout.css
+- main-app.js
+- page.js
+- error.js
+- global-error.js
+- not-found.js
+- app-pages-internals.js
+
+### السبب
+إعدادات `i18n` في `next.config.js` غير مدعومة في Next.js 15 مع App Router.
+
+### الحل
+إزالة إعدادات i18n من next.config.js:
+```javascript
+// تم حذف هذا الجزء:
+i18n: {
+  locales: ['ar', 'en'],
+  defaultLocale: 'ar',
+  localeDetection: false,
+},
+```
+
 ## التاريخ
 - **تاريخ الإصلاح**: ${new Date().toLocaleDateString('ar-SA')}
+- **آخر تحديث**: إزالة إعدادات i18n
 - **المطور**: علي الحازمي 
