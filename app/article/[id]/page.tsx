@@ -259,34 +259,42 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     async function fetchUserInteractions() {
       if (!articleId) return;
 
+      // استخدام نظام localStorage المحسّن للجميع
+      const { getUserArticleInteraction, migrateOldData } = await import('@/lib/interactions-localStorage');
+      
+      // ترحيل البيانات القديمة إن وجدت
+      migrateOldData();
+      
+      const currentUserId = userId || `guest-${localStorage.getItem('guestId') || Date.now()}`;
+      
+      // جلب التفاعلات من localStorage
+      const localInteractions = getUserArticleInteraction(currentUserId, articleId);
+      setInteraction(prev => ({
+        ...prev,
+        liked: localInteractions.liked,
+        saved: localInteractions.saved,
+        shared: localInteractions.shared
+      }));
+
+      // محاولة جلب من الخادم للمستخدمين المسجلين (للمزامنة)
       if (userId) {
-        // للمستخدمين المسجلين - جلب من قاعدة البيانات
         try {
           const interactionsResponse = await fetch(`/api/interactions/user-article?userId=${userId}&articleId=${articleId}`);
           if (interactionsResponse.ok) {
             const interactionsData = await interactionsResponse.json();
             if (interactionsData.success && interactionsData.data) {
+              // دمج البيانات من الخادم إذا كانت أحدث
+              const serverInteractions = interactionsData.data;
               setInteraction(prev => ({
                 ...prev,
-                liked: interactionsData.data.liked,
-                saved: interactionsData.data.saved,
-                shared: interactionsData.data.shared
+                liked: serverInteractions.liked || localInteractions.liked,
+                saved: serverInteractions.saved || localInteractions.saved,
+                shared: serverInteractions.shared || localInteractions.shared
               }));
             }
           }
         } catch (error) {
-          console.error('Error fetching user interactions:', error);
-        }
-      } else {
-        // للمستخدمين غير المسجلين - جلب من localStorage
-        const savedInteractions = localStorage.getItem(`article_${articleId}_interactions`);
-        if (savedInteractions) {
-          try {
-            const saved = JSON.parse(savedInteractions);
-            setInteraction(prev => ({ ...prev, ...saved }));
-          } catch (error) {
-            console.error('Error parsing saved interactions:', error);
-          }
+          console.log('استخدام البيانات المحلية فقط');
         }
       }
     }
@@ -435,9 +443,15 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
   };
 
   const handleLike = async () => {
-    if (!article || !userId) {
-      alert('يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯');
-      return;
+    if (!article) return;
+    
+    // استخدام نظام localStorage للجميع
+    const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
+    const currentUserId = userId || `guest-${localStorage.getItem('guestId') || Date.now()}`;
+    
+    // حفظ معرف الضيف إذا لم يكن موجوداً
+    if (!userId && !localStorage.getItem('guestId')) {
+      localStorage.setItem('guestId', currentUserId);
     }
     
     const newLiked = !interaction.liked;
@@ -449,49 +463,52 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       likesCount: newLiked ? prev.likesCount + 1 : prev.likesCount - 1
     }));
     
-    // حفظ التفاعل محلياً
-    localStorage.setItem(`article_${article.id}_interactions`, JSON.stringify({
-      liked: newLiked,
-      saved: interaction.saved,
-      shared: interaction.shared
-    }));
+    // حفظ التفاعل باستخدام النظام الجديد
+    const result = saveLocalInteraction(
+      currentUserId,
+      article.id,
+      newLiked ? 'like' : 'unlike',
+      { source: 'article_page' }
+    );
     
-    // تسجيل التفاعل باستخدام النظام الجديد
-    try {
-      const response = await fetch('/api/interactions/track-activity', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          articleId: article.id,
-          interactionType: newLiked ? 'like' : 'unlike',
-          metadata: {
-            source: 'article_page',
-            timestamp: new Date().toISOString()
-          }
-        }),
-      });
-      
-      const result = await response.json();
-      if (result.success && result.points_earned > 0) {
-        // عرض إشعار بالنقاط
-        const toast = document.createElement('div');
-        toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
-        toast.textContent = `🎉 ${result.message}`;
-        document.body.appendChild(toast);
-        setTimeout(() => document.body.removeChild(toast), 3000);
+    if (result.success && result.points > 0) {
+      // عرض إشعار بالنقاط
+      const toast = document.createElement('div');
+      toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+      toast.textContent = `🎉 ${result.message}`;
+      document.body.appendChild(toast);
+      setTimeout(() => document.body.removeChild(toast), 3000);
+    }
+    
+    // محاولة الحفظ على الخادم للمستخدمين المسجلين (اختياري)
+    if (userId) {
+      try {
+        await fetch('/api/interactions/track-activity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            articleId: article.id,
+            interactionType: newLiked ? 'like' : 'unlike',
+            metadata: { source: 'article_page' }
+          }),
+        });
+      } catch (error) {
+        console.log('تم الحفظ محلياً فقط');
       }
-    } catch (error) {
-      console.error('خطأ في تسجيل التفاعل:', error);
     }
   };
 
   const handleSave = async () => {
-    if (!article || !userId) {
-      alert('يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯');
-      return;
+    if (!article) return;
+    
+    // استخدام نظام localStorage للجميع
+    const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
+    const currentUserId = userId || `guest-${localStorage.getItem('guestId') || Date.now()}`;
+    
+    // حفظ معرف الضيف إذا لم يكن موجوداً
+    if (!userId && !localStorage.getItem('guestId')) {
+      localStorage.setItem('guestId', currentUserId);
     }
     
     const newSaved = !interaction.saved;
@@ -502,41 +519,39 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       savesCount: newSaved ? prev.savesCount + 1 : prev.savesCount - 1
     }));
     
-    localStorage.setItem(`article_${article.id}_interactions`, JSON.stringify({
-      liked: interaction.liked,
-      saved: newSaved,
-      shared: interaction.shared
-    }));
+    // حفظ التفاعل باستخدام النظام الجديد
+    const result = saveLocalInteraction(
+      currentUserId,
+      article.id,
+      newSaved ? 'save' : 'unsave',
+      { source: 'article_page' }
+    );
     
-    // تسجيل التفاعل باستخدام النظام الجديد
-    try {
-      const response = await fetch('/api/interactions/track-activity', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          articleId: article.id,
-          interactionType: newSaved ? 'save' : 'unsave',
-          metadata: {
-            source: 'article_page',
-            timestamp: new Date().toISOString()
-          }
-        }),
-      });
-      
-      const result = await response.json();
-      if (result.success && result.points_earned > 0) {
-        // عرض إشعار بالنقاط
-        const toast = document.createElement('div');
-        toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
-        toast.textContent = `🎉 ${result.message}`;
-        document.body.appendChild(toast);
-        setTimeout(() => document.body.removeChild(toast), 3000);
+    if (result.success && result.points > 0) {
+      // عرض إشعار بالنقاط
+      const toast = document.createElement('div');
+      toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+      toast.textContent = `🎉 ${result.message}`;
+      document.body.appendChild(toast);
+      setTimeout(() => document.body.removeChild(toast), 3000);
+    }
+    
+    // محاولة الحفظ على الخادم للمستخدمين المسجلين (اختياري)
+    if (userId) {
+      try {
+        await fetch('/api/interactions/track-activity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            articleId: article.id,
+            interactionType: newSaved ? 'save' : 'unsave',
+            metadata: { source: 'article_page' }
+          }),
+        });
+      } catch (error) {
+        console.log('تم الحفظ محلياً فقط');
       }
-    } catch (error) {
-      console.error('خطأ في تسجيل التفاعل:', error);
     }
   };
 
