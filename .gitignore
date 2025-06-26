@@ -41,6 +41,11 @@ production.env
 # vercel
 .vercel
 
+# Private files
+PRIVATE_ENV_VARS.txt
+.env
+.env.local
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
@@ -101,3 +106,6 @@ prisma/migrations/
 *.db
 *.db-journal
 .env.test
+
+# Duplicate folder
+sabq-ai-cms/
