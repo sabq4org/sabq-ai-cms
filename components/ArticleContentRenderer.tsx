@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Play, Quote, Link, Image as ImageIcon } from 'lucide-react';
 
@@ -11,11 +13,13 @@ interface ContentBlock {
 interface ArticleContentRendererProps {
   contentBlocks: ContentBlock[];
   fallbackContent?: string;
+  className?: string;
 }
 
 const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({ 
   contentBlocks, 
-  fallbackContent 
+  fallbackContent,
+  className = ''
 }) => {
   // إذا لم توجد content blocks، استخدم النص العادي
   if (!contentBlocks || contentBlocks.length === 0) {
@@ -23,7 +27,7 @@ const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
       // تحويل النص العادي إلى فقرات
       const paragraphs = fallbackContent.split('\n\n').filter(p => p.trim());
       return (
-        <div className="prose prose-lg max-w-none" style={{ direction: 'rtl' }}>
+        <div className={`prose prose-lg max-w-none ${className}`} style={{ direction: 'rtl' }}>
           {paragraphs.map((paragraph, index) => (
             <p key={index} className="leading-relaxed mb-6 text-gray-700">
               {paragraph.trim()}
@@ -140,7 +144,7 @@ const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
   };
 
   return (
-    <div className="prose prose-lg max-w-none" style={{ direction: 'rtl' }}>
+    <div className={`prose prose-lg max-w-none ${className}`} style={{ direction: 'rtl' }}>
       {sortedBlocks.map((block) => (
         <div key={block.id}>
           {renderBlock(block)}

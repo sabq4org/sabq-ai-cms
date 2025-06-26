@@ -342,4 +342,347 @@
 .article-content img {
   loading: lazy;
   content-visibility: auto;
+}
+
+/* ===== تحسينات تنسيق المحتوى - إصلاح المشاكل ===== */
+
+/* === إزالة الخلفية الرمادية من المحتوى === */
+.article-body,
+.modern-article-body,
+.article-content,
+.content-wrapper,
+.article-text {
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* === إصلاح الفقرة الأولى - إزالة المسافة العلوية === */
+.article-body > p:first-of-type,
+.modern-article-body > p:first-of-type,
+.article-content > p:first-of-type,
+.article-text > p:first-of-type {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* === تقليل المسافة بين العنوان والمحتوى === */
+.article-header,
+.article-title-wrapper {
+  margin-bottom: 1.5rem !important;
+}
+
+.article-title,
+.modern-title,
+h1.article-title {
+  margin-bottom: 1rem !important;
+}
+
+/* === خط فاصل أنيق بين العنوان والمحتوى === */
+.article-header::after,
+.article-title-wrapper::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(90deg, #1a73e8, transparent);
+  margin: 1.5rem 0;
+  border-radius: 2px;
+}
+
+/* === تنسيق الفقرات بشكل صحيح === */
+.article-body p,
+.modern-article-body p,
+.article-content p,
+.article-text p {
+  font-size: 17px !important;
+  line-height: 1.9 !important;
+  margin-bottom: 1.5rem !important;
+  color: #202124;
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  word-spacing: 0.05em;
+  letter-spacing: 0.01em;
+}
+
+/* === تنسيق الفقرة الأولى كمقدمة === */
+.article-body > p:first-of-type,
+.modern-article-body > p:first-of-type,
+.article-content > p:first-of-type {
+  font-size: 19px !important;
+  line-height: 2 !important;
+  font-weight: 500;
+  color: #5f6368;
+  margin-bottom: 2rem !important;
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+/* خط فاصل بعد المقدمة */
+.article-body > p:first-of-type::after,
+.modern-article-body > p:first-of-type::after,
+.article-content > p:first-of-type::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 2px;
+  background: #e8eaed;
+  border-radius: 1px;
+}
+
+/* === إزالة المسافة بعد الفقرة الأخيرة === */
+.article-body p:last-child,
+.modern-article-body p:last-child,
+.article-content p:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* === معالجة فواصل الأسطر والفقرات === */
+.article-body br,
+.modern-article-body br,
+.article-content br {
+  content: '';
+  display: block;
+  margin-top: 1rem;
+}
+
+/* تقسيم الفقرات الطويلة تلقائياً */
+.article-body,
+.modern-article-body,
+.article-content {
+  white-space: pre-line;
+}
+
+/* === تحسين العناوين الفرعية === */
+.article-body h2,
+.article-body h3,
+.modern-article-body h2,
+.modern-article-body h3,
+.article-content h2,
+.article-content h3 {
+  margin-top: 2.5rem !important;
+  margin-bottom: 1rem !important;
+  font-weight: 700;
+  color: #202124;
+  clear: both;
+}
+
+.article-body h2,
+.modern-article-body h2,
+.article-content h2 {
+  font-size: 24px !important;
+  border-right: 4px solid #1a73e8;
+  padding-right: 1rem;
+}
+
+.article-body h3,
+.modern-article-body h3,
+.article-content h3 {
+  font-size: 20px !important;
+  color: #5f6368;
+}
+
+/* === القوائم المحسّنة === */
+.article-body ul,
+.article-body ol,
+.modern-article-body ul,
+.modern-article-body ol,
+.article-content ul,
+.article-content ol {
+  margin: 1.5rem 0 !important;
+  padding-right: 2rem !important;
+}
+
+.article-body li,
+.modern-article-body li,
+.article-content li {
+  margin-bottom: 0.75rem !important;
+  line-height: 1.9 !important;
+  font-size: 17px !important;
+}
+
+/* === الاقتباسات المحسّنة === */
+.article-body blockquote,
+.modern-article-body blockquote,
+.article-content blockquote {
+  margin: 2rem 0 !important;
+  padding: 1.5rem !important;
+  background: #f8f9fa !important;
+  border-radius: 12px !important;
+  border-right: 4px solid #34a853 !important;
+  font-style: italic;
+  font-size: 18px !important;
+  line-height: 1.8 !important;
+}
+
+/* === تحسين الصور === */
+.article-body img,
+.modern-article-body img,
+.article-content img,
+.article-body figure img,
+.modern-article-body figure img,
+.article-content figure img {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 2rem auto !important;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* === الروابط المحسّنة === */
+.article-body a,
+.modern-article-body a,
+.article-content a {
+  color: #1a73e8 !important;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.article-body a:hover,
+.modern-article-body a:hover,
+.article-content a:hover {
+  border-bottom-color: #1a73e8;
+  background: rgba(26, 115, 232, 0.08);
+  padding: 0 4px;
+  margin: 0 -4px;
+  border-radius: 4px;
+}
+
+/* === الوضع الليلي === */
+.dark .article-body p,
+.dark .modern-article-body p,
+.dark .article-content p {
+  color: #e8eaed !important;
+}
+
+.dark .article-body > p:first-of-type,
+.dark .modern-article-body > p:first-of-type,
+.dark .article-content > p:first-of-type {
+  color: #bdc1c6 !important;
+}
+
+.dark .article-body blockquote,
+.dark .modern-article-body blockquote,
+.dark .article-content blockquote {
+  background: #303134 !important;
+  border-right-color: #81c995 !important;
+}
+
+.dark .article-body h2,
+.dark .article-body h3,
+.dark .modern-article-body h2,
+.dark .modern-article-body h3,
+.dark .article-content h2,
+.dark .article-content h3 {
+  color: #e8eaed !important;
+}
+
+.dark .article-header::after,
+.dark .article-title-wrapper::after {
+  background: linear-gradient(90deg, #8ab4f8, transparent);
+}
+
+.dark .article-body > p:first-of-type::after,
+.dark .modern-article-body > p:first-of-type::after,
+.dark .article-content > p:first-of-type::after {
+  background: #3c4043;
+}
+
+/* === التوافق مع الهواتف === */
+@media (max-width: 768px) {
+  .article-body p,
+  .modern-article-body p,
+  .article-content p {
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+    margin-bottom: 1.25rem !important;
+    text-align: right !important; /* إلغاء justify على الهواتف */
+  }
+  
+  .article-body > p:first-of-type,
+  .modern-article-body > p:first-of-type,
+  .article-content > p:first-of-type {
+    font-size: 17px !important;
+    line-height: 1.9 !important;
+  }
+  
+  .article-header::after,
+  .article-title-wrapper::after {
+    width: 60px;
+    margin: 1rem 0;
+  }
+  
+  .article-body h2,
+  .modern-article-body h2,
+  .article-content h2 {
+    font-size: 20px !important;
+    margin-top: 2rem !important;
+  }
+  
+  .article-body h3,
+  .modern-article-body h3,
+  .article-content h3 {
+    font-size: 18px !important;
+  }
+  
+  .article-body blockquote,
+  .modern-article-body blockquote,
+  .article-content blockquote {
+    padding: 1rem !important;
+    font-size: 16px !important;
+  }
+}
+
+/* === تحسينات الطباعة === */
+@media print {
+  .article-body,
+  .modern-article-body,
+  .article-content {
+    font-size: 12pt !important;
+    line-height: 1.6 !important;
+  }
+  
+  .article-body p,
+  .modern-article-body p,
+  .article-content p {
+    margin-bottom: 12pt !important;
+    text-align: justify !important;
+    orphans: 3;
+    widows: 3;
+  }
+}
+
+/* === إصلاحات إضافية للتأكد من عدم وجود خلفيات === */
+.article-wrapper,
+.content-section,
+.article-container,
+.main-content,
+.post-content,
+.entry-content {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* إزالة أي ظلال أو حدود غير مرغوبة */
+.article-body > *,
+.modern-article-body > *,
+.article-content > * {
+  box-shadow: none !important;
+}
+
+/* التأكد من أن المحتوى يأخذ العرض الكامل */
+.article-body,
+.modern-article-body,
+.article-content {
+  width: 100% !important;
+  max-width: 100% !important;
 } 

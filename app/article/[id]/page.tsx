@@ -16,6 +16,7 @@ import { useInteractions } from '../../../hooks/useInteractions';
 // } from 'lucide-react';
 import './article-styles.css';
 import './article-dark-mode-fixes.css';
+import './article-styles-improved.css';
 import Footer from '@/components/Footer';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatFullDate, formatTimeOnly, formatRelativeDate } from '@/lib/date-utils';
