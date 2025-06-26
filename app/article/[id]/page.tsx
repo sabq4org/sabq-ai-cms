@@ -456,8 +456,6 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
   const handleLike = async () => {
     if (!article) return;
     
-    // استخدام نظام localStorage للجميع
-    const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
     const guestId = localStorage.getItem('guestId') || 'guest-anonymous';
     const currentUserId = userId || guestId;
     
@@ -470,44 +468,58 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       likesCount: newLiked ? prev.likesCount + 1 : prev.likesCount - 1
     }));
     
-    // حفظ التفاعل باستخدام النظام الجديد
-    const result = saveLocalInteraction(
+    // حفظ في localStorage أولاً (للاستجابة السريعة)
+    const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
+    const localResult = saveLocalInteraction(
       currentUserId,
       article.id,
       newLiked ? 'like' : 'unlike',
       { source: 'article_page' }
     );
     
-    if (result.success && result.points > 0) {
-      // عرض إشعار بالنقاط
-      const toast = document.createElement('div');
-      toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
-      toast.textContent = `🎉 ${result.message}`;
-      document.body.appendChild(toast);
-      setTimeout(() => document.body.removeChild(toast), 3000);
-    }
-    
-    // محاولة الحفظ على الخادم للمستخدمين المسجلين (اختياري)
-    if (userId) {
-      try {
-        const response = await fetch('/api/interactions/track-activity', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId,
-            articleId: article.id,
-            interactionType: newLiked ? 'like' : 'unlike',
-            metadata: { source: 'article_page' }
-          }),
-        });
+    // إرسال إلى قاعدة البيانات (للحفظ الدائم)
+    try {
+      const response = await fetch('/api/interactions/track-activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUserId,
+          articleId: article.id,
+          interactionType: newLiked ? 'like' : 'unlike',
+          metadata: { source: 'article_page' }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
         
-        if (!response.ok) {
-          // لا نعرض خطأ لأن التخزين المحلي يعمل
-          console.log('API غير متاح، تم الحفظ محلياً');
+        // عرض إشعار بالنقاط إذا كان هناك نقاط
+        if (data.points_earned > 0) {
+          const toast = document.createElement('div');
+          toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+          toast.textContent = `🎉 ${data.message}`;
+          document.body.appendChild(toast);
+          setTimeout(() => document.body.removeChild(toast), 3000);
         }
-      } catch (error) {
-        // لا نعرض خطأ لأن التخزين المحلي يعمل
-        console.log('تم الحفظ محلياً فقط');
+      } else {
+        // في حالة فشل الخادم، الاعتماد على النتيجة المحلية
+        if (localResult.success && localResult.points > 0) {
+          const toast = document.createElement('div');
+          toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+          toast.textContent = `🎉 ${localResult.message}`;
+          document.body.appendChild(toast);
+          setTimeout(() => document.body.removeChild(toast), 3000);
+        }
+      }
+    } catch (error) {
+      console.error('خطأ في حفظ التفاعل:', error);
+      // الاعتماد على النتيجة المحلية في حالة الخطأ
+      if (localResult.success && localResult.points > 0) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-4 right-4 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+        toast.textContent = `⚠️ تم الحفظ محلياً: ${localResult.message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => document.body.removeChild(toast), 3000);
       }
     }
   };
@@ -515,8 +527,6 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
   const handleSave = async () => {
     if (!article) return;
     
-    // استخدام نظام localStorage للجميع
-    const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
     const guestId = localStorage.getItem('guestId') || 'guest-anonymous';
     const currentUserId = userId || guestId;
     
@@ -528,44 +538,58 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       savesCount: newSaved ? prev.savesCount + 1 : prev.savesCount - 1
     }));
     
-    // حفظ التفاعل باستخدام النظام الجديد
-    const result = saveLocalInteraction(
+    // حفظ في localStorage أولاً (للاستجابة السريعة)
+    const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
+    const localResult = saveLocalInteraction(
       currentUserId,
       article.id,
       newSaved ? 'save' : 'unsave',
       { source: 'article_page' }
     );
     
-    if (result.success && result.points > 0) {
-      // عرض إشعار بالنقاط
-      const toast = document.createElement('div');
-      toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
-      toast.textContent = `🎉 ${result.message}`;
-      document.body.appendChild(toast);
-      setTimeout(() => document.body.removeChild(toast), 3000);
-    }
-    
-    // محاولة الحفظ على الخادم للمستخدمين المسجلين (اختياري)
-    if (userId) {
-      try {
-        const response = await fetch('/api/interactions/track-activity', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId,
-            articleId: article.id,
-            interactionType: newSaved ? 'save' : 'unsave',
-            metadata: { source: 'article_page' }
-          }),
-        });
+    // إرسال إلى قاعدة البيانات (للحفظ الدائم)
+    try {
+      const response = await fetch('/api/interactions/track-activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUserId,
+          articleId: article.id,
+          interactionType: newSaved ? 'save' : 'unsave',
+          metadata: { source: 'article_page' }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
         
-        if (!response.ok) {
-          // لا نعرض خطأ لأن التخزين المحلي يعمل
-          console.log('API غير متاح، تم الحفظ محلياً');
+        // عرض إشعار بالنقاط إذا كان هناك نقاط
+        if (data.points_earned > 0) {
+          const toast = document.createElement('div');
+          toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+          toast.textContent = `🎉 ${data.message}`;
+          document.body.appendChild(toast);
+          setTimeout(() => document.body.removeChild(toast), 3000);
         }
-      } catch (error) {
-        // لا نعرض خطأ لأن التخزين المحلي يعمل
-        console.log('تم الحفظ محلياً فقط');
+      } else {
+        // في حالة فشل الخادم، الاعتماد على النتيجة المحلية
+        if (localResult.success && localResult.points > 0) {
+          const toast = document.createElement('div');
+          toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+          toast.textContent = `🎉 ${localResult.message}`;
+          document.body.appendChild(toast);
+          setTimeout(() => document.body.removeChild(toast), 3000);
+        }
+      }
+    } catch (error) {
+      console.error('خطأ في حفظ التفاعل:', error);
+      // الاعتماد على النتيجة المحلية في حالة الخطأ
+      if (localResult.success && localResult.points > 0) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-4 right-4 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+        toast.textContent = `⚠️ تم الحفظ محلياً: ${localResult.message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => document.body.removeChild(toast), 3000);
       }
     }
   };
@@ -634,38 +658,36 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       setTimeout(() => document.body.removeChild(toast), 3000);
     }
     
-    // تسجيل التفاعل للمستخدمين المسجلين
-    if (userId) {
-      try {
-        const response = await fetch('/api/interactions/track-activity', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId,
-            articleId: article.id,
-            interactionType: 'share',
-            metadata: {
-              source: `share_${platform}`,
-              platform: platform,
-              timestamp: new Date().toISOString()
-            }
-          }),
-        });
-        
-        const result = await response.json();
-        if (result.success && result.points_earned > 0) {
-          // عرض إشعار بالنقاط
-          const toast = document.createElement('div');
-          toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
-          toast.textContent = `🎉 ${result.message}`;
-          document.body.appendChild(toast);
-          setTimeout(() => document.body.removeChild(toast), 3000);
-        }
-      } catch (error) {
-        console.error('خطأ في تسجيل التفاعل:', error);
+    // تسجيل التفاعل لجميع المستخدمين في قاعدة البيانات
+    try {
+      const response = await fetch('/api/interactions/track-activity', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: currentUserId,
+          articleId: article.id,
+          interactionType: 'share',
+          metadata: {
+            source: `share_${platform}`,
+            platform: platform,
+            timestamp: new Date().toISOString()
+          }
+        }),
+      });
+      
+      const data = await response.json();
+      if (data.success && data.points_earned > 0) {
+        // عرض إشعار بالنقاط من الخادم
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+        toast.textContent = `🎉 ${data.message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => document.body.removeChild(toast), 3000);
       }
+    } catch (error) {
+      console.error('خطأ في تسجيل التفاعل:', error);
     }
   };
 
