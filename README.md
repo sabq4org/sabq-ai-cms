@@ -40,6 +40,24 @@
 - **Icons**: Lucide React
 - **State**: React Hooks + localStorage
 - **API**: RESTful JSON
+- **Database ORM**: Prisma 6.10.1 (جاهز للاستخدام)
+
+### 🗄️ قاعدة البيانات (Prisma ORM)
+
+المشروع مُعد للعمل مع Prisma ORM ويدعم PostgreSQL/MySQL/SQLite:
+
+```bash
+# إعداد قاعدة البيانات
+npm run prisma:push        # إنشاء الجداول من Schema
+
+# أدوات مفيدة
+npm run prisma:studio      # فتح واجهة إدارة البيانات
+npm run prisma:generate    # توليد Prisma Client
+npm run db:migrate         # نقل البيانات من JSON لقاعدة البيانات
+
+# للمزيد من التفاصيل
+راجع PRISMA_INTEGRATION_GUIDE.md
+```
 
 ### 🚀 البدء السريع
 
@@ -62,7 +80,7 @@ cd sabq-ai-cms
 npm install
 
 # Copy environment variables
-cp .env.example .env.local
+cp env.example .env.local
 
 # Run development server
 npm run dev
@@ -86,8 +104,12 @@ NEXTAUTH_SECRET=your-nextauth-secret
 OPENAI_API_KEY=your-openai-key
 ANTHROPIC_API_KEY=your-anthropic-key
 
-# Database (if using external DB)
-DATABASE_URL=your-database-url
+# Database (Prisma - PostgreSQL/MySQL/SQLite)
+DATABASE_URL=postgresql://username:password@localhost:5432/sabq_db
+# أو MySQL:
+# DATABASE_URL=mysql://username:password@localhost:3306/sabq_db
+# أو SQLite للتطوير:
+# DATABASE_URL=file:./dev.db
 
 # Email (Optional)
 SMTP_HOST=smtp.gmail.com

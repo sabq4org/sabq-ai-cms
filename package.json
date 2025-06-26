@@ -30,7 +30,13 @@
     "fix:build": "bash scripts/quick-fix-build.sh",
     "clean:build": "rm -rf .next && rm -rf node_modules/.cache && mkdir -p .next",
     "clean:start": "./clean-start.sh",
-    "fresh": "rm -rf .next && rm -rf node_modules/.cache && rm -rf .turbo && npm run dev"
+    "fresh": "rm -rf .next && rm -rf node_modules/.cache && rm -rf .turbo && npm run dev",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "db:migrate": "npx ts-node scripts/migrate-to-prisma.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -38,6 +44,7 @@
     "@hello-pangea/dnd": "^18.0.1",
     "@mui/icons-material": "^7.1.2",
     "@mui/material": "^7.1.2",
+    "@prisma/client": "^6.10.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
@@ -97,6 +104,7 @@
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
     "critters": "^0.0.23",
+    "prisma": "^6.10.1",
     "typescript": "^5"
   }
 }

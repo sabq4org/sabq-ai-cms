@@ -94,3 +94,10 @@ data/test/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+# Prisma
+/lib/generated/prisma
+prisma/migrations/
+*.db
+*.db-journal
+.env.test
