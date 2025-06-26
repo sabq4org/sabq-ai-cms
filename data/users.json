@@ -45,6 +45,24 @@
       "created_at": "2025-06-23T15:37:06.418Z",
       "updated_at": "2025-06-23T17:37:15.859Z",
       "avatar": "/uploads/avatars/1750700235661-c69077ae-ff31-44b6-8fce-fe0f63952b3e.JPG"
+    },
+    {
+      "id": "user-1750971835628-62x5mjjrs",
+      "name": "علي اسماعيل",
+      "email": "sabq@me.com",
+      "password": "$2b$10$eAE7gjQuEauBMZ94gqOYg.P5ovZ3uzr4UASnoASdVv4v/LQelyLfK",
+      "email_verified": false,
+      "created_at": "2025-06-26T21:03:55.628Z",
+      "updated_at": "2025-06-26T21:03:55.628Z"
+    },
+    {
+      "id": "user-1750971941987-hwe0tms7i",
+      "name": "سعود الحازمي",
+      "email": "aalhazmi@sju.org.sa",
+      "password": "$2b$10$s9Vaew0DiUYxOqmwRc3uR.qQjk7DXXGwUcvp28YDRONpZhf7fZS4q",
+      "email_verified": false,
+      "created_at": "2025-06-26T21:05:41.987Z",
+      "updated_at": "2025-06-26T21:05:41.987Z"
     }
   ]
 }
