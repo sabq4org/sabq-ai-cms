@@ -18,7 +18,6 @@ import { TeamMember } from '@/types/team';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import { Block } from '@/components/BlockEditor/types';
-import 'react-toastify/dist/ReactToastify.css';
 
 // Dynamic imports
 const ContentEditorWithBlocks = dynamic(() => import('@/components/ContentEditorWithBlocks'), {
