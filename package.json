@@ -28,7 +28,9 @@
     "clean:test-data": "node scripts/clean-production-data.js",
     "fix:permissions": "bash scripts/fix-permissions.sh",
     "fix:build": "bash scripts/quick-fix-build.sh",
-    "clean:build": "rm -rf .next && rm -rf node_modules/.cache && mkdir -p .next"
+    "clean:build": "rm -rf .next && rm -rf node_modules/.cache && mkdir -p .next",
+    "clean:start": "./clean-start.sh",
+    "fresh": "rm -rf .next && rm -rf node_modules/.cache && rm -rf .turbo && npm run dev"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
