@@ -23,7 +23,9 @@
     "db:backup": "bash scripts/backup-production.sh",
     "check:production": "node scripts/check-production-safety.js",
     "deploy": "npm run check:production && npm run build:production",
-    "deploy:safe": "npm run db:backup && npm run deploy"
+    "deploy:safe": "npm run db:backup && npm run deploy",
+    "clean:production": "node scripts/clean-production-data.js",
+    "clean:test-data": "node scripts/clean-production-data.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

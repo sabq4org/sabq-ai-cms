@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { filterTestContent, rejectTestContent } from '@/lib/data-protection';
 
 // ===============================
 // أنواع البيانات
@@ -312,6 +313,9 @@ export async function GET(request: NextRequest) {
     // تطبيق الفلاتر
     let filteredArticles = await filterArticles(searchParams);
     
+    // تصفية المحتوى التجريبي في الإنتاج
+    filteredArticles = filterTestContent(filteredArticles);
+    
     // جلب معلومات التصنيفات
     const categories = await fetchCategoriesData();
     
@@ -386,6 +390,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         error: 'العنوان والمحتوى مطلوبان'
+      }, { status: 400 });
+    }
+    
+    // التحقق من المحتوى التجريبي
+    const validation = rejectTestContent(body);
+    if (!validation.valid) {
+      return NextResponse.json({
+        success: false,
+        error: validation.error
       }, { status: 400 });
     }
 
