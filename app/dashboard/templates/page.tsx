@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Plus, 
   Search, 
@@ -20,16 +19,37 @@ import {
   Code,
   Save
 } from 'lucide-react';
-import { TemplatesList } from './components/TemplatesList';
-import { TemplateEditor } from './components/TemplateEditor';
-import { Template, TemplateType } from '@/types/template';
+// import { TemplatesList } from './components/TemplatesList';
+// import { TemplateEditor } from './components/TemplateEditor';
+// import { Template, TemplateType } from '@/types/template';
+
+type TemplateType = 'header' | 'footer' | 'sidebar' | 'article' | 'category' | 'special';
 
 export default function TemplatesPage() {
   const [activeTab, setActiveTab] = useState<TemplateType>('header');
   const [showEditor, setShowEditor] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const { darkMode } = useDarkModeContext();
+  const [mounted, setMounted] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+    // التحقق من الوضع الليلي من localStorage
+    const isDark = document.documentElement.classList.contains('dark');
+    setDarkMode(isDark);
+  }, []);
+  
+  // إذا لم تكن الصفحة محملة بعد، نعرض شاشة تحميل
+  if (!mounted) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-500">جاري التحميل...</p>
+        </div>
+      </div>
+    );
+  }
 
   const tabs: TabItem[] = [
     { 
@@ -127,42 +147,9 @@ export default function TemplatesPage() {
     );
   };
 
-  const handleEdit = (template: Template) => {
-    setEditingTemplate(template);
-    setShowEditor(true);
-  };
-
   const handleCreate = () => {
-    setEditingTemplate(null);
-    setShowEditor(true);
+    alert('ميزة إنشاء القالب قيد التطوير');
   };
-
-  const handleSave = () => {
-    setShowEditor(false);
-    setEditingTemplate(null);
-    // Refresh the templates list here
-  };
-
-  const handleCancel = () => {
-    setShowEditor(false);
-    setEditingTemplate(null);
-  };
-
-  if (showEditor) {
-    return (
-      <div className={`p-8 transition-colors duration-300 ${
-        darkMode ? 'bg-gray-900' : ''
-      }`}>
-        <TemplateEditor
-          template={editingTemplate}
-          type={activeTab}
-          isNew={!editingTemplate}
-          onSave={handleSave}
-          onCancel={handleCancel}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className={`p-8 transition-colors duration-300 ${
@@ -390,11 +377,15 @@ export default function TemplatesPage() {
         onTabChange={(tabId) => setActiveTab(tabId as TemplateType)}
       />
 
-      {/* قائمة القوالب */}
-      <TemplatesList 
-        type={activeTab} 
-        onEdit={handleEdit}
-      />
+      {/* قائمة القوالب - مؤقتاً */}
+      <div className={`mt-8 p-8 rounded-2xl border text-center ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700 text-gray-300' 
+          : 'bg-white border-gray-200 text-gray-600'
+      }`}>
+        <p className="text-lg mb-2">قائمة القوالب</p>
+        <p className="text-sm">سيتم عرض قوالب {tabs.find(t => t.id === activeTab)?.name} هنا</p>
+      </div>
     </div>
   );
 } 
