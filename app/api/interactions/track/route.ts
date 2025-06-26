@@ -152,9 +152,16 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    const { userId, articleId, interactionType, source, duration, completed } = body;
+    // دعم كلا التنسيقين (camelCase و snake_case)
+    const userId = body.userId || body.user_id;
+    const articleId = body.articleId || body.article_id; 
+    const interactionType = body.interactionType || body.interaction_type;
+    const source = body.source;
+    const duration = body.duration;
+    const completed = body.completed;
     
     if (!userId || !articleId || !interactionType) {
+      console.error('Missing required fields:', { userId, articleId, interactionType, body });
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
