@@ -58,9 +58,44 @@ const nextConfig = {
     unoptimized: true // مؤقتاً لحل مشاكل الصور
   },
   
-  // Headers for security
+  // Headers for security and proper MIME types
   async headers() {
     return [
+      // Headers للملفات الثابتة
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=UTF-8',
+          }
+        ]
+      },
+      // Headers لملفات CSS
+      {
+        source: '/_next/static/css/:path*',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/css; charset=UTF-8',
+          }
+        ]
+      },
+      // Headers لملفات JavaScript
+      {
+        source: '/_next/static/chunks/:path*.js',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=UTF-8',
+          }
+        ]
+      },
+      // Headers عامة للأمان
       {
         source: '/:path*',
         headers: [
@@ -151,6 +186,12 @@ const nextConfig = {
   // Performance
   poweredByHeader: false,
   compress: true,
+  
+  // إضافة trailing slashes للمسارات
+  trailingSlash: false,
+  
+  // تحسينات الإنتاج
+  productionBrowserSourceMaps: false,
   
   // TypeScript
   typescript: {

@@ -78,6 +78,23 @@ export function middleware(request: NextRequest) {
   // تسجيل المسار للتشخيص
   console.log('Middleware processing:', pathname);
   
+  // معالجة خاصة لملفات JavaScript و CSS في الإنتاج لحل مشكلة MIME types
+  if (pathname.startsWith('/_next/static/')) {
+    const response = NextResponse.next();
+    
+    // تحديد Content-Type الصحيح بناءً على نوع الملف
+    if (pathname.endsWith('.js') || pathname.includes('/chunks/')) {
+      response.headers.set('Content-Type', 'application/javascript; charset=UTF-8');
+    } else if (pathname.endsWith('.css')) {
+      response.headers.set('Content-Type', 'text/css; charset=UTF-8');
+    }
+    
+    // إضافة Cache headers للملفات الثابتة
+    response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    
+    return response;
+  }
+  
   // معالجة طلبات الصور من /uploads
   if (pathname.startsWith('/uploads/')) {
     // في بيئة الإنتاج، تحقق من وجود الملف محلياً أولاً
