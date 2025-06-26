@@ -130,9 +130,21 @@ export function getUserArticleInteraction(userId: string, articleId: string): {
   saved: boolean;
   shared: boolean;
 } {
+  console.log('=== getUserArticleInteraction ===');
+  console.log('userId:', userId);
+  console.log('articleId:', articleId);
+  
   const interactions = getLocalInteractions();
   const key = `${userId}_${articleId}`;
   const interaction = interactions[key];
+  
+  console.log('key:', key);
+  console.log('interaction found:', interaction);
+  
+  // البحث أيضاً بمعرف المقال فقط كنسخة احتياطية
+  const articleLikesKey = `article_${articleId}_likes`;
+  const articleLikes = localStorage.getItem(articleLikesKey);
+  console.log('article likes backup:', articleLikes);
 
   return {
     liked: interaction?.liked || false,
@@ -145,8 +157,10 @@ export function getUserArticleInteraction(userId: string, articleId: string): {
 function getLocalInteractions(): { [key: string]: LocalInteraction } {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.INTERACTIONS);
+    console.log('Raw interactions data:', stored?.substring(0, 100) + '...');
     return stored ? JSON.parse(stored) : {};
-  } catch {
+  } catch (error) {
+    console.error('Error parsing interactions:', error);
     return {};
   }
 }

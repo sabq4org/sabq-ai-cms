@@ -57,8 +57,10 @@ export async function POST(request: NextRequest) {
 
     // معالجة التفاعلات like/unlike و save/unsave
     if (interactionType === 'like' || interactionType === 'save') {
+      console.log(`محاولة حفظ ${interactionType} في قاعدة البيانات...`);
+      
       // إنشاء أو تحديث التفاعل
-      await prisma.interaction.upsert({
+      const result = await prisma.interaction.upsert({
         where: {
           userId_articleId_type: {
             userId,
@@ -73,10 +75,14 @@ export async function POST(request: NextRequest) {
         },
         update: {} // لا نحتاج تحديث أي شيء
       });
+      
+      console.log('نتيجة الحفظ في DB:', result);
     } else if (interactionType === 'unlike') {
+      console.log('محاولة حذف الإعجاب من قاعدة البيانات...');
+      
       // حذف تفاعل الإعجاب
       try {
-        await prisma.interaction.delete({
+        const deleteResult = await prisma.interaction.delete({
           where: {
             userId_articleId_type: {
               userId,
@@ -85,7 +91,9 @@ export async function POST(request: NextRequest) {
             }
           }
         });
+        console.log('تم حذف الإعجاب:', deleteResult);
       } catch (error) {
+        console.log('التفاعل غير موجود للحذف');
         // قد يكون التفاعل غير موجود، وهذا عادي
       }
     } else if (interactionType === 'unsave') {
