@@ -313,6 +313,15 @@ function NewspaperHomePage() {
     }
   };
 
+  // إنشاء معرف ثابت للضيف عند تحميل الصفحة
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('guestId')) {
+      const guestId = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('guestId', guestId);
+      console.log('تم إنشاء معرف ضيف:', guestId);
+    }
+  }, []);
+
   // إعادة جلب المقالات عندما يتم تحميل التصنيفات
   useEffect(() => {
     if (categories.length > 0 && !categoriesLoading) {
@@ -950,23 +959,39 @@ function NewspaperHomePage() {
       console.log('🎯 النتيجة النهائية:', isUserLoggedIn ? 'مسجل دخول' : 'غير مسجل دخول');
       
       if (!isUserLoggedIn) {
-        console.log('❌ المستخدم غير مسجل دخول - عرض رسالة التنبيه');
+        console.log('👥 مستخدم زائر - حفظ التفاعل محلياً');
         
-        // تشخيص مفصل للمشكلة
-        if (!hasUserId) {
-          console.log('🔧 السبب: user_id غير صالح أو فارغ');
-        } else if (!isNotAnonymous) {
-          console.log('🔧 السبب: المستخدم مجهول (anonymous)');
-        } else if (!hasUserData) {
-          console.log('🔧 السبب: بيانات المستخدم غير موجودة أو غير صالحة');
+        // إنشاء معرف ضيف إذا لم يكن موجود
+        let guestId = localStorage.getItem('guestId');
+        if (!guestId) {
+          guestId = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          localStorage.setItem('guestId', guestId);
+          console.log('تم إنشاء معرف ضيف:', guestId);
         }
         
-        // عرض رسالة تفاعلية بدلاً من alert
-        toast('يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯', {
-          duration: 4000,
-          position: 'top-center',
-          icon: '⚠️'
-        });
+        // حفظ التفاعل محلياً
+        const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
+        const result = saveLocalInteraction(
+          guestId,
+          articleId,
+          interactionType as any,
+          { 
+            source: 'newspaper',
+            categoryId: categoryId || categories.find(c => c.name_ar === 'عام')?.id
+          }
+        );
+        
+        if (result.success && result.points > 0) {
+          // عرض إشعار بالنقاط
+          toast(`🎉 ${result.message}`, {
+            duration: 3000,
+            position: 'top-center',
+            style: {
+              background: '#10B981',
+              color: 'white',
+            }
+          });
+        }
         
         // تحديث حالة تسجيل الدخول إذا كانت خاطئة
         if (isLoggedIn) {

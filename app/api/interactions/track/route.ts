@@ -176,6 +176,14 @@ export async function POST(request: NextRequest) {
       });
     }
     
+    // في بيئة التطوير، نطبع البيانات للتأكد
+    console.log('🔍 Received interaction:', {
+      userId,
+      articleId,
+      interactionType,
+      source
+    });
+    
     // تسجيل التفاعل
     await recordInteraction({
       user_id: userId,

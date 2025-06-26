@@ -22,6 +22,7 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatFullDate, formatTimeOnly, formatRelativeDate } from '@/lib/date-utils';
 import { getImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
+import { getCookie } from '@/lib/cookies';
 
 // تعريف نوع twttr لتويتر
 declare global {
@@ -166,6 +167,15 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
   const [userId, setUserId] = useState<string | null>(null);
   const [readingTime, setReadingTime] = useState(0);
   const [relatedArticles, setRelatedArticles] = useState<RelatedArticle[]>([]);
+  
+  // إنشاء معرف ثابت للضيف عند تحميل الصفحة
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('guestId')) {
+      const guestId = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('guestId', guestId);
+      console.log('تم إنشاء معرف ضيف:', guestId);
+    }
+  }, []);
 
   useEffect(() => {
     async function loadArticle() {
@@ -265,7 +275,8 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       // ترحيل البيانات القديمة إن وجدت
       migrateOldData();
       
-      const currentUserId = userId || `guest-${localStorage.getItem('guestId') || Date.now()}`;
+      const guestId = localStorage.getItem('guestId') || 'guest-anonymous';
+      const currentUserId = userId || guestId;
       
       // جلب التفاعلات من localStorage
       const localInteractions = getUserArticleInteraction(currentUserId, articleId);
@@ -447,12 +458,8 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     
     // استخدام نظام localStorage للجميع
     const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
-    const currentUserId = userId || `guest-${localStorage.getItem('guestId') || Date.now()}`;
-    
-    // حفظ معرف الضيف إذا لم يكن موجوداً
-    if (!userId && !localStorage.getItem('guestId')) {
-      localStorage.setItem('guestId', currentUserId);
-    }
+    const guestId = localStorage.getItem('guestId') || 'guest-anonymous';
+    const currentUserId = userId || guestId;
     
     const newLiked = !interaction.liked;
     
@@ -510,12 +517,8 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     
     // استخدام نظام localStorage للجميع
     const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
-    const currentUserId = userId || `guest-${localStorage.getItem('guestId') || Date.now()}`;
-    
-    // حفظ معرف الضيف إذا لم يكن موجوداً
-    if (!userId && !localStorage.getItem('guestId')) {
-      localStorage.setItem('guestId', currentUserId);
-    }
+    const guestId = localStorage.getItem('guestId') || 'guest-anonymous';
+    const currentUserId = userId || guestId;
     
     const newSaved = !interaction.saved;
     
@@ -609,6 +612,27 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       shared: true,
       sharesCount: prev.sharesCount + 1
     }));
+    
+    // حفظ التفاعل محلياً للجميع
+    const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
+    const guestId = localStorage.getItem('guestId') || 'guest-anonymous';
+    const currentUserId = userId || guestId;
+    
+    const result = saveLocalInteraction(
+      currentUserId,
+      article.id,
+      'share',
+      { source: `share_${platform}`, platform }
+    );
+    
+    if (result.success && result.points > 0) {
+      // عرض إشعار بالنقاط
+      const toast = document.createElement('div');
+      toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+      toast.textContent = `🎉 ${result.message}`;
+      document.body.appendChild(toast);
+      setTimeout(() => document.body.removeChild(toast), 3000);
+    }
     
     // تسجيل التفاعل للمستخدمين المسجلين
     if (userId) {
