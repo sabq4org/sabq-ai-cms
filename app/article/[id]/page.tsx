@@ -171,6 +171,9 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
   // إنشاء معرف ثابت للضيف عند تحميل الصفحة
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      console.log('=== Guest ID Check ===');
+      console.log('Before check:', localStorage.getItem('guestId'));
+      
       let guestId = localStorage.getItem('guestId');
       
       if (!guestId) {
@@ -185,15 +188,32 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       // تحقق إضافي للتأكد من الحفظ
       const savedId = localStorage.getItem('guestId');
       console.log('معرف الضيف المحفوظ:', savedId);
+      
+      // التحقق من وجود أي مشاكل في localStorage
+      try {
+        localStorage.setItem('test-key', 'test-value');
+        const testValue = localStorage.getItem('test-key');
+        console.log('localStorage test:', testValue === 'test-value' ? 'WORKING' : 'FAILED');
+        localStorage.removeItem('test-key');
+      } catch (error) {
+        console.error('localStorage ERROR:', error);
+      }
     }
   }, []);
 
   useEffect(() => {
     async function loadArticle() {
       const resolvedParams = await params;
+      console.log('=== Article Loading ===');
+      console.log('Resolved params:', resolvedParams);
+      
       if (resolvedParams?.id) {
-        setArticleId(resolvedParams.id);
-        fetchArticle(resolvedParams.id);
+        const cleanArticleId = resolvedParams.id.trim();
+        console.log('Article ID:', cleanArticleId);
+        setArticleId(cleanArticleId);
+        fetchArticle(cleanArticleId);
+      } else {
+        console.error('No article ID found in params!');
       }
     }
     loadArticle();
