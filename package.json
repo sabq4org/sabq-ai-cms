@@ -25,7 +25,10 @@
     "deploy": "npm run check:production && npm run build:production",
     "deploy:safe": "npm run db:backup && npm run deploy",
     "clean:production": "node scripts/clean-production-data.js",
-    "clean:test-data": "node scripts/clean-production-data.js"
+    "clean:test-data": "node scripts/clean-production-data.js",
+    "fix:permissions": "bash scripts/fix-permissions.sh",
+    "fix:build": "bash scripts/quick-fix-build.sh",
+    "clean:build": "rm -rf .next && rm -rf node_modules/.cache && mkdir -p .next"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
