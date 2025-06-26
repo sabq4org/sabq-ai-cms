@@ -40,6 +40,10 @@ export function saveLocalInteraction(
     const interactions = getLocalInteractions();
     const key = `${userId}_${articleId}`;
     
+    // حفظ احتياطي بمعرف المقال فقط (للضيوف)
+    const articleKey = `article_${articleId}_likes`;
+    let articleLikes = parseInt(localStorage.getItem(articleKey) || '0');
+    
     // 2. جلب أو إنشاء التفاعل
     let interaction = interactions[key] || {
       userId,
@@ -74,9 +78,11 @@ export function saveLocalInteraction(
       case 'like':
         interaction.liked = true;
         interaction.likeTimestamp = new Date().toISOString();
+        articleLikes++;
         break;
       case 'unlike':
         interaction.liked = false;
+        articleLikes = Math.max(0, articleLikes - 1);
         break;
       case 'save':
         interaction.saved = true;
@@ -96,6 +102,9 @@ export function saveLocalInteraction(
     // 6. حفظ التفاعل المحدث
     interactions[key] = interaction;
     localStorage.setItem(STORAGE_KEYS.INTERACTIONS, JSON.stringify(interactions));
+    
+    // حفظ العدد الاحتياطي للإعجابات
+    localStorage.setItem(articleKey, articleLikes.toString());
 
     // 7. تحديث إحصائيات المستخدم
     updateUserStats(userId, type, points);

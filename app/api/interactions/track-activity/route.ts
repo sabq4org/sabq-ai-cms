@@ -30,7 +30,14 @@ export async function POST(request: NextRequest) {
     const body: InteractionRequest = await request.json();
     const { userId, articleId, interactionType, metadata = {} } = body;
 
+    console.log('=== تتبع التفاعل ===');
+    console.log('userId:', userId);
+    console.log('articleId:', articleId);
+    console.log('interactionType:', interactionType);
+    console.log('metadata:', metadata);
+
     if (!userId || !articleId || !interactionType) {
+      console.error('بيانات غير كاملة:', { userId, articleId, interactionType });
       return NextResponse.json(
         { success: false, error: 'بيانات غير كاملة' },
         { status: 400 }

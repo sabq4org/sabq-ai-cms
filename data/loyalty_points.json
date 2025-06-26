@@ -35,6 +35,24 @@
       "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
       "pending": false,
       "created_at": "2025-06-23T15:37:06.420Z"
+    },
+    {
+      "id": "points-1750971836852-fe15zk9im",
+      "user_id": "user-1750971835628-62x5mjjrs",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": true,
+      "created_at": "2025-06-26T21:03:56.852Z"
+    },
+    {
+      "id": "points-1750971942959-x37w83efl",
+      "user_id": "user-1750971941987-hwe0tms7i",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": true,
+      "created_at": "2025-06-26T21:05:42.959Z"
     }
   ]
 }

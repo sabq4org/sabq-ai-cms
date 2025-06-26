@@ -170,10 +170,21 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
   
   // إنشاء معرف ثابت للضيف عند تحميل الصفحة
   useEffect(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem('guestId')) {
-      const guestId = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('guestId', guestId);
-      console.log('تم إنشاء معرف ضيف:', guestId);
+    if (typeof window !== 'undefined') {
+      let guestId = localStorage.getItem('guestId');
+      
+      if (!guestId) {
+        // إنشاء معرف فريد وثابت
+        guestId = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        localStorage.setItem('guestId', guestId);
+        console.log('تم إنشاء معرف ضيف جديد:', guestId);
+      } else {
+        console.log('معرف الضيف الموجود:', guestId);
+      }
+      
+      // تحقق إضافي للتأكد من الحفظ
+      const savedId = localStorage.getItem('guestId');
+      console.log('معرف الضيف المحفوظ:', savedId);
     }
   }, []);
 
@@ -269,6 +280,11 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     async function fetchUserInteractions() {
       if (!articleId) return;
 
+      console.log('=== fetchUserInteractions ===');
+      console.log('articleId:', articleId);
+      console.log('userId:', userId);
+      console.log('localStorage guestId:', localStorage.getItem('guestId'));
+
       // استخدام نظام localStorage المحسّن للجميع
       const { getUserArticleInteraction, migrateOldData } = await import('@/lib/interactions-localStorage');
       
@@ -278,8 +294,12 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       const guestId = localStorage.getItem('guestId') || 'guest-anonymous';
       const currentUserId = userId || guestId;
       
+      console.log('currentUserId للجلب:', currentUserId);
+      
       // جلب التفاعلات من localStorage
       const localInteractions = getUserArticleInteraction(currentUserId, articleId);
+      console.log('التفاعلات المحلية:', localInteractions);
+      
       setInteraction(prev => ({
         ...prev,
         liked: localInteractions.liked,
@@ -459,6 +479,12 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     const guestId = localStorage.getItem('guestId') || 'guest-anonymous';
     const currentUserId = userId || guestId;
     
+    console.log('=== handleLike ===');
+    console.log('userId:', userId);
+    console.log('guestId:', guestId);
+    console.log('currentUserId:', currentUserId);
+    console.log('articleId:', article.id);
+    
     const newLiked = !interaction.liked;
     
     // تحديث الحالة المحلية فوراً
@@ -477,8 +503,11 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       { source: 'article_page' }
     );
     
+    console.log('نتيجة الحفظ المحلي:', localResult);
+    
     // إرسال إلى قاعدة البيانات (للحفظ الدائم)
     try {
+      console.log('إرسال إلى API...');
       const response = await fetch('/api/interactions/track-activity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -489,6 +518,10 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
           metadata: { source: 'article_page' }
         })
       });
+
+      console.log('حالة الاستجابة:', response.status);
+      const data = await response.json();
+      console.log('بيانات الاستجابة:', data);
 
       if (response.ok) {
         const data = await response.json();
