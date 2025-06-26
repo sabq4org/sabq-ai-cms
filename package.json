@@ -16,7 +16,9 @@
     "test-upload": "node scripts/test-upload-production.js",
     "build:safe": "node scripts/create-build-env.js && cp .env.build .env && next build && rm .env",
     "build:production": "SKIP_EMAIL_VERIFICATION=true next build",
-    "fix-build": "node scripts/fix-build-deps.js"
+    "fix-build": "node scripts/fix-build-deps.js",
+    "check-deps": "node scripts/check-deps.js",
+    "postinstall": "sh scripts/install-hooks.sh 2>/dev/null || true"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
