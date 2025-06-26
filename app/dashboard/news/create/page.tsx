@@ -15,11 +15,17 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import FeaturedImageUpload from '@/components/FeaturedImageUpload';
 // import { logActions, getCurrentUser } from '@/lib/admin-activity-logs';
 import { TeamMember } from '@/types/team';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
+import { Block } from '@/components/BlockEditor/types';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Dynamic imports
 const ContentEditorWithBlocks = dynamic(() => import('@/components/ContentEditorWithBlocks'), {
   ssr: false,
-  loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-xl" />
+  loading: () => (
+    <div className="animate-pulse bg-gray-200 h-64 rounded-xl"></div>
+  )
 });
 
 const PublishPanel = dynamic(() => import('@/components/PublishPanel'), {
@@ -27,7 +33,7 @@ const PublishPanel = dynamic(() => import('@/components/PublishPanel'), {
 });
 
 // Types
-type Block = any; // استخدام any مؤقتاً
+// type Block = any; // استخدام any مؤقتاً  -- حذف هذا السطر
 
 interface ArticleFormData {
   id?: string;
@@ -103,7 +109,12 @@ export default function CreateArticlePage() {
     author_id: '',
     scope: 'local',
     status: 'draft',
-    content_blocks: [],
+    content_blocks: [{
+      id: 'initial_block_0',
+      type: 'paragraph',
+      data: { paragraph: { text: '' } },
+      order: 0
+    }],
     featured_image: ''
   });
 

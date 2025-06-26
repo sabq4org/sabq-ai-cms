@@ -26,6 +26,8 @@ export default function Header() {
   const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileDropdownRef = useRef<HTMLDivElement>(null);
+  const desktopButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileButtonRef = useRef<HTMLButtonElement>(null);
 
   const fetchUserData = async () => {
     try {
@@ -219,8 +221,9 @@ export default function Header() {
               {isLoading ? (
                 <div className="w-8 h-8" />
               ) : user ? (
-                <div className="relative" ref={mobileDropdownRef}>
+                <div ref={mobileDropdownRef}>
                   <button
+                    ref={mobileButtonRef}
                     onClick={() => setShowDropdown(!showDropdown)}
                     className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     aria-label="قائمة المستخدم"
@@ -247,6 +250,7 @@ export default function Header() {
                       user={user}
                       onClose={() => setShowDropdown(false)}
                       onLogout={handleLogout}
+                      anchorElement={mobileButtonRef.current}
                     />
                   )}
                 </div>
@@ -288,6 +292,7 @@ export default function Header() {
               ) : user ? (
                 <div className="relative" ref={dropdownRef}>
                   <button
+                    ref={desktopButtonRef}
                     onClick={() => setShowDropdown(!showDropdown)}
                     className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     aria-label="قائمة المستخدم"
@@ -316,6 +321,7 @@ export default function Header() {
                       user={user}
                       onClose={() => setShowDropdown(false)}
                       onLogout={handleLogout}
+                      anchorElement={desktopButtonRef.current}
                     />
                   )}
                 </div>

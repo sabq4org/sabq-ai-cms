@@ -56,10 +56,12 @@ export default function BlockItem({
   };
 
   const handleUpdate = (data: Partial<BlockData>) => {
+    console.log('BlockItem handleUpdate called:', { blockId: block.id, data });
     onChange(updateBlock(blocks, block.id, data));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    console.log('BlockItem handleKeyDown:', e.key);
     // Enter key - create new paragraph block
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();

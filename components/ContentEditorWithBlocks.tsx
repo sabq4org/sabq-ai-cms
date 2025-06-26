@@ -75,6 +75,7 @@ export default function ContentEditorWithBlocks({
   }, []);
 
   const handleBlocksChange = (blocks: Block[]) => {
+    console.log('ContentEditorWithBlocks - handleBlocksChange:', blocks);
     setFormData((prev: any) => ({
       ...prev,
       content_blocks: blocks

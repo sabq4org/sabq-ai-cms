@@ -143,12 +143,12 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
 
   return (
     <TooltipProvider>
-      <section id="deep-analysis-highlight" className={`py-12 md:py-16 transition-colors duration-300 ${
+      <section id="deep-analysis-highlight" className={`py-6 md:py-8 transition-colors duration-300 ${
         darkMode ? 'bg-gray-900' : 'bg-gray-50'
       }`}>
         <div className="container px-4 mx-auto max-w-7xl">
           {/* العنوان والوصف */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             {/* أيقونة فوق العنوان */}
             <div className="mb-4">
               <Brain className={`w-16 h-16 mx-auto ${

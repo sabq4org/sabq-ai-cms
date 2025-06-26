@@ -2348,3 +2348,75 @@ a[class*="flex items-center gap-3"][class*="bg-blue"] {
   background-color: #2563eb !important;
 }
 
+/* أنيميشن القائمة المنسدلة للموبايل */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* دعم safe area للأجهزة الحديثة */
+.h-safe-area-inset-bottom {
+  height: env(safe-area-inset-bottom, 0);
+}
+
+/* تحسينات إضافية للقائمة المنسدلة */
+@media (max-width: 768px) {
+  /* منع التمرير في الخلفية عند فتح القائمة */
+  body.dropdown-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+  
+  /* تحسين أداء التمرير داخل القائمة */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* إضافة مؤشر للتمرير */
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 2px;
+  }
+  
+  .dark .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.5);
+  }
+}
+
+/* تحسين تجربة اللمس */
+@media (hover: none) and (pointer: coarse) {
+  /* زيادة حجم مناطق اللمس */
+  .px-6.py-3 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  /* تحسين تأثير اللمس */
+  .hover\:bg-gray-50:active {
+    background-color: rgb(243 244 246);
+  }
+  
+  .dark .hover\:bg-gray-700:active {
+    background-color: rgb(55 65 81);
+  }
+}
+

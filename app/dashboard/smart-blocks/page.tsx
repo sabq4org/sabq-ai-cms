@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadixSelect } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   Plus, 
@@ -44,6 +44,24 @@ import {
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { toast } from 'react-hot-toast';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface SmartBlock {
   id: string;
@@ -166,8 +184,11 @@ export default function SmartBlocksPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+  const [editingBlock, setEditingBlock] = useState<SmartBlock | null>(null);
   const [currentKeyword, setCurrentKeyword] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showStatusConfirm, setShowStatusConfirm] = useState(false);
+  const [statusChangeBlock, setStatusChangeBlock] = useState<SmartBlock | null>(null);
 
   // نموذج البلوك الجديد
   const [newBlock, setNewBlock] = useState<Partial<SmartBlock>>({
@@ -267,26 +288,50 @@ export default function SmartBlocksPage() {
   };
 
   const toggleBlockStatus = async (blockId: string) => {
+    const block = blocks.find(b => b.id === blockId);
+    if (!block) return;
+    
+    setStatusChangeBlock(block);
+    setShowStatusConfirm(true);
+  };
+
+  const confirmStatusChange = async () => {
+    if (!statusChangeBlock) return;
+    
     try {
-      const block = blocks.find(b => b.id === blockId);
-      if (!block) return;
-
-      const newStatus = block.status === 'active' ? 'inactive' : 'active';
+      const newStatus = statusChangeBlock.status === 'active' ? 'inactive' : 'active';
+      console.log(`[SmartBlocks Dashboard] تغيير حالة البلوك ${statusChangeBlock.id} إلى ${newStatus}`);
       
-      const response = await fetch(`/api/smart-blocks/${blockId}`, {
+      const response = await fetch(`/api/smart-blocks/${statusChangeBlock.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
       });
-
+      
       if (response.ok) {
-        setBlocks(blocks.map(b => 
-          b.id === blockId ? { ...b, status: newStatus } : b
-        ));
-        toast.success(`تم ${newStatus === 'active' ? 'تفعيل' : 'إلغاء تفعيل'} البلوك`);
+        const updatedBlock = await response.json();
+        console.log('[SmartBlocks Dashboard] تم تحديث حالة البلوك:', updatedBlock);
+        
+        setBlocks(prevBlocks => 
+          prevBlocks.map(block => 
+            block.id === updatedBlock.id ? updatedBlock : block
+          )
+        );
+        
+        toast.success(newStatus === 'active' ? 'تم تفعيل البلوك بنجاح!' : 'تم إيقاف البلوك بنجاح!');
+      } else {
+        const errorData = await response.json();
+        console.error('[SmartBlocks Dashboard] خطأ في تحديث حالة البلوك:', errorData);
+        toast.error(errorData.error || 'فشل في تحديث حالة البلوك');
       }
     } catch (error) {
-      toast.error('فشل في تحديث حالة البلوك');
+      console.error('[SmartBlocks Dashboard] خطأ في تحديث حالة البلوك:', error);
+      toast.error('حدث خطأ في تحديث حالة البلوك');
+    } finally {
+      setShowStatusConfirm(false);
+      setStatusChangeBlock(null);
     }
   };
 
@@ -390,6 +435,12 @@ export default function SmartBlocksPage() {
 
   const editBlock = (block: SmartBlock) => {
     console.log('[SmartBlocks Dashboard] تحرير البلوك:', block);
+    setEditingBlock(block);
+    setShowEditModal(true);
+  };
+
+  const editBlockInline = (block: SmartBlock) => {
+    console.log('[SmartBlocks Dashboard] تحرير البلوك في النموذج الكامل:', block);
     setSelectedBlock(block);
     setNewBlock(block);
     setIsEditing(true);
@@ -402,6 +453,44 @@ export default function SmartBlocksPage() {
         formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 100);
+  };
+
+  const saveQuickEdit = async () => {
+    if (!editingBlock) return;
+
+    try {
+      console.log('[SmartBlocks Dashboard] حفظ التعديلات السريعة:', editingBlock);
+      
+      const response = await fetch(`/api/smart-blocks/${editingBlock.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editingBlock),
+      });
+      
+      if (response.ok) {
+        const updatedBlock = await response.json();
+        console.log('[SmartBlocks Dashboard] تم حفظ البلوك:', updatedBlock);
+        
+        setBlocks(prevBlocks => 
+          prevBlocks.map(block => 
+            block.id === updatedBlock.id ? updatedBlock : block
+          )
+        );
+        
+        toast.success('تم حفظ التعديلات بنجاح!');
+        setShowEditModal(false);
+        setEditingBlock(null);
+      } else {
+        const errorData = await response.json();
+        console.error('[SmartBlocks Dashboard] خطأ في حفظ البلوك:', errorData);
+        toast.error(errorData.error || 'فشل في حفظ التعديلات');
+      }
+    } catch (error) {
+      console.error('[SmartBlocks Dashboard] خطأ في حفظ البلوك:', error);
+      toast.error('حدث خطأ في حفظ التعديلات');
+    }
   };
 
   const resetForm = () => {
@@ -835,42 +924,52 @@ export default function SmartBlocksPage() {
                     </div>
 
                     {/* الإجراءات */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       <Button
-                        variant="ghost"
+                        variant={block.status === 'active' ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => toggleBlockStatus(block.id)}
-                        className={`h-11 w-11 p-0 ${
+                        className={`h-10 px-3 ${
                           block.status === 'active' 
-                            ? 'text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/30' 
-                            : 'text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'
+                            ? 'bg-green-600 hover:bg-green-700 text-white' 
+                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
                         }`}
                         title={block.status === 'active' ? 'إيقاف تشغيل البلوك' : 'تشغيل البلوك'}
                       >
                         {block.status === 'active' ? (
-                          <Power className="h-5 w-5" />
+                          <>
+                            <Power className="h-4 w-4 ml-1" />
+                            <span className="hidden sm:inline">مفعل</span>
+                          </>
                         ) : (
-                          <PowerOff className="h-5 w-5" />
+                          <>
+                            <PowerOff className="h-4 w-4 ml-1" />
+                            <span className="hidden sm:inline">معطل</span>
+                          </>
                         )}
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editBlock(block)}
-                        className="h-11 w-11 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700"
-                        title="تعديل البلوك"
-                      >
-                        <Edit3 className="h-5 w-5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteBlock(block.id)}
-                        className="h-11 w-11 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
-                        title="حذف البلوك"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => editBlock(block)}
+                          className="h-10 px-3 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                          title="تعديل البلوك"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                          <span className="mr-1 hidden lg:inline">تعديل</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteBlock(block.id)}
+                          className="h-10 px-3 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+                          title="حذف البلوك"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="mr-1 hidden lg:inline">حذف</span>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -951,9 +1050,9 @@ export default function SmartBlocksPage() {
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label htmlFor="block-position" className="mb-2">موقع العرض</Label>
-                      <Select
+                      <RadixSelect
                         value={newBlock.position}
-                        onChange={(e) => setNewBlock({ ...newBlock, position: e.target.value as any })}
+                        onValueChange={(value) => setNewBlock({ ...newBlock, position: value as any })}
                       >
                         <SelectTrigger id="block-position" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
                           <SelectValue />
@@ -973,14 +1072,14 @@ export default function SmartBlocksPage() {
                             </SelectItem>
                           ))}
                         </SelectContent>
-                      </Select>
+                      </RadixSelect>
                     </div>
 
                     <div>
                       <Label htmlFor="block-type" className="mb-2">نوع البلوك</Label>
-                      <Select
+                      <RadixSelect
                         value={newBlock.type}
-                        onChange={(e) => setNewBlock({ ...newBlock, type: e.target.value as any })}
+                        onValueChange={(value) => setNewBlock({ ...newBlock, type: value as any })}
                       >
                         <SelectTrigger id="block-type" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
                           <SelectValue />
@@ -1003,7 +1102,7 @@ export default function SmartBlocksPage() {
                             );
                           })}
                         </SelectContent>
-                      </Select>
+                      </RadixSelect>
                     </div>
                   </div>
 
@@ -1106,9 +1205,9 @@ export default function SmartBlocksPage() {
 
                     <div>
                       <Label htmlFor="block-display" className="mb-2">نوع العرض</Label>
-                      <Select
+                      <RadixSelect
                         value={newBlock.displayType}
-                        onChange={(e) => setNewBlock({ ...newBlock, displayType: e.target.value as any })}
+                        onValueChange={(value) => setNewBlock({ ...newBlock, displayType: value as any })}
                       >
                         <SelectTrigger id="block-display" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
                           <SelectValue />
@@ -1125,7 +1224,7 @@ export default function SmartBlocksPage() {
                             );
                           })}
                         </SelectContent>
-                      </Select>
+                      </RadixSelect>
                     </div>
                   </div>
                 </div>
@@ -1476,6 +1575,256 @@ export default function SmartBlocksPage() {
           </div>
         </div>
       )}
+
+      {/* Modal تعديل البلوك */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>تعديل البلوك</DialogTitle>
+            <DialogDescription>
+              قم بتحديث إعدادات البلوك الذكي
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="edit-block-name" className="text-right block mb-2">عنوان البلوك</Label>
+              <Input
+                id="edit-block-name"
+                value={editingBlock?.name || ''}
+                onChange={(e) => setEditingBlock(editingBlock ? { ...editingBlock, name: e.target.value } : null)}
+                placeholder="مثال: اليوم الوطني 94"
+                maxLength={50}
+                className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
+              />
+              <p className={`text-xs mt-1 text-left ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {editingBlock?.name?.length || 0}/50 حرف
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-block-position" className="text-right block mb-2">موقع العرض</Label>
+              <RadixSelect
+                value={editingBlock?.position}
+                onValueChange={(value) => setEditingBlock(editingBlock ? { ...editingBlock, position: value as any } : null)}
+              >
+                <SelectTrigger id="edit-block-position" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} max-h-[300px] overflow-y-auto`}>
+                  {POSITIONS.map((pos) => (
+                    <SelectItem key={pos.value} value={pos.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
+                      <div className="flex items-center gap-2">
+                        <span>{pos.icon}</span>
+                        <div className="text-right">
+                          <div className="font-medium">{pos.label}</div>
+                          <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {pos.description}
+                          </div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </RadixSelect>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-block-type" className="text-right block mb-2">نوع البلوك</Label>
+              <RadixSelect
+                value={editingBlock?.type}
+                onValueChange={(value) => setEditingBlock(editingBlock ? { ...editingBlock, type: value as any } : null)}
+              >
+                <SelectTrigger id="edit-block-type" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+                  {BLOCK_TYPES.map((type) => {
+                    const Icon = type.icon;
+                    return (
+                      <SelectItem key={type.value} value={type.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
+                        <div className="flex items-center gap-2">
+                          <Icon className={`w-4 h-4 ${type.color}`} />
+                          <div className="text-right">
+                            <div className="font-medium">{type.label}</div>
+                            <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                              {type.description}
+                            </div>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </RadixSelect>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-block-display" className="text-right block mb-2">نوع العرض</Label>
+              <RadixSelect
+                value={editingBlock?.displayType}
+                onValueChange={(value) => setEditingBlock(editingBlock ? { ...editingBlock, displayType: value as any } : null)}
+              >
+                <SelectTrigger id="edit-block-display" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+                  {displayTypes.map((type) => {
+                    return (
+                      <SelectItem key={type.value} value={type.value} className={darkMode ? 'hover:bg-gray-700' : ''}>
+                        <div className="flex items-center gap-2">
+                          <span className={type.color}>{type.icon}</span>
+                          <span>{type.label}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </RadixSelect>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-block-count" className="text-right block mb-2">عدد المقالات</Label>
+                <Input
+                  id="edit-block-count"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={editingBlock?.articlesCount || 6}
+                  onChange={(e) => setEditingBlock(editingBlock ? { ...editingBlock, articlesCount: parseInt(e.target.value) || 6 } : null)}
+                  className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="edit-block-status" className="text-right block mb-2">حالة البلوك</Label>
+                <RadixSelect
+                  value={editingBlock?.status}
+                  onValueChange={(value) => setEditingBlock(editingBlock ? { ...editingBlock, status: value as any } : null)}
+                >
+                  <SelectTrigger id="edit-block-status" className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+                    <SelectItem value="active" className={darkMode ? 'hover:bg-gray-700' : ''}>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span>مفعل</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="inactive" className={darkMode ? 'hover:bg-gray-700' : ''}>
+                      <div className="flex items-center gap-2">
+                        <XCircle className="w-4 h-4 text-gray-600" />
+                        <span>معطل</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="scheduled" className={darkMode ? 'hover:bg-gray-700' : ''}>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-blue-600" />
+                        <span>مجدول</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </RadixSelect>
+              </div>
+            </div>
+
+            {/* معاينة الألوان */}
+            <div className={`p-4 rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+              <h4 className={`font-medium mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>الألوان المستخدمة</h4>
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <div 
+                    className="w-12 h-12 rounded-lg border-2 mb-1"
+                    style={{ backgroundColor: editingBlock?.theme?.primaryColor || '#00BFA6' }}
+                  />
+                  <span className="text-xs">أساسي</span>
+                </div>
+                <div className="text-center">
+                  <div 
+                    className="w-12 h-12 rounded-lg border-2 mb-1"
+                    style={{ backgroundColor: editingBlock?.theme?.backgroundColor || '#ffffff' }}
+                  />
+                  <span className="text-xs">خلفية</span>
+                </div>
+                <div className="text-center">
+                  <div 
+                    className="w-12 h-12 rounded-lg border-2 mb-1 flex items-center justify-center"
+                    style={{ backgroundColor: editingBlock?.theme?.textColor || '#1a1a1a' }}
+                  >
+                    <span className="text-xs" style={{ color: editingBlock?.theme?.backgroundColor || '#ffffff' }}>Aa</span>
+                  </div>
+                  <span className="text-xs">نص</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <div className="flex items-center justify-between w-full">
+              <Button
+                variant="outline"
+                onClick={() => editingBlock && editBlockInline(editingBlock)}
+                className="flex items-center gap-2"
+              >
+                <Edit3 className="h-4 w-4" />
+                تعديل متقدم
+              </Button>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingBlock(null);
+                  }}
+                >
+                  إلغاء
+                </Button>
+                
+                <Button 
+                  onClick={saveQuickEdit} 
+                  className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white"
+                  disabled={!editingBlock?.name?.trim()}
+                >
+                  <Save className="h-4 w-4" />
+                  حفظ التعديلات
+                </Button>
+              </div>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Alert Dialog تأكيد تغيير الحالة */}
+      <AlertDialog open={showStatusConfirm} onOpenChange={setShowStatusConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {statusChangeBlock?.status === 'active' 
+                ? 'إيقاف تشغيل البلوك' 
+                : 'تشغيل البلوك'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {statusChangeBlock?.status === 'active'
+                ? `هل أنت متأكد من إيقاف تشغيل البلوك "${statusChangeBlock?.name}"؟ لن يظهر البلوك في الصفحة الرئيسية.`
+                : `هل أنت متأكد من تشغيل البلوك "${statusChangeBlock?.name}"؟ سيظهر البلوك في الصفحة الرئيسية.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmStatusChange}
+              className={statusChangeBlock?.status === 'active' 
+                ? 'bg-red-600 hover:bg-red-700 text-white' 
+                : 'bg-green-600 hover:bg-green-700 text-white'}
+            >
+              {statusChangeBlock?.status === 'active' ? 'إيقاف' : 'تشغيل'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

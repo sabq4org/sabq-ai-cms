@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Plus, 
   Search, 
@@ -27,58 +29,44 @@ export default function TemplatesPage() {
   const [showEditor, setShowEditor] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkModeContext();
 
-  // استرجاع حالة الوضع الليلي من localStorage
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
-  }, []);
-
-  const templateTypes = [
+  const tabs: TabItem[] = [
     { 
       id: 'header', 
       name: 'الهيدر', 
       count: 3,
-      icon: <Layout className="w-5 h-5" />,
-      description: 'قوالب رأس الصفحة والتنقل'
+      icon: Layout
     },
     { 
       id: 'footer', 
       name: 'الفوتر', 
       count: 2,
-      icon: <Menu className="w-5 h-5" />,
-      description: 'قوالب تذييل الصفحة'
+      icon: Menu
     },
     { 
       id: 'sidebar', 
       name: 'الشريط الجانبي', 
       count: 4,
-      icon: <FileText className="w-5 h-5" />,
-      description: 'قوالب الأشرطة الجانبية'
+      icon: FileText
     },
     { 
       id: 'article', 
       name: 'المقالات', 
       count: 6,
-      icon: <FileText className="w-5 h-5" />,
-      description: 'قوالب عرض المقالات والأخبار'
+      icon: FileText
     },
     { 
       id: 'category', 
       name: 'الأقسام', 
       count: 5,
-      icon: <Image className="w-5 h-5" />,
-      description: 'قوالب صفحات الأقسام'
+      icon: Image
     },
     { 
       id: 'special', 
       name: 'المناسبات', 
       count: 8,
-      icon: <Calendar className="w-5 h-5" />,
-      description: 'قوالب المناسبات والفعاليات'
+      icon: Calendar
     }
   ];
 
@@ -396,55 +384,11 @@ export default function TemplatesPage() {
       </div>
 
       {/* تبويبات أنواع القوالب */}
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 transition-colors duration-300 ${
-        darkMode 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-100'
-      }`}>
-        <div className="flex gap-2">
-          {templateTypes.map((type) => {
-            const Icon = type.icon;
-            return (
-              <button
-                key={type.id}
-                onClick={() => setActiveTab(type.id as TemplateType)}
-                className={`flex-1 flex flex-col items-center gap-2 py-4 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
-                  activeTab === type.id
-                    ? 'bg-blue-500 text-white shadow-md'
-                    : darkMode
-                      ? 'text-gray-300 hover:bg-gray-700'
-                      : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {Icon}
-                  <span>{type.name}</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className={`text-xs ${
-                    activeTab === type.id 
-                      ? 'text-white/80' 
-                      : darkMode
-                        ? 'text-gray-400'
-                        : 'text-gray-500'
-                  }`}>
-                    {type.count} قالب
-                  </span>
-                  <span className={`text-xs ${
-                    activeTab === type.id 
-                      ? 'text-white/60' 
-                      : darkMode
-                        ? 'text-gray-500'
-                        : 'text-gray-400'
-                  }`}>
-                    {type.description}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <TabsEnhanced
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as TemplateType)}
+      />
 
       {/* قائمة القوالب */}
       <TemplatesList 

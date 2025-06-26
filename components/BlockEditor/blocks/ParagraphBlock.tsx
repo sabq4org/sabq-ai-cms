@@ -37,10 +37,12 @@ export default function ParagraphBlock({
   }, [data.text]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    console.log('ParagraphBlock handleChange:', e.target.value);
+    console.log('Current data:', data);
     onChange({ 
       paragraph: { 
-        ...data, 
-        text: e.target.value 
+        text: e.target.value,
+        alignment: data.alignment || 'left'
       } 
     });
   };
@@ -66,12 +68,13 @@ export default function ParagraphBlock({
     <div className="relative">
       <textarea
         ref={textareaRef}
-        value={data.text}
+        value={data.text || ''}
         onChange={handleChange}
         onKeyDown={onKeyDown}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder="اكتب نص الفقرة..."
+        disabled={readOnly}
         className={`w-full resize-none outline-none bg-transparent leading-relaxed transition-all ${
           alignmentClasses[data.alignment || 'left']
         } ${

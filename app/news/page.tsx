@@ -13,6 +13,7 @@ import {
   Zap, Globe, Heart, MessageCircle, Share2, Award
 } from 'lucide-react';
 import { formatFullDate, formatDateOnly } from '@/lib/date-utils';
+import ArticleCard from '@/components/ArticleCard';
 
 interface Article {
   id: string;
@@ -198,97 +199,6 @@ export default function NewsPage() {
     `)}`;
   };
 
-  const ArticleCard = ({ article }: { article: Article }) => (
-    <Link href={`/article/${article.id}`}>
-      <div className={`group h-full bg-white dark:bg-gray-800/90 rounded-2xl shadow-sm dark:shadow-gray-900/50 hover:shadow-2xl dark:hover:shadow-gray-900/70 transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-700/50 hover:border-transparent transform hover:-translate-y-1 ${
-        viewMode === 'list' ? 'flex gap-6' : 'flex flex-col'
-      }`}>
-        {/* صورة المقال */}
-        <div className={`relative overflow-hidden ${
-          viewMode === 'list' ? 'w-64 h-48' : 'w-full h-56'
-        }`}>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
-          <img
-            src={article.featured_image || generatePlaceholderImage(article.title)}
-            alt={article.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-          />
-          
-          {/* شارات */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
-            {article.is_breaking && (
-              <div className="px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse flex items-center gap-1">
-                <Zap className="w-3 h-3" />
-                عاجل
-              </div>
-            )}
-            {article.is_featured && (
-              <div className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
-                <Award className="w-3 h-3" />
-                مميز
-              </div>
-            )}
-          </div>
-
-          {/* التصنيف */}
-          <div className="absolute bottom-4 right-4 z-20">
-            <span className={`inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r ${getCategoryColor(article.category_id)} text-white text-xs font-bold rounded-full shadow-lg`}>
-              <Tag className="w-3 h-3" />
-              {getCategoryName(article.category_id)}
-            </span>
-          </div>
-        </div>
-
-        {/* محتوى المقال */}
-        <div className={`flex-1 p-6 ${viewMode === 'list' ? 'flex flex-col justify-between' : ''}`}>
-          {/* العنوان */}
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
-              {article.title}
-            </h3>
-
-            {/* الملخص */}
-            {article.summary && (
-              <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2 leading-relaxed">
-                {article.summary}
-              </p>
-            )}
-          </div>
-
-          {/* معلومات إضافية */}
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex items-center gap-4">
-              {article.author_name && (
-                <div className="flex items-center gap-1.5">
-                  <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
-                    <User className="w-3 h-3 text-white" />
-                  </div>
-                  <span className="font-medium">{article.author_name}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
-                <span>{formatDate(article.published_at || article.created_at)}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {article.reading_time && (
-                <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  <span>{article.reading_time} د</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1">
-                <Eye className="w-3 h-3" />
-                <span>{article.views_count || 0}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-
   return (
     <>
       <Header />
@@ -441,7 +351,7 @@ export default function NewsPage() {
                   : 'space-y-6'
               }`}>
                 {filteredArticles.map((article) => (
-                  <ArticleCard key={article.id} article={article} />
+                  <ArticleCard key={article.id} article={article} viewMode={viewMode} />
                 ))}
               </div>
 

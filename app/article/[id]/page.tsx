@@ -253,6 +253,46 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     }
   }, [isLoggedIn, userDataLoaded, articleId]);
 
+  // جلب التفاعلات المحفوظة عند تحديث userId أو articleId
+  useEffect(() => {
+    async function fetchUserInteractions() {
+      if (!articleId) return;
+
+      if (userId) {
+        // للمستخدمين المسجلين - جلب من قاعدة البيانات
+        try {
+          const interactionsResponse = await fetch(`/api/interactions/user-article?userId=${userId}&articleId=${articleId}`);
+          if (interactionsResponse.ok) {
+            const interactionsData = await interactionsResponse.json();
+            if (interactionsData.success && interactionsData.data) {
+              setInteraction(prev => ({
+                ...prev,
+                liked: interactionsData.data.liked,
+                saved: interactionsData.data.saved,
+                shared: interactionsData.data.shared
+              }));
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user interactions:', error);
+        }
+      } else {
+        // للمستخدمين غير المسجلين - جلب من localStorage
+        const savedInteractions = localStorage.getItem(`article_${articleId}_interactions`);
+        if (savedInteractions) {
+          try {
+            const saved = JSON.parse(savedInteractions);
+            setInteraction(prev => ({ ...prev, ...saved }));
+          } catch (error) {
+            console.error('Error parsing saved interactions:', error);
+          }
+        }
+      }
+    }
+
+    fetchUserInteractions();
+  }, [userId, articleId]);
+
   // تحميل سكريبت تويتر
   useEffect(() => {
     if (article && article.content) {
@@ -360,13 +400,6 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
           sharesCount: data.stats.shares || 0,
           savesCount: data.stats.saves || 0
         }));
-      }
-      
-      // جلب التفاعلات المحفوظة
-      const savedInteractions = localStorage.getItem(`article_${id}_interactions`);
-      if (savedInteractions) {
-        const saved = JSON.parse(savedInteractions);
-        setInteraction(prev => ({ ...prev, ...saved }));
       }
       
     } catch (error) {

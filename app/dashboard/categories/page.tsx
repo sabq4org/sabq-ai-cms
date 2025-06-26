@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import CategoryFormModal from '../../../components/CategoryFormModal';
+import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { 
   Plus, 
   Search, 
@@ -73,9 +74,11 @@ interface CategoryFormData {
   og_type: string;
 }
 
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
 export default function CategoriesPage() {
   const [activeTab, setActiveTab] = useState('list');
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkModeContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -90,13 +93,7 @@ export default function CategoriesPage() {
     message: string;
   } | null>(null);
 
-  // استرجاع حالة الوضع الليلي
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
-  }, []);
+
 
   // دالة جلب التصنيفات من API الحقيقي
   const fetchCategories = useCallback(async () => {
@@ -353,45 +350,13 @@ export default function CategoriesPage() {
     </div>
   );
 
-  // مكون أزرار التنقل
-  const NavigationTabs = () => {
-    const tabs = [
-      { id: 'list', name: 'قائمة التصنيفات', icon: Folder },
-      { id: 'hierarchy', name: 'التسلسل الهرمي', icon: FolderOpen },
-      { id: 'analytics', name: 'إحصائيات الاستخدام', icon: Tag },
-      { id: 'settings', name: 'إعدادات التصنيفات', icon: Palette }
-    ];
-
-    return (
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
-        darkMode 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-100'
-      }`}>
-        <div className="flex gap-2 justify-start pr-8">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-48 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
-                  activeTab === tab.id
-                    ? 'bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
-                    : darkMode
-                      ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
-                      : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                {tab.name}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
+  // تعريف التابات
+  const tabs: TabItem[] = [
+    { id: 'list', name: 'قائمة التصنيفات', icon: Folder, count: categories.filter(cat => !cat.parent_id).length },
+    { id: 'hierarchy', name: 'التسلسل الهرمي', icon: FolderOpen, count: categories.length },
+    { id: 'analytics', name: 'إحصائيات الاستخدام', icon: Tag },
+    { id: 'settings', name: 'إعدادات التصنيفات', icon: Palette }
+  ];
 
   // مكون شجرة التصنيفات
   const CategoryTree = ({ categories, level = 0 }: { categories: Category[], level?: number }) => {
@@ -676,7 +641,11 @@ export default function CategoriesPage() {
       </div>
 
       {/* تبويبات التنقل */}
-      <NavigationTabs />
+      <TabsEnhanced
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
       {/* محتوى التبويبات */}
       <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${

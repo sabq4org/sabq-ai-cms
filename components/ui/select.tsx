@@ -193,6 +193,9 @@ const SelectOption = React.forwardRef<HTMLOptionElement, OptionProps>(
   }
 )
 
+// إضافة RadixSelect للاستخدام مع SelectTrigger
+const RadixSelect = SelectPrimitive.Root
+
 export {
   Select,
   SelectGroup,
@@ -205,4 +208,5 @@ export {
   SelectScrollUpButton,
   SelectScrollDownButton,
   SelectOption,
+  RadixSelect,
 } 

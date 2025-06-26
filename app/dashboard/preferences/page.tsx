@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { 
   Brain, Users, TrendingUp, Eye, BarChart3, Settings, Target, 
   Heart, Share2, MessageSquare, Clock, Star, Zap, Filter,
@@ -128,62 +129,12 @@ export default function PreferencesPage() {
     </div>
   );
 
-  const NavigationTabs = () => {
-    const tabs = [
-      { id: 'overview', name: 'نظرة عامة', icon: Brain },
-      { id: 'categories', name: 'تحليل الاهتمامات', icon: BarChart3 },
-      { id: 'behavior', name: 'تتبع السلوك', icon: Activity },
-      { id: 'personalization', name: 'التخصيص الذكي', icon: Cpu, href: '/dashboard/personalization' },
-      { id: 'analytics', name: 'تحليلات AI', icon: Database, href: '/dashboard/analytics' },
-      { id: 'settings', name: 'الإعدادات', icon: Settings }
-    ];
-
-    return (
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 transition-colors duration-300 ${
-        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
-      }`}>
-        <div className="flex gap-2 justify-start">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            
-            if (tab.href) {
-              return (
-                <Link
-                  key={tab.id}
-                  href={tab.href}
-                  className={`w-32 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
-                    darkMode
-                      ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
-                      : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="text-center leading-tight">{tab.name}</span>
-                </Link>
-              );
-            }
-            
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-32 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
-                  activeTab === tab.id
-                    ? 'bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
-                    : darkMode
-                      ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
-                      : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="text-center leading-tight">{tab.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
+  const tabs: TabItem[] = [
+    { id: 'overview', name: 'نظرة عامة', icon: Brain },
+    { id: 'categories', name: 'تحليل الاهتمامات', icon: BarChart3 },
+    { id: 'behavior', name: 'تتبع السلوك', icon: Activity },
+    { id: 'settings', name: 'الإعدادات', icon: Settings }
+  ];
 
   const CategoryCard = ({ category }: { category: any }) => (
     <div className={`rounded-2xl p-6 border transition-colors duration-300 hover:shadow-md ${
@@ -472,7 +423,11 @@ export default function PreferencesPage() {
         </div>
       </div>
 
-      <NavigationTabs />
+      <TabsEnhanced
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
       {renderTabContent()}
     </div>
   );

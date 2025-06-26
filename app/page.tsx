@@ -1747,13 +1747,13 @@ function NewspaperHomePage() {
       <Header />
 
       {/* Smart Blocks - Top Banner */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-4">
         <SmartSlot position="topBanner" />
       </div>
 
       {/* Deep Analysis Widget - After Header */}
       {!deepInsightsLoading && deepInsights.length > 0 && (
-        <div className="mt-4 mb-6">
+        <div className="mb-4">
           <DeepAnalysisWidget insights={deepInsights} />
         </div>
       )}
