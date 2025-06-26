@@ -72,7 +72,8 @@ const publicPaths = [
 ];
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const url = request.nextUrl;
+  const pathname = url.pathname;
   
   // تسجيل المسار للتشخيص
   console.log('Middleware processing:', pathname);
@@ -191,13 +192,86 @@ export function middleware(request: NextRequest) {
     "media-src 'self' blob: data:;"
   );
 
-  return response;
+  // في بيئة الإنتاج فقط
+  if (process.env.NODE_ENV === 'production') {
+    
+    // 1. منع الوصول لملفات البيانات التجريبية
+    const blockedPaths = [
+      '/data/mock/',
+      '/data/seed/',
+      '/data/test/',
+      '/api/seed',
+      '/api/reset',
+      '/api/mock'
+    ];
+    
+    for (const blocked of blockedPaths) {
+      if (pathname.startsWith(blocked)) {
+        console.error(`🚫 محاولة وصول محظورة: ${pathname}`);
+        return new NextResponse(
+          JSON.stringify({ error: 'Forbidden in production' }),
+          { status: 403, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    
+    // 2. حماية APIs الحساسة
+    if (pathname.startsWith('/api/')) {
+      // التحقق من API Secret للعمليات الحساسة
+      const protectedEndpoints = [
+        '/api/backup',
+        '/api/restore',
+        '/api/admin/reset',
+        '/api/admin/seed'
+      ];
+      
+      for (const endpoint of protectedEndpoints) {
+        if (pathname.startsWith(endpoint)) {
+          const apiSecret = request.headers.get('x-api-secret');
+          if (apiSecret !== process.env.API_SECRET_KEY) {
+            return new NextResponse(
+              JSON.stringify({ error: 'Unauthorized' }),
+              { status: 401, headers: { 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+      }
+    }
+    
+    // 3. إضافة رؤوس أمان
+    const response = NextResponse.next();
+    
+    // رؤوس الأمان
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    
+    // Content Security Policy
+    if (!pathname.startsWith('/api/')) {
+      response.headers.set(
+        'Content-Security-Policy',
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-eval' 'unsafe-inline'; " +
+        "style-src 'self' 'unsafe-inline'; " +
+        "img-src 'self' data: https:; " +
+        "font-src 'self' data:; " +
+        "connect-src 'self' https://api.jur3a.ai;"
+      );
+    }
+    
+    return response;
+  }
+  
+  // في بيئة التطوير - السماح بكل شيء
+  return NextResponse.next();
 }
 
+// تحديد المسارات التي يعمل عليها middleware
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)

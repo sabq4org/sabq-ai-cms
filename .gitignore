@@ -35,6 +35,8 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+production.env
 
 # vercel
 .vercel
@@ -76,6 +78,12 @@ pids
 *.backup_*
 __dev__/
 backups/
+
+# Production data protection
+data/production/
+data/mock/
+data/seed/
+data/test/
 
 # Temporary files
 *.tmp
