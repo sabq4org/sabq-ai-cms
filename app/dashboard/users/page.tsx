@@ -42,12 +42,15 @@ import {
   ToggleRight,
   Medal,
   BadgeCheck,
-  Crown
+  Crown,
+  Database,
+  BarChart3
 } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { getMembershipLevel } from '@/lib/loyalty';
+import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 
 interface User {
   id: string;
@@ -90,6 +93,7 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedRole, setSelectedRole] = useState('all');
+  const [activeTab, setActiveTab] = useState('all');
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -289,10 +293,33 @@ export default function UsersPage() {
                            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            (user.phone && user.phone.includes(searchTerm)) ||
                            (user.role && user.role.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      // فلترة بناءً على التاب النشط
+      let matchesTab = true;
+      switch(activeTab) {
+        case 'active':
+          matchesTab = user.status === 'active';
+          break;
+        case 'suspended':
+          matchesTab = user.status === 'suspended' || user.status === 'banned';
+          break;
+        case 'verified':
+          matchesTab = user.isVerified === true;
+          break;
+        case 'new':
+          const joinDate = new Date(user.created_at);
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          matchesTab = joinDate >= weekAgo;
+          break;
+        default:
+          matchesTab = true;
+      }
+      
       const matchesStatus = selectedStatus === 'all' || user.status === selectedStatus;
       const matchesRole = selectedRole === 'all' || user.role === selectedRole;
       
-      return matchesSearch && matchesStatus && matchesRole;
+      return matchesSearch && matchesTab && matchesStatus && matchesRole;
     });
   };
 
@@ -540,6 +567,40 @@ export default function UsersPage() {
         />
       </div>
 
+      {/* إضافة التابات المحسنة */}
+      <TabsEnhanced
+        tabs={[
+          { id: 'all', name: 'جميع المستخدمين', icon: Database, count: stats.total },
+          { id: 'active', name: 'النشطون', icon: UserCheck, count: stats.active },
+          { id: 'suspended', name: 'الموقوفون', icon: UserX, count: stats.suspended },
+          { id: 'verified', name: 'الموثقون', icon: Shield, count: stats.verified },
+          { id: 'new', name: 'الجدد', icon: UserPlus, count: stats.newThisWeek }
+        ]}
+        activeTab={activeTab}
+        onTabChange={(tabId) => {
+          setActiveTab(tabId);
+          // تحديث الفلاتر بناءً على التاب المختار
+          switch(tabId) {
+            case 'active':
+              setSelectedStatus('active');
+              break;
+            case 'suspended':
+              setSelectedStatus('suspended');
+              break;
+            case 'verified':
+              // سيتم التعامل معه في getFilteredUsers
+              setSelectedStatus('all');
+              break;
+            case 'new':
+              // سيتم التعامل معه في getFilteredUsers
+              setSelectedStatus('all');
+              break;
+            default:
+              setSelectedStatus('all');
+          }
+        }}
+      />
+
       <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
       }`}>
@@ -558,10 +619,10 @@ export default function UsersPage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`w-full px-4 py-2 pr-10 text-sm rounded-lg border transition-colors duration-300 ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400 focus:border-blue-500' 
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                                          darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400 focus:border-blue-500' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
+                    } focus:outline-none focus:ring-1 focus:ring-blue-500`}
                 />
               </div>
             </div>
@@ -764,11 +825,11 @@ export default function UsersPage() {
                     value={editFormData.newPassword}
                     onChange={(e) => setEditFormData({...editFormData, newPassword: e.target.value})}
                     placeholder="اتركه فارغاً إذا لم ترد تغييره"
-                    className={`w-full px-4 py-2 pr-10 rounded-lg border ${
-                      darkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                    } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    className={`w-full px-4 py-2 pr-10 text-sm rounded-lg border transition-colors duration-300 ${
+                                          darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400 focus:border-blue-500' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
+                    } focus:outline-none focus:ring-1 focus:ring-blue-500`}
                   />
                   <Key className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
                     darkMode ? 'text-gray-400' : 'text-gray-500'

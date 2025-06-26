@@ -13,6 +13,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('behavior');
@@ -151,46 +152,6 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-
-  // مكون أزرار التنقل
-  const NavigationTabs = () => {
-    const tabs = [
-      { id: 'behavior', name: 'سلوك المستخدمين', icon: Users },
-      { id: 'analysis', name: 'تحليل التفاعلات', icon: TrendingUp },
-      { id: 'preferences', name: 'تطوير التفضيلات', icon: Activity },
-      { id: 'insights', name: 'رؤى الآراء', icon: BarChart3 }
-    ];
-
-    return (
-      <div className={`rounded-xl sm:rounded-2xl p-1.5 sm:p-2 shadow-sm border mb-4 sm:mb-6 lg:mb-8 w-full transition-colors duration-300 ${
-        darkMode 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-100'
-      }`}>
-        <div className="flex gap-1 sm:gap-2 overflow-x-auto pb-1 sm:pb-2 scrollbar-hide">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`min-w-[100px] sm:min-w-[120px] lg:min-w-[150px] xl:w-48 flex flex-col items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 lg:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 ${
-                  activeTab === tab.id
-                    ? 'bg-blue-500 text-white shadow-md'
-                    : darkMode
-                      ? 'text-gray-300 hover:bg-gray-700'
-                      : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="whitespace-nowrap text-[10px] sm:text-xs lg:text-sm">{tab.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
 
   // مكون الجدول - محسّن للموبايل
   const DataTable = () => {
@@ -518,11 +479,20 @@ export default function DashboardPage() {
         />
       </div>
 
-        {/* Navigation Tabs */}
-        <NavigationTabs />
+      {/* أزرار التنقل */}
+      <TabsEnhanced
+        tabs={[
+          { id: 'behavior', name: 'سلوك المستخدمين', icon: Users },
+          { id: 'analysis', name: 'تحليل التفاعلات', icon: TrendingUp },
+          { id: 'preferences', name: 'تطوير التفضيلات', icon: Activity },
+          { id: 'insights', name: 'رؤى الآراء', icon: BarChart3 }
+        ]}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-        {/* Data Table */}
-        <DataTable />
+      {/* Data Table */}
+      <DataTable />
     </div>
   );
 } 

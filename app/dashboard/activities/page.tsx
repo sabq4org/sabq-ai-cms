@@ -20,6 +20,8 @@ import {
   AlertCircle,
   RefreshCw
 } from 'lucide-react'
+import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced'
+import { useDarkModeContext } from '@/contexts/DarkModeContext'
 
 interface ActivityItem {
   id: string;
@@ -50,7 +52,7 @@ interface CategoriesStats {
 
 export default function ActivitiesPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [darkMode, setDarkMode] = useState(false)
+  const { darkMode } = useDarkModeContext()
   const [activeTab, setActiveTab] = useState('all')
   const [filterType, setFilterType] = useState('')
   const [loading, setLoading] = useState(true)
@@ -68,14 +70,6 @@ export default function ActivitiesPage() {
     settings: 0
   })
   
-  // استرجاع حالة الوضع الليلي من localStorage
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode')
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode))
-    }
-  }, [])
-
   // جلب البيانات من API
   const fetchActivities = async () => {
     try {
@@ -197,57 +191,6 @@ export default function ActivitiesPage() {
     </div>
   )
 
-  // مكون أزرار التنقل
-  const NavigationTabs = () => {
-    const tabs = [
-      { id: 'all', name: 'جميع النشاطات', icon: Database, count: activities.length },
-      { id: 'articles', name: 'المقالات', icon: FileText, count: categoriesStats.articles },
-      { id: 'users', name: 'المستخدمين', icon: UserPlus, count: categoriesStats.users },
-      { id: 'media', name: 'الوسائط', icon: Download, count: categoriesStats.media }
-    ]
-
-    return (
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
-        darkMode 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-100'
-      }`}>
-        <div className="flex gap-2 justify-start pr-8">
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-48 flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 relative ${
-                  activeTab === tab.id
-                    ? 'bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
-                    : darkMode
-                      ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
-                      : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                {tab.name}
-                {tab.count > 0 && (
-                  <span className={`absolute top-2 left-2 px-2 py-0.5 text-xs rounded-full ${
-                    activeTab === tab.id
-                      ? 'bg-white text-blue-500'
-                      : darkMode
-                        ? 'bg-gray-700 text-gray-300'
-                        : 'bg-gray-100 text-gray-600'
-                  }`}>
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
-
   const exportToCSV = () => {
     const headers = ['المستخدم', 'البريد الإلكتروني', 'النشاط', 'الهدف', 'الفئة', 'الخطورة', 'الوقت']
     const csvContent = [
@@ -360,7 +303,16 @@ export default function ActivitiesPage() {
       </div>
 
       {/* أزرار التنقل */}
-      <NavigationTabs />
+      <TabsEnhanced
+        tabs={[
+          { id: 'all', name: 'جميع النشاطات', icon: Database, count: activities.length },
+          { id: 'articles', name: 'المقالات', icon: FileText, count: categoriesStats.articles },
+          { id: 'users', name: 'المستخدمين', icon: UserPlus, count: categoriesStats.users },
+          { id: 'media', name: 'الوسائط', icon: Download, count: categoriesStats.media }
+        ]}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
       {/* أدوات الفلترة والتصدير */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${

@@ -10,11 +10,13 @@ import {
   Server, HardDrive, History, Info, X, Image as ImageIcon
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('identity');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkModeContext();
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [testResult, setTestResult] = useState<{success: boolean; message: string} | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
@@ -238,7 +240,7 @@ export default function SettingsPage() {
     }
   };
 
-  const tabs = [
+  const tabs: TabItem[] = [
     { id: 'identity', name: 'الهوية', icon: Building },
     { id: 'seo', name: 'SEO', icon: Search },
     { id: 'social', name: 'المشاركة', icon: Share2 },
@@ -262,29 +264,11 @@ export default function SettingsPage() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
-        <div className="flex gap-2 justify-start pr-8 overflow-x-auto">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`min-w-[150px] flex flex-col items-center justify-center gap-2 py-4 pb-3 px-3 rounded-xl font-medium text-sm transition-all duration-300 ${
-                  activeTab === tab.id
-                    ? 'bg-blue-500 text-white shadow-md border-b-4 border-blue-600'
-                    : darkMode
-                      ? 'text-gray-300 hover:bg-gray-700 border-b-4 border-transparent hover:border-gray-600'
-                      : 'text-gray-600 hover:bg-gray-50 border-b-4 border-transparent hover:border-gray-200'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                {tab.name}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <TabsEnhanced
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
       {/* محتوى التبويبات */}
       <div className={`rounded-2xl shadow-sm border transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
