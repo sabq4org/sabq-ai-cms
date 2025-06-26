@@ -1,131 +1,305 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, writeFile } from 'fs/promises';
-import path from 'path';
-
-const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-
-// قراءة بيانات المستخدمين من ملف JSON
-async function getUsersData() {
-  try {
-    const filePath = path.join(process.cwd(), 'data', 'users.json');
-    const fileContents = await readFile(filePath, 'utf8');
-    const data = JSON.parse(fileContents);
-    // إرجاع المصفوفة من داخل الكائن
-    return data.users || [];
-  } catch (error) {
-    // إرجاع بيانات تجريبية في حالة عدم وجود الملف
-          return [
-        {
-          id: '1',
-          name: 'أحمد محمد',
-          email: 'ahmed@example.com',
-          phone: '+966501234567',
-          avatar: '',
-          isVerified: true,
-          status: 'active',
-          role: 'admin',
-          loyaltyPoints: 1500,
-          lastLogin: new Date().toISOString(),
-          created_at: new Date('2024-01-15').toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'فاطمة العلي',
-          email: 'fatima@example.com',
-          phone: '+966502345678',
-          isVerified: true,
-          status: 'active',
-          role: 'editor',
-          loyaltyPoints: 800,
-          lastLogin: new Date().toISOString(),
-          created_at: new Date('2024-02-20').toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: 'محمد الأحمد',
-          email: 'mohammed@example.com',
-          isVerified: false,
-          status: 'suspended',
-          role: 'regular',
-          loyaltyPoints: 200,
-          created_at: new Date('2024-03-10').toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '4',
-          name: 'نورا السعيد',
-          email: 'noura@example.com',
-          phone: '+966503456789',
-          isVerified: true,
-          status: 'active',
-          role: 'vip',
-          loyaltyPoints: 3000,
-          lastLogin: new Date().toISOString(),
-          created_at: new Date('2023-12-01').toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '5',
-          name: 'عبدالله القحطاني',
-          email: 'abdullah@example.com',
-          isVerified: true,
-          status: 'active',
-          role: 'media',
-          loyaltyPoints: 1200,
-          created_at: new Date('2024-04-05').toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
-  }
-}
+import { prisma } from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 // GET: جلب جميع المستخدمين
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const users = await getUsersData();
+    const { searchParams } = new URL(request.url);
+    
+    // بناء شروط البحث
+    const where: any = {};
+    
+    // فلترة حسب الحالة
+    const status = searchParams.get('status');
+    if (status) {
+      where.role = status; // نستخدم role بدلاً من status في Schema
+    }
+    
+    // فلترة حسب التحقق
+    const verified = searchParams.get('verified');
+    if (verified === 'true') {
+      where.isVerified = true;
+    } else if (verified === 'false') {
+      where.isVerified = false;
+    }
+    
+    // البحث بالاسم أو البريد
+    const search = searchParams.get('search');
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { email: { contains: search } }
+      ];
+    }
+    
+    // جلب المستخدمين مع الإحصائيات
+    const users = await prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        avatar: true,
+        role: true,
+        isAdmin: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
+        // إحصائيات
+        _count: {
+          select: {
+            articles: true,
+            activityLogs: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+    
+    // حساب نقاط الولاء لكل مستخدم
+    const usersWithPoints = await Promise.all(users.map(async (user) => {
+      const totalPoints = await prisma.loyaltyPoint.aggregate({
+        where: { userId: user.id },
+        _sum: { points: true }
+      });
+      
+      return {
+        ...user,
+        loyaltyPoints: totalPoints._sum.points || 0,
+        loyaltyLevel: calculateLoyaltyLevel(totalPoints._sum.points || 0),
+        articlesCount: user._count.articles,
+        activityCount: user._count.activityLogs,
+        status: mapRoleToStatus(user.role),
+        created_at: user.createdAt.toISOString(),
+        updated_at: user.updatedAt.toISOString()
+      };
+    }));
+    
     return NextResponse.json({
       success: true,
-      data: users
+      data: usersWithPoints,
+      total: usersWithPoints.length
     });
+    
   } catch (error) {
-    return NextResponse.json(
-      { 
-        success: false,
-        error: 'Failed to fetch users' 
-      },
-      { status: 500 }
-    );
+    console.error('خطأ في جلب المستخدمين:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في جلب المستخدمين',
+      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+    }, { status: 500 });
   }
 }
 
 // POST: إضافة مستخدم جديد
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const users = await getUsersData();
     
-    const newUser = {
-      id: Date.now().toString(),
-      ...body,
-      loyaltyLevel: 'bronze',
-      loyaltyPoints: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    // التحقق من البيانات المطلوبة
+    if (!body.email || !body.password || !body.name) {
+      return NextResponse.json({
+        success: false,
+        error: 'البريد الإلكتروني وكلمة المرور والاسم مطلوبة'
+      }, { status: 400 });
+    }
     
-    users.push(newUser);
+    // التحقق من عدم تكرار البريد الإلكتروني
+    const existingUser = await prisma.user.findUnique({
+      where: { email: body.email }
+    });
     
-    // حفظ البيانات بنفس التنسيق الأصلي
-    const filePath = path.join(process.cwd(), 'data', 'users.json');
-    await writeFile(filePath, JSON.stringify({ users }, null, 2));
+    if (existingUser) {
+      return NextResponse.json({
+        success: false,
+        error: 'البريد الإلكتروني مستخدم بالفعل'
+      }, { status: 400 });
+    }
     
-    return NextResponse.json(newUser, { status: 201 });
+    // تشفير كلمة المرور
+    const hashedPassword = await bcrypt.hash(body.password, 10);
+    
+    // إنشاء المستخدم الجديد
+    const newUser = await prisma.user.create({
+      data: {
+        email: body.email,
+        passwordHash: hashedPassword,
+        name: body.name,
+        avatar: body.avatar,
+        role: body.role || 'user',
+        isAdmin: body.role === 'admin',
+        isVerified: body.isVerified || false,
+        verificationToken: body.isVerified ? null : generateVerificationToken()
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        avatar: true,
+        role: true,
+        isAdmin: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+    
+    // إضافة نقاط ترحيبية
+    await prisma.loyaltyPoint.create({
+      data: {
+        userId: newUser.id,
+        points: 100,
+        action: 'welcome_bonus',
+        metadata: {
+          message: 'مكافأة التسجيل'
+        }
+      }
+    });
+    
+    // تسجيل النشاط
+    await prisma.activityLog.create({
+      data: {
+        userId: newUser.id,
+        action: 'user_registered',
+        entityType: 'user',
+        entityId: newUser.id,
+        metadata: {
+          email: newUser.email,
+          name: newUser.name
+        }
+      }
+    });
+    
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...newUser,
+        loyaltyPoints: 100,
+        loyaltyLevel: 'bronze',
+        created_at: newUser.createdAt.toISOString(),
+        updated_at: newUser.updatedAt.toISOString()
+      },
+      message: 'تم إنشاء المستخدم بنجاح'
+    }, { status: 201 });
+    
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to create user' },
-      { status: 500 }
-    );
+    console.error('خطأ في إنشاء المستخدم:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في إنشاء المستخدم',
+      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+    }, { status: 500 });
   }
+}
+
+// PUT: تحديث المستخدمين
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const ids = body.ids || [];
+    const updates = body.updates || {};
+    
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'معرفات المستخدمين مطلوبة'
+      }, { status: 400 });
+    }
+    
+    // تحديث المستخدمين
+    const result = await prisma.user.updateMany({
+      where: {
+        id: { in: ids }
+      },
+      data: updates
+    });
+    
+    // تسجيل النشاط
+    await Promise.all(ids.map(userId => 
+      prisma.activityLog.create({
+        data: {
+          userId,
+          action: 'user_updated',
+          entityType: 'user',
+          entityId: userId,
+          newValue: updates
+        }
+      })
+    ));
+    
+    return NextResponse.json({
+      success: true,
+      affected: result.count,
+      message: `تم تحديث ${result.count} مستخدم(ين) بنجاح`
+    });
+    
+  } catch (error) {
+    console.error('خطأ في تحديث المستخدمين:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في تحديث المستخدمين',
+      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+    }, { status: 500 });
+  }
+}
+
+// DELETE: حذف المستخدمين
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const ids = body.ids || [];
+    
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'معرفات المستخدمين مطلوبة'
+      }, { status: 400 });
+    }
+    
+    // حذف المستخدمين (سيتم حذف السجلات المرتبطة تلقائياً بسبب cascade)
+    const result = await prisma.user.deleteMany({
+      where: {
+        id: { in: ids }
+      }
+    });
+    
+    return NextResponse.json({
+      success: true,
+      affected: result.count,
+      message: `تم حذف ${result.count} مستخدم(ين) بنجاح`
+    });
+    
+  } catch (error) {
+    console.error('خطأ في حذف المستخدمين:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في حذف المستخدمين',
+      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+    }, { status: 500 });
+  }
+}
+
+// دوال مساعدة
+function calculateLoyaltyLevel(points: number): string {
+  if (points >= 5000) return 'platinum';
+  if (points >= 2000) return 'gold';
+  if (points >= 500) return 'silver';
+  return 'bronze';
+}
+
+function mapRoleToStatus(role: string): string {
+  const statusMap: { [key: string]: string } = {
+    admin: 'active',
+    editor: 'active',
+    user: 'active',
+    suspended: 'suspended'
+  };
+  return statusMap[role] || 'active';
+}
+
+function generateVerificationToken(): string {
+  return Math.random().toString(36).substr(2) + Date.now().toString(36);
 }
