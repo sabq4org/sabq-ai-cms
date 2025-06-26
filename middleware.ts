@@ -179,18 +179,20 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   
-  // إضافة CSP للحماية مع السماح بمصادر Next.js
-  response.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://platform.twitter.com https://cdn.jsdelivr.net; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "img-src 'self' data: https: blob: http://localhost:*; " +
-    "font-src 'self' data: https://fonts.gstatic.com; " +
-    "connect-src 'self' http://localhost:* ws://localhost:* https://api.openai.com https://images.unsplash.com; " +
-    "frame-src https://platform.twitter.com; " +
-    "media-src 'self' blob: data:;"
-  );
+  // إضافة CSP للحماية مع السماح بمصادر Next.js وGoogle Fonts
+  if (process.env.NODE_ENV !== 'production' || !pathname.startsWith('/api/')) {
+    response.headers.set(
+      'Content-Security-Policy',
+      "default-src 'self'; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://platform.twitter.com https://cdn.jsdelivr.net; " +
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+      "img-src 'self' data: https: blob: http://localhost:*; " +
+      "font-src 'self' data: https://fonts.gstatic.com; " +
+      "connect-src 'self' http://localhost:* ws://localhost:* https://api.openai.com https://images.unsplash.com; " +
+      "frame-src https://platform.twitter.com; " +
+      "media-src 'self' blob: data:;"
+    );
+  }
 
   // في بيئة الإنتاج فقط
   if (process.env.NODE_ENV === 'production') {
@@ -253,9 +255,9 @@ export function middleware(request: NextRequest) {
         'Content-Security-Policy',
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-eval' 'unsafe-inline'; " +
-        "style-src 'self' 'unsafe-inline'; " +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
         "img-src 'self' data: https:; " +
-        "font-src 'self' data:; " +
+        "font-src 'self' data: https://fonts.gstatic.com; " +
         "connect-src 'self' https://api.jur3a.ai;"
       );
     }

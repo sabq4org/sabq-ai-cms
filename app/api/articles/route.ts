@@ -474,10 +474,23 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error) {
+    console.error('خطأ في إنشاء المقال:', error);
+    
+    // معالجة خطأ الكتابة على القرص في Vercel/بيئة الإنتاج
+    if (error instanceof Error && error.message.includes('EROFS')) {
+      return NextResponse.json({
+        success: false,
+        error: 'لا يمكن إنشاء المقالات في بيئة الإنتاج باستخدام ملفات JSON',
+        message: 'يرجى استخدام قاعدة بيانات حقيقية (Supabase, PostgreSQL, etc.)',
+        details: 'النظام يحاول الكتابة في ملفات JSON وهذا غير مدعوم في Vercel'
+      }, { status: 503 });
+    }
+    
     return NextResponse.json({
       success: false,
       error: 'فشل في إنشاء المقال',
-      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+      message: error instanceof Error ? error.message : 'خطأ غير معروف',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
     }, { status: 500 });
   }
 }
