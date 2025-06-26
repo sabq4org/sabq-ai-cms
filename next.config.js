@@ -58,13 +58,6 @@ const nextConfig = {
     unoptimized: true // مؤقتاً لحل مشاكل الصور
   },
   
-  // Internationalization
-  i18n: {
-    locales: ['ar', 'en'],
-    defaultLocale: 'ar',
-    localeDetection: false,
-  },
-  
   // Headers for security
   async headers() {
     return [
