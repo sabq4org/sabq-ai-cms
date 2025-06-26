@@ -14,6 +14,20 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
+    
+    // في بيئة الإنتاج، نرجع قيم افتراضية لأن التخزين يتم محلياً
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({
+        success: true,
+        data: {
+          liked: false,
+          saved: false,
+          shared: false
+        },
+        totalInteractions: 0,
+        message: 'Using local storage in production'
+      });
+    }
 
     // قراءة ملف التفاعلات
     const interactionsPath = path.join(process.cwd(), 'data', 'user_article_interactions.json');

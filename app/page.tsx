@@ -1030,7 +1030,12 @@ function NewspaperHomePage() {
         }
         
       } else {
-        const error = await response.json();
+        let error: any = {};
+        try {
+          error = await response.json();
+        } catch (e) {
+          error = { message: 'خطأ في معالجة الاستجابة' };
+        }
         console.error('❌ خطأ في API التفاعل:', error);
         
         if (response.status === 401) {

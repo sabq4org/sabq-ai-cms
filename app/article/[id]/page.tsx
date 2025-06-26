@@ -483,7 +483,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     // محاولة الحفظ على الخادم للمستخدمين المسجلين (اختياري)
     if (userId) {
       try {
-        await fetch('/api/interactions/track-activity', {
+        const response = await fetch('/api/interactions/track-activity', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -493,7 +493,13 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
             metadata: { source: 'article_page' }
           }),
         });
+        
+        if (!response.ok) {
+          // لا نعرض خطأ لأن التخزين المحلي يعمل
+          console.log('API غير متاح، تم الحفظ محلياً');
+        }
       } catch (error) {
+        // لا نعرض خطأ لأن التخزين المحلي يعمل
         console.log('تم الحفظ محلياً فقط');
       }
     }
@@ -539,7 +545,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     // محاولة الحفظ على الخادم للمستخدمين المسجلين (اختياري)
     if (userId) {
       try {
-        await fetch('/api/interactions/track-activity', {
+        const response = await fetch('/api/interactions/track-activity', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -549,7 +555,13 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
             metadata: { source: 'article_page' }
           }),
         });
+        
+        if (!response.ok) {
+          // لا نعرض خطأ لأن التخزين المحلي يعمل
+          console.log('API غير متاح، تم الحفظ محلياً');
+        }
       } catch (error) {
+        // لا نعرض خطأ لأن التخزين المحلي يعمل
         console.log('تم الحفظ محلياً فقط');
       }
     }
