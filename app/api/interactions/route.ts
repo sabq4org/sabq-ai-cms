@@ -1,180 +1,201 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  recordInteraction, 
-  analyzeUserBehavior,
-  calculateBehaviorRewards 
-} from '@/lib/user-interactions';
+import { prisma } from '@/lib/prisma';
 
-interface InteractionRequest {
-  userId: number;
-  articleId: number;
-  interactionType: 'read' | 'like' | 'share' | 'comment' | 'bookmark';
-  metadata?: {
-    duration?: number; // مدة القراءة بالثواني
-    shareTarget?: 'twitter' | 'whatsapp' | 'facebook' | 'copy';
-    commentText?: string;
-    readingProgress?: number; // نسبة القراءة (0-100)
-    scrollDepth?: number;
-    timeOnPage?: number;
-    referrer?: string;
-    device?: string;
-    sessionId?: string;
-  };
-  ipAddress?: string;
-  userAgent?: string;
+
+
+// GET: جلب التفاعلات
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    
+    const userId = searchParams.get('user_id');
+    const articleId = searchParams.get('article_id');
+    const type = searchParams.get('type');
+    
+    // بناء شروط البحث
+    const where: any = {};
+    if (userId) where.userId = userId;
+    if (articleId) where.articleId = articleId;
+    if (type) where.type = type;
+    
+    const interactions = await prisma.interaction.findMany({
+      where,
+      include: {
+        article: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            featuredImage: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+    
+    return NextResponse.json({
+      success: true,
+      interactions,
+      total: interactions.length
+    });
+    
+  } catch (error) {
+    console.error('خطأ في جلب التفاعلات:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في جلب التفاعلات'
+    }, { status: 500 });
+  }
 }
 
-// TODO: استبدال بقاعدة البيانات الحقيقية
-// يجب إزالة هذا التخزين المؤقت واستخدام قاعدة البيانات (Prisma/MySQL/MongoDB)
-// محاكاة قاعدة البيانات للتفاعلات (مؤقت - يجب إزالته)
-const INTERACTIONS_STORAGE: { [key: string]: any[] } = {};
-
-// TODO: استبدال بدوال قاعدة البيانات الحقيقية
-const saveInteraction = (interaction: any) => {
-  // يجب استبدال هذا بحفظ في قاعدة البيانات الحقيقية
-  // مثال: return await prisma.interactions.create({ data: interaction });
-  const key = `interactions_${interaction.userId}`;
-  if (!INTERACTIONS_STORAGE[key]) {
-    INTERACTIONS_STORAGE[key] = [];
-  }
-  INTERACTIONS_STORAGE[key].push(interaction);
-  return interaction;
-};
-
-// TODO: استبدال بجلب من قاعدة البيانات الحقيقية
-const getInteractions = (userId: number, articleId?: number) => {
-  // يجب استبدال هذا بجلب من قاعدة البيانات الحقيقية
-  // مثال: return await prisma.interactions.findMany({ where: { userId, articleId } });
-  const key = `interactions_${userId}`;
-  const interactions = INTERACTIONS_STORAGE[key] || [];
-  
-  if (articleId) {
-    return interactions.filter(i => i.articleId === articleId);
-  }
-  
-  return interactions;
-};
-
-// استدعاء API النقاط تلقائياً
-const triggerLoyaltyPoints = async (userId: number, interactionType: string, articleId: number, metadata: any = {}) => {
-  try {
-    const loyaltyData = {
-      userId,
-      action: interactionType.toUpperCase(),
-      sourceType: 'article',
-      sourceId: articleId,
-      metadata,
-      duration: metadata.duration,
-      sessionId: metadata.sessionId
-    };
-
-    // استدعاء endpoint النقاط
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/loyalty/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(loyaltyData)
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      return result;
-    }
-  } catch (error) {
-    console.error('خطأ في تفعيل نقاط الولاء:', error);
-  }
-  
-  return null;
-};
-
-// POST: تسجيل تفاعل جديد
+// POST: إنشاء تفاعل جديد
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // التحقق من البيانات المطلوبة
-    if (!body.user_id || !body.article_id || !body.interaction_type) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Missing required fields' 
-        },
-        { status: 400 }
-      );
-    }
-
-    // تسجيل التفاعل
-    await recordInteraction({
-      user_id: body.user_id,
-      article_id: body.article_id,
-      interaction_type: body.interaction_type,
-      timestamp: new Date().toISOString(),
-      duration: body.duration,
-      completed: body.completed,
-      device: body.device,
-      source: body.source
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: 'Interaction recorded successfully'
-    });
-
-  } catch (error) {
-    console.error('Error recording interaction:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to record interaction' 
-      },
-      { status: 500 }
-    );
-  }
-}
-
-// GET: الحصول على تحليل سلوك المستخدم
-export async function GET(request: NextRequest) {
-  try {
-    const searchParams = request.nextUrl.searchParams;
-    const userId = searchParams.get('user_id');
-    const action = searchParams.get('action');
-
-    if (!userId) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'User ID is required' 
-        },
-        { status: 400 }
-      );
-    }
-
-    // حساب المكافآت
-    if (action === 'calculate_rewards') {
-      const rewards = await calculateBehaviorRewards(userId);
+    const { user_id, article_id, type, metadata } = body;
+    
+    if (!user_id || !article_id || !type) {
       return NextResponse.json({
-        success: true,
-        data: { bonus_points: rewards }
+        success: false,
+        error: 'معرف المستخدم والمقال ونوع التفاعل مطلوبة'
+      }, { status: 400 });
+    }
+    
+    // التحقق من وجود المقال
+    const article = await prisma.article.findUnique({
+      where: { id: article_id }
+    });
+    
+    if (!article) {
+      return NextResponse.json({
+        success: false,
+        error: 'المقال غير موجود'
+      }, { status: 404 });
+    }
+    
+    // التحقق من نوع التفاعل
+    const validTypes = ['like', 'save', 'share', 'view', 'comment'];
+    if (!validTypes.includes(type)) {
+      return NextResponse.json({
+        success: false,
+        error: 'نوع التفاعل غير صحيح'
+      }, { status: 400 });
+    }
+    
+    // إنشاء أو تحديث التفاعل
+    const interaction = await prisma.interaction.upsert({
+      where: {
+        userId_articleId_type: {
+          userId: user_id,
+          articleId: article_id,
+          type: type
+        }
+      },
+      create: {
+        userId: user_id,
+        articleId: article_id,
+        type: type
+      },
+      update: {}
+    });
+    
+    // إضافة نقاط الولاء
+    if (type === 'like' || type === 'save') {
+      await prisma.loyaltyPoint.create({
+        data: {
+          userId: user_id,
+          points: type === 'like' ? 5 : 10,
+          action: type,
+          referenceId: article_id,
+          referenceType: 'article',
+          metadata: {
+            article_title: article.title
+          }
+        }
       });
     }
-
-    // تحليل السلوك
-    const behavior = await analyzeUserBehavior(userId);
+    
+    // تحديث إحصائيات المقال
+    if (type === 'view') {
+      await prisma.article.update({
+        where: { id: article_id },
+        data: {
+          views: {
+            increment: 1
+          }
+        }
+      });
+    }
     
     return NextResponse.json({
       success: true,
-      data: behavior
+      interaction,
+      message: 'تم تسجيل التفاعل بنجاح'
     });
-
+    
   } catch (error) {
-    console.error('Error analyzing behavior:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to analyze behavior' 
-      },
-      { status: 500 }
-    );
+    console.error('خطأ في تسجيل التفاعل:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في تسجيل التفاعل',
+      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+    }, { status: 500 });
   }
-} 
+}
+
+// DELETE: حذف تفاعل
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { user_id, article_id, type } = body;
+    
+    if (!user_id || !article_id || !type) {
+      return NextResponse.json({
+        success: false,
+        error: 'معرف المستخدم والمقال ونوع التفاعل مطلوبة'
+      }, { status: 400 });
+    }
+    
+    // حذف التفاعل
+    await prisma.interaction.delete({
+      where: {
+        userId_articleId_type: {
+          userId: user_id,
+          articleId: article_id,
+          type: type
+        }
+      }
+    });
+    
+    // خصم نقاط الولاء
+    if (type === 'like' || type === 'save') {
+      await prisma.loyaltyPoint.create({
+        data: {
+          userId: user_id,
+          points: -(type === 'like' ? 5 : 10),
+          action: `cancel_${type}`,
+          referenceId: article_id,
+          referenceType: 'article'
+        }
+      });
+    }
+    
+    return NextResponse.json({
+      success: true,
+      message: 'تم حذف التفاعل بنجاح'
+    });
+    
+  } catch (error) {
+    console.error('خطأ في حذف التفاعل:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في حذف التفاعل',
+      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+    }, { status: 500 });
+  }
+}
+
+ 

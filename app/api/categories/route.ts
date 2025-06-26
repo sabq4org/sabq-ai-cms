@@ -1,204 +1,267 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
+import { prisma } from '@/lib/prisma';
 
-// ===============================
-// أنواع البيانات
-// ===============================
 
-interface Category {
-  id: number;
-  name_ar: string;
-  name_en?: string;
-  description?: string;
-  slug: string;
-  color_hex: string;
-  icon?: string;
-  parent_id?: number;
-  position: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at?: string;
-  children?: Category[];
-  article_count?: number;
-  meta_title?: string;
-  meta_description?: string;
-  can_delete?: boolean;
-}
-
-interface CreateCategoryRequest {
-  name_ar: string;
-  name_en?: string;
-  description?: string;
-  slug: string;
-  color_hex: string;
-  icon?: string;
-  parent_id?: number;
-  position?: number;
-  is_active?: boolean;
-  meta_title?: string;
-  meta_description?: string;
-}
-
-// ===============================
-// إدارة البيانات
-// ===============================
-
-const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'categories.json');
-
-// قراءة التصنيفات من الملف
-async function loadCategories(): Promise<Category[]> {
-  try {
-    const fileContent = await fs.readFile(DATA_FILE_PATH, 'utf-8');
-    const data = JSON.parse(fileContent);
-    return data.categories || [];
-  } catch (error) {
-    // إذا لم يكن الملف موجودًا، إرجاع مصفوفة فارغة
-    return [];
-  }
-}
-
-// حفظ التصنيفات في الملف
-async function saveCategories(categories: Category[]): Promise<void> {
-  try {
-    const dataDir = path.join(process.cwd(), 'data');
-    await fs.mkdir(dataDir, { recursive: true });
-    
-    const dataToSave = { categories };
-    await fs.writeFile(DATA_FILE_PATH, JSON.stringify(dataToSave, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('خطأ في حفظ التصنيفات:', error);
-    throw new Error('فشل في حفظ التصنيفات');
-  }
-}
 
 // ===============================
 // وظائف مساعدة
 // ===============================
 
-// التحقق من صحة slug
-async function validateSlug(slug: string, excludeId?: number): Promise<boolean> {
-  const categories = await loadCategories();
-  return !categories.some(cat => cat.slug === slug && cat.id !== excludeId);
-}
-
-// توليد ID جديد
-async function generateNewId(): Promise<number> {
-  const categories = await loadCategories();
-  return Math.max(...categories.map(cat => cat.id), 0) + 1;
+// توليد slug من الاسم
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
 }
 
 // ===============================
 // معالجات API
 // ===============================
 
-// GET: استرجاع جميع التصنيفات
+// GET: جلب جميع الفئات
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const active_only = searchParams.get('active_only') === 'true';
-    const status = searchParams.get('status'); // دعم معامل status أيضاً
-    const search = searchParams.get('search');
-
-    // تحميل التصنيفات من الملف
-    let result = await loadCategories();
-
-    // تطبيق الفلاتر
-    if (active_only || status === 'active') {
-      result = result.filter(cat => cat.is_active);
+    
+    // بناء شروط البحث
+    const where: any = {};
+    
+    // فلترة الفئات النشطة فقط
+    const activeOnly = searchParams.get('active') !== 'false';
+    if (activeOnly) {
+      where.isActive = true;
     }
-
-    if (search) {
-      const searchLower = search.toLowerCase();
-      result = result.filter(cat => 
-        cat.name_ar.toLowerCase().includes(searchLower) ||
-        cat.name_en?.toLowerCase().includes(searchLower) ||
-        cat.description?.toLowerCase().includes(searchLower) ||
-        cat.slug.toLowerCase().includes(searchLower)
-      );
+    
+    // فلترة حسب الفئة الأم
+    const parentId = searchParams.get('parent_id');
+    if (parentId === 'null') {
+      where.parentId = null;
+    } else if (parentId) {
+      where.parentId = parentId;
     }
-
-    return NextResponse.json({
-      success: true,
-      data: result,
-      meta: {
-        total: result.length
+    
+    // جلب الفئات مع العلاقات
+    const categories = await prisma.category.findMany({
+      where,
+      orderBy: {
+        displayOrder: 'asc'
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        displayOrder: true,
+        isActive: true,
+        parentId: true,
+        description: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            articles: true
+          }
+        },
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        }
       }
     });
-
+    
+    // تحويل البيانات للتوافق مع الواجهة
+    const formattedCategories = categories.map(category => ({
+      id: category.id,
+      name: category.name,
+      name_ar: category.name, // للتوافق العكسي
+      slug: category.slug,
+      description: category.description,
+      color: '#6B7280', // لون افتراضي
+      color_hex: '#6B7280', // للتوافق العكسي
+      icon: '📁', // أيقونة افتراضية
+      parent_id: category.parentId,
+      parent: category.parent,
+      children: [], // يمكن جلبها بطلب منفصل
+      articles_count: category._count.articles,
+      children_count: 0, // يمكن حسابها بطلب منفصل
+      order_index: category.displayOrder,
+      is_active: category.isActive,
+      created_at: category.createdAt.toISOString(),
+      updated_at: category.updatedAt.toISOString()
+    }));
+    
+    return NextResponse.json({
+      success: true,
+      categories: formattedCategories,
+      total: formattedCategories.length
+    });
+    
   } catch (error) {
+    console.error('خطأ في جلب الفئات:', error);
     return NextResponse.json({
       success: false,
-      error: 'فشل في استرجاع التصنيفات',
+      error: 'فشل في جلب الفئات',
       message: error instanceof Error ? error.message : 'خطأ غير معروف'
     }, { status: 500 });
   }
 }
 
-// POST: إنشاء تصنيف جديد
+// POST: إنشاء فئة جديدة
 export async function POST(request: NextRequest) {
   try {
-    const body: CreateCategoryRequest = await request.json();
-
-    // التحقق من صحة البيانات المطلوبة
-    if (!body.name_ar?.trim()) {
+    const body = await request.json();
+    
+    // التحقق من البيانات المطلوبة
+    if (!body.name || !body.slug) {
       return NextResponse.json({
         success: false,
-        error: 'اسم التصنيف بالعربية مطلوب'
+        error: 'الاسم والمعرف (slug) مطلوبان'
       }, { status: 400 });
     }
-
-    if (!body.slug?.trim()) {
+    
+    // التحقق من عدم تكرار الـ slug
+    const existingCategory = await prisma.category.findUnique({
+      where: { slug: body.slug }
+    });
+    
+    if (existingCategory) {
       return NextResponse.json({
         success: false,
-        error: 'مسار URL (slug) مطلوب'
+        error: 'يوجد فئة أخرى بنفس المعرف (slug)'
       }, { status: 400 });
     }
-
-    // التحقق من عدم تكرار slug
-    const isSlugValid = await validateSlug(body.slug);
-    if (!isSlugValid) {
-      return NextResponse.json({
-        success: false,
-        error: 'مسار URL موجود بالفعل'
-      }, { status: 400 });
-    }
-
-    // إنشاء التصنيف الجديد
-    const newCategory: Category = {
-      id: await generateNewId(),
-      name_ar: body.name_ar.trim(),
-      name_en: body.name_en?.trim(),
-      description: body.description?.trim(),
-      slug: body.slug.trim(),
-      color_hex: body.color_hex || '#E5F1FA',
-      icon: body.icon || '📰',
-      parent_id: body.parent_id,
-      position: body.position || 0,
-      is_active: body.is_active ?? true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      article_count: 0,
-      meta_title: body.meta_title?.trim(),
-      meta_description: body.meta_description?.trim(),
-      can_delete: true
-    };
-
-    // إضافة التصنيف الجديد وحفظه
-    const categories = await loadCategories();
-    categories.push(newCategory);
-    await saveCategories(categories);
-
+    
+    // إنشاء الفئة الجديدة
+    const newCategory = await prisma.category.create({
+      data: {
+        name: body.name,
+        slug: body.slug,
+        description: body.description,
+        parentId: body.parent_id,
+        displayOrder: body.order_index || 0,
+        isActive: body.is_active !== false
+      }
+    });
+    
     return NextResponse.json({
       success: true,
       data: newCategory,
-      message: 'تم إنشاء التصنيف بنجاح'
+      message: 'تم إنشاء الفئة بنجاح'
     }, { status: 201 });
-
+    
   } catch (error) {
+    console.error('خطأ في إنشاء الفئة:', error);
     return NextResponse.json({
       success: false,
-      error: 'فشل في إنشاء التصنيف',
+      error: 'فشل في إنشاء الفئة',
+      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+    }, { status: 500 });
+  }
+}
+
+// PUT: تحديث فئة
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    
+    if (!body.id) {
+      return NextResponse.json({
+        success: false,
+        error: 'معرف الفئة مطلوب'
+      }, { status: 400 });
+    }
+    
+    // التحقق من وجود الفئة
+    const existingCategory = await prisma.category.findUnique({
+      where: { id: body.id }
+    });
+    
+    if (!existingCategory) {
+      return NextResponse.json({
+        success: false,
+        error: 'الفئة غير موجودة'
+      }, { status: 404 });
+    }
+    
+    // تحديث الفئة
+    const updatedCategory = await prisma.category.update({
+      where: { id: body.id },
+      data: {
+        name: body.name || existingCategory.name,
+        description: body.description,
+        parentId: body.parent_id,
+        displayOrder: body.order_index ?? existingCategory.displayOrder,
+        isActive: body.is_active ?? existingCategory.isActive
+      }
+    });
+    
+    return NextResponse.json({
+      success: true,
+      data: updatedCategory,
+      message: 'تم تحديث الفئة بنجاح'
+    });
+    
+  } catch (error) {
+    console.error('خطأ في تحديث الفئة:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في تحديث الفئة',
+      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+    }, { status: 500 });
+  }
+}
+
+// DELETE: حذف فئة
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const ids = body.ids || [];
+    
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'معرفات الفئات مطلوبة'
+      }, { status: 400 });
+    }
+    
+    // التحقق من عدم وجود مقالات مرتبطة
+    const articlesCount = await prisma.article.count({
+      where: {
+        categoryId: { in: ids }
+      }
+    });
+    
+    if (articlesCount > 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'لا يمكن حذف الفئات لوجود مقالات مرتبطة بها',
+        articles_count: articlesCount
+      }, { status: 400 });
+    }
+    
+    // حذف الفئات
+    const result = await prisma.category.deleteMany({
+      where: {
+        id: { in: ids }
+      }
+    });
+    
+    return NextResponse.json({
+      success: true,
+      affected: result.count,
+      message: `تم حذف ${result.count} فئة/فئات بنجاح`
+    });
+    
+  } catch (error) {
+    console.error('خطأ في حذف الفئات:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في حذف الفئات',
       message: error instanceof Error ? error.message : 'خطأ غير معروف'
     }, { status: 500 });
   }
