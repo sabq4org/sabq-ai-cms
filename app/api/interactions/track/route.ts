@@ -250,6 +250,8 @@ export async function POST(request: NextRequest) {
     }
     
     // استخدام نظام الملفات كـ fallback أو في بيئة التطوير
+
+    // 1) تسجيل التفاعل في ملف التفاعلات
     await recordInteraction({
       user_id: userId,
       article_id: articleId,
@@ -260,10 +262,47 @@ export async function POST(request: NextRequest) {
       completed,
       device: request.headers.get('user-agent') || undefined
     });
-    
+
+    // 2) حساب النقاط بناءً على جدول مدمج محلياً لتفادي مشاكل الـTDZ
+    const localPointRules: Record<string, { points: number; description: string }> = {
+      read: { points: 1, description: 'قراءة مقال' },
+      like: { points: 1, description: 'إعجاب بمقال' },
+      share: { points: 3, description: 'مشاركة مقال' },
+      save: { points: 1, description: 'حفظ مقال' },
+      comment: { points: 4, description: 'تعليق على مقال' },
+      view: { points: 0, description: 'مشاهدة مقال' },
+      unlike: { points: -1, description: 'إلغاء إعجاب' },
+      unsave: { points: -1, description: 'إلغاء حفظ' }
+    };
+
+    const rule = localPointRules[interactionType] || { points: 0, description: interactionType };
+    const pointsEarned = rule.points;
+
+    if (pointsEarned !== 0 && userId !== 'guest') {
+      // تحديث ملف نقاط الولاء مع دمج النقاط في سجل التاريخ
+      await updateLoyaltyPoints(
+        userId,
+        pointsEarned,
+        interactionType,
+        articleId,
+        rule.description
+      );
+
+      // تسجيل النشاط في ملف الأنشطة (اختياري)
+      await logActivity(
+        userId,
+        interactionType,
+        rule.description,
+        pointsEarned,
+        articleId,
+        { source: source || 'unknown' }
+      );
+    }
+
     return NextResponse.json({ 
       success: true,
-      message: 'Interaction recorded successfully'
+      message: 'Interaction recorded successfully',
+      points_earned: pointsEarned
     });
     
   } catch (error) {

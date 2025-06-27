@@ -62,55 +62,95 @@ export async function GET(
       const fileContent = await fs.readFile(loyaltyFilePath, 'utf-8');
       const data = JSON.parse(fileContent);
       
-      // البحث عن بيانات المستخدم
-      const userData = data.users?.find((user: any) => user.user_id === userId);
+      // دمج عدة سجلات لنفس المستخدم إن وُجدت
+      const userRecords = data.users?.filter((user: any) => user.user_id === userId) || [];
 
-      if (userData) {
-        // جلب آخر النشاطات من ملف التفاعلات
-        let recentActivities: any[] = [];
-        
-        try {
-          const interactionsContent = await fs.readFile(interactionsFilePath, 'utf-8');
-          const interactionsData = JSON.parse(interactionsContent);
-          
-          const userInteractions = interactionsData.interactions
-            ?.filter((interaction: any) => interaction.user_id === userId)
-            .sort((a: any, b: any) => 
-              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-            )
-            .slice(0, 10)
-            .map((interaction: any) => ({
-              id: interaction.id,
-              action: interaction.interaction_type,
-              points: interaction.points_earned || 0,
-              created_at: interaction.timestamp,
-              description: getActionDescription(interaction)
-            }));
-          
-          recentActivities = userInteractions || [];
-        } catch (error) {
-          console.log('لا توجد تفاعلات سابقة');
-        }
+      if (userRecords.length > 1) {
+        // حساب مجموع النقاط والحقول الأخرى
+        const merged = userRecords.reduce(
+          (acc: any, cur: any) => {
+            acc.total_points += cur.total_points || 0;
+            acc.earned_points += cur.earned_points || 0;
+            acc.redeemed_points += cur.redeemed_points || 0;
+            acc.history = Array.isArray(acc.history) ? [...acc.history, ...(cur.history || [])] : (cur.history || []);
+            return acc;
+          },
+          {
+            user_id: userId,
+            total_points: 0,
+            earned_points: 0,
+            redeemed_points: 0,
+            tier: 'bronze',
+            history: [] as any[],
+            created_at: userRecords[0].created_at || new Date().toISOString(),
+            last_updated: new Date().toISOString()
+          }
+        );
+
+        // تحديث المستوى بناءً على إجمالي النقاط
+        if (merged.total_points >= 2000) merged.tier = 'platinum';
+        else if (merged.total_points >= 500) merged.tier = 'gold';
+        else if (merged.total_points >= 100) merged.tier = 'silver';
+
+        // استبدال السجلات المكررة بسجل واحد
+        data.users = data.users.filter((u: any) => u.user_id !== userId);
+        data.users.push(merged);
+        await fs.writeFile(loyaltyFilePath, JSON.stringify(data, null, 2));
 
         return NextResponse.json({
           success: true,
+          data: merged
+        });
+      }
+
+      const userData = userRecords[0];
+
+      if (!userData) {
+        // إذا لم يكن المستخدم موجوداً، أرجع قيم افتراضية
+        return NextResponse.json({
+          success: true,
           data: {
-            total_points: userData.total_points || 0,
-            level: getLevelName(userData.tier || 'bronze'),
-            next_level_points: getNextLevelPoints(userData.total_points || 0),
-            recent_activities: recentActivities
+            total_points: 0,
+            level: 'أساسي',
+            next_level_points: 200,
+            recent_activities: []
           }
         });
       }
 
-      // إذا لم يكن المستخدم موجوداً، أرجع قيم افتراضية
+      // جلب آخر النشاطات من ملف التفاعلات
+      let recentActivities: any[] = [];
+      
+      try {
+        const interactionsContent = await fs.readFile(interactionsFilePath, 'utf-8');
+        const interactionsData = JSON.parse(interactionsContent);
+        
+        const userInteractions = interactionsData.interactions
+          ?.filter((interaction: any) => interaction.user_id === userId)
+          .sort((a: any, b: any) => 
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          )
+          .slice(0, 10)
+          .map((interaction: any) => ({
+            id: interaction.id,
+            action: interaction.interaction_type,
+            points: interaction.points_earned || 0,
+            created_at: interaction.timestamp,
+            description: getActionDescription(interaction)
+          }));
+        
+        recentActivities = userInteractions || [];
+      } catch (error) {
+        console.log('لا توجد تفاعلات سابقة');
+      }
+
       return NextResponse.json({
         success: true,
         data: {
-          total_points: 0,
-          level: 'أساسي',
-          next_level_points: 200,
-          recent_activities: []
+          total_points: userData.total_points || 0,
+          level: getLevelName(userData.tier || 'bronze'),
+          next_level_points: getNextLevelPoints(userData.total_points || 0),
+          recent_activities: recentActivities
         }
       });
 
