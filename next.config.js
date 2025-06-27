@@ -175,12 +175,8 @@ const nextConfig = {
   
   // Experimental features
   experimental: {
-    // Enable server actions
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
     // Optimize CSS
-    optimizeCss: true,
+    optimizeCss: true
   },
   
   // Performance
@@ -207,6 +203,9 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  
+  // نقل serverComponentsExternalPackages للمكان الصحيح
+  serverExternalPackages: ['@prisma/client', 'bcrypt'],
 }
 
 module.exports = nextConfig 

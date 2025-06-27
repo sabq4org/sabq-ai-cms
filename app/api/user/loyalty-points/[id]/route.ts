@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { PrismaClient } from '@/lib/generated/prisma';
 
 const loyaltyFilePath = path.join(process.cwd(), 'data', 'user_loyalty_points.json');
 const interactionsFilePath = path.join(process.cwd(), 'data', 'user_article_interactions.json');
+const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
@@ -12,7 +14,50 @@ export async function GET(
   try {
     const { id: userId } = await params;
 
-    // قراءة ملف نقاط الولاء
+    // في بيئة الإنتاج، استخدم قاعدة البيانات
+    if (process.env.NODE_ENV === 'production' || process.env.USE_DATABASE === 'true') {
+      try {
+        // حساب مجموع النقاط من قاعدة البيانات
+        const loyaltyPoints = await prisma.loyaltyPoint.findMany({
+          where: { userId },
+          orderBy: { createdAt: 'desc' },
+          take: 50 // آخر 50 نشاط
+        });
+
+        const totalPoints = loyaltyPoints.reduce((sum, point) => sum + point.points, 0);
+        
+        // تحديد المستوى بناءً على النقاط
+        let level = 'أساسي';
+        if (totalPoints >= 2000) level = 'بلاتيني';
+        else if (totalPoints >= 1000) level = 'ذهبي';
+        else if (totalPoints >= 500) level = 'فضي';
+        else if (totalPoints >= 200) level = 'مميز';
+        
+        // تحويل النشاطات للعرض
+        const recentActivities = loyaltyPoints.slice(0, 10).map(point => ({
+          id: point.id,
+          action: point.action,
+          points: point.points,
+          created_at: point.createdAt.toISOString(),
+          description: point.action
+        }));
+
+        return NextResponse.json({
+          success: true,
+          data: {
+            total_points: totalPoints,
+            level: level,
+            next_level_points: getNextLevelPoints(totalPoints),
+            recent_activities: recentActivities
+          }
+        });
+      } catch (dbError) {
+        console.error('Database error:', dbError);
+        // في حالة فشل قاعدة البيانات، نستخدم نظام الملفات كـ fallback
+      }
+    }
+
+    // قراءة ملف نقاط الولاء (للتطوير أو كـ fallback)
     try {
       const fileContent = await fs.readFile(loyaltyFilePath, 'utf-8');
       const data = JSON.parse(fileContent);
