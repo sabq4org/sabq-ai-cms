@@ -37,8 +37,26 @@ interface DeepAnalysisWidgetProps {
 
 export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps) {
   const darkMode = false; // تم تعطيل الوضع الليلي
-  const [savedItems, setSavedItems] = useState<string[]>([]);
-  const [likedItems, setLikedItems] = useState<string[]>([]);
+  const [savedItems, setSavedItems] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('savedAnalysis');
+        if (saved) return JSON.parse(saved);
+      } catch (e) { console.error('خطأ في تحميل savedAnalysis:', e); }
+    }
+    return [];
+  });
+
+  const [likedItems, setLikedItems] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const liked = localStorage.getItem('likedAnalysis');
+        if (liked) return JSON.parse(liked);
+      } catch (e) { console.error('خطأ في تحميل likedAnalysis:', e); }
+    }
+    return [];
+  });
+
   const [readItems, setReadItems] = useState<string[]>([]);
 
   useEffect(() => {
@@ -140,6 +158,15 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
         return '📈';
     }
   };
+
+  // مزامنة أي تغييرات إلى localStorage
+  useEffect(() => {
+    localStorage.setItem('savedAnalysis', JSON.stringify(savedItems));
+  }, [savedItems]);
+
+  useEffect(() => {
+    localStorage.setItem('likedAnalysis', JSON.stringify(likedItems));
+  }, [likedItems]);
 
   return (
     <TooltipProvider>
