@@ -194,40 +194,48 @@ function NewspaperHomePage() {
   const [deepInsights, setDeepInsights] = useState<any[]>([]);
   const [deepInsightsLoading, setDeepInsightsLoading] = useState(true);
   
-  // حفظ حالة الإعجابات على مستوى الصفحة
-  const [likedArticles, setLikedArticles] = useState<Set<string>>(new Set());
-  const [savedArticles, setSavedArticles] = useState<Set<string>>(new Set());
-  
-  // تحميل الإعجابات المحفوظة من localStorage عند بدء التطبيق
-  useEffect(() => {
-    const savedLikes = localStorage.getItem('likedArticles');
-    const savedBookmarks = localStorage.getItem('savedArticles');
-    
-    if (savedLikes) {
+  // حفظ حالة الإعجابات على مستوى الصفحة مع تهيئة كسولة من localStorage
+  const [likedArticles, setLikedArticles] = useState<Set<string>>(() => {
+    if (typeof window !== 'undefined') {
       try {
-        setLikedArticles(new Set(JSON.parse(savedLikes)));
+        const savedLikes = localStorage.getItem('likedArticles');
+        if (savedLikes) { return new Set(JSON.parse(savedLikes)); }
       } catch (e) {
         console.error('خطأ في تحميل الإعجابات المحفوظة:', e);
       }
     }
-    
-    if (savedBookmarks) {
+    return new Set();
+  });
+  
+  const [savedArticles, setSavedArticles] = useState<Set<string>>(() => {
+    if (typeof window !== 'undefined') {
       try {
-        setSavedArticles(new Set(JSON.parse(savedBookmarks)));
+        const savedBookmarks = localStorage.getItem('savedArticles');
+        if (savedBookmarks) { return new Set(JSON.parse(savedBookmarks)); }
       } catch (e) {
         console.error('خطأ في تحميل المقالات المحفوظة:', e);
       }
     }
-  }, []);
-  
-  // حفظ الإعجابات في localStorage عند تغييرها
+    return new Set();
+  });
+
+  // مزامنة أي تغييرات على الإعجابات والحفظ إلى localStorage
   useEffect(() => {
     localStorage.setItem('likedArticles', JSON.stringify([...likedArticles]));
   }, [likedArticles]);
-  
+
   useEffect(() => {
     localStorage.setItem('savedArticles', JSON.stringify([...savedArticles]));
   }, [savedArticles]);
+
+  // إنشاء معرف ثابت للضيف عند تحميل الصفحة
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('guestId')) {
+      const guestId = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('guestId', guestId);
+      console.log('تم إنشاء معرف ضيف:', guestId);
+    }
+  }, []);
 
   useEffect(() => {
     // تعيين الوقت الحالي بعد التحميل لتجنب مشكلة Hydration
@@ -362,15 +370,6 @@ function NewspaperHomePage() {
       console.error('Error fetching personalized content:', error);
     }
   };
-
-  // إنشاء معرف ثابت للضيف عند تحميل الصفحة
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem('guestId')) {
-      const guestId = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('guestId', guestId);
-      console.log('تم إنشاء معرف ضيف:', guestId);
-    }
-  }, []);
 
   // إعادة جلب المقالات عندما يتم تحميل التصنيفات
   useEffect(() => {
