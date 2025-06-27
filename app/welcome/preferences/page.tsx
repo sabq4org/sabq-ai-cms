@@ -106,7 +106,12 @@ export default function PreferencesPage() {
         }
       }
       
-      // رسالة نجاح مختلفة بناءً على السياق
+      // إرسال حدث عام لإعلام الأجزاء الأخرى بالتحديث (دون حذف الإعجابات/الحفظ)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('preferences-updated'));
+      }
+      
+      // التوجيه إلى الصفحة المناسبة
       const isUpdate = currentUser.interests && currentUser.interests.length > 0;
       toast.success(isUpdate ? 'تم تحديث اهتماماتك بنجاح! ✨' : 'تم حفظ اهتماماتك! 🎉');
       
