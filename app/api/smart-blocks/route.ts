@@ -45,51 +45,55 @@ async function readBlocks(): Promise<SmartBlock[]> {
   try {
     await ensureDataDirectory();
     const data = await fs.readFile(BLOCKS_FILE, 'utf-8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed) && parsed.length === 0) {
+      // إذا كان الملف موجوداً لكنه فارغ، أضف البلوكات الافتراضية
+      const defaultBlocks: SmartBlock[] = [
+        {
+          id: '1',
+          name: 'أخبار اليوم الوطني',
+          position: 'afterHighlights',
+          type: 'smart',
+          status: 'active',
+          displayType: 'grid',
+          keywords: ['اليوم الوطني'],
+          articlesCount: 6,
+          theme: {
+            primaryColor: '#00BFA6',
+            backgroundColor: '#f8fafc',
+            textColor: '#1a1a1a'
+          },
+          order: 1,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: '2',
+          name: 'أخبار الرياضة',
+          position: 'afterCards',
+          type: 'smart',
+          status: 'active',
+          displayType: 'cards',
+          keywords: ['رياضة'],
+          category: 'رياضة',
+          articlesCount: 4,
+          theme: {
+            primaryColor: '#3b82f6',
+            backgroundColor: '#ffffff',
+            textColor: '#1f2937'
+          },
+          order: 2,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      await fs.writeFile(BLOCKS_FILE, JSON.stringify(defaultBlocks, null, 2));
+      return defaultBlocks;
+    }
+    return parsed;
   } catch (error) {
-    // إذا لم يكن الملف موجوداً، إنشاء ملف جديد ببيانات تجريبية
-    const defaultBlocks: SmartBlock[] = [
-      {
-        id: '1',
-        name: 'أخبار اليوم الوطني',
-        position: 'afterHighlights',
-        type: 'smart',
-        status: 'active',
-        displayType: 'grid',
-        keywords: ['اليوم الوطني'],
-        articlesCount: 6,
-        theme: {
-          primaryColor: '#00BFA6',
-          backgroundColor: '#f8fafc',
-          textColor: '#1a1a1a'
-        },
-        order: 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        id: '2',
-        name: 'أخبار الرياضة',
-        position: 'afterCards',
-        type: 'smart',
-        status: 'active',
-        displayType: 'cards',
-        keywords: ['رياضة'],
-        category: 'رياضة',
-        articlesCount: 4,
-        theme: {
-          primaryColor: '#3b82f6',
-          backgroundColor: '#ffffff',
-          textColor: '#1f2937'
-        },
-        order: 2,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    ];
-    
-    await fs.writeFile(BLOCKS_FILE, JSON.stringify(defaultBlocks, null, 2));
-    return defaultBlocks;
+    console.error('خطأ في جلب البلوكات:', error);
+    return [];
   }
 }
 
