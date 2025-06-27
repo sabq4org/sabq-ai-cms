@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '../../../components/Header';
 import { useInteractions } from '../../../hooks/useInteractions';
+import { useReactions } from '@/hooks/useReactions';
 // import { 
 //   ArrowRight, Calendar, Clock, User, Eye, Tag, 
 //   ThumbsUp, Share2, Volume2, VolumeX, Loader2,
@@ -505,7 +506,7 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     console.log('currentUserId:', currentUserId);
     console.log('articleId:', article.id);
     
-    const newLiked = !interaction.liked;
+    const newLiked = !isLiked(article.id);
     
     // تحديث الحالة المحلية فوراً
     setInteraction(prev => ({ 
@@ -513,6 +514,9 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
       liked: newLiked,
       likesCount: newLiked ? prev.likesCount + 1 : prev.likesCount - 1
     }));
+    
+    // تحديث التخزين الموحد
+    toggleLike(article.id);
     
     // حفظ في localStorage أولاً (للاستجابة السريعة)
     const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
@@ -583,13 +587,15 @@ export default function NewsDetailPageImproved({ params }: PageProps) {
     const guestId = localStorage.getItem('guestId') || 'guest-anonymous';
     const currentUserId = userId || guestId;
     
-    const newSaved = !interaction.saved;
+    const newSaved = !isSaved(article.id);
     
     setInteraction(prev => ({ 
       ...prev, 
       saved: newSaved,
       savesCount: newSaved ? prev.savesCount + 1 : prev.savesCount - 1
     }));
+    
+    toggleSave(article.id);
     
     // حفظ في localStorage أولاً (للاستجابة السريعة)
     const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
