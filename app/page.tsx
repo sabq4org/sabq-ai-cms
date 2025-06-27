@@ -193,15 +193,65 @@ function NewspaperHomePage() {
   });
   const [deepInsights, setDeepInsights] = useState<any[]>([]);
   const [deepInsightsLoading, setDeepInsightsLoading] = useState(true);
+  
+  // حفظ حالة الإعجابات على مستوى الصفحة
+  const [likedArticles, setLikedArticles] = useState<Set<string>>(new Set());
+  const [savedArticles, setSavedArticles] = useState<Set<string>>(new Set());
+  
+  // تحميل الإعجابات المحفوظة من localStorage عند بدء التطبيق
+  useEffect(() => {
+    const savedLikes = localStorage.getItem('likedArticles');
+    const savedBookmarks = localStorage.getItem('savedArticles');
+    
+    if (savedLikes) {
+      try {
+        setLikedArticles(new Set(JSON.parse(savedLikes)));
+      } catch (e) {
+        console.error('خطأ في تحميل الإعجابات المحفوظة:', e);
+      }
+    }
+    
+    if (savedBookmarks) {
+      try {
+        setSavedArticles(new Set(JSON.parse(savedBookmarks)));
+      } catch (e) {
+        console.error('خطأ في تحميل المقالات المحفوظة:', e);
+      }
+    }
+  }, []);
+  
+  // حفظ الإعجابات في localStorage عند تغييرها
+  useEffect(() => {
+    localStorage.setItem('likedArticles', JSON.stringify([...likedArticles]));
+  }, [likedArticles]);
+  
+  useEffect(() => {
+    localStorage.setItem('savedArticles', JSON.stringify([...savedArticles]));
+  }, [savedArticles]);
 
   useEffect(() => {
     // تعيين الوقت الحالي بعد التحميل لتجنب مشكلة Hydration
     setCurrentTime(new Date());
     
+    // إصلاح user_id إذا كان مفقودًا (للمستخدمين القدامى)
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        if (user.id && !localStorage.getItem('user_id')) {
+          console.log('🔧 إصلاح user_id المفقود...');
+          localStorage.setItem('user_id', user.id);
+          console.log('✅ تم إصلاح user_id:', user.id);
+        }
+      } catch (e) {
+        console.error('خطأ في إصلاح user_id:', e);
+      }
+    }
+    
     // التحقق من تسجيل الدخول
     const userId = localStorage.getItem('user_id');
-    const userData = localStorage.getItem('user');
-    if (userId && userId !== 'anonymous' && userData) {
+    const userDataStr = localStorage.getItem('user');
+    if (userId && userId !== 'anonymous' && userDataStr) {
       setIsLoggedIn(true);
       
       // تهيئة متتبع ذكاء المستخدم
@@ -704,22 +754,32 @@ function NewspaperHomePage() {
     const confidenceScore = userTracker ? userTracker.calculateConfidence(news.category) : 1;
     const isPersonalized = confidenceScore > 2.5;
     
-    // حالات التفاعل المحلية لردود الفعل البصرية الفورية
-    const [isLiked, setIsLiked] = useState(false);
+    // استخدام حالة الإعجابات من الصفحة الرئيسية بدلاً من الحالة المحلية
+    const isLiked = likedArticles.has(news.id);
+    const isBookmarked = savedArticles.has(news.id);
     const [isShared, setIsShared] = useState(false);
-    const [isBookmarked, setIsBookmarked] = useState(false);
     const [interactionLoading, setInteractionLoading] = useState<string | null>(null);
     
-    // دالة محسنة للتفاعل مع ردود فعل بصرية فورية
+    // دالة للتفاعل مع ردود فعل بصرية فورية
     const handleInteraction = async (interactionType: string) => {
       setInteractionLoading(interactionType);
       
       try {
         // تحديث الواجهة فوراً لتحسين تجربة المستخدم
         if (interactionType === 'like') {
-          setIsLiked(!isLiked);
-          // إشعار فوري
-          toast.success(isLiked ? 'تم إلغاء الإعجاب' : 'تم الإعجاب! ❤️', {
+          // تحديث حالة الإعجاب على مستوى الصفحة
+          const wasLiked = likedArticles.has(news.id);
+          setLikedArticles(prev => {
+            const newSet = new Set(prev);
+            if (wasLiked) {
+              newSet.delete(news.id);
+            } else {
+              newSet.add(news.id);
+            }
+            return newSet;
+          });
+          // إظهار الإشعار خارج setState
+          toast.success(wasLiked ? 'تم إلغاء الإعجاب' : 'تم الإعجاب! ❤️', {
             duration: 2000,
             position: 'bottom-center'
           });
@@ -732,8 +792,19 @@ function NewspaperHomePage() {
           // إعادة تعيين حالة المشاركة بعد ثانيتين
           setTimeout(() => setIsShared(false), 2000);
         } else if (interactionType === 'save') {
-          setIsBookmarked(!isBookmarked);
-          toast.success(isBookmarked ? 'تم إلغاء الحفظ' : 'تم حفظ المقال! 🔖', {
+          // تحديث حالة الحفظ على مستوى الصفحة
+          const wasSaved = savedArticles.has(news.id);
+          setSavedArticles(prev => {
+            const newSet = new Set(prev);
+            if (wasSaved) {
+              newSet.delete(news.id);
+            } else {
+              newSet.add(news.id);
+            }
+            return newSet;
+          });
+          // إظهار الإشعار خارج setState
+          toast.success(wasSaved ? 'تم إلغاء الحفظ' : 'تم حفظ المقال! 🔖', {
             duration: 2000,
             position: 'bottom-center'
           });
@@ -743,13 +814,6 @@ function NewspaperHomePage() {
         await trackInteraction(news.id, interactionType, news.categoryId);
         
       } catch (error) {
-        // في حالة الفشل، إعادة الحالة إلى ما كانت عليه
-        if (interactionType === 'like') {
-          setIsLiked(isLiked);
-        } else if (interactionType === 'save') {
-          setIsBookmarked(isBookmarked);
-        }
-        
         console.error('خطأ في التفاعل:', error);
         toast.error('حدث خطأ، يرجى المحاولة مرة أخرى');
       } finally {
@@ -1035,14 +1099,6 @@ function NewspaperHomePage() {
           setUserPoints(newPoints);
           localStorage.setItem('user_points', JSON.stringify(newPoints));
           console.log(`🎉 تم كسب ${result.points_earned} نقطة! المجموع: ${newPoints}`);
-        }
-        
-        // إعادة جلب المحتوى المخصص بعد التفاعل
-        if (interactionType === 'like' || interactionType === 'share') {
-          setTimeout(() => {
-            console.log('🔄 إعادة جلب المحتوى المخصص...');
-            fetchPersonalizedContent();
-          }, 1000);
         }
         
         // إشعار نجاح التفاعل
