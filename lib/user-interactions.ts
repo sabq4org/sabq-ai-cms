@@ -73,11 +73,11 @@ async function writeJSON(filename: string, data: any): Promise<void> {
 // 🔥 تسجيل تفاعل جديد
 export async function recordInteraction(interaction: UserInteraction): Promise<void> {
   try {
-    // في بيئة الإنتاج، نتجاوز محاولة الكتابة في الملفات
-    if (process.env.NODE_ENV === 'production') {
-      console.log('Production mode: Skipping file-based interaction recording');
-      return;
-    }
+    // إزالة شرط بيئة الإنتاج للسماح بحفظ التفاعلات وحساب النقاط
+    // if (process.env.NODE_ENV === 'production') {
+    //   console.log('Production mode: Skipping file-based interaction recording');
+    //   return;
+    // }
     
     // 1. حفظ التفاعل
     const interactionsData = await readJSON('user_article_interactions.json');

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { recordInteraction } from '@/lib/user-interactions';
+import { Prisma, PrismaClient } from '@/lib/generated/prisma';
 
 interface UserInteraction {
   id: string;
@@ -69,6 +70,8 @@ const POINTS_SYSTEM = {
   comment: 20,
   save: 10
 };
+
+const prisma = new PrismaClient();
 
 // دالة لتحميل التفاعلات
 async function loadInteractions() {
@@ -168,14 +171,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // في بيئة الإنتاج، نرجع نجاح وهمي لأن التخزين يتم محلياً
-    if (process.env.NODE_ENV === 'production') {
-      return NextResponse.json({ 
-        success: true,
-        message: 'Interaction recorded successfully (local storage)'
-      });
-    }
-    
     // في بيئة التطوير، نطبع البيانات للتأكد
     console.log('🔍 Received interaction:', {
       userId,
@@ -184,7 +179,77 @@ export async function POST(request: NextRequest) {
       source
     });
     
-    // تسجيل التفاعل
+    // في بيئة الإنتاج، استخدم قاعدة البيانات
+    if (process.env.NODE_ENV === 'production' || process.env.USE_DATABASE === 'true') {
+      try {
+        // تسجيل التفاعل في قاعدة البيانات
+        const interaction = await prisma.interaction.upsert({
+          where: {
+            userId_articleId_type: {
+              userId,
+              articleId,
+              type: interactionType
+            }
+          },
+          update: {
+            createdAt: new Date()
+          },
+          create: {
+            userId,
+            articleId,
+            type: interactionType
+          }
+        });
+        
+        // حساب النقاط
+        const pointsMap: Record<string, number> = {
+          like: 10,
+          save: 15,
+          share: 20,
+          comment: 25,
+          view: 1
+        };
+        
+        const points = pointsMap[interactionType] || 0;
+        
+        if (points > 0 && userId !== 'guest') {
+          // تسجيل نقاط الولاء
+          await prisma.loyaltyPoint.create({
+            data: {
+              userId,
+              points,
+              action: `${interactionType} على المقال`,
+              referenceId: articleId,
+              referenceType: 'article',
+              metadata: {
+                source,
+                device: request.headers.get('user-agent') || undefined
+              }
+            }
+          });
+        }
+        
+        // تحديث عدد المشاهدات للمقال إذا كان التفاعل مشاهدة
+        if (interactionType === 'view') {
+          await prisma.article.update({
+            where: { id: articleId },
+            data: { views: { increment: 1 } }
+          });
+        }
+        
+        return NextResponse.json({ 
+          success: true,
+          message: 'Interaction recorded successfully',
+          points: points
+        });
+        
+      } catch (dbError) {
+        console.error('Database error:', dbError);
+        // في حالة فشل قاعدة البيانات، نستخدم نظام الملفات كـ fallback
+      }
+    }
+    
+    // استخدام نظام الملفات كـ fallback أو في بيئة التطوير
     await recordInteraction({
       user_id: userId,
       article_id: articleId,
@@ -209,8 +274,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-
 
 // تحديث عدد المشاهدات للمقال
 async function updateArticleViews(articleId: string) {

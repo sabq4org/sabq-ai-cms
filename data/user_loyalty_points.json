@@ -1,1 +1,266 @@
-{}
+{
+  "user-1750693026418-zdcy23jow": {
+    "user_id": "user-1750693026418-zdcy23jow",
+    "total_points": 40,
+    "earned_points": 40,
+    "redeemed_points": 0,
+    "history": [
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-26T21:48:36.770Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "c315bda1-67ed-4c92-922d-a3a7d910a4ad"
+        },
+        "timestamp": "2025-06-26T21:48:40.037Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-26T21:48:42.332Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "d70b40fa-73a3-423b-bf1b-ef367a8c222c"
+        },
+        "timestamp": "2025-06-26T21:48:45.019Z"
+      }
+    ]
+  },
+  "user-1750236579398-3h4rt6gu7": {
+    "user_id": "user-1750236579398-3h4rt6gu7",
+    "total_points": 305,
+    "earned_points": 305,
+    "redeemed_points": 0,
+    "history": [
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-26T21:48:59.954Z"
+      },
+      {
+        "points": 15,
+        "action": "save على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-26T21:49:01.129Z"
+      },
+      {
+        "points": 15,
+        "action": "save على المقال",
+        "details": {
+          "article_id": "d70b40fa-73a3-423b-bf1b-ef367a8c222c"
+        },
+        "timestamp": "2025-06-26T21:49:02.490Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "d70b40fa-73a3-423b-bf1b-ef367a8c222c"
+        },
+        "timestamp": "2025-06-26T21:49:03.559Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-26T21:49:04.874Z"
+      },
+      {
+        "points": 15,
+        "action": "save على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-26T21:49:05.820Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "c315bda1-67ed-4c92-922d-a3a7d910a4ad"
+        },
+        "timestamp": "2025-06-26T21:49:06.971Z"
+      },
+      {
+        "points": 15,
+        "action": "save على المقال",
+        "details": {
+          "article_id": "c315bda1-67ed-4c92-922d-a3a7d910a4ad"
+        },
+        "timestamp": "2025-06-26T21:49:07.925Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "c315bda1-67ed-4c92-922d-a3a7d910a4ad"
+        },
+        "timestamp": "2025-06-26T21:50:23.461Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-26T21:50:24.836Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-26T21:51:00.166Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "c315bda1-67ed-4c92-922d-a3a7d910a4ad"
+        },
+        "timestamp": "2025-06-26T21:51:01.327Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "d70b40fa-73a3-423b-bf1b-ef367a8c222c"
+        },
+        "timestamp": "2025-06-26T21:57:06.913Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-26T21:57:09.987Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "c315bda1-67ed-4c92-922d-a3a7d910a4ad"
+        },
+        "timestamp": "2025-06-26T21:57:49.271Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-26T22:00:34.172Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "c315bda1-67ed-4c92-922d-a3a7d910a4ad"
+        },
+        "timestamp": "2025-06-26T22:00:35.635Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "d70b40fa-73a3-423b-bf1b-ef367a8c222c"
+        },
+        "timestamp": "2025-06-26T22:00:39.425Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-27T05:16:12.021Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "c315bda1-67ed-4c92-922d-a3a7d910a4ad"
+        },
+        "timestamp": "2025-06-27T05:16:38.605Z"
+      },
+      {
+        "points": 15,
+        "action": "save على المقال",
+        "details": {
+          "article_id": "d70b40fa-73a3-423b-bf1b-ef367a8c222c"
+        },
+        "timestamp": "2025-06-27T05:16:49.882Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-27T05:25:19.905Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "d70b40fa-73a3-423b-bf1b-ef367a8c222c"
+        },
+        "timestamp": "2025-06-27T05:25:22.809Z"
+      },
+      {
+        "points": 15,
+        "action": "save على المقال",
+        "details": {
+          "article_id": "c315bda1-67ed-4c92-922d-a3a7d910a4ad"
+        },
+        "timestamp": "2025-06-27T05:25:24.341Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "56fae00c-5926-4c8f-9d75-7a1b19d5820b"
+        },
+        "timestamp": "2025-06-27T05:29:39.433Z"
+      },
+      {
+        "points": 15,
+        "action": "save على المقال",
+        "details": {
+          "article_id": "d70b40fa-73a3-423b-bf1b-ef367a8c222c"
+        },
+        "timestamp": "2025-06-27T05:29:40.553Z"
+      },
+      {
+        "points": 10,
+        "action": "like على المقال",
+        "details": {
+          "article_id": "c315bda1-67ed-4c92-922d-a3a7d910a4ad"
+        },
+        "timestamp": "2025-06-27T05:29:41.801Z"
+      }
+    ]
+  }
+}
