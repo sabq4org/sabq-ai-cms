@@ -20,7 +20,14 @@ export async function GET(request: NextRequest) {
     
     try {
       const fileContent = await fs.readFile(filePath, 'utf-8');
-      loyaltyData = JSON.parse(fileContent);
+      const parsed = JSON.parse(fileContent);
+      // إذا كان الملف بالتنسيق القديم (كائن بمفاتيح user_id)
+      if (Array.isArray(parsed.users)) {
+        loyaltyData = parsed as any;
+      } else {
+        // تحويل الكائن إلى مصفوفة users
+        loyaltyData = { users: Object.values(parsed) };
+      }
     } catch (error) {
       // الملف غير موجود
       console.error('Error reading loyalty points:', error);
@@ -115,7 +122,14 @@ export async function POST(request: NextRequest) {
     
     try {
       const fileContent = await fs.readFile(loyaltyPath, 'utf-8');
-      loyaltyData = JSON.parse(fileContent);
+      const parsed = JSON.parse(fileContent);
+      // إذا كان الملف بالتنسيق القديم (كائن بمفاتيح user_id)
+      if (Array.isArray(parsed.users)) {
+        loyaltyData = parsed as any;
+      } else {
+        // تحويل الكائن إلى مصفوفة users
+        loyaltyData = { users: Object.values(parsed) };
+      }
     } catch (error) {
       console.error('Error reading loyalty points:', error);
     }
