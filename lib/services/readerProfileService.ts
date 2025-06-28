@@ -14,38 +14,80 @@ function determinePersonality(
 
   // صياد الأخبار: يقرأ الأخبار العاجلة والسياسة بسرعة
   if (topCategories.includes('أخبار') || topCategories.includes('سياسة')) {
-    if (readingSpeed > 10) return 'news-hunter';
+    if (readingSpeed > 10) return {
+      type: 'news-hunter',
+      title: 'صياد الأخبار',
+      description: 'دائماً في قلب الحدث، تتابع آخر المستجدات بشغف',
+      icon: '📰',
+      color: 'red',
+      gradient: 'from-red-500 to-orange-500'
+    };
   }
 
   // المحلل العميق: يقرأ ببطء ويتفاعل كثيراً
   if (readingSpeed < 5 && engagementRate > 30) {
-    return 'deep-analyst';
+    return {
+      type: 'deep-analyst',
+      title: 'المحلل العميق',
+      description: 'تقرأ بتمعن وتحلل كل التفاصيل',
+      icon: '🔍',
+      color: 'blue',
+      gradient: 'from-blue-500 to-indigo-500'
+    };
   }
 
   // باحث عن الآراء: يفضل مقالات الرأي
   if (topCategories.includes('رأي') || topCategories.includes('مقالات')) {
-    return 'opinion-seeker';
+    return {
+      type: 'opinion-seeker',
+      title: 'باحث عن الآراء',
+      description: 'تستمتع بوجهات النظر المختلفة والنقاشات الفكرية',
+      icon: '💭',
+      color: 'purple',
+      gradient: 'from-purple-500 to-pink-500'
+    };
   }
 
   // مستكشف المعرفة: يقرأ في مجالات متنوعة
   if (Object.keys(categoryDistribution).length > 5) {
-    return 'knowledge-explorer';
+    return {
+      type: 'knowledge-explorer',
+      title: 'مستكشف المعرفة',
+      description: 'فضولك لا حدود له، تقرأ في كل المجالات',
+      icon: '🌍',
+      color: 'green',
+      gradient: 'from-green-500 to-teal-500'
+    };
   }
 
   // متابع الترندات: يقرأ المواضيع الأكثر تفاعلاً
   if (engagementRate > 50) {
-    return 'trend-follower';
+    return {
+      type: 'trend-follower',
+      title: 'متابع الترندات',
+      description: 'دائماً على اطلاع بما يشغل الناس',
+      icon: '🔥',
+      color: 'orange',
+      gradient: 'from-orange-500 to-yellow-500'
+    };
   }
 
-  return 'balanced-reader';
+  return {
+    type: 'balanced-reader',
+    title: 'القارئ المتوازن',
+    description: 'تقرأ باعتدال وتنوع في اختياراتك',
+    icon: '⚖️',
+    color: 'gray',
+    gradient: 'from-gray-500 to-slate-500'
+  };
 }
 
 // تحديد السمات بناءً على السلوك
-function determineTraits(profile: Partial<ReaderProfile>): ReaderTrait[] {
+function determineTraits(stats: any, engagementRate?: number, activeHours?: number[]): ReaderTrait[] {
   const traits: ReaderTrait[] = [];
 
   // قارئ نشط
-  if (profile.stats?.dailyReadingAverage && profile.stats.dailyReadingAverage > 5) {
+  if (stats?.dailyReadingAverage && stats.dailyReadingAverage > 5) {
     traits.push({
       id: 'active-reader',
       name: 'قارئ نشط',
@@ -55,7 +97,7 @@ function determineTraits(profile: Partial<ReaderProfile>): ReaderTrait[] {
   }
 
   // محب للتفاصيل
-  if (profile.preferences?.contentDepth === 'full') {
+  if (stats?.totalArticlesRead && stats.totalArticlesRead > 50) {
     traits.push({
       id: 'detail-lover',
       name: 'محب للتفاصيل',
@@ -65,7 +107,7 @@ function determineTraits(profile: Partial<ReaderProfile>): ReaderTrait[] {
   }
 
   // متفاعل
-  if (profile.engagement?.engagementRate && profile.engagement.engagementRate > 30) {
+  if (engagementRate && engagementRate > 30) {
     traits.push({
       id: 'engaged',
       name: 'متفاعل',
@@ -75,7 +117,7 @@ function determineTraits(profile: Partial<ReaderProfile>): ReaderTrait[] {
   }
 
   // قارئ الصباح
-  const morningHours = profile.preferences?.activeHours?.filter(h => h >= 6 && h <= 12) || [];
+  const morningHours = activeHours?.filter((h: number) => h >= 6 && h <= 12) || [];
   if (morningHours.length > 3) {
     traits.push({
       id: 'morning-reader',
@@ -86,7 +128,7 @@ function determineTraits(profile: Partial<ReaderProfile>): ReaderTrait[] {
   }
 
   // مثابر
-  if (profile.stats?.streakDays && profile.stats.streakDays > 7) {
+  if (stats?.streakDays && stats.streakDays > 7) {
     traits.push({
       id: 'persistent',
       name: 'مثابر',
@@ -156,34 +198,27 @@ export async function buildReaderProfile(userId: string): Promise<ReaderProfile>
   // حساب سلسلة الأيام المتتالية
   const streakDays = calculateStreakDays(interactions);
 
+  // تحضير توزيع التصنيفات للشخصية
+  const categoryDistribution = Object.entries(categoryPreferences).reduce((acc, [name, data]) => {
+    acc[name] = data.count;
+    return acc;
+  }, {} as Record<string, number>);
+
   // تحديد الشخصية المعرفية
-  const personality = determinePersonality(categoryPreferences, dailyReadingAverage, interactionsByType.share || 0);
+  const personality = determinePersonality(categoryDistribution, dailyReadingAverage, interactionsByType.share || 0);
 
   // تحديد السمات
-  const traits = determineTraits({
-    stats: {
+  const traits = determineTraits(
+    {
       dailyReadingAverage,
       totalArticlesRead: uniqueArticles,
       totalInteractions,
       streakDays,
-      loyaltyPoints: loyaltyPoints._sum.points || 0,
-      favoriteCategories: Object.entries(categoryPreferences)
-        .sort((a, b) => b[1].count - a[1].count)
-        .slice(0, 3)
-        .map(([name, data]) => ({
-          name,
-          percentage: data.percentage
-        })),
-      interactionBreakdown: {
-        views: interactionsByType.view || 0,
-        likes: interactionsByType.like || 0,
-        saves: interactionsByType.save || 0,
-        shares: interactionsByType.share || 0,
-        comments: interactionsByType.comment || 0
-      }
+      loyaltyPoints: loyaltyPoints._sum.points || 0
     },
-    lastUpdated: new Date()
-  });
+    interactionsByType.share || 0,
+    undefined // activeHours - يمكن إضافتها لاحقاً
+  );
 
   return {
     userId,
