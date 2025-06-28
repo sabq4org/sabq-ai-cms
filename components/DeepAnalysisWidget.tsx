@@ -342,55 +342,56 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                       </span>
                     </div>
 
-                    {/* زر القراءة - محسّن */}
-                    <div className="mb-4">
-                      <a href={item.url} onClick={() => markAsRead(item.id)}>
-                        <button className="w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg">
+                    {/* زر القراءة وأزرار التفاعل في سطر واحد */}
+                    <div className="flex items-center justify-between gap-3">
+                      {/* زر القراءة - أصغر ومحاذاة يمين */}
+                      <a href={item.url} onClick={() => markAsRead(item.id)} className="flex-shrink-0">
+                        <button className="py-2 px-4 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-sm hover:shadow-md">
                           <span>اقرأ التحليل</span>
-                          <TrendingUp className="w-4 h-4" />
+                          <TrendingUp className="w-3.5 h-3.5" />
                         </button>
                       </a>
-                    </div>
 
-                    {/* عناصر التفاعل - محسّنة */}
-                    <div className="flex items-center justify-center gap-4">
-                      <button
-                        onClick={() => handleShare(item)}
-                        className="p-2 rounded-lg transition-all duration-300 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-200"
-                        title="مشاركة"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </button>
-                      
-                      <button
-                        onClick={() => handleSave(item.id)}
-                        className={`p-2 rounded-lg transition-all duration-300 border ${
-                          isSaved(item.id)
-                            ? 'text-purple-600 bg-purple-100 border-purple-300' 
-                            : 'text-gray-600 hover:text-purple-600 bg-gray-100 hover:bg-purple-100 border-gray-200'
-                        }`}
-                        title="حفظ"
-                      >
-                        <Bookmark className={`w-4 h-4 ${
-                          isSaved(item.id) ? 'fill-current' : ''
-                        }`} />
-                      </button>
-                      
-                      <button
-                        onClick={() => handleLike(item.id)}
-                        id={`like-btn-${item.id}`}
-                        data-testid={`like-btn-${item.id}`}
-                        className={`p-2 rounded-lg transition-all duration-300 border ${
-                          isLiked(item.id)
-                            ? 'text-red-500 bg-red-100 border-red-300' 
-                            : 'text-gray-600 hover:text-red-500 bg-gray-100 hover:bg-red-100 border-gray-200'
-                        }`}
-                        title="إعجاب"
-                      >
-                        <Heart className={`w-4 h-4 ${
-                          isLiked(item.id) ? 'fill-current' : ''
-                        }`} />
-                      </button>
+                      {/* عناصر التفاعل - محاذاة يسار */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleShare(item)}
+                          className="p-1.5 rounded-lg transition-all duration-300 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-200"
+                          title="مشاركة"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                        </button>
+                        
+                        <button
+                          onClick={() => handleSave(item.id)}
+                          className={`p-1.5 rounded-lg transition-all duration-300 border ${
+                            isSaved(item.id)
+                              ? 'text-purple-600 bg-purple-100 border-purple-300' 
+                              : 'text-gray-600 hover:text-purple-600 bg-gray-100 hover:bg-purple-100 border-gray-200'
+                          }`}
+                          title="حفظ"
+                        >
+                          <Bookmark className={`w-3.5 h-3.5 ${
+                            isSaved(item.id) ? 'fill-current' : ''
+                          }`} />
+                        </button>
+                        
+                        <button
+                          onClick={() => handleLike(item.id)}
+                          id={`like-btn-${item.id}`}
+                          data-testid={`like-btn-${item.id}`}
+                          className={`p-1.5 rounded-lg transition-all duration-300 border ${
+                            isLiked(item.id)
+                              ? 'text-red-500 bg-red-100 border-red-300' 
+                              : 'text-gray-600 hover:text-red-500 bg-gray-100 hover:bg-red-100 border-gray-200'
+                          }`}
+                          title="إعجاب"
+                        >
+                          <Heart className={`w-3.5 h-3.5 ${
+                            isLiked(item.id) ? 'fill-current' : ''
+                          }`} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
