@@ -322,11 +322,6 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                       {item.title}
                     </h3>
 
-                    {/* الملخص - محسّن */}
-                    <p className="text-base mb-4 line-clamp-3 leading-relaxed text-gray-700">
-                      {item.summary}
-                    </p>
-
                     {/* الوسوم */}
                     <div className="flex flex-wrap gap-1.5 mb-5">
                       {item.tags.slice(0, 3).map((tag, idx) => (
