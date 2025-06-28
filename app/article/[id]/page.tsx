@@ -18,7 +18,7 @@ import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
 import './article-redesign.css';
 import { marked } from 'marked';
-import { StaticHeader } from '@/components/layout/StaticHeader';
+import Header from '@/components/Header';
 
 // تعريف نوع twttr لتويتر
 declare global {
@@ -808,7 +808,7 @@ export default function ArticlePage({ params }: PageProps) {
       {article && <ArticleJsonLd article={article} />}
       
       {/* Header */}
-      <StaticHeader />
+      <Header />
 
       {/* مؤشر تقدم القراءة */}
       <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700 z-50">
