@@ -43,6 +43,7 @@ export interface ReaderTrait {
   id: string;
   name: string;
   icon: string;
+  color?: string;
 }
 
 // أنواع إضافية للتوافق مع الكود القديم
