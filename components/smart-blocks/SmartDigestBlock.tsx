@@ -1,31 +1,33 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Clock, Bookmark, Share2, Eye, Calendar, TrendingUp } from 'lucide-react';
+import { Clock, Eye, Calendar, TrendingUp, ArrowLeft, BookOpen, Zap, Crown, Leaf } from 'lucide-react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { format } from 'date-fns';
-import { ar } from 'date-fns/locale';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface Article {
   id: string;
   title: string;
   excerpt: string;
+  summary?: string;
   slug: string;
   publishedAt: string;
+  published_at?: string;
+  created_at?: string;
   readTime?: number;
   views?: number;
   category?: {
+    id?: string;
     name: string;
+    name_ar?: string;
     slug: string;
   };
   author?: {
     name: string;
   };
   image?: string;
+  featured_image?: string;
+  breaking?: boolean;
   importanceScore?: number;
   relevanceScore?: number;
   engagementScore?: number;
@@ -33,43 +35,12 @@ interface Article {
 
 type TimeIntent = 'morning' | 'afternoon' | 'evening';
 
-interface DigestConfig {
-  intent: TimeIntent;
-  title: string;
-  subtitle: string;
-  icon: React.ReactNode;
-  gradient: string;
-}
-
-const digestConfigs: Record<TimeIntent, DigestConfig> = {
-  morning: {
-    intent: 'morning',
-    title: 'ابدأ صباحك بالمفيد والهادئ',
-    subtitle: 'كل شيء بوضوح قبل أن تبدأ يومك',
-    icon: <span className="text-2xl">☀️</span>,
-    gradient: 'from-amber-50 to-orange-50'
-  },
-  afternoon: {
-    intent: 'afternoon',
-    title: 'متابعات الظهيرة… اللحظة الآن بين يديك',
-    subtitle: 'استراحة معرفية وسط يومك المتسارع',
-    icon: <span className="text-2xl">🔄</span>,
-    gradient: 'from-blue-50 to-cyan-50'
-  },
-  evening: {
-    intent: 'evening',
-    title: 'ختام يومك… باختصار تستحقه',
-    subtitle: 'ملخص ذكي قبل أن تنهي يومك',
-    icon: <span className="text-2xl">🌙</span>,
-    gradient: 'from-indigo-50 to-purple-50'
-  }
-};
-
 export default function SmartDigestBlock() {
+  const { theme } = useTheme();
+  const darkMode = theme === 'dark';
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIntent, setCurrentIntent] = useState<TimeIntent>('morning');
-  const [savedArticles, setSavedArticles] = useState<Set<string>>(new Set());
 
   // تحديد النية حسب الوقت
   const getTimeIntent = (): TimeIntent => {
@@ -77,6 +48,28 @@ export default function SmartDigestBlock() {
     if (hour >= 6 && hour < 12) return 'morning';
     if (hour >= 12 && hour < 18) return 'afternoon';
     return 'evening';
+  };
+
+  // الحصول على العنوان والوصف حسب الوقت
+  const getTimeBasedContent = () => {
+    const hour = new Date().getHours();
+    
+    if (hour >= 6 && hour < 12) {
+      return {
+        title: 'ابدأ صباحك بالمفيد والهادئ',
+        subtitle: 'كل شيء بوضوح قبل أن تبدأ يومك'
+      };
+    } else if (hour >= 12 && hour < 18) {
+      return {
+        title: 'متابعات الظهيرة… اللحظة الآن بين يديك',
+        subtitle: 'استراحة معرفية وسط يومك المتسارع'
+      };
+    } else {
+      return {
+        title: 'ختام يومك… باختصار تستحقه',
+        subtitle: 'ملخص ذكي قبل أن تنهي يومك'
+      };
+    }
   };
 
   // جلب المقالات الذكية
@@ -115,160 +108,179 @@ export default function SmartDigestBlock() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSave = (articleId: string) => {
-    setSavedArticles(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(articleId)) {
-        newSet.delete(articleId);
-      } else {
-        newSet.add(articleId);
-      }
-      return newSet;
-    });
-  };
-
-  const config = digestConfigs[currentIntent];
-
-  if (loading) {
-    return (
-      <div className="w-full py-12">
-        <div className="container mx-auto px-4">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const { title, subtitle } = getTimeBasedContent();
 
   return (
-    <section className="w-full py-12 relative overflow-hidden">
-      {/* خلفية متدرجة خفيفة */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${config.gradient} opacity-50`} />
-      
-      <div className="container mx-auto px-4 relative z-10">
-        {/* العنوان */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            {config.icon}
-            <h2 className="text-3xl font-bold text-gray-900">{config.title}</h2>
+    <section className={`w-full py-20 mb-12 relative overflow-hidden transition-all duration-500 ${darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-[#0f52ba] to-[#3783ff]'} shadow-2xl`}>
+      <div className={`absolute inset-0 opacity-40 ${darkMode ? 'bg-gradient-to-br from-blue-900/20 via-transparent to-indigo-900/20' : 'bg-gradient-to-br from-[#1f3f75] via-transparent to-[#5fa9ff]'}`}></div>
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center relative">
+          {/* Main Title */}
+          <div className="mb-16 relative z-10">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white leading-tight drop-shadow-lg dark:shadow-gray-900/50">
+              {title}
+            </h1>
+            <p className={`text-xl sm:text-2xl mb-4 drop-shadow ${darkMode ? 'text-gray-200' : 'text-white/95'}`}>
+              {subtitle}
+            </p>
           </div>
-          <p className="text-lg text-gray-600">{config.subtitle}</p>
-        </motion.div>
+          
+          {/* Enhanced Three News Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 relative z-10">
+            {/* Card 1 - Breaking News */}
+            {loading || articles.length === 0 ? (
+              <div className={`backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 min-h-[320px] flex items-center justify-center ${darkMode ? 'bg-gray-800/95' : 'bg-white/95'}`}>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            ) : articles[0] ? (
+              <Link href={`/article/${articles[0].slug || articles[0].id}`} className="block">
+                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white/95 hover:bg-white'}`}>
+                  {/* Card Image */}
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={articles[0].featured_image || articles[0].image || "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80"}
+                      alt={articles[0].title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    {articles[0].breaking && (
+                      <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-3 py-1.5 bg-red-600/90 text-white text-xs font-bold rounded-full backdrop-blur-sm shadow-lg dark:shadow-gray-900/50">
+                        <Zap className="w-3 h-3" />
+                        عاجل
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* Card Content */}
+                  <div className="flex-1 p-5 flex flex-col">
+                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 group-hover:text-blue-700'}`}>
+                      {articles[0].title}
+                    </h3>
+                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {articles[0].excerpt || articles[0].summary || ''}
+                    </p>
+                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {new Date(articles[0].publishedAt || articles[0].published_at || articles[0].created_at || Date.now()).toLocaleDateString('ar-SA')}
+                      </span>
+                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                        اقرأ المزيد
+                        <ArrowLeft className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ) : null}
 
-        {/* البطاقات */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <AnimatePresence mode="wait">
-            {articles.map((article, index) => (
-              <motion.div
-                key={article.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="h-full hover:shadow-lg transition-shadow duration-300 overflow-hidden group">
-                  {/* صورة المقال */}
-                  {article.image && (
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={article.image}
-                        alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      {article.category && (
-                        <Badge className="absolute top-3 right-3 bg-white/90 text-gray-900">
-                          {article.category.name}
-                        </Badge>
-                      )}
-                    </div>
-                  )}
+            {/* Card 2 - Featured */}
+            {loading || articles.length < 2 ? (
+              <div className={`backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 min-h-[320px] flex items-center justify-center ${darkMode ? 'bg-gray-800/95' : 'bg-white/95'}`}>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            ) : articles[1] ? (
+              <Link href={`/article/${articles[1].slug || articles[1].id}`} className="block">
+                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white/95 hover:bg-white'}`}>
+                  {/* Card Image */}
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={articles[1].featured_image || articles[1].image || "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80"}
+                      alt={articles[1].title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    {articles[1].category && (
+                      <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600/90 text-white text-xs font-bold rounded-full backdrop-blur-sm shadow-lg dark:shadow-gray-900/50">
+                        <Crown className="w-3 h-3" />
+                        {articles[1].category.name_ar || articles[1].category.name}
+                      </span>
+                    )}
+                  </div>
                   
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-xl line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      <Link href={`/article/${article.slug || article.id}`}>
-                        {article.title}
-                      </Link>
-                    </CardTitle>
-                  </CardHeader>
+                  {/* Card Content */}
+                  <div className="flex-1 p-5 flex flex-col">
+                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 group-hover:text-blue-700'}`}>
+                      {articles[1].title}
+                    </h3>
+                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {articles[1].excerpt || articles[1].summary || ''}
+                    </p>
+                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {new Date(articles[1].publishedAt || articles[1].published_at || articles[1].created_at || Date.now()).toLocaleDateString('ar-SA')}
+                      </span>
+                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                        اقرأ المزيد
+                        <ArrowLeft className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ) : null}
+
+            {/* Card 3 - Environment */}
+            {loading || articles.length < 3 ? (
+              <div className={`backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 min-h-[320px] flex items-center justify-center ${darkMode ? 'bg-gray-800/95' : 'bg-white/95'}`}>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            ) : articles[2] ? (
+              <Link href={`/article/${articles[2].slug || articles[2].id}`} className="block">
+                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white/95 hover:bg-white'}`}>
+                  {/* Card Image */}
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={articles[2].featured_image || articles[2].image || "https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=800&q=80"}
+                      alt={articles[2].title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    {articles[2].category && (
+                      <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-3 py-1.5 bg-teal-600/90 text-white text-xs font-bold rounded-full backdrop-blur-sm shadow-lg dark:shadow-gray-900/50">
+                        <Leaf className="w-3 h-3" />
+                        {articles[2].category.name_ar || articles[2].category.name}
+                      </span>
+                    )}
+                  </div>
                   
-                  <CardContent className="space-y-4">
-                    <CardDescription className="line-clamp-3">
-                      {article.excerpt}
-                    </CardDescription>
-                    
-                    {/* معلومات إضافية */}
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      {article.readTime && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{article.readTime} دقائق</span>
-                        </div>
-                      )}
-                      {article.views && (
-                        <div className="flex items-center gap-1">
-                          <Eye className="w-4 h-4" />
-                          <span>{article.views}</span>
-                        </div>
-                      )}
-                      {article.publishedAt && (
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>{format(new Date(article.publishedAt), 'dd MMM', { locale: ar })}</span>
-                        </div>
-                      )}
+                  {/* Card Content */}
+                  <div className="flex-1 p-5 flex flex-col">
+                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 group-hover:text-blue-700'}`}>
+                      {articles[2].title}
+                    </h3>
+                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {articles[2].excerpt || articles[2].summary || ''}
+                    </p>
+                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {new Date(articles[2].publishedAt || articles[2].published_at || articles[2].created_at || Date.now()).toLocaleDateString('ar-SA')}
+                      </span>
+                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                        اقرأ المزيد
+                        <ArrowLeft className="w-4 h-4" />
+                      </span>
                     </div>
-                    
-                    {/* أزرار التفاعل */}
-                    <div className="flex items-center gap-2 pt-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleSave(article.id)}
-                        className={savedArticles.has(article.id) ? 'text-blue-600' : ''}
-                      >
-                        <Bookmark className={`w-4 h-4 ${savedArticles.has(article.id) ? 'fill-current' : ''}`} />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                      <Link href={`/article/${article.slug || article.id}`} className="mr-auto">
-                        <Button variant="link" size="sm" className="text-blue-600">
-                          اقرأ المزيد
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                  </div>
+                </div>
+              </Link>
+            ) : null}
+          </div>
+          
+          {/* زر قراءة الجرعة الكاملة */}
+          <div className="mt-8 text-center">
+            <Link 
+              href="/daily-dose" 
+              className="inline-flex items-center gap-3 px-8 py-4 bg-white/20 backdrop-blur-md hover:bg-white/30 text-white font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl"
+            >
+              <BookOpen className="w-5 h-5 animate-pulse" />
+              <span>قراءة الجرعة الكاملة</span>
+              <ArrowLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
-
-        {/* زر عرض المزيد */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center mt-8"
-        >
-          <Link href="/news">
-            <Button variant="outline" size="lg" className="gap-2">
-              <TrendingUp className="w-4 h-4" />
-              استكشف المزيد من المحتوى
-            </Button>
-          </Link>
-        </motion.div>
       </div>
     </section>
   );
