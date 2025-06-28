@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+// اجبر هذا المسار على استخدام بيئة Node.js حتى يعمل Prisma
+export const runtime = 'nodejs';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'articles.json');
 
@@ -107,6 +111,10 @@ async function updateArticle(id: string, updates: Partial<Article>): Promise<Art
   return articles[index];
 }
 
+// Cache بسيط في الذاكرة للمقالات المتكررة
+const articleCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 30 * 1000; // 30 ثانية
+
 // GET - جلب مقال واحد
 export async function GET(
   request: Request,
@@ -116,172 +124,155 @@ export async function GET(
     const { id } = await params;
     console.log('Fetching article with ID:', id);
     
-    // التعامل مع المقال التجريبي للبلوكات
-    if (id === 'test-blocks-demo') {
-      const testArticle = {
-        id: 'test-blocks-demo',
-        title: 'مثال توضيحي: البلوكات الثلاثة تعمل بنجاح',
-        subtitle: 'عرض توضيحي لبلوكات التغريدة والجدول والرابط',
-        content: JSON.stringify([
-            {
-              id: '1',
-              type: 'paragraph',
-              data: {
-                text: 'مرحباً بكم في العرض التوضيحي للبلوكات الثلاثة المطلوبة. كما ترون أدناه، جميع البلوكات تعمل بشكل ممتاز:'
-              }
-            },
-            {
-              id: '2',
-              type: 'heading',
-              data: {
-                text: '1. بلوك التغريدة (Tweet Block)',
-                level: 2
-              }
-            },
-            {
-              id: '3',
-              type: 'paragraph',
-              data: {
-                text: 'يمكنكم مشاهدة التغريدة المضمنة أدناه:'
-              }
-            },
-            {
-              id: '4',
-              type: 'tweet',
-              data: {
-                url: 'https://twitter.com/sabqorg/status/1234567890123456789'
-              }
-            },
-            {
-              id: '5',
-              type: 'heading',
-              data: {
-                text: '2. بلوك الجدول (Table Block)',
-                level: 2
-              }
-            },
-            {
-              id: '6',
-              type: 'paragraph',
-              data: {
-                text: 'إليكم مثال على جدول بيانات:'
-              }
-            },
-            {
-              id: '7',
-              type: 'table',
-              data: {
-                table: {
-                  headers: ['المدينة', 'درجة الحرارة', 'الرطوبة', 'سرعة الرياح'],
-                  rows: [
-                    ['الرياض', '35°C', '15%', '10 كم/س'],
-                    ['جدة', '32°C', '65%', '15 كم/س'],
-                    ['الدمام', '38°C', '70%', '20 كم/س'],
-                    ['أبها', '22°C', '40%', '5 كم/س']
-                  ]
-                }
-              }
-            },
-            {
-              id: '8',
-              type: 'heading',
-              data: {
-                text: '3. بلوك الرابط (Link Block)',
-                level: 2
-              }
-            },
-            {
-              id: '9',
-              type: 'paragraph',
-              data: {
-                text: 'يمكنكم النقر على الرابط التالي للمزيد من المعلومات:'
-              }
-            },
-            {
-              id: '10',
-              type: 'link',
-              data: {
-                url: 'https://sabq.org',
-                text: 'زيارة موقع صحيفة سبق الإلكترونية'
-              }
-            },
-            {
-              id: '11',
-              type: 'paragraph',
-              data: {
-                text: 'كما ترون، جميع البلوكات الثلاثة (التغريدة، الجدول، والرابط) تعمل بشكل ممتاز في النظام. يمكن للمحررين استخدامها لإثراء المحتوى.'
-              }
-            }
-          ]),
-        featured_image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
-        category_name: 'تقنية',
-        category: {
-          id: 4,
-          name_ar: 'تقنية',
-          color_hex: '#3b82f6'
-        },
-        author_name: 'فريق التطوير',
-        author_id: 'team',
-        views_count: 1000,
-        created_at: new Date().toISOString(),
-        published_at: new Date().toISOString(),
-        reading_time: 3,
-        is_featured: true
-      };
-      
-      return NextResponse.json(testArticle, {
+    // التحقق من Cache أولاً
+    const cached = articleCache.get(id);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+      console.log('Returning cached article');
+      return NextResponse.json(cached.data, {
         headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=59',
+          'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
           'Content-Type': 'application/json',
+          'X-Cache': 'HIT'
         }
       });
     }
     
-    const articles = await loadArticles();
-    console.log('Loaded articles type:', typeof articles);
-    console.log('Is array?', Array.isArray(articles));
-    console.log('Articles count:', articles?.length || 0);
-    
-    const article = articles.find(a => a.id === id && !a.is_deleted);
-    
-    if (!article) {
+    // جلب المقال من قاعدة البيانات - استعلام مبسط
+    let dbArticle = await prisma.article.findFirst({
+      where: { 
+        OR: [
+          { id },
+          { slug: id }
+        ]
+      },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        content: true,
+        excerpt: true,
+        authorId: true,
+        categoryId: true,
+        status: true,
+        views: true,
+        featured: true,
+        breaking: true,
+        featuredImage: true,
+        readingTime: true,
+        createdAt: true,
+        updatedAt: true,
+        publishedAt: true,
+        metadata: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true
+          }
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+            color: true
+          }
+        }
+      }
+    });
+
+    if (!dbArticle) {
       return NextResponse.json(
         { error: 'Article not found' },
         { status: 404 }
       );
     }
-    
-    // إضافة بيانات التصنيف
-    if (article.category_id) {
-      const categories = await loadCategories();
-      const category = categories.find(c => c.id === article.category_id);
-      if (category) {
-        article.category = category;
-        article.category_name = category.name_ar;
-      }
-    }
-    
-    // إضافة بيانات المؤلف إن لم تكن موجودة
-    if (article.author_id && !article.author_name) {
-      const teamMembers = await loadTeamMembers();
-      const author = teamMembers.find(member => 
-        member.userId === article.author_id || 
-        member.id === article.author_id
-      );
-      if (author) {
-        article.author_name = author.name;
-        if (author.avatar) {
-          article.author_avatar = author.avatar;
+
+    // زيادة عداد المشاهدات فقط (بدون انتظار النتيجة)
+    prisma.article.update({
+      where: { id: dbArticle.id },
+      data: { views: { increment: 1 } }
+    }).catch(err => console.error('Failed to increment views:', err));
+
+    // حساب إحصائيات بسيطة (بدون groupBy المعقد)
+    const interactionCounts = await prisma.interaction.findMany({
+      where: { articleId: dbArticle.id },
+      select: { type: true }
+    }).then(interactions => {
+      const counts = { likes: 0, shares: 0, saves: 0 };
+      interactions.forEach(i => {
+        if (i.type === 'like') counts.likes++;
+        else if (i.type === 'share') counts.shares++;
+        else if (i.type === 'save') counts.saves++;
+      });
+      return counts;
+    }).catch(() => ({ likes: 0, shares: 0, saves: 0 }));
+
+    // حساب عدد التعليقات
+    const commentsCount = await prisma.comment.count({
+      where: { articleId: dbArticle.id }
+    }).catch(() => 0);
+
+    // تنسيق البيانات للاستجابة
+    const formatted = {
+      id: dbArticle.id,
+      title: dbArticle.title,
+      slug: dbArticle.slug,
+      content: dbArticle.content,
+      summary: dbArticle.excerpt,
+      author_id: dbArticle.authorId,
+      author: dbArticle.author,
+      category_id: dbArticle.categoryId,
+      category_name: dbArticle.category?.name,
+      category: dbArticle.category,
+      category_display_name: dbArticle.category?.name,
+      category_color: dbArticle.category?.color || '#3B82F6',
+      status: dbArticle.status,
+      featured_image: dbArticle.featuredImage,
+      is_breaking: dbArticle.breaking,
+      is_featured: dbArticle.featured,
+      views_count: dbArticle.views + 1, // إضافة 1 للمشاهدة الحالية
+      reading_time: dbArticle.readingTime || Math.ceil((dbArticle.content || '').split(/\s+/).length / 200),
+      created_at: dbArticle.createdAt.toISOString(),
+      updated_at: dbArticle.updatedAt.toISOString(),
+      published_at: dbArticle.publishedAt?.toISOString(),
+      tags: dbArticle.metadata && typeof dbArticle.metadata === 'object' && 'tags' in dbArticle.metadata ? (dbArticle.metadata as any).tags : [],
+      interactions_count: interactionCounts.likes + interactionCounts.shares + interactionCounts.saves,
+      comments_count: commentsCount,
+      stats: {
+        views: dbArticle.views + 1,
+        likes: interactionCounts.likes,
+        shares: interactionCounts.shares,
+        comments: commentsCount,
+        saves: interactionCounts.saves
+      },
+      author_name: dbArticle.author?.name,
+      author_avatar: dbArticle.author?.avatar
+    };
+
+    // حفظ في Cache
+    articleCache.set(id, {
+      data: formatted,
+      timestamp: Date.now()
+    });
+
+    // تنظيف Cache القديم (كل 100 طلب)
+    if (Math.random() < 0.01) {
+      const now = Date.now();
+      for (const [key, value] of articleCache.entries()) {
+        if (now - value.timestamp > CACHE_DURATION * 2) {
+          articleCache.delete(key);
         }
       }
     }
-    
-    return NextResponse.json(article, {
+
+    return NextResponse.json(formatted, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=59',
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
         'Content-Type': 'application/json',
+        'X-Cache': 'MISS'
       }
     });
+
   } catch (error) {
     console.error('Error fetching article:', error);
     return NextResponse.json(
@@ -299,14 +290,18 @@ export async function PATCH(
   try {
     const { id } = await params;
     const updates = await request.json();
-    const updatedArticle = await updateArticle(id, updates);
     
-    if (!updatedArticle) {
-      return NextResponse.json(
-        { error: 'Article not found' },
-        { status: 404 }
-      );
-    }
+    // حذف من Cache عند التحديث
+    articleCache.delete(id);
+    
+    const updatedArticle = await prisma.article.update({
+      where: { id },
+      data: updates,
+      include: {
+        author: true,
+        category: true
+      }
+    });
     
     return NextResponse.json(updatedArticle);
   } catch (error) {
@@ -326,32 +321,21 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const articles = await loadArticles();
-    const index = articles.findIndex(a => a.id === id);
     
-    if (index === -1) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'المقال غير موجود' 
-      }, { status: 404 });
-    }
-
-    // تحديث المقال مع الاحتفاظ بالحقول الأساسية
-    const updated = {
-      ...articles[index],
-      ...body,
-      id, // المحافظة على المعرف
-      updated_at: new Date().toISOString(),
-      author_id: body.author_id ?? articles[index].author_id,
-      author: body.author ?? articles[index].author,
-      author_name: body.author ?? articles[index].author_name,
-      author_avatar: body.author_avatar ?? articles[index].author_avatar
-    };
+    // حذف من Cache عند التحديث
+    articleCache.delete(id);
     
-    articles[index] = updated;
-    
-    // حفظ التغييرات
-    await saveArticles(articles);
+    const updated = await prisma.article.update({
+      where: { id },
+      data: {
+        ...body,
+        updatedAt: new Date()
+      },
+      include: {
+        author: true,
+        category: true
+      }
+    });
 
     return NextResponse.json({ 
       success: true, 

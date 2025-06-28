@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import './globals.css'
+import '@/styles/tiptap-editor.css'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
 import { cn } from '@/lib/utils'

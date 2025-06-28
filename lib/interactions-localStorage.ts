@@ -153,6 +153,63 @@ export function getUserArticleInteraction(userId: string, articleId: string): {
   };
 }
 
+// تحديث تفاعل المستخدم مع مقال معين
+export function updateUserArticleInteraction(
+  userId: string, 
+  articleId: string, 
+  updates: {
+    liked?: boolean;
+    saved?: boolean;
+    shared?: boolean;
+  }
+): void {
+  try {
+    const interactions = getLocalInteractions();
+    const key = `${userId}_${articleId}`;
+    
+    // جلب أو إنشاء التفاعل
+    let interaction = interactions[key] || {
+      userId,
+      articleId,
+      liked: false,
+      saved: false,
+      shared: false,
+      lastUpdated: new Date().toISOString()
+    };
+
+    // تطبيق التحديثات
+    if (updates.liked !== undefined) {
+      interaction.liked = updates.liked;
+      if (updates.liked) {
+        interaction.likeTimestamp = new Date().toISOString();
+      }
+    }
+    
+    if (updates.saved !== undefined) {
+      interaction.saved = updates.saved;
+      if (updates.saved) {
+        interaction.saveTimestamp = new Date().toISOString();
+      }
+    }
+    
+    if (updates.shared !== undefined) {
+      interaction.shared = updates.shared;
+      if (updates.shared) {
+        interaction.shareTimestamp = new Date().toISOString();
+      }
+    }
+
+    interaction.lastUpdated = new Date().toISOString();
+
+    // حفظ التفاعل المحدث
+    interactions[key] = interaction;
+    localStorage.setItem(STORAGE_KEYS.INTERACTIONS, JSON.stringify(interactions));
+    
+  } catch (error) {
+    console.error('خطأ في تحديث التفاعل:', error);
+  }
+}
+
 // جلب جميع التفاعلات
 function getLocalInteractions(): { [key: string]: LocalInteraction } {
   try {

@@ -31,7 +31,9 @@ import {
   RefreshCw,
   CheckCircle,
   Eye,
-  Edit
+  Edit,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CreateAnalysisRequest, SourceType, CreationType, DisplayPosition } from '@/types/deep-analysis';
@@ -63,6 +65,9 @@ const CreateDeepAnalysisPage = () => {
   const [displayPosition, setDisplayPosition] = useState<DisplayPosition>('middle');
   const [currentCategory, setCurrentCategory] = useState('');
   const [currentTag, setCurrentTag] = useState('');
+  const [featuredImage, setFeaturedImage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const mainCategories = [
     'الاقتصاد', 'التقنية', 'رؤية 2030', 'الأمن السيبراني', 
@@ -108,6 +113,55 @@ const CreateDeepAnalysisPage = () => {
     if (currentTag && !tags.includes(currentTag)) {
       setTags([...tags, currentTag]);
       setCurrentTag('');
+    }
+  };
+
+  // معالجة رفع الصورة
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error('حجم الملف يجب أن يكون أقل من 5 ميجابايت');
+        return;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        toast.error('الرجاء اختيار ملف صورة صالح');
+        return;
+      }
+
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // رفع الصورة
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return null;
+
+    const formData = new FormData();
+    formData.append('file', imageFile);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('فشل رفع الصورة');
+      }
+
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('حدث خطأ أثناء رفع الصورة');
+      return null;
     }
   };
 
@@ -184,6 +238,11 @@ const CreateDeepAnalysisPage = () => {
 
     setLoading(true);
     try {
+      // رفع الصورة إذا كانت موجودة
+      let uploadedImageUrl = featuredImage;
+      if (imageFile) {
+        uploadedImageUrl = await uploadImage();
+      }
       // الحصول على مفتاح OpenAI من localStorage
       const openaiKey = localStorage.getItem('openai_api_key');
       
@@ -207,7 +266,8 @@ const CreateDeepAnalysisPage = () => {
         externalLink: sourceType === 'external' ? externalLink : undefined,
         generateWithGPT: shouldUseGPT,
         gptPrompt: shouldUseGPT ? (gptPrompt || title) : undefined,
-        openaiApiKey: openaiKey || undefined
+        openaiApiKey: openaiKey || undefined,
+        featuredImage: uploadedImageUrl
       };
 
       console.log('Submitting analysis with data:', {
@@ -537,6 +597,64 @@ const CreateDeepAnalysisPage = () => {
                   : 'bg-white border-gray-200'
               }`}
             />
+          </div>
+
+          {/* صورة مميزة */}
+          <div>
+            <Label htmlFor="featuredImage">الصورة المميزة</Label>
+            <div className={`mt-2 space-y-4`}>
+              {imagePreview ? (
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="معاينة الصورة"
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                  <button
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview(null);
+                      setFeaturedImage(null);
+                    }}
+                    className="absolute top-2 left-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-300 ${
+                  darkMode 
+                    ? 'border-gray-600 hover:border-gray-500' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}>
+                  <input
+                    type="file"
+                    id="featuredImage"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="featuredImage"
+                    className="cursor-pointer flex flex-col items-center gap-3"
+                  >
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                      darkMode ? 'bg-gray-700' : 'bg-gray-100'
+                    }`}>
+                      <Upload className={`w-8 h-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    </div>
+                    <div>
+                      <p className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        اضغط لرفع صورة
+                      </p>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        PNG, JPG, GIF حتى 5 ميجابايت
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              )}
+            </div>
           </div>
 
           <div>

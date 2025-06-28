@@ -1,10 +1,11 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { DarkModeProvider } from '@/contexts/DarkModeContext'
+import { migrateThemeSettings } from '@/lib/theme-migration'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -18,6 +19,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
       })
   )
+
+  // ترحيل إعدادات الثيم القديمة عند التحميل
+  useEffect(() => {
+    migrateThemeSettings();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

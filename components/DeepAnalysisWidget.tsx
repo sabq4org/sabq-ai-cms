@@ -13,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useInteractions } from '@/hooks/useInteractions';
 
 interface DeepInsight {
   id: string;
@@ -36,28 +37,42 @@ interface DeepAnalysisWidgetProps {
 }
 
 export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps) {
+  console.log('[DeepAnalysisWidget] Received insights:', insights);
+  console.log('[DeepAnalysisWidget] Insights length:', insights?.length);
+  console.log('[DeepAnalysisWidget] First insight:', insights?.[0]);
+  
+  // تحقق من أن المكون يتم عرضه
+  useEffect(() => {
+    console.log('[DeepAnalysisWidget] Component mounted with insights:', insights);
+  }, []);
+  
   const darkMode = false; // تم تعطيل الوضع الليلي
-  const [savedItems, setSavedItems] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('savedAnalysis');
-        if (saved) return JSON.parse(saved);
-      } catch (e) { console.error('خطأ في تحميل savedAnalysis:', e); }
-    }
-    return [];
-  });
-
-  const [likedItems, setLikedItems] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const liked = localStorage.getItem('likedAnalysis');
-        if (liked) return JSON.parse(liked);
-      } catch (e) { console.error('خطأ في تحميل likedAnalysis:', e); }
-    }
-    return [];
-  });
+  const { recordInteraction } = useInteractions();
 
   const [readItems, setReadItems] = useState<string[]>([]);
+  
+  // حل بديل مؤقت: استخدام localStorage مباشرة
+  const [localLikes, setLocalLikes] = useState<string[]>([]);
+  const [localSaves, setLocalSaves] = useState<string[]>([]);
+  
+  // تحميل البيانات من localStorage عند التحميل
+  useEffect(() => {
+    const loadLocalData = () => {
+      try {
+        const likes = localStorage.getItem('deep_analysis_likes');
+        const saves = localStorage.getItem('deep_analysis_saves');
+        if (likes) setLocalLikes(JSON.parse(likes));
+        if (saves) setLocalSaves(JSON.parse(saves));
+      } catch (e) {
+        console.error('[DeepAnalysisWidget] خطأ في تحميل البيانات المحلية:', e);
+      }
+    };
+    loadLocalData();
+  }, []);
+  
+  // دوال مساعدة للتحقق من الحالة
+  const isLiked = (id: string) => localLikes.includes(id);
+  const isSaved = (id: string) => localSaves.includes(id);
 
   useEffect(() => {
     // قراءة العناصر المقروءة من localStorage
@@ -68,22 +83,105 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
   }, []);
 
   const handleSave = (id: string) => {
-    if (savedItems.includes(id)) {
-      setSavedItems(savedItems.filter(item => item !== id));
-      toast.success('تم إزالة التحليل من المحفوظات');
-    } else {
-      setSavedItems([...savedItems, id]);
-      toast.success('تم حفظ التحليل');
+    console.log(`[DeepAnalysisWidget] handleSave clicked for id: ${id}`);
+    
+    const userId = localStorage.getItem('userId') || 'anonymous';
+    
+    // تحديث الحالة المحلية
+    const newSaves = isSaved(id) 
+      ? localSaves.filter(item => item !== id)
+      : [...localSaves, id];
+    
+    setLocalSaves(newSaves);
+    localStorage.setItem('deep_analysis_saves', JSON.stringify(newSaves));
+    
+    if (!isSaved(id)) {
+      // إذا كان المستخدم غير مسجل، نعرض رسالة مختلفة
+      if (userId === 'anonymous') {
+        toast.success('تم حفظ التحليل (محلياً)', {
+          duration: 3000,
+          icon: '📌'
+        });
+        toast('سجل دخولك للاحتفاظ بمحفوظاتك', {
+          duration: 4000,
+          icon: '💡',
+          style: {
+            background: '#8b5cf6',
+            color: '#fff',
+          }
+        });
+      } else {
+        toast.success('تم حفظ التحليل');
+      }
     }
+    
+    // سجل تفاعل الحفظ
+    recordInteraction({
+      userId: userId,
+      articleId: id,
+      interactionType: 'save'
+    }).then(() => {
+      console.log(`[DeepAnalysisWidget] سجلت تفاعل حفظ للمقالة ${id}`);
+    }).catch(error => {
+      console.error('[DeepAnalysisWidget] خطأ في تسجيل تفاعل الحفظ:', error);
+      // لا نعرض رسالة خطأ للمستخدم غير المسجل
+      if (userId !== 'anonymous') {
+        toast.error('حدث خطأ في تسجيل التفاعل');
+      }
+    });
   };
 
   const handleLike = (id: string) => {
-    if (likedItems.includes(id)) {
-      setLikedItems(likedItems.filter(item => item !== id));
-    } else {
-      setLikedItems([...likedItems, id]);
-      toast.success('تم الإعجاب بالتحليل');
+    console.log(`[DeepAnalysisWidget] handleLike clicked for id: ${id}`);
+    console.log('[DeepAnalysisWidget] Current userId:', localStorage.getItem('userId'));
+    
+    const userId = localStorage.getItem('userId') || 'anonymous';
+    
+    // تحديث الحالة المحلية
+    const newLikes = isLiked(id) 
+      ? localLikes.filter(item => item !== id)
+      : [...localLikes, id];
+    
+    setLocalLikes(newLikes);
+    localStorage.setItem('deep_analysis_likes', JSON.stringify(newLikes));
+    console.log('[DeepAnalysisWidget] Updated likes:', newLikes);
+    
+    if (!isLiked(id)) {
+      // إذا كان المستخدم غير مسجل، نعرض رسالة مختلفة
+      if (userId === 'anonymous') {
+        toast.success('تم الإعجاب بالتحليل (محلياً)', {
+          duration: 3000,
+          icon: '💙'
+        });
+        toast('سجل دخولك للاحتفاظ بتفاعلاتك', {
+          duration: 4000,
+          icon: '💡',
+          style: {
+            background: '#3b82f6',
+            color: '#fff',
+          }
+        });
+      } else {
+        toast.success('تم الإعجاب بالتحليل');
+      }
     }
+    
+    // سجل تفاعل الإعجاب عبر API وأظهر لوج في الكونsole
+    recordInteraction({
+      userId: userId,
+      articleId: id,
+      interactionType: 'like'
+    })
+      .then((result) => {
+        console.log(`[DeepAnalysisWidget] سجلت تفاعل إعجاب للمقالة ${id}`, result);
+      })
+      .catch(err => {
+        console.error('[DeepAnalysisWidget] خطأ في تسجيل التفاعل:', err);
+        // لا نعرض رسالة خطأ للمستخدم غير المسجل
+        if (userId !== 'anonymous') {
+          toast.error('حدث خطأ في تسجيل التفاعل');
+        }
+      });
   };
 
   const handleShare = (item: DeepInsight) => {
@@ -159,38 +257,18 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
     }
   };
 
-  // مزامنة أي تغييرات إلى localStorage
-  useEffect(() => {
-    localStorage.setItem('savedAnalysis', JSON.stringify(savedItems));
-  }, [savedItems]);
-
-  useEffect(() => {
-    localStorage.setItem('likedAnalysis', JSON.stringify(likedItems));
-  }, [likedItems]);
-
   return (
     <TooltipProvider>
-      <section id="deep-analysis-highlight" className={`py-6 md:py-8 transition-colors duration-300 ${
-        darkMode ? 'bg-gray-900' : 'bg-gray-50'
-      }`}>
-        <div className="container px-4 mx-auto max-w-7xl">
+      <div id="deep-analysis-highlight" className="py-6 md:py-8 relative overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900">
+        {/* تمت إزالة الطبقات الزخرفية لمنع أي تفتيح غير مرغوب */}
+        <div className="container px-4 mx-auto max-w-7xl relative z-10 bg-transparent">
           {/* العنوان والوصف */}
-          <div className="text-center mb-8">
-            {/* أيقونة فوق العنوان */}
-            <div className="mb-4">
-              <Brain className={`w-16 h-16 mx-auto ${
-                darkMode ? 'text-blue-400' : 'text-blue-600'
-              }`} />
-            </div>
-            
-            <h2 className={`text-3xl md:text-4xl font-bold mb-3 ${
-              darkMode ? 'text-white' : 'text-gray-900'
-            }`}>
+          <div className="text-center mb-12 max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3 flex items-center justify-center gap-3 text-white">
+              <Brain className="w-8 h-8 text-blue-300" />
               التحليل العميق من سبق
             </h2>
-            <p className={`text-lg ${
-              darkMode ? 'text-gray-400' : 'text-gray-600'
-            }`}>
+            <p className="text-lg text-gray-100/90">
               رؤى استراتيجية ودراسات معمقة بالذكاء الاصطناعي والخبرة البشرية
             </p>
           </div>
@@ -205,11 +283,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
               return (
                 <div 
                   key={item.id} 
-                  className={`relative rounded-2xl overflow-hidden transition-all duration-300 hover:transform hover:-translate-y-1 group ${
-                    darkMode 
-                      ? 'bg-gray-800 !bg-gray-800 shadow-lg hover:shadow-xl border border-gray-700' 
-                      : 'bg-white shadow-md hover:shadow-lg border border-gray-200'
-                  }`}
+                  className="relative rounded-2xl overflow-hidden transition-all duration-300 hover:transform hover:-translate-y-2 group bg-white backdrop-blur-lg border border-gray-200 shadow-lg hover:shadow-xl"
                 >
                   <div className="p-6">
                     {/* مؤشر جديد - نقطة حمراء صغيرة */}
@@ -226,26 +300,17 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                     <div className="flex items-center justify-between mb-5">
                       <div className="flex items-center gap-3">
                         {/* أيقونة دلالية */}
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
-                          darkMode 
-                            ? 'bg-gray-700/50' 
-                            : 'bg-gray-100'
-                        }`}>
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg bg-gradient-to-br from-blue-100 to-purple-100 shadow-sm">
                           {getInsightIcon(item.category)}
                         </div>
                         
                         {/* بادج تحليل عميق - محدث بتدرج ناعم */}
-                        <span className={
-                          `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-300
-                          ${darkMode ? 'bg-gradient-to-r from-blue-900 to-blue-700 text-blue-200' : 'bg-gradient-to-r from-blue-100 to-blue-300 text-blue-900'}`
-                        }>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-300 bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-sm">
                           تحليل عميق
                         </span>
                         
                         {isAI && (
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-300
-                            ${darkMode ? 'bg-purple-900 text-purple-200' : 'bg-purple-100 text-purple-800'}`
-                          }>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-300 bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-sm">
                             AI
                           </span>
                         )}
@@ -253,16 +318,12 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                     </div>
 
                     {/* العنوان */}
-                    <h3 className={`font-bold text-xl leading-tight mb-3 line-clamp-2 ${
-                      darkMode ? 'text-gray-200' : 'text-gray-900'
-                    }`}>
+                    <h3 className="font-bold text-xl leading-tight mb-3 line-clamp-2 text-gray-900">
                       {item.title}
                     </h3>
 
                     {/* الملخص - محسّن */}
-                    <p className={`text-base mb-4 line-clamp-3 leading-relaxed ${
-                      darkMode ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
+                    <p className="text-base mb-4 line-clamp-3 leading-relaxed text-gray-700">
                       {item.summary}
                     </p>
 
@@ -271,11 +332,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                       {item.tags.slice(0, 3).map((tag, idx) => (
                         <span 
                           key={idx} 
-                          className={`text-xs px-2 py-0.5 rounded-md ${
-                            darkMode 
-                              ? 'bg-gray-700/50 text-gray-300' 
-                              : 'bg-gray-100 text-gray-600'
-                          }`}
+                          className="text-xs px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 border border-gray-200"
                         >
                           #{tag}
                         </span>
@@ -283,11 +340,9 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                     </div>
 
                     {/* الإحصائيات - مبسطة */}
-                    <div className={`flex items-center justify-between text-sm mb-5 ${
-                      darkMode ? 'text-gray-500' : 'text-gray-500'
-                    }`}>
+                    <div className="flex items-center justify-between text-sm mb-5 text-gray-600">
                       <span className="flex items-center gap-2">
-                        <Clock3 className={`w-4 h-4 ${darkMode ? 'text-blue-400' : 'text-gray-400'}`} /> 
+                        <Clock3 className="w-4 h-4 text-gray-500" /> 
                         {item.readTime} دقيقة • {formatDate(item.createdAt)}
                       </span>
                     </div>
@@ -295,11 +350,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                     {/* زر القراءة - محسّن */}
                     <div className="mb-4">
                       <a href={item.url} onClick={() => markAsRead(item.id)}>
-                        <button className={`w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
-                          darkMode 
-                            ? 'bg-blue-900/40 text-blue-200 hover:bg-blue-900/60 border border-blue-800/40' 
-                            : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
-                        }`}>
+                        <button className="w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg">
                           <span>اقرأ التحليل</span>
                           <TrendingUp className="w-4 h-4" />
                         </button>
@@ -310,11 +361,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                     <div className="flex items-center justify-center gap-4">
                       <button
                         onClick={() => handleShare(item)}
-                        className={`p-2 rounded-lg transition-all duration-300 ${
-                          darkMode 
-                            ? 'text-gray-400 hover:text-blue-400 hover:bg-gray-700/50' 
-                            : 'text-gray-400 hover:text-blue-600 hover:bg-gray-100'
-                        }`}
+                        className="p-2 rounded-lg transition-all duration-300 text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-200"
                         title="مشاركة"
                       >
                         <Share2 className="w-4 h-4" />
@@ -322,33 +369,31 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                       
                       <button
                         onClick={() => handleSave(item.id)}
-                        className={`p-2 rounded-lg transition-all duration-300 ${
-                          savedItems.includes(item.id) 
-                            ? 'text-blue-500' 
-                            : darkMode 
-                              ? 'text-gray-400 hover:text-purple-400 hover:bg-gray-700/50' 
-                              : 'text-gray-400 hover:text-purple-600 hover:bg-gray-100'
+                        className={`p-2 rounded-lg transition-all duration-300 border ${
+                          isSaved(item.id)
+                            ? 'text-purple-600 bg-purple-100 border-purple-300' 
+                            : 'text-gray-600 hover:text-purple-600 bg-gray-100 hover:bg-purple-100 border-gray-200'
                         }`}
                         title="حفظ"
                       >
                         <Bookmark className={`w-4 h-4 ${
-                          savedItems.includes(item.id) ? 'fill-current' : ''
+                          isSaved(item.id) ? 'fill-current' : ''
                         }`} />
                       </button>
                       
                       <button
                         onClick={() => handleLike(item.id)}
-                        className={`p-2 rounded-lg transition-all duration-300 ${
-                          likedItems.includes(item.id) 
-                            ? 'text-red-500' 
-                            : darkMode 
-                              ? 'text-gray-400 hover:text-red-400 hover:bg-gray-700/50' 
-                              : 'text-gray-400 hover:text-red-600 hover:bg-gray-100'
+                        id={`like-btn-${item.id}`}
+                        data-testid={`like-btn-${item.id}`}
+                        className={`p-2 rounded-lg transition-all duration-300 border ${
+                          isLiked(item.id)
+                            ? 'text-red-500 bg-red-100 border-red-300' 
+                            : 'text-gray-600 hover:text-red-500 bg-gray-100 hover:bg-red-100 border-gray-200'
                         }`}
                         title="إعجاب"
                       >
                         <Heart className={`w-4 h-4 ${
-                          likedItems.includes(item.id) ? 'fill-current' : ''
+                          isLiked(item.id) ? 'fill-current' : ''
                         }`} />
                       </button>
                     </div>
@@ -361,11 +406,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
           {/* زر استكشاف المزيد */}
           <div className="text-center">
             <a href="/insights/deep" className="inline-block">
-              <button className={`px-8 py-3 rounded-xl font-medium text-base transition-all duration-300 transform hover:scale-105 flex items-center gap-2 ${
-                darkMode 
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg' 
-                  : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg'
-              }`}>
+              <button className="px-8 py-3 rounded-xl font-medium text-base transition-all duration-300 transform hover:scale-105 flex items-center gap-2 bg-gradient-to-r from-blue-600/70 to-purple-600/70 hover:from-blue-600 hover:to-purple-700 text-white border border-transparent hover:border-white/40 shadow-xl hover:shadow-2xl">
                 <Search className="w-5 h-5" />
                 استكشف جميع التحليلات العميقة
               </button>
@@ -374,14 +415,12 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
           
           {/* نص إضافي */}
           <div className="text-center mt-6">
-            <p className={`text-sm ${
-              darkMode ? 'text-gray-500' : 'text-gray-500'
-            }`}>
+            <p className="text-sm text-blue-200/60">
               • يتم تحديث تحليلات جديدة يومياً
             </p>
           </div>
         </div>
-      </section>
+      </div>
     </TooltipProvider>
   );
 } 

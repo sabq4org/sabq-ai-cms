@@ -1,353 +1,569 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Brain, Eye, User, Clock3, Sparkles, Search, Filter, ArrowLeft, TrendingUp, Award, BarChart3 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
 import Link from 'next/link';
+import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { 
+  Brain, 
+  Clock, 
+  Eye, 
+  TrendingUp, 
+  Calendar,
+  Filter,
+  Search,
+  ChevronRight,
+  Sparkles,
+  BarChart3,
+  FileText,
+  Star,
+  Grid,
+  List,
+  Loader2,
+  Zap,
+  Hash,
+  MessageCircle,
+  Share2,
+  Award,
+  Cpu,
+  Network,
+  Activity
+} from 'lucide-react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import toast from 'react-hot-toast';
 
-interface DeepInsight {
+interface DeepAnalysis {
   id: string;
   title: string;
+  slug: string;
   summary: string;
-  author: string;
-  createdAt: string;
-  readTime: number;
-  views: number;
-  aiConfidence: number;
+  categories: string[];
   tags: string[];
-  type: 'AI' | 'تحرير بشري';
-  url: string;
-  category: string;
+  authorName: string;
+  sourceType: string;
+  readingTime: number;
+  views: number;
+  likes: number;
+  qualityScore: number;
+  status: string;
+  createdAt: string;
+  publishedAt: string;
+  featuredImage?: string;
 }
 
-export default function DeepInsightsPage() {
-  const { darkMode } = useDarkMode();
-  const [insights, setInsights] = useState<DeepInsight[]>([]);
+export default function DeepAnalysesPage() {
+  const { darkMode } = useDarkModeContext();
+  const [mounted, setMounted] = useState(false);
+  const [analyses, setAnalyses] = useState<DeepAnalysis[]>([]);
+  const [filteredAnalyses, setFilteredAnalyses] = useState<DeepAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [categories, setCategories] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    fetchInsights();
+    setMounted(true);
+    fetchAnalyses();
   }, []);
 
-  const fetchInsights = async () => {
+  useEffect(() => {
+    filterAndSortAnalyses();
+  }, [analyses, searchTerm, selectedCategory, sortBy]);
+
+  const fetchAnalyses = async () => {
     try {
-      const response = await fetch('/api/deep-insights?limit=20');
+      const response = await fetch('/api/deep-analyses');
+      if (!response.ok) {
+        throw new Error('Failed to fetch analyses');
+      }
       const data = await response.json();
-      setInsights(data);
+      
+      // التحقق من هيكل البيانات المُرجعة
+      const analysesArray = data.analyses || data;
+      
+      // استخراج الفئات الفريدة
+      const uniqueCategories = [...new Set(analysesArray.flatMap((a: DeepAnalysis) => a.categories || []))];
+      setCategories(uniqueCategories as string[]);
+      
+      setAnalyses(analysesArray);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching insights:', error);
-    } finally {
+      console.error('Error fetching analyses:', error);
+      toast.error('حدث خطأ في تحميل التحليلات');
       setLoading(false);
     }
   };
 
-  const filteredInsights = insights.filter(insight => {
-    const matchesSearch = insight.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         insight.summary.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || insight.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filterAndSortAnalyses = () => {
+    let filtered = [...analyses];
 
-  const formatViews = (views: number) => {
-    if (views >= 1000) {
-      return `${(views / 1000).toFixed(1)}k`;
+    // تصفية حسب البحث
+    if (searchTerm) {
+      filtered = filtered.filter(analysis => 
+        analysis.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        analysis.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        analysis.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
     }
-    return views.toString();
+
+    // تصفية حسب الفئة
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(analysis => 
+        analysis.categories.includes(selectedCategory)
+      );
+    }
+
+    // ترتيب النتائج
+    switch (sortBy) {
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+      case 'oldest':
+        filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        break;
+      case 'popular':
+        filtered.sort((a, b) => b.views - a.views);
+        break;
+      case 'quality':
+        filtered.sort((a, b) => b.qualityScore - a.qualityScore);
+        break;
+    }
+
+    setFilteredAnalyses(filtered);
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 60) {
-      return `منذ ${diffInMinutes} دقيقة`;
-    } else if (diffInMinutes < 1440) {
-      const hours = Math.floor(diffInMinutes / 60);
-      return `منذ ${hours} ${hours === 1 ? 'ساعة' : 'ساعات'}`;
-    } else {
-      const days = Math.floor(diffInMinutes / 1440);
-      return `منذ ${days} ${days === 1 ? 'يوم' : 'أيام'}`;
-    }
+    return date.toLocaleDateString('ar-SA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
-  // إحصائيات سريعة
-  const totalAnalyses = insights.length;
-  const aiAnalyses = insights.filter(i => i.type === 'AI').length;
-  const totalViews = insights.reduce((sum, i) => sum + i.views, 0);
-  const avgReadTime = insights.length > 0 
-    ? Math.round(insights.reduce((sum, i) => sum + i.readTime, 0) / insights.length)
-    : 0;
+  const getQualityColor = (score: number) => {
+    if (score >= 80) return 'text-emerald-400 bg-emerald-500/20 border-emerald-400/30';
+    if (score >= 60) return 'text-amber-400 bg-amber-500/20 border-amber-400/30';
+    return 'text-red-400 bg-red-500/20 border-red-400/30';
+  };
+
+  const generatePlaceholderImage = (title: string) => {
+    const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#EF4444', '#F59E0B'];
+    const colorIndex = title.charCodeAt(0) % colors.length;
+    return `data:image/svg+xml,${encodeURIComponent(`
+      <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:${colors[colorIndex]};stop-opacity:1" />
+            <stop offset="100%" style="stop-color:${colors[(colorIndex + 1) % colors.length]};stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <rect width="400" height="300" fill="url(#grad)"/>
+        <g opacity="0.2">
+          <circle cx="100" cy="100" r="40" fill="white"/>
+          <circle cx="300" cy="200" r="60" fill="white"/>
+          <circle cx="200" cy="250" r="30" fill="white"/>
+        </g>
+        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.8">
+          ${title.substring(0, 20)}
+        </text>
+      </svg>
+    `)}`;
+  };
+
+  // تجنب مشكلة Hydration بعرض loader حتى يتم التحميل
+  if (!mounted) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gray-50">
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+              <p className="text-lg text-gray-600">
+                جاري تحميل الصفحة...
+              </p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+              <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                جاري تحميل التحليلات العميقة...
+              </p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <>
       <Header />
-      
-      {/* الهيدر مع خلفية ناعمة */}
-      <div className={`relative ${
-        darkMode 
-          ? 'bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800' 
-          : 'bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50'
-      }`}>
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300/20 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300/20 rounded-full blur-3xl"></div>
-        </div>
-        
-        <div className="relative container mx-auto px-4 py-16">
-          {/* رجوع إلى الرئيسية */}
-          <Link href="/" className={`inline-flex items-center gap-2 mb-8 transition-colors ${
-            darkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-800'
-          }`}>
-            <ArrowLeft className="w-4 h-4" />
-            <span>الرئيسية</span>
-          </Link>
-
-          {/* الأيقونة والعنوان */}
-          <div className="text-center mb-12">
-            <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 ${
-              darkMode ? 'bg-blue-900/30' : 'bg-white shadow-lg'
-            }`}>
-              <Brain className={`w-10 h-10 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-            </div>
-            <h1 className={`text-4xl md:text-5xl font-bold mb-4 ${
-              darkMode ? 'text-white' : 'text-gray-900'
-            }`}>
-              التحليل العميق
-            </h1>
-            <p className={`text-xl ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              من صحيفة سبق
-            </p>
-            <p className={`text-lg mt-4 max-w-2xl mx-auto ${
-              darkMode ? 'text-gray-500' : 'text-gray-600'
-            }`}>
-              رؤى استراتيجية ودراسات معمقة تقيم الأحداث وتحلل القضايا المعاصرة بمنهجية علمية وأسلوب صحفي احترافي
-            </p>
-          </div>
-
-          {/* الإحصائيات */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            <div className={`rounded-2xl p-6 text-center ${
-              darkMode ? 'bg-gray-800' : 'bg-white shadow-md'
-            }`}>
-              <Sparkles className={`w-8 h-8 mx-auto mb-2 ${
-                darkMode ? 'text-purple-400' : 'text-purple-600'
-              }`} />
-              <div className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {aiAnalyses}
-              </div>
-              <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                تحليل بالذكاء الاصطناعي
-              </div>
+      <div dir="rtl" className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        {/* Hero Section with AI Background */}
+        <div className="relative overflow-hidden">
+          {/* AI Background Pattern */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+            {/* Neural Network Pattern */}
+            <div className="absolute inset-0 opacity-20">
+              <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id="neural-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                    <circle cx="50" cy="50" r="1" fill="white" className="animate-pulse" />
+                    <line x1="50" y1="50" x2="100" y2="0" stroke="white" strokeWidth="0.5" opacity="0.3" />
+                    <line x1="50" y1="50" x2="0" y2="100" stroke="white" strokeWidth="0.5" opacity="0.3" />
+                    <line x1="50" y1="50" x2="100" y2="100" stroke="white" strokeWidth="0.5" opacity="0.3" />
+                    <line x1="50" y1="50" x2="0" y2="0" stroke="white" strokeWidth="0.5" opacity="0.3" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#neural-pattern)" />
+              </svg>
             </div>
             
-            <div className={`rounded-2xl p-6 text-center ${
-              darkMode ? 'bg-gray-800' : 'bg-white shadow-md'
-            }`}>
-              <User className={`w-8 h-8 mx-auto mb-2 ${
-                darkMode ? 'text-blue-400' : 'text-blue-600'
-              }`} />
-              <div className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {totalAnalyses - aiAnalyses}
-              </div>
-              <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                خبراء ومحللين
-              </div>
+            {/* Floating AI Elements */}
+            <div className="absolute top-10 left-10 animate-float">
+              <Brain className="w-20 h-20 text-white opacity-10" />
             </div>
-            
-            <div className={`rounded-2xl p-6 text-center ${
-              darkMode ? 'bg-gray-800' : 'bg-white shadow-md'
-            }`}>
-              <Eye className={`w-8 h-8 mx-auto mb-2 ${
-                darkMode ? 'text-green-400' : 'text-green-600'
-              }`} />
-              <div className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {formatViews(totalViews)}
-              </div>
-              <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                إجمالي المشاهدات
-              </div>
+            <div className="absolute bottom-10 right-10 animate-float-delayed">
+              <Cpu className="w-24 h-24 text-white opacity-10" />
             </div>
-            
-            <div className={`rounded-2xl p-6 text-center ${
-              darkMode ? 'bg-gray-800' : 'bg-white shadow-md'
-            }`}>
-              <Clock3 className={`w-8 h-8 mx-auto mb-2 ${
-                darkMode ? 'text-orange-400' : 'text-orange-600'
-              }`} />
-              <div className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {avgReadTime}
-              </div>
-              <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                متوسط وقت القراءة
-              </div>
+            <div className="absolute top-1/2 left-1/4 animate-float">
+              <Network className="w-16 h-16 text-white opacity-10" />
+            </div>
+            <div className="absolute bottom-1/3 right-1/3 animate-float-delayed">
+              <Activity className="w-18 h-18 text-white opacity-10" />
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* المحتوى الرئيسي */}
-      <div className="container mx-auto px-4 py-12">
-        {/* شريط البحث والفلاتر */}
-        <div className={`rounded-2xl p-6 mb-8 ${
-          darkMode ? 'bg-gray-800' : 'bg-white shadow-sm'
-        }`}>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="البحث في التحليلات..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pr-10 pl-4 py-3 rounded-xl border ${
-                  darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                    : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-500'
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              />
-            </div>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className={`px-6 py-3 rounded-xl border ${
-                darkMode 
-                  ? 'bg-gray-700 border-gray-600 text-white' 
-                  : 'bg-gray-50 border-gray-200 text-gray-900'
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            >
-              <option value="all">جميع التصنيفات</option>
-              <option value="سياسة">سياسة</option>
-              <option value="اقتصاد">اقتصاد</option>
-              <option value="تقنية">تقنية</option>
-              <option value="رياضة">رياضة</option>
-              <option value="ثقافة">ثقافة</option>
-            </select>
-          </div>
-        </div>
-
-        {/* قائمة التحليلات */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredInsights.map((insight) => (
-              <Link href={insight.url} key={insight.id}>
-                <div className={`rounded-2xl overflow-hidden transition-all duration-300 hover:transform hover:scale-[1.02] cursor-pointer ${
-                  darkMode 
-                    ? 'bg-gray-800 shadow-xl hover:shadow-2xl' 
-                    : 'bg-white shadow-md hover:shadow-lg'
-                }`}>
-                  <div className="p-6">
-                    {/* الشارات */}
-                    <div className="flex items-center gap-2 mb-4">
-                      {insight.type === 'AI' && (
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                          darkMode
-                            ? 'bg-purple-900/30 text-purple-300'
-                            : 'bg-purple-100 text-purple-800'
-                        }`}>
-                          <Brain className="w-3 h-3 ml-1" />
-                          ذكاء اصطناعي
-                        </span>
-                      )}
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        darkMode 
-                          ? 'bg-blue-900/30 text-blue-300' 
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {insight.category || 'تحليل عميق'}
-                      </span>
-                    </div>
-
-                    {/* العنوان */}
-                    <h3 className={`font-bold text-2xl mb-3 line-clamp-2 leading-tight ${
-                      darkMode ? 'text-white' : 'text-gray-900'
-                    }`}>
-                      {insight.title}
-                    </h3>
-
-                    {/* الملخص */}
-                    <p className={`text-base mb-4 line-clamp-3 leading-relaxed ${
-                      darkMode ? 'text-gray-300' : 'text-gray-600'
-                    }`}>
-                      {insight.summary}
-                    </p>
-
-                    {/* الوسوم */}
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {insight.tags.slice(0, 3).map((tag, idx) => (
-                        <span 
-                          key={idx} 
-                          className={`text-xs px-2.5 py-1 rounded-md ${
-                            darkMode 
-                              ? 'bg-gray-700/50 text-gray-200' 
-                              : 'bg-gray-100 text-gray-700'
-                          }`}
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* المعلومات السفلية - مبسطة */}
-                    <div className={`flex items-center justify-between pt-4 border-t ${
-                      darkMode ? 'border-gray-700' : 'border-gray-100'
-                    }`}>
-                      <div className={`flex items-center gap-2 text-sm ${
-                        darkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>
-                        <Clock3 className={`w-4 h-4 ${darkMode ? 'text-blue-400' : 'text-gray-400'}`} /> 
-                        <span>{insight.readTime} دقيقة • {formatDate(insight.createdAt)}</span>
-                      </div>
-                      <div className={`flex items-center gap-1 text-sm ${
-                        darkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>
-                        <Eye className={`w-4 h-4 ${darkMode ? 'text-green-400' : 'text-gray-400'}`} />
-                        <span>{formatViews(insight.views)}</span>
-                      </div>
-                    </div>
-
-                    {/* زر اقرأ التحليل - محسّن */}
-                    <div className="mt-4">
-                      <button className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
-                        darkMode 
-                          ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-600/30' 
-                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
-                      }`}>
-                        <span>اقرأ التحليل</span>
-                        <TrendingUp className="w-4 h-4" />
-                      </button>
-                    </div>
+          {/* Content */}
+          <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center p-3 bg-white/10 backdrop-blur-sm rounded-full mb-6">
+                <Brain className="w-12 h-12 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-6xl font-black text-white mb-6 drop-shadow-2xl">
+                التحليلات العميقة
+              </h1>
+              <p className="text-xl md:text-2xl text-white/95 max-w-3xl mx-auto mb-8 font-medium leading-relaxed drop-shadow-lg">
+                استكشف تحليلات معمقة ورؤى ثاقبة حول أهم القضايا والموضوعات، مدعومة بالبيانات والذكاء الاصطناعي
+              </p>
+              
+              {/* Stats */}
+              <div className="flex items-center justify-center gap-8 mt-8">
+                <div className="text-center bg-white/95 backdrop-blur-lg rounded-xl p-6 min-w-[140px] border border-gray-200 shadow-lg">
+                  <div className="text-4xl font-black text-gray-800 mb-2">
+                    {analyses && analyses.length > 0 ? analyses.length : '0'}
                   </div>
+                  <div className="text-sm font-semibold text-gray-600">تحليل عميق</div>
                 </div>
-              </Link>
-            ))}
+                <div className="w-px h-16 bg-gradient-to-b from-transparent via-gray-300 to-transparent" />
+                <div className="text-center bg-white/95 backdrop-blur-lg rounded-xl p-6 min-w-[140px] border border-gray-200 shadow-lg">
+                  <div className="text-4xl font-black text-gray-800 mb-2">
+                    {analyses && analyses.length > 0 
+                      ? analyses.reduce((sum, a) => sum + (a.views || 0), 0).toLocaleString('ar-SA')
+                      : '0'
+                    }
+                  </div>
+                  <div className="text-sm font-semibold text-gray-600">مشاهدة</div>
+                </div>
+                <div className="w-px h-16 bg-gradient-to-b from-transparent via-gray-300 to-transparent" />
+                <div className="text-center bg-white/95 backdrop-blur-lg rounded-xl p-6 min-w-[140px] border border-gray-200 shadow-lg">
+                  <div className="text-4xl font-black text-gray-800 mb-2">
+                    {analyses && analyses.length > 0 
+                      ? Math.round(analyses.reduce((sum, a) => sum + (a.qualityScore || 0), 0) / analyses.length)
+                      : '0'
+                    }%
+                  </div>
+                  <div className="text-sm font-semibold text-gray-600">متوسط الجودة</div>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
 
-        {/* رسالة عند عدم وجود نتائج */}
-        {!loading && filteredInsights.length === 0 && (
-          <div className="text-center py-12">
-            <Brain className={`w-16 h-16 mx-auto mb-4 ${
-              darkMode ? 'text-gray-600' : 'text-gray-400'
-            }`} />
-            <p className={`text-lg ${
-              darkMode ? 'text-gray-400' : 'text-gray-600'
-            }`}>
-              لا توجد تحليلات مطابقة للبحث
-            </p>
+        {/* Controls Section */}
+        <div className={`sticky top-0 ${darkMode ? 'bg-gray-900' : 'bg-white'} z-40 border-b ${darkMode ? 'border-gray-800' : 'border-gray-100'}`}>
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+              {/* Search */}
+              <div className="relative w-full lg:w-96">
+                <Search className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
+                <input
+                  type="text"
+                  placeholder="ابحث في التحليلات..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={`w-full pr-10 pl-4 py-2.5 rounded-lg border focus:outline-none transition-colors text-sm ${
+                    darkMode 
+                      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:bg-gray-700 focus:border-blue-500' 
+                      : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-400'
+                  }`}
+                />
+              </div>
+
+              {/* Filters */}
+              <div className="flex items-center gap-3">
+                {/* Sort Dropdown */}
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className={`px-4 py-2.5 rounded-lg border focus:outline-none transition-colors text-sm font-medium ${
+                    darkMode 
+                      ? 'bg-gray-800 border-gray-700 text-gray-300 focus:bg-gray-700 focus:border-blue-500' 
+                      : 'bg-gray-50 border-gray-200 text-gray-700 focus:bg-white focus:border-blue-400'
+                  }`}
+                >
+                  <option value="newest">الأحدث</option>
+                  <option value="oldest">الأقدم</option>
+                  <option value="popular">الأكثر مشاهدة</option>
+                  <option value="quality">الأعلى جودة</option>
+                </select>
+
+                {/* View Mode */}
+                <div className={`flex items-center rounded-lg p-1 border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded transition-colors ${
+                      viewMode === 'grid' 
+                        ? `${darkMode ? 'bg-gray-700 text-blue-400' : 'bg-white text-blue-600'} shadow-sm` 
+                        : `${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+                    }`}
+                  >
+                    <Grid className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded transition-colors ${
+                      viewMode === 'list' 
+                        ? `${darkMode ? 'bg-gray-700 text-blue-400' : 'bg-white text-blue-600'} shadow-sm` 
+                        : `${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+                    }`}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Categories */}
+            <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+              <button
+                onClick={() => setSelectedCategory('all')}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  selectedCategory === 'all'
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                    : `${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`
+                }`}
+              >
+                جميع التحليلات
+              </button>
+              
+              {categories.map(category => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                    selectedCategory === category
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                      : `${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          {filteredAnalyses.length === 0 ? (
+            <div className="text-center py-20">
+              <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-6 ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                <Brain className={`w-12 h-12 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
+              </div>
+              <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                لا توجد تحليلات متاحة
+              </h3>
+              <p className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+                لم يتم العثور على تحليلات مطابقة لمعايير البحث
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className={`${
+                viewMode === 'grid' 
+                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8' 
+                  : 'space-y-6'
+              }`}>
+                {filteredAnalyses.map((analysis) => (
+                  <Link
+                    key={analysis.id}
+                    href={`/insights/deep/${analysis.id}`}
+                    className={`block group ${viewMode === 'list' ? 'flex gap-6' : ''}`}
+                  >
+                    <div className={`relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                      darkMode ? 'bg-gray-800' : 'bg-white'
+                    } ${viewMode === 'list' ? 'flex flex-1' : ''}`}>
+                      {/* Featured Image */}
+                      <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-64' : 'h-48'}`}>
+                        <img 
+                          src={analysis.featuredImage || generatePlaceholderImage(analysis.title)} 
+                          alt={analysis.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                          <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                            <Brain className="w-3 h-3" />
+                            تحليل عميق
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className={`p-6 ${viewMode === 'list' ? 'flex-1' : ''}`}>
+                        {/* Categories */}
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {analysis.categories.map((category, index) => (
+                            <span 
+                              key={index}
+                              className={`text-xs px-2 py-1 rounded-full ${
+                                darkMode 
+                                  ? 'bg-gray-700 text-gray-300' 
+                                  : 'bg-gray-100 text-gray-700'
+                              }`}
+                            >
+                              {category}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Title */}
+                        <h3 className={`text-xl font-bold mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors ${
+                          darkMode ? 'text-white' : 'text-gray-900'
+                        }`}>
+                          {analysis.title}
+                        </h3>
+
+                        {/* Summary */}
+                        <p className={`text-sm mb-4 line-clamp-3 leading-relaxed ${
+                          darkMode ? 'text-gray-200' : 'text-gray-700'
+                        }`}>
+                          {analysis.summary}
+                        </p>
+
+                        {/* Meta Info */}
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-4">
+                            <span className={`flex items-center gap-1 font-medium ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
+                              <Clock className="w-4 h-4" />
+                              {analysis.readingTime} دقيقة
+                            </span>
+                            <span className={`flex items-center gap-1 font-medium ${darkMode ? 'text-purple-300' : 'text-purple-600'}`}>
+                              <Eye className="w-4 h-4" />
+                              {analysis.views.toLocaleString('ar-SA')}
+                            </span>
+                          </div>
+                          <span className={`flex items-center gap-1 font-bold px-2 py-1 rounded-full text-xs border ${getQualityColor(analysis.qualityScore)}`}>
+                            <BarChart3 className="w-4 h-4" />
+                            {analysis.qualityScore}%
+                          </span>
+                        </div>
+
+                        {/* Date and Author */}
+                        <div className={`mt-4 pt-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+                              {formatDate(analysis.createdAt)}
+                            </span>
+                            <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                              {analysis.sourceType === 'gpt' && <Sparkles className="w-3 h-3" />}
+                              {analysis.authorName}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Load More Button */}
+              {hasMore && filteredAnalyses.length >= 12 && (
+                <div className="text-center mt-16">
+                  <button
+                    onClick={() => setPage(prev => prev + 1)}
+                    disabled={loading}
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed font-bold"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        جاري التحميل...
+                      </>
+                    ) : (
+                      <>
+                        عرض المزيد
+                        <ChevronRight className="w-5 h-5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
-
       <Footer />
-    </div>
+
+      {/* Custom Styles for Animations */}
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes float-delayed {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-15px); }
+        }
+        
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        .animate-float-delayed {
+          animation: float-delayed 8s ease-in-out infinite;
+        }
+        
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+    </>
   );
 } 

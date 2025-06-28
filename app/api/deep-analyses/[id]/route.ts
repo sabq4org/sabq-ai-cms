@@ -103,6 +103,7 @@ export async function PUT(
       ...(body.isActive !== undefined && { isActive: body.isActive }),
       ...(body.isFeatured !== undefined && { isFeatured: body.isFeatured }),
       ...(body.displayPosition && { displayPosition: body.displayPosition }),
+      ...(body.featuredImage !== undefined && { featuredImage: body.featuredImage }),
       updatedAt: new Date().toISOString()
     };
     
@@ -120,6 +121,47 @@ export async function PUT(
     console.error('Error updating analysis:', error);
     return NextResponse.json(
       { error: 'Failed to update analysis' },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH - تحديث جزئي للتحليل
+export async function PATCH(
+  request: NextRequest,
+  { params }: RouteParams
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    const analyses = await readAnalyses();
+    
+    const analysisIndex = analyses.findIndex(a => a.id === id);
+    if (analysisIndex === -1) {
+      return NextResponse.json(
+        { error: 'Analysis not found' },
+        { status: 404 }
+      );
+    }
+    
+    // تحديث التحليل بالحقول المرسلة فقط
+    analyses[analysisIndex] = {
+      ...analyses[analysisIndex],
+      ...body,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await writeAnalyses(analyses);
+    
+    return NextResponse.json({
+      success: true,
+      analysis: analyses[analysisIndex]
+    });
+    
+  } catch (error) {
+    console.error('Error patching analysis:', error);
+    return NextResponse.json(
+      { error: 'Failed to patch analysis' },
       { status: 500 }
     );
   }

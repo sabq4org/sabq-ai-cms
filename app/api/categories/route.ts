@@ -52,11 +52,15 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         name: true,
+        nameEn: true,
         slug: true,
         displayOrder: true,
         isActive: true,
         parentId: true,
         description: true,
+        color: true,
+        icon: true,
+        metadata: true,
         createdAt: true,
         updatedAt: true,
         _count: {
@@ -79,11 +83,12 @@ export async function GET(request: NextRequest) {
       id: category.id,
       name: category.name,
       name_ar: category.name, // للتوافق العكسي
+      name_en: category.nameEn,
       slug: category.slug,
       description: category.description,
-      color: '#6B7280', // لون افتراضي
-      color_hex: '#6B7280', // للتوافق العكسي
-      icon: '📁', // أيقونة افتراضية
+      color: category.color || '#6B7280', // لون افتراضي
+      color_hex: category.color || '#6B7280', // للتوافق العكسي
+      icon: category.icon || '📁', // أيقونة افتراضية
       parent_id: category.parentId,
       parent: category.parent,
       children: [], // يمكن جلبها بطلب منفصل
@@ -92,7 +97,8 @@ export async function GET(request: NextRequest) {
       order_index: category.displayOrder,
       is_active: category.isActive,
       created_at: category.createdAt.toISOString(),
-      updated_at: category.updatedAt.toISOString()
+      updated_at: category.updatedAt.toISOString(),
+      metadata: category.metadata
     }));
     
     return NextResponse.json({
@@ -139,12 +145,16 @@ export async function POST(request: NextRequest) {
     // إنشاء الفئة الجديدة
     const newCategory = await prisma.category.create({
       data: {
-        name: body.name,
+        name: body.name || body.name_ar,
+        nameEn: body.name_en,
         slug: body.slug,
         description: body.description,
+        color: body.color || body.color_hex,
+        icon: body.icon,
         parentId: body.parent_id,
-        displayOrder: body.order_index || 0,
-        isActive: body.is_active !== false
+        displayOrder: body.order_index || body.position || 0,
+        isActive: body.is_active !== false,
+        metadata: body.metadata
       }
     });
     
@@ -192,11 +202,15 @@ export async function PUT(request: NextRequest) {
     const updatedCategory = await prisma.category.update({
       where: { id: body.id },
       data: {
-        name: body.name || existingCategory.name,
-        description: body.description,
-        parentId: body.parent_id,
-        displayOrder: body.order_index ?? existingCategory.displayOrder,
-        isActive: body.is_active ?? existingCategory.isActive
+        name: body.name || body.name_ar || existingCategory.name,
+        nameEn: body.name_en !== undefined ? body.name_en : existingCategory.nameEn,
+        description: body.description !== undefined ? body.description : existingCategory.description,
+        color: body.color || body.color_hex || existingCategory.color,
+        icon: body.icon !== undefined ? body.icon : existingCategory.icon,
+        parentId: body.parent_id !== undefined ? body.parent_id : existingCategory.parentId,
+        displayOrder: body.order_index ?? body.position ?? existingCategory.displayOrder,
+        isActive: body.is_active ?? existingCategory.isActive,
+        metadata: body.metadata !== undefined ? body.metadata : existingCategory.metadata
       }
     });
     

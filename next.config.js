@@ -206,6 +206,13 @@ const nextConfig = {
   
   // نقل serverComponentsExternalPackages للمكان الصحيح
   serverExternalPackages: ['@prisma/client', 'bcrypt'],
+  
+  // Short link rewrites
+  async rewrites() {
+    return [
+      { source: '/n/:slug', destination: '/article/:slug' }
+    ]
+  },
 }
 
 module.exports = nextConfig 

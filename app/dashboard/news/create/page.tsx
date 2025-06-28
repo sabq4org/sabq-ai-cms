@@ -18,8 +18,16 @@ import { TeamMember } from '@/types/team';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import { Block } from '@/components/BlockEditor/types';
+import '@/styles/tiptap-editor.css';
 
 // Dynamic imports
+const TiptapEditor = dynamic(() => import('@/components/Editor/TiptapEditor'), {
+  ssr: false,
+  loading: () => (
+    <div className="animate-pulse bg-gray-200 h-64 rounded-xl"></div>
+  )
+});
+
 const ContentEditorWithBlocks = dynamic(() => import('@/components/ContentEditorWithBlocks'), {
   ssr: false,
   loading: () => (
@@ -39,8 +47,8 @@ interface ArticleFormData {
   title: string;
   subtitle: string;
   description: string;
-  category_id: number;
-  subcategory_id?: number;
+  category_id: string; // تغيير من number إلى string
+  subcategory_id?: string; // تغيير من number إلى string
   is_breaking: boolean;
   is_featured: boolean;
   is_smart_newsletter: boolean;
@@ -64,6 +72,8 @@ interface ArticleFormData {
   scope: 'local' | 'international';
   status: 'draft' | 'review' | 'published';
   content_blocks: Block[];
+  content_html: string;
+  content_json: any;
   featured_image?: string;
   featured_image_alt?: string;
 }
@@ -75,14 +85,25 @@ interface ArticleFormData {
 // type ContentBlock = Block;
 
 interface Category {
-  id: number;
+  id: string; // تغيير من number إلى string
+  name: string;
   name_ar: string;
   name_en?: string;
+  slug: string;
+  description?: string;
+  color?: string;
   color_hex: string;
   icon?: string;
+  parent_id?: string | null;
+  parent?: any;
   children?: Category[];
+  articles_count?: number;
+  children_count?: number;
+  order_index?: number;
   position?: number;
   is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface Author {
@@ -99,7 +120,7 @@ export default function CreateArticlePage() {
     title: '',
     subtitle: '',
     description: '',
-    category_id: 0,
+    category_id: '',
     is_breaking: false,
     is_featured: false,
     is_smart_newsletter: false,
@@ -114,6 +135,8 @@ export default function CreateArticlePage() {
       data: { paragraph: { text: '' } },
       order: 0
     }],
+    content_html: '',
+    content_json: {},
     featured_image: ''
   });
 
@@ -149,13 +172,19 @@ export default function CreateArticlePage() {
         setLoading(true);
         const res = await fetch('/api/categories?active_only=true');
         const result = await res.json();
+        console.log('Categories API response:', result); // سجل التصحيح
+        
         if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل التصنيفات');
 
-        const sorted = (result.data as Category[])
-          .filter(cat => cat.is_active)
-          .sort((a, b) => (a.position || 0) - (b.position || 0));
+        const categoriesData = result.categories || result.data || [];
+        console.log('Categories data:', categoriesData); // سجل التصحيح
+        
+        const sorted = (categoriesData as Category[])
+          .filter(cat => cat.is_active !== false)
+          .sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
 
         setCategories(sorted);
+        console.log('Sorted categories:', sorted); // سجل التصحيح
       } catch (err) {
         console.error('خطأ في تحميل التصنيفات:', err);
         setCategories([]);
@@ -176,7 +205,7 @@ export default function CreateArticlePage() {
         if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل أعضاء الفريق');
 
         // فلترة أعضاء الفريق حسب الأدوار المطلوبة
-        const eligibleAuthors = (result.data as any[])
+        const eligibleAuthors = ((result.data || []) as any[])
           .filter(member => {
             // الحصول على دور العضو من roles.json
             return member.isActive && ['admin', 'editor', 'media', 'correspondent', 'content-manager'].includes(member.roleId);
@@ -261,7 +290,7 @@ export default function CreateArticlePage() {
     if (imageBlocks.length >= 1) score += 15;
     
     // التصنيف (10 نقطة)
-    if (formData.category_id > 0) score += 10;
+    if (formData.category_id && formData.category_id.length > 0) score += 10;
     
     // الكلمات المفتاحية (10 نقطة)
     if (formData.keywords.length >= 3) score += 10;
@@ -381,7 +410,9 @@ export default function CreateArticlePage() {
         title: formData.title,
         subtitle: formData.subtitle,
         content_blocks: formData.content_blocks,
-        content: textContent || 'محتوى المقال', // fallback نصي للتوافق
+        content: formData.content_html || textContent || 'محتوى المقال', // استخدام HTML من TipTap أولاً
+        content_html: formData.content_html, // حفظ HTML المنسق
+        content_json: formData.content_json, // حفظ JSON للمرونة
         summary: formData.description,
         category_id: formData.category_id,
         status,
@@ -730,13 +761,13 @@ export default function CreateArticlePage() {
                       </label>
                       <select
                         value={formData.category_id}
-                        onChange={(e) => setFormData(prev => ({ ...prev, category_id: Number(e.target.value) }))}
+                        onChange={(e) => setFormData(prev => ({ ...prev, category_id: e.target.value }))}
                         className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
-                        <option value={0}>اختر التصنيف...</option>
+                        <option value="">اختر التصنيف...</option>
                         {categories.map(cat => (
                           <option key={cat.id} value={cat.id}>
-                            {cat.icon} {cat.name_ar}
+                            {cat.icon} {cat.name || cat.name_ar}
                           </option>
                         ))}
                       </select>
@@ -813,13 +844,16 @@ export default function CreateArticlePage() {
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       محتوى المقال <span className="text-red-500">*</span>
                     </label>
-                    <ContentEditorWithBlocks 
-                      formData={formData}
-                      setFormData={setFormData}
-                      categories={categories}
-                      aiLoading={aiLoading}
-                      onGenerateTitle={generateTitle}
-                      onGenerateDescription={generateDescription}
+                    <TiptapEditor 
+                      content={formData.content_html}
+                      onChange={(html, json) => {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          content_html: html,
+                          content_json: json
+                        }));
+                      }}
+                      placeholder="ابدأ بكتابة محتوى المقال هنا..."
                     />
                   </div>
                 </div>

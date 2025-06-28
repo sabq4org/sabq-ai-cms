@@ -131,7 +131,8 @@ export default function CategoryDetailPage({ params }: PageProps) {
       const categoriesResponse = await fetch('/api/categories');
       if (categoriesResponse.ok) {
         const categoriesData = await categoriesResponse.json();
-        const foundCategory = categoriesData.data.find((cat: Category) => 
+        const categories = categoriesData.categories || categoriesData.data || [];
+        const foundCategory = categories.find((cat: Category) => 
           cat.slug === slug || cat.name_ar.toLowerCase().replace(/\s+/g, '-') === slug
         );
         

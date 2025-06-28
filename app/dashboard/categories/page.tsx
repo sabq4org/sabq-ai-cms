@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import CategoryFormModal from '../../../components/CategoryFormModal';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
+import { Category, CategoryFormData } from '@/types/category';
 import { 
   Plus, 
   Search, 
@@ -32,48 +33,6 @@ import {
   Globe
 } from 'lucide-react';
 
-interface Category {
-  id: number;
-  name_ar: string;
-  name_en?: string;
-  description?: string;
-  slug: string;
-  color_hex: string;
-  icon?: string;
-  parent_id?: number;
-  position: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at?: string;
-  children?: Category[];
-  article_count?: number;
-  meta_title?: string;
-  meta_description?: string;
-  og_image_url?: string;
-  canonical_url?: string;
-  noindex?: boolean;
-  og_type?: string;
-  can_delete?: boolean;
-}
-
-interface CategoryFormData {
-  name_ar: string;
-  name_en: string;
-  description: string;
-  slug: string;
-  color_hex: string;
-  icon: string;
-  parent_id: number | undefined;
-  position: number;
-  is_active: boolean;
-  meta_title: string;
-  meta_description: string;
-  og_image_url: string;
-  canonical_url: string;
-  noindex: boolean;
-  og_type: string;
-}
-
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 export default function CategoriesPage() {
@@ -84,7 +43,7 @@ export default function CategoriesPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [draggedCategory, setDraggedCategory] = useState<Category | null>(null);
@@ -108,7 +67,7 @@ export default function CategoriesPage() {
       const data = await response.json();
       
       if (data.success) {
-        setCategories(data.data || []);
+        setCategories(data.categories || data.data || []);
       } else {
         setNotification({
           type: 'error',
@@ -217,7 +176,7 @@ export default function CategoriesPage() {
   };
 
   // وظائف إدارة التصنيفات
-  const handleToggleStatus = async (categoryId: number) => {
+  const handleToggleStatus = async (categoryId: string) => {
     try {
       // TODO: إضافة API call لتغيير حالة التصنيف
       setCategories(prev => prev.map(cat => 
@@ -245,11 +204,12 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleDeleteCategory = async (categoryId: number) => {
+  const handleDeleteCategory = async (categoryId: string) => {
     const category = categories.find(cat => cat.id === categoryId) || 
                      categories.find(cat => cat.children?.some(child => child.id === categoryId));
     
-    if (category && !category.can_delete && category.article_count && category.article_count > 0) {
+    const articleCount = category?.articles_count || category?.article_count || 0;
+    if (category && !category.can_delete && articleCount > 0) {
       setNotification({
         type: 'warning',
         message: 'لا يمكن حذف تصنيف يحتوي على مقالات. يرجى نقل المقالات أولاً.'
@@ -425,7 +385,7 @@ export default function CategoriesPage() {
                     )}
                     <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
                       <span>/{category.slug}</span>
-                      <span>{category.article_count} مقال</span>
+                      <span>{category.articles_count || category.article_count || 0} مقال</span>
                     </div>
                   </div>
                 </div>
@@ -461,9 +421,9 @@ export default function CategoriesPage() {
                   </button>
                   <button
                     onClick={() => handleDeleteCategory(category.id)}
-                    disabled={category.article_count ? category.article_count > 0 && !category.can_delete : false}
+                    disabled={(category.articles_count || category.article_count || 0) > 0 && !category.can_delete}
                     className={`p-2 rounded-lg transition-colors duration-200 ${
-                      (category.article_count && category.article_count > 0 && !category.can_delete)
+                      ((category.articles_count || category.article_count || 0) > 0 && !category.can_delete)
                         ? darkMode 
                           ? 'text-gray-600 cursor-not-allowed' 
                           : 'text-gray-400 cursor-not-allowed'
@@ -472,7 +432,7 @@ export default function CategoriesPage() {
                           : 'text-red-600 hover:bg-red-50'
                     }`}
                     title={
-                      (category.article_count && category.article_count > 0 && !category.can_delete)
+                      ((category.articles_count || category.article_count || 0) > 0 && !category.can_delete)
                         ? 'لا يمكن حذف تصنيف يحتوي على مقالات'
                         : 'حذف التصنيف'
                     }
@@ -632,7 +592,7 @@ export default function CategoriesPage() {
         />
         <CircularStatsCard
           title="إجمالي المقالات"
-          value={categories.reduce((sum, cat) => sum + (cat.article_count || 0), 0).toString()}
+          value={categories.reduce((sum, cat) => sum + (cat.articles_count || cat.article_count || 0), 0).toString()}
           subtitle="مقال"
           icon={Hash}
           bgColor="bg-orange-100"

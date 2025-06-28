@@ -14,6 +14,7 @@ export interface DeepAnalysis {
   summary: string;
   content: AnalysisContent;
   rawContent?: string;
+  featuredImage?: string | null;
   
   // التصنيفات والوسوم
   categories: string[];
@@ -178,6 +179,7 @@ export interface CreateAnalysisRequest {
   isFeatured?: boolean;
   displayPosition?: DisplayPosition;
   status?: AnalysisStatus;
+  featuredImage?: string | null;
 }
 
 // طلب تحديث تحليل
@@ -191,6 +193,7 @@ export interface UpdateAnalysisRequest {
   isActive?: boolean;
   isFeatured?: boolean;
   displayPosition?: DisplayPosition;
+  featuredImage?: string | null;
 }
 
 // فلاتر البحث

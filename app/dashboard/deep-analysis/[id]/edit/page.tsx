@@ -14,7 +14,9 @@ import {
   RefreshCw,
   Brain,
   X,
-  FileText
+  FileText,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { cn } from '@/lib/utils';
@@ -35,10 +37,13 @@ export default function EditDeepAnalysisPage() {
     summary: '',
     categories: [] as string[],
     tags: [] as string[],
-    content: ''
+    content: '',
+    featuredImage: null as string | null
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [currentTag, setCurrentTag] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAnalysis();
@@ -81,10 +86,65 @@ export default function EditDeepAnalysisPage() {
         summary: analysis.summary || '',
         categories: analysis.categories || [],
         tags: analysis.tags || [],
-        content: contentToLoad
+        content: contentToLoad,
+        featuredImage: (analysis as any).featuredImage || null
       });
+      
+      // إذا كانت هناك صورة محفوظة، قم بتعيينها كمعاينة
+      if ((analysis as any).featuredImage) {
+        setImagePreview((analysis as any).featuredImage);
+      }
     }
   }, [analysis]);
+
+  // معالجة رفع الصورة
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error('حجم الملف يجب أن يكون أقل من 5 ميجابايت');
+        return;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        toast.error('الرجاء اختيار ملف صورة صالح');
+        return;
+      }
+
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // رفع الصورة
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return null;
+
+    const formData = new FormData();
+    formData.append('file', imageFile);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('فشل رفع الصورة');
+      }
+
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('حدث خطأ أثناء رفع الصورة');
+      return null;
+    }
+  };
 
   const fetchAnalysis = async () => {
     try {
@@ -108,7 +168,13 @@ export default function EditDeepAnalysisPage() {
         categories: data.categories,
         tags: data.tags || [],
         content: content || '',
+        featuredImage: (data as any).featuredImage || null
       });
+      
+      // إذا كانت هناك صورة محفوظة، قم بتعيينها كمعاينة
+      if ((data as any).featuredImage) {
+        setImagePreview((data as any).featuredImage);
+      }
     } catch (error) {
       console.error('Error fetching analysis:', error);
       toast.error('فشل في تحميل التحليل');
@@ -266,11 +332,17 @@ export default function EditDeepAnalysisPage() {
 
     setSaving(true);
     try {
+      // رفع الصورة إذا كانت موجودة
+      let uploadedImageUrl = formData.featuredImage;
+      if (imageFile) {
+        uploadedImageUrl = await uploadImage();
+      }
       const response = await fetch(`/api/deep-analyses/${params.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          featuredImage: uploadedImageUrl,
           status: publish ? 'published' : analysis?.status
         })
       });
@@ -473,6 +545,61 @@ export default function EditDeepAnalysisPage() {
                       </Badge>
                     ))}
                   </div>
+                </div>
+              </div>
+
+              {/* صورة مميزة */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  الصورة المميزة
+                </label>
+                <div className="space-y-4">
+                  {(imagePreview || formData.featuredImage) ? (
+                    <div className="relative">
+                      <img
+                        src={imagePreview || formData.featuredImage || ''}
+                        alt="معاينة الصورة"
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImageFile(null);
+                          setImagePreview(null);
+                          setFormData({ ...formData, featuredImage: null });
+                        }}
+                        className="absolute top-2 left-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-300 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500">
+                      <input
+                        type="file"
+                        id="featuredImage"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="featuredImage"
+                        className="cursor-pointer flex flex-col items-center gap-3"
+                      >
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                          <Upload className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-700 dark:text-gray-300">
+                            اضغط لرفع صورة
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            PNG, JPG, GIF حتى 5 ميجابايت
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>

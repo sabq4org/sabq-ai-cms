@@ -91,16 +91,23 @@ export default function DebugLoyaltyPage() {
         {/* API نقاط الولاء */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4 text-green-600">2️⃣ API نقاط الولاء</h2>
-          {loyaltyAPIData?.data ? (
+          {loyaltyAPIData ? (
             <div className="space-y-2">
-              <p><strong>user_id:</strong> {loyaltyAPIData.data.user_id}</p>
-              <p><strong>النقاط:</strong> <span className="text-2xl font-bold text-amber-600">{loyaltyAPIData.data.total_points}</span></p>
-              <p><strong>المستوى المحسوب:</strong> 
-                <span className="font-bold" style={{ color: getMembershipLevel(loyaltyAPIData.data.total_points).color }}>
-                  {getMembershipLevel(loyaltyAPIData.data.total_points).name}
-                </span>
-              </p>
-              <p><strong>آخر تحديث:</strong> {new Date(loyaltyAPIData.data.last_updated).toLocaleString('ar-SA')}</p>
+              {(() => {
+                const data = loyaltyAPIData.data || loyaltyAPIData;
+                return (
+                  <>
+                    <p><strong>user_id:</strong> {data.user_id}</p>
+                    <p><strong>النقاط:</strong> <span className="text-2xl font-bold text-amber-600">{data.total_points || 0}</span></p>
+                    <p><strong>المستوى المحسوب:</strong> 
+                      <span className="font-bold" style={{ color: getMembershipLevel(data.total_points || 0).color }}>
+                        {getMembershipLevel(data.total_points || 0).name}
+                      </span>
+                    </p>
+                    <p><strong>آخر تحديث:</strong> {data.last_updated ? new Date(data.last_updated).toLocaleString('ar-SA') : 'غير محدد'}</p>
+                  </>
+                );
+              })()}
             </div>
           ) : (
             <p className="text-gray-500">لا توجد بيانات</p>
@@ -136,7 +143,8 @@ export default function DebugLoyaltyPage() {
           {/* التحقق من التطابق */}
           {(() => {
             const localPoints = localStorageData?.loyaltyPoints || 0;
-            const loyaltyPoints = loyaltyAPIData?.data?.total_points || 0;
+            const loyaltyData = loyaltyAPIData?.data || loyaltyAPIData;
+            const loyaltyPoints = loyaltyData?.total_points || 0;
             const usersPoints = usersAPIData?.loyaltyPoints || 0;
             
             const allMatch = localPoints === loyaltyPoints && loyaltyPoints === usersPoints;

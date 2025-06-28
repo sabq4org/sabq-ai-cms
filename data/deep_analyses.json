@@ -45,18 +45,19 @@
     "isActive": true,
     "isFeatured": false,
     "displayPosition": "middle",
-    "views": 36,
+    "views": 158,
     "likes": 0,
     "shares": 0,
     "saves": 0,
     "commentsCount": 0,
     "avgReadTime": 0,
     "createdAt": "2025-06-23T09:17:14.816Z",
-    "updatedAt": "2025-06-23T09:18:19.085Z",
+    "updatedAt": "2025-06-27T20:25:59.389Z",
     "metadata": {
       "generatedByAI": false
     },
-    "publishedAt": "2025-06-23T09:18:19.085Z"
+    "publishedAt": "2025-06-23T09:18:19.085Z",
+    "featuredImage": "/uploads/avatars/736b9dfb-8862-4b60-bc59-04dd89687b24.jpg"
   },
   {
     "id": "analysis-1750668400962-6megevo26",
@@ -112,7 +113,7 @@
     "isActive": true,
     "isFeatured": false,
     "displayPosition": "middle",
-    "views": 25,
+    "views": 31,
     "likes": 0,
     "shares": 0,
     "saves": 0,
@@ -175,7 +176,7 @@
     "isActive": true,
     "isFeatured": false,
     "displayPosition": "middle",
-    "views": 7,
+    "views": 13,
     "likes": 0,
     "shares": 0,
     "saves": 0,

@@ -3,35 +3,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { Menu, X, Search, User, Moon, Sun } from 'lucide-react'
+import { Menu, X, Search, User } from 'lucide-react'
+import { ThemeToggle } from '../ThemeToggle'
 
 export function StaticHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
-
-  // استرجاع حالة الوضع الليلي
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode')
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode))
-    }
-  }, [])
-
-  // تطبيق الوضع الليلي
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [darkMode])
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode
-    setDarkMode(newDarkMode)
-    localStorage.setItem('darkMode', JSON.stringify(newDarkMode))
-  }
 
   const navigationItems = [
     { label: 'الرئيسية', url: '/' },
@@ -93,16 +70,7 @@ export function StaticHeader() {
             </button>
 
             {/* تبديل الوضع الليلي */}
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              {darkMode ? (
-                <Sun className="w-5 h-5 text-yellow-500" />
-              ) : (
-                <Moon className="w-5 h-5 text-gray-600" />
-              )}
-            </button>
+            <ThemeToggle />
 
             {/* تسجيل الدخول */}
             <Link

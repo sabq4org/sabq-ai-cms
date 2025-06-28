@@ -1,158 +1,163 @@
 {
-  "preferences": [
-    {
-      "id": "pref-1750691849005-1",
-      "user_id": "admin",
-      "category_id": 3,
-      "category_name": "رياضة",
-      "category_icon": "⚽",
-      "category_color": "#F97316",
-      "source": "manual",
-      "created_at": "2025-06-23T15:17:29.005Z",
-      "updated_at": "2025-06-23T15:17:29.006Z"
-    },
-    {
-      "id": "pref-1750691849006-2",
-      "user_id": "admin",
-      "category_id": 1,
-      "category_name": "تقنية",
-      "category_icon": "⚡",
-      "category_color": "#3B82F6",
-      "source": "manual",
-      "created_at": "2025-06-23T15:17:29.006Z",
-      "updated_at": "2025-06-23T15:17:29.006Z"
-    },
-    {
-      "id": "pref-1750692087483-eejpvk3pv",
-      "user_id": "user-1750594786667-pwihpdx51",
-      "category_id": 2,
-      "source": "sync_from_localstorage",
-      "created_at": "2025-06-23T15:21:27.483Z",
-      "updated_at": "2025-06-23T15:21:27.483Z"
-    },
-    {
-      "id": "pref-1750692087483-w29e8kslt",
-      "user_id": "user-1750594786667-pwihpdx51",
-      "category_id": 5,
-      "source": "sync_from_localstorage",
-      "created_at": "2025-06-23T15:21:27.483Z",
-      "updated_at": "2025-06-23T15:21:27.483Z"
-    },
-    {
-      "id": "pref-1750692087483-5ptfkzcky",
-      "user_id": "user-1750594786667-pwihpdx51",
-      "category_id": 6,
-      "source": "sync_from_localstorage",
-      "created_at": "2025-06-23T15:21:27.483Z",
-      "updated_at": "2025-06-23T15:21:27.483Z"
-    },
-    {
-      "id": "pref-1750692087483-4r055a9m0",
-      "user_id": "user-1750594786667-pwihpdx51",
-      "category_id": 3,
-      "source": "sync_from_localstorage",
-      "created_at": "2025-06-23T15:21:27.483Z",
-      "updated_at": "2025-06-23T15:21:27.483Z"
-    },
-    {
-      "id": "pref-1750692087483-rtbo0us8g",
-      "user_id": "user-1750594786667-pwihpdx51",
-      "category_id": 1,
-      "source": "sync_from_localstorage",
-      "created_at": "2025-06-23T15:21:27.483Z",
-      "updated_at": "2025-06-23T15:21:27.483Z"
-    },
-    {
-      "id": "pref-1750692087483-9q7vumupa",
-      "user_id": "user-1750594786667-pwihpdx51",
-      "category_id": 4,
-      "source": "sync_from_localstorage",
-      "created_at": "2025-06-23T15:21:27.483Z",
-      "updated_at": "2025-06-23T15:21:27.483Z"
-    },
-    {
-      "id": "pref-1750924936980-wnbyglzdc",
-      "user_id": "user-1750693026418-zdcy23jow",
-      "category_id": 3,
-      "source": "welcome",
-      "created_at": "2025-06-26T08:02:16.980Z",
-      "updated_at": "2025-06-26T08:02:16.980Z"
-    },
-    {
-      "id": "pref-1750924936980-go1bg7lgo",
-      "user_id": "user-1750693026418-zdcy23jow",
-      "category_id": 6,
-      "source": "welcome",
-      "created_at": "2025-06-26T08:02:16.980Z",
-      "updated_at": "2025-06-26T08:02:16.980Z"
-    },
-    {
-      "id": "pref-1750924936980-yv3nas48s",
-      "user_id": "user-1750693026418-zdcy23jow",
-      "category_id": 5,
-      "source": "welcome",
-      "created_at": "2025-06-26T08:02:16.980Z",
-      "updated_at": "2025-06-26T08:02:16.980Z"
-    }
-  ],
-  "user-1750594786667-pwihpdx51": {
-    "user_id": "user-1750594786667-pwihpdx51",
-    "categories": {
-      "2": 3
-    },
-    "authors": {},
-    "topics": [],
-    "reading_time": {
-      "preferred_hours": [
-        18
-      ],
-      "average_duration": 0
-    },
-    "last_updated": "2025-06-23T15:32:31.702Z"
-  },
-  "user-1750693026418-zdcy23jow": {
-    "user_id": "user-1750693026418-zdcy23jow",
-    "categories": {
-      "2": 49,
-      "3": 5,
-      "4": 123,
-      "8": 5
-    },
-    "authors": {
-      "tm-1750618269861-zhxswwcg3": 1
-    },
-    "topics": [],
-    "reading_time": {
-      "preferred_hours": [
-        19,
-        23,
-        9,
-        10,
-        11,
-        13,
-        20
-      ],
-      "average_duration": 3.610757638469039
-    },
-    "last_updated": "2025-06-26T08:17:28.159Z"
-  },
   "user-1750236579398-3h4rt6gu7": {
     "user_id": "user-1750236579398-3h4rt6gu7",
     "categories": {
-      "2": 7,
-      "3": 4,
-      "8": 1
+      "1": 2,
+      "4": 16
     },
     "authors": {},
     "topics": [],
     "reading_time": {
       "preferred_hours": [
-        16,
-        18,
-        19
+        14,
+        15,
+        21,
+        23
       ],
       "average_duration": 0
     },
-    "last_updated": "2025-06-25T16:43:38.061Z"
+    "last_updated": "2025-06-27T20:42:28.319Z"
+  },
+  "guest-1751024999527-iqrk": {
+    "user_id": "guest-1751024999527-iqrk",
+    "categories": {
+      "4": 3
+    },
+    "authors": {},
+    "topics": [],
+    "reading_time": {
+      "preferred_hours": [
+        14
+      ],
+      "average_duration": 0
+    },
+    "last_updated": "2025-06-27T11:51:13.682Z"
+  },
+  "guest-1751025080442-7j0f": {
+    "user_id": "guest-1751025080442-7j0f",
+    "categories": {
+      "4": 3
+    },
+    "authors": {},
+    "topics": [],
+    "reading_time": {
+      "preferred_hours": [
+        14
+      ],
+      "average_duration": 0
+    },
+    "last_updated": "2025-06-27T11:57:06.345Z"
+  },
+  "guest-1751023849064-8nm0": {
+    "user_id": "guest-1751023849064-8nm0",
+    "categories": {
+      "4": 4
+    },
+    "authors": {},
+    "topics": [],
+    "reading_time": {
+      "preferred_hours": [
+        14,
+        15
+      ],
+      "average_duration": 0
+    },
+    "last_updated": "2025-06-27T12:20:30.212Z"
+  },
+  "guest-1751025896624-4nts": {
+    "user_id": "guest-1751025896624-4nts",
+    "categories": {
+      "1": 11,
+      "4": 2
+    },
+    "authors": {},
+    "topics": [],
+    "reading_time": {
+      "preferred_hours": [
+        15
+      ],
+      "average_duration": 0
+    },
+    "last_updated": "2025-06-27T12:25:16.989Z"
+  },
+  "preferences": [
+    {
+      "id": "pref-1751048322503-sap8lgjaj",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "category_id": 2,
+      "source": "welcome",
+      "created_at": "2025-06-27T18:18:42.503Z",
+      "updated_at": "2025-06-27T18:18:42.503Z"
+    },
+    {
+      "id": "pref-1751048322503-pg5mrq0ku",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "category_id": 1,
+      "source": "welcome",
+      "created_at": "2025-06-27T18:18:42.503Z",
+      "updated_at": "2025-06-27T18:18:42.503Z"
+    },
+    {
+      "id": "pref-1751048322503-f2lfqtowb",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "category_id": 4,
+      "source": "welcome",
+      "created_at": "2025-06-27T18:18:42.503Z",
+      "updated_at": "2025-06-27T18:18:42.503Z"
+    },
+    {
+      "id": "pref-1751048322503-u8873m76r",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "category_id": 5,
+      "source": "welcome",
+      "created_at": "2025-06-27T18:18:42.503Z",
+      "updated_at": "2025-06-27T18:18:42.503Z"
+    },
+    {
+      "id": "pref-1751048322503-h1katfmtu",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "category_id": 6,
+      "source": "welcome",
+      "created_at": "2025-06-27T18:18:42.503Z",
+      "updated_at": "2025-06-27T18:18:42.503Z"
+    },
+    {
+      "id": "pref-1751048322503-snmnn1hwf",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "category_id": 3,
+      "source": "welcome",
+      "created_at": "2025-06-27T18:18:42.503Z",
+      "updated_at": "2025-06-27T18:18:42.503Z"
+    }
+  ],
+  "guest-1751056683560-ef0b": {
+    "user_id": "guest-1751056683560-ef0b",
+    "categories": {
+      "4": 4
+    },
+    "authors": {},
+    "topics": [],
+    "reading_time": {
+      "preferred_hours": [
+        23
+      ],
+      "average_duration": 0
+    },
+    "last_updated": "2025-06-27T20:39:46.013Z"
+  },
+  "guest-1751058403517-bysw": {
+    "user_id": "guest-1751058403517-bysw",
+    "categories": {
+      "4": 1
+    },
+    "authors": {},
+    "topics": [],
+    "reading_time": {
+      "preferred_hours": [
+        0
+      ],
+      "average_duration": 0
+    },
+    "last_updated": "2025-06-27T21:06:44.709Z"
   }
 }

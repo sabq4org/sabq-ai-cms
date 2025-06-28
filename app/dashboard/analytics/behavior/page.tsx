@@ -41,10 +41,11 @@ export default function BehaviorAnalyticsPage() {
         const data = await response.json();
         
         if (data.success) {
-          setUsers(data.data);
+          const usersData = data.data || data.users || [];
+          setUsers(usersData);
           // اختيار أول مستخدم افتراضياً
-          if (data.data.length > 0) {
-            setSelectedUser(data.data[0].id);
+          if (usersData.length > 0) {
+            setSelectedUser(usersData[0].id);
           }
         }
       } catch (error) {
@@ -87,7 +88,8 @@ export default function BehaviorAnalyticsPage() {
       const data = await response.json();
       
       if (data.success) {
-        setRewardResult(data.data.bonus_points);
+        const responseData = data.data || data;
+        setRewardResult(responseData.bonus_points || 0);
         // إعادة جلب السلوك لتحديث البيانات
         const behaviorResponse = await fetch(`/api/interactions?user_id=${selectedUser}`);
         const behaviorData = await behaviorResponse.json();
