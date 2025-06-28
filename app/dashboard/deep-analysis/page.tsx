@@ -1,44 +1,32 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectOption } from '@/components/ui/select';
+import { Select, SelectOption } from '@/components/ui/select';
 import { 
   Brain, 
   Plus, 
-  Search, 
-  Filter,
+  Search,
   Eye,
   Edit,
   Trash2,
   MoreHorizontal,
   Calendar,
   TrendingUp,
-  Star,
-  Clock,
   BarChart3,
   FileText,
   PenTool,
-  Newspaper,
   Target,
   Sparkles,
-  ChevronDown,
-  MessageCircle,
   Copy,
   Activity,
-  Award,
-  Users,
-  AlertTriangle,
-  ArrowUp,
   Zap,
   ChevronLeft,
   ChevronRight,
   Layers,
   Send,
   Archive,
-  Save,
   RefreshCw,
   ExternalLink
 } from 'lucide-react';
@@ -46,7 +34,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -57,7 +44,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 // import { useDarkMode } from '@/hooks/useDarkMode';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useRouter } from 'next/navigation';

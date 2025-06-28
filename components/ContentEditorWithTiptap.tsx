@@ -1,11 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import {
-  Bold, Italic, List, Link, Image as ImageIcon, Video, 
-  Quote, Type, Plus, Trash2, ArrowUp, ArrowDown,
-  Hash, Sparkles, Wand2, FileText, Lightbulb
+import { Image as ImageIcon, Sparkles
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 

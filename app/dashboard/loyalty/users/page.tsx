@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Users, Crown, Star, Award, AlertTriangle, CheckCircle, 
-  Search, Filter, Mail, Calendar, TrendingUp, Eye, 
+  Search, Filter, Mail, Calendar, Eye, 
   RefreshCw, Download, UserCheck, UserX, MessageCircle,
-  ChevronDown, ArrowUpDown, MoreVertical, Edit, Ban,
-  Gift, Zap, Shield, Activity, Image as ImageIcon
+  ChevronDown, ArrowUpDown, MoreVertical,
+  Gift, Shield, Activity
 } from 'lucide-react';
 
 interface LoyaltyUser {

@@ -15,8 +15,7 @@ import {
   Brain,
   X,
   FileText,
-  Upload,
-  Image as ImageIcon
+  Upload
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { cn } from '@/lib/utils';

@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
 const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'articles.json');

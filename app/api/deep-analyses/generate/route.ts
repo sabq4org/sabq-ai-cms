@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateDeepAnalysis, initializeOpenAI } from '@/lib/services/deepAnalysisService';
-import { GenerateAnalysisRequest, GenerateAnalysisResponse } from '@/types/deep-analysis';
-import { cookies } from 'next/headers';
+import { GenerateAnalysisRequest } from '@/types/deep-analysis';
 
 export async function POST(request: NextRequest) {
   try {

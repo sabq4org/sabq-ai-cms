@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   FileText, User, Shield, Settings, AlertCircle, 
   Edit3, Trash2, Eye, UserPlus, Lock, CheckCircle,
-  XCircle, Clock, TrendingUp, MessageSquare, Zap
+  XCircle, Clock, Zap
 } from 'lucide-react';
 import { SabqBadge } from '@/components/ui/SabqBadge';
 import { formatDistanceToNow } from 'date-fns';

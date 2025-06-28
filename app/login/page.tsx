@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -8,7 +8,6 @@ import {
   LogIn, AlertCircle, Sparkles 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { logActions } from '../../lib/log-activity';
 
 function LoginForm() {
   const router = useRouter();

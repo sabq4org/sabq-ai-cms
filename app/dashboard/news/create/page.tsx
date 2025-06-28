@@ -2,21 +2,17 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  PenTool, FileText, Save, Send, Eye, Settings, 
-  Plus, Image, Video, Hash, MapPin, Calendar, 
-  Sparkles, Brain, Target, TrendingUp, Clock,
+  PenTool, FileText, Save, Send, Eye, Settings, Image, Video, Hash, MapPin, Calendar, 
+  Sparkles, Brain, Target, Clock,
   AlertTriangle, CheckCircle, XCircle, RefreshCw,
-  Rocket, ChevronDown, ChevronUp, Info, Loader2,
+  Rocket,
   Wand2, Globe, Zap, Activity, Shield, Heart, Share2, Star,
-  Mail, MessageSquare, BarChart3, Lightbulb, X, UploadCloud
+  Mail, MessageSquare, BarChart3, Lightbulb
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import FeaturedImageUpload from '@/components/FeaturedImageUpload';
 // import { logActions, getCurrentUser } from '@/lib/admin-activity-logs';
-import { TeamMember } from '@/types/team';
-import { Toaster } from 'react-hot-toast';
-import toast from 'react-hot-toast';
 import { Block } from '@/components/BlockEditor/types';
 import '@/styles/tiptap-editor.css';
 

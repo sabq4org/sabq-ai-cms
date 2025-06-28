@@ -1,18 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import './news-styles.css';
 import { 
-  Newspaper, Filter, Clock, Eye, Tag, Search, 
-  TrendingUp, Calendar, User, Hash, Loader2,
-  Grid, List, ChevronRight, Sparkles, BookOpen,
-  Zap, Globe, Heart, MessageCircle, Share2, Award
+  Newspaper, Search, Loader2,
+  Grid, List, ChevronRight
 } from 'lucide-react';
-import { formatFullDate, formatDateOnly } from '@/lib/date-utils';
+import { formatDateOnly } from '@/lib/date-utils';
 import ArticleCard from '@/components/ArticleCard';
 
 interface Article {

@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import {
   GripVertical, ArrowUp, ArrowDown, Trash2, Plus,
-  Sparkles, Copy, MoreVertical, Wand2, RefreshCw,
-  Lightbulb, Languages, Hash
+  Sparkles, Copy, MoreVertical, Wand2, RefreshCw, Languages, Hash
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { AIAction } from './types';

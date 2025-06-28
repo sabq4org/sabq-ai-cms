@@ -1,17 +1,11 @@
 'use client';
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Clock3, Heart, Bookmark, Brain, User, Calendar, Search, Share2, TrendingUp, Globe, FileText, ChevronLeft } from "lucide-react";
+import { Clock3, Heart, Bookmark, Brain, Search, Share2 } from "lucide-react";
 // import { useDarkMode } from '@/hooks/useDarkMode'; // تم تعطيل الوضع الليلي
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
-  Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useInteractions } from '@/hooks/useInteractions';
 

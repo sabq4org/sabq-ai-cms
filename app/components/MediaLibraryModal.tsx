@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Search, Image as ImageIcon, Video, FileText, CheckCircle, Upload } from 'lucide-react';
+import { X, Search, Image as ImageIcon, Video, CheckCircle, Upload } from 'lucide-react';
 import MediaGrid from './MediaGrid';
 import MediaUpload from './MediaUpload';
 import SmartSuggestions from './SmartSuggestions';

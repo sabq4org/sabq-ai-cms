@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
-import fs from 'fs/promises';
-import path from 'path';
 
 interface RouteParams {
   params: Promise<{ id: string }>;

@@ -14,15 +14,10 @@ import {
   AlertCircle, 
   Brain,
   Key,
-  Sliders,
   FileText,
   Sparkles,
-  CheckCircle,
-  XCircle,
   RotateCcw,
-  Zap,
-  Shield,
-  Globe
+  Zap
 } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import toast from 'react-hot-toast';

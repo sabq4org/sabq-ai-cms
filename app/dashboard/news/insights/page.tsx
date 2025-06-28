@@ -5,8 +5,7 @@ import {
   TrendingUp, 
   Users, 
   FileText, 
-  Eye, 
-  Calendar,
+  Eye,
   Activity,
   Award,
   BarChart3,
@@ -16,15 +15,10 @@ import {
   Trash2,
   Share2,
   Heart,
-  MessageSquare,
   ArrowUp,
   ArrowDown,
   CheckCircle,
-  XCircle,
-  BookOpen,
-  PenTool,
-  Target,
-  Zap
+  Target
 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';

@@ -3,10 +3,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import CategoryFormModal from '../../../components/CategoryFormModal';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
-import { Category, CategoryFormData } from '@/types/category';
+import { Category } from '@/types/category';
 import { 
   Plus, 
-  Search, 
   Edit3,
   Trash2,
   Eye,
@@ -19,18 +18,12 @@ import {
   ChevronDown,
   ChevronRight,
   MoreHorizontal,
-  Move,
   CheckCircle,
   XCircle,
   AlertTriangle,
   Info,
-  Save,
   X,
   RefreshCw,
-  Filter,
-  SortAsc,
-  Link,
-  Globe,
   Download,
   Upload
 } from 'lucide-react';

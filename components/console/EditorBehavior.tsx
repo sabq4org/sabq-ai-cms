@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { 
-  Users, TrendingUp, Clock, Bot, Award,
-  Zap, Edit3, FileText, CheckCircle, XCircle,
-  Activity, BarChart3
+  Users, Clock, Bot, Award,
+  Zap, FileText, CheckCircle, XCircle,
+  Activity
 } from 'lucide-react';
 import { SabqCard } from '@/components/ui/SabqCard';
 import { SabqBadge } from '@/components/ui/SabqBadge';

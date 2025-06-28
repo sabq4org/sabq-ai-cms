@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma, handlePrismaError } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 import { filterTestContent, rejectTestContent } from '@/lib/data-protection'
 
 // جلب المقالات

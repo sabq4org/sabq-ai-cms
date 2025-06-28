@@ -6,9 +6,9 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import { 
   Tag, ArrowRight, Calendar, Clock, Eye, Heart, 
-  BookOpen, TrendingUp, Filter, Loader2, ChevronLeft,
+  BookOpen, TrendingUp, Loader2, ChevronLeft,
   Trophy, Laptop, Building2, Leaf, Activity, Globe,
-  Grid, List, SortDesc, Sparkles, ChevronDown, Zap, Award
+  Grid, List, SortDesc, Sparkles
 } from 'lucide-react';
 
 interface Category {

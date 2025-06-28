@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { 
-  Users, TrendingUp, Award, BookOpen, 
+  Users, Award, BookOpen, 
   Eye, Heart, Share2, MessageSquare, 
-  Bookmark, Clock, Activity, PieChart,
+  Bookmark, Activity, PieChart,
   BarChart3, Calendar, Target, Zap,
-  RefreshCw, Download, Filter, Shield,
-  Database, Search, AlertCircle
+  RefreshCw, Download,
+  Database, Search
 } from 'lucide-react';
 
 interface BehaviorInsights {

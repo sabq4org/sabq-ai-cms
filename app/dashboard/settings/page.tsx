@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  Save, Settings, Shield, Brain, Database, Search, Palette, CheckCircle, 
-  Upload, Download, AlertCircle, Loader, Eye, EyeOff, Share2, Globe,
-  Building, Clock, Calendar, Mail, Phone, Twitter, Instagram, Facebook,
-  Youtube, Smartphone, Lock, Bell, RefreshCw, FileText, Link, 
-  Type, Image, Tag, Bot, Languages, ShieldAlert, Key, AlertTriangle,
-  Server, HardDrive, History, Info, X, Image as ImageIcon
+  Save, Shield, Brain, Database, Search, CheckCircle, 
+  Upload, Download, AlertCircle, Loader, Eye, EyeOff, Share2,
+  Building, Mail, Phone, Twitter, Instagram, Facebook,
+  Youtube, Smartphone, Lock, Bell, RefreshCw, FileText, 
+  Type, Bot, Languages, ShieldAlert, Key, HardDrive, History, Info, Image as ImageIcon
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';

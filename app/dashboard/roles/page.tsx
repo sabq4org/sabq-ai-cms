@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Shield, Plus, Users, Lock, Eye, X, Save, Trash2, Edit3, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Shield, Plus, Users, Lock, X, Save, Trash2, Edit3, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Role, SYSTEM_PERMISSIONS, PERMISSION_CATEGORIES } from '@/types/roles';
 
 export default function RolesPage() {

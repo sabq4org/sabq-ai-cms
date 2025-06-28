@@ -24,13 +24,11 @@ import {
   Sparkles,
   Brain,
   ChevronRight,
-  ThumbsUp,
   Star,
   Copy,
   CheckCircle,
   AlertCircle,
   TrendingUp,
-  Users,
   BarChart3,
   FileText,
   Layers

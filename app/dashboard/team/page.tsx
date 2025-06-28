@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, Search, Download, Bell, Shield, Mail, Phone, Calendar, Clock, CheckCircle, AlertCircle, UserPlus, Edit3, Trash2, Filter, X, Camera, Eye, EyeOff, Upload } from 'lucide-react';
+import { Users, Plus, Search, Download, Bell, Shield, CheckCircle, AlertCircle, UserPlus, Edit3, Trash2, X, Camera, Eye, EyeOff, Upload } from 'lucide-react';
 import { Role } from '@/types/roles';
 import { TeamMember } from '@/types/team';
 

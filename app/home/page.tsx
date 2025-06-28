@@ -5,17 +5,12 @@ import {
   Clock, 
   Heart, 
   Share2, 
-  MessageSquare, 
   Eye,
   Flame,
   BookOpen,
   TrendingUp,
-  Bell,
-  ChevronLeft,
-  ChevronRight,
   User,
   Sparkles,
-  Timer,
   AlertCircle,
   Settings
 } from 'lucide-react';

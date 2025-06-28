@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
-import { Play, Quote, Code, Table, FileText, Columns } from 'lucide-react';
+import { Play, Quote } from 'lucide-react';
 
 interface Block {
   id?: string;

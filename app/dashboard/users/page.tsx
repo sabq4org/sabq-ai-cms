@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { 
   Users,
   UserCheck,
@@ -9,48 +8,31 @@ import {
   Ban,
   Plus,
   Search,
-  Filter,
   Download,
   Upload,
   Eye,
   Edit,
   Trash2,
-  MoreHorizontal,
-  MapPin,
-  Mail,
-  Phone,
-  Calendar,
-  Clock,
   Award,
-  Flag,
   Shield,
-  Star,
-  TrendingUp,
-  Activity,
-  MessageSquare,
-  Share2,
-  BookmarkCheck,
   X,
   Save,
   AlertCircle,
   CheckCircle,
   Key,
   UserPlus,
-  UserMinus,
-  RefreshCw,
   ToggleLeft,
   ToggleRight,
   Medal,
   BadgeCheck,
   Crown,
-  Database,
-  BarChart3
+  Database
 } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { getMembershipLevel } from '@/lib/loyalty';
-import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
+import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
 
 interface User {
   id: string;

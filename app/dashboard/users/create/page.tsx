@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Save, X, Upload, Mail, Phone, Shield, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
+import { UserPlus, Save, Mail, Phone, Shield, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function CreateUserPage() {

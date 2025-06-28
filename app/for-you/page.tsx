@@ -1,10 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  ArrowLeft, Filter, TrendingUp, Clock, Calendar, Eye, 
-  Heart, Share2, Sparkles, Brain, AlertCircle, ChevronDown,
-  Star, Target, Zap, RefreshCw
+import { Filter, TrendingUp, Clock, Eye, 
+  Heart, Sparkles, Brain, ChevronDown, Target, RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
 import Header from '@/components/Header';

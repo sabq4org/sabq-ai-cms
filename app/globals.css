@@ -2420,3 +2420,173 @@ a[class*="flex items-center gap-3"][class*="bg-blue"] {
   }
 }
 
+/* أنماط ملف القارئ الذكي */
+.reader-profile-card {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+.reader-profile-card * {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* تحسين عرض الأرقام والإحصائيات */
+.reader-profile-card [class*="text-2xl"],
+.reader-profile-card [class*="text-xl"],
+.reader-profile-card [class*="text-3xl"] {
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  display: inline-block;
+}
+
+/* تحسين المسافات للعرض العربي */
+.reader-profile-card .flex.items-center.gap-2 {
+  flex-direction: row-reverse;
+}
+
+/* تحسين عرض السمات */
+.reader-profile-card .flex.flex-wrap.gap-2 {
+  justify-content: flex-start;
+}
+
+/* تحسين عرض الأيقونات مع النص */
+.reader-profile-card svg + span,
+.reader-profile-card span + svg {
+  margin-inline-start: 0.5rem;
+}
+
+/* صفحة الملف الذكي */
+.smart-profile-page {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+.smart-profile-page * {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* تحسين عرض البطاقات */
+.smart-profile-page .grid {
+  direction: rtl;
+}
+
+/* تحسين عرض التبويبات */
+.smart-profile-page .flex.gap-2 {
+  direction: rtl;
+}
+
+/* تحسين عرض الإنجازات */
+.achievement-card {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* تحسين الانتقالات */
+.reader-profile-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* تحسينات الوضع الليلي */
+.dark .reader-profile-card {
+  background: rgba(31, 41, 55, 0.95) !important;
+}
+
+.dark .smart-profile-page {
+  background: #111827 !important;
+}
+
+/* تحسين الظلال */
+.reader-profile-shadow {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .reader-profile-shadow {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 
+              0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* تحسين عرض الأزرار */
+.reader-profile-card button,
+.smart-profile-page button {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif !important;
+}
+
+/* إصلاح محاذاة النصوص في البطاقات */
+.reader-profile-card .text-center {
+  text-align: center !important;
+}
+
+.reader-profile-card .text-right {
+  text-align: right !important;
+}
+
+.reader-profile-card .text-left {
+  text-align: left !important;
+}
+
+/* تحسين عرض القوائم */
+.smart-profile-page ul,
+.smart-profile-page ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+  list-style-position: outside;
+}
+
+/* تحسين عرض الجداول */
+.smart-profile-page table {
+  direction: rtl;
+  text-align: right;
+}
+
+.smart-profile-page th,
+.smart-profile-page td {
+  text-align: right;
+}
+
+/* تحسين عرض الرسوم البيانية */
+.smart-profile-page .recharts-wrapper {
+  direction: ltr !important;
+}
+
+.smart-profile-page .recharts-text {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif !important;
+}
+
+/* تحسين الأنيميشن */
+@keyframes reader-profile-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reader-profile-animate {
+  animation: reader-profile-fade-in 0.5s ease-out;
+}
+
+/* تحسينات إضافية للموبايل */
+@media (max-width: 768px) {
+  .reader-profile-card {
+    margin: 1rem;
+  }
+  
+  .smart-profile-page {
+    padding: 1rem;
+  }
+  
+  .reader-profile-card .text-2xl {
+    font-size: 1.5rem !important;
+  }
+  
+  .reader-profile-card .text-xl {
+    font-size: 1.25rem !important;
+  }
+}
+

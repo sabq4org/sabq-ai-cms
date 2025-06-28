@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, FileText, Award, TrendingUp, Eye, Heart, MessageCircle, Clock, Twitter, Linkedin, Mail, User, Loader2, ChevronRight, Sparkles, Target, BookOpen } from 'lucide-react';
+import { Calendar, FileText, Award, TrendingUp, Eye, Heart, Clock, Twitter, Linkedin, Mail, User, Loader2, ChevronRight, Sparkles, BookOpen } from 'lucide-react';
 import Header from '../../../components/Header';
 import Footer from '@/components/Footer';
 import { formatDateOnly } from '@/lib/date-utils';

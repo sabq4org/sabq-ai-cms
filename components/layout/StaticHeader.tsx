@@ -1,12 +1,12 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { Menu, X, Search, User } from 'lucide-react'
-import { ThemeToggle } from '../ThemeToggle'
+import { useState } from 'react'
+import { Menu, X, Search, User, Sun, Moon } from 'lucide-react'
+import { useDarkModeContext } from '@/contexts/DarkModeContext'
 
 export function StaticHeader() {
+  const { darkMode, mounted, toggleDarkMode } = useDarkModeContext()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
 
@@ -70,7 +70,19 @@ export function StaticHeader() {
             </button>
 
             {/* تبديل الوضع الليلي */}
-            <ThemeToggle />
+            {mounted && (
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="تبديل الوضع الليلي"
+              >
+                {darkMode ? (
+                  <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                ) : (
+                  <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                )}
+              </button>
+            )}
 
             {/* تسجيل الدخول */}
             <Link

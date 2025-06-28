@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { 
-  Image as ImageIcon, Play, FileText, Download, Edit, 
-  Trash2, Eye, Clock, Tag, User, ExternalLink,
-  Star, MoreHorizontal, Copy, Share
+  Image as ImageIcon, Play, FileText, Download, 
+  Trash2, Eye, Tag,
+  Star, Copy
 } from 'lucide-react';
 
 interface MediaFile {

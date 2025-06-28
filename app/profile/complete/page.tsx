@@ -3,9 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
-  User, MapPin, Calendar, Briefcase, GraduationCap, 
-  Heart, Bell, Camera, CheckCircle, Star, Gift,
-  ArrowRight, ArrowLeft, Upload
+  User, Calendar, Briefcase, GraduationCap, Camera, CheckCircle, Gift,
+  ArrowRight, ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 

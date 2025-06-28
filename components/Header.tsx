@@ -4,11 +4,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
-  Menu, ChevronDown, LogIn, User 
+  Menu, ChevronDown, LogIn, User, Sun, Moon
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import UserDropdown from './UserDropdown';
-import { ThemeToggle } from './ThemeToggle';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { getCookie } from '@/lib/cookies';
 
 interface UserData {
@@ -20,6 +20,7 @@ interface UserData {
 
 export default function Header() {
   const router = useRouter();
+  const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
   const [user, setUser] = useState<UserData | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -216,7 +217,15 @@ export default function Header() {
 
             {/* أزرار التحكم على اليسار */}
             <div className="flex items-center gap-2">
-              <ThemeToggle />
+              {mounted && (
+                <button
+                  onClick={toggleDarkMode}
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                  aria-label="تبديل الوضع الليلي"
+                >
+                  {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+              )}
               
               {isLoading ? (
                 <div className="w-8 h-8" />
@@ -285,7 +294,15 @@ export default function Header() {
             </nav>
 
             <div className="flex items-center gap-4 flex-shrink-0">
-              <ThemeToggle />
+              {mounted && (
+                <button
+                  onClick={toggleDarkMode}
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                  aria-label="تبديل الوضع الليلي"
+                >
+                  {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+              )}
 
               {isLoading ? (
                 <div className="w-10 h-10" />
