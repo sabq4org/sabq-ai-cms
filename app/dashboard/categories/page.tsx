@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import CategoryFormModal from '../../../components/CategoryFormModal';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { Category, CategoryFormData } from '@/types/category';
@@ -30,7 +30,9 @@ import {
   Filter,
   SortAsc,
   Link,
-  Globe
+  Globe,
+  Download,
+  Upload
 } from 'lucide-react';
 
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -51,8 +53,7 @@ export default function CategoriesPage() {
     type: 'success' | 'error' | 'warning' | 'info';
     message: string;
   } | null>(null);
-
-
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // دالة جلب التصنيفات من API الحقيقي
   const fetchCategories = useCallback(async () => {
@@ -516,6 +517,40 @@ export default function CategoriesPage() {
     );
   };
 
+  // تصدير التصنيفات كملف JSON
+  const handleExportCategories = () => {
+    window.open('/api/categories/export', '_blank');
+  };
+
+  // استيراد التصنيفات من ملف JSON
+  const handleImportCategories = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/categories/import', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setNotification({ type: 'success', message: data.message || 'تم استيراد التصنيفات بنجاح' });
+        await fetchCategories();
+      } else {
+        throw new Error(data.error || 'فشل في استيراد التصنيفات');
+      }
+    } catch (error) {
+      console.error('Import categories error:', error);
+      setNotification({ type: 'error', message: error instanceof Error ? error.message : 'فشل في استيراد التصنيفات' });
+    } finally {
+      setLoading(false);
+      e.target.value = '';
+      setTimeout(() => setNotification(null), 4000);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-screen">
@@ -550,6 +585,27 @@ export default function CategoriesPage() {
             <Plus className="w-4 h-4" />
             إضافة تصنيف
           </button>
+          <button
+            onClick={handleExportCategories}
+            className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300"
+          >
+            <Download className="w-4 h-4" />
+            تصدير
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300"
+          >
+            <Upload className="w-4 h-4" />
+            استيراد
+          </button>
+          <input
+            type="file"
+            accept=".json,application/json"
+            ref={fileInputRef}
+            onChange={handleImportCategories}
+            hidden
+          />
           <button 
             onClick={fetchCategories}
             disabled={loading}
