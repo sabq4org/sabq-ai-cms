@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requirePermission } from '@/app/lib/auth'
-import { templateService } from '@/lib/services/templateService'
-import { TemplateType } from '@/types/template'
 import { promises as fs } from 'fs'
 import path from 'path'
 

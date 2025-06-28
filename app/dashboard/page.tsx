@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   FileText, 
   Users, 
-  Eye, 
   MessageSquare, 
   TrendingUp, 
   Activity,
@@ -13,7 +12,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
+import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('behavior');

@@ -2,8 +2,8 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { 
-  Upload, X, Image as ImageIcon, Video, FileText, 
-  AlertCircle, CheckCircle, Brain, Tag, Camera
+  Upload, X, Video, FileText, 
+  AlertCircle, CheckCircle, Brain
 } from 'lucide-react';
 
 interface MediaUploadProps {

@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { 
   Brain, Save, Settings, Eye, EyeOff, 
-  TrendingUp, Clock, SortDesc, Check
+  TrendingUp, Clock, Check
 } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import toast from 'react-hot-toast';

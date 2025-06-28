@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Play, Quote, Link, Image as ImageIcon } from 'lucide-react';
+import { Quote, Image as ImageIcon } from 'lucide-react';
 
 interface ContentBlock {
   id: string;

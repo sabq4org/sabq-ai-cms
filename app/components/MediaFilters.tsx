@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Filter, Calendar, Tag, User, HardDrive } from 'lucide-react';
+import { X, Calendar, Tag, User, HardDrive } from 'lucide-react';
 
 interface MediaFilters {
   search: string;

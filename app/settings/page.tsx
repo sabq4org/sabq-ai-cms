@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Settings, Bell, Shield, Moon, Sun, Globe, 
-  ChevronRight, Check, X, Save, ArrowLeft
+import { Bell, Shield, Moon, Sun, Globe, Save, ArrowLeft
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Header from '@/components/Header';

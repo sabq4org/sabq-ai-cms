@@ -3,12 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  User, Mail, Crown, Heart, Bell, LogOut, 
-  Edit2, Check, X, Star, Award, TrendingUp,
-  Calendar, Activity, BookOpen, Share2, Shield,
-  Settings, ChevronRight, Zap, Gift, Eye,
-  MessageCircle, Bookmark, Camera, Upload
+import { Crown, Heart, 
+  Edit2, X, Star, TrendingUp,
+  Calendar, Activity, BookOpen, Share2, ChevronRight, Zap, Eye,
+  MessageCircle, Bookmark, Camera
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Header from '@/components/Header';

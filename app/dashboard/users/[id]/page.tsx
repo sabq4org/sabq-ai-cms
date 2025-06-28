@@ -4,7 +4,7 @@ import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { 
   ArrowRight, Mail, Phone, MapPin, Calendar, Eye, MessageSquare, 
-  Heart, Share2, Award, Edit, Ban, UserCheck, Monitor, 
+  Heart, Award, Edit, Ban, UserCheck, Monitor, 
   Smartphone
 } from 'lucide-react';
 

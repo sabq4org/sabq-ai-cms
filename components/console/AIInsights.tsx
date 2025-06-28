@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  Brain, TrendingUp, AlertTriangle, Lightbulb, 
-  Target, Clock, Award, Sparkles, ChevronRight
+  Brain, AlertTriangle, Lightbulb, 
+  Target, Award, Sparkles, ChevronRight
 } from 'lucide-react';
 import { SabqCard } from '@/components/ui/SabqCard';
 import { SabqButton } from '@/components/ui/SabqButton';

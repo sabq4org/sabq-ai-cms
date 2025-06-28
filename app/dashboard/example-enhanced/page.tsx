@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { 
   BarChart3, Users, Settings, Award, TrendingUp, 
   Download, Plus, Filter, Search, ChevronRight,
-  Loader2, Check, X, AlertCircle
+  Loader2, Check
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 

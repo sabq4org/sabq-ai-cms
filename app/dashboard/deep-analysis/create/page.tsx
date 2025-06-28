@@ -10,8 +10,7 @@ import { Label } from '@/components/ui/label';
 import { 
   ArrowLeft, 
   Sparkles, 
-  FileText, 
-  Link2,
+  FileText,
   Brain,
   Layers,
   Save,
@@ -19,23 +18,18 @@ import {
   Loader2,
   X,
   Plus,
-  Tag,
   ChevronDown,
   ChevronUp,
   Settings,
   PenTool,
   BookOpen,
   Zap,
-  Activity,
   FileCheck,
   RefreshCw,
-  CheckCircle,
   Eye,
   Edit,
-  Upload,
-  Image as ImageIcon
+  Upload
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { CreateAnalysisRequest, SourceType, CreationType, DisplayPosition } from '@/types/deep-analysis';
 import toast from 'react-hot-toast';
 

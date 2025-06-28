@@ -1341,6 +1341,52 @@
       "timestamp": "2025-06-28T09:17:36.499Z",
       "source": "article_page",
       "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "id": "interaction-1751141195704-o0cz1laiq",
+      "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "0f7b5d72-7895-42a5-8052-91b2144dff33",
+          "b15eeb48-e874-41ce-b7a5-08801fd108d9",
+          "dda9657e-2754-4b8d-99c0-d55a7673e014"
+        ]
+      },
+      "created_at": "2025-06-28T20:06:35.704Z"
+    },
+    {
+      "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+      "article_id": "18cff66d-4f20-458a-aa83-f98c91ab839b",
+      "interaction_type": "view",
+      "timestamp": "2025-06-28T20:11:35.299Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+      "article_id": "18cff66d-4f20-458a-aa83-f98c91ab839b",
+      "interaction_type": "view",
+      "timestamp": "2025-06-28T20:11:35.845Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+      "article_id": "18cff66d-4f20-458a-aa83-f98c91ab839b",
+      "interaction_type": "save",
+      "timestamp": "2025-06-28T20:11:42.285Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+      "article_id": "18cff66d-4f20-458a-aa83-f98c91ab839b",
+      "interaction_type": "save",
+      "timestamp": "2025-06-28T20:11:42.292Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
     }
   ]
 }

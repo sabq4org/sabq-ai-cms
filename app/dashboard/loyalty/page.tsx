@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Trophy, Gift, Users, TrendingUp, Crown, Award, Eye, MessageSquare, 
-         Settings, Target, Plus, Search, MoreHorizontal, Share2, Heart, 
+import { Trophy, Gift, Users, TrendingUp, Crown, Award, Eye, 
+         Settings, Target, Share2, Heart, 
          RefreshCw, BookOpen, Bookmark } from 'lucide-react';
 import { getMembershipLevel } from '@/lib/loyalty';
 

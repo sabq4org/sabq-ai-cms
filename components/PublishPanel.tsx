@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  Save, Send, Eye, Globe, MapPin, Clock, User, 
-  Calendar, RefreshCw, CheckCircle, AlertTriangle,
+  Save, Send, Eye, Globe, MapPin, Clock, User, RefreshCw, CheckCircle, AlertTriangle,
   Sparkles
 } from 'lucide-react';
 

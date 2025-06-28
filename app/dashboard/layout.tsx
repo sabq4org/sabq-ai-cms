@@ -23,10 +23,11 @@ import {
   Menu,
   X,
   Mail,
-  ChevronRight
+  ChevronRight,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { getCurrentUser, logActions } from '@/lib/log-activity';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 export default function DashboardLayout({
@@ -34,7 +35,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { darkMode, mounted } = useDarkModeContext();
+  const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
@@ -140,7 +141,19 @@ export default function DashboardLayout({
           {/* الجهة اليسرى - الأدوات */}
           <div className="flex items-center gap-1 sm:gap-4">
             {/* زر التبديل للوضع الليلي */}
-            <ThemeToggle />
+            {mounted && (
+              <button
+                onClick={toggleDarkMode}
+                className={`p-2 rounded-lg transition-colors duration-300 ${
+                  darkMode
+                    ? 'hover:bg-gray-700 text-gray-300'
+                    : 'hover:bg-gray-100 text-gray-600'
+                }`}
+                aria-label="تبديل الوضع الليلي"
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            )}
 
             {/* الإشعارات */}
             <button className={`relative p-2 rounded-lg transition-colors duration-300 ${

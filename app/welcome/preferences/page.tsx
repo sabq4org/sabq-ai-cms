@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
-  Heart, BookOpen, TrendingUp, Globe, Users, Zap, CheckCircle,
-  Laptop, Trophy, Building2, MapPin, Palette, Edit3, Star,
-  Monitor, DollarSign, Home
+  Heart, Globe, CheckCircle, Trophy, Building2, MapPin, Palette, Edit3, Star,
+  Monitor, DollarSign
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

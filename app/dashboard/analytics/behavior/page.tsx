@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Brain, TrendingUp, Clock, Calendar, Activity,
-  Star, Award, Target, BarChart3, PieChart,
-  Users, BookOpen, Heart, Share2, MessageSquare,
+  Star, Award, Target, BarChart3, PieChart, BookOpen, Heart, Share2, MessageSquare,
   Eye, Timer, Zap, Sparkles
 } from 'lucide-react';
 

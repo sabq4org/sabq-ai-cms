@@ -3,9 +3,8 @@
 
 import React, { useState } from 'react';
 import { 
-  Sparkles, Brain, RefreshCw, Type, Plus, ArrowUp, ArrowDown, 
-  Trash2, Image, Video, Quote, Hash, List, Link, Palette, MessageSquare,
-  ChevronDown, ChevronRight, FileText, Tag, AlignLeft, Layers,
+  Sparkles, Brain, RefreshCw, Type, ArrowUp, ArrowDown, 
+  Trash2, Image, Video, Quote, Hash, List, Link, Palette, FileText, Tag, AlignLeft, Layers,
   PenTool, Wand2, BookOpen, Award, Zap, Target
 } from 'lucide-react';
 

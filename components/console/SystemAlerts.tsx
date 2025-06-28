@@ -2,9 +2,8 @@
 
 import React, { useState } from 'react';
 import { 
-  AlertTriangle, AlertCircle, Info, CheckCircle,
-  Wifi, WifiOff, Database, Server, Clock, X,
-  TrendingDown, Bug, Shield, Zap, FileText
+  AlertTriangle, AlertCircle, Info, CheckCircle, Server, Clock, X,
+  TrendingDown, Shield, Zap, FileText
 } from 'lucide-react';
 import { SabqCard } from '@/components/ui/SabqCard';
 import { SabqBadge } from '@/components/ui/SabqBadge';

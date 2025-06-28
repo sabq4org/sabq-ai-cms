@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Link from 'next/link';
 import { 
-  User, Mail, Trophy, TrendingUp, RefreshCw, 
+  User, Trophy, RefreshCw, 
   Heart, Settings, Bell, LogOut, Loader2,
   Crown, Star, Award, Gem, X
 } from 'lucide-react';

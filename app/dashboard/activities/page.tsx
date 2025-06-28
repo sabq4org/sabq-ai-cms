@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { 
   Activity, 
   Search, 
-  Filter, 
   Download,
   Eye,
   Edit,
@@ -15,12 +14,9 @@ import {
   Calendar,
   Shield,
   Database,
-  Clock,
-  TrendingUp,
-  AlertCircle,
   RefreshCw
 } from 'lucide-react'
-import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced'
+import { TabsEnhanced } from '@/components/ui/tabs-enhanced'
 import { useDarkModeContext } from '@/contexts/DarkModeContext'
 
 interface ActivityItem {

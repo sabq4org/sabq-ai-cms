@@ -1,39 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DeepAnalysisCard from '@/components/deep-analysis/DeepAnalysisCard';
 import { 
-  Brain, 
-  Clock, 
-  Eye, 
-  TrendingUp, 
-  Calendar,
-  Filter,
+  Brain,
   Search,
-  ChevronRight,
-  Sparkles,
-  BarChart3,
-  FileText,
-  Star,
   Grid,
   List,
   Loader2,
-  Zap,
-  Hash,
-  MessageCircle,
-  Share2,
-  Award,
-  Cpu,
-  Network,
-  Activity,
-  TrendingUp as TrendingUpIcon,
-  Users,
-  ChevronDown,
-  X,
   SlidersHorizontal
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -227,7 +203,7 @@ export default function DeepAnalysesPage() {
               </p>
               
               {/* إحصائيات محسنة للجوال */}
-              <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-3xl mx-auto">
                 <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-6 border border-white/20">
                   <div className="text-2xl sm:text-4xl font-black text-white mb-1">
                     {analyses.length}

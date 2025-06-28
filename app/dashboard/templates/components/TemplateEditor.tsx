@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Save, Calendar, Globe, Tag, Eye, Plus, Trash2, Upload, Link, Palette, Image } from 'lucide-react'
+import { ArrowLeft, Save, Calendar, Globe, Tag, Eye, Palette, Image } from 'lucide-react'
 import { HeaderEditor } from './editors/HeaderEditor'
 import { FooterEditor } from './editors/FooterEditor'
 import { Template, TemplateType } from '@/types/template'

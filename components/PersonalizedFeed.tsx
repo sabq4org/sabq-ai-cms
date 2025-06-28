@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
-  Clock, Eye, ThumbsUp, Share2, MessageSquare, 
+  Clock, Eye, Share2, MessageSquare, 
   BookmarkPlus, Sparkles, User, Calendar,
   TrendingUp, Star, Heart
 } from 'lucide-react';

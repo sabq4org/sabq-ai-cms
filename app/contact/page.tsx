@@ -7,8 +7,7 @@ import Footer from '@/components/Footer';
 import { 
   Send, 
   Mail, 
-  MessageSquare, 
-  Paperclip,
+  MessageSquare,
   AlertCircle,
   CheckCircle,
   Loader2,

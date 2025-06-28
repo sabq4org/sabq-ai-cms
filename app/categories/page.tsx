@@ -6,9 +6,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import './categories-fixes.css';
 import { 
-  Tag, Globe, Zap, Heart, Shield, Trophy, Users, Building2, 
+  Tag, Globe, Heart, Shield, Trophy, Building2, 
   Laptop, Leaf, TrendingUp, Activity, BookOpen, ArrowRight,
-  Loader2, Grid, List, Search, Filter
+  Loader2, Grid, List, Search
 } from 'lucide-react';
 
 interface Category {

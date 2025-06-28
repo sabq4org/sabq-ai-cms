@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Cpu, Users, Target, Settings, Brain, BarChart3, Filter, Zap } from 'lucide-react';
+import { Users, Target, Brain, BarChart3 } from 'lucide-react';
 
 export default function PersonalizationPage() {
   const [darkMode, setDarkMode] = useState(false);

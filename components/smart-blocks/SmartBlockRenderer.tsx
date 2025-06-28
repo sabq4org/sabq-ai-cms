@@ -5,7 +5,7 @@ import { SmartBlock } from '@/types/smart-block';
 import { CardGridBlock } from './CardGridBlock';
 import { CarouselBlock } from './CarouselBlock';
 import { AlHilalWorldCupBlock } from './AlHilalWorldCupBlock';
-import { Activity, TrendingUp, Lightbulb, Target, Compass, Volume2, Calendar, Star } from 'lucide-react';
+import { Activity, TrendingUp, Lightbulb, Target, Compass, Volume2, Star } from 'lucide-react';
 
 interface SmartBlockRendererProps {
   block: SmartBlock;

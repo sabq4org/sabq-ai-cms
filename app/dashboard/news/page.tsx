@@ -4,21 +4,16 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ChevronDown, 
-  Search, 
-  Filter,
-  MoreHorizontal,
+  Search,
   Edit,
   Trash2,
-  MessageCircle,
   Copy,
   Eye,
   Calendar,
   Clock,
   Zap,
-  Users, 
-  Award,
-  TrendingUp, 
-  Activity,
+  Users,
+  TrendingUp,
   MessageSquare,
   AlertTriangle,
   ArrowUp,
@@ -26,7 +21,6 @@ import {
   PenTool,
   FileText,
   BarChart3,
-  Target,
   Sparkles
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';

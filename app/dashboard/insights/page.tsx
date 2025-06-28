@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  TrendingUp, Users, Eye, FileText, Heart, MessageSquare,
-  Share2, Clock, Calendar, Award, Target, Activity,
+import { Users, Eye, FileText, Heart, MessageSquare,
+  Share2, Clock, Activity,
   ArrowUp, ArrowDown, Minus, BarChart3, PieChart,
-  LineChart, Zap, Trophy, UserCheck, Star, Sparkles
+  LineChart, Trophy
 } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 

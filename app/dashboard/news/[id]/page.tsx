@@ -4,9 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
-  ArrowRight, Edit3, Trash2, Copy, Eye, Calendar, User, MapPin, Clock, 
-  Hash, Activity, FileText, Heart, Share2, MessageSquare, Bookmark,
-  CheckCircle, AlertTriangle, Flag, BarChart3, Brain, Globe, GitBranch
+  ArrowRight, Edit3, Trash2, Copy, Eye, Calendar, User, Clock, Activity, FileText, BarChart3, Brain
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 

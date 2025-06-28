@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { 
-  Users, FileText, Eye, TrendingUp, Clock, MessageSquare,
+  Users, FileText, Eye, Clock, MessageSquare,
   Zap, BarChart3, Activity, Globe
 } from 'lucide-react';
 import { SabqCard } from '@/components/ui/SabqCard';

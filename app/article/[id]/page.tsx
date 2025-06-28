@@ -3,16 +3,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  Moon, Sun, Heart, Bookmark, Share2, Eye, Clock, Calendar,
+import { Heart, Bookmark, Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
-  Twitter, Copy, Check, MoreHorizontal, X, Search, Menu
+  Twitter, Copy, Check, X, Menu
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { useInteractions } from '../../../hooks/useInteractions';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { formatFullDate, formatTimeOnly, formatRelativeDate } from '@/lib/date-utils';
+import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
 import { getImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';

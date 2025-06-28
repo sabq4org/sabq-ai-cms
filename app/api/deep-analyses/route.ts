@@ -4,7 +4,6 @@ import { join } from 'path';
 import { 
   DeepAnalysis, 
   CreateAnalysisRequest,
-  AnalysisFilters,
   AnalysisStatus,
   SourceType
 } from '@/types/deep-analysis';

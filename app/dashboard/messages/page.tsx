@@ -4,17 +4,13 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { 
-  Mail, 
-  Inbox,
-  Send,
+  Mail,
   Archive,
   Trash2,
-  Filter,
   Search,
   Eye,
   Reply,
   CheckCircle,
-  Clock,
   AlertCircle,
   Paperclip,
   Download,
@@ -29,10 +25,6 @@ import {
   Loader2,
   TrendingUp,
   Database,
-  Users,
-  Activity,
-  BarChart3,
-  Shield,
   HelpCircle
 } from 'lucide-react';
 

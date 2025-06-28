@@ -3,16 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { 
-  Save, Eye, Send, AlertTriangle, Plus, ArrowUp, ArrowDown, 
-  Trash2, Image, Video, Quote, Type, List, Link, Palette,
-  Sparkles, Brain, MapPin, Clock, User, Globe, Settings,
-  Upload, Play, MessageSquare, Hash, FileText, CheckCircle,
-  XCircle, Lightbulb, Zap, Target, Star, RefreshCw,
-  Wand2, Layers, Layout, PenTool, BookOpen, Award,
-  TrendingUp, Activity, BarChart3, Rocket, Heart,
-  Shield, Crown, Gem, Flame, Coffee, Music,
-  Camera, Mic, Headphones, Wifi, Cpu, Database, Mail,
-  Share2, Calendar, ArrowLeft, Loader2
+  Save, Eye, Send, AlertTriangle, Image, Video,
+  Sparkles, Brain, Globe, Settings, Hash, FileText, CheckCircle,
+  XCircle, Lightbulb, Target, RefreshCw,
+  Wand2, PenTool, BarChart3, Rocket, ArrowLeft, Loader2
 } from 'lucide-react';
 
 // استيراد المكونات

@@ -1,28 +1,28 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Search, Bell, User, Globe, Moon, Sun, Menu, ChevronRight, 
-  Clock, TrendingUp, Heart, Share2, MessageSquare, Eye, 
-  MapPin, Thermometer, Calendar, BarChart3, Star, Filter,
-  ChevronUp, Facebook, Twitter, Instagram, Youtube, Mail,
-  ExternalLink, BookOpen, Settings, Zap, Award, Play, Volume2,
-  Sparkles, Brain, Bot, Headphones, Mic, Download, PauseCircle,
+import { User, Globe, ChevronRight, 
+  Clock, TrendingUp, Heart, Share2, Eye, Calendar, Star, BookOpen, Settings, Zap, Award, Volume2,
+  Sparkles, Brain, Download,
   PlayCircle, Users, Flame, AlertCircle, Lightbulb, Target,
-  Compass, Globe2, Newspaper, Activity, ChevronDown, ArrowLeft,
-  Crown, Leaf, Book, Tag, X, Bookmark, GraduationCap,
+  Compass, Globe2, Newspaper, Activity, ArrowLeft,
+  Crown, Leaf, Tag, X, Bookmark, GraduationCap,
   Laptop, Trophy, Building2, Beaker, Palette, Car, Plane, Briefcase,
   CloudRain, Home as HomeIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useTheme } from '@/contexts/ThemeContext';
+import { getCookie } from '@/lib/cookies';
 
-import CategoryBadge, { CategoryNavigation } from './components/CategoryBadge';
+import CategoryBadge from './components/CategoryBadge';
 import Header from '../components/Header';
 import { SmartSlot } from '@/components/home/SmartSlot';
 import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
 import { useReactions } from '@/hooks/useReactions';
+import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
+import { useReaderProfile } from '@/hooks/useReaderProfile';
+import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
 
 // أيقونات التصنيفات
 const categoryIcons: { [key: string]: any } = {
@@ -220,9 +220,17 @@ function NewspaperHomePage(): React.ReactElement {
   const [showPersonalized, setShowPersonalized] = useState(false);
   const [userInterests, setUserInterests] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // هوك التفاعلات الموحد
   const { isLiked: reactionLiked, isSaved: reactionSaved, toggleLike, toggleSave } = useReactions('articles');
+  
+  // هوك ملف القارئ الذكي
+  const { profile: readerProfile, isLoading: readerProfileLoading } = useReaderProfile();
 
   // التحقق من حالة تسجيل الدخول
   useEffect(() => {
@@ -230,10 +238,30 @@ function NewspaperHomePage(): React.ReactElement {
       const storedUserId = localStorage.getItem('user_id');
       const userData = localStorage.getItem('user');
       
-      const hasUserId = storedUserId && storedUserId.trim() !== '' && storedUserId !== 'null' && storedUserId !== 'undefined';
-      const isNotAnonymous = storedUserId !== 'anonymous';
-      const hasUserData = userData && userData.trim() !== '' && userData !== 'null' && userData !== 'undefined';
-      
+      let hasUserId = storedUserId && storedUserId.trim() !== '' && storedUserId !== 'null' && storedUserId !== 'undefined';
+      let isNotAnonymous = storedUserId !== 'anonymous';
+      let hasUserData = userData && userData.trim() !== '' && userData !== 'null' && userData !== 'undefined';
+
+      // في حال عدم وجود بيانات في localStorage، نحاول جلبها من الكوكيز
+      if (!hasUserId || !hasUserData) {
+        const cookieUser = getCookie('user');
+        if (cookieUser) {
+          try {
+            const parsed = JSON.parse(cookieUser);
+            if (parsed?.id) {
+              localStorage.setItem('user_id', parsed.id);
+              localStorage.setItem('user', cookieUser);
+              localStorage.setItem('currentUser', cookieUser);
+              hasUserId = true;
+              isNotAnonymous = true;
+              hasUserData = true;
+            }
+          } catch (_) {
+            // تجاهل أخطاء JSON
+          }
+        }
+      }
+
       const isUserLoggedIn = !!(hasUserId && isNotAnonymous && hasUserData);
       
       setIsLoggedIn(isUserLoggedIn);
@@ -1656,6 +1684,21 @@ function NewspaperHomePage(): React.ReactElement {
     >
       {/* Header */}
       <Header />
+
+      {/* ملف القارئ الذكي - يظهر فقط للمستخدمين المسجلين */}
+      {mounted && isLoggedIn && !readerProfileLoading && readerProfile && (
+        <div className="max-w-7xl mx-auto px-6 pt-4">
+          <ReaderProfileCard 
+            profile={readerProfile} 
+            darkMode={darkMode}
+          />
+        </div>
+      )}
+
+      {/* بلوك الجرعات الذكي - Smart Digest Block */}
+      <div className="w-full">
+        <SmartDigestBlock />
+      </div>
 
       {/* Smart Blocks - Top Banner */}
       <div className="max-w-7xl mx-auto px-6 py-4">

@@ -1,11 +1,9 @@
 'use client';
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { Sparkles, Image as ImageIcon } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import BlockEditor from './BlockEditor/BlockEditor';
 import { Block, AIAction } from './BlockEditor/types';
-import { createBlock } from './BlockEditor/utils';
 
 interface ContentEditorProps {
   formData: {

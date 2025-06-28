@@ -4,9 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
-  ArrowRight, Calendar, Clock, Eye, Heart, MessageCircle, 
-  Share2, Bookmark, TrendingUp, Filter, Grid, List,
-  ChevronDown, Search, Loader2, Tag, User, ChevronRight,
+  ArrowRight, Calendar, Clock, Eye, Heart, MessageCircle, TrendingUp, Filter, Grid, List,
+  ChevronDown, Search, Loader2, Tag,
   Cpu, Trophy, Globe, BookOpen, MapPin, Sparkles, Award
 } from 'lucide-react';
 

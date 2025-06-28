@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Plus, Trash2, Move, Upload, Link, Type, Palette, Settings } from 'lucide-react'
+import { Plus, Trash2, Move, Upload, Link, Palette, Settings } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface HeaderContent {

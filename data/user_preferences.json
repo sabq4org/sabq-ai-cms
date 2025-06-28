@@ -20,6 +20,45 @@
       "source": "update",
       "created_at": "2025-06-28T08:38:38.376Z",
       "updated_at": "2025-06-28T08:38:38.376Z"
+    },
+    {
+      "id": "pref-1751141195703-w2m8qhesr",
+      "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+      "category_id": "0f7b5d72-7895-42a5-8052-91b2144dff33",
+      "source": "welcome",
+      "created_at": "2025-06-28T20:06:35.703Z",
+      "updated_at": "2025-06-28T20:06:35.703Z"
+    },
+    {
+      "id": "pref-1751141195703-7bu3fgxj8",
+      "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+      "category_id": "b15eeb48-e874-41ce-b7a5-08801fd108d9",
+      "source": "welcome",
+      "created_at": "2025-06-28T20:06:35.703Z",
+      "updated_at": "2025-06-28T20:06:35.703Z"
+    },
+    {
+      "id": "pref-1751141195703-ggg84pqp4",
+      "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+      "category_id": "dda9657e-2754-4b8d-99c0-d55a7673e014",
+      "source": "welcome",
+      "created_at": "2025-06-28T20:06:35.703Z",
+      "updated_at": "2025-06-28T20:06:35.703Z"
     }
-  ]
+  ],
+  "fb891596-5b72-47ab-8a13-39e0647108ed": {
+    "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+    "categories": {
+      "0f7b5d72-7895-42a5-8052-91b2144dff33": 10,
+      "b15eeb48-e874-41ce-b7a5-08801fd108d9": 10,
+      "dda9657e-2754-4b8d-99c0-d55a7673e014": 10
+    },
+    "authors": {},
+    "topics": [],
+    "reading_time": {
+      "preferred_hours": [],
+      "average_duration": 0
+    },
+    "last_updated": "2025-06-28T20:06:35.706Z"
+  }
 }

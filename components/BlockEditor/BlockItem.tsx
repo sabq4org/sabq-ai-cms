@@ -7,7 +7,7 @@ import BlockToolbar from './BlockToolbar';
 import BlockMenu from './BlockMenu';
 import { ParagraphBlock, HeadingBlock, ImageBlock, VideoBlock, QuoteBlock, ListBlock, DividerBlock, TweetBlock, LinkBlock, TableBlock } from './blocks';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { Code, Twitter, Link, Table } from 'lucide-react';
+import { Code } from 'lucide-react';
 
 interface BlockItemProps {
   block: Block;

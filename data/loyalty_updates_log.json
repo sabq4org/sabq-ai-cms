@@ -4039,5 +4039,41 @@
       "article_id": "57578f6a-e2b8-4e76-848e-fd55c34b60a1"
     },
     "timestamp": "2025-06-28T09:17:36.502Z"
+  },
+  {
+    "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+    "points_earned": 1,
+    "action": "view على المقال",
+    "details": {
+      "article_id": "18cff66d-4f20-458a-aa83-f98c91ab839b"
+    },
+    "timestamp": "2025-06-28T20:11:35.305Z"
+  },
+  {
+    "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+    "points_earned": 1,
+    "action": "view على المقال",
+    "details": {
+      "article_id": "18cff66d-4f20-458a-aa83-f98c91ab839b"
+    },
+    "timestamp": "2025-06-28T20:11:35.847Z"
+  },
+  {
+    "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+    "points_earned": 15,
+    "action": "save على المقال",
+    "details": {
+      "article_id": "18cff66d-4f20-458a-aa83-f98c91ab839b"
+    },
+    "timestamp": "2025-06-28T20:11:42.293Z"
+  },
+  {
+    "user_id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+    "points_earned": 15,
+    "action": "save على المقال",
+    "details": {
+      "article_id": "18cff66d-4f20-458a-aa83-f98c91ab839b"
+    },
+    "timestamp": "2025-06-28T20:11:42.295Z"
   }
 ]

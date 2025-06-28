@@ -1,5 +1,5 @@
 import mysql from 'mysql2/promise';
-import { RowDataPacket, ResultSetHeader, FieldPacket } from 'mysql2';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 // إنشاء pool للاتصالات
 const pool = mysql.createPool({

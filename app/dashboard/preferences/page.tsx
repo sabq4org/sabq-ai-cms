@@ -1,13 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { 
   Brain, Users, TrendingUp, Eye, BarChart3, Settings, Target, 
-  Heart, Share2, MessageSquare, Clock, Star, Zap, Filter,
-  ChevronRight, TrendingDown, Activity, Cpu, Database
+  Heart, Share2, MessageSquare, Clock, Zap, Filter, TrendingDown, Activity
 } from 'lucide-react';
 
 export default function PreferencesPage() {
