@@ -121,13 +121,16 @@ export async function POST(request: NextRequest) {
     });
 
     // إضافة الكوكيز الآمنة
+    const forwardedProto = request.headers.get('x-forwarded-proto');
+    const isHttps = forwardedProto === 'https';
     const isProduction = process.env.NODE_ENV === 'production';
+    const secureFlag = isProduction ? isHttps : false;
     
     // كوكيز للمستخدم (بدون httpOnly ليمكن قراءته من JavaScript)
     response.cookies.set('user', JSON.stringify(responseUser), {
       httpOnly: false, // السماح بقراءته من JavaScript لدعم Safari
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax', // تغيير لدعم Safari
+      secure: secureFlag,
+      sameSite: secureFlag ? 'none' : 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 أيام
       path: '/',
       domain: undefined // السماح للمتصفح بتحديد النطاق
@@ -136,8 +139,8 @@ export async function POST(request: NextRequest) {
     // كوكيز للتوكن
     response.cookies.set('auth-token', token, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax', // تغيير لدعم Safari
+      secure: secureFlag,
+      sameSite: secureFlag ? 'none' : 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 أيام
       path: '/',
       domain: undefined // السماح للمتصفح بتحديد النطاق
