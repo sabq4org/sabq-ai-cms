@@ -64,6 +64,30 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
+    // التحقق من نوع التفاعل
+    const validTypes = ['like', 'save', 'share', 'view', 'comment'];
+    if (!validTypes.includes(type)) {
+      return NextResponse.json({
+        success: false,
+        error: 'نوع التفاعل غير صحيح'
+      }, { status: 400 });
+    }
+    
+    // إذا كان المستخدم غير مسجل (anonymous)، نرجع استجابة ناجحة بدون حفظ في قاعدة البيانات
+    if (user_id === 'anonymous') {
+      return NextResponse.json({
+        success: true,
+        interaction: {
+          userId: 'anonymous',
+          articleId: article_id,
+          type: type,
+          createdAt: new Date().toISOString()
+        },
+        message: 'تم تسجيل التفاعل محلياً للمستخدم غير المسجل',
+        isAnonymous: true
+      });
+    }
+    
     // التحقق من وجود المقال
     const article = await prisma.article.findUnique({
       where: { id: article_id }
@@ -76,16 +100,7 @@ export async function POST(request: NextRequest) {
       }, { status: 404 });
     }
     
-    // التحقق من نوع التفاعل
-    const validTypes = ['like', 'save', 'share', 'view', 'comment'];
-    if (!validTypes.includes(type)) {
-      return NextResponse.json({
-        success: false,
-        error: 'نوع التفاعل غير صحيح'
-      }, { status: 400 });
-    }
-    
-    // إنشاء أو تحديث التفاعل
+    // إنشاء أو تحديث التفاعل للمستخدمين المسجلين فقط
     const interaction = await prisma.interaction.upsert({
       where: {
         userId_articleId_type: {
@@ -102,20 +117,25 @@ export async function POST(request: NextRequest) {
       update: {}
     });
     
-    // إضافة نقاط الولاء
+    // إضافة نقاط الولاء للمستخدمين المسجلين فقط
     if (type === 'like' || type === 'save') {
-      await prisma.loyaltyPoint.create({
-        data: {
-          userId: user_id,
-          points: type === 'like' ? 5 : 10,
-          action: type,
-          referenceId: article_id,
-          referenceType: 'article',
-          metadata: {
-            article_title: article.title
+      try {
+        await prisma.loyaltyPoint.create({
+          data: {
+            userId: user_id,
+            points: type === 'like' ? 5 : 10,
+            action: type,
+            referenceId: article_id,
+            referenceType: 'article',
+            metadata: {
+              article_title: article.title
+            }
           }
-        }
-      });
+        });
+      } catch (loyaltyError) {
+        console.log('تعذر إضافة نقاط الولاء:', loyaltyError);
+        // نستمر حتى لو فشلت نقاط الولاء
+      }
     }
     
     // تحديث إحصائيات المقال

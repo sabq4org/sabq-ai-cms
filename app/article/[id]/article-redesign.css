@@ -1,0 +1,1022 @@
+/* ===== تصميم صفحة المقال الجديد - نمط صحفي كلاسيكي ===== */
+
+/* === المتغيرات الأساسية === */
+:root {
+  /* الألوان الأساسية */
+  --primary-color: #2563eb; /* أزرق */
+  --secondary-color: #dc2626; /* أحمر */
+  --accent-color: #16a34a; /* أخضر */
+  --purple-color: #9333ea; /* بنفسجي */
+  
+  /* ألوان النصوص */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  
+  /* الخلفيات */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-hover: #f3f4f6;
+  
+  /* الحدود */
+  --border-color: #e5e7eb;
+  --border-radius: 0.75rem;
+  --border-radius-sm: 0.5rem;
+  
+  /* الظلال */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* التباعد */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+}
+
+/* === الوضع الليلي === */
+.dark {
+  --primary-color: #3b82f6;
+  --secondary-color: #ef4444;
+  --accent-color: #22c55e;
+  --purple-color: #a855f7;
+  
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-hover: #374151;
+  
+  --border-color: #374151;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+}
+
+/* === شريط التنقل === */
+.article-header {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.article-header.scrolled {
+  box-shadow: var(--shadow);
+}
+
+/* === مؤشر تقدم القراءة === */
+.reading-progress-bar {
+  transition: width 0.3s ease-out;
+}
+
+/* === قسم الصورة الرئيسية === */
+.hero-image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-image {
+  transition: transform 0.3s ease;
+}
+
+.hero-image:hover {
+  transform: scale(1.02);
+}
+
+/* === عنوان المقال === */
+.article-title {
+  font-size: clamp(1.875rem, 4vw, 2.5rem);
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* === محتوى المقال === */
+.article-content {
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.article-content p {
+  margin-bottom: var(--spacing-md);
+}
+
+.article-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
+}
+
+.article-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+}
+
+.article-content blockquote {
+  border-right: 4px solid var(--primary-color);
+  padding-right: var(--spacing-md);
+  margin: var(--spacing-lg) 0;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.article-content a {
+  color: var(--primary-color);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.article-content a:hover {
+  border-bottom-color: var(--primary-color);
+}
+
+/* === شريط التفاعل === */
+.interaction-bar {
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-md) 0;
+  margin: var(--spacing-lg) 0;
+}
+
+.interaction-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.interaction-button:hover {
+  background: var(--bg-hover);
+}
+
+.interaction-button.active {
+  color: var(--primary-color);
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.interaction-button.active.liked {
+  color: var(--secondary-color);
+  background: rgba(220, 38, 38, 0.1);
+}
+
+/* === الشريط الجانبي === */
+.sidebar-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-card h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* === بطاقات المقالات ذات الصلة === */
+.related-article-card {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  margin: 0 -var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  transition: all 0.2s ease;
+}
+
+.related-article-card:hover {
+  background: var(--bg-hover);
+}
+
+.related-article-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
+}
+
+.related-article-title {
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s ease;
+}
+
+.related-article-card:hover .related-article-title {
+  color: var(--primary-color);
+}
+
+/* === قائمة المشاركة === */
+.share-menu {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-sm);
+  min-width: 200px;
+}
+
+.share-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  transition: background 0.2s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: right;
+  color: var(--text-primary);
+}
+
+.share-button:hover {
+  background: var(--bg-hover);
+}
+
+/* === حركات وانتقالات === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* === تحسينات الأداء === */
+.article-content img {
+  loading: lazy;
+}
+
+/* === التوافق مع الهواتف === */
+@media (max-width: 768px) {
+  .article-title {
+    font-size: 1.75rem;
+  }
+  
+  .article-content {
+    font-size: 1rem;
+  }
+  
+  .sidebar-card {
+    margin-top: var(--spacing-lg);
+  }
+  
+  .related-article-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .interaction-button span {
+    display: none;
+  }
+  
+  .interaction-button {
+    padding: var(--spacing-xs);
+  }
+}
+
+/* === طباعة === */
+@media print {
+  .article-header,
+  .interaction-bar,
+  .sidebar-card,
+  .share-menu {
+    display: none !important;
+  }
+  
+  .article-content {
+    max-width: 100%;
+  }
+}
+
+/* ===== تحسينات جديدة ===== */
+
+/* === أنيميشن محسّن لأزرار التفاعل === */
+.interaction-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.interaction-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(59, 130, 246, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.interaction-button:active::before {
+  width: 200px;
+  height: 200px;
+}
+
+.interaction-button.active.liked {
+  animation: heartBeat 0.3s ease-in-out;
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* === شارة "جديد" للمقالات === */
+.new-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* === تحسين عرض الوقت === */
+.reading-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+/* === تأثير التحميل === */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-hover) 50%, var(--bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* === تحسين الصور === */
+.article-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--border-radius);
+}
+
+.article-image img {
+  transition: transform 0.5s ease;
+}
+
+.article-image:hover img {
+  transform: scale(1.05);
+}
+
+.image-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: white;
+  padding: 1rem;
+  font-size: 0.875rem;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.article-image:hover .image-caption {
+  transform: translateY(0);
+}
+
+/* === تحسين الاقتباسات === */
+.quote-block {
+  position: relative;
+  padding: 2rem;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  margin: 2rem 0;
+}
+
+.quote-block::before {
+  content: '"';
+  position: absolute;
+  top: -0.5rem;
+  right: 1rem;
+  font-size: 4rem;
+  color: var(--primary-color);
+  opacity: 0.3;
+  font-family: Georgia, serif;
+}
+
+/* === شريط التقدم المحسّن === */
+.reading-progress-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--bg-secondary);
+  z-index: 1000;
+}
+
+.reading-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+/* === تحسين القوائم === */
+.article-content ul,
+.article-content ol {
+  padding-right: 2rem;
+  margin: 1.5rem 0;
+}
+
+.article-content li {
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.article-content ul li::before {
+  content: '◈';
+  position: absolute;
+  right: -1.5rem;
+  color: var(--primary-color);
+}
+
+/* === أزرار الإجراءات العائمة === */
+.floating-actions {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 100;
+}
+
+.floating-action-button {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.floating-action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* === تحسينات الوضع الليلي === */
+.dark .article-content img {
+  opacity: 0.9;
+}
+
+.dark .quote-block {
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid var(--border-color);
+}
+
+.dark .new-badge {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
+/* ===== تحسينات جديدة - نوفمبر 2024 ===== */
+
+/* === 1. تحسين التباعد بين العناصر === */
+.hero-image-container {
+  margin-bottom: var(--spacing-xl); /* زيادة المسافة بعد الصورة */
+}
+
+.article-title {
+  margin-bottom: var(--spacing-lg); /* زيادة المسافة بعد العنوان */
+}
+
+.article-meta-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-xl);
+}
+
+.article-meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.article-meta-item svg {
+  width: 1.25rem; /* تكبير الأيقونات */
+  height: 1.25rem;
+  color: var(--text-muted);
+}
+
+/* === 2. شريط التفاعل المحسّن تحت العنوان === */
+.quick-interaction-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) 0;
+  margin-bottom: var(--spacing-xl);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.quick-interaction-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 0.625rem 1.25rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  background: var(--bg-secondary);
+  cursor: pointer;
+  color: var(--text-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-interaction-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.quick-interaction-button.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.quick-interaction-button.active.liked {
+  background: var(--secondary-color);
+  border-color: var(--secondary-color);
+  animation: heartPulse 0.6s ease-in-out;
+}
+
+@keyframes heartPulse {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.1); }
+  50% { transform: scale(0.95); }
+  75% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* === 3. تحسين البطاقات الجانبية === */
+.sidebar-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.sidebar-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* في الوضع الليلي */
+.dark .sidebar-card {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dark .sidebar-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* === 4. تحسين بطاقات المقالات ذات الصلة === */
+.related-articles-container {
+  margin-top: var(--spacing-md);
+}
+
+.related-article-card {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  background: var(--bg-secondary);
+}
+
+.related-article-card:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateX(-4px);
+}
+
+.related-article-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.related-article-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.related-article-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: var(--spacing-xs);
+  transition: color 0.2s ease;
+}
+
+.related-article-card:hover .related-article-title {
+  color: var(--primary-color);
+}
+
+.related-article-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* === 5. تحسين توزيع المعلومات === */
+.article-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.article-info-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-sm);
+}
+
+.article-info-item svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--primary-color);
+}
+
+.article-info-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.article-info-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* === 6. تحسين محتوى المقال === */
+.article-content {
+  font-size: 1.125rem;
+  line-height: 1.9;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+.article-content > *:first-child {
+  margin-top: 0;
+}
+
+.article-content p {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* === 7. تأثيرات إضافية === */
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple-effect:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* === 8. تحسينات الأداء على الهواتف === */
+@media (max-width: 768px) {
+  .article-meta-info {
+    font-size: 0.875rem;
+  }
+  
+  .article-meta-item svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .quick-interaction-bar {
+    justify-content: space-around;
+    padding: var(--spacing-sm) 0;
+  }
+  
+  .quick-interaction-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .related-article-image {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .sidebar-card {
+    padding: var(--spacing-md);
+  }
+  
+  .article-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === 9. أنيميشن تحميل محسّن === */
+.content-skeleton {
+  animation: shimmer 1.5s infinite;
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 0%,
+    var(--bg-hover) 50%,
+    var(--bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--border-radius-sm);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* === 10. تحسين الفوتر === */
+.article-footer {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: 2px solid var(--border-color);
+}
+
+/* ===== شارة نمو التفاعل ===== */
+.trend-badge {
+  font-weight: 600;
+}
+
+/* ===== دعم الوضع الليلي للبطاقات ===== */
+.sidebar-card,
+.related-article-card {
+  background-color: #ffffff;
+}
+.dark .sidebar-card,
+.dark .related-article-card {
+  background-color: #1f2937; /* gray-800 */
+}
+
+/* يمكن إضافة مزيد من التعديلات المخصصة هنا */
+
+/* أنماط الجداول في المحتوى */
+.table-container {
+  overflow-x: auto;
+  margin: 2rem 0;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.prose th,
+.prose td {
+  text-align: right;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .prose th,
+.dark .prose td {
+  border-color: #374151;
+}
+
+.prose th {
+  background-color: #f3f4f6;
+  font-weight: 700;
+  color: #111827;
+}
+
+.dark .prose th {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+.prose tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.dark .prose tr:nth-child(even) {
+  background-color: rgba(31, 41, 55, 0.5);
+}
+
+/* أنماط الصور */
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  margin: 2rem auto;
+  display: block;
+}
+
+/* أنماط القوائم */
+.prose ul,
+.prose ol {
+  padding-right: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+/* أنماط الاقتباسات */
+.prose blockquote {
+  border-right: 4px solid #3b82f6;
+  padding-right: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.dark .prose blockquote {
+  color: #9ca3af;
+}
+
+/* أنماط العناوين */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose h1 {
+  font-size: 2rem;
+}
+
+.prose h2 {
+  font-size: 1.75rem;
+}
+
+.prose h3 {
+  font-size: 1.5rem;
+}
+
+/* أنماط النص */
+.prose strong {
+  font-weight: 700;
+  color: #111827;
+}
+
+.dark .prose strong {
+  color: #f9fafb;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+/* أنماط الروابط */
+.prose a {
+  color: #3b82f6;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.prose a:hover {
+  color: #2563eb;
+}
+
+.dark .prose a {
+  color: #60a5fa;
+}
+
+.dark .prose a:hover {
+  color: #93bbfc;
+}
+
+/* فقرات المحتوى */
+.prose p {
+  font-size: 1.125rem;
+  line-height: 1.9;
+  color: #374151;
+  margin-bottom: 1.5rem;
+  text-align: justify;
+  direction: rtl;
+}
+
+.dark .prose p {
+  color: #e5e7eb;
+} 

@@ -33,7 +33,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
     
     try {
-      const savedTheme = localStorage.getItem('theme') as Theme | null;
+      // ترحيل البيانات القديمة من StaticHeader
+      const oldDarkMode = localStorage.getItem('darkMode');
+      let savedTheme = localStorage.getItem('theme') as Theme | null;
+      
+      // إذا كان هناك إعداد قديم ولا يوجد إعداد جديد، قم بالترحيل
+      if (oldDarkMode !== null && !savedTheme) {
+        const wasOldDarkMode = JSON.parse(oldDarkMode);
+        savedTheme = wasOldDarkMode ? 'dark' : 'light';
+        localStorage.setItem('theme', savedTheme);
+        localStorage.removeItem('darkMode'); // حذف الإعداد القديم
+      }
+      
       const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       
       // استخدام الثيم المحفوظ أو الافتراضي للنظام

@@ -182,7 +182,8 @@ export default function EditArticlePage() {
         const result = await res.json();
         if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل التصنيفات');
 
-        const sorted = (result.data as Category[])
+        const categoriesData = result.categories || result.data || [];
+        const sorted = (categoriesData as Category[])
           .filter(cat => cat.is_active)
           .sort((a, b) => (a.position || 0) - (b.position || 0));
 

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -32,115 +34,66 @@ export async function GET(
   try {
     const { id: authorId } = await params;
     
-    // قراءة المقالات من الملف
-    const articlesPath = path.join(process.cwd(), 'data', 'articles.json');
-    const articlesData = await fs.readFile(articlesPath, 'utf-8');
-    const data = JSON.parse(articlesData);
-    const allArticles = data.articles || data;
-    
-    // العثور على جميع المقالات للمؤلف
-    let authorArticles = allArticles.filter((article: any) => {
-      // البحث بـ author_id أولاً
-      if (article.author_id === authorId) return true;
-      
-      // البحث بالاسم إذا لم يوجد author_id
-      if (authorId === 'ali-abdah') {
-        return article.author === 'علي عبده' || 
-               article.author_name === 'علي عبده' || 
-               article.reporter === 'علي عبده' ||
-               article.reporter_name === 'علي عبده';
-      }
-      if (authorId === 'team' || authorId === 'editorial-team') {
-        return article.author === 'فريق التحرير' || 
-               article.author_name === 'فريق التحرير' ||
-               article.reporter === 'فريق التحرير' ||
-               article.reporter_name === 'فريق التحرير';
-      }
-      
-      // البحث بالمعرف الرقمي
-      if (authorId === 'current-user-id' || authorId === '1') {
-        return article.author_id === '1' || 
-               article.author === 'محمد أحمد' ||
-               article.author_name === 'محمد أحمد';
-      }
-      
-      return false;
+    // جلب المؤلف من قاعدة البيانات
+    const dbAuthor = await prisma.user.findUnique({
+      where: { id: authorId }
     });
-    
-    // إذا لم نجد مقالات، نستخدم عينة عشوائية
-    if (authorArticles.length === 0) {
-      // أخذ عينة عشوائية من المقالات
-      authorArticles = allArticles
-        .filter((article: any) => article.status === 'published')
-        .slice(0, 9);
+
+    if (!dbAuthor) {
+      return NextResponse.json({ error: 'Author not found' }, { status: 404 });
     }
-    
-    // الحصول على اسم المؤلف
-    let authorName = '';
-    if (authorArticles.length > 0) {
-      const firstArticle = authorArticles[0];
-      authorName = firstArticle.author || firstArticle.author_name || 
-                   firstArticle.reporter || firstArticle.reporter_name || 'مؤلف غير معروف';
-    } else {
-      authorName = getAuthorNameById(authorId);
-    }
-    
-    // حساب الإحصائيات الحقيقية
-    const totalViews = authorArticles.reduce((sum: number, article: any) => 
-      sum + (article.views_count || article.stats?.views || 0), 0);
-    
-    const totalLikes = authorArticles.reduce((sum: number, article: any) => 
-      sum + (article.likes_count || article.stats?.likes || 0), 0);
-    
-    // استخراج التخصصات من فئات المقالات الفعلية
-    const specializations = getAuthorSpecializations(authorArticles);
-    
-    // بناء بيانات المؤلف ديناميكياً
-    const author: Author = {
-      id: authorId,
-      name: authorName,
-      title: getAuthorTitle(authorId, authorName, authorArticles.length),
-      bio: getAuthorBio(authorId, authorName, specializations),
-      avatar: getAuthorAvatar(authorId, authorName),
-      joinDate: getJoinDate(authorArticles),
-      articlesCount: authorArticles.length,
-      viewsCount: totalViews,
-      likesCount: totalLikes,
-      specialization: specializations,
-      awards: getAuthorAwards(authorId, authorArticles.length, totalViews),
-      social: getAuthorSocial(authorId, authorName)
-    };
-    
-    // ترتيب المقالات حسب التاريخ
-    const sortedArticles = [...authorArticles].sort((a: any, b: any) => {
-      const dateA = new Date(a.published_at || a.created_at);
-      const dateB = new Date(b.published_at || b.created_at);
-      return dateB.getTime() - dateA.getTime();
+
+    // جلب مقالات المؤلف
+    const dbArticles = await prisma.article.findMany({
+      where: { authorId: authorId, status: 'published' },
+      include: {
+        category: true
+      },
+      orderBy: { publishedAt: 'desc' }
     });
-    
-    // إضافة معلومات إضافية للمقالات
-    const articlesWithStats = sortedArticles.slice(0, 12).map((article: any) => ({
-      id: article.id,
-      title: article.title,
-      summary: article.summary || article.subtitle,
-      category: article.category_name || article.category?.name_ar || 'عام',
-      category_id: article.category_id,
-      date: article.published_at || article.created_at,
-      image: article.featured_image,
-      views: article.views_count || article.stats?.views || 0,
-      likes: article.likes_count || article.stats?.likes || 0,
-      comments: article.stats?.comments || 0,
-      readTime: article.reading_time ? `${article.reading_time} دقائق` : '5 دقائق',
-      is_breaking: article.is_breaking || false,
-      is_featured: article.is_featured || false
+
+    // حساب الإحصائيات
+    const totalViews = dbArticles.reduce((sum, a) => sum + a.views, 0);
+
+    // likes via interactions
+    const likesAggregate = await prisma.interaction.count({
+      where: { article: { authorId }, type: 'like' }
+    });
+
+    // تجهيز مقالات للإرسال
+    const articlesWithStats = await Promise.all(dbArticles.slice(0,12).map(async (a)=>{
+      const likeCount = await prisma.interaction.count({ where: { articleId: a.id, type: 'like' } });
+      return {
+        id: a.id,
+        title: a.title,
+        summary: a.excerpt,
+        category: (a.category as any)?.name_ar || a.category?.name || 'عام',
+        category_id: a.categoryId,
+        date: a.publishedAt?.toISOString() || a.createdAt.toISOString(),
+        image: a.featuredImage,
+        views: a.views,
+        likes: likeCount,
+        comments: await prisma.comment.count({ where: { articleId: a.id, status: 'approved' } }),
+        readTime: a.readingTime ? `${a.readingTime} دقائق` : undefined,
+        is_breaking: a.breaking,
+        is_featured: a.featured
+      };
     }));
-    
-    return NextResponse.json({
-      author,
-      articles: articlesWithStats,
-      totalArticles: authorArticles.length
-    });
-    
+
+    const author: Author = {
+      id: dbAuthor.id,
+      name: dbAuthor.name || 'كاتب صحفي',
+      avatar: dbAuthor.avatar || undefined,
+      joinDate: dbAuthor.createdAt.toISOString().split('T')[0],
+      articlesCount: dbArticles.length,
+      viewsCount: totalViews,
+      likesCount: likesAggregate,
+      bio: '',
+      social: {}
+    };
+
+    return NextResponse.json({ author, articles: articlesWithStats, totalArticles: dbArticles.length });
+
   } catch (error) {
     console.error('Error fetching author data:', error);
     return NextResponse.json(

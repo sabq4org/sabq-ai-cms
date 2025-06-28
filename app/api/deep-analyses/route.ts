@@ -261,6 +261,7 @@ export async function POST(request: NextRequest) {
         dataPoints: []
       },
       rawContent: rawContent, // حفظ المحتوى الخام للعرض في المحرر
+      featuredImage: body.featuredImage || null,
       categories: body.categories,
       tags: body.tags,
       authorId: undefined, // سيتم تحديده من الجلسة

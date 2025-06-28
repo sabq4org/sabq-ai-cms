@@ -76,7 +76,7 @@ export default function ForYouPage() {
     try {
       const response = await fetch('/api/categories');
       const result = await response.json();
-      setCategories(result.data || []);
+      setCategories(result.categories || result.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }

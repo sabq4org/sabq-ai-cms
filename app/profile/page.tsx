@@ -118,8 +118,9 @@ export default function ProfilePage() {
       if (loyaltyResponse.ok) {
         const loyaltyData = await loyaltyResponse.json();
         if (loyaltyData.success) {
+          const pointsData = loyaltyData.data || loyaltyData;
           setLoyaltyData({
-            total_points: loyaltyData.data.total_points,
+            total_points: pointsData.total_points || 0,
             level: '', // لم نعد نحتاج المستوى، سيُحسب من النقاط
             next_level_points: 0,
             recent_activities: []
@@ -291,7 +292,7 @@ export default function ProfilePage() {
           },
           body: JSON.stringify({
             userId: user.id,
-            avatarUrl: uploadData.data.url
+            avatarUrl: (uploadData.data || uploadData).url
           })
         });
 
@@ -300,7 +301,8 @@ export default function ProfilePage() {
           console.log('✅ تم تحديث قاعدة البيانات:', updateData);
           
           // تحديث بيانات المستخدم المحلية
-          const updatedUser = { ...user, avatar: uploadData.data.url };
+          const avatarUrl = (uploadData.data || uploadData).url;
+          const updatedUser = { ...user, avatar: avatarUrl };
           setUser(updatedUser);
           
           // تحديث localStorage

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { 
   Brain, 
   Eye, 
-  Clock3, 
+  Clock, 
   Share2, 
   Bookmark, 
   Download, 
@@ -15,116 +15,179 @@ import {
   MessageSquare,
   Calendar,
   User,
-  Award,
+  Star,
   TrendingUp,
-  RefreshCw,
   ChevronRight,
   ArrowLeft,
   Sparkles,
   FileText,
-  Target,
-  BarChart3,
-  Lightbulb,
-  AlertCircle,
-  CheckCircle2,
-  ArrowUp
+  Hash,
+  ChevronUp,
+  Menu,
+  X
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
-interface DeepAnalysis {
+interface DeepAnalysisPageProps {
   id: string;
   title: string;
-  summary: string;
-  content: string;
+  lead: string;
+  contentHtml: string;
+  tags: string[];
   author: string;
   authorRole?: string;
   authorAvatar?: string;
-  createdAt: string;
-  updatedAt?: string;
+  publishedAt: string;
+  publishedAtHijri?: string;
   readTime: number;
   views: number;
   likes: number;
   shares: number;
   rating: number;
-  status: 'published' | 'draft' | 'updated';
-  aiConfidence?: number;
-  tags: string[];
   category: string;
-  type: 'AI' | 'تحرير بشري' | 'مختلط';
-  analysisAngle: string; // زاوية التحليل
-  keyInsights: string[]; // النقاط الرئيسية
-  sources?: string[]; // المصادر
-  relatedAnalyses?: RelatedAnalysis[];
+  categorySlug?: string;
+  aiSummary?: string;
+  aiQuestions?: string[];
+  relatedArticles?: RelatedArticle[];
+  featuredImage?: string;
 }
 
-interface RelatedAnalysis {
+interface RelatedArticle {
   id: string;
   title: string;
   summary: string;
   readTime: number;
   category: string;
-  type: 'AI' | 'تحرير بشري';
 }
 
 interface TableOfContentsItem {
   id: string;
   title: string;
   level: number;
+  wordCount?: number;
 }
 
-export default function DeepAnalysisDetailPage() {
+// دالة debounce محلية
+function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
+  let timeout: NodeJS.Timeout;
+  return ((...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  }) as T;
+}
+
+export default function DeepAnalysisPage() {
   const params = useParams();
-  const { darkMode } = useDarkModeContext();
-  const [analysis, setAnalysis] = useState<DeepAnalysis | null>(null);
+  const { darkMode: contextDarkMode } = useDarkModeContext();
+  const [darkMode, setDarkMode] = useState(false);
+  const [analysis, setAnalysis] = useState<DeepAnalysisPageProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const [tableOfContents, setTableOfContents] = useState<TableOfContentsItem[]>([]);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showMobileToc, setShowMobileToc] = useState(false);
+  const [readingProgress, setReadingProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
+  const tocRef = useRef<HTMLDivElement>(null);
+
+  // تحديث dark mode بعد التحميل لتجنب مشكلة Hydration
+  useEffect(() => {
+    setDarkMode(contextDarkMode);
+  }, [contextDarkMode]);
 
   useEffect(() => {
     fetchAnalysisDetails();
   }, [params?.id]);
 
   useEffect(() => {
-    if (analysis?.content) {
+    if (analysis?.contentHtml) {
       generateTableOfContents();
     }
-  }, [analysis?.content]);
+  }, [analysis?.contentHtml]);
 
   useEffect(() => {
-    // مراقبة التمرير لتحديد القسم النشط وإظهار زر العودة للأعلى
     const handleScroll = () => {
-      // إظهار زر العودة للأعلى
-      setShowScrollTop(window.scrollY > 300);
+      // تحديث زر العودة للأعلى
+      setShowScrollTop(window.pageYOffset > 300);
       
-      if (!contentRef.current) return;
+      // حساب نسبة التقدم في القراءة
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight - windowHeight;
+      const scrollTop = window.pageYOffset;
+      const progress = (scrollTop / documentHeight) * 100;
+      setReadingProgress(Math.min(100, Math.max(0, progress)));
       
-      const sections = contentRef.current.querySelectorAll('h2, h3');
-      const scrollPosition = window.scrollY + 100;
-      
-      sections.forEach((section) => {
-        const element = section as HTMLElement;
-        const { offsetTop, offsetHeight } = element;
+      // تحديث القسم النشط في الفهرس
+      if (tableOfContents.length > 0) {
+        const scrollPosition = window.scrollY + 150; // إضافة offset للدقة
         
-        if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-          setActiveSection(element.id);
+        // البحث عن القسم الحالي
+        let currentSection = '';
+        
+        for (let i = tableOfContents.length - 1; i >= 0; i--) {
+          const section = document.getElementById(tableOfContents[i].id);
+          if (section && section.offsetTop <= scrollPosition) {
+            currentSection = tableOfContents[i].id;
+            break;
+          }
         }
-      });
+        
+        // تحديث القسم النشط فقط إذا تغير
+        if (currentSection && currentSection !== activeSection) {
+          setActiveSection(currentSection);
+        }
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // حفظ واستعادة موضع القراءة
+  useEffect(() => {
+    if (analysis?.id) {
+      const savedPosition = localStorage.getItem(`reading-position-${analysis.id}`);
+      if (savedPosition) {
+        const position = parseInt(savedPosition);
+        if (position > 100) {
+          // إظهار رسالة للمستخدم
+          toast(`مرحباً بعودتك! كنت عند ${Math.round((position / document.documentElement.scrollHeight) * 100)}% من المقال`, {
+            duration: 3000,
+            position: 'bottom-center',
+            icon: '📖'
+          });
+          
+          // العودة لموضع القراءة بعد تحميل الصفحة
+          setTimeout(() => {
+            window.scrollTo({ top: position, behavior: 'smooth' });
+          }, 500);
+        }
+      }
+    }
+  }, [analysis?.id]);
+
+  // حفظ موضع القراءة عند التمرير
+  useEffect(() => {
+    const savePosition = () => {
+      if (analysis?.id) {
+        localStorage.setItem(`reading-position-${analysis.id}`, window.scrollY.toString());
+      }
+    };
+
+    const debouncedSave = debounce(savePosition, 1000);
+    window.addEventListener('scroll', debouncedSave);
+
+    return () => {
+      window.removeEventListener('scroll', debouncedSave);
+      savePosition(); // حفظ الموضع عند مغادرة الصفحة
+    };
+  }, [analysis?.id]);
+
   const fetchAnalysisDetails = async () => {
     try {
-      // جلب البيانات الفعلية من API
       const response = await fetch(`/api/deep-analyses/${params?.id}`);
       
       if (!response.ok) {
@@ -132,33 +195,34 @@ export default function DeepAnalysisDetailPage() {
       }
       
       const data = await response.json();
+      console.log('Fetched data:', data); // للتحقق من البيانات
       
-      // تحويل البيانات إلى التنسيق المطلوب للعرض
-      const analysisData: DeepAnalysis = {
+      // تحويل البيانات للعرض
+      const analysisData: DeepAnalysisPageProps = {
         id: data.id,
         title: data.title,
-        summary: data.summary,
-        content: data.rawContent || formatContentForDisplay(data.content),
-        author: data.authorName,
-        authorRole: data.sourceType === 'gpt' ? 'الذكاء الاصطناعي' : 'محرر بشري',
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
-        readTime: data.readingTime,
-        views: data.views,
+        lead: data.summary,
+        contentHtml: data.rawContent || formatContentToHtml(data.content),
+        tags: data.tags || [],
+        author: data.authorName || 'فريق التحرير',
+        authorRole: data.sourceType === 'gpt' ? 'محلل بالذكاء الاصطناعي' : 'محرر',
+        authorAvatar: data.authorAvatar,
+        publishedAt: new Date(data.createdAt).toLocaleDateString('ar-SA'),
+        publishedAtHijri: new Date(data.createdAt).toLocaleDateString('ar-SA-u-ca-islamic'),
+        readTime: data.readingTime || 5,
+        views: data.views || 0,
         likes: data.likes || 0,
         shares: data.shares || 0,
-        rating: data.qualityScore * 5, // تحويل من 0-1 إلى 0-5
-        status: data.status as 'published' | 'draft' | 'updated',
-        aiConfidence: data.sourceType === 'gpt' ? data.qualityScore * 100 : undefined,
-        tags: data.tags,
-        category: data.categories[0] || 'تحليل عميق',
-        type: data.sourceType === 'gpt' ? 'AI' : data.sourceType === 'hybrid' ? 'مختلط' : 'تحرير بشري',
-        analysisAngle: data.categories[0] || 'تحليل شامل',
-        keyInsights: extractKeyInsights(data.content),
-        sources: data.sources || [],
-        relatedAnalyses: [] // سيتم إضافتها لاحقاً
+        rating: data.qualityScore ? (data.qualityScore / 20) : 4.5,
+        category: data.categories?.[0] || 'تحليل عميق',
+        categorySlug: data.categories?.[0]?.toLowerCase().replace(/\s+/g, '-'),
+        aiSummary: data.content?.summary,
+        aiQuestions: data.content?.questions,
+        relatedArticles: data.relatedArticles || [],
+        featuredImage: data.featuredImage || '/images/deep-analysis-default.svg'
       };
       
+      console.log('Transformed analysis:', analysisData); // للتحقق من البيانات المحولة
       setAnalysis(analysisData);
       setLoading(false);
     } catch (error) {
@@ -168,79 +232,30 @@ export default function DeepAnalysisDetailPage() {
     }
   };
 
-  // دالة لتحويل المحتوى المنظم إلى HTML للعرض
-  const formatContentForDisplay = (content: any): string => {
-    if (!content || !content.sections) return '';
+  const formatContentToHtml = (content: any): string => {
+    if (typeof content === 'string') return content;
+    if (!content) return '';
     
     let html = '';
     
-    // إضافة الفهرس إذا كان موجوداً
-    if (content.tableOfContents && content.tableOfContents.length > 0) {
-      html += '<h2>الفهرس</h2><ul>';
-      content.tableOfContents.forEach((item: string) => {
-        html += `<li>${item}</li>`;
-      });
-      html += '</ul>';
-    }
-    
     // إضافة الأقسام
-    content.sections.forEach((section: any) => {
-      if (section.title) {
-        html += `<h2>${section.title}</h2>`;
-      }
-      if (section.content) {
-        // تحويل النص إلى فقرات
-        const paragraphs = section.content.split('\n\n');
-        paragraphs.forEach((paragraph: string) => {
-          if (paragraph.trim()) {
-            html += `<p>${paragraph.trim()}</p>`;
-          }
-        });
-      }
-    });
-    
-    // إضافة النقاط الرئيسية
-    if (content.keyInsights && content.keyInsights.length > 0) {
-      html += '<h2>النقاط الرئيسية</h2><ul>';
-      content.keyInsights.forEach((insight: string) => {
-        html += `<li>${insight}</li>`;
-      });
-      html += '</ul>';
-    }
-    
-    // إضافة التوصيات
-    if (content.recommendations && content.recommendations.length > 0) {
-      html += '<h2>التوصيات</h2><ul>';
-      content.recommendations.forEach((rec: string) => {
-        html += `<li>${rec}</li>`;
-      });
-      html += '</ul>';
-    }
-    
-    return html;
-  };
-
-  // دالة لاستخراج النقاط الرئيسية من المحتوى
-  const extractKeyInsights = (content: any): string[] => {
-    if (!content) return [];
-    
-    if (content.keyInsights && Array.isArray(content.keyInsights)) {
-      return content.keyInsights;
-    }
-    
-    // إذا لم تكن هناك نقاط رئيسية محددة، يمكن استخراجها من الأقسام
-    const insights: string[] = [];
     if (content.sections) {
       content.sections.forEach((section: any) => {
-        if (section.title && section.title.includes('النقاط الرئيسية')) {
-          // استخراج النقاط من المحتوى
-          const points = section.content.split('\n').filter((line: string) => line.trim().startsWith('-') || line.trim().startsWith('•'));
-          insights.push(...points.map((p: string) => p.replace(/^[-•]\s*/, '')));
+        if (section.title) {
+          html += `<h2>${section.title}</h2>`;
+        }
+        if (section.content) {
+          const paragraphs = section.content.split('\n\n');
+          paragraphs.forEach((paragraph: string) => {
+            if (paragraph.trim()) {
+              html += `<p>${paragraph.trim()}</p>`;
+            }
+          });
         }
       });
     }
     
-    return insights.slice(0, 4); // أخذ أول 4 نقاط فقط
+    return html;
   };
 
   const generateTableOfContents = () => {
@@ -250,13 +265,27 @@ export default function DeepAnalysisDetailPage() {
     const toc: TableOfContentsItem[] = [];
     
     headings.forEach((heading, index) => {
+      // إنشاء ID فريد لكل عنوان
       const id = `section-${index}`;
       heading.id = id;
+      
+      // إضافة class للتمييز البصري
+      heading.classList.add('scroll-mt-20'); // لترك مساحة عند التمرير
+      
+      // حساب عدد الكلمات في القسم
+      let wordCount = 0;
+      let nextElement = heading.nextElementSibling;
+      while (nextElement && !['H2', 'H3'].includes(nextElement.tagName)) {
+        const text = nextElement.textContent || '';
+        wordCount += text.trim().split(/\s+/).filter(word => word.length > 0).length;
+        nextElement = nextElement.nextElementSibling;
+      }
       
       toc.push({
         id,
         title: heading.textContent || '',
-        level: parseInt(heading.tagName.charAt(1))
+        level: parseInt(heading.tagName.charAt(1)),
+        wordCount
       });
     });
     
@@ -266,10 +295,18 @@ export default function DeepAnalysisDetailPage() {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      const yOffset = -100; // للتعويض عن الهيدر الثابت
+      const yOffset = -100; // مساحة للهيدر الثابت
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
+      setShowMobileToc(false);
+      
+      // تحديث القسم النشط مباشرة
+      setActiveSection(id);
     }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleShare = async () => {
@@ -277,26 +314,19 @@ export default function DeepAnalysisDetailPage() {
       if (navigator.share) {
         await navigator.share({
           title: analysis?.title,
-          text: analysis?.summary,
+          text: analysis?.lead,
           url: window.location.href,
         });
-        
-        // تحديث عدد المشاركات
         if (analysis) {
           setAnalysis({ ...analysis, shares: analysis.shares + 1 });
         }
         toast.success('تم المشاركة بنجاح');
       } else {
-        // Fallback to copying link
         await navigator.clipboard.writeText(window.location.href);
         toast.success('تم نسخ الرابط');
       }
     } catch (err) {
-      // في حالة إلغاء المشاركة أو حدوث خطأ
-      if ((err as Error).name !== 'AbortError') {
-        navigator.clipboard.writeText(window.location.href);
-        toast.success('تم نسخ الرابط');
-      }
+      console.error('Error sharing:', err);
     }
   };
 
@@ -313,500 +343,561 @@ export default function DeepAnalysisDetailPage() {
         likes: liked ? analysis.likes - 1 : analysis.likes + 1
       });
     }
-    toast.success(liked ? 'تم إلغاء الإعجاب' : 'تم الإعجاب');
   };
 
   const handlePrint = () => {
     window.print();
   };
 
-  const handleDownloadPDF = () => {
-    // في الإنتاج، سيتم تحويل المحتوى إلى PDF
-    toast.success('جاري تحضير ملف PDF...');
-  };
-
-  const handleUpdateAnalysis = () => {
-    toast.success('جاري تحديث التحليل بأحدث البيانات...');
-    // في الإنتاج، سيتم إعادة توليد التحليل عبر AI
-  };
-
-  const renderContent = (content: string) => {
-    // تحويل Markdown إلى HTML
-    const lines = content.split('\n');
-    const html: React.ReactElement[] = [];
-    let currentList: string[] = [];
-    let isInList = false;
-
-    lines.forEach((line, index) => {
-      // العناوين
-      if (line.startsWith('# ')) {
-        html.push(
-          <h1 key={index} className="text-3xl font-bold mb-6 mt-8 text-gray-900 dark:text-white">
-            {line.substring(2)}
-          </h1>
-        );
-      } else if (line.startsWith('## ')) {
-        html.push(
-          <h2 key={index} className="text-2xl font-bold mb-4 mt-6 text-gray-900 dark:text-white">
-            {line.substring(3)}
-          </h2>
-        );
-      } else if (line.startsWith('### ')) {
-        html.push(
-          <h3 key={index} className="text-xl font-bold mb-3 mt-4 text-gray-900 dark:text-white">
-            {line.substring(4)}
-          </h3>
-        );
-      } else if (line.startsWith('#### ')) {
-        html.push(
-          <h4 key={index} className="text-lg font-bold mb-2 mt-3 text-gray-900 dark:text-white">
-            {line.substring(5)}
-          </h4>
-        );
-      }
-      // القوائم
-      else if (line.startsWith('- ')) {
-        if (!isInList) {
-          isInList = true;
-          currentList = [];
+  const handleDownloadPDF = async () => {
+    try {
+      toast.loading('جاري تحضير ملف PDF...', { id: 'pdf-download' });
+      
+      // محاكاة تحضير PDF (يمكن استبدالها بـ API حقيقي لاحقاً)
+      setTimeout(() => {
+        // إنشاء محتوى PDF
+        const printWindow = window.open('', '', 'width=800,height=600');
+        if (printWindow) {
+          printWindow.document.write(`
+            <html dir="rtl">
+              <head>
+                <title>${analysis?.title || 'تحليل عميق'}</title>
+                <style>
+                  body { font-family: Arial, sans-serif; padding: 40px; line-height: 1.8; }
+                  h1 { color: #1a202c; margin-bottom: 20px; }
+                  h2 { color: #2d3748; margin-top: 30px; margin-bottom: 15px; }
+                  p { margin-bottom: 15px; color: #4a5568; }
+                  .meta { color: #718096; font-size: 14px; margin-bottom: 30px; }
+                  @media print {
+                    body { padding: 20px; }
+                  }
+                </style>
+              </head>
+              <body>
+                <h1>${analysis?.title || ''}</h1>
+                <div class="meta">
+                  <p>الكاتب: ${analysis?.author || ''} | التاريخ: ${analysis?.publishedAt || ''}</p>
+                </div>
+                <div>${analysis?.contentHtml || ''}</div>
+              </body>
+            </html>
+          `);
+          printWindow.document.close();
+          printWindow.print();
         }
-        currentList.push(line.substring(2));
-      } else {
-        // إنهاء القائمة إذا كانت موجودة
-        if (isInList && currentList.length > 0) {
-          html.push(
-            <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-300">
-              {currentList.map((item, i) => (
-                <li key={i}>{item}</li>
-              ))}
-            </ul>
-          );
-          currentList = [];
-          isInList = false;
-        }
-        
-        // الاقتباسات
-        if (line.startsWith('> ')) {
-          html.push(
-            <blockquote key={index} className="border-r-4 border-blue-500 pr-4 my-4 italic text-gray-700 dark:text-gray-300">
-              {line.substring(2)}
-            </blockquote>
-          );
-        }
-        // الخط الأفقي
-        else if (line.trim() === '---') {
-          html.push(
-            <hr key={index} className="my-8 border-gray-300 dark:border-gray-700" />
-          );
-        }
-        // النص العادي
-        else if (line.trim() !== '') {
-          // معالجة النص الغامق والمائل
-          let processedLine = line;
-          processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-          processedLine = processedLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
-          
-          html.push(
-            <p key={index} className="mb-4 leading-relaxed text-gray-700 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: processedLine }} />
-          );
-        }
-      }
-    });
-
-    // إضافة آخر قائمة إذا انتهى المحتوى بقائمة
-    if (isInList && currentList.length > 0) {
-      html.push(
-        <ul key="final-list" className="list-disc list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-300">
-          {currentList.map((item, i) => (
-            <li key={i}>{item}</li>
-          ))}
-        </ul>
-      );
+        toast.success('تم تحضير ملف PDF بنجاح!', { id: 'pdf-download' });
+      }, 1500);
+    } catch (error) {
+      toast.error('حدث خطأ في تحضير ملف PDF', { id: 'pdf-download' });
     }
-
-    return html;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Header />
-        <div className="flex items-center justify-center h-[60vh]">
+      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className="flex items-center justify-center h-screen">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
+            <p className={`mt-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               جاري تحميل التحليل...
             </p>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
 
   if (!analysis) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Header />
-        <div className="flex items-center justify-center h-[60vh]">
+      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className="flex items-center justify-center h-screen">
           <div className="text-center">
-            <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-600" />
-            <p className="text-lg text-gray-600 dark:text-gray-400">
+            <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               لم يتم العثور على التحليل
             </p>
             <Link 
-              href="/insights/deep" 
-              className="mt-4 inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              href="/" 
+              className="mt-4 inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              العودة للتحليلات
+              العودة للرئيسية
             </Link>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-      
-      {/* Hero Section مع خلفية متدرجة */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50/50 to-indigo-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-purple-900/20">
-        {/* خلفية هندسية */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 right-10 w-32 h-32 bg-blue-500 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 left-10 w-40 h-40 bg-purple-500 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500 rounded-full blur-3xl"></div>
-        </div>
+    <div dir="rtl" className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+      {/* شريط التقدم في القراءة */}
+      <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-gray-200 dark:bg-gray-800">
+        <div 
+          className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300"
+          style={{ width: `${readingProgress}%` }}
+        />
+      </div>
 
-        {/* Hero Content */}
-        <div className="relative container mx-auto px-4 py-12 max-w-7xl">
-          <div className="text-center max-w-4xl mx-auto">
-            {/* الشارات */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
-              <span className="inline-flex items-center px-6 py-3 rounded-full text-base font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl">
-                <Brain className="w-5 h-5 ml-2" />
-                تحليل عميق
-              </span>
-              {analysis.type === 'AI' && (
-                <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 shadow-lg">
-                  <Sparkles className="w-4 h-4 ml-1" />
-                  بواسطة الذكاء الاصطناعي
+      {/* Header Section */}
+      <div className={`${darkMode ? 'bg-gray-800' : 'bg-gray-50'} border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Breadcrumb & Badge */}
+          <div className="flex items-center gap-2 text-sm mb-6">
+            <Link href="/" className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
+              الرئيسية
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+            <Link href={`/categories/${analysis.categorySlug}`} className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
+              {analysis.category}
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
+              <Brain className="w-3 h-3" />
+              تحليل عميق
+            </span>
+          </div>
+
+          {/* Title */}
+          <h1 className={`text-3xl md:text-5xl font-bold leading-tight mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            {analysis.title}
+          </h1>
+
+          {/* Lead */}
+          <p className={`text-lg md:text-xl leading-relaxed mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            {analysis.lead}
+          </p>
+
+          {/* Featured Image */}
+          {analysis.featuredImage && (
+            <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
+              <img 
+                src={analysis.featuredImage} 
+                alt={analysis.title}
+                className="w-full h-auto object-cover"
+                style={{ maxHeight: '500px' }}
+              />
+            </div>
+          )}
+
+          {/* Meta Info */}
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4" />
+              <span className="font-medium">{analysis.author}</span>
+              {analysis.authorRole && (
+                <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  ({analysis.authorRole})
                 </span>
               )}
-              <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium shadow-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-                {analysis.category}
-              </span>
             </div>
-
-            {/* العنوان */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-8 leading-tight text-gray-900 dark:text-white">
-              {analysis.title}
-            </h1>
-
-            {/* الملخص */}
-            <p className="text-xl md:text-2xl leading-relaxed mb-8 max-w-3xl mx-auto text-gray-600 dark:text-gray-300">
-              {analysis.summary}
-            </p>
-
-            {/* معلومات النشر */}
-            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-base mb-8 text-gray-500 dark:text-gray-400">
-              <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-                <User className="w-5 h-5" />
-                {analysis.author}
-              </span>
-              <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-                <Calendar className="w-5 h-5" />
-                {new Date(analysis.createdAt).toLocaleDateString('ar-SA')}
-              </span>
-              <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-                <Clock3 className="w-5 h-5" />
-                {analysis.readTime} دقيقة قراءة
-              </span>
-              <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-                <Eye className="w-5 h-5" />
-                {analysis.views.toLocaleString()} مشاهدة
-              </span>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span>{analysis.publishedAt}</span>
+              {analysis.publishedAtHijri && (
+                <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  ({analysis.publishedAtHijri})
+                </span>
+              )}
             </div>
-
-            {/* الوسوم */}
-            <div className="flex flex-wrap justify-center gap-3">
-              {analysis.tags.map((tag, index) => (
-                <Link 
-                  key={index}
-                  href={`/insights/deep?tag=${encodeURIComponent(tag)}`}
-                  className="px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105 bg-white/80 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 backdrop-blur-sm shadow-lg"
-                >
-                  #{tag}
-                </Link>
-              ))}
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span>{analysis.readTime} دقائق قراءة</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              <span>{analysis.views.toLocaleString()} مشاهدة</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* المحتوى الرئيسي */}
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Main Content Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* المحتوى */}
-          <div className="lg:col-span-9 lg:order-1">
-            <article className="rounded-3xl p-8 shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              {/* النقاط الرئيسية */}
-              {analysis.keyInsights && analysis.keyInsights.length > 0 && (
-                <div className="rounded-2xl p-6 mb-8 key-insights bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200 dark:border-blue-800/50">
-                  <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
-                    <div className="p-2 rounded-lg bg-yellow-500/20">
-                      <Lightbulb className="w-6 h-6 text-yellow-500" />
-                    </div>
-                    النقاط الرئيسية
+          {/* Right Sidebar - Table of Contents */}
+          <aside className="lg:col-span-3">
+            {/* Desktop TOC */}
+            <div className={`hidden lg:block sticky top-8 space-y-6`}>
+              {/* الفهرس */}
+              {tableOfContents.length > 0 && (
+                <div className={`rounded-lg p-6 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'} border`}>
+                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    فهرس المحتويات
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {analysis.keyInsights.map((insight, index) => (
-                      <div key={index} className="flex items-start gap-3 p-4 rounded-xl bg-white/70 dark:bg-gray-800/50">
-                        <div className="p-1 rounded-full bg-green-500/20">
-                          <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <div className="text-xs text-gray-500 mb-3">
+                    {Math.round(readingProgress)}% مكتمل
+                  </div>
+                  <nav className="space-y-2">
+                    {tableOfContents.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => scrollToSection(item.id)}
+                        className={`block w-full text-right py-2 px-3 rounded-lg transition-all relative overflow-hidden ${
+                          activeSection === item.id
+                            ? darkMode 
+                              ? 'bg-blue-900/30 text-blue-400 border-r-4 border-blue-400' 
+                              : 'bg-blue-50 text-blue-600 border-r-4 border-blue-600'
+                            : darkMode
+                              ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
+                              : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                        } ${item.level === 3 ? 'mr-4 text-sm' : ''}`}
+                      >
+                        {/* مؤشر القسم النشط */}
+                        {activeSection === item.id && (
+                          <div className="absolute inset-y-0 right-0 w-1 bg-blue-500 animate-pulse" />
+                        )}
+                        <div className="relative z-10 flex items-center justify-between">
+                          <span className="text-xs opacity-60">
+                            {item.wordCount ? `${item.wordCount} كلمة` : ''}
+                          </span>
+                          <span>{item.title}</span>
                         </div>
-                        <span className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                          {insight}
-                        </span>
-                      </div>
+                      </button>
                     ))}
-                  </div>
+                  </nav>
                 </div>
               )}
 
-              {/* المحتوى */}
-              <div 
-                ref={contentRef}
-                className="deep-analysis-content prose prose-lg max-w-none dark:prose-invert prose-headings:scroll-mt-32"
-              >
-                {renderContent(analysis.content)}
-              </div>
-
-              {/* المصادر */}
-              {analysis.sources && analysis.sources.length > 0 && (
-                <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-                  <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-900 dark:text-white">
-                    <div className="p-2 rounded-lg bg-blue-500/20">
-                      <FileText className="w-6 h-6 text-blue-500" />
-                    </div>
-                    المصادر والمراجع
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {analysis.sources.map((source, index) => (
-                      <div key={index} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50">
-                        <span className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center font-bold flex-shrink-0">
-                          {index + 1}
-                        </span>
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          {source}
-                        </span>
-                      </div>
-                    ))}
+              {/* الإحصائيات */}
+              <div className={`rounded-lg p-6 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'} border`}>
+                <h3 className="font-bold text-lg mb-4">الإحصائيات</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      الوقت المتبقي
+                    </span>
+                    <span className="font-bold">
+                      {Math.ceil((analysis.readTime * (100 - readingProgress)) / 100)} دقيقة
+                    </span>
                   </div>
-                </div>
-              )}
-            </article>
-          </div>
-
-          {/* الشريط الجانبي الأيمن */}
-          <aside className="lg:col-span-3 lg:order-2">
-            <div className="space-y-6">
-              {/* بطاقة سريعة للإحصائيات */}
-              <div className="rounded-2xl p-6 shadow-xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700">
-                <h3 className="text-lg font-bold mb-4 text-white">
-                  الإحصائيات
-                </h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">
-                      {analysis.views.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      مشاهدة
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Eye className="w-4 h-4" />
+                      المشاهدات
+                    </span>
+                    <span className="font-bold">{analysis.views.toLocaleString()}</span>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">
-                      {analysis.likes.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      إعجاب
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Heart className="w-4 h-4" />
+                      الإعجابات
+                    </span>
+                    <span className="font-bold">{analysis.likes.toLocaleString()}</span>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">
-                      {analysis.shares.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      مشاركة
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Share2 className="w-4 h-4" />
+                      المشاركات
+                    </span>
+                    <span className="font-bold">{analysis.shares.toLocaleString()}</span>
                   </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Star className="w-4 h-4" />
+                      التقييم
+                    </span>
+                    <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
-                        <span key={i} className="text-lg text-yellow-500">
-                          ★
-                        </span>
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < Math.floor(analysis.rating)
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : darkMode
+                                ? 'text-gray-600'
+                                : 'text-gray-300'
+                          }`}
+                        />
                       ))}
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      ({analysis.rating})
+                      <span className="text-sm mr-1">
+                        ({Math.round(analysis.rating * 20)}%)
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* معلومات الكاتب المحسنة */}
-              <div className="rounded-2xl p-6 shadow-xl bg-gray-800 border border-gray-700">
-                <h3 className="text-lg font-bold mb-4 text-white">
-                  عن الكاتب
-                </h3>
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-purple-500 to-blue-500">
-                    {analysis.type === 'AI' ? (
-                      <Brain className="w-8 h-8 text-white" />
-                    ) : (
-                      <User className="w-8 h-8 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-white">
-                      {analysis.author}
-                    </h4>
-                    {analysis.authorRole && (
-                      <p className="text-sm text-gray-400">
-                        {analysis.authorRole}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                {analysis.type === 'AI' && (
-                  <div className="p-4 rounded-xl bg-gray-700">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-gray-300">
-                        مستوى الثقة
-                      </span>
-                      <span className="text-lg font-bold text-white">
-                        {analysis.aiConfidence}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                      <div 
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-1000 shadow-lg"
-                        style={{ width: `${analysis.aiConfidence}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* زاوية التحليل المحسنة */}
-              <div className="rounded-2xl p-6 shadow-xl bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-800/50">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-3 text-white">
-                  <div className="p-2 rounded-lg bg-purple-500/20">
-                    <Target className="w-5 h-5 text-purple-500" />
-                  </div>
-                  زاوية التحليل
-                </h3>
-                <p className="leading-relaxed text-gray-300">
-                  {analysis.analysisAngle}
+              {/* زاوية التحليل */}
+              <div className={`rounded-lg p-6 ${darkMode ? 'bg-purple-900/20 border-purple-800' : 'bg-purple-50 border-purple-200'} border`}>
+                <h3 className="font-bold text-lg mb-2">زاوية التحليل</h3>
+                <p className={`text-sm ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                  مقال يعتمد على تحليل معمّق للبيانات والتحولات الرقمية
                 </p>
-              </div>
-
-              {/* الإجراءات المحسنة */}
-              <div className="rounded-2xl p-6 space-y-3 shadow-xl no-print bg-gray-800 border border-gray-700">
-                {analysis.type === 'AI' && (
-                  <button
-                    onClick={handleUpdateAnalysis}
-                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-                  >
-                    <RefreshCw className="w-5 h-5" />
-                    تحديث التحليل
-                  </button>
+                {analysis.author && (
+                  <div className="mt-4 flex items-center gap-3">
+                    {analysis.authorAvatar ? (
+                      <img 
+                        src={analysis.authorAvatar} 
+                        alt={analysis.author}
+                        className="w-10 h-10 rounded-full"
+                      />
+                    ) : (
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${darkMode ? 'bg-purple-800' : 'bg-purple-200'}`}>
+                        <User className="w-5 h-5" />
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-medium text-sm">{analysis.author}</p>
+                      {analysis.authorRole && (
+                        <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {analysis.authorRole}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 )}
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={handleDownloadPDF}
-                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] bg-gray-700 hover:bg-gray-600 text-white"
-                  >
-                    <Download className="w-4 h-4" />
-                    PDF
-                  </button>
-                  <button
-                    onClick={handlePrint}
-                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] bg-gray-700 hover:bg-gray-600 text-white"
-                  >
-                    <Printer className="w-4 h-4" />
-                    طباعة
-                  </button>
-                </div>
               </div>
             </div>
+
+            {/* Mobile TOC Button */}
+            <button
+              onClick={() => setShowMobileToc(!showMobileToc)}
+              className={`lg:hidden fixed bottom-20 left-4 z-40 p-3 rounded-full shadow-lg ${
+                darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
+              }`}
+            >
+              {showMobileToc ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+
+            {/* Mobile TOC Modal */}
+            {showMobileToc && (
+              <div className="lg:hidden fixed inset-0 z-50 overflow-y-auto">
+                <div className="fixed inset-0 bg-black/50" onClick={() => setShowMobileToc(false)} />
+                <div className={`relative min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+                  <div className="sticky top-0 p-4 border-b ${darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'}">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-lg">فهرس المحتويات</h3>
+                      <button onClick={() => setShowMobileToc(false)}>
+                        <X className="w-6 h-6" />
+                      </button>
+                    </div>
+                  </div>
+                  <nav className="p-4 space-y-2">
+                    {tableOfContents.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => scrollToSection(item.id)}
+                        className={`block w-full text-right py-3 px-4 rounded-lg ${
+                          activeSection === item.id
+                            ? darkMode 
+                              ? 'bg-blue-900/30 text-blue-400' 
+                              : 'bg-blue-50 text-blue-600'
+                            : darkMode
+                              ? 'text-gray-300'
+                              : 'text-gray-700'
+                        } ${item.level === 3 ? 'mr-4 text-sm' : ''}`}
+                      >
+                        {item.title}
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+              </div>
+            )}
           </aside>
 
+          {/* Main Article Content */}
+          <main className="lg:col-span-9">
+            <article 
+              ref={contentRef}
+              className={`prose prose-lg max-w-none ${
+                darkMode ? 'prose-invert' : ''
+              } prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:leading-relaxed prose-p:mb-4 prose-blockquote:border-r-4 prose-blockquote:border-blue-500 prose-blockquote:pr-4 prose-blockquote:italic prose-ul:list-disc prose-ul:mr-6 prose-li:mb-2`}
+              dangerouslySetInnerHTML={{ __html: analysis.contentHtml }}
+            />
+
+            {/* AI Section */}
+            {(analysis.aiSummary || analysis.aiQuestions) && (
+              <div className={`mt-12 p-6 rounded-lg ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'} border`}>
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                  <Sparkles className="w-6 h-6 text-purple-500" />
+                  زاوية الذكاء الاصطناعي
+                </h2>
+                
+                {analysis.aiSummary && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-bold mb-3">ملخص آلي للمقال</h3>
+                    <p className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {analysis.aiSummary}
+                    </p>
+                  </div>
+                )}
+
+                {analysis.aiQuestions && analysis.aiQuestions.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-bold mb-3">أسئلة مثارة من الخوارزميات</h3>
+                    <ul className="space-y-2">
+                      {analysis.aiQuestions.map((question, index) => (
+                        <li key={index} className={`flex items-start gap-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <span className="text-purple-500 mt-1">•</span>
+                          <span>{question}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Tags */}
+            {analysis.tags && analysis.tags.length > 0 && (
+              <div className="mt-8 pt-8 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}">
+                <div className="flex flex-wrap gap-2">
+                  {analysis.tags.map((tag, index) => (
+                    <span 
+                      key={index} 
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        darkMode 
+                          ? 'bg-gray-700 text-gray-300' 
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      <Hash className="w-3 h-3 inline ml-1" />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+              <button
+                onClick={handleLike}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                  liked
+                    ? 'bg-red-500 text-white'
+                    : darkMode
+                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+                {liked ? 'تم الإعجاب' : 'أعجبني'} ({analysis.likes})
+              </button>
+
+              <button
+                onClick={handleShare}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                  darkMode
+                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <Share2 className="w-5 h-5" />
+                مشاركة
+              </button>
+
+              <button
+                onClick={handleSave}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                  saved
+                    ? 'bg-green-500 text-white'
+                    : darkMode
+                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <Bookmark className={`w-5 h-5 ${saved ? 'fill-current' : ''}`} />
+                {saved ? 'تم الحفظ' : 'حفظ'}
+              </button>
+
+              <button
+                onClick={handleDownloadPDF}
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <Download className="w-5 h-5" />
+                تحميل PDF
+              </button>
+
+              <button
+                onClick={handlePrint}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                  darkMode
+                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                }`}
+              >
+                <Printer className="w-5 h-5" />
+                طباعة
+              </button>
+            </div>
+
+            {/* Related Articles */}
+            {analysis.relatedArticles && analysis.relatedArticles.length > 0 && (
+              <div className="mt-16">
+                <h2 className="text-2xl font-bold mb-6">مقالات ذات صلة</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {analysis.relatedArticles.map((article) => (
+                    <Link
+                      key={article.id}
+                      href={`/insights/deep/${article.id}`}
+                      className={`block p-6 rounded-lg border transition-all hover:shadow-lg ${
+                        darkMode
+                          ? 'bg-gray-800 border-gray-700 hover:border-gray-600'
+                          : 'bg-white border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <h3 className="font-bold text-lg mb-2">{article.title}</h3>
+                      <p className={`text-sm mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {article.summary}
+                      </p>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className={`${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                          {article.readTime} دقائق قراءة
+                        </span>
+                        <span className={`px-3 py-1 rounded-full text-xs ${
+                          darkMode 
+                            ? 'bg-gray-700 text-gray-300' 
+                            : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          {article.category}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </main>
         </div>
       </div>
 
-      {/* تحليلات مشابهة */}
-      {analysis.relatedAnalyses && analysis.relatedAnalyses.length > 0 && (
-        <div className="container mx-auto px-4 py-12 max-w-7xl">
-          <div className="rounded-3xl p-8 shadow-xl bg-gray-800 border border-gray-700">
-            <h2 className="text-3xl font-bold mb-8 text-center flex items-center justify-center gap-3 text-white">
-              <div className="p-3 rounded-lg bg-green-500/20">
-                <TrendingUp className="w-8 h-8 text-green-500" />
-              </div>
-              تحليلات مشابهة
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {analysis.relatedAnalyses.map((related) => (
-                <Link key={related.id} href={`/insights/deep/${related.id}`}>
-                  <article className="p-6 rounded-2xl transition-all duration-300 hover:transform hover:-translate-y-2 cursor-pointer group bg-gray-700 hover:bg-gray-600 border border-gray-600">
-                    <div className="flex items-center gap-2 mb-4">
-                      {related.type === 'AI' && (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-                          <Brain className="w-3 h-3 ml-1" />
-                          AI
-                        </span>
-                      )}
-                      <span className="text-xs px-3 py-1 rounded-full bg-gray-600 text-gray-300">
-                        {related.category}
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors text-white">
-                      {related.title}
-                    </h3>
-                    <p className="text-sm mb-4 line-clamp-3 leading-relaxed text-gray-400">
-                      {related.summary}
-                    </p>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <span className="flex items-center gap-2">
-                        <Clock3 className="w-4 h-4" />
-                        {related.readTime} دقيقة قراءة
-                      </span>
-                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </article>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className={`fixed bottom-8 left-8 z-40 p-3 rounded-full shadow-lg transition-all ${
+            darkMode 
+              ? 'bg-blue-600 text-white hover:bg-blue-700' 
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+          }`}
+        >
+          <ChevronUp className="w-6 h-6" />
+        </button>
       )}
 
-      {/* زر العودة للأعلى محسن */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className={`fixed bottom-8 left-8 p-4 rounded-full shadow-xl transition-all no-print ${
-          showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
-        } bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 text-white border-2 border-gray-600 hover:scale-110`}
-        aria-label="العودة للأعلى"
-      >
-        <ArrowUp className="w-6 h-6" />
-      </button>
-
-      <Footer />
+      {/* Print Styles */}
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          main, main * {
+            visibility: visible;
+          }
+          main {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          aside, button, .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 } 

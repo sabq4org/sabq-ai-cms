@@ -48,6 +48,10 @@ model Category {
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
   displayOrder Int        @default(0) @map("display_order")
+  color        String?    @db.VarChar(7)
+  icon         String?    @db.VarChar(10)
+  metadata     Json?
+  nameEn       String?    @map("name_en")
   parent       Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children     Category[] @relation("CategoryHierarchy")
   articles     Article[]

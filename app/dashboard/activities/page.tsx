@@ -77,15 +77,16 @@ export default function ActivitiesPage() {
       const response = await fetch('/api/dashboard/activities')
       const data = await response.json()
       
-      if (data.success && data.data) {
-        setActivities(data.data.activities || [])
-        setStats(data.data.stats || {
+      if (data.success) {
+        const responseData = data.data || data;
+        setActivities(responseData.activities || [])
+        setStats(responseData.stats || {
           total: 0,
           published: 0,
           activeUsers: 0,
           edits: 0
         })
-        setCategoriesStats(data.data.categoriesStats || {
+        setCategoriesStats(responseData.categoriesStats || {
           articles: 0,
           users: 0,
           media: 0,

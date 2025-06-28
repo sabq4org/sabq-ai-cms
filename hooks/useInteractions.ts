@@ -25,7 +25,7 @@ export function useInteractions() {
         body: JSON.stringify({
           user_id: options.userId,
           article_id: options.articleId,
-          interaction_type: options.interactionType,
+          type: options.interactionType,
           duration: options.duration,
           completed: options.completed,
           device: options.device || 'web',

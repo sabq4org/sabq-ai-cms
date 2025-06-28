@@ -2,48 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Save, Globe, Tag, Hash, Upload } from 'lucide-react';
-
-interface Category {
-  id: number;
-  name_ar: string;
-  name_en?: string;
-  description?: string;
-  slug: string;
-  color_hex: string;
-  icon?: string;
-  parent_id?: number;
-  position: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at?: string;
-  children?: Category[];
-  article_count?: number;
-  meta_title?: string;
-  meta_description?: string;
-  og_image_url?: string;
-  canonical_url?: string;
-  noindex?: boolean;
-  og_type?: string;
-  can_delete?: boolean;
-}
-
-interface CategoryFormData {
-  name_ar: string;
-  name_en: string;
-  description: string;
-  slug: string;
-  color_hex: string;
-  icon: string;
-  parent_id: number | undefined;
-  position: number;
-  is_active: boolean;
-  meta_title: string;
-  meta_description: string;
-  og_image_url: string;
-  canonical_url: string;
-  noindex: boolean;
-  og_type: string;
-}
+import { Category, CategoryFormData } from '@/types/category';
 
 interface CategoryFormModalProps {
   isOpen: boolean;
@@ -121,7 +80,7 @@ export default function CategoryFormModal({
         slug: category.slug || '',
         color_hex: category.color_hex || '#E5F1FA',
         icon: category.icon || '📰',
-        parent_id: category.parent_id,
+        parent_id: category.parent_id?.toString(),
         position: category.position || 0,
         is_active: category.is_active ?? true,
         meta_title: category.meta_title || '',
@@ -606,7 +565,7 @@ export default function CategoryFormModal({
                 </label>
                 <select
                   value={formData.parent_id || ''}
-                  onChange={(e) => setFormData({...formData, parent_id: e.target.value ? parseInt(e.target.value) : undefined})}
+                  onChange={(e) => setFormData({...formData, parent_id: e.target.value || undefined})}
                   className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 

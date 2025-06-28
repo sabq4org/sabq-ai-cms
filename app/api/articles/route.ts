@@ -172,8 +172,16 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
+    // سجل تصحيح
+    console.log('البيانات المستلمة:', {
+      title: body.title,
+      category_id: body.category_id,
+      author_id: body.author_id,
+      content_length: body.content?.length || 0
+    })
+    
     // التحقق من البيانات المطلوبة
-    if (!body.title || !body.content) {
+    if (!body.title || (!body.content && !body.content_html)) {
       return NextResponse.json({
         success: false,
         error: 'العنوان والمحتوى مطلوبان'
@@ -203,9 +211,9 @@ export async function POST(request: NextRequest) {
       metadata: {
         seo_title: body.seo_title,
         seo_description: body.seo_description,
-        seo_keywords: body.seo_keywords
-      },
-      tags: body.tags || []
+        seo_keywords: body.seo_keywords,
+        tags: body.tags || []
+      }
     }
 
     // ربط المؤلف
@@ -214,8 +222,9 @@ export async function POST(request: NextRequest) {
     }
 
     // ربط التصنيف
-    if (body.category_id) {
-      articleData.categoryId = body.category_id
+    if (body.category_id && body.category_id !== '') {
+      // categoryId في قاعدة البيانات هو String
+      articleData.categoryId = String(body.category_id)
     }
 
     // معالجة الجدولة الزمنية
@@ -269,10 +278,29 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
   } catch (error) {
     console.error('خطأ في إنشاء المقال:', error)
+    
+    // معالجة أخطاء Prisma
+    if (error && typeof error === 'object' && 'code' in error) {
+      const prismaError = error as any
+      if (prismaError.code === 'P2002') {
+        return NextResponse.json({
+          success: false,
+          error: 'العنوان أو الـ slug مستخدم بالفعل'
+        }, { status: 400 })
+      }
+      if (prismaError.code === 'P2003') {
+        return NextResponse.json({
+          success: false,
+          error: 'بيانات غير صحيحة: تحقق من المؤلف والتصنيف'
+        }, { status: 400 })
+      }
+    }
+    
     return NextResponse.json({
       success: false,
       error: 'فشل في إنشاء المقال',
-      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+      message: error instanceof Error ? error.message : 'خطأ غير معروف',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
     }, { status: 500 })
   }
 }

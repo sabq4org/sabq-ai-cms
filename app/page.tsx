@@ -10,7 +10,9 @@ import {
   Sparkles, Brain, Bot, Headphones, Mic, Download, PauseCircle,
   PlayCircle, Users, Flame, AlertCircle, Lightbulb, Target,
   Compass, Globe2, Newspaper, Activity, ChevronDown, ArrowLeft,
-  Crown, Leaf, Book, Tag, X, Bookmark
+  Crown, Leaf, Book, Tag, X, Bookmark, GraduationCap,
+  Laptop, Trophy, Building2, Beaker, Palette, Car, Plane, Briefcase,
+  CloudRain, Home as HomeIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -22,6 +24,27 @@ import { SmartSlot } from '@/components/home/SmartSlot';
 import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
 import { useReactions } from '@/hooks/useReactions';
 
+// أيقونات التصنيفات
+const categoryIcons: { [key: string]: any } = {
+  'تقنية': Laptop,
+  'رياضة': Trophy,
+  'اقتصاد': TrendingUp,
+  'سياسة': Building2,
+  'صحة': Heart,
+  'بيئة': Leaf,
+  'ثقافة': BookOpen,
+  'محلي': HomeIcon,
+  'دولي': Globe,
+  'منوعات': Activity,
+  'علوم': Beaker,
+  'فن': Palette,
+  'سيارات': Car,
+  'سياحة': Plane,
+  'تعليم': GraduationCap,
+  'أعمال': Briefcase,
+  'طقس': CloudRain,
+  'default': Tag
+};
 
 // ===============================
 // نظام ذكاء المستخدم والتخصيص
@@ -154,7 +177,7 @@ class UserIntelligenceTracker {
   }
 }
 
-function NewspaperHomePage() {
+function NewspaperHomePage(): React.ReactElement {
   const { theme } = useTheme();
   const darkMode = theme === 'dark';
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
@@ -165,7 +188,7 @@ function NewspaperHomePage() {
   const [readingTime, setReadingTime] = useState<{ [key: string]: number }>({});
   const [categories, setCategories] = useState<any[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categoryArticles, setCategoryArticles] = useState<any[]>([]);
   const [categoryArticlesLoading, setCategoryArticlesLoading] = useState(false);
   const [articles, setArticles] = useState<any[]>([]);
@@ -194,10 +217,40 @@ function NewspaperHomePage() {
   });
   const [deepInsights, setDeepInsights] = useState<any[]>([]);
   const [deepInsightsLoading, setDeepInsightsLoading] = useState(true);
-  
+
   // هوك التفاعلات الموحد
   const { isLiked: reactionLiked, isSaved: reactionSaved, toggleLike, toggleSave } = useReactions('articles');
-  
+
+  // التحقق من حالة تسجيل الدخول
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const userId = localStorage.getItem('user_id');
+      const userData = localStorage.getItem('user');
+      
+      const hasUserId = userId && userId.trim() !== '' && userId !== 'null' && userId !== 'undefined';
+      const isNotAnonymous = userId !== 'anonymous';
+      const hasUserData = userData && userData.trim() !== '' && userData !== 'null' && userData !== 'undefined';
+      
+      const isUserLoggedIn = !!(hasUserId && isNotAnonymous && hasUserData);
+      
+      setIsLoggedIn(isUserLoggedIn);
+      setIsCheckingAuth(false);
+      
+      // إنشاء UserTracker إذا كان المستخدم مسجل دخول
+      if (isUserLoggedIn && userId) {
+        setUserTracker(new UserIntelligenceTracker(userId));
+        
+        // جلب النقاط المحفوظة
+        const savedPoints = localStorage.getItem('user_points');
+        if (savedPoints) {
+          setUserPoints(JSON.parse(savedPoints));
+        }
+      }
+    };
+    
+    checkAuthStatus();
+  }, []);
+
   // دالة لتوليد صورة بديلة بناءً على العنوان
   const generatePlaceholderImage = (title: string) => {
     // قائمة بصور Unsplash ذات جودة عالية ومتنوعة
@@ -219,8 +272,24 @@ function NewspaperHomePage() {
     return `${placeholderImages[imageIndex]}?auto=format&fit=crop&w=800&q=80`;
   };
 
+  // دالة جلب مقالات التصنيف
+  const fetchCategoryArticles = async (categoryId: string) => {
+    try {
+      setCategoryArticlesLoading(true);
+      const response = await fetch(`/api/articles?category_id=${categoryId}&status=published&limit=6`);
+      if (response.ok) {
+        const data = await response.json();
+        setCategoryArticles(data.articles || []);
+      }
+    } catch (error) {
+      console.error('Error fetching category articles:', error);
+    } finally {
+      setCategoryArticlesLoading(false);
+    }
+  };
+
   // معالج النقر على التصنيف
-  const handleCategoryClick = async (categoryId: number) => {
+  const handleCategoryClick = async (categoryId: string) => {
     if (selectedCategory === categoryId) {
       // إذا كان نفس التصنيف، أغلق القائمة
       setSelectedCategory(null);
@@ -425,7 +494,7 @@ function NewspaperHomePage() {
       >
           <div className="relative h-48 overflow-hidden">
             <img 
-              src={news.image} 
+              src={news.featured_image || news.image || generatePlaceholderImage(news.title)} 
               alt={news.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
@@ -433,7 +502,7 @@ function NewspaperHomePage() {
             {/* تأثير التدرج على الصورة */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             
-            {news.isBreaking && (
+            {(news.is_breaking || news.isBreaking) && (
               <span className="absolute top-3 right-3 px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full shadow-lg dark:shadow-gray-900/50">
                 عاجل
               </span>
@@ -474,7 +543,7 @@ function NewspaperHomePage() {
                     // إذا لم يُعثر على التصنيف، استخدم التصميم القديم
                     return (
                       <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-md">
-                        {news.category}
+                        {news.category_name || news.category || 'عام'}
                       </span>
                     );
                   })()}
@@ -501,30 +570,34 @@ function NewspaperHomePage() {
               {news.title}
             </h3>
             
-            <p className="text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400">
-              {news.excerpt}
-            </p>
+            {(news.excerpt || news.summary) && (
+              <p className="text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400">
+                {news.excerpt || news.summary}
+              </p>
+            )}
             
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <span className="text-xs transition-colors duration-300 text-gray-500 dark:text-gray-400">
-                  {news.author}
+                  {news.author?.name || ''}
                 </span>
-                <span className="text-xs transition-colors duration-300 text-gray-500 dark:text-gray-400">
-                  {news.readTime} دقائق قراءة
-                </span>
+                {news.reading_time && (
+                  <span className="text-xs transition-colors duration-300 text-gray-500 dark:text-gray-400">
+                    {news.reading_time} دقائق قراءة
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-1">
                 <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {news.views.toLocaleString()}
+                <span className="text-xs transition-colors duration-300 text-gray-500 dark:text-gray-400">
+                  {news.views_count || 0}
                 </span>
               </div>
             </div>
             
             <div className="flex items-center justify-between">
               <div className="flex gap-1">
-                {news.tags.slice(0, 2).map((tag: string) => (
+                {news.tags && Array.isArray(news.tags) && news.tags.slice(0, 2).map((tag: string) => (
                   <span key={tag} className="px-2 py-1 text-xs rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                     #{tag}
                   </span>
@@ -591,7 +664,7 @@ function NewspaperHomePage() {
   };
 
   // تسجيل تفاعل المستخدم مع API
-  const trackInteraction = async (articleId: string, interactionType: string, categoryId?: number) => {
+  const trackInteraction = async (articleId: string, interactionType: string, categoryId?: string) => {
     try {
       // فحص شامل لحالة تسجيل الدخول
       const userId = localStorage.getItem('user_id');
@@ -615,7 +688,7 @@ function NewspaperHomePage() {
       console.log('- hasUserData:', hasUserData);
       
       // التحقق النهائي من تسجيل الدخول
-      const isUserLoggedIn = hasUserId && isNotAnonymous && hasUserData;
+      const isUserLoggedIn = !!(hasUserId && isNotAnonymous && hasUserData);
       
       console.log('🎯 النتيجة النهائية:', isUserLoggedIn ? 'مسجل دخول' : 'غير مسجل دخول');
       
@@ -826,7 +899,11 @@ function NewspaperHomePage() {
   };
 
   // مكونات البلوكات الذكية المحسنة
-  const BriefingBlock = () => (
+  const BriefingBlock = () => {
+    // تم تعطيل هذا المكون مؤقتاً حتى يتم ربطه بمقالات حقيقية
+    return null;
+    
+    return (
     <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -874,9 +951,14 @@ function NewspaperHomePage() {
         عرض جميع التحديثات
       </button>
     </div>
-  );
+    );
+  };
 
-  const TrendingBlock = () => (
+  const TrendingBlock = () => {
+    // تم تعطيل هذا المكون مؤقتاً حتى يتم ربطه بمقالات حقيقية
+    return null;
+    
+    return (
     <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -956,7 +1038,8 @@ function NewspaperHomePage() {
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   const AnalysisBlock = () => (
     <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
@@ -1065,6 +1148,9 @@ function NewspaperHomePage() {
   );
 
   const RecommendationBlock = () => {
+    // تم تعطيل هذا المكون مؤقتاً حتى يتم ربطه بمقالات حقيقية
+    return null;
+    
     // إذا لم يكن المستخدم مسجل دخول، لا نعرض هذا البلوك
     if (!isLoggedIn) return null;
     
@@ -1419,9 +1505,80 @@ function NewspaperHomePage() {
     );
   };
 
+  // جلب المقالات الشخصية
+  useEffect(() => {
+    const fetchArticles = async () => {
+      setArticlesLoading(true);
+      try {
+        const response = await fetch('/api/articles?status=published&limit=8');
+        if (response.ok) {
+          const data = await response.json();
+          setArticles(data.articles || []);
+        } else {
+          console.error('Failed to fetch articles:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setArticlesLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  // جلب التحليلات العميقة
+  useEffect(() => {
+    const fetchDeepInsights = async () => {
+      try {
+        setDeepInsightsLoading(true);
+        const response = await fetch('/api/deep-insights?limit=3&sort=desc');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Deep insights fetched:', data);
+          setDeepInsights(data || []);
+        } else {
+          console.error('Failed to fetch deep insights:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching deep insights:', error);
+      } finally {
+        setDeepInsightsLoading(false);
+      }
+    };
+
+    fetchDeepInsights();
+  }, []);
+
+  // جلب التصنيفات
+  useEffect(() => {
+    const fetchCategoriesData = async () => {
+      setCategoriesLoading(true);
+      try {
+        const response = await fetch('/api/categories');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setCategories(data.categories);
+          } else {
+            console.error('Failed to fetch categories:', data.error);
+          }
+        } else {
+          console.error('Failed to fetch categories:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategoriesData();
+  }, []);
+
   return (
     <div 
-      className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'}`}
+      className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
       style={{
         direction: 'rtl'
       }}
@@ -1436,9 +1593,7 @@ function NewspaperHomePage() {
 
       {/* Deep Analysis Widget - After Header */}
       {!deepInsightsLoading && deepInsights.length > 0 && (
-        <div className="mb-4">
-          <DeepAnalysisWidget insights={deepInsights} />
-        </div>
+        <DeepAnalysisWidget insights={deepInsights} />
       )}
 
       {/* Welcome Section - Full Width */}
@@ -1459,115 +1614,145 @@ function NewspaperHomePage() {
             {/* Enhanced Three News Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 relative z-10">
               {/* Card 1 - Breaking News */}
-              <Link href="/article/article-1" className="block">
-                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'}`}>
-                  {/* Card Image */}
-                  <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80"
-                      alt="مشروع نيوم للهيدروجين الأخضر"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-3 py-1.5 bg-red-600/90 text-white text-xs font-bold rounded-full backdrop-blur-sm shadow-lg dark:shadow-gray-900/50">
-                      <Zap className="w-3 h-3" />
-                      عاجل
-                    </span>
-                  </div>
-                  
-                  {/* Card Content */}
-                  <div className="flex-1 p-5 flex flex-col">
-                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 dark:text-white group-hover:text-blue-700'}`}>
-                      إطلاق مشروع نيوم للهيدروجين الأخضر
-                    </h3>
-                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-                      أكبر مشروع للطاقة النظيفة في المنطقة بقيمة 8.4 مليار دولار
-                    </p>
-                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
-                      <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ 5 دقائق</span>
-                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                        اقرأ المزيد
-                        <ArrowLeft className="w-4 h-4" />
-                      </span>
+              {articlesLoading || articles.length === 0 ? (
+                <div className={`backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 min-h-[320px] flex items-center justify-center ${darkMode ? 'bg-gray-800/95' : 'bg-white dark:bg-gray-800/95'}`}>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+              ) : articles[0] ? (
+                <Link href={`/article/${articles[0].id}`} className="block">
+                  <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'}`}>
+                    {/* Card Image */}
+                    <div className="relative h-48 overflow-hidden">
+                      <img 
+                        src={articles[0].featured_image || "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80"}
+                        alt={articles[0].title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      {articles[0].breaking && (
+                        <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-3 py-1.5 bg-red-600/90 text-white text-xs font-bold rounded-full backdrop-blur-sm shadow-lg dark:shadow-gray-900/50">
+                          <Zap className="w-3 h-3" />
+                          عاجل
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Card Content */}
+                    <div className="flex-1 p-5 flex flex-col">
+                      <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 dark:text-white group-hover:text-blue-700'}`}>
+                        {articles[0].title}
+                      </h3>
+                      <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+                        {articles[0].excerpt || articles[0].summary || ''}
+                      </p>
+                      <div className={`flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
+                        <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+                          {new Date(articles[0].published_at || articles[0].created_at).toLocaleDateString('ar-SA')}
+                        </span>
+                        <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                          اقرأ المزيد
+                          <ArrowLeft className="w-4 h-4" />
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              ) : null}
 
               {/* Card 2 - Featured - تحسين البلوك الثاني */}
-              <Link href="/article/article-2" className="block">
-                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'}`}>
-                  {/* Card Image */}
-                  <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80"
-                      alt="قمة الذكاء الاصطناعي"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600/90 text-white text-xs font-bold rounded-full backdrop-blur-sm shadow-lg dark:shadow-gray-900/50">
-                      <Crown className="w-3 h-3" />
-                      تقنية
-                    </span>
-                  </div>
-                  
-                  {/* Card Content */}
-                  <div className="flex-1 p-5 flex flex-col">
-                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 dark:text-white group-hover:text-blue-700'}`}>
-                      السعودية تستضيف قمة الذكاء الاصطناعي العالمية 2025
-                    </h3>
-                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-                      حدث عالمي يجمع رواد التقنية والذكاء الاصطناعي من جميع أنحاء العالم
-                    </p>
-                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
-                      <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ ساعة</span>
-                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                        اقرأ المزيد
-                        <ArrowLeft className="w-4 h-4" />
-                      </span>
+              {articlesLoading || articles.length < 2 ? (
+                <div className={`backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 min-h-[320px] flex items-center justify-center ${darkMode ? 'bg-gray-800/95' : 'bg-white dark:bg-gray-800/95'}`}>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+              ) : articles[1] ? (
+                <Link href={`/article/${articles[1].id}`} className="block">
+                  <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'}`}>
+                    {/* Card Image */}
+                    <div className="relative h-48 overflow-hidden">
+                      <img 
+                        src={articles[1].featured_image || "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80"}
+                        alt={articles[1].title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      {articles[1].category && (
+                        <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600/90 text-white text-xs font-bold rounded-full backdrop-blur-sm shadow-lg dark:shadow-gray-900/50">
+                          <Crown className="w-3 h-3" />
+                          {articles[1].category.name_ar || articles[1].category.name}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Card Content */}
+                    <div className="flex-1 p-5 flex flex-col">
+                      <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 dark:text-white group-hover:text-blue-700'}`}>
+                        {articles[1].title}
+                      </h3>
+                      <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+                        {articles[1].excerpt || articles[1].summary || ''}
+                      </p>
+                      <div className={`flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
+                        <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+                          {new Date(articles[1].published_at || articles[1].created_at).toLocaleDateString('ar-SA')}
+                        </span>
+                        <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                          اقرأ المزيد
+                          <ArrowLeft className="w-4 h-4" />
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              ) : null}
 
               {/* Card 3 - Environment */}
-              <Link href="/article/article-3" className="block">
-                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'}`}>
-                  {/* Card Image */}
-                  <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=800&q=80"
-                      alt="مشروع البحر الأحمر"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-3 py-1.5 bg-teal-600/90 text-white text-xs font-bold rounded-full backdrop-blur-sm shadow-lg dark:shadow-gray-900/50">
-                      <Leaf className="w-3 h-3" />
-                      بيئة
-                    </span>
-                  </div>
-                  
-                  {/* Card Content */}
-                  <div className="flex-1 p-5 flex flex-col">
-                    <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 dark:text-white group-hover:text-blue-700'}`}>
-                      مشروع البحر الأحمر يحقق إنجازاً بيئياً عالمياً
-                    </h3>
-                    <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-                      حماية 75% من الشعاب المرجانية وزراعة 50 مليون شجرة مانجروف
-                    </p>
-                    <div className={`flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
-                      <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>منذ 3 ساعات</span>
-                      <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                        اقرأ المزيد
-                        <ArrowLeft className="w-4 h-4" />
-                      </span>
+              {articlesLoading || articles.length < 3 ? (
+                <div className={`backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 min-h-[320px] flex items-center justify-center ${darkMode ? 'bg-gray-800/95' : 'bg-white dark:bg-gray-800/95'}`}>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+              ) : articles[2] ? (
+                <Link href={`/article/${articles[2].id}`} className="block">
+                  <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white dark:bg-gray-800/95 hover:bg-white dark:bg-gray-800'}`}>
+                    {/* Card Image */}
+                    <div className="relative h-48 overflow-hidden">
+                      <img 
+                        src={articles[2].featured_image || "https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=800&q=80"}
+                        alt={articles[2].title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      {articles[2].category && (
+                        <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-3 py-1.5 bg-teal-600/90 text-white text-xs font-bold rounded-full backdrop-blur-sm shadow-lg dark:shadow-gray-900/50">
+                          <Leaf className="w-3 h-3" />
+                          {articles[2].category.name_ar || articles[2].category.name}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Card Content */}
+                    <div className="flex-1 p-5 flex flex-col">
+                      <h3 className={`text-right font-bold mb-2 text-lg leading-relaxed line-clamp-2 transition-colors ${darkMode ? 'text-white group-hover:text-blue-400' : 'text-gray-900 dark:text-white group-hover:text-blue-700'}`}>
+                        {articles[2].title}
+                      </h3>
+                      <p className={`text-right text-sm mb-4 leading-relaxed line-clamp-3 flex-1 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+                        {articles[2].excerpt || articles[2].summary || ''}
+                      </p>
+                      <div className={`flex items-center justify-between mt-auto pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
+                        <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+                          {new Date(articles[2].published_at || articles[2].created_at).toLocaleDateString('ar-SA')}
+                        </span>
+                        <span className={`flex items-center gap-2 text-sm font-medium group-hover:gap-3 transition-all ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                          اقرأ المزيد
+                          <ArrowLeft className="w-4 h-4" />
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              ) : null}
             </div>
             
             {/* زر قراءة الجرعة الكاملة */}
@@ -1612,18 +1797,33 @@ function NewspaperHomePage() {
             : 'linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)'
         }}>
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-4 mb-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${darkMode ? 'bg-blue-600' : 'bg-blue-500'}`}>
-                <Tag className="w-6 h-6 text-white" />
+            {/* أيقونة كبيرة وواضحة */}
+            <div className="mb-4">
+              <div className={`w-20 h-20 mx-auto rounded-2xl flex items-center justify-center shadow-xl ${
+                darkMode 
+                  ? 'bg-gradient-to-br from-blue-600 to-blue-800' 
+                  : 'bg-gradient-to-br from-blue-500 to-blue-700'
+              }`}>
+                <Tag className="w-10 h-10 text-white" />
               </div>
             </div>
-            <h2 className={`text-2xl font-bold mb-2 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
+            
+            {/* العنوان */}
+            <h2 className={`text-2xl font-bold mb-3 transition-colors duration-300 ${
+              darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'
+            }`}>
               استكشف بحسب التصنيفات
             </h2>
-            <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+            
+            {/* الوصف */}
+            <p className={`text-sm transition-colors duration-300 ${
+              darkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}>
               اختر التصنيف الذي يهمك لتصفح الأخبار المتخصصة
             </p>
-            <p className={`text-xs mt-2 transition-colors duration-300 ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+            <p className={`text-xs mt-2 transition-colors duration-300 ${
+              darkMode ? 'text-gray-500' : 'text-gray-500'
+            }`}>
               <span className="opacity-75">التصنيفات مرتبطة بنظام إدارة المحتوى</span>
             </p>
           </div>
@@ -1642,9 +1842,14 @@ function NewspaperHomePage() {
                     className={`group px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${ selectedCategory === category.id ? darkMode ? 'bg-blue-600 text-white border-2 border-blue-500 shadow-lg dark:shadow-gray-900/50' : 'bg-blue-500 text-white border-2 border-blue-400 shadow-lg dark:shadow-gray-900/50' : darkMode ? 'bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50' : 'bg-white dark:bg-gray-800/80 hover:bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-blue-600 border border-blue-200/50 hover:border-blue-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 backdrop-blur-sm' }`}
                   >
                     <div className="flex items-center gap-2">
-                      {category.icon && (
-                        <span className="text-lg group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
-                      )}
+                      {(() => {
+                        const IconComponent = categoryIcons[category.name_ar] || categoryIcons['default'];
+                        return category.icon ? (
+                          <span className="text-lg group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
+                        ) : (
+                          <IconComponent className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                        );
+                      })()}
                       <span>{category.name_ar || category.name}</span>
                       <span className={`text-xs ${ selectedCategory === category.id ? 'text-white/90' : darkMode ? 'text-blue-200 opacity-60' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500 opacity-60' }`}>
                         ({category.articles_count || 0})
@@ -1718,7 +1923,7 @@ function NewspaperHomePage() {
 
                                 {/* الملخص */}
                                 {article.summary && (
-                                  <p className={`text-sm mb-4 line-clamp-3 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
+                                  <p className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400 dark:text-gray-500`}>
                                     {article.summary}
                                   </p>
                                 )}
@@ -1866,9 +2071,6 @@ function NewspaperHomePage() {
             </div>
           )}
         </section>
-
-        {/* Smart Blocks - After Highlights */}
-        <SmartSlot position="afterHighlights" />
 
         {/* Smart Blocks - After Cards */}
         <SmartSlot position="afterCards" />

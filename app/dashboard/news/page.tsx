@@ -89,7 +89,7 @@ export default function NewsManagementPage() {
         const response = await fetch('/api/categories?status=active');
         if (response.ok) {
           const result = await response.json();
-          setCategories(result.data || []);
+          setCategories(result.categories || result.data || []);
         }
       } catch (err) {
         console.error('خطأ في جلب التصنيفات:', err);

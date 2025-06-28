@@ -75,7 +75,8 @@ export default function CategoriesPage() {
       if (response.ok) {
         const data = await response.json();
         // فقط التصنيفات المفعلة
-        const activeCategories = data.data.filter((cat: Category) => cat.is_active);
+        const categoriesData = data.categories || data.data || [];
+        const activeCategories = categoriesData.filter((cat: Category) => cat.is_active);
         setCategories(activeCategories);
       }
     } catch (error) {
