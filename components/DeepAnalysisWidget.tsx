@@ -389,7 +389,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                       <a href={item.url} onClick={() => markAsRead(item.id)} className="flex-shrink-0">
                         <button className="py-2 px-4 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-sm hover:shadow-md">
                           <span>اقرأ التحليل</span>
-                          <TrendingUp className="w-3.5 h-3.5" />
+                          <Brain className="w-3.5 h-3.5" />
                         </button>
                       </a>
                     </div>
