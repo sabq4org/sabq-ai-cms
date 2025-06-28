@@ -150,11 +150,21 @@ export function middleware(request: NextRequest) {
   
   let user = null;
   if (userCookie) {
+    const raw = userCookie.value;
+    const attempts = [raw];
     try {
-      user = JSON.parse(userCookie.value);
-    } catch (e) {
-      console.error('Failed to parse user cookie:', e);
-      // كوكيز غير صالحة
+      attempts.push(decodeURIComponent(raw));
+    } catch (_) {}
+    for (const val of attempts) {
+      try {
+        user = JSON.parse(val);
+        break;
+      } catch (_) {
+        /* ignore */
+      }
+    }
+    if (!user) {
+      console.error('Failed to parse user cookie');
     }
   }
 
