@@ -169,14 +169,6 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
             {analysis.title}
           </h3>
 
-          {/* الملخص */}
-          <p className={`
-            text-sm line-clamp-3 leading-relaxed
-            ${darkMode ? 'text-gray-300' : 'text-gray-600'}
-          `}>
-            {analysis.summary}
-          </p>
-
           {/* معلومات إضافية */}
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-4 text-sm">
