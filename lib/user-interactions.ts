@@ -314,39 +314,19 @@ export async function getPersonalizedContent(userId: string, limit: number = 10)
 
       topArticles.forEach((article: any) => {
         seenIds.add(article.id);
+        const weight = userPref.categories[categoryId] as number;
+        const recommendationReason = weight > 10 ? 'behavior_signal' : 'explicit_interest';
         personalizedFeed.push({
           ...article,
-          recommendation_reason: 'based_on_interests',
-          category_weight: userPref.categories[categoryId]
+          recommendation_reason: recommendationReason,
+          category_weight: weight
         });
       });
 
       if (personalizedFeed.length >= limit) break;
     }
 
-    // إضافة مقالات من المؤلفين المفضلين
-    if (personalizedFeed.length < limit && userPref.authors) {
-      const authorArticles = articles.articles?.filter((a: any) => 
-        userPref.authors[a.author?.id] && 
-        !seenIds.has(a.id) &&
-        a.status === 'published'
-      ) || [];
-
-      const topAuthorArticles = authorArticles
-        .sort((a: any, b: any) => 
-          (userPref.authors[b.author?.id] || 0) - (userPref.authors[a.author?.id] || 0)
-        )
-        .slice(0, limit - personalizedFeed.length);
-
-      topAuthorArticles.forEach((article: any) => {
-        personalizedFeed.push({
-          ...article,
-          recommendation_reason: 'favorite_author',
-          author_weight: userPref.authors[article.author?.id]
-        });
-      });
-    }
-
+    // لا نضيف مقالات مؤلفين مفضلة خارج نطاق الاهتمامات التصنيفية
     return personalizedFeed.slice(0, limit);
 
   } catch (error) {

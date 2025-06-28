@@ -86,6 +86,11 @@ export function SmartBlockRenderer({ block, articles = [], darkMode = false }: S
     // يمكن إضافة بلوكات مخصصة أخرى هنا
   }
 
+  // معالجة خاصة لبلوك يوم القهوة العالمي
+  if (block.name === 'يوم القهوة العالمي') {
+    return <CardGridBlock block={block as any} articles={articles} />;
+  }
+
   // التصميم الافتراضي الموحد
   return (
     <div 
