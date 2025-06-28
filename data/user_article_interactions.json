@@ -1293,6 +1293,54 @@
       "timestamp": "2025-06-28T09:04:56.329Z",
       "source": "article_page",
       "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "3b8964c0-f446-4f84-a31d-6d39d35956a9",
+      "interaction_type": "view",
+      "timestamp": "2025-06-28T09:12:30.728Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "3b8964c0-f446-4f84-a31d-6d39d35956a9",
+      "interaction_type": "view",
+      "timestamp": "2025-06-28T09:15:21.596Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "3b8964c0-f446-4f84-a31d-6d39d35956a9",
+      "interaction_type": "view",
+      "timestamp": "2025-06-28T09:16:57.572Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "57578f6a-e2b8-4e76-848e-fd55c34b60a1",
+      "interaction_type": "view",
+      "timestamp": "2025-06-28T09:17:10.198Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "57578f6a-e2b8-4e76-848e-fd55c34b60a1",
+      "interaction_type": "view",
+      "timestamp": "2025-06-28T09:17:10.846Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751102250012-3o0y",
+      "article_id": "57578f6a-e2b8-4e76-848e-fd55c34b60a1",
+      "interaction_type": "view",
+      "timestamp": "2025-06-28T09:17:36.499Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
     }
   ]
 }
