@@ -137,6 +137,13 @@ export default function ForYouPage() {
       'https://images.unsplash.com/photo-1478940020726-e9e191651f1a',
     ];
     
+    // التحقق من وجود العنوان قبل استخدامه
+    if (!title || typeof title !== 'string') {
+      // إرجاع صورة عشوائية إذا لم يكن هناك عنوان
+      const randomIndex = Math.floor(Math.random() * placeholderImages.length);
+      return `${placeholderImages[randomIndex]}?auto=format&fit=crop&w=800&q=80`;
+    }
+    
     const hash = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const imageIndex = hash % placeholderImages.length;
     

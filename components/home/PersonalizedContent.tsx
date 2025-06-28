@@ -13,7 +13,8 @@ import {
   Settings,
   BarChart3,
   Zap,
-  CheckCircle
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
@@ -21,14 +22,22 @@ interface Article {
   id: string;
   title: string;
   excerpt: string;
+  summary?: string;
   category: string;
+  category_id?: number;
   tags: string[];
   featured_image: string;
   author: string;
+  author_name?: string;
   published_at: string;
   views: number;
+  views_count?: number;
   likes: number;
+  likes_count?: number;
   shares: number;
+  shares_count?: number;
+  recommendation_reason?: string;
+  category_weight?: number;
 }
 
 interface PersonalizationStats {
@@ -39,67 +48,201 @@ interface PersonalizationStats {
   articlesByCategory: Record<string, Article[]>;
 }
 
+interface UserPreference {
+  id: string;
+  user_id: string;
+  category_id: number;
+  source: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export default function PersonalizedContent() {
   const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [stats, setStats] = useState<PersonalizationStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userPreferences, setUserPreferences] = useState<UserPreference[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
-    fetchPersonalizedContent();
+    // جلب معرف المستخدم من localStorage
+    const storedUserId = localStorage.getItem('user_id');
+    if (storedUserId && storedUserId !== 'anonymous') {
+      setUserId(storedUserId);
+    }
+    
+    // جلب التصنيفات
+    fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchUserPreferences();
+    } else {
+      // إذا لم يكن هناك مستخدم مسجل، استخدم التفضيلات الافتراضية
+      fetchPersonalizedContent();
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (userPreferences.length > 0 || !userId) {
+      fetchPersonalizedContent();
+    }
+  }, [userPreferences]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      const data = await response.json();
+      setCategories(data.categories || data.data || data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchUserPreferences = async () => {
+    try {
+      // جلب تفضيلات المستخدم من الملف
+      const response = await fetch(`/api/user/preferences?userId=${userId}`);
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setUserPreferences(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching user preferences:', error);
+    }
+  };
 
   const fetchPersonalizedContent = async () => {
     try {
       setLoading(true);
+      setError(null);
       
-      // جلب تفضيلات المستخدم (محاكاة)
-      const userInterests = ['رياضة', 'اقتصاد']; // في التطبيق الحقيقي، سيتم جلبها من localStorage أو API
+      let userInterests: string[] = [];
+      let categoryIds: number[] = [];
       
-      // جلب جميع المقالات
-      const response = await fetch('/api/articles?status=published&limit=100');
-      const data = await response.json();
-      
-      if (data.success && data.articles) {
-        const allArticles = data.articles;
+      if (userId && userPreferences.length > 0) {
+        // استخدام تفضيلات المستخدم الفعلية
+        categoryIds = userPreferences.map(pref => pref.category_id);
         
-        // فلترة المقالات حسب الاهتمامات
-        const personalizedArticles = allArticles.filter((article: Article) => 
-          userInterests.includes(article.category)
-        );
-        
-        // تجميع حسب التصنيف
-        const articlesByCategory: Record<string, Article[]> = {};
-        personalizedArticles.forEach((article: Article) => {
-          if (!articlesByCategory[article.category]) {
-            articlesByCategory[article.category] = [];
-          }
-          articlesByCategory[article.category].push(article);
-        });
-        
-        // حساب الإحصائيات
-        const relevancePercentage = allArticles.length > 0 
-          ? Math.round((personalizedArticles.length / allArticles.length) * 100)
-          : 0;
-        
-        setArticles(personalizedArticles);
-        setStats({
-          totalArticles: allArticles.length,
-          personalizedCount: personalizedArticles.length,
-          relevancePercentage,
-          userInterests,
-          articlesByCategory
+        // تحويل معرفات التصنيفات إلى أسماء
+        userInterests = categoryIds.map(id => {
+          const category = categories.find(cat => cat.id === id);
+          return category?.name || category?.name_ar || `تصنيف ${id}`;
         });
       } else {
-        setError('فشل في جلب المقالات');
+        // تفضيلات افتراضية للزوار
+        userInterests = ['رياضة', 'تقنية'];
+        categoryIds = categories
+          .filter(cat => userInterests.includes(cat.name) || userInterests.includes(cat.name_ar))
+          .map(cat => cat.id);
+      }
+      
+      if (userInterests.length === 0) {
+        setError('لم يتم تحديد أي اهتمامات. يرجى تخصيص اهتماماتك أولاً.');
+        setArticles([]);
+        setLoading(false);
+        return;
+      }
+      
+      // جلب المقالات المخصصة
+      if (userId) {
+        // للمستخدمين المسجلين - استخدام API المخصص
+        const response = await fetch(`/api/content/personalized?user_id=${userId}&limit=50`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          const personalizedArticles = data.data.articles || [];
+          processArticles(personalizedArticles, userInterests, categoryIds);
+        } else {
+          throw new Error('فشل في جلب المحتوى المخصص');
+        }
+      } else {
+        // للزوار - جلب وتصفية المقالات يدوياً
+        const response = await fetch('/api/articles?status=published&limit=100');
+        const data = await response.json();
+        
+        if (data.success && data.articles) {
+          const allArticles = data.articles || data.data || [];
+          
+          // تصفية المقالات حسب التصنيفات المحددة فقط
+          const filteredArticles = allArticles.filter((article: any) => {
+            const articleCategoryId = article.category_id;
+            return categoryIds.includes(articleCategoryId);
+          });
+          
+          processArticles(filteredArticles, userInterests, categoryIds);
+        } else {
+          throw new Error('فشل في جلب المقالات');
+        }
       }
     } catch (error) {
       console.error('Error fetching personalized content:', error);
       setError('حدث خطأ في جلب المحتوى المخصص');
+      setArticles([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const processArticles = (articles: any[], userInterests: string[], categoryIds: number[]) => {
+    // تجميع المقالات حسب التصنيف
+    const articlesByCategory: Record<string, Article[]> = {};
+    
+    articles.forEach((article: any) => {
+      const categoryId = article.category_id;
+      const category = categories.find(cat => cat.id === categoryId);
+      const categoryName = category?.name || category?.name_ar || 'غير مصنف';
+      
+      // التحقق من أن المقال ينتمي لأحد التصنيفات المحددة
+      if (categoryIds.includes(categoryId)) {
+        if (!articlesByCategory[categoryName]) {
+          articlesByCategory[categoryName] = [];
+        }
+        
+        // تنسيق المقال
+        const formattedArticle: Article = {
+          id: article.id,
+          title: article.title,
+          excerpt: article.summary || article.excerpt || '',
+          summary: article.summary || article.excerpt || '',
+          category: categoryName,
+          category_id: categoryId,
+          tags: article.seo_keywords || [],
+          featured_image: article.featured_image || article.featuredImage || '',
+          author: article.author_name || article.author || 'غير محدد',
+          author_name: article.author_name || article.author || 'غير محدد',
+          published_at: article.published_at || article.publishedAt || article.created_at,
+          views: article.views_count || article.views || 0,
+          views_count: article.views_count || article.views || 0,
+          likes: article.likes_count || article.likes || 0,
+          likes_count: article.likes_count || article.likes || 0,
+          shares: article.shares_count || article.shares || 0,
+          shares_count: article.shares_count || article.shares || 0,
+          recommendation_reason: article.recommendation_reason,
+          category_weight: article.category_weight
+        };
+        
+        articlesByCategory[categoryName].push(formattedArticle);
+      }
+    });
+    
+    // حساب الإحصائيات
+    const personalizedCount = Object.values(articlesByCategory).reduce((sum, arr) => sum + arr.length, 0);
+    const relevancePercentage = personalizedCount > 0 ? 100 : 0; // 100% لأن جميع المقالات مفلترة
+    
+    setArticles(articles.filter(article => categoryIds.includes(article.category_id)));
+    setStats({
+      totalArticles: personalizedCount,
+      personalizedCount,
+      relevancePercentage,
+      userInterests,
+      articlesByCategory
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -143,8 +286,9 @@ export default function PersonalizedContent() {
         darkMode ? 'bg-red-900/20 border-red-700' : 'bg-red-50 border-red-200'
       }`}>
         <div className="text-center">
+          <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
           <div className="text-red-500 text-lg font-semibold mb-2">خطأ في التحميل</div>
-          <div className={`text-sm ${darkMode ? 'text-red-300' : 'text-red-600'}`}>
+          <div className={`text-sm mb-4 ${darkMode ? 'text-red-300' : 'text-red-600'}`}>
             {error}
           </div>
           <button
@@ -344,7 +488,7 @@ export default function PersonalizedContent() {
                           <p className={`text-sm mb-3 line-clamp-2 ${
                             darkMode ? 'text-gray-300' : 'text-gray-600'
                           }`}>
-                            {article.excerpt}
+                            {article.excerpt || article.summary}
                           </p>
 
                           {/* معلومات إضافية */}
@@ -354,7 +498,7 @@ export default function PersonalizedContent() {
                                 darkMode ? 'text-gray-400' : 'text-gray-500'
                               }`}>
                                 <User className="w-3 h-3" />
-                                <span>{article.author}</span>
+                                <span>{article.author_name || article.author}</span>
                               </span>
                               
                               <span className={`flex items-center space-x-1 space-x-reverse ${
@@ -370,14 +514,14 @@ export default function PersonalizedContent() {
                                 darkMode ? 'text-gray-400' : 'text-gray-500'
                               }`}>
                                 <Eye className="w-3 h-3" />
-                                <span>{formatNumber(article.views)}</span>
+                                <span>{formatNumber(article.views_count || article.views)}</span>
                               </span>
                               
                               <span className={`flex items-center space-x-1 space-x-reverse ${
                                 darkMode ? 'text-gray-400' : 'text-gray-500'
                               }`}>
                                 <Heart className="w-3 h-3" />
-                                <span>{formatNumber(article.likes)}</span>
+                                <span>{formatNumber(article.likes_count || article.likes)}</span>
                               </span>
                             </div>
                           </div>
@@ -423,13 +567,13 @@ export default function PersonalizedContent() {
           <h3 className={`text-lg font-semibold mb-2 ${
             darkMode ? 'text-white' : 'text-gray-900'
           }`}>
-            لا يوجد محتوى مخصص حالياً
+            لا توجد تحليلات جديدة في اهتماماتك الآن
           </h3>
           
           <p className={`text-sm mb-4 ${
             darkMode ? 'text-gray-300' : 'text-gray-600'
           }`}>
-            قم بتخصيص اهتماماتك لرؤية محتوى مناسب لك
+            نحدث الوجبة المعرفية يومياً... تحقق لاحقاً أو قم بتوسيع اهتماماتك
           </p>
           
           <Link 

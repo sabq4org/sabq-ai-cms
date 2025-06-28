@@ -217,6 +217,9 @@ function NewspaperHomePage(): React.ReactElement {
   });
   const [deepInsights, setDeepInsights] = useState<any[]>([]);
   const [deepInsightsLoading, setDeepInsightsLoading] = useState(true);
+  const [showPersonalized, setShowPersonalized] = useState(false);
+  const [userInterests, setUserInterests] = useState<string[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
 
   // هوك التفاعلات الموحد
   const { isLiked: reactionLiked, isSaved: reactionSaved, toggleLike, toggleSave } = useReactions('articles');
@@ -224,26 +227,37 @@ function NewspaperHomePage(): React.ReactElement {
   // التحقق من حالة تسجيل الدخول
   useEffect(() => {
     const checkAuthStatus = () => {
-      const userId = localStorage.getItem('user_id');
+      const storedUserId = localStorage.getItem('user_id');
       const userData = localStorage.getItem('user');
       
-      const hasUserId = userId && userId.trim() !== '' && userId !== 'null' && userId !== 'undefined';
-      const isNotAnonymous = userId !== 'anonymous';
+      const hasUserId = storedUserId && storedUserId.trim() !== '' && storedUserId !== 'null' && storedUserId !== 'undefined';
+      const isNotAnonymous = storedUserId !== 'anonymous';
       const hasUserData = userData && userData.trim() !== '' && userData !== 'null' && userData !== 'undefined';
       
       const isUserLoggedIn = !!(hasUserId && isNotAnonymous && hasUserData);
       
       setIsLoggedIn(isUserLoggedIn);
       setIsCheckingAuth(false);
+      setUserId(isUserLoggedIn ? storedUserId : null);
       
       // إنشاء UserTracker إذا كان المستخدم مسجل دخول
-      if (isUserLoggedIn && userId) {
-        setUserTracker(new UserIntelligenceTracker(userId));
+      if (isUserLoggedIn && storedUserId) {
+        setUserTracker(new UserIntelligenceTracker(storedUserId));
         
         // جلب النقاط المحفوظة
         const savedPoints = localStorage.getItem('user_points');
         if (savedPoints) {
           setUserPoints(JSON.parse(savedPoints));
+        }
+        
+        // جلب الاهتمامات المحفوظة
+        try {
+          const userDataParsed = JSON.parse(userData || '{}');
+          if (userDataParsed.interests) {
+            setUserInterests(userDataParsed.interests);
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
         }
       }
     };
@@ -253,17 +267,23 @@ function NewspaperHomePage(): React.ReactElement {
 
   // دالة لتوليد صورة بديلة بناءً على العنوان
   const generatePlaceholderImage = (title: string) => {
-    // قائمة بصور Unsplash ذات جودة عالية ومتنوعة
     const placeholderImages = [
-              'https://images.unsplash.com/photo-1504711434969-e33886168f5c', // أخبار
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa', // تقنية
-      'https://images.unsplash.com/photo-1495020689067-958852a7765e', // إعلام
-      'https://images.unsplash.com/photo-1585829365295-ab7cd400c167', // أخبار 2
-      'https://images.unsplash.com/photo-1478940020726-e9e191651f1a', // صحافة
-      'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94', // أخبار 3
-      'https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1', // أخبار 4
-      'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3', // أخبار 5
+      'https://images.unsplash.com/photo-1542281286-9e0a16bb7366',
+      'https://images.unsplash.com/photo-1485827404703-89b55fcc595e',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475',
+      'https://images.unsplash.com/photo-1550745165-9bc0b252726f',
+      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
+      'https://images.unsplash.com/photo-1523961131990-5ea7c61b2107',
+      'https://images.unsplash.com/photo-1504384308090-c894fdcc538d'
     ];
+    
+    // التحقق من وجود العنوان قبل استخدامه
+    if (!title || typeof title !== 'string') {
+      // إرجاع صورة عشوائية إذا لم يكن هناك عنوان
+      const randomIndex = Math.floor(Math.random() * placeholderImages.length);
+      return `${placeholderImages[randomIndex]}?auto=format&fit=crop&w=800&q=80`;
+    }
     
     // اختيار صورة بناءً على hash العنوان للحصول على نفس الصورة لنفس المقال
     const hash = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -508,12 +528,30 @@ function NewspaperHomePage(): React.ReactElement {
               </span>
             )}
             
-            {/* شارة المحتوى المخصص */}
-            {isPersonalized && (
-              <div className="absolute top-3 left-3">
-                <div className="flex items-center gap-1 px-2 py-1 bg-blue-500/90 text-white text-xs rounded-full shadow-lg dark:shadow-gray-900/50 backdrop-blur-sm">
+            {/* شارة سبب التوصية */}
+            {news.recommendation_reason === 'explicit_interest' && (
+              <div className="absolute top-3 left-3 z-10">
+                <div className="flex items-center gap-1 px-2 py-1 bg-purple-600/90 text-white text-xs rounded-full shadow-lg backdrop-blur-sm">
                   <Target className="w-3 h-3" />
-                  <span>مخصص لك</span>
+                  <span>اهتمامك</span>
+                </div>
+              </div>
+            )}
+            {news.recommendation_reason === 'behavior_signal' && (
+              <div className="absolute top-3 left-3 z-10">
+                <div className="flex items-center gap-1 px-2 py-1 bg-sky-600/90 text-white text-xs rounded-full shadow-lg backdrop-blur-sm">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>تفاعلاتك</span>
+                </div>
+              </div>
+            )}
+            
+            {/* fallback إلى الشارة القديمة إذا لم يتوفر سبب التوصية */}
+            {!news.recommendation_reason && isPersonalized && (
+              <div className="absolute top-3 left-3 z-10">
+                <div className="flex items-center gap-1 px-2 py-1 bg-blue-500/90 text-white text-xs rounded-full backdrop-blur-sm">
+                  <Target className="w-3 h-3" />
+                  <span>مخصص</span>
                 </div>
               </div>
             )}
@@ -1526,6 +1564,39 @@ function NewspaperHomePage(): React.ReactElement {
 
     fetchArticles();
   }, []);
+  
+  // جلب المحتوى المخصص
+  useEffect(() => {
+    const fetchPersonalizedContent = async () => {
+      if (!isLoggedIn || !userId || !userInterests.length) {
+        setShowPersonalized(false);
+        setPersonalizedLoading(false); // تأكد من إيقاف التحميل للزوار
+        return;
+      }
+      
+      try {
+        setPersonalizedLoading(true);
+        const response = await fetch(`/api/content/personalized?user_id=${userId}&limit=12`);
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.articles && data.data.articles.length > 0) {
+          setPersonalizedArticles(data.data.articles);
+          setShowPersonalized(true);
+        } else {
+          setShowPersonalized(false);
+        }
+      } catch (error) {
+        console.error('Error fetching personalized content:', error);
+        setShowPersonalized(false);
+      } finally {
+        setPersonalizedLoading(false);
+      }
+    };
+    
+    if (!isCheckingAuth) {
+      fetchPersonalizedContent();
+    }
+  }, [isLoggedIn, userId, userInterests, isCheckingAuth]);
 
   // جلب التحليلات العميقة
   useEffect(() => {
@@ -2003,7 +2074,7 @@ function NewspaperHomePage(): React.ReactElement {
           )}
         </div>
       </section>
-
+      
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Enhanced News Section */}
@@ -2022,19 +2093,43 @@ function NewspaperHomePage(): React.ReactElement {
               </div>
             ) : (
               <>
-                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-6">
-                  <Brain className="w-5 h-5 text-blue-600" />
-                  <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700 dark:text-gray-300'}`}>
-                    مدعوم بالذكاء الاصطناعي
-                  </span>
-                  <Sparkles className="w-5 h-5 text-purple-600" />
-                </div>
-                <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
-                  محتوى ذكي مخصص لك
-                </h2>
-                <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-                  مقالات وتحليلات مختارة بعناية تناسب اهتماماتك وتطلعاتك المعرفية
-                </p>
+                {/* رأس القسم مع شرط حالة تسجيل الدخول */}
+                {!isCheckingAuth && (
+                  isLoggedIn ? (
+                    // للمستخدم المسجل
+                    <>
+                      <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-6">
+                        <Brain className="w-5 h-5 text-blue-600" />
+                        <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          مدعوم بالذكاء الاصطناعي
+                        </span>
+                        <Sparkles className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                        📡 محتوى ذكي مخصص لك
+                      </h2>
+                      <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        مقالات وتحليلات مختارة بعناية بناءً على اهتماماتك وتفضيلاتك المعرفية
+                      </p>
+                    </>
+                  ) : (
+                    // للزائر غير المسجل
+                    <>
+                      <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 mb-6 dark:bg-gray-800/40 dark:border-gray-700">
+                        <Newspaper className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                        <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          أحدث المقالات
+                        </span>
+                      </div>
+                      <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                        📰 آخر الأخبار
+                      </h2>
+                      <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        تابع أحدث المقالات المنشورة من جميع التصنيفات
+                      </p>
+                    </>
+                  )
+                )}
               </>
             )}
           </div>
@@ -2049,26 +2144,121 @@ function NewspaperHomePage(): React.ReactElement {
             </Link>
           </div>
 
-          {/* Enhanced News Grid */}
-          {articlesLoading ? (
+          {/* Enhanced News Grid - مع دعم المحتوى المخصص */}
+          {articlesLoading || personalizedLoading ? (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
                 <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>جاري تحميل المقالات...</p>
               </div>
             </div>
-          ) : articles.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {articles.slice(0, 8).map((news) => (
-                <NewsCard key={news.id} news={news} />
-              ))}
-            </div>
           ) : (
-            <div className={`text-center py-20 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
-              <Newspaper className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <p className="text-lg mb-2">لا توجد مقالات منشورة حالياً</p>
-              <p className="text-sm">تحقق لاحقاً للحصول على آخر الأخبار والمقالات</p>
-            </div>
+            <>
+              {/* رسالة للمستخدمين المسجلين مع اهتمامات */}
+              {isLoggedIn && userInterests.length > 0 && showPersonalized && (
+                <div className={`mb-6 p-4 rounded-xl flex items-center justify-between ${
+                  darkMode 
+                    ? 'bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-800/30' 
+                    : 'bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200'
+                }`}>
+                  <div className="flex items-center gap-3">
+                    <Sparkles className={`w-5 h-5 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+                    <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      يتم عرض المحتوى بناءً على اهتماماتك: {userInterests.map(interest => {
+                        const interestMap: any = {
+                          'tech': 'تقنية',
+                          'business': 'اقتصاد', 
+                          'sports': 'رياضة',
+                          'culture': 'ثقافة',
+                          'health': 'صحة',
+                          'international': 'دولي'
+                        };
+                        return interestMap[interest] || interest;
+                      }).join(' • ')}
+                    </p>
+                  </div>
+                  <Link 
+                    href="/welcome/preferences"
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      darkMode 
+                        ? 'bg-purple-800/30 hover:bg-purple-700/40 text-purple-300' 
+                        : 'bg-purple-100 hover:bg-purple-200 text-purple-700'
+                    }`}
+                  >
+                    <Settings className="w-3 h-3" />
+                    تعديل
+                  </Link>
+                </div>
+              )}
+              
+              {/* رسالة للمستخدمين غير المسجلين */}
+              {!isLoggedIn && (
+                <div className={`mb-6 p-4 rounded-xl text-center ${
+                  darkMode 
+                    ? 'bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-800/30' 
+                    : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200'
+                }`}>
+                  <p className={`text-sm mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    🎯 سجل دخولك للحصول على محتوى مخصص حسب اهتماماتك
+                  </p>
+                  <div className="flex items-center justify-center gap-3">
+                    <Link 
+                      href="/register"
+                      className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg text-sm font-medium transition-all transform hover:scale-105"
+                    >
+                      إنشاء حساب
+                    </Link>
+                    <Link 
+                      href="/login"
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border ${
+                        darkMode 
+                          ? 'border-gray-600 hover:border-gray-500 text-gray-300 hover:bg-gray-800' 
+                          : 'border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      تسجيل دخول
+                    </Link>
+                  </div>
+                </div>
+              )}
+              
+              {/* عرض المقالات */}
+              {(showPersonalized && personalizedArticles.length > 0) ? (
+                // عرض المقالات المخصصة للمستخدمين المسجلين
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  {personalizedArticles.slice(0, 8).map((news) => (
+                    <div key={news.id} className="relative">
+                      {/* شارة "مخصص لك" */}
+                      <div className="absolute top-3 left-3 z-10">
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
+                          darkMode 
+                            ? 'bg-purple-900/80 text-purple-200' 
+                            : 'bg-purple-500/90 text-white'
+                        }`}>
+                          <Sparkles className="w-3 h-3" />
+                          مخصص
+                        </span>
+                      </div>
+                      <NewsCard news={news} />
+                    </div>
+                  ))}
+                </div>
+              ) : articles.length > 0 ? (
+                // عرض آخر المقالات للزوار أو المستخدمين بدون تفضيلات
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  {articles.slice(0, 8).map((news) => (
+                    <NewsCard key={news.id} news={news} />
+                  ))}
+                </div>
+              ) : (
+                // لا توجد مقالات
+                <div className={`text-center py-20 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+                  <Newspaper className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg mb-2">لا توجد مقالات منشورة حالياً</p>
+                  <p className="text-sm">تحقق لاحقاً للحصول على آخر الأخبار والمقالات</p>
+                </div>
+              )}
+            </>
           )}
         </section>
 
