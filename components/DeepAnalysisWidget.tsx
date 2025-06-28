@@ -255,7 +255,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
     <TooltipProvider>
       <div id="deep-analysis-highlight" className="py-6 md:py-8 relative overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900">
         {/* تمت إزالة الطبقات الزخرفية لمنع أي تفتيح غير مرغوب */}
-        <div className="container px-4 mx-auto max-w-7xl relative z-10 bg-transparent">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
           {/* العنوان والوصف */}
           <div className="text-center mb-12 max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-3 flex items-center justify-center gap-3 text-white">
@@ -268,7 +268,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
           </div>
 
           {/* البطاقات */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             {insights.map((item) => {
               const isUnread = !readItems.includes(item.id);
               const isAI = item.type === 'AI';
