@@ -344,15 +344,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
 
                     {/* زر القراءة وأزرار التفاعل في سطر واحد */}
                     <div className="flex items-center justify-between gap-3">
-                      {/* زر القراءة - أصغر ومحاذاة يمين */}
-                      <a href={item.url} onClick={() => markAsRead(item.id)} className="flex-shrink-0">
-                        <button className="py-2 px-4 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-sm hover:shadow-md">
-                          <span>اقرأ التحليل</span>
-                          <TrendingUp className="w-3.5 h-3.5" />
-                        </button>
-                      </a>
-
-                      {/* عناصر التفاعل - محاذاة يسار */}
+                      {/* عناصر التفاعل - محاذاة يمين */}
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleShare(item)}
@@ -392,6 +384,14 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                           }`} />
                         </button>
                       </div>
+
+                      {/* زر القراءة - أصغر ومحاذاة يسار */}
+                      <a href={item.url} onClick={() => markAsRead(item.id)} className="flex-shrink-0">
+                        <button className="py-2 px-4 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-sm hover:shadow-md">
+                          <span>اقرأ التحليل</span>
+                          <TrendingUp className="w-3.5 h-3.5" />
+                        </button>
+                      </a>
                     </div>
                   </div>
                 </div>
