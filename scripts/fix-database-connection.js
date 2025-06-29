@@ -58,7 +58,6 @@ console.log('\n🔄 تحديث متغيرات البيئة...');
 
 const envVars = {
   'DATABASE_URL': fixedDatabaseUrl,
-  'DIRECT_URL': fixedDatabaseUrl,
   'JWT_SECRET': 'sabq-secret-key-2024-ultra-secure',
   'ADMIN_SECRET': 'admin-secret-2024',
   'CLOUDINARY_CLOUD_NAME': 'dybhezmvb',
