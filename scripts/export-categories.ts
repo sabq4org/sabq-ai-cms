@@ -1,8 +1,6 @@
-const { PrismaClient } = require('../lib/generated/prisma');
-const fs = require('fs');
-const path = require('path');
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
+import fs from 'fs';
+import path from 'path';
 
 async function exportCategories() {
   try {

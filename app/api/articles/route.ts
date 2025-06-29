@@ -5,6 +5,7 @@ import { filterTestContent, rejectTestContent } from '@/lib/data-protection'
 // جلب المقالات
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 بدء معالجة طلب المقالات...')
     const { searchParams } = new URL(request.url)
     
     // بناء شروط البحث

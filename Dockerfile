@@ -1,71 +1,65 @@
-# Use official Node.js image as base
-FROM node:20-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
+# Multi-stage build للحصول على حجم أصغر
+FROM node:20-alpine AS deps
+# تثبيت libc6-compat مطلوب للألبين
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+# نسخ ملفات التبعيات
+COPY package.json package-lock.json ./
+COPY prisma ./prisma/
 
-# Rebuild the source code only when needed
-FROM base AS builder
+# تثبيت التبعيات
+RUN npm ci --only=production
+
+# مرحلة البناء
+FROM node:20-alpine AS builder
 WORKDIR /app
+
+# نسخ التبعيات من المرحلة السابقة
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
+# متغيرات البيئة للبناء
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Build the application
-RUN \
-  if [ -f yarn.lock ]; then yarn build; \
-  elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm build; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+# توليد Prisma Client
+RUN npx prisma generate
 
-# Production image, copy all the files and run next
-FROM base AS runner
+# البناء
+RUN npm run build
+
+# مرحلة الإنتاج
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+# إنشاء مستخدم غير root
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-# Copy public assets
+# نسخ الملفات الضرورية فقط
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
 
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
+# نسخ ملفات Next.js
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Create uploads directory
-RUN mkdir -p public/uploads && chown -R nextjs:nodejs public/uploads
+# نسخ Prisma
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
+# التبديل للمستخدم غير root
 USER nextjs
 
+# المنفذ
 EXPOSE 3000
 
+# متغيرات البيئة
 ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+ENV NODE_ENV=production
 
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
+# البدء
 CMD ["node", "server.js"] 

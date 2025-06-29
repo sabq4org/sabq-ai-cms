@@ -46,4 +46,4 @@ export function handlePrismaError(error: any) {
   
   console.error('Prisma Error:', error)
   return 'حدث خطأ في قاعدة البيانات'
-} 
+}
