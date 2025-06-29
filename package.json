@@ -44,7 +44,7 @@
     "setup:prod": "./scripts/setup-production-db.sh",
     "prisma:prod": "NODE_ENV=production npx prisma db push",
     "deploy:prod": "npm run setup:prod && npm run build:prod && npm run prisma:prod",
-    "postbuild": "npx prisma db push --accept-data-loss",
+    "postbuild": "echo 'Build completed successfully'",
     "migrate:prod": "node scripts/migrate-production.js"
   },
   "dependencies": {
