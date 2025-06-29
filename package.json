@@ -124,6 +124,7 @@
     "eslint-plugin-unused-imports": "^4.1.4",
     "prisma": "^6.10.1",
     "ts-prune": "^0.10.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vercel": "^44.2.7"
   }
 }
