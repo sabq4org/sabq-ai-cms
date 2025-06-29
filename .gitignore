@@ -111,3 +111,4 @@ prisma/migrations/
 sabq-ai-cms/
 deploy-*.tar.gz
 .env.production
+PRIVATE_ENV_VALUES.txt
