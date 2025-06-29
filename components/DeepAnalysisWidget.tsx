@@ -8,6 +8,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { useInteractions } from '@/hooks/useInteractions';
+import { useAuth } from '@/hooks/useAuth'; // استيراد hook المصادقة
 
 interface DeepInsight {
   id: string;
@@ -41,141 +42,86 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
   }, []);
   
   const darkMode = false; // تم تعطيل الوضع الليلي
-  const { recordInteraction } = useInteractions();
+  const { user } = useAuth(); // استخدام hook المصادقة للحصول على المستخدم
+  const { 
+    recordInteraction, 
+    localLikes, 
+    localSaves, 
+    toggleLike, 
+    toggleSave 
+  } = useInteractions();
 
   const [readItems, setReadItems] = useState<string[]>([]);
   
-  // حل بديل مؤقت: استخدام localStorage مباشرة
-  const [localLikes, setLocalLikes] = useState<string[]>([]);
-  const [localSaves, setLocalSaves] = useState<string[]>([]);
-  
-  // تحميل البيانات من localStorage عند التحميل
   useEffect(() => {
-    const loadLocalData = () => {
-      try {
-        const likes = localStorage.getItem('deep_analysis_likes');
-        const saves = localStorage.getItem('deep_analysis_saves');
-        if (likes) setLocalLikes(JSON.parse(likes));
-        if (saves) setLocalSaves(JSON.parse(saves));
-      } catch (e) {
-        console.error('[DeepAnalysisWidget] خطأ في تحميل البيانات المحلية:', e);
-      }
-    };
-    loadLocalData();
-  }, []);
-  
-  // دوال مساعدة للتحقق من الحالة
-  const isLiked = (id: string) => localLikes.includes(id);
-  const isSaved = (id: string) => localSaves.includes(id);
-
-  useEffect(() => {
-    // قراءة العناصر المقروءة من localStorage
     const read = localStorage.getItem('readAnalysis');
     if (read) {
       setReadItems(JSON.parse(read));
     }
   }, []);
 
-  const handleSave = (id: string) => {
-    console.log(`[DeepAnalysisWidget] handleSave clicked for id: ${id}`);
-    
-    const userId = localStorage.getItem('userId') || 'anonymous';
-    
-    // تحديث الحالة المحلية
-    const newSaves = isSaved(id) 
-      ? localSaves.filter(item => item !== id)
-      : [...localSaves, id];
-    
-    setLocalSaves(newSaves);
-    localStorage.setItem('deep_analysis_saves', JSON.stringify(newSaves));
-    
-    if (!isSaved(id)) {
-      // إذا كان المستخدم غير مسجل، نعرض رسالة مختلفة
-      if (userId === 'anonymous') {
-        toast.success('تم حفظ التحليل (محلياً)', {
-          duration: 3000,
-          icon: '📌'
-        });
-        toast('سجل دخولك للاحتفاظ بمحفوظاتك', {
-          duration: 4000,
-          icon: '💡',
-          style: {
-            background: '#8b5cf6',
-            color: '#fff',
-          }
-        });
-      } else {
-        toast.success('تم حفظ التحليل');
-      }
+  // دوال مساعدة للتحقق من الحالة
+  const isLiked = (id: string) => localLikes.includes(id);
+  const isSaved = (id: string) => localSaves.includes(id);
+
+  const newHandleSave = async (id: string, title: string) => {
+    if (!user) {
+      toast('سجل دخولك للاحتفاظ بمحفوظاتك', {
+        duration: 4000,
+        icon: '💡',
+        style: { background: '#8b5cf6', color: '#fff' }
+      });
+      return;
     }
     
-    // سجل تفاعل الحفظ
-    recordInteraction({
-      userId: userId,
-      articleId: id,
-      interactionType: 'save'
-    }).then(() => {
-      console.log(`[DeepAnalysisWidget] سجلت تفاعل حفظ للمقالة ${id}`);
-    }).catch(error => {
+    const isCurrentlySaved = localSaves.includes(id);
+    toggleSave(id);
+
+    if (!isCurrentlySaved) {
+      toast.success(`تم حفظ "${title.substring(0, 20)}..."`);
+    }
+
+    try {
+      await recordInteraction({
+        userId: user.id,
+        articleId: id,
+        interactionType: 'save'
+      });
+    } catch (error) {
       console.error('[DeepAnalysisWidget] خطأ في تسجيل تفاعل الحفظ:', error);
-      // لا نعرض رسالة خطأ للمستخدم غير المسجل
-      if (userId !== 'anonymous') {
-        toast.error('حدث خطأ في تسجيل التفاعل');
-      }
-    });
+      toast.error('حدث خطأ أثناء الحفظ');
+      toggleSave(id); 
+    }
   };
 
-  const handleLike = (id: string) => {
-    console.log(`[DeepAnalysisWidget] handleLike clicked for id: ${id}`);
-    console.log('[DeepAnalysisWidget] Current userId:', localStorage.getItem('userId'));
-    
-    const userId = localStorage.getItem('userId') || 'anonymous';
-    
-    // تحديث الحالة المحلية
-    const newLikes = isLiked(id) 
-      ? localLikes.filter(item => item !== id)
-      : [...localLikes, id];
-    
-    setLocalLikes(newLikes);
-    localStorage.setItem('deep_analysis_likes', JSON.stringify(newLikes));
-    console.log('[DeepAnalysisWidget] Updated likes:', newLikes);
-    
-    if (!isLiked(id)) {
-      // إذا كان المستخدم غير مسجل، نعرض رسالة مختلفة
-      if (userId === 'anonymous') {
-        toast.success('تم الإعجاب بالتحليل (محلياً)', {
-          duration: 3000,
-          icon: '💙'
-        });
-        toast('سجل دخولك للاحتفاظ بتفاعلاتك', {
-          duration: 4000,
-          icon: '💡',
-          style: {
-            background: '#3b82f6',
-            color: '#fff',
-          }
-        });
-      } else {
-        toast.success('تم الإعجاب بالتحليل');
-      }
-    }
-    
-    // سجل تفاعل الإعجاب عبر API وأظهر لوج في الكونsole
-    recordInteraction({
-      userId: userId,
-      articleId: id,
-      interactionType: 'like'
-    })
-      .then((result) => {
-        console.log(`[DeepAnalysisWidget] سجلت تفاعل إعجاب للمقالة ${id}`, result);
-      })
-      .catch(err => {
-        console.error('[DeepAnalysisWidget] خطأ في تسجيل التفاعل:', err);
-        // لا نعرض رسالة خطأ للمستخدم غير المسجل
-        if (userId !== 'anonymous') {
-          toast.error('حدث خطأ في تسجيل التفاعل');
-        }
+  const newHandleLike = async (id: string, title: string) => {
+    if (!user) {
+      toast('سجل دخولك للاحتفاظ بتفاعلاتك', {
+        duration: 4000,
+        icon: '💡',
+        style: { background: '#3b82f6', color: '#fff' }
       });
+      return;
+    }
+
+    const isCurrentlyLiked = localLikes.includes(id);
+    toggleLike(id);
+    
+    if (!isCurrentlyLiked) {
+      toast.success(`أعجبك "${title.substring(0, 20)}..."`, { icon: '💙' });
+    }
+
+    try {
+      await recordInteraction({
+        userId: user.id,
+        articleId: id,
+        interactionType: 'like'
+      });
+    } catch (error) {
+      console.error('[DeepAnalysisWidget] خطأ في تسجيل الإعجاب:', error);
+      toast.error('حدث خطأ أثناء الإعجاب');
+      toggleLike(id);
+    }
   };
 
   const handleShare = (item: DeepInsight) => {
@@ -349,68 +295,19 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                         </button>
                         
                         <button
-                          onClick={() => handleSave(item.id)}
+                          onClick={() => newHandleSave(item.id, item.title)}
                           className={`p-1.5 rounded-lg transition-all duration-300 border ${
-                            isSaved(item.id)
+                            localSaves.includes(item.id)
                               ? 'text-purple-600 bg-purple-100 border-purple-300' 
                               : 'text-gray-600 hover:text-purple-600 bg-gray-100 hover:bg-purple-100 border-gray-200'
                           }`}
                           title="حفظ"
                         >
                           <Bookmark className={`w-3.5 h-3.5 ${
-                            isSaved(item.id) ? 'fill-current' : ''
+                            localSaves.includes(item.id) ? 'fill-current' : ''
                           }`} />
                         </button>
                         
                         <button
-                          onClick={() => handleLike(item.id)}
-                          id={`like-btn-${item.id}`}
-                          data-testid={`like-btn-${item.id}`}
-                          className={`p-1.5 rounded-lg transition-all duration-300 border ${
-                            isLiked(item.id)
-                              ? 'text-red-500 bg-red-100 border-red-300' 
-                              : 'text-gray-600 hover:text-red-500 bg-gray-100 hover:bg-red-100 border-gray-200'
-                          }`}
-                          title="إعجاب"
-                        >
-                          <Heart className={`w-3.5 h-3.5 ${
-                            isLiked(item.id) ? 'fill-current' : ''
-                          }`} />
-                        </button>
-                      </div>
-
-                      {/* زر القراءة - أصغر ومحاذاة يسار */}
-                      <a href={item.url} onClick={() => markAsRead(item.id)} className="flex-shrink-0">
-                        <button className="py-2 px-4 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-sm hover:shadow-md">
-                          <span>اقرأ التحليل</span>
-                          <Brain className="w-3.5 h-3.5" />
-                        </button>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* زر استكشاف المزيد */}
-          <div className="text-center">
-            <a href="/insights/deep" className="inline-block">
-              <button className="px-8 py-3 rounded-xl font-medium text-base transition-all duration-300 transform hover:scale-105 flex items-center gap-2 bg-gradient-to-r from-blue-600/70 to-purple-600/70 hover:from-blue-600 hover:to-purple-700 text-white border border-transparent hover:border-white/40 shadow-xl hover:shadow-2xl">
-                <Search className="w-5 h-5" />
-                استكشف جميع التحليلات العميقة
-              </button>
-            </a>
-          </div>
-          
-          {/* نص إضافي */}
-          <div className="text-center mt-6">
-            <p className="text-sm text-blue-200/60">
-              • يتم تحديث تحليلات جديدة يومياً
-            </p>
-          </div>
-        </div>
-      </div>
-    </TooltipProvider>
-  );
-} 
+                          onClick={() => newHandleLike(item.id, item.title)}
+                          id={`
