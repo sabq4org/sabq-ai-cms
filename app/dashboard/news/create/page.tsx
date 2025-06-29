@@ -1,105 +1,61 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
-  PenTool, FileText, Save, Send, Eye, Settings, Image, Video, Hash, MapPin, Calendar, 
-  Sparkles, Brain, Target, Clock,
-  AlertTriangle, CheckCircle, XCircle, RefreshCw,
-  Rocket,
-  Wand2, Globe, Zap, Activity, Shield, Heart, Share2, Star,
-  Mail, MessageSquare, BarChart3, Lightbulb
+  Save, Eye, Send, AlertTriangle, Image, Video,
+  Sparkles, Brain, Globe, Settings, Hash, FileText, CheckCircle,
+  XCircle, Lightbulb, Target, RefreshCw, Upload,
+  Wand2, PenTool, BarChart3, Rocket, ArrowLeft, Loader2, X, Plus
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import FeaturedImageUpload from '@/components/FeaturedImageUpload';
-// import { logActions, getCurrentUser } from '@/lib/admin-activity-logs';
-import { Block } from '@/components/BlockEditor/types';
-import '@/styles/tiptap-editor.css';
 
 // Dynamic imports
-const TiptapEditor = dynamic(() => import('@/components/Editor/TiptapEditor'), {
-  ssr: false,
-  loading: () => (
-    <div className="animate-pulse bg-gray-200 h-64 rounded-xl"></div>
-  )
-});
-
 const ContentEditorWithBlocks = dynamic(() => import('@/components/ContentEditorWithBlocks'), {
   ssr: false,
-  loading: () => (
-    <div className="animate-pulse bg-gray-200 h-64 rounded-xl"></div>
-  )
+  loading: () => <div className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>
 });
 
-const PublishPanel = dynamic(() => import('@/components/PublishPanel'), {
+const FeaturedImageUpload = dynamic(() => import('@/components/FeaturedImageUpload'), {
   ssr: false
 });
 
 // Types
-// type Block = any; // استخدام any مؤقتاً  -- حذف هذا السطر
-
 interface ArticleFormData {
-  id?: string;
   title: string;
   subtitle: string;
   description: string;
-  category_id: string; // تغيير من number إلى string
-  subcategory_id?: string; // تغيير من number إلى string
+  category_id: string;
+  subcategory_id?: string;
   is_breaking: boolean;
   is_featured: boolean;
   is_smart_newsletter: boolean;
-  ai_category_suggestion?: string;
-  ai_summary?: string;
   keywords: string[];
   cover_image?: string;
-  cover_video?: string;
-  location?: {
-    lat: number;
-    lng: number;
-    address: string;
-  };
-  publish_time: string;
-  author_id: string;
-  author?: {
-    id: string;
-    name: string;
-    avatar?: string;
-  };
-  scope: 'local' | 'international';
-  status: 'draft' | 'review' | 'published';
-  content_blocks: Block[];
-  content_html: string;
-  content_json: any;
   featured_image?: string;
   featured_image_alt?: string;
+  publish_time: string;
+  author_id: string;
+  scope: 'local' | 'international';
+  status: 'draft' | 'review' | 'published';
+  content_blocks: any[];
+  allow_comments?: boolean;
+  seo_title?: string;
+  seo_description?: string;
 }
 
-// استخدام أنواع Block من محرر البلوكات
-// import { Block } from '../../../../components/BlockEditor/types';
-
-// ContentBlock سيكون مرادف لـ Block
-// type ContentBlock = Block;
-
 interface Category {
-  id: string; // تغيير من number إلى string
+  id: string;
   name: string;
-  name_ar: string;
+  name_ar?: string;
   name_en?: string;
-  slug: string;
-  description?: string;
   color?: string;
-  color_hex: string;
+  color_hex?: string;
   icon?: string;
-  parent_id?: string | null;
-  parent?: any;
-  children?: Category[];
-  articles_count?: number;
-  children_count?: number;
-  order_index?: number;
   position?: number;
+  display_order?: number;
   is_active?: boolean;
-  created_at?: string;
-  updated_at?: string;
 }
 
 interface Author {
@@ -112,6 +68,9 @@ interface Author {
 
 export default function CreateArticlePage() {
   const { darkMode } = useDarkModeContext();
+  const router = useRouter();
+
+  // Form state
   const [formData, setFormData] = useState<ArticleFormData>({
     title: '',
     subtitle: '',
@@ -121,174 +80,152 @@ export default function CreateArticlePage() {
     is_featured: false,
     is_smart_newsletter: false,
     keywords: [],
-    publish_time: '',
+    publish_time: new Date().toISOString(),
     author_id: '',
     scope: 'local',
     status: 'draft',
-    content_blocks: [{
-      id: 'initial_block_0',
-      type: 'paragraph',
-      data: { paragraph: { text: '' } },
-      order: 0
-    }],
-    content_html: '',
-    content_json: {},
-    featured_image: ''
+    content_blocks: []
   });
 
-  // إصلاح مشكلة Hydration للتوقيت الأولي
-  useEffect(() => {
-    setFormData(prev => ({
-      ...prev,
-      publish_time: new Date().toISOString()
-    }));
-  }, []);
-
+  // Other states
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [previewMode, setPreviewMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'content' | 'ai' | 'publish' | 'settings' | 'seo'>('content');
-  const [aiLoading, setAiLoading] = useState({
-    title: false,
-    description: false,
-    keywords: false
-  });
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
+  const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'seo' | 'ai' | 'publish'>('content');
+  const [aiLoading, setAiLoading] = useState<{ [key: string]: boolean }>({});
   const [qualityScore, setQualityScore] = useState(0);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [wordCount, setWordCount] = useState(0);
   const [readingTime, setReadingTime] = useState(0);
+  const [keywordInput, setKeywordInput] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
 
-  // تحميل التصنيفات الحقيقية من API
+  // Load categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        setLoading(true);
-        const res = await fetch('/api/categories?active_only=true');
-        const result = await res.json();
-        console.log('Categories API response:', result); // سجل التصحيح
+        const res = await fetch('/api/categories');
+        const data = await res.json();
         
-        if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل التصنيفات');
+        if (data.success) {
+          const categoriesData = data.categories || data.data || [];
+          console.log('البيانات المستلمة من API:', categoriesData);
+          
+          const sorted = (categoriesData as Category[])
+            .filter(cat => cat.is_active !== false)
+            .sort((a, b) => (a.position || a.display_order || 0) - (b.position || b.display_order || 0));
 
-        const categoriesData = result.categories || result.data || [];
-        console.log('Categories data:', categoriesData); // سجل التصحيح
-        
-        const sorted = (categoriesData as Category[])
-          .filter(cat => cat.is_active !== false)
-          .sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
-
-        setCategories(sorted);
-        console.log('Sorted categories:', sorted); // سجل التصحيح
-      } catch (err) {
-        console.error('خطأ في تحميل التصنيفات:', err);
-        setCategories([]);
-      } finally {
-        setLoading(false);
+          console.log('التصنيفات المحملة:', sorted);
+          setCategories(sorted);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
       }
     };
 
     fetchCategories();
   }, []);
 
-  // تحميل المستخدمين المؤهلين كمراسلين
+  // Load authors - المراسلين وأي شخص له صلاحية كتابة المقالات
   useEffect(() => {
     const fetchAuthors = async () => {
       try {
-        const res = await fetch('/api/team-members');
-        const result = await res.json();
-        if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل أعضاء الفريق');
-
-        // فلترة أعضاء الفريق حسب الأدوار المطلوبة
-        const eligibleAuthors = ((result.data || []) as any[])
-          .filter(member => {
-            // الحصول على دور العضو من roles.json
-            return member.isActive && ['admin', 'editor', 'media', 'correspondent', 'content-manager'].includes(member.roleId);
-          })
-          .map(member => ({
-            id: member.id,
-            name: member.name,
-            email: member.email,
-            avatar: member.avatar,
-            role: member.roleId
-          }))
-          .sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-
-        setAuthors(eligibleAuthors);
-      } catch (err) {
-        console.error('خطأ في تحميل المراسلين:', err);
-        setAuthors([]);
+        // جلب أعضاء الفريق
+        const teamRes = await fetch('/api/team-members');
+        const teamData = await teamRes.json();
+        
+        if (teamData.success && teamData.data && teamData.data.length > 0) {
+          // تصفية المراسلين والمحررين ومديري المحتوى
+          // هؤلاء لديهم صلاحية إنشاء المقالات
+          const authorizedRoles = ['correspondent', 'editor', 'content-manager', 'admin'];
+          const eligibleAuthors = teamData.data.filter((member: any) => 
+            authorizedRoles.includes(member.roleId) && member.isActive
+          );
+          
+          console.log('الكتّاب المتاحون:', eligibleAuthors);
+          setAuthors(eligibleAuthors);
+          
+          // اختيار أول مؤلف تلقائياً إذا لم يكن هناك مؤلف محدد
+          if (eligibleAuthors.length > 0 && !formData.author_id) {
+            setFormData(prev => ({ ...prev, author_id: eligibleAuthors[0].id }));
+          }
+        } else {
+          // إذا لم يكن هناك أعضاء فريق، احصل على المستخدمين
+          console.log('لا يوجد أعضاء فريق، جلب المستخدمين...');
+          const usersRes = await fetch('/api/users');
+          const usersData = await usersRes.json();
+          
+          if (usersData.success && usersData.data && usersData.data.length > 0) {
+            const users = usersData.data.map((user: any) => ({
+              id: user.id,
+              name: user.name || user.email,
+              email: user.email,
+              avatar: user.avatar,
+              role: user.role
+            }));
+            
+            console.log('المستخدمون المتاحون:', users);
+            setAuthors(users);
+            
+            // اختيار أول مستخدم تلقائياً
+            if (users.length > 0 && !formData.author_id) {
+              setFormData(prev => ({ ...prev, author_id: users[0].id }));
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching authors:', error);
       }
     };
 
     fetchAuthors();
   }, []);
 
-  // حساب عدد الكلمات ووقت القراءة
+  // Calculate word count and reading time
   useEffect(() => {
     const text = formData.content_blocks
       .filter(b => b.type === 'paragraph' || b.type === 'heading')
       .map(b => {
-        const blockData = b.data[b.type];
-        return (blockData && typeof blockData === 'object' && 'text' in blockData) ? blockData.text : '';
+        const blockData = b.data?.[b.type] || b.data || {};
+        return blockData.text || '';
       })
       .join(' ');
     
-    const words = text.trim().split(/\s+/).length;
+    const words = text.trim().split(/\s+/).filter(w => w).length;
     setWordCount(words);
-    setReadingTime(Math.ceil(words / 200)); // متوسط 200 كلمة في الدقيقة
+    setReadingTime(Math.ceil(words / 200));
   }, [formData.content_blocks]);
 
-  // حفظ تلقائي كل 30 ثانية
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (formData.title.trim()) {
-        autoSave();
-      }
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [formData]);
-
-  // تحليل جودة المقال
+  // Calculate quality score
   useEffect(() => {
     calculateQualityScore();
-  }, [formData.title, formData.description, formData.content_blocks, formData.keywords]);
-
-  const autoSave = useCallback(async () => {
-    setAutoSaveStatus('saving');
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setAutoSaveStatus('saved');
-    } catch (error) {
-      setAutoSaveStatus('error');
-    }
   }, [formData]);
+
+  // Debug category changes
+  useEffect(() => {
+    console.log('تحديث category_id:', formData.category_id);
+  }, [formData.category_id]);
 
   const calculateQualityScore = () => {
     let score = 0;
     
-    // العنوان (20 نقطة)
     if (formData.title.length > 10 && formData.title.length < 80) score += 20;
     else if (formData.title.length > 0) score += 10;
     
-    // الوصف (15 نقطة)
-    if (formData.description.length > 50 && formData.description.length <= 400) score += 15;
+    if (formData.description.length > 50 && formData.description.length < 160) score += 15;
     else if (formData.description.length > 0) score += 8;
     
-    // المحتوى (30 نقطة)
     const textBlocks = formData.content_blocks.filter(b => b.type === 'paragraph');
     if (textBlocks.length >= 3) score += 30;
     else if (textBlocks.length > 0) score += 15;
     
-    // الصور (15 نقطة)
     const imageBlocks = formData.content_blocks.filter(b => b.type === 'image');
     if (imageBlocks.length >= 1) score += 15;
     
-    // التصنيف (10 نقطة)
-    if (formData.category_id && formData.category_id.length > 0) score += 10;
+    if (formData.category_id && formData.category_id !== '' && formData.category_id !== '0') score += 10;
     
-    // الكلمات المفتاحية (10 نقطة)
     if (formData.keywords.length >= 3) score += 10;
     else if (formData.keywords.length > 0) score += 5;
     
@@ -300,16 +237,16 @@ export default function CreateArticlePage() {
     
     if (!formData.title.trim()) errors.push('العنوان الرئيسي مطلوب');
     if (formData.title.length > 100) errors.push('العنوان طويل جداً (أكثر من 100 حرف)');
-    if (!formData.author_id) errors.push('يجب اختيار المراسل/الكاتب');
-    if (!formData.category_id) errors.push('يجب اختيار تصنيف');
+    if (!formData.category_id || formData.category_id === '' || formData.category_id === '0') errors.push('يجب اختيار تصنيف');
+    if (!formData.author_id) errors.push('يجب اختيار المراسل');
     if (formData.content_blocks.length === 0) errors.push('المحتوى فارغ - أضف بعض الفقرات');
-    if (formData.description.length > 400) errors.push('الوصف طويل جداً (أكثر من 400 حرف)');
+    if (formData.description.length > 160) errors.push('الوصف طويل جداً (أكثر من 160 حرف)');
     
     setValidationErrors(errors);
     return errors;
   };
 
-  // دوال الذكاء الاصطناعي
+  // AI functions
   const generateTitle = async () => {
     setAiLoading({ ...aiLoading, title: true });
     try {
@@ -332,7 +269,7 @@ export default function CreateArticlePage() {
     setAiLoading({ ...aiLoading, description: true });
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
-      const description = 'وصف مولد تلقائياً يلخص محتوى المقال بطريقة جذابة ومناسبة لمحركات البحث، يحتوي على الكلمات المفتاحية الرئيسية.';
+      const description = 'وصف مولد تلقائياً يلخص محتوى المقال بطريقة جذابة ومناسبة لمحركات البحث';
       setFormData(prev => ({ ...prev, description }));
     } finally {
       setAiLoading({ ...aiLoading, description: false });
@@ -350,67 +287,114 @@ export default function CreateArticlePage() {
     }
   };
 
+  // Keywords management
+  const addKeyword = () => {
+    if (keywordInput.trim() && !formData.keywords.includes(keywordInput.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        keywords: [...prev.keywords, keywordInput.trim()]
+      }));
+      setKeywordInput('');
+    }
+  };
+
+  const removeKeyword = (keyword: string) => {
+    setFormData(prev => ({
+      ...prev,
+      keywords: prev.keywords.filter(k => k !== keyword)
+    }));
+  };
+
+  // Image upload with improved handling
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('يرجى اختيار ملف صورة');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+      return;
+    }
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await res.json();
+      if (data.success && data.url) {
+        setFormData(prev => ({ ...prev, featured_image: data.url }));
+      } else {
+        // Fallback: use local URL for preview
+        const tempUrl = URL.createObjectURL(file);
+        setFormData(prev => ({ ...prev, featured_image: tempUrl }));
+        console.log('Using temporary URL for image preview');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      // Use local URL as fallback
+      const tempUrl = URL.createObjectURL(file);
+      setFormData(prev => ({ ...prev, featured_image: tempUrl }));
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  // Save article
   const handleSave = async (status: 'draft' | 'review' | 'published') => {
     const errors = validateForm();
-    if (errors.length > 0) return;
+    if (errors.length > 0) {
+      console.error('أخطاء التحقق:', errors);
+      alert('يرجى تصحيح الأخطاء التالية:\n' + errors.join('\n'));
+      return;
+    }
 
     setSaving(true);
     try {
-      // إنشاء محتوى نصي بسيط كـ fallback
+      // Create text content fallback
       const textContent = formData.content_blocks
         .map((b) => {
           const blockData = b.data?.[b.type] || b.data || {};
           
           switch (b.type) {
             case 'paragraph':
-              return (blockData as any).text || '';
+              return blockData.text || '';
             case 'heading':
-              return (blockData as any).text || '';
+              return blockData.text || '';
             case 'quote':
-              const quoteData = blockData as any;
-              return `"${quoteData.text || ''}"${quoteData.author ? ` — ${quoteData.author}` : ''}`;
+              return `"${blockData.text || ''}"${blockData.author ? ` — ${blockData.author}` : ''}`;
             case 'list':
-              const listData = blockData as any;
-              const items = listData.items || [];
+              const items = blockData.items || [];
               return items.map((item: string) => `• ${item}`).join('\n');
             case 'divider':
               return '---';
             default:
-              return (blockData as any).text || '';
+              return blockData.text || '';
           }
         })
         .filter((text: string) => text.trim())
         .join('\n\n');
 
-      // التحقق من الجدولة الزمنية
-      let finalStatus = status;
-      let statusMessage = '';
-      
-      if (status === 'published' && formData.publish_time) {
-        const publishDate = new Date(formData.publish_time);
-        const now = new Date();
-        
-        if (publishDate > now) {
-          statusMessage = `سيتم نشر المقال في ${publishDate.toLocaleString('ar-SA', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            weekday: 'long'
-          })}`;
-        }
-      }
-
       const articleData = {
         title: formData.title,
         subtitle: formData.subtitle,
         content_blocks: formData.content_blocks,
-        content: formData.content_html || textContent || 'محتوى المقال', // استخدام HTML من TipTap أولاً
-        content_html: formData.content_html, // حفظ HTML المنسق
-        content_json: formData.content_json, // حفظ JSON للمرونة
+        content: textContent || 'محتوى المقال',
         summary: formData.description,
+        excerpt: formData.description,
         category_id: formData.category_id,
+        author_id: formData.author_id,
         status,
         is_breaking: formData.is_breaking,
         is_featured: formData.is_featured,
@@ -418,39 +402,41 @@ export default function CreateArticlePage() {
         featured_image_alt: formData.featured_image_alt,
         seo_title: formData.title,
         seo_description: formData.description,
+        seo_keywords: formData.keywords.join(', '),
         publish_at: formData.publish_time,
-        author: formData.author,
-        author_id: formData.author_id
+        metadata: {
+          keywords: formData.keywords,
+          scope: formData.scope,
+          content_blocks: formData.content_blocks
+        }
       };
+      
+      console.log('البيانات المرسلة:', {
+        title: articleData.title,
+        category_id: articleData.category_id,
+        author_id: articleData.author_id,
+        content_length: articleData.content.length,
+        status: articleData.status
+      });
 
       const res = await fetch('/api/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(articleData)
       });
+      
       const result = await res.json();
-
-      if (!res.ok || !result.success) throw new Error(result.error || 'فشل الحفظ');
-
-      // تسجيل الحدث في سجلات النظام
-      // const userInfo = getCurrentUser();
-      // await logActions.createArticle(userInfo, result.data.id, formData.title);
       
-      // if (status === 'published') {
-      //   await logActions.publishArticle(userInfo, result.data.id, formData.title);
-      // }
-
-      // عرض رسالة النجاح المناسبة
-      if (statusMessage) {
-        alert(`تم حفظ المقال بنجاح. ${statusMessage}`);
-      } else {
-        alert(status === 'published' ? 'تم نشر المقال بنجاح' : 'تم الحفظ بنجاح');
+      if (!res.ok || !result.success) {
+        console.error('خطأ من الخادم:', result);
+        throw new Error(result.error || 'فشل حفظ المقال');
       }
-      
-      window.location.href = '/dashboard/news';
+
+      alert(status === 'published' ? 'تم نشر المقال بنجاح! 🎉' : 'تم حفظ المقال كمسودة 📝');
+      router.push('/dashboard/news');
     } catch (err) {
-      console.error(err);
-      alert(err instanceof Error ? err.message : 'حدث خطأ أثناء الحفظ');
+      console.error('خطأ في حفظ المقال:', err);
+      alert(err instanceof Error ? err.message : 'حدث خطأ أثناء حفظ المقال');
     } finally {
       setSaving(false);
     }
@@ -459,21 +445,18 @@ export default function CreateArticlePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 lg:p-8">
       <div className="max-w-[1600px] mx-auto">
-        {/* Header الإبداعي الجديد */}
+        {/* Header */}
         <div className="relative mb-8">
-          {/* خلفية متحركة */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl opacity-90"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
           
-          {/* نمط الخلفية */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-0 right-0 w-60 h-60 bg-yellow-300 rounded-full blur-3xl animate-pulse delay-1000"></div>
             <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-pink-300 rounded-full blur-3xl animate-pulse delay-2000"></div>
           </div>
-
+          
           <div className="relative z-10 p-8 lg:p-12">
-            {/* العنوان الرئيسي */}
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
               <div className="flex items-center gap-6">
                 <div className="relative">
@@ -487,7 +470,7 @@ export default function CreateArticlePage() {
                 
                 <div>
                   <h1 className="text-4xl lg:text-5xl font-bold text-white mb-2 flex items-center gap-3">
-                    محرر سبق الذكي
+                    إنشاء مقال جديد
                     <span className="text-2xl">✨</span>
                   </h1>
                   <p className="text-xl text-blue-100 flex items-center gap-2">
@@ -497,7 +480,6 @@ export default function CreateArticlePage() {
                 </div>
               </div>
 
-              {/* معلومات المقال */}
               <div className="flex items-center gap-4 bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/30">
                 <div className="text-center px-4 border-r border-white/30">
                   <div className="text-3xl font-bold text-white">{wordCount}</div>
@@ -514,9 +496,8 @@ export default function CreateArticlePage() {
               </div>
             </div>
 
-            {/* شريط التقدم والحالة */}
+            {/* Progress and status */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-              {/* حالة الحفظ */}
               <div className={`flex items-center gap-3 px-6 py-4 rounded-2xl backdrop-blur-md border transition-all ${
                 autoSaveStatus === 'saved' 
                   ? 'bg-green-500/20 border-green-400/50 text-green-100' 
@@ -537,11 +518,10 @@ export default function CreateArticlePage() {
                   <div className="font-semibold">
                     {autoSaveStatus === 'saved' ? 'تم الحفظ' : autoSaveStatus === 'saving' ? 'جارٍ الحفظ' : 'خطأ في الحفظ'}
                   </div>
-                  <div className="text-xs opacity-80">آخر حفظ منذ دقيقتين</div>
+                  <div className="text-xs opacity-80">حفظ تلقائي مفعل</div>
                 </div>
               </div>
 
-              {/* مؤشر الجودة */}
               <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-white font-medium">جودة المحتوى</span>
@@ -557,13 +537,8 @@ export default function CreateArticlePage() {
                     style={{ width: `${qualityScore}%` }}
                   />
                 </div>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-white/70">ضعيف</span>
-                  <span className="text-xs text-white/70">ممتاز</span>
-                </div>
               </div>
 
-              {/* إحصائيات سريعة */}
               <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-4">
                 <div className="grid grid-cols-3 gap-2">
                   <div className="text-center">
@@ -595,7 +570,49 @@ export default function CreateArticlePage() {
               </div>
             </div>
 
-            {/* التبويبات المحسنة */}
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-4 mb-8">
+              <button
+                onClick={() => router.push('/dashboard/news')}
+                className="flex items-center gap-3 px-6 py-3 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-xl hover:bg-white/30 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="font-medium">العودة للقائمة</span>
+              </button>
+
+              <button
+                onClick={() => handleSave('draft')}
+                disabled={saving}
+                className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 shadow-lg backdrop-blur-md border border-white/20"
+              >
+                <Save className="w-5 h-5" />
+                <span className="font-medium">حفظ كمسودة</span>
+              </button>
+              
+              <button
+                onClick={() => handleSave('review')}
+                disabled={saving}
+                className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 shadow-lg backdrop-blur-md border border-white/20"
+              >
+                <Send className="w-5 h-5" />
+                <span className="font-medium">إرسال للمراجعة</span>
+              </button>
+              
+              <button
+                onClick={() => handleSave('published')}
+                disabled={saving || validationErrors.length > 0}
+                className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 shadow-lg backdrop-blur-md border border-white/20"
+              >
+                {saving ? (
+                  <RefreshCw className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+                <span className="font-medium">نشر مباشرة</span>
+              </button>
+            </div>
+
+            {/* Tabs */}
             <div className="flex flex-wrap gap-2">
               {[
                 { id: 'content', name: 'المحتوى', icon: FileText, color: 'from-blue-500 to-blue-600', desc: 'محرر المحتوى الأساسي' },
@@ -630,7 +647,7 @@ export default function CreateArticlePage() {
           </div>
         </div>
 
-        {/* تنبيهات الأخطاء المحسنة */}
+        {/* تنبيهات الأخطاء */}
         {validationErrors.length > 0 && (
           <div className="mb-8 bg-gradient-to-r from-red-500 to-pink-600 rounded-2xl p-1">
             <div className="bg-white rounded-2xl p-6">
@@ -719,51 +736,21 @@ export default function CreateArticlePage() {
                     />
                   </div>
 
-                  {/* المراسل */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      المراسل / الكاتب <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={formData.author_id}
-                      onChange={(e) => {
-                        const selectedAuthor = authors.find(a => a.id === e.target.value);
-                        setFormData(prev => ({ 
-                          ...prev, 
-                          author_id: e.target.value,
-                          author: selectedAuthor ? {
-                            id: selectedAuthor.id,
-                            name: selectedAuthor.name,
-                            avatar: selectedAuthor.avatar
-                          } : undefined
-                        }));
-                      }}
-                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">اختر المراسل...</option>
-                      {authors.map(author => (
-                        <option key={author.id} value={author.id}>
-                          {author.name} - {author.email}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* التصنيف والنطاق */}
+                  {/* المراسل والتصنيف */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium text-gray-700 mb-2 block">
-                        التصنيف الرئيسي <span className="text-red-500">*</span>
+                        المراسل <span className="text-red-500">*</span>
                       </label>
                       <select
-                        value={formData.category_id}
-                        onChange={(e) => setFormData(prev => ({ ...prev, category_id: e.target.value }))}
+                        value={formData.author_id}
+                        onChange={(e) => setFormData(prev => ({ ...prev, author_id: e.target.value }))}
                         className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
-                        <option value="">اختر التصنيف...</option>
-                        {categories.map(cat => (
-                          <option key={cat.id} value={cat.id}>
-                            {cat.icon} {cat.name || cat.name_ar}
+                        <option value="">اختر المراسل...</option>
+                        {authors.map(author => (
+                          <option key={author.id} value={author.id}>
+                            {author.name}
                           </option>
                         ))}
                       </select>
@@ -771,17 +758,46 @@ export default function CreateArticlePage() {
 
                     <div>
                       <label className="text-sm font-medium text-gray-700 mb-2 block">
-                        النطاق
+                        التصنيف الرئيسي <span className="text-red-500">*</span>
                       </label>
                       <select
-                        value={formData.scope}
-                        onChange={(e) => setFormData(prev => ({ ...prev, scope: e.target.value as 'local' | 'international' }))}
+                        value={String(formData.category_id || '0')}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const newCategoryId = value || '0';
+                          
+                          console.log('تغيير التصنيف:', { 
+                            oldValue: formData.category_id, 
+                            newValue: newCategoryId,
+                            eventValue: value 
+                          });
+                          setFormData(prev => ({ ...prev, category_id: newCategoryId }));
+                        }}
                         className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
-                        <option value="local">🏠 محلي</option>
-                        <option value="international">🌍 دولي</option>
+                        <option value="0">اختر التصنيف...</option>
+                        {categories.map(cat => (
+                          <option key={cat.id} value={String(cat.id)}>
+                            {cat.icon} {cat.name || cat.name_ar}
+                          </option>
+                        ))}
                       </select>
                     </div>
+                  </div>
+
+                  {/* النطاق الجغرافي */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      النطاق الجغرافي
+                    </label>
+                    <select
+                      value={formData.scope}
+                      onChange={(e) => setFormData(prev => ({ ...prev, scope: e.target.value as 'local' | 'international' }))}
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="local">🏠 محلي</option>
+                      <option value="international">🌍 دولي</option>
+                    </select>
                   </div>
 
                   {/* الوصف الموجز */}
@@ -810,8 +826,8 @@ export default function CreateArticlePage() {
                       </button>
                     </div>
                     <div className="flex justify-between mt-1">
-                      <span className={`text-xs ${formData.description.length > 400 ? 'text-red-500' : 'text-gray-500'}`}>
-                        {formData.description.length} / 400 حرف
+                      <span className={`text-xs ${formData.description.length > 160 ? 'text-red-500' : 'text-gray-500'}`}>
+                        {formData.description.length} / 160 حرف
                       </span>
                     </div>
                   </div>
@@ -821,18 +837,93 @@ export default function CreateArticlePage() {
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       الصورة البارزة
                     </label>
-                    <FeaturedImageUpload 
-                      value={formData.featured_image || ''}
-                      onChange={(url) => {
-                        console.log('تم تحديث الصورة البارزة:', url);
-                        setFormData(prev => ({ 
-                          ...prev, 
-                          featured_image: url,
-                          cover_image: url // تحديث كلا الحقلين للتأكد
-                        }))
-                      }}
-                      darkMode={darkMode}
-                    />
+                    <div className="relative">
+                      {formData.featured_image ? (
+                        <div className="relative">
+                          <img 
+                            src={formData.featured_image} 
+                            alt="الصورة البارزة" 
+                            className="w-full h-64 object-cover rounded-xl"
+                          />
+                          <button
+                            onClick={() => setFormData(prev => ({ ...prev, featured_image: undefined }))}
+                            className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="block">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                          />
+                          <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition-colors cursor-pointer">
+                            {uploadingImage ? (
+                              <Loader2 className="w-12 h-12 mx-auto text-blue-500 animate-spin" />
+                            ) : (
+                              <>
+                                <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                                <p className="text-gray-600">اضغط لرفع صورة أو اسحبها هنا</p>
+                                <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF حتى 5MB</p>
+                              </>
+                            )}
+                          </div>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* الكلمات المفتاحية */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      الكلمات المفتاحية
+                    </label>
+                    <div className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        value={keywordInput}
+                        onChange={(e) => setKeywordInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())}
+                        placeholder="أضف كلمة مفتاحية..."
+                        className="flex-1 p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <button
+                        onClick={addKeyword}
+                        className="px-4 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={generateKeywords}
+                        disabled={aiLoading.keywords}
+                        className="px-4 py-3 bg-purple-100 text-purple-700 rounded-xl hover:bg-purple-200 transition-colors disabled:opacity-50"
+                      >
+                        {aiLoading.keywords ? (
+                          <RefreshCw className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.keywords.map((keyword, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                        >
+                          {keyword}
+                          <button
+                            onClick={() => removeKeyword(keyword)}
+                            className="hover:text-blue-900"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
                   {/* محرر المحتوى */}
@@ -840,22 +931,19 @@ export default function CreateArticlePage() {
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       محتوى المقال <span className="text-red-500">*</span>
                     </label>
-                    <TiptapEditor 
-                      content={formData.content_html}
-                      onChange={(html, json) => {
-                        setFormData(prev => ({ 
-                          ...prev, 
-                          content_html: html,
-                          content_json: json
-                        }));
-                      }}
-                      placeholder="ابدأ بكتابة محتوى المقال هنا..."
+                    <ContentEditorWithBlocks 
+                      formData={formData}
+                      setFormData={setFormData}
+                      categories={categories}
+                      aiLoading={aiLoading}
+                      onGenerateTitle={generateTitle}
+                      onGenerateDescription={generateDescription}
                     />
                   </div>
                 </div>
               </div>
             )}
-            
+
             {activeTab === 'ai' && (
               <div className="bg-white rounded-3xl shadow-xl p-8">
                 <div className="flex items-center gap-4 mb-8">
@@ -864,21 +952,21 @@ export default function CreateArticlePage() {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">مساعد الذكاء الاصطناعي</h2>
-                    <p className="text-gray-600">استخدم قوة AI لإنشاء محتوى احترافي</p>
+                    <p className="text-gray-600">استخدم قوة AI لتحسين المحتوى</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
-                    { icon: Wand2, title: 'توليد عنوان جذاب', desc: 'اقتراحات عناوين مُحسّنة', color: 'from-blue-500 to-indigo-600', action: generateTitle, loadingKey: 'title' as const },
-                    { icon: FileText, title: 'كتابة الوصف', desc: 'وصف مُحسّن لمحركات البحث', color: 'from-purple-500 to-pink-600', action: generateDescription, loadingKey: 'description' as const },
-                    { icon: Hash, title: 'اقتراح الوسوم', desc: 'كلمات مفتاحية ذكية', color: 'from-green-500 to-emerald-600', action: generateKeywords, loadingKey: 'keywords' as const },
-                    { icon: Sparkles, title: 'تحسين المحتوى', desc: 'مراجعة وتحسين النص', color: 'from-orange-500 to-red-600', action: () => {}, loadingKey: null },
-                    { icon: Target, title: 'تحليل SEO', desc: 'نصائح لتحسين الظهور', color: 'from-cyan-500 to-blue-600', action: () => {}, loadingKey: null },
-                    { icon: Globe, title: 'ترجمة ذكية', desc: 'ترجمة احترافية للإنجليزية', color: 'from-indigo-500 to-purple-600', action: () => {}, loadingKey: null }
+                    { icon: Wand2, title: 'تحسين العنوان', desc: 'اقتراحات عناوين مُحسّنة', color: 'from-blue-500 to-indigo-600', action: generateTitle },
+                    { icon: FileText, title: 'تطوير الوصف', desc: 'وصف مُحسّن لمحركات البحث', color: 'from-purple-500 to-pink-600', action: generateDescription },
+                    { icon: Hash, title: 'توليد الوسوم', desc: 'كلمات مفتاحية ذكية', color: 'from-green-500 to-emerald-600', action: generateKeywords },
+                    { icon: Sparkles, title: 'تحسين المحتوى', desc: 'مراجعة وتحسين النص', color: 'from-orange-500 to-red-600', action: () => {} },
+                    { icon: Target, title: 'تحليل SEO', desc: 'نصائح لتحسين الظهور', color: 'from-cyan-500 to-blue-600', action: () => {} },
+                    { icon: Globe, title: 'ترجمة ذكية', desc: 'ترجمة احترافية للإنجليزية', color: 'from-indigo-500 to-purple-600', action: () => {} }
                   ].map((tool, index) => {
                     const Icon = tool.icon;
-                    const isLoading = tool.loadingKey ? aiLoading[tool.loadingKey] : false;
+                    const isLoading = aiLoading[tool.title];
                     return (
                       <button
                         key={index}
@@ -908,7 +996,7 @@ export default function CreateArticlePage() {
                 </div>
               </div>
             )}
-            
+
             {activeTab === 'publish' && (
               <div className="bg-white rounded-3xl shadow-xl p-8">
                 <div className="flex items-center gap-4 mb-8">
@@ -916,229 +1004,103 @@ export default function CreateArticlePage() {
                     <Rocket className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">إعدادات النشر 🚀</h2>
-                    <p className="text-gray-600">جدولة وتوقيت نشر المقال</p>
+                    <h2 className="text-2xl font-bold text-gray-900">إعدادات النشر</h2>
+                    <p className="text-gray-600">خيارات النشر والتوقيت</p>
                   </div>
                 </div>
 
                 <div className="space-y-6">
-                  {/* توقيت النشر */}
-                  <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-orange-600" />
-                      توقيت النشر
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">التاريخ</label>
-                        <input
-                          type="date"
-                          value={formData.publish_time ? new Date(formData.publish_time).toISOString().split('T')[0] : ''}
-                          onChange={(e) => {
-                            const date = new Date(e.target.value);
-                            const time = formData.publish_time ? new Date(formData.publish_time).toTimeString().split(' ')[0] : '00:00:00';
-                            setFormData(prev => ({ 
-                              ...prev, 
-                              publish_time: new Date(`${e.target.value}T${time}`).toISOString()
-                            }));
-                          }}
-                          className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">الوقت</label>
-                        <input
-                          type="time"
-                          value={formData.publish_time ? new Date(formData.publish_time).toTimeString().slice(0, 5) : ''}
-                          onChange={(e) => {
-                            const date = formData.publish_time ? new Date(formData.publish_time).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-                            setFormData(prev => ({ 
-                              ...prev, 
-                              publish_time: new Date(`${date}T${e.target.value}`).toISOString()
-                            }));
-                          }}
-                          className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        />
-                      </div>
-                    </div>
-
-                    {/* خيارات النشر السريع */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {/* حالة النشر */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">حالة النشر</label>
+                    <div className="grid grid-cols-3 gap-4">
                       {[
-                        { label: 'الآن', icon: Zap, action: () => setFormData(prev => ({ ...prev, publish_time: new Date().toISOString() })) },
-                        { label: 'بعد ساعة', icon: Clock, action: () => setFormData(prev => ({ ...prev, publish_time: new Date(Date.now() + 3600000).toISOString() })) },
-                        { label: 'غداً', icon: Calendar, action: () => setFormData(prev => ({ ...prev, publish_time: new Date(Date.now() + 86400000).toISOString() })) },
-                        { label: 'نهاية الأسبوع', icon: Calendar, action: () => {
-                          const now = new Date();
-                          const daysUntilFriday = (5 - now.getDay() + 7) % 7 || 7;
-                          setFormData(prev => ({ ...prev, publish_time: new Date(Date.now() + daysUntilFriday * 86400000).toISOString() }));
-                        }}
-                      ].map((option, index) => {
-                        const Icon = option.icon;
+                        { value: 'draft', label: 'مسودة', icon: Save, color: 'gray' },
+                        { value: 'review', label: 'للمراجعة', icon: Eye, color: 'yellow' },
+                        { value: 'published', label: 'منشور', icon: Send, color: 'green' }
+                      ].map((status) => {
+                        const Icon = status.icon;
                         return (
                           <button
-                            key={index}
-                            onClick={option.action}
-                            className="flex items-center justify-center gap-2 p-3 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-500 hover:bg-orange-50 transition-all"
+                            key={status.value}
+                            onClick={() => setFormData(prev => ({ ...prev, status: status.value as any }))}
+                            className={`p-4 rounded-xl border-2 transition-all ${
+                              formData.status === status.value
+                                ? `border-${status.color}-500 bg-${status.color}-50`
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
                           >
-                            <Icon className="w-4 h-4 text-orange-600" />
-                            <span className="text-sm font-medium">{option.label}</span>
+                            <Icon className={`w-6 h-6 mx-auto mb-2 ${
+                              formData.status === status.value ? `text-${status.color}-600` : 'text-gray-400'
+                            }`} />
+                            <p className={`text-sm font-medium ${
+                              formData.status === status.value ? `text-${status.color}-700` : 'text-gray-600'
+                            }`}>{status.label}</p>
                           </button>
                         );
                       })}
                     </div>
-
-                    {/* عرض التوقيت المحدد */}
-                    {formData.publish_time && (
-                      <div className="mt-4 p-4 bg-white rounded-xl border border-orange-200">
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                          <Clock className="w-4 h-4 text-orange-600" />
-                          <span className="font-medium">موعد النشر المحدد:</span>
-                          <span className="text-orange-600 font-bold">
-                            {new Date(formData.publish_time).toLocaleString('ar-SA', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              weekday: 'long'
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                    )}
                   </div>
 
-                  {/* حالة المقال */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-blue-600" />
-                      حالة المقال
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {[
-                        { 
-                          status: 'draft', 
-                          label: 'مسودة', 
-                          icon: FileText, 
-                          color: 'gray',
-                          desc: 'حفظ كمسودة للعمل عليها لاحقاً'
-                        },
-                        { 
-                          status: 'review', 
-                          label: 'للمراجعة', 
-                          icon: Eye, 
-                          color: 'yellow',
-                          desc: 'إرسال للمحرر للمراجعة والموافقة'
-                        },
-                        { 
-                          status: 'published', 
-                          label: 'نشر مباشر', 
-                          icon: Send, 
-                          color: 'green',
-                          desc: 'نشر المقال فوراً على الموقع'
-                        }
-                      ].map((option) => {
-                        const Icon = option.icon;
-                        const isSelected = formData.status === option.status;
-                        return (
-                          <label
-                            key={option.status}
-                            className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all ${
-                              isSelected 
-                                ? `border-${option.color}-500 bg-${option.color}-50` 
-                                : 'border-gray-200 hover:border-gray-300 bg-white'
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name="status"
-                              value={option.status}
-                              checked={isSelected}
-                              onChange={() => setFormData(prev => ({ ...prev, status: option.status as any }))}
-                              className="sr-only"
-                            />
-                            <div className="text-center">
-                              <div className={`w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center ${
-                                isSelected 
-                                  ? `bg-${option.color}-500 text-white` 
-                                  : 'bg-gray-100 text-gray-600'
-                              }`}>
-                                <Icon className="w-6 h-6" />
-                              </div>
-                              <h4 className="font-semibold text-gray-900">{option.label}</h4>
-                              <p className="text-sm text-gray-600 mt-1">{option.desc}</p>
-                            </div>
-                            {isSelected && (
-                              <CheckCircle className={`absolute top-3 right-3 w-5 h-5 text-${option.color}-600`} />
-                            )}
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* إعدادات متقدمة */}
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                      <Settings className="w-5 h-5 text-purple-600" />
-                      إعدادات متقدمة
-                    </h3>
-                    
-                    <div className="space-y-4">
-                      <label className="flex items-center justify-between p-4 bg-white rounded-xl">
-                        <div className="flex items-center gap-3">
-                          <Shield className="w-5 h-5 text-purple-600" />
-                          <div>
-                            <div className="font-medium text-gray-900">تفعيل التعليقات</div>
-                            <div className="text-sm text-gray-600">السماح للقراء بالتعليق على المقال</div>
-                          </div>
-                        </div>
+                  {/* خيارات خاصة */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">خيارات خاصة</label>
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-blue-300 cursor-pointer">
                         <input
                           type="checkbox"
-                          defaultChecked
+                          checked={formData.is_breaking}
+                          onChange={(e) => setFormData(prev => ({ ...prev, is_breaking: e.target.checked }))}
+                          className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">⚡ خبر عاجل</p>
+                          <p className="text-sm text-gray-600">سيظهر في شريط الأخبار العاجلة</p>
+                        </div>
+                      </label>
+
+                      <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-blue-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.is_featured}
+                          onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
+                          className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">⭐ مقال مميز</p>
+                          <p className="text-sm text-gray-600">سيظهر في القسم المميز</p>
+                        </div>
+                      </label>
+
+                      <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-blue-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.is_smart_newsletter}
+                          onChange={(e) => setFormData(prev => ({ ...prev, is_smart_newsletter: e.target.checked }))}
                           className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
                         />
-                      </label>
-                      
-                      <label className="flex items-center justify-between p-4 bg-white rounded-xl">
-                        <div className="flex items-center gap-3">
-                          <Heart className="w-5 h-5 text-pink-600" />
-                          <div>
-                            <div className="font-medium text-gray-900">تفعيل الإعجابات</div>
-                            <div className="text-sm text-gray-600">السماح للقراء بالإعجاب بالمقال</div>
-                          </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">📧 نشرة ذكية</p>
+                          <p className="text-sm text-gray-600">سيُضاف للنشرة البريدية الذكية</p>
                         </div>
-                        <input
-                          type="checkbox"
-                          defaultChecked
-                          className="w-5 h-5 text-pink-600 rounded focus:ring-pink-500"
-                        />
-                      </label>
-                      
-                      <label className="flex items-center justify-between p-4 bg-white rounded-xl">
-                        <div className="flex items-center gap-3">
-                          <Share2 className="w-5 h-5 text-indigo-600" />
-                          <div>
-                            <div className="font-medium text-gray-900">تفعيل المشاركة</div>
-                            <div className="text-sm text-gray-600">عرض أزرار مشاركة المقال</div>
-                          </div>
-                        </div>
-                        <input
-                          type="checkbox"
-                          defaultChecked
-                          className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
-                        />
                       </label>
                     </div>
+                  </div>
+
+                  {/* وقت النشر */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">وقت النشر</label>
+                    <input
+                      type="datetime-local"
+                      value={formData.publish_time.slice(0, 16)}
+                      onChange={(e) => setFormData(prev => ({ ...prev, publish_time: new Date(e.target.value).toISOString() }))}
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
                   </div>
                 </div>
               </div>
             )}
-            
+
             {activeTab === 'settings' && (
               <div className="bg-white rounded-3xl shadow-xl p-8">
                 <div className="flex items-center gap-4 mb-8">
@@ -1147,179 +1109,57 @@ export default function CreateArticlePage() {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">إعدادات العرض</h2>
-                    <p className="text-gray-600">تحكم في كيفية عرض المقال</p>
+                    <p className="text-gray-600">خيارات عرض المقال</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* خيارات العرض المميز */}
-                  <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Star className="w-5 h-5 text-yellow-600" />
-                      خيارات مميزة
-                    </h3>
-                    <div className="space-y-4">
-                      <label className="flex items-center justify-between p-4 bg-white rounded-xl hover:shadow-md transition-all cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <Zap className="w-5 h-5 text-red-600" />
-                          <div>
-                            <div className="font-medium text-gray-900">خبر عاجل</div>
-                            <div className="text-sm text-gray-600">عرض شريط عاجل أعلى الموقع</div>
-                          </div>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={formData.is_breaking}
-                          onChange={(e) => setFormData(prev => ({ ...prev, is_breaking: e.target.checked }))}
-                          className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
-                        />
-                      </label>
-                      
-                      <label className="flex items-center justify-between p-4 bg-white rounded-xl hover:shadow-md transition-all cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <Star className="w-5 h-5 text-yellow-600" />
-                          <div>
-                            <div className="font-medium text-gray-900">مقال مميز</div>
-                            <div className="text-sm text-gray-600">إبراز في الصفحة الرئيسية</div>
-                          </div>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={formData.is_featured}
-                          onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
-                          className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500"
-                        />
-                      </label>
-
-                      <label className="flex items-center justify-between p-4 bg-white rounded-xl hover:shadow-md transition-all cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <Mail className="w-5 h-5 text-blue-600" />
-                          <div>
-                            <div className="font-medium text-gray-900">النشرة الذكية</div>
-                            <div className="text-sm text-gray-600">إضافة للنشرة البريدية</div>
-                          </div>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={formData.is_smart_newsletter}
-                          onChange={(e) => setFormData(prev => ({ ...prev, is_smart_newsletter: e.target.checked }))}
-                          className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                        />
-                      </label>
+                <div className="space-y-6">
+                  {/* إعدادات التعليقات */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">التعليقات</label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={() => setFormData(prev => ({ ...prev, allow_comments: true }))}
+                        className={`p-4 rounded-xl border-2 transition-all ${
+                          formData.allow_comments !== false
+                            ? 'border-green-500 bg-green-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <p className="font-medium text-gray-900">✅ مسموح</p>
+                        <p className="text-sm text-gray-600">السماح بالتعليقات</p>
+                      </button>
+                      <button
+                        onClick={() => setFormData(prev => ({ ...prev, allow_comments: false }))}
+                        className={`p-4 rounded-xl border-2 transition-all ${
+                          formData.allow_comments === false
+                            ? 'border-red-500 bg-red-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <p className="font-medium text-gray-900">🚫 مغلق</p>
+                        <p className="text-sm text-gray-600">منع التعليقات</p>
+                      </button>
                     </div>
                   </div>
 
-                  {/* نطاق النشر */}
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Globe className="w-5 h-5 text-green-600" />
-                      نطاق النشر
-                    </h3>
-                    <div className="space-y-3">
-                      <label className={`relative flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        formData.scope === 'local' 
-                          ? 'border-green-500 bg-white shadow-md' 
-                          : 'border-gray-200 bg-white hover:border-gray-300'
-                      }`}>
-                        <input
-                          type="radio"
-                          name="scope"
-                          value="local"
-                          checked={formData.scope === 'local'}
-                          onChange={() => setFormData(prev => ({ ...prev, scope: 'local' }))}
-                          className="sr-only"
-                        />
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                          formData.scope === 'local' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          <MapPin className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900">أخبار محلية</div>
-                          <div className="text-sm text-gray-600">للقراء داخل المملكة</div>
-                        </div>
-                        {formData.scope === 'local' && (
-                          <CheckCircle className="w-5 h-5 text-green-600" />
-                        )}
-                      </label>
-
-                      <label className={`relative flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        formData.scope === 'international' 
-                          ? 'border-green-500 bg-white shadow-md' 
-                          : 'border-gray-200 bg-white hover:border-gray-300'
-                      }`}>
-                        <input
-                          type="radio"
-                          name="scope"
-                          value="international"
-                          checked={formData.scope === 'international'}
-                          onChange={() => setFormData(prev => ({ ...prev, scope: 'international' }))}
-                          className="sr-only"
-                        />
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                          formData.scope === 'international' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          <Globe className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900">أخبار دولية</div>
-                          <div className="text-sm text-gray-600">للقراء حول العالم</div>
-                        </div>
-                        {formData.scope === 'international' && (
-                          <CheckCircle className="w-5 h-5 text-green-600" />
-                        )}
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* خيارات التفاعل */}
-                  <div className="md:col-span-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <MessageSquare className="w-5 h-5 text-purple-600" />
-                      خيارات التفاعل
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <label className="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-all">
-                        <input
-                          type="checkbox"
-                          defaultChecked
-                          className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
-                        />
-                        <div className="flex items-center gap-2">
-                          <MessageSquare className="w-4 h-4 text-purple-600" />
-                          <span className="font-medium text-gray-900">التعليقات</span>
-                        </div>
-                      </label>
-                      
-                      <label className="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-all">
-                        <input
-                          type="checkbox"
-                          defaultChecked
-                          className="w-5 h-5 text-pink-600 rounded focus:ring-pink-500"
-                        />
-                        <div className="flex items-center gap-2">
-                          <Heart className="w-4 h-4 text-pink-600" />
-                          <span className="font-medium text-gray-900">الإعجابات</span>
-                        </div>
-                      </label>
-                      
-                      <label className="flex items-center gap-3 p-4 bg-white rounded-xl cursor-pointer hover:shadow-md transition-all">
-                        <input
-                          type="checkbox"
-                          defaultChecked
-                          className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
-                        />
-                        <div className="flex items-center gap-2">
-                          <Share2 className="w-4 h-4 text-indigo-600" />
-                          <span className="font-medium text-gray-900">المشاركة</span>
-                        </div>
-                      </label>
-                    </div>
+                  {/* النص البديل للصورة */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      النص البديل للصورة البارزة
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.featured_image_alt || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, featured_image_alt: e.target.value }))}
+                      placeholder="وصف الصورة للقراء المكفوفين..."
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
                   </div>
                 </div>
               </div>
             )}
-            
+
             {activeTab === 'seo' && (
               <div className="bg-white rounded-3xl shadow-xl p-8">
                 <div className="flex items-center gap-4 mb-8">
@@ -1328,127 +1168,58 @@ export default function CreateArticlePage() {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">تحسين محركات البحث</h2>
-                    <p className="text-gray-600">حسّن ظهور مقالك في نتائج البحث</p>
+                    <p className="text-gray-600">تحسين ظهور المقال في نتائج البحث</p>
                   </div>
                 </div>
 
                 <div className="space-y-6">
-                  {/* معاينة نتيجة البحث */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6">
-                    <h3 className="text-sm font-medium text-gray-700 mb-3">معاينة في نتائج البحث</h3>
-                    <div className="bg-white rounded-xl p-4 shadow-sm">
-                      <h4 className="text-blue-600 text-lg font-medium mb-1 hover:underline cursor-pointer">
-                        {formData.title || 'عنوان المقال سيظهر هنا...'}
-                      </h4>
-                      <p className="text-green-700 text-sm mb-2">sabq.org › article › {new Date().toISOString().split('T')[0]}</p>
-                      <p className="text-gray-600 text-sm">
-                        {formData.description || 'وصف المقال سيظهر هنا. اكتب وصفاً جذاباً يشجع على النقر...'}
-                      </p>
+                  {/* عنوان SEO */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      عنوان SEO (يُفضل 50-60 حرف)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.seo_title || formData.title}
+                      onChange={(e) => setFormData(prev => ({ ...prev, seo_title: e.target.value }))}
+                      placeholder="عنوان مُحسّن لمحركات البحث..."
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <div className="flex justify-between mt-1">
+                      <span className={`text-xs ${(formData.seo_title || formData.title).length > 60 ? 'text-red-500' : 'text-gray-500'}`}>
+                        {(formData.seo_title || formData.title).length} / 60 حرف
+                      </span>
                     </div>
                   </div>
 
-                  {/* نصائح SEO */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                      { 
-                        title: 'طول العنوان', 
-                        current: formData.title.length, 
-                        ideal: '50-60', 
-                        status: formData.title.length >= 50 && formData.title.length <= 60 ? 'good' : formData.title.length > 0 ? 'warning' : 'bad'
-                      },
-                      { 
-                        title: 'طول الوصف', 
-                        current: formData.description.length, 
-                        ideal: '120-160', 
-                        status: formData.description.length >= 120 && formData.description.length <= 160 ? 'good' : formData.description.length > 0 ? 'warning' : 'bad'
-                      },
-                      { 
-                        title: 'الكلمات المفتاحية', 
-                        current: formData.keywords.length, 
-                        ideal: '3-5', 
-                        status: formData.keywords.length >= 3 && formData.keywords.length <= 5 ? 'good' : formData.keywords.length > 0 ? 'warning' : 'bad'
-                      },
-                      { 
-                        title: 'الصور', 
-                        current: formData.content_blocks.filter(b => b.type === 'image').length, 
-                        ideal: '2+', 
-                        status: formData.content_blocks.filter(b => b.type === 'image').length >= 2 ? 'good' : formData.content_blocks.filter(b => b.type === 'image').length > 0 ? 'warning' : 'bad'
-                      }
-                    ].map((metric, index) => (
-                      <div key={index} className="bg-gray-50 rounded-xl p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium text-gray-900">{metric.title}</span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            metric.status === 'good' ? 'bg-green-100 text-green-700' :
-                            metric.status === 'warning' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
-                          }`}>
-                            {metric.current} / {metric.ideal}
-                          </span>
-                        </div>
-                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full transition-all duration-300 ${
-                            metric.status === 'good' ? 'bg-green-500' :
-                            metric.status === 'warning' ? 'bg-yellow-500' :
-                            'bg-red-500'
-                          }`} style={{ width: metric.status === 'good' ? '100%' : metric.status === 'warning' ? '60%' : '20%' }} />
-                        </div>
-                      </div>
-                    ))}
+                  {/* وصف SEO */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      وصف SEO (يُفضل 120-160 حرف)
+                    </label>
+                    <textarea
+                      value={formData.seo_description || formData.description}
+                      onChange={(e) => setFormData(prev => ({ ...prev, seo_description: e.target.value }))}
+                      placeholder="وصف مُحسّن يظهر في نتائج البحث..."
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      rows={3}
+                    />
+                    <div className="flex justify-between mt-1">
+                      <span className={`text-xs ${(formData.seo_description || formData.description).length > 160 ? 'text-red-500' : 'text-gray-500'}`}>
+                        {(formData.seo_description || formData.description).length} / 160 حرف
+                      </span>
+                    </div>
                   </div>
 
-                  {/* الكلمات المفتاحية */}
-                  <div className="border-2 border-gray-100 rounded-2xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                        <Hash className="w-5 h-5 text-purple-600" />
-                        الكلمات المفتاحية
-                      </h3>
-                      <button
-                        onClick={generateKeywords}
-                        disabled={aiLoading.keywords}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-xl hover:bg-purple-200 transition-colors disabled:opacity-50"
-                      >
-                        {aiLoading.keywords ? (
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Sparkles className="w-4 h-4" />
-                        )}
-                        اقتراح بالذكاء الاصطناعي
-                      </button>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {formData.keywords.map((keyword, index) => (
-                        <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium flex items-center gap-1">
-                          {keyword}
-                          <button
-                            onClick={() => setFormData(prev => ({ 
-                              ...prev, 
-                              keywords: prev.keywords.filter((_, i) => i !== index) 
-                            }))}
-                            className="ml-1 hover:text-purple-900"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                      <input
-                        type="text"
-                        placeholder="أضف كلمة مفتاحية..."
-                        className="px-3 py-1 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            const value = (e.target as HTMLInputElement).value.trim();
-                            if (value) {
-                              setFormData(prev => ({ 
-                                ...prev, 
-                                keywords: [...prev.keywords, value] 
-                              }));
-                              (e.target as HTMLInputElement).value = '';
-                            }
-                          }
-                        }}
-                      />
+                  {/* صورة وسائل التواصل */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      صورة وسائل التواصل الاجتماعي
+                    </label>
+                    <div className="p-4 border-2 border-dashed border-gray-300 rounded-xl text-center">
+                      <Upload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+                      <p className="text-gray-600">سيتم استخدام الصورة البارزة</p>
+                      <p className="text-xs text-gray-500 mt-1">الحجم الموصى به: 1200x630 بكسل</p>
                     </div>
                   </div>
                 </div>
@@ -1458,37 +1229,6 @@ export default function CreateArticlePage() {
 
           {/* الشريط الجانبي */}
           <div className="xl:col-span-1 space-y-6">
-            {/* بطاقة الجودة المحسنة */}
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl p-6 border border-green-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-green-600" />
-                جودة المقال
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-gray-700">نسبة الاكتمال</span>
-                    <span className="text-2xl font-bold text-green-600">{qualityScore}%</span>
-                  </div>
-                  <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        qualityScore >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-600' :
-                        qualityScore >= 60 ? 'bg-gradient-to-r from-yellow-500 to-orange-600' :
-                        'bg-gradient-to-r from-red-500 to-pink-600'
-                      }`}
-                      style={{ width: `${qualityScore}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="text-sm text-gray-600">
-                  {qualityScore >= 80 ? '🎉 ممتاز! مقالك جاهز للنشر' :
-                   qualityScore >= 60 ? '👍 جيد، يمكن تحسينه أكثر' :
-                   '💡 يحتاج لمزيد من المحتوى'}
-                </div>
-              </div>
-            </div>
-
             {/* بطاقة النشر */}
             <div className="bg-white rounded-3xl shadow-xl p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -1517,74 +1257,47 @@ export default function CreateArticlePage() {
                 <button
                   onClick={() => handleSave('published')}
                   disabled={saving || validationErrors.length > 0}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                 >
                   {saving ? (
                     <RefreshCw className="w-5 h-5 animate-spin" />
                   ) : (
                     <Send className="w-5 h-5" />
                   )}
-                  نشر الآن
+                  نشر مباشرة
                 </button>
               </div>
             </div>
 
-            {/* بطاقة الوسائط */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-6 border border-purple-200">
+            {/* بطاقة الجودة */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl p-6 border border-green-200">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Image className="w-5 h-5 text-purple-600" />
-                الوسائط المتعددة
+                <BarChart3 className="w-5 h-5 text-green-600" />
+                جودة المقال
               </h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">الصورة البارزة</label>
-                  <FeaturedImageUpload 
-                    value={formData.featured_image || ''}
-                    onChange={(url) => setFormData(prev => ({ ...prev, featured_image: url }))}
-                    darkMode={darkMode}
-                  />
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-700">نسبة الاكتمال</span>
+                    <span className="text-2xl font-bold text-green-600">{qualityScore}%</span>
+                  </div>
+                  <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        qualityScore >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-600' :
+                        qualityScore >= 60 ? 'bg-gradient-to-r from-yellow-500 to-orange-600' :
+                        'bg-gradient-to-r from-red-500 to-pink-600'
+                      }`}
+                      style={{ width: `${qualityScore}%` }}
+                    />
+                  </div>
                 </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">الصور في المقال</span>
-                  <span className="font-semibold text-purple-600">
-                    {formData.content_blocks.filter(b => b.type === 'image').length}
-                  </span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">مقاطع الفيديو</span>
-                  <span className="font-semibold text-purple-600">
-                    {formData.content_blocks.filter(b => b.type === 'video').length}
-                  </span>
+                <div className="text-sm text-gray-600">
+                  {qualityScore >= 80 ? '🎉 ممتاز! المقال جاهز للنشر' :
+                   qualityScore >= 60 ? '👍 جيد، يمكن تحسينه أكثر' :
+                   '💡 يحتاج لمزيد من التطوير'}
                 </div>
               </div>
-            </div>
-
-            {/* نصائح الكتابة */}
-            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-6 border border-yellow-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Lightbulb className="w-5 h-5 text-yellow-600" />
-                نصائح للكتابة
-              </h3>
-              <ul className="space-y-3 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-yellow-600 mt-1">•</span>
-                  <span>استخدم عنواناً جذاباً وواضحاً (50-60 حرف)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-yellow-600 mt-1">•</span>
-                  <span>اكتب وصفاً مختصراً يلخص المحتوى (120-160 حرف)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-yellow-600 mt-1">•</span>
-                  <span>أضف صوراً عالية الجودة مع نص بديل</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-yellow-600 mt-1">•</span>
-                  <span>استخدم 3-5 كلمات مفتاحية ذات صلة</span>
-                </li>
-              </ul>
             </div>
           </div>
         </div>
