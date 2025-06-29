@@ -35,8 +35,17 @@ export function isTestContent(content: any): boolean {
   
   // فحص الأسماء
   if (content.author || content.author_name) {
-    const authorName = (content.author || content.author_name).toLowerCase();
-    if (BANNED_AUTHORS.some(banned => authorName.includes(banned.toLowerCase()))) {
+    // التعامل مع author ككائن أو نص
+    let authorName = '';
+    if (typeof content.author === 'object' && content.author?.name) {
+      authorName = content.author.name.toLowerCase();
+    } else if (typeof content.author === 'string') {
+      authorName = content.author.toLowerCase();
+    } else if (content.author_name) {
+      authorName = content.author_name.toLowerCase();
+    }
+    
+    if (authorName && BANNED_AUTHORS.some(banned => authorName.includes(banned.toLowerCase()))) {
       return true;
     }
   }

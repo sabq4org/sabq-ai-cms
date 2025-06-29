@@ -20,6 +20,8 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: 'localhost',
+        port: '3000',
+        pathname: '/uploads/**',
       },
       {
         protocol: 'https',
@@ -32,29 +34,29 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.jur3a.ai',
-      }
-    ],
-    formats: ['image/avif', 'image/webp'],
-    domains: [
-      'localhost',
-      'via.placeholder.com',
-      'picsum.photos',
-      'images.unsplash.com',
-      'placeholder.pics',
-      'placehold.co'
-    ],
-    remotePatterns: [
+      },
       {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '3000',
-        pathname: '/uploads/**',
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placeholder.pics',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
       },
       {
         protocol: 'https',
         hostname: '**',
       }
     ],
+    formats: ['image/avif', 'image/webp'],
   },
   
   // Headers for security and proper MIME types
@@ -157,25 +159,46 @@ const nextConfig = {
     NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version || '1.0.0',
   },
   
-  // Webpack configuration
-  webpack: (config, { isServer }) => {
-    // Fixes npm packages that depend on `fs` module
+  // Webpack configuration - مبسط لتجنب مشاكل originalFactory
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // إصلاح مشاكل Node.js modules في المتصفح
     if (!isServer) {
       config.resolve.fallback = {
-        ...config.resolve.fallback,
         fs: false,
         net: false,
         tls: false,
+        crypto: false,
+        stream: false,
+        url: false,
+        zlib: false,
+        http: false,
+        https: false,
+        assert: false,
+        os: false,
+        path: false,
       };
     }
+    
+    // تحسين الأداء
+    config.optimization = {
+      ...config.optimization,
+      moduleIds: 'deterministic',
+    };
     
     return config;
   },
   
   // Experimental features
   experimental: {
-    // Optimize CSS
-    optimizeCss: true
+    optimizeCss: true,
+  },
+  
+  // Turbopack configuration
+  turbopack: {
+    resolveAlias: {
+      underscore: 'lodash',
+      mocha: { browser: 'mocha/browser-entry.js' },
+    },
   },
   
   // Performance

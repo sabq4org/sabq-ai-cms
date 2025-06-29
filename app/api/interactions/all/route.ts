@@ -9,15 +9,33 @@ export async function GET() {
     let interactions = [];
     try {
       const data = await fs.readFile(interactionsPath, 'utf8');
-      interactions = JSON.parse(data);
+      const parsedData = JSON.parse(data);
+      
+      // التأكد من أن البيانات مصفوفة
+      if (Array.isArray(parsedData)) {
+        interactions = parsedData;
+      } else if (parsedData && typeof parsedData === 'object') {
+        // إذا كانت البيانات كائن، حاول استخراج المصفوفة منه
+        if (Array.isArray(parsedData.interactions)) {
+          interactions = parsedData.interactions;
+        } else {
+          // إذا لم تكن هناك مصفوفة، حول الكائن إلى مصفوفة
+          interactions = Object.values(parsedData);
+        }
+      }
     } catch (error) {
-      // إذا لم يكن الملف موجوداً، نرجع مصفوفة فارغة
+      // إذا لم يكن الملف موجوداً أو فشلت القراءة، نرجع مصفوفة فارغة
+      console.log('Could not read interactions file:', error);
     }
 
-    // ترتيب التفاعلات حسب الوقت (الأحدث أولاً)
-    interactions.sort((a: any, b: any) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
+    // ترتيب التفاعلات حسب الوقت (الأحدث أولاً) مع التحقق من وجود مصفوفة
+    if (Array.isArray(interactions) && interactions.length > 0) {
+      interactions.sort((a: any, b: any) => {
+        const dateA = new Date(a.timestamp || a.created_at || 0).getTime();
+        const dateB = new Date(b.timestamp || b.created_at || 0).getTime();
+        return dateB - dateA;
+      });
+    }
 
     return NextResponse.json({
       success: true,

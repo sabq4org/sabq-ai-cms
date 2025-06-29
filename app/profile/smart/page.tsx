@@ -198,10 +198,32 @@ export default function SmartProfilePage() {
             
             <div className="flex-1">
               <h1 className={`text-2xl sm:text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                {profile.personality.title}
+                {profile.personality.type === 'balanced_reader' 
+                  ? '🧠 قارئ متزن'
+                  : profile.personality.type === 'news_hunter'
+                  ? '🔍 صياد الأخبار'
+                  : profile.personality.type === 'deep_analyst'
+                  ? '🎯 محلل عميق'
+                  : profile.personality.type === 'opinion_seeker'
+                  ? '💬 باحث عن الآراء'
+                  : profile.personality.type === 'knowledge_explorer'
+                  ? '🧭 مستكشف المعرفة'
+                  : '📈 متابع الترندات'
+                }
               </h1>
               <p className={`text-base sm:text-lg mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                {profile.personality.description}
+                {profile.personality.type === 'balanced_reader' 
+                  ? 'تختار بعناية وتستمتع بالتنوّع المعرفي'
+                  : profile.personality.type === 'news_hunter'
+                  ? 'دائماً في المقدمة، تطارد الأخبار العاجلة'
+                  : profile.personality.type === 'deep_analyst'
+                  ? 'تغوص في التفاصيل وتكشف المعاني الخفية'
+                  : profile.personality.type === 'opinion_seeker'
+                  ? 'تثري معرفتك بوجهات النظر المتنوعة'
+                  : profile.personality.type === 'knowledge_explorer'
+                  ? 'رحلتك المعرفية لا تنتهي، دائماً تستكشف'
+                  : 'تركب موجة الترندات وتتابع كل جديد'
+                }
               </p>
               
               {/* Quick Stats */}
@@ -211,7 +233,11 @@ export default function SmartProfilePage() {
                     معدل القراءة اليومي
                   </p>
                   <p className={`text-xl sm:text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    {profile.stats.dailyReadingAverage} مقال
+                    {profile.stats.dailyReadingAverage > 0 ? (
+                      `${profile.stats.dailyReadingAverage} مقال`
+                    ) : (
+                      <span className="text-base">لم تبدأ رحلتك بعد</span>
+                    )}
                   </p>
                 </div>
                 <div>
@@ -219,7 +245,11 @@ export default function SmartProfilePage() {
                     سلسلة النشاط
                   </p>
                   <p className={`text-xl sm:text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    {profile.stats.streakDays} يوم
+                    {profile.stats.streakDays > 0 ? (
+                      `${profile.stats.streakDays} يوم`
+                    ) : (
+                      <span className="text-base">ابدأ اليوم!</span>
+                    )}
                   </p>
                 </div>
                 <div>
@@ -227,7 +257,11 @@ export default function SmartProfilePage() {
                     إجمالي القراءة
                   </p>
                   <p className={`text-xl sm:text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    {profile.stats.totalArticlesRead} مقال
+                    {profile.stats.totalArticlesRead > 0 ? (
+                      `${profile.stats.totalArticlesRead} مقال`
+                    ) : (
+                      <span className="text-base">اقرأ أول مقال!</span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -252,34 +286,52 @@ export default function SmartProfilePage() {
               نظرة عامة
             </button>
             <button
-              onClick={() => setActiveTab('stats')}
+              onClick={() => profile.stats.totalArticlesRead > 0 ? setActiveTab('stats') : null}
+              disabled={profile.stats.totalArticlesRead === 0}
+              title={profile.stats.totalArticlesRead === 0 ? "ابدأ القراءة لتظهر الإحصائيات" : ""}
               className={cn(
-                "px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all whitespace-nowrap",
+                "px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all whitespace-nowrap relative",
                 activeTab === 'stats'
                   ? darkMode 
                     ? "bg-gray-800 text-white shadow-lg" 
                     : "bg-white text-gray-800 shadow-lg"
-                  : darkMode
-                    ? "text-gray-400 hover:text-white"
-                    : "text-gray-600 hover:text-gray-800"
+                  : profile.stats.totalArticlesRead === 0
+                    ? darkMode
+                      ? "text-gray-600 cursor-not-allowed opacity-50"
+                      : "text-gray-400 cursor-not-allowed opacity-50"
+                    : darkMode
+                      ? "text-gray-400 hover:text-white"
+                      : "text-gray-600 hover:text-gray-800"
               )}
             >
               الإحصائيات
+              {profile.stats.totalArticlesRead === 0 && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full"></span>
+              )}
             </button>
             <button
-              onClick={() => setActiveTab('achievements')}
+              onClick={() => profile.stats.totalArticlesRead > 0 ? setActiveTab('achievements') : null}
+              disabled={profile.stats.totalArticlesRead === 0}
+              title={profile.stats.totalArticlesRead === 0 ? "ابدأ القراءة لتفتح الإنجازات" : ""}
               className={cn(
-                "px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all whitespace-nowrap",
+                "px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all whitespace-nowrap relative",
                 activeTab === 'achievements'
                   ? darkMode 
                     ? "bg-gray-800 text-white shadow-lg" 
                     : "bg-white text-gray-800 shadow-lg"
-                  : darkMode
-                    ? "text-gray-400 hover:text-white"
-                    : "text-gray-600 hover:text-gray-800"
+                  : profile.stats.totalArticlesRead === 0
+                    ? darkMode
+                      ? "text-gray-600 cursor-not-allowed opacity-50"
+                      : "text-gray-400 cursor-not-allowed opacity-50"
+                    : darkMode
+                      ? "text-gray-400 hover:text-white"
+                      : "text-gray-600 hover:text-gray-800"
               )}
             >
               الإنجازات
+              {profile.stats.totalArticlesRead === 0 && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full"></span>
+              )}
             </button>
           </div>
         </div>
@@ -297,26 +349,42 @@ export default function SmartProfilePage() {
               <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                 اهتماماتك الرئيسية
               </h3>
-              <div className="space-y-3">
-                {profile.stats.favoriteCategories.map((cat) => (
-                  <div key={cat.name} className="flex items-center justify-between">
-                    <span className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
-                      {cat.name}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-blue-500 h-2 rounded-full"
-                          style={{ width: `${cat.percentage}%` }}
-                        />
-                      </div>
-                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {cat.percentage}%
+              {profile.stats.favoriteCategories.length > 0 ? (
+                <div className="space-y-3">
+                  {profile.stats.favoriteCategories.map((cat) => (
+                    <div key={cat.name} className="flex items-center justify-between">
+                      <span className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
+                        {cat.name}
                       </span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-blue-500 h-2 rounded-full"
+                            style={{ width: `${cat.percentage}%` }}
+                          />
+                        </div>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {cat.percentage}%
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Compass className={`w-12 h-12 mx-auto mb-3 ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                  <p className={`mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    لم تحدد اهتماماتك بعد. اخترها الآن لتصلك وجبتك المعرفية.
+                  </p>
+                  <button
+                    onClick={() => router.push('/profile/preferences')}
+                    className="flex items-center gap-2 mx-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Target className="w-4 h-4" />
+                    <span>تخصيص الاهتمامات</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Traits */}
@@ -327,21 +395,41 @@ export default function SmartProfilePage() {
               <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                 سماتك كقارئ
               </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {profile.traits.map((trait) => (
-                  <div
-                    key={trait.id}
-                    className={cn(
-                      "flex items-center gap-2 p-3 rounded-lg",
-                      darkMode ? "bg-gray-700" : "bg-gray-100"
-                    )}
-                  >
-                    <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {trait.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              {profile.traits && profile.traits.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {profile.traits.map((trait) => (
+                    <div
+                      key={trait.id}
+                      className={cn(
+                        "flex items-center gap-2 p-3 rounded-lg",
+                        darkMode ? "bg-gray-700" : "bg-gray-100"
+                      )}
+                    >
+                      <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {trait.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Sparkles className={`w-12 h-12 mx-auto mb-3 ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {profile.personality.type === 'balanced_reader' 
+                      ? 'تقرأ بانضباط وتحب تنوّع المواضيع'
+                      : profile.personality.type === 'news_hunter'
+                      ? 'تبحث عن الأخبار العاجلة والحصرية'
+                      : profile.personality.type === 'deep_analyst'
+                      ? 'تحلل بعمق وتبحث عن المعاني الخفية'
+                      : profile.personality.type === 'opinion_seeker'
+                      ? 'تستمتع بوجهات النظر المختلفة'
+                      : profile.personality.type === 'knowledge_explorer'
+                      ? 'تستكشف المعرفة من كل الاتجاهات'
+                      : 'تتابع الترندات والمواضيع الساخنة'
+                    }
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Tips */}

@@ -10,7 +10,7 @@ interface ContentEditorProps {
     title: string;
     subtitle: string;
     description: string;
-    category_id: number;
+    category_id: string | number;
     content_blocks: Block[];
     keywords: string[];
     featured_image?: string;

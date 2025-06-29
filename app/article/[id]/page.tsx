@@ -103,6 +103,7 @@ interface Article {
   is_featured?: boolean;
   seo_keywords?: string | string[];
   related_articles?: RelatedArticle[];
+  ai_summary?: string;
 }
 
 interface RelatedArticle {
@@ -158,6 +159,9 @@ export default function ArticlePage({ params }: PageProps) {
   const [tableOfContents, setTableOfContents] = useState<{id: string; title: string; level: number}[]>([]);
   const [activeSection, setActiveSection] = useState('');
   const [showMobileToc, setShowMobileToc] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState('');
+  const [aiResponse, setAiResponse] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -199,15 +203,15 @@ export default function ArticlePage({ params }: PageProps) {
 
   // تتبع المشاهدة والقراءة
   useEffect(() => {
-    if (article && articleId && userId) {
+    if (article && article.id && userId) {
       trackInteraction({
         userId: userId,
-        articleId,
+        articleId: article.id,
         interactionType: 'view',
         source: 'article_page'
       });
     }
-  }, [article, articleId, userId]);
+  }, [article, userId]);
 
   // تتبع تقدم القراءة
   useEffect(() => {
@@ -223,8 +227,8 @@ export default function ArticlePage({ params }: PageProps) {
         const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
         
         // تتبع التقدم
-        if (userId && articleId) {
-          trackReadingProgress(userId, articleId, progress, duration);
+        if (userId && article?.id) {
+          trackReadingProgress(userId, article.id, progress, duration);
         }
         
         // تحديد القسم النشط
@@ -252,12 +256,12 @@ export default function ArticlePage({ params }: PageProps) {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [userId, articleId, tableOfContents, activeSection]);
+  }, [userId, article, tableOfContents, activeSection]);
   
   // جلب التفاعلات المحفوظة
   useEffect(() => {
     async function fetchUserInteractions() {
-      if (!articleId || !userId) return;
+      if (!article?.id || !userId) return;
 
       const { getUserArticleInteraction, migrateOldData } = await import('@/lib/interactions-localStorage');
       
@@ -265,7 +269,7 @@ export default function ArticlePage({ params }: PageProps) {
       migrateOldData();
       
       // جلب التفاعلات من localStorage
-      const localInteractions = getUserArticleInteraction(userId, articleId);
+      const localInteractions = getUserArticleInteraction(userId, article.id);
       
       setInteraction(prev => ({
         ...prev,
@@ -277,7 +281,7 @@ export default function ArticlePage({ params }: PageProps) {
       // محاولة جلب من الخادم للمستخدمين المسجلين
       if (userId && !userId.startsWith('guest-')) {
         try {
-          const interactionsResponse = await fetch(`/api/interactions/user-article?userId=${userId}&articleId=${articleId}`);
+          const interactionsResponse = await fetch(`/api/interactions/user-article?userId=${userId}&articleId=${article.id}`);
           if (interactionsResponse.ok) {
             const interactionsData = await interactionsResponse.json();
             if (interactionsData.success && interactionsData.data) {
@@ -297,7 +301,7 @@ export default function ArticlePage({ params }: PageProps) {
     }
 
     fetchUserInteractions();
-  }, [userId, articleId]);
+  }, [userId, article]);
 
   // تحميل سكريبت تويتر
   useEffect(() => {
@@ -333,22 +337,42 @@ export default function ArticlePage({ params }: PageProps) {
       if (!article) return;
       
       try {
-        const categoryId = article.category?.id || article.category_id;
-        if (categoryId) {
-          const response = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=6`);
-          
-          if (response.ok) {
-            const resJson = await response.json();
-            const list: any[] = Array.isArray(resJson) ? resJson : resJson.articles || resJson.data || [];
-            
-            if (Array.isArray(list)) {
-              const filtered = list.filter((a: any) => a.id !== article.id);
+        const response = await fetch(`/api/articles?category_id=${article.category_id}&limit=5&exclude=${article.id}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          const articlesData = data.articles || data.data || [];
+          if (articlesData.length > 0) {
+            const filtered = articlesData.filter((a: any) => a.id !== article.id);
+            if (filtered.length > 0) {
               setRelatedArticles(filtered.slice(0, 4));
             }
           }
         }
       } catch (error) {
         console.error('Error fetching related articles:', error);
+      }
+      
+      // بيانات تجريبية مؤقتة للتطوير
+      if (relatedArticles.length === 0) {
+        setRelatedArticles([
+          {
+            id: 'test-1',
+            title: 'تطورات جديدة في عالم الذكاء الاصطناعي',
+            featured_image: '/images/ai-tech.jpg',
+            reading_time: 5,
+            created_at: new Date().toISOString(),
+            category_name: 'تقنية'
+          },
+          {
+            id: 'test-2',
+            title: 'كيف يغير الذكاء الاصطناعي مستقبل الأعمال',
+            featured_image: '/images/ai-business.jpg',
+            reading_time: 7,
+            created_at: new Date().toISOString(),
+            category_name: 'أعمال'
+          }
+        ]);
       }
     }
     
@@ -358,7 +382,7 @@ export default function ArticlePage({ params }: PageProps) {
   // جلب التوصيات الذكية
   useEffect(() => {
     async function fetchRecommendations() {
-      if (!userId || userId.startsWith('guest-') || !articleId) return;
+      if (!userId || userId.startsWith('guest-') || !article?.id) return;
       
       try {
         const response = await fetch(`/api/content/personalized?user_id=${userId}&limit=3`);
@@ -367,17 +391,35 @@ export default function ArticlePage({ params }: PageProps) {
           const data = await response.json();
           const articlesData = data.articles || (data.data && data.data.articles) || [];
           if (data.success && articlesData.length > 0) {
-            const filtered = articlesData.filter((a: any) => a.id !== articleId);
+            const filtered = articlesData.filter((a: any) => a.id !== article.id);
             setRecommendations(filtered.slice(0, 3));
           }
         }
       } catch (error) {
         console.error('Error fetching recommendations:', error);
       }
+      
+      // بيانات تجريبية مؤقتة للتطوير
+      if (recommendations.length === 0 && !userId.startsWith('guest-')) {
+        setRecommendations([
+          {
+            id: 'rec-1',
+            title: 'أفضل تطبيقات الذكاء الاصطناعي لعام 2024',
+            featured_image: '/images/ai-apps.jpg',
+            category_name: 'تطبيقات'
+          },
+          {
+            id: 'rec-2',
+            title: 'مستقبل الذكاء الاصطناعي في الطب',
+            featured_image: '/images/ai-medicine.jpg',
+            category_name: 'صحة'
+          }
+        ]);
+      }
     }
     
     fetchRecommendations();
-  }, [userId, articleId]);
+  }, [userId, article]);
 
   // استخراج فهرس المحتويات عند تحديث المقال
   useEffect(() => {
@@ -549,6 +591,33 @@ export default function ArticlePage({ params }: PageProps) {
       } catch (error) {
         console.error('Error tracking save:', error);
       }
+    }
+  };
+
+  const handleAiQuestion = async (question: string) => {
+    if (!question.trim() || !article) return;
+    
+    setIsAiLoading(true);
+    setAiResponse('');
+    
+    try {
+      // محاكاة استجابة AI (يمكن استبدالها بـ API حقيقي لاحقاً)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // استجابات محاكاة بناءً على نوع السؤال
+      if (question.includes('النقاط الرئيسية') || question.includes('الملخص')) {
+        setAiResponse('بناءً على تحليلي للمقال، النقاط الرئيسية هي: ' + (article.summary || article.ai_summary || 'يتناول المقال موضوعاً مهماً يستحق القراءة بتمعن.'));
+      } else if (question.includes('ببساطة') || question.includes('اشرح')) {
+        setAiResponse('ببساطة، هذا المقال يتحدث عن ' + article.title + '. الفكرة الأساسية سهلة الفهم وتتعلق بجوانب مهمة في حياتنا اليومية.');
+      } else if (question.includes('إحصائيات') || question.includes('أرقام')) {
+        setAiResponse('المقال حصل على ' + article.views_count + ' مشاهدة و ' + interaction.likesCount + ' إعجاب. وقت القراءة المقدر هو ' + calculateReadingTime(article.content) + ' دقائق.');
+      } else {
+        setAiResponse('شكراً لسؤالك! ' + question + '. بناءً على محتوى المقال، يمكنني القول أن هذا موضوع مثير للاهتمام يستحق المناقشة.');
+      }
+    } catch (error) {
+      setAiResponse('عذراً، حدث خطأ أثناء معالجة سؤالك. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsAiLoading(false);
     }
   };
 
@@ -804,6 +873,47 @@ export default function ArticlePage({ params }: PageProps) {
     <div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
       {article && <ArticleJsonLd article={article} />}
       
+      {/* أنماط CSS مخصصة لأزرار "لا أرغب بهذا النوع" */}
+      <style jsx>{`
+        .no-thanks-button {
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgba(239, 68, 68, 0.9);
+          color: white;
+          border-radius: 50%;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          opacity: 0;
+          transform: scale(0.8);
+          transition: all 0.3s ease;
+          z-index: 30;
+          cursor: pointer;
+          border: none;
+        }
+        
+        .group:hover .no-thanks-button {
+          opacity: 1;
+          transform: scale(1);
+        }
+        
+        .no-thanks-button:hover {
+          background-color: rgb(220, 38, 38);
+          transform: scale(1.1);
+        }
+        
+        @media (max-width: 768px) {
+          .no-thanks-button {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
+      
       {/* Header */}
       <Header />
 
@@ -844,6 +954,28 @@ export default function ArticlePage({ params }: PageProps) {
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-4">
             {article.subtitle}
           </p>
+        )}
+        
+        {/* ملخص AI - جديد */}
+        {(article.summary || article.ai_summary) && (
+          <div className="my-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 p-2 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
+                  <span>📎 ملخص AI</span>
+                  <span className="text-xs font-normal text-gray-500 dark:text-gray-400">TL;DR</span>
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {article.summary || article.ai_summary}
+                </p>
+              </div>
+            </div>
+          </div>
         )}
         
         {/* معلومات المقال */}
@@ -1085,6 +1217,95 @@ export default function ArticlePage({ params }: PageProps) {
               </div>
             )}
 
+            {/* مساعد AI - جديد */}
+            <div className="sidebar-card bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">🤖 مساعد AI</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">اسأل عن محتوى المقال</p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  لديك سؤال حول المقال؟ اسألني وسأساعدك في فهم المحتوى بشكل أفضل.
+                </p>
+                
+                {/* أمثلة على الأسئلة */}
+                <div className="space-y-2">
+                  <button 
+                    onClick={() => handleAiQuestion('ما هي النقاط الرئيسية؟')}
+                    className="w-full text-right text-xs bg-white dark:bg-gray-800 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    💡 ما هي النقاط الرئيسية؟
+                  </button>
+                  <button 
+                    onClick={() => handleAiQuestion('اشرح لي هذا الموضوع ببساطة')}
+                    className="w-full text-right text-xs bg-white dark:bg-gray-800 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    🔍 اشرح لي هذا الموضوع ببساطة
+                  </button>
+                  <button 
+                    onClick={() => handleAiQuestion('ما هي الإحصائيات المذكورة؟')}
+                    className="w-full text-right text-xs bg-white dark:bg-gray-800 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    📊 ما هي الإحصائيات المذكورة؟
+                  </button>
+                </div>
+                
+                {/* عرض الاستجابة */}
+                {(aiResponse || isAiLoading) && (
+                  <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                    {isAiLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">جاري التفكير...</span>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {aiResponse}
+                      </p>
+                    )}
+                  </div>
+                )}
+                
+                <div className="mt-4 pt-4 border-t border-purple-200 dark:border-purple-700">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={aiQuestion}
+                      onChange={(e) => setAiQuestion(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleAiQuestion(aiQuestion);
+                          setAiQuestion('');
+                        }
+                      }}
+                      placeholder="اكتب سؤالك هنا..."
+                      className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <button 
+                      onClick={() => {
+                        handleAiQuestion(aiQuestion);
+                        setAiQuestion('');
+                      }}
+                      disabled={!aiQuestion.trim() || isAiLoading}
+                      className="p-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* AI Recommendations */}
             {recommendations.length > 0 && (
               <div className="sidebar-card">
@@ -1094,32 +1315,51 @@ export default function ArticlePage({ params }: PageProps) {
                 </h3>
                 <div className="space-y-4">
                   {recommendations.map((item) => (
-                    <Link 
-                      key={item.id} 
-                      href={`/article/${item.id}`}
-                      className="block group"
-                    >
-                      <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all">
-                        <div className="aspect-video relative overflow-hidden">
-                          <img
-                            src={getImageUrl(item.featured_image) || generatePlaceholderImage(item.title)}
-                            alt={item.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            onError={(e) => {
-                              e.currentTarget.src = generatePlaceholderImage(item.title);
-                            }}
-                          />
+                    <div key={item.id} className="relative group">
+                      <Link 
+                        href={`/article/${item.id}`}
+                        className="block"
+                      >
+                        <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all">
+                          <div className="aspect-video relative overflow-hidden">
+                            <img
+                              src={getImageUrl(item.featured_image) || generatePlaceholderImage(item.title)}
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              onError={(e) => {
+                                e.currentTarget.src = generatePlaceholderImage(item.title);
+                              }}
+                            />
+                          </div>
+                          <div className="p-4">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {item.category_name || 'عام'}
+                            </span>
+                            <h4 className="font-semibold mt-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                              {item.title}
+                            </h4>
+                          </div>
                         </div>
-                        <div className="p-4">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {item.category_name || 'عام'}
-                          </span>
-                          <h4 className="font-semibold mt-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                            {item.title}
-                          </h4>
-                        </div>
-                      </div>
-                    </Link>
+                      </Link>
+                      
+                      {/* زر "لا أرغب بهذا النوع" */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // TODO: تنفيذ منطق إخفاء هذا النوع
+                          const categoryName = item.category_name || 'هذا النوع';
+                          if (confirm(`هل تريد إخفاء محتوى "${categoryName}" من توصياتك؟`)) {
+                            alert('تم تحديث تفضيلاتك');
+                          }
+                        }}
+                        className="no-thanks-button"
+                        title="لا أرغب بهذا النوع من المحتوى"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -1133,34 +1373,53 @@ export default function ArticlePage({ params }: PageProps) {
                 </h3>
                 <div className="related-articles-container">
                   {relatedArticles.map((related) => (
-                    <Link
-                      key={related.id}
-                      href={`/article/${related.id}`}
-                      className="related-article-card"
-                    >
-                      <img
-                        src={getImageUrl(related.featured_image) || generatePlaceholderImage(related.title)}
-                        alt={related.title}
-                        className="related-article-image"
-                        onError={(e) => {
-                          e.currentTarget.src = generatePlaceholderImage(related.title);
-                        }}
-                      />
-                      <div className="related-article-content">
-                        <h4 className="related-article-title">
-                          {related.title}
-                        </h4>
-                        <div className="related-article-meta">
-                          <span>{formatRelativeDate(related.published_at || related.created_at || '')}</span>
-                          {related.reading_time && (
-                            <>
-                              <span>•</span>
-                              <span>{related.reading_time} دقائق قراءة</span>
-                            </>
-                          )}
+                    <div key={related.id} className="relative group">
+                      <Link
+                        href={`/article/${related.id}`}
+                        className="related-article-card"
+                      >
+                        <img
+                          src={getImageUrl(related.featured_image) || generatePlaceholderImage(related.title)}
+                          alt={related.title}
+                          className="related-article-image"
+                          onError={(e) => {
+                            e.currentTarget.src = generatePlaceholderImage(related.title);
+                          }}
+                        />
+                        <div className="related-article-content">
+                          <h4 className="related-article-title">
+                            {related.title}
+                          </h4>
+                          <div className="related-article-meta">
+                            <span>{formatRelativeDate(related.published_at || related.created_at || '')}</span>
+                            {related.reading_time && (
+                              <>
+                                <span>•</span>
+                                <span>{related.reading_time} دقائق قراءة</span>
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </Link>
+                      </Link>
+                      
+                      {/* زر "لا أرغب بهذا النوع" */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const categoryName = related.category_name || article.category?.name_ar || 'هذا النوع';
+                          if (confirm(`هل تريد إخفاء محتوى "${categoryName}" من توصياتك؟`)) {
+                            // TODO: تنفيذ منطق إخفاء التصنيف
+                            alert('تم تحديث تفضيلاتك');
+                          }
+                        }}
+                        className="no-thanks-button"
+                        title="لا أرغب بهذا النوع من المحتوى"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>

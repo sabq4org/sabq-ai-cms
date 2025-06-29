@@ -23,6 +23,8 @@ import { useReactions } from '@/hooks/useReactions';
 import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
 import { useReaderProfile } from '@/hooks/useReaderProfile';
 import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
+import SmartContextWidget from '@/components/home/SmartContextWidget';
+import InteractiveArticle from '@/components/InteractiveArticle';
 
 // أيقونات التصنيفات
 const categoryIcons: { [key: string]: any } = {
@@ -2204,6 +2206,65 @@ function NewspaperHomePage(): React.ReactElement {
               </button>
             </div>
           </div>
+        </section>
+
+        {/* السياق الذكي */}
+        <section className="mb-16">
+          <SmartContextWidget />
+        </section>
+
+        {/* المقالات التفاعلية */}
+        <section className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+              🎯 مقالات تفاعلية
+            </h2>
+            <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              تفاعل مع المحتوى بطريقة جديدة ومبتكرة
+            </p>
+          </div>
+          
+          {articles.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {articles.slice(0, 2).map((article) => (
+                <InteractiveArticle 
+                  key={article.id} 
+                  title={article.title}
+                  subtitle={article.excerpt}
+                  author={{
+                    name: article.author_name || article.author?.name || 'كاتب سبق',
+                    avatar: article.author?.avatar || '/default-avatar.png'
+                  }}
+                  publishedAt={new Date(article.published_at || article.created_at).toLocaleDateString('ar-SA')}
+                  readingTime={article.reading_time || 5}
+                  blocks={[
+                    {
+                      id: '1',
+                      type: 'intro',
+                      content: article.excerpt || 'مقدمة المقال'
+                    },
+                    {
+                      id: '2',
+                      type: 'ai-insight',
+                      content: article.ai_summary || 'يقدم هذا المقال نظرة شاملة حول الموضوع مع تحليل عميق للجوانب المختلفة'
+                    },
+                    {
+                      id: '3',
+                      type: 'poll',
+                      content: 'ما رأيك في هذا المقال؟',
+                      metadata: {
+                        pollOptions: [
+                          { id: 'opt1', text: 'ممتاز ومفيد', votes: 125 },
+                          { id: 'opt2', text: 'جيد', votes: 87 },
+                          { id: 'opt3', text: 'يحتاج تحسين', votes: 23 }
+                        ]
+                      }
+                    }
+                  ]}
+                />
+              ))}
+            </div>
+          )}
         </section>
       </main>
 
