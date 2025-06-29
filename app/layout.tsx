@@ -8,6 +8,7 @@ import { IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 import { Providers } from './providers'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
   subsets: ['arabic'],
@@ -157,30 +158,32 @@ export default function RootLayout({
         "transition-all duration-300"
       )}>
         <Providers>
-          {children}
-          <Toaster 
-            position="top-center"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-                fontSize: '14px',
-              },
-              success: {
-                iconTheme: {
-                  primary: '#10b981',
-                  secondary: '#fff',
+          <AuthProvider>
+            {children}
+            <Toaster 
+              position="top-center"
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                  fontSize: '14px',
                 },
-              },
-              error: {
-                iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fff',
+                success: {
+                  iconTheme: {
+                    primary: '#10b981',
+                    secondary: '#fff',
+                  },
                 },
-              },
-            }}
-          />
+                error: {
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#fff',
+                  },
+                },
+              }}
+            />
+          </AuthProvider>
         </Providers>
       </body>
     </html>

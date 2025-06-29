@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 interface InteractionOptions {
   userId: string;
@@ -13,6 +13,48 @@ interface InteractionOptions {
 export function useInteractions() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // إدارة الحالة المحلية للتفاعلات
+  const [localLikes, setLocalLikes] = useState<string[]>([]);
+  const [localSaves, setLocalSaves] = useState<string[]>([]);
+
+  // تحميل التفاعلات المحلية من localStorage عند بدء التشغيل
+  useEffect(() => {
+    try {
+      const savedLikes = localStorage.getItem('local_likes');
+      const savedSaves = localStorage.getItem('local_saves');
+      if (savedLikes) {
+        setLocalLikes(JSON.parse(savedLikes));
+      }
+      if (savedSaves) {
+        setLocalSaves(JSON.parse(savedSaves));
+      }
+    } catch (e) {
+      console.error("Failed to load local interactions:", e);
+    }
+  }, []);
+
+  // دالة لتبديل الإعجاب
+  const toggleLike = useCallback((id: string) => {
+    setLocalLikes(prevLikes => {
+      const newLikes = prevLikes.includes(id)
+        ? prevLikes.filter(likeId => likeId !== id)
+        : [...prevLikes, id];
+      localStorage.setItem('local_likes', JSON.stringify(newLikes));
+      return newLikes;
+    });
+  }, []);
+
+  // دالة لتبديل الحفظ
+  const toggleSave = useCallback((id: string) => {
+    setLocalSaves(prevSaves => {
+      const newSaves = prevSaves.includes(id)
+        ? prevSaves.filter(saveId => saveId !== id)
+        : [...prevSaves, id];
+      localStorage.setItem('local_saves', JSON.stringify(newSaves));
+      return newSaves;
+    });
+  }, []);
 
   const recordInteraction = useCallback(async (options: InteractionOptions) => {
     setLoading(true);
@@ -151,6 +193,10 @@ export function useInteractions() {
     trackReadingProgress,
     getPersonalizedContent,
     analyzeUserBehavior,
-    calculateBehaviorRewards
+    calculateBehaviorRewards,
+    localLikes,
+    localSaves,
+    toggleLike,
+    toggleSave
   };
 } 
