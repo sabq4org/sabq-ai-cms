@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:staging": "NODE_ENV=development next dev",
-    "build": "node scripts/force-prisma-rebuild.js && prisma generate && next build",
+    "build": "prisma generate && next build",
     "build:force": "rm -rf .next && NEXT_TELEMETRY_DISABLED=1 next build",
     "start": "next start",
     "lint": "next lint",
