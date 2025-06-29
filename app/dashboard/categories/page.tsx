@@ -56,17 +56,21 @@ export default function CategoriesPage() {
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
+      setNotification(null); // مسح أي إشعارات سابقة
+      
       const response = await fetch('/api/categories');
       
-      if (!response.ok) {
-        throw new Error('فشل في جلب التصنيفات');
-      }
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
       
       const data = await response.json();
+      console.log('API Response:', data);
       
       if (data.success) {
         setCategories(data.categories || data.data || []);
       } else {
+        // إذا فشل الطلب، حاول مرة أخرى بعد 3 ثواني
+        setTimeout(fetchCategories, 3000);
         setNotification({
           type: 'error',
           message: data.error || 'فشل في جلب التصنيفات'
@@ -78,7 +82,6 @@ export default function CategoriesPage() {
         type: 'error',
         message: 'حدث خطأ في تحميل التصنيفات'
       });
-      // Fallback to empty array if API fails
       setCategories([]);
     } finally {
       setLoading(false);
