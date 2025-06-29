@@ -39,7 +39,11 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
-    "db:migrate": "npx ts-node scripts/migrate-to-prisma.ts"
+    "db:migrate": "npx ts-node scripts/migrate-to-prisma.ts",
+    "build:prod": "NODE_ENV=production ./scripts/setup-prisma.sh && next build",
+    "setup:prod": "./scripts/setup-production-db.sh",
+    "prisma:prod": "NODE_ENV=production npx prisma db push",
+    "deploy:prod": "npm run setup:prod && npm run build:prod && npm run prisma:prod"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

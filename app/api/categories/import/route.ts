@@ -7,63 +7,125 @@ export const runtime = 'nodejs'
 // POST /api/categories/import
 export async function POST(request: NextRequest) {
   try {
+    // التحقق من المصادقة
     const user = await getCurrentUser()
-    if (!user) {
-      return new NextResponse(JSON.stringify({ error: 'غير مصرح لك' }), { status: 401 })
+    
+    // في بيئة التطوير، يمكن تجاوز المصادقة بـ API key
+    const apiKey = request.headers.get('x-api-key')
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    const hasValidApiKey = apiKey === process.env.API_SECRET_KEY
+    
+    if (!user && !(isDevelopment && hasValidApiKey)) {
+      return NextResponse.json({
+        error: 'غير مصرح لك - يجب تسجيل الدخول أولاً',
+        message: 'يتطلب استيراد التصنيفات تسجيل الدخول بحساب له صلاحيات إدارية'
+      }, { status: 401 })
     }
 
     const formData = await request.formData()
     const file = formData.get('file') as File
 
     if (!file) {
-      return new NextResponse(JSON.stringify({ error: 'لم يتم رفع أي ملف' }), { status: 400 })
+      return NextResponse.json({ 
+        error: 'لم يتم رفع أي ملف',
+        message: 'يرجى اختيار ملف JSON يحتوي على التصنيفات'
+      }, { status: 400 })
     }
 
     const fileContent = await file.text()
-    const categoriesToImport = JSON.parse(fileContent)
+    let categoriesToImport
+    
+    try {
+      categoriesToImport = JSON.parse(fileContent)
+    } catch (parseError) {
+      return NextResponse.json({ 
+        error: 'صيغة الملف غير صالحة',
+        message: 'يجب أن يكون الملف بصيغة JSON صحيحة'
+      }, { status: 400 })
+    }
 
     if (!Array.isArray(categoriesToImport)) {
-      return new NextResponse(JSON.stringify({ error: 'صيغة الملف غير صالحة' }), { status: 400 })
+      return NextResponse.json({ 
+        error: 'صيغة البيانات غير صالحة',
+        message: 'يجب أن يحتوي الملف على مصفوفة من التصنيفات'
+      }, { status: 400 })
     }
 
     let createdCount = 0
     let updatedCount = 0
+    let skippedCount = 0
+    const errors: any[] = []
 
     for (const category of categoriesToImport) {
-      const { id, name, slug, ...rest } = category
-      
-      const data = {
-        name,
-        slug: slug || name.toLowerCase().replace(/\s+/g, '-'),
-        ...rest,
-      }
+      try {
+        const { id, name, slug, ...rest } = category
+        
+        if (!name) {
+          errors.push({ category, error: 'اسم التصنيف مطلوب' })
+          skippedCount++
+          continue
+        }
+        
+        const data = {
+          name,
+          slug: slug || name.toLowerCase().replace(/\s+/g, '-'),
+          nameEn: rest.name_en || rest.nameEn,
+          description: rest.description,
+          color: rest.color || rest.color_hex,
+          icon: rest.icon,
+          parentId: rest.parent_id || rest.parentId,
+          displayOrder: rest.order_index || rest.display_order || rest.displayOrder || 0,
+          isActive: rest.is_active !== false && rest.isActive !== false,
+          metadata: rest.metadata
+        }
 
-      const existingCategory = await prisma.category.findUnique({
-        where: { id: id },
-      })
+        // البحث عن تصنيف موجود بنفس المعرف أو الـ slug
+        const existingCategory = await prisma.category.findFirst({
+          where: {
+            OR: [
+              { id: id },
+              { slug: data.slug }
+            ]
+          }
+        })
 
-      if (existingCategory) {
-        await prisma.category.update({
-          where: { id: id },
-          data: data,
+        if (existingCategory) {
+          await prisma.category.update({
+            where: { id: existingCategory.id },
+            data: data,
+          })
+          updatedCount++
+        } else {
+          await prisma.category.create({
+            data: id ? { ...data, id } : data,
+          })
+          createdCount++
+        }
+      } catch (error) {
+        errors.push({ 
+          category, 
+          error: error instanceof Error ? error.message : 'خطأ غير معروف' 
         })
-        updatedCount++
-      } else {
-        await prisma.category.create({
-          data: { ...data, id: id },
-        })
-        createdCount++
+        skippedCount++
       }
     }
 
-    return new NextResponse(JSON.stringify({ 
-      message: 'تم استيراد التصنيفات بنجاح',
+    return NextResponse.json({ 
+      success: true,
+      message: 'تم استيراد التصنيفات',
       created: createdCount,
       updated: updatedCount,
-    }), { status: 200 })
+      skipped: skippedCount,
+      total: categoriesToImport.length,
+      errors: errors.length > 0 ? errors : undefined
+    }, { status: 200 })
 
   } catch (error) {
     console.error('فشل في استيراد التصنيفات:', error)
-    return new NextResponse(JSON.stringify({ error: 'فشل في استيراد التصنيفات' }), { status: 500 })
+    return NextResponse.json({ 
+      success: false,
+      error: 'فشل في استيراد التصنيفات',
+      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+    }, { status: 500 })
   }
 } 

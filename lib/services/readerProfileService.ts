@@ -172,7 +172,7 @@ export async function buildReaderProfile(userId: string): Promise<ReaderProfile>
 
   // حساب التفضيلات حسب التصنيف
   const categoryPreferences = interactions
-    .filter(i => i.article.category)
+    .filter(i => i.article && i.article.category)
     .reduce((acc, interaction) => {
       const categoryName = interaction.article.category!.name;
       if (!acc[categoryName]) {
