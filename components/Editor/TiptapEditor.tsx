@@ -58,6 +58,7 @@ export default function TiptapEditor({ content, onChange, placeholder }: TiptapE
       }),
     ],
     content: content || `<p>${placeholder || 'ابدأ بكتابة محتوى المقال هنا...'}</p>`,
+    immediatelyRender: false, // حل مشكلة SSR
     editorProps: {
       attributes: {
         class: 'prose prose-lg max-w-none p-6 min-h-[400px] focus:outline-none dark:prose-invert',
@@ -98,6 +99,68 @@ export default function TiptapEditor({ content, onChange, placeholder }: TiptapE
     const url = prompt('أدخل رابط الصورة:');
     if (url) {
       editor?.chain().focus().setImage({ src: url }).run();
+    }
+  };
+
+  const uploadImage = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        try {
+          // إظهار رسالة تحميل
+          const loadingText = 'جاري رفع الصورة...';
+          editor?.chain().focus().insertContent(`<p>${loadingText}</p>`).run();
+
+          // رفع الصورة إلى الخادم
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            // حذف رسالة التحميل وإدراج الصورة
+            editor?.chain().focus().undo().setImage({ src: data.url }).run();
+          } else {
+            // في حالة الفشل، استخدام FileReader كحل بديل
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const url = e.target?.result as string;
+              editor?.chain().focus().undo().setImage({ src: url }).run();
+            };
+            reader.readAsDataURL(file);
+          }
+        } catch (error) {
+          console.error('خطأ في رفع الصورة:', error);
+          alert('حدث خطأ في رفع الصورة');
+        }
+      }
+    };
+    input.click();
+  };
+
+  const addTweet = () => {
+    const tweetUrl = prompt('أدخل رابط التغريدة:');
+    if (tweetUrl) {
+      // استخراج معرف التغريدة من الرابط
+      const tweetId = tweetUrl.match(/status\/(\d+)/)?.[1];
+      if (tweetId) {
+        const embedHtml = `
+          <div class="twitter-embed" contenteditable="false">
+            <blockquote class="twitter-tweet" data-lang="ar" dir="rtl">
+              <a href="${tweetUrl}">تحميل التغريدة...</a>
+            </blockquote>
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+          </div>
+        `;
+        editor?.chain().focus().insertContent(embedHtml).run();
+      }
     }
   };
 
@@ -212,7 +275,15 @@ export default function TiptapEditor({ content, onChange, placeholder }: TiptapE
             <button
               onClick={addImage}
               className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              title="إدراج صورة"
+              title="إدراج صورة برابط"
+            >
+              🔗
+            </button>
+
+            <button
+              onClick={uploadImage}
+              className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              title="رفع صورة من الجهاز"
             >
               📷
             </button>
@@ -223,6 +294,80 @@ export default function TiptapEditor({ content, onChange, placeholder }: TiptapE
               title="إدراج جدول"
             >
               📊
+            </button>
+
+            {editor.isActive('table') && (
+              <>
+                <button
+                  onClick={() => editor.chain().focus().addColumnAfter().run()}
+                  className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm"
+                  title="إضافة عمود"
+                >
+                  +📏
+                </button>
+                <button
+                  onClick={() => editor.chain().focus().addRowAfter().run()}
+                  className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm"
+                  title="إضافة صف"
+                >
+                  +📐
+                </button>
+                <button
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                  className="p-2 rounded hover:bg-red-200 dark:hover:bg-red-700 transition-colors text-sm"
+                  title="حذف الجدول"
+                >
+                  🗑️
+                </button>
+              </>
+            )}
+
+            <button
+              onClick={addTweet}
+              className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              title="إدراج تغريدة"
+            >
+              🐦
+            </button>
+
+            <button
+              onClick={() => {
+                const videoUrl = prompt('أدخل رابط الفيديو (YouTube/Vimeo):');
+                if (videoUrl) {
+                  let embedUrl = '';
+                  if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+                    const videoId = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+                    embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                  } else if (videoUrl.includes('vimeo.com')) {
+                    const videoId = videoUrl.match(/vimeo\.com\/(\d+)/)?.[1];
+                    embedUrl = `https://player.vimeo.com/video/${videoId}`;
+                  }
+                  
+                  if (embedUrl) {
+                    const embedHtml = `<div class="video-embed" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                      <iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen></iframe>
+                    </div>`;
+                    editor?.chain().focus().insertContent(embedHtml).run();
+                  }
+                }
+              }}
+              className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              title="إدراج فيديو"
+            >
+              🎥
+            </button>
+
+            <button
+              onClick={() => {
+                const emoji = prompt('أدخل الرمز التعبيري أو اختر من: 😀 😎 👍 ❤️ 🎉 🔥 💡 ⭐');
+                if (emoji) {
+                  editor?.chain().focus().insertContent(emoji).run();
+                }
+              }}
+              className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              title="إدراج رمز تعبيري"
+            >
+              😊
             </button>
           </div>
 
