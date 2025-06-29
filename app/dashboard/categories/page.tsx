@@ -25,8 +25,11 @@ import {
   X,
   RefreshCw,
   Download,
-  Upload
+  Upload,
+  PlusCircle
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'react-hot-toast';
 
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
@@ -511,37 +514,39 @@ export default function CategoriesPage() {
   };
 
   // تصدير التصنيفات كملف JSON
-  const handleExportCategories = () => {
-    window.open('/api/categories/export', '_blank');
+  const handleExport = () => {
+    window.location.href = '/api/categories/export';
   };
 
   // استيراد التصنيفات من ملف JSON
-  const handleImportCategories = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      setLoading(true);
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/categories/import', {
+      const response = await fetch('/api/categories/import', {
         method: 'POST',
         body: formData,
       });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setNotification({ type: 'success', message: data.message || 'تم استيراد التصنيفات بنجاح' });
+
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(`${result.message} (الجديدة: ${result.created}, المحدثة: ${result.updated})`);
+        // إعادة تحميل البيانات
         await fetchCategories();
       } else {
-        throw new Error(data.error || 'فشل في استيراد التصنيفات');
+        toast.error(`فشل الاستيراد: ${result.error}`);
       }
     } catch (error) {
-      console.error('Import categories error:', error);
-      setNotification({ type: 'error', message: error instanceof Error ? error.message : 'فشل في استيراد التصنيفات' });
-    } finally {
-      setLoading(false);
-      e.target.value = '';
-      setTimeout(() => setNotification(null), 4000);
+      toast.error('حدث خطأ غير متوقع أثناء استيراد الملف.');
     }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
   };
 
   if (loading) {
@@ -571,45 +576,25 @@ export default function CategoriesPage() {
         </div>
         
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300"
-          >
-            <Plus className="w-4 h-4" />
-            إضافة تصنيف
-          </button>
-          <button
-            onClick={handleExportCategories}
-            className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300"
-          >
-            <Download className="w-4 h-4" />
+          <Button onClick={handleExport} variant="outline">
+            <Download className="ml-2 h-4 w-4" />
             تصدير
-          </button>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300"
-          >
-            <Upload className="w-4 h-4" />
+          </Button>
+          <Button onClick={handleImportClick} variant="outline">
+            <Upload className="ml-2 h-4 w-4" />
             استيراد
-          </button>
+          </Button>
           <input
             type="file"
-            accept=".json,application/json"
             ref={fileInputRef}
-            onChange={handleImportCategories}
-            hidden
+            className="hidden"
+            onChange={handleImport}
+            accept=".json"
           />
-          <button 
-            onClick={fetchCategories}
-            disabled={loading}
-            className={`p-2 rounded-lg border transition-colors duration-300 ${
-              darkMode 
-                ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
+          <Button onClick={() => setShowAddModal(true)}>
+            <PlusCircle className="ml-2 h-4 w-4" />
+            إضافة تصنيف جديد
+          </Button>
         </div>
       </div>
 

@@ -1,68 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getCurrentUser } from '@/app/lib/auth'
 
 export const runtime = 'nodejs'
 
 // POST /api/categories/import
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const formData = await req.formData()
-    const file = formData.get('file') as File | null
+    const user = await getCurrentUser()
+    if (!user) {
+      return new NextResponse(JSON.stringify({ error: 'غير مصرح لك' }), { status: 401 })
+    }
+
+    const formData = await request.formData()
+    const file = formData.get('file') as File
 
     if (!file) {
-      return NextResponse.json({ success: false, error: 'الملف مفقود' }, { status: 400 })
+      return new NextResponse(JSON.stringify({ error: 'لم يتم رفع أي ملف' }), { status: 400 })
     }
 
-    const text = await file.text()
+    const fileContent = await file.text()
+    const categoriesToImport = JSON.parse(fileContent)
 
-    let categories
-    try {
-      categories = JSON.parse(text)
-    } catch (e) {
-      return NextResponse.json({ success: false, error: 'ملف JSON غير صالح' }, { status: 400 })
+    if (!Array.isArray(categoriesToImport)) {
+      return new NextResponse(JSON.stringify({ error: 'صيغة الملف غير صالحة' }), { status: 400 })
     }
 
-    if (!Array.isArray(categories)) {
-      return NextResponse.json({ success: false, error: 'تنسيق الملف غير صحيح. يجب أن يكون مصفوفة تصنيفات.' }, { status: 400 })
-    }
+    let createdCount = 0
+    let updatedCount = 0
 
-    // نقوم بإنشاء أو تحديث كل تصنيف عبر upsert
-    const operations = categories.map((c: any) => {
-      return prisma.category.upsert({
-        where: { id: c.id ?? '' },
-        update: {
-          name: c.name || c.name_ar,
-          nameEn: c.nameEn || c.name_en,
-          slug: c.slug,
-          description: c.description,
-          color: c.color || c.color_hex,
-          icon: c.icon,
-          parentId: c.parentId || c.parent_id || null,
-          displayOrder: c.displayOrder ?? c.order_index ?? 0,
-          isActive: c.isActive ?? c.is_active ?? true,
-          metadata: c.metadata,
-        },
-        create: {
-          id: c.id, // إذا كان موجودًا سيوضع، وإلا ستولّد Prisma
-          name: c.name || c.name_ar,
-          nameEn: c.nameEn || c.name_en,
-          slug: c.slug,
-          description: c.description,
-          color: c.color || c.color_hex,
-          icon: c.icon,
-          parentId: c.parentId || c.parent_id || null,
-          displayOrder: c.displayOrder ?? c.order_index ?? 0,
-          isActive: c.isActive ?? c.is_active ?? true,
-          metadata: c.metadata,
-        },
+    for (const category of categoriesToImport) {
+      const { id, name, slug, ...rest } = category
+      
+      const data = {
+        name,
+        slug: slug || name.toLowerCase().replace(/\s+/g, '-'),
+        ...rest,
+      }
+
+      const existingCategory = await prisma.category.findUnique({
+        where: { id: id },
       })
-    })
 
-    const result = await prisma.$transaction(operations)
+      if (existingCategory) {
+        await prisma.category.update({
+          where: { id: id },
+          data: data,
+        })
+        updatedCount++
+      } else {
+        await prisma.category.create({
+          data: { ...data, id: id },
+        })
+        createdCount++
+      }
+    }
 
-    return NextResponse.json({ success: true, count: result.length, message: `تم استيراد/تحديث ${result.length} تصنيفاً` })
+    return new NextResponse(JSON.stringify({ 
+      message: 'تم استيراد التصنيفات بنجاح',
+      created: createdCount,
+      updated: updatedCount,
+    }), { status: 200 })
+
   } catch (error) {
-    console.error('خطأ في استيراد التصنيفات:', error)
-    return NextResponse.json({ success: false, error: 'فشل في استيراد التصنيفات' }, { status: 500 })
+    console.error('فشل في استيراد التصنيفات:', error)
+    return new NextResponse(JSON.stringify({ error: 'فشل في استيراد التصنيفات' }), { status: 500 })
   }
 } 
