@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Save, Globe, Tag, Hash, Upload } from 'lucide-react';
+import { X, Eye, Save, Globe, Tag, Hash, Upload, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Category, CategoryFormData } from '@/types/category';
 
 interface CategoryFormModalProps {
@@ -25,6 +30,7 @@ export default function CategoryFormModal({
   onSave,
   loading
 }: CategoryFormModalProps) {
+  const [showPreview, setShowPreview] = useState(false);
   const [formData, setFormData] = useState<CategoryFormData>({
     name_ar: '',
     name_en: '',
@@ -177,457 +183,257 @@ export default function CategoryFormModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className={`rounded-2xl p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto ${
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className={`relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl shadow-xl ${
         darkMode ? 'bg-gray-800' : 'bg-white'
       }`}>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className={`text-xl font-bold transition-colors duration-300 ${
-            darkMode ? 'text-white' : 'text-gray-800'
-          }`}>
+        {/* Header */}
+        <div className={`sticky top-0 z-10 flex items-center justify-between p-6 border-b ${
+          darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+        }`}>
+          <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             {isEdit ? 'تعديل التصنيف' : 'إضافة تصنيف جديد'}
-          </h3>
-          <button
-            onClick={onClose}
-            className={`p-2 rounded-lg transition-colors ${
-              darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-            }`}
-            disabled={loading}
-          >
-            <X className="w-5 h-5" />
-          </button>
+          </h2>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+              className={darkMode ? 'text-gray-400 hover:text-white' : ''}
+            >
+              <Eye className="w-4 h-4 ml-2" />
+              {showPreview ? 'إخفاء المعاينة' : 'معاينة'}
+            </Button>
+            <button
+              onClick={onClose}
+              className={`p-2 rounded-lg transition-colors ${
+                darkMode 
+                  ? 'hover:bg-gray-700 text-gray-400' 
+                  : 'hover:bg-gray-100 text-gray-600'
+              }`}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* تبويبات النموذج */}
-        <div className="flex border-b border-gray-200 mb-6">
-          {[
-            { id: 'basic', name: 'المعلومات الأساسية', icon: Tag },
-            { id: 'seo', name: 'تحسين محركات البحث', icon: Globe },
-            { id: 'advanced', name: 'إعدادات متقدمة', icon: Hash }
-          ].map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : darkMode
-                      ? 'border-transparent text-gray-400 hover:text-gray-300'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {tab.name}
-              </button>
-            );
-          })}
-        </div>
-        
-        <div className="space-y-6">
-          {/* التبويب الأساسي */}
-          {activeTab === 'basic' && (
-            <div className="space-y-6">
+        {/* Content */}
+        <form onSubmit={handleSave} className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Form Fields */}
+            <div className="space-y-4">
               {/* الاسم بالعربية */}
               <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  اسم التصنيف (عربي) *
-                </label>
-                <input
-                  type="text"
+                <Label htmlFor="name_ar" className={darkMode ? 'text-gray-200' : ''}>
+                  الاسم بالعربية <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="name_ar"
                   value={formData.name_ar}
-                  onChange={(e) => handleNameChange(e.target.value)}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
-                    errors.name_ar
-                      ? 'border-red-500 focus:border-red-500'
-                      : darkMode 
-                        ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                  placeholder="مثال: السياسة"
+                  onChange={(e) => {
+                    handleNameChange(e.target.value);
+                  }}
+                  placeholder="مثال: أخبار"
                   required
+                  className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
                 />
-                {errors.name_ar && (
-                  <p className="text-red-500 text-xs mt-1">{errors.name_ar}</p>
-                )}
               </div>
 
               {/* الاسم بالإنجليزية */}
               <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  اسم التصنيف (إنجليزي)
-                </label>
-                <input
-                  type="text"
+                <Label htmlFor="name_en" className={darkMode ? 'text-gray-200' : ''}>
+                  الاسم بالإنجليزية
+                </Label>
+                <Input
+                  id="name_en"
                   value={formData.name_en}
-                  onChange={(e) => setFormData({...formData, name_en: e.target.value})}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                  placeholder="Politics"
+                  onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
+                  placeholder="مثال: News"
+                  dir="ltr"
+                  className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
                 />
+              </div>
+
+              {/* المعرف (Slug) */}
+              <div>
+                <Label htmlFor="slug" className={darkMode ? 'text-gray-200' : ''}>
+                  المعرف (slug) <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  placeholder="news"
+                  dir="ltr"
+                  required
+                  className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
+                />
+                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  سيظهر في الرابط: /categories/{formData.slug || 'slug'}
+                </p>
               </div>
 
               {/* الوصف */}
               <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <Label htmlFor="description" className={darkMode ? 'text-gray-200' : ''}>
                   الوصف
-                </label>
-                <textarea
+                </Label>
+                <Textarea
+                  id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  rows={3}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="وصف مختصر للتصنيف"
-                />
-              </div>
-
-              {/* الرابط المختصر */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  الرابط المختصر (Slug) *
-                </label>
-                <input
-                  type="text"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({...formData, slug: e.target.value})}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
-                    errors.slug
-                      ? 'border-red-500 focus:border-red-500'
-                      : darkMode 
-                        ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                  placeholder="politics"
-                />
-                {errors.slug && (
-                  <p className="text-red-500 text-xs mt-1">{errors.slug}</p>
-                )}
-              </div>
-
-              {/* اللون */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  لون التصنيف
-                </label>
-                <div className="grid grid-cols-6 gap-3">
-                  {categoryColors.map((color) => (
-                    <button
-                      key={color.value}
-                      type="button"
-                      onClick={() => setFormData({...formData, color_hex: color.value})}
-                      className={`w-12 h-12 rounded-xl border-2 transition-all duration-200 ${
-                        formData.color_hex === color.value ? 'border-gray-400 scale-110' : 'border-gray-200'
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                      title={color.name}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* الأيقونة */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  الأيقونة
-                </label>
-                <div className="grid grid-cols-8 gap-2">
-                  {categoryIcons.map((icon) => (
-                    <button
-                      key={icon}
-                      type="button"
-                      onClick={() => setFormData({...formData, icon})}
-                      className={`w-12 h-12 rounded-xl border transition-all duration-200 flex items-center justify-center text-xl ${
-                        formData.icon === icon 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : darkMode 
-                            ? 'border-gray-600 hover:bg-gray-700' 
-                            : 'border-gray-200 hover:bg-gray-50'
-                      }`}
-                    >
-                      {icon}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* تبويب SEO */}
-          {activeTab === 'seo' && (
-            <div className="space-y-6">
-              {/* عنوان الصفحة */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  عنوان الصفحة (Meta Title)
-                </label>
-                <input
-                  type="text"
-                  value={formData.meta_title}
-                  onChange={(e) => setFormData({...formData, meta_title: e.target.value})}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
-                    errors.meta_title
-                      ? 'border-red-500 focus:border-red-500'
-                      : darkMode 
-                        ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                  placeholder="مثال: أخبار السياسة - صحيفة سبق"
-                  maxLength={60}
-                />
-                <div className="flex justify-between text-xs mt-1">
-                  <span className={`${formData.meta_title.length > 60 ? 'text-red-500' : 'text-gray-500'}`}>
-                    {formData.meta_title.length}/60 حرف
-                  </span>
-                  <span className="text-gray-500">(الأمثل: 50-60 حرف)</span>
-                </div>
-                {errors.meta_title && (
-                  <p className="text-red-500 text-xs mt-1">{errors.meta_title}</p>
-                )}
-              </div>
-
-              {/* وصف الصفحة */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  وصف الصفحة (Meta Description)
-                </label>
-                <textarea
-                  value={formData.meta_description}
-                  onChange={(e) => setFormData({...formData, meta_description: e.target.value})}
                   rows={3}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
-                    errors.meta_description
-                      ? 'border-red-500 focus:border-red-500'
-                      : darkMode 
-                        ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                  placeholder="وصف مختصر وجذاب لتصنيف الأخبار يظهر في نتائج البحث"
-                  maxLength={160}
+                  className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
                 />
-                <div className="flex justify-between text-xs mt-1">
-                  <span className={`${formData.meta_description.length > 160 ? 'text-red-500' : 'text-gray-500'}`}>
-                    {formData.meta_description.length}/160 حرف
-                  </span>
-                  <span className="text-gray-500">(الأمثل: 150-160 حرف)</span>
+              </div>
+
+              {/* اللون والأيقونة */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* اللون */}
+                <div>
+                  <Label className={darkMode ? 'text-gray-200' : ''}>اللون</Label>
+                  <div className="grid grid-cols-5 gap-2 mt-2">
+                    {categoryColors.map((color) => (
+                      <button
+                        key={color.value}
+                        type="button"
+                        onClick={() => setFormData({ 
+                          ...formData, 
+                          color_hex: color.value 
+                        })}
+                        className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                          formData.color_hex === color.value
+                            ? 'border-gray-900 scale-110'
+                            : 'border-transparent hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: color.value }}
+                        title={color.name}
+                      />
+                    ))}
+                  </div>
                 </div>
-                {errors.meta_description && (
-                  <p className="text-red-500 text-xs mt-1">{errors.meta_description}</p>
-                )}
-              </div>
 
-              {/* صورة المشاركة */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  صورة المشاركة (OG Image)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    value={formData.og_image_url}
-                    onChange={(e) => setFormData({...formData, og_image_url: e.target.value})}
-                    className={`flex-1 px-4 py-2 rounded-xl border transition-colors duration-300 ${
-                      darkMode 
-                        ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                    } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                    placeholder="https://sabq.org/images/category-politics.jpg"
-                  />
-                  <button
-                    type="button"
-                    className={`px-4 py-2 rounded-xl border transition-colors ${
-                      darkMode 
-                        ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                        : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Upload className="w-4 h-4" />
-                  </button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  صورة تظهر عند مشاركة صفحة التصنيف في الشبكات الاجتماعية (1200x630 بكسل)
-                </p>
-              </div>
-
-              {/* الرابط المرجعي */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  الرابط المرجعي (Canonical URL)
-                </label>
-                <input
-                  type="url"
-                  value={formData.canonical_url}
-                  onChange={(e) => setFormData({...formData, canonical_url: e.target.value})}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                  placeholder="https://sabq.org/category/politics"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  يتم توليده تلقائياً إذا تُرك فارغاً
-                </p>
-              </div>
-
-              {/* نوع المحتوى */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  نوع المحتوى (OG Type)
-                </label>
-                <select
-                  value={formData.og_type}
-                  onChange={(e) => setFormData({...formData, og_type: e.target.value})}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                >
-                  <option value="website">موقع ويب</option>
-                  <option value="article">مقال</option>
-                  <option value="section">قسم</option>
-                </select>
-              </div>
-
-              {/* منع الأرشفة */}
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="noindex"
-                  checked={formData.noindex}
-                  onChange={(e) => setFormData({...formData, noindex: e.target.checked})}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="noindex" className={`text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  منع محركات البحث من فهرسة هذا التصنيف (NoIndex)
-                </label>
-              </div>
-
-              {/* معاينة نتيجة البحث */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <p className="text-xs text-gray-600 mb-2">معاينة في نتائج البحث:</p>
-                <div className="bg-white p-3 rounded border">
-                  <h5 className="text-blue-600 text-lg font-medium mb-1 truncate">
-                    {formData.meta_title || formData.name_ar || 'عنوان التصنيف'}
-                  </h5>
-                  <p className="text-green-700 text-sm mb-1">
-                    {formData.canonical_url || `https://sabq.org/news/${formData.slug || 'category-slug'}`}
-                  </p>
-                  <p className="text-gray-600 text-sm line-clamp-2">
-                    {formData.meta_description || formData.description || 'وصف التصنيف سيظهر هنا...'}
-                  </p>
+                {/* الأيقونة */}
+                <div>
+                  <Label className={darkMode ? 'text-gray-200' : ''}>الأيقونة</Label>
+                  <div className="grid grid-cols-4 gap-2 mt-2 max-h-32 overflow-y-auto">
+                    {categoryIcons.map((icon) => (
+                      <button
+                        key={icon}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, icon })}
+                        className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center text-lg transition-all ${
+                          formData.icon === icon
+                            ? darkMode 
+                              ? 'border-blue-400 bg-blue-900/20' 
+                              : 'border-blue-500 bg-blue-50'
+                            : darkMode
+                              ? 'border-gray-600 hover:border-gray-500'
+                              : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* التبويب المتقدم */}
-          {activeTab === 'advanced' && (
-            <div className="space-y-6">
               {/* التصنيف الأب */}
               <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <Label htmlFor="parent_id" className={darkMode ? 'text-gray-200' : ''}>
                   التصنيف الأب
-                </label>
+                </Label>
                 <select
+                  id="parent_id"
                   value={formData.parent_id || ''}
-                  onChange={(e) => setFormData({...formData, parent_id: e.target.value || undefined})}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    parent_id: e.target.value || undefined
+                  })}
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors ${
                     darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300'
+                  }`}
                 >
-                  <option value="">-- تصنيف رئيسي --</option>
-                  {categories.filter((cat: Category) => !cat.parent_id).map((category: Category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name_ar}
-                    </option>
-                  ))}
+                  <option value="">بدون تصنيف أب</option>
+                  {categories
+                    .filter(cat => cat.id !== category?.id && !cat.parent_id)
+                    .map(cat => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name_ar || cat.name}
+                      </option>
+                    ))}
                 </select>
               </div>
 
-              {/* الترتيب */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  ترتيب العرض
-                </label>
-                <input
-                  type="number"
-                  value={formData.position}
-                  onChange={(e) => setFormData({...formData, position: parseInt(e.target.value) || 0})}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors duration-300 ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                  placeholder="0"
-                  min="0"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  الأرقام الأصغر تظهر أولاً (0 = الأول)
-                </p>
-              </div>
+              {/* الترتيب والحالة */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="position" className={darkMode ? 'text-gray-200' : ''}>
+                    الترتيب
+                  </Label>
+                  <Input
+                    id="position"
+                    type="number"
+                    value={formData.position}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      position: parseInt(e.target.value) || 0
+                    })}
+                    min="0"
+                    className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
+                  />
+                </div>
 
-              {/* الحالة */}
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="is_active"
-                  checked={formData.is_active}
-                  onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="is_active" className={`text-sm font-medium transition-colors duration-300 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  تفعيل التصنيف (ظاهر في الواجهة)
-                </label>
+                <div className="flex items-center justify-between pt-8">
+                  <Label htmlFor="is_active" className={darkMode ? 'text-gray-200' : ''}>
+                    نشط
+                  </Label>
+                  <Switch
+                    id="is_active"
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => setFormData({ 
+                      ...formData, 
+                      is_active: checked 
+                    })}
+                  />
+                </div>
               </div>
+            </div>
 
-              {/* معاينة التصنيف */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <p className="text-xs text-gray-600 mb-2">معاينة التصنيف:</p>
-                <div className="bg-white p-3 rounded border">
+            {/* Preview */}
+            {showPreview && (
+              <div className={`p-6 rounded-lg border ${
+                darkMode 
+                  ? 'bg-gray-900 border-gray-700' 
+                  : 'bg-gray-50 border-gray-200'
+              }`}>
+                <h3 className={`text-lg font-semibold mb-4 ${
+                  darkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  معاينة التصنيف
+                </h3>
+                
+                {/* معاينة البطاقة */}
+                <div className={`p-4 rounded-lg border ${
+                  darkMode 
+                    ? 'bg-gray-800 border-gray-600' 
+                    : 'bg-white border-gray-200'
+                }`}>
                   <div className="flex items-center gap-3">
                     <div 
-                      className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+                      className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
                       style={{ 
                         backgroundColor: formData.color_hex,
                         color: categoryColors.find(c => c.value === formData.color_hex)?.textColor || '#000'
@@ -635,60 +441,103 @@ export default function CategoryFormModal({
                     >
                       {formData.icon}
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{formData.name_ar || 'اسم التصنيف'}</h4>
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${
+                        darkMode ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        {formData.name_ar || 'اسم التصنيف'}
+                      </h4>
                       {formData.name_en && (
-                        <p className="text-sm text-gray-500">({formData.name_en})</p>
+                        <p className={`text-sm ${
+                          darkMode ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          {formData.name_en}
+                        </p>
                       )}
-                      <p className="text-xs text-gray-400">/{formData.slug || 'slug'}</p>
+                    </div>
+                    {!formData.is_active && (
+                      <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                        مخفي
+                      </span>
+                    )}
+                  </div>
+                  
+                  {formData.description && (
+                    <p className={`mt-2 text-sm ${
+                      darkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}>
+                      {formData.description}
+                    </p>
+                  )}
+                  
+                  <div className={`mt-3 flex items-center gap-4 text-xs ${
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    <span>/{formData.slug || 'slug'}</span>
+                    <span>0 مقال</span>
+                  </div>
+                </div>
+
+                {/* معاينة SEO */}
+                <div className="mt-6">
+                  <h4 className={`text-sm font-semibold mb-2 ${
+                    darkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
+                    معاينة محرك البحث
+                  </h4>
+                  <div className={`p-3 rounded border ${
+                    darkMode 
+                      ? 'bg-gray-800 border-gray-600' 
+                      : 'bg-white border-gray-200'
+                  }`}>
+                    <div className="text-blue-600 text-sm font-medium">
+                      {formData.meta_title || formData.name_ar || 'عنوان الصفحة'} - اسم الموقع
+                    </div>
+                    <div className="text-green-700 text-xs mt-1">
+                      https://example.com/categories/{formData.slug || 'slug'}
+                    </div>
+                    <div className={`text-sm mt-1 ${
+                      darkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}>
+                      {formData.meta_description || formData.description || 'وصف الصفحة في نتائج البحث'}
                     </div>
                   </div>
-                  {formData.description && (
-                    <p className="text-sm text-gray-600 mt-2">{formData.description}</p>
-                  )}
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* أزرار الحفظ والإلغاء */}
-        <div className="flex gap-3 mt-8 pt-6 border-t">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={loading}
-            className={`flex-1 px-6 py-3 rounded-xl border transition-colors duration-300 ${
-              darkMode 
-                ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            إلغاء
-          </button>
-          <button 
-            type="button"
-            onClick={handleSave}
-            disabled={loading || !formData.name_ar.trim() || !formData.slug.trim()}
-            className={`flex-1 px-6 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 ${
-              loading || !formData.name_ar.trim() || !formData.slug.trim()
-                ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                : 'bg-blue-500 text-white hover:bg-blue-600'
-            }`}
-          >
-            {loading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                جاري الحفظ...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                {isEdit ? 'حفظ التعديلات' : 'إضافة التصنيف'}
-              </>
             )}
-          </button>
-        </div>
+          </div>
+
+          {/* Footer */}
+          <div className={`flex items-center justify-end gap-3 mt-6 pt-6 border-t ${
+            darkMode ? 'border-gray-700' : 'border-gray-200'
+          }`}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={loading}
+            >
+              إلغاء
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="min-w-[100px]"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                  جاري الحفظ...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 ml-2" />
+                  {isEdit ? 'حفظ التغييرات' : 'إضافة التصنيف'}
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );
