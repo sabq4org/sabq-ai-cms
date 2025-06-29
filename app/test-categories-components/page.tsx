@@ -5,9 +5,10 @@ import CategoryFormModal from '@/components/CategoryFormModal';
 import CategoriesAnalytics from '@/components/dashboard/CategoriesAnalytics';
 import { Button } from '@/components/ui/button';
 import { Plus, BarChart2 } from 'lucide-react';
+import { Category } from '@/types/category';
 
 // بيانات تجريبية
-const mockCategories = [
+const mockCategories: Category[] = [
   {
     id: '1',
     name: 'أخبار',
@@ -20,7 +21,7 @@ const mockCategories = [
     icon: '📰',
     articles_count: 150,
     is_active: true,
-    parent_id: null,
+    parent_id: undefined,
     position: 1,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -37,7 +38,7 @@ const mockCategories = [
     icon: '⚽',
     articles_count: 120,
     is_active: true,
-    parent_id: null,
+    parent_id: undefined,
     position: 2,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -54,7 +55,7 @@ const mockCategories = [
     icon: '💻',
     articles_count: 80,
     is_active: true,
-    parent_id: null,
+    parent_id: undefined,
     position: 3,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -71,7 +72,7 @@ const mockCategories = [
     icon: '💰',
     articles_count: 60,
     is_active: true,
-    parent_id: null,
+    parent_id: undefined,
     position: 4,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -88,7 +89,7 @@ const mockCategories = [
     icon: '🎭',
     articles_count: 40,
     is_active: false,
-    parent_id: null,
+    parent_id: undefined,
     position: 5,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -98,12 +99,16 @@ const mockCategories = [
 export default function TestCategoriesComponents() {
   const [showModal, setShowModal] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [darkMode, setDarkMode] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSaveCategory = async (data: any) => {
     console.log('حفظ التصنيف:', data);
+    setLoading(true);
     // محاكاة حفظ البيانات
     await new Promise(resolve => setTimeout(resolve, 1000));
+    setLoading(false);
     setShowModal(false);
   };
 
@@ -204,6 +209,8 @@ export default function TestCategoriesComponents() {
           onSave={handleSaveCategory}
           category={selectedCategory}
           categories={mockCategories}
+          darkMode={darkMode}
+          loading={loading}
         />
       </div>
     </div>

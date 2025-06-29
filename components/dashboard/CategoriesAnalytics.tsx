@@ -164,7 +164,7 @@ export default function CategoriesAnalytics({ categories, darkMode = false }: Ca
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
@@ -262,7 +262,7 @@ export default function CategoriesAnalytics({ categories, darkMode = false }: Ca
                   <td className={`px-4 py-3 text-center text-sm ${
                     darkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}>
-                    {new Date(category.updated_at).toLocaleDateString('ar-SA')}
+                    {new Date(category.updated_at || new Date()).toLocaleDateString('ar-SA')}
                   </td>
                 </tr>
               ))}
