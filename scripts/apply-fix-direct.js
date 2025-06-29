@@ -9,8 +9,8 @@ const https = require('https');
 
 console.log('🚀 تطبيق الإصلاح مباشرة...\n');
 
-// الرابط الصحيح لقاعدة البيانات
-const correctDatabaseUrl = 'mysql://5k3qivqt4ihe0f7xcln5:***REMOVED***WNm5lf1LEHln8AChFN8aMk8V3WVzvR14oW99Re38C7H@aws.connect.psdb.cloud/j3uar_sabq_ai?sslaccept=strict&connect_timeout=60&pool_timeout=60';
+// الرابط الصحيح لقاعدة البيانات - يجب تحديثه يدوياً
+const correctDatabaseUrl = 'mysql://[USERNAME]:[PASSWORD]@aws.connect.psdb.cloud/j3uar_sabq_ai?sslaccept=strict&connect_timeout=60&pool_timeout=60';
 
 console.log('📋 الرابط الصحيح:');
 console.log(correctDatabaseUrl.substring(0, 50) + '...\n');
