@@ -8,11 +8,14 @@ const execAsync = promisify(exec);
 
 export async function POST(request: NextRequest) {
   try {
-    // التحقق من الصلاحية (يجب أن يكون admin)
-    const authHeader = request.headers.get('authorization');
-    const adminSecret = process.env.ADMIN_SECRET || 'your-admin-secret';
+    // قراءة البيانات المرسلة
+    const body = await request.json();
+    const { secret, force_url } = body;
     
-    if (!authHeader || authHeader !== `Bearer ${adminSecret}`) {
+    // التحقق من الصلاحية
+    const adminSecret = process.env.ADMIN_SECRET || 'admin-secret-2024';
+    
+    if (!secret || secret !== adminSecret) {
       return NextResponse.json({
         success: false,
         error: 'غير مصرح لك بتنفيذ هذا الإجراء'
@@ -20,9 +23,16 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('🔄 بدء مهاجرة قاعدة البيانات...');
+    
+    // إعداد متغير البيئة إذا تم تمرير force_url
+    let env = process.env;
+    if (force_url) {
+      console.log('🔧 استخدام رابط قاعدة البيانات المحدد...');
+      env = { ...process.env, DATABASE_URL: force_url };
+    }
 
     // تشغيل prisma db push
-    const { stdout, stderr } = await execAsync('npx prisma db push --accept-data-loss');
+    const { stdout, stderr } = await execAsync('npx prisma db push --accept-data-loss', { env });
     
     if (stderr && !stderr.includes('warnings')) {
       throw new Error(stderr);
