@@ -122,8 +122,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // التحقق من البيانات المطلوبة
-    if (!body.name || !body.slug) {
+    // التحقق من البيانات المطلوبة - قبول name أو name_ar
+    const categoryName = body.name || body.name_ar;
+    const categorySlug = body.slug;
+    
+    if (!categoryName || !categorySlug) {
       return NextResponse.json({
         success: false,
         error: 'الاسم والمعرف (slug) مطلوبان'
@@ -132,7 +135,7 @@ export async function POST(request: NextRequest) {
     
     // التحقق من عدم تكرار الـ slug
     const existingCategory = await prisma.category.findUnique({
-      where: { slug: body.slug }
+      where: { slug: categorySlug }
     });
     
     if (existingCategory) {
@@ -145,16 +148,23 @@ export async function POST(request: NextRequest) {
     // إنشاء الفئة الجديدة
     const newCategory = await prisma.category.create({
       data: {
-        name: body.name || body.name_ar,
+        name: categoryName,
         nameEn: body.name_en,
-        slug: body.slug,
+        slug: categorySlug,
         description: body.description,
-        color: body.color || body.color_hex,
-        icon: body.icon,
+        color: body.color || body.color_hex || '#6B7280',
+        icon: body.icon || '📁',
         parentId: body.parent_id,
         displayOrder: body.order_index || body.position || 0,
         isActive: body.is_active !== false,
-        metadata: body.metadata
+        metadata: {
+          meta_title: body.meta_title,
+          meta_description: body.meta_description,
+          og_image_url: body.og_image_url,
+          canonical_url: body.canonical_url,
+          noindex: body.noindex,
+          og_type: body.og_type || 'website'
+        }
       }
     });
     
