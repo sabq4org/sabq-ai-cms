@@ -5,17 +5,19 @@
   "outputDirectory": ".next",
   "installCommand": "npm install --production=false",
   "functions": {
-    "app/api/**/*.ts": {
+    "app/api/**/route.ts": {
       "maxDuration": 30
     }
   },
   "env": {
     "NODE_ENV": "production"
   },
+  "regions": ["iad1"],
   "build": {
     "env": {
       "NODE_ENV": "production",
-      "BUILD_ID": "v1.0.1"
+      "BUILD_ID": "v1.0.1",
+      "PRISMA_GENERATE_DATAPROXY": "true"
     }
   }
 }

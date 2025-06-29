@@ -1,15 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
+import Youtube from '@tiptap/extension-youtube';
+import TextAlign from '@tiptap/extension-text-align';
+import TextStyle from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import Underline from '@tiptap/extension-underline';
+import CharacterCount from '@tiptap/extension-character-count';
+import Placeholder from '@tiptap/extension-placeholder';
 import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
-import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
-import Underline from '@tiptap/extension-underline';
-import Blockquote from '@tiptap/extension-blockquote';
+import TableCell from '@tiptap/extension-table-cell';
+import toast from 'react-hot-toast';
 
 interface TiptapEditorProps {
   content?: string;
@@ -34,10 +41,27 @@ export default function TiptapEditor({ content, onChange, placeholder }: TiptapE
         },
       }),
       Underline,
-      Blockquote.configure({
+      Link.configure({
         HTMLAttributes: {
-          class: 'border-r-4 border-primary pr-4 mr-4 text-gray-600 dark:text-gray-400',
+          class: 'text-primary',
         },
+      }),
+      Youtube.configure({
+        HTMLAttributes: {
+          class: 'max-w-full h-auto rounded-lg',
+        },
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      TextStyle,
+      Color,
+      CharacterCount.configure({
+        limit: 1000,
+      }),
+      Placeholder.configure({
+        placeholder: placeholder || 'ابدأ بكتابة محتوى المقال هنا...',
+        includeChildren: true,
       }),
       Table.configure({
         resizable: true,

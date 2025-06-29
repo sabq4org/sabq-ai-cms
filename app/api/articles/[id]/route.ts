@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-// اجبر هذا المسار على استخدام بيئة Node.js حتى يعمل Prisma
+
 export const runtime = 'nodejs';
+
 import { promises as fs } from 'fs';
 import path from 'path';
 import { prisma } from '@/lib/prisma';

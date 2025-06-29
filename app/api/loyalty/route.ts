@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 
+export const runtime = 'nodejs';
+
 const loyaltyFilePath = path.join(process.cwd(), 'data', 'user_loyalty_points.json');
 const activitiesFilePath = path.join(process.cwd(), 'data', 'user_activities.json');
 

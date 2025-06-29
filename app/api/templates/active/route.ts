@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { templateService } from '@/lib/services/templateService'
 import { TemplateType } from '@/types/template'
 
+export const runtime = 'nodejs';
+
 // GET /api/templates/active
 export async function GET(request: NextRequest) {
   try {

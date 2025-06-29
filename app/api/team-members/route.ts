@@ -4,6 +4,8 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import { TeamMember, CreateTeamMemberInput } from '@/types/team';
 
+export const runtime = 'nodejs';
+
 const TEAM_MEMBERS_FILE = path.join(process.cwd(), 'data', 'team-members.json');
 
 async function getTeamMembers(): Promise<TeamMember[]> {

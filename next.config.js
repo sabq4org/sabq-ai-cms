@@ -3,8 +3,8 @@ const nextConfig = {
   // Enable React strict mode for better error handling
   reactStrictMode: true,
   
-  // Standalone output for Docker deployment
-  output: 'standalone',
+  // Remove standalone output for Vercel deployment
+  // output: 'standalone',
   
   // Image optimization
   images: {
@@ -55,7 +55,6 @@ const nextConfig = {
         hostname: '**',
       }
     ],
-    unoptimized: true // مؤقتاً لحل مشاكل الصور
   },
   
   // Headers for security and proper MIME types

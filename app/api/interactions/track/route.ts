@@ -4,6 +4,8 @@ import path from 'path';
 import { recordInteraction } from '@/lib/user-interactions';
 import { PrismaClient } from '@/lib/generated/prisma';
 
+export const runtime = 'nodejs';
+
 interface UserInteraction {
   id: string;
   user_id: string;

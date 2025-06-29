@@ -43,7 +43,9 @@
     "build:prod": "NODE_ENV=production ./scripts/setup-prisma.sh && next build",
     "setup:prod": "./scripts/setup-production-db.sh",
     "prisma:prod": "NODE_ENV=production npx prisma db push",
-    "deploy:prod": "npm run setup:prod && npm run build:prod && npm run prisma:prod"
+    "deploy:prod": "npm run setup:prod && npm run build:prod && npm run prisma:prod",
+    "postbuild": "npx prisma db push --accept-data-loss",
+    "migrate:prod": "node scripts/migrate-production.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -89,6 +91,7 @@
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
