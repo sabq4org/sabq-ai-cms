@@ -110,3 +110,4 @@ prisma/migrations/
 # Duplicate folder
 sabq-ai-cms/
 deploy-*.tar.gz
+.env.production
