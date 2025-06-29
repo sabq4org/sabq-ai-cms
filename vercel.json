@@ -1,23 +1,15 @@
 {
-  "version": 2,
-  "name": "sabq-ai-cms",
+  "buildCommand": "prisma generate && next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
   "framework": "nextjs",
   "outputDirectory": ".next",
-  "installCommand": "npm install --production=false",
-  "functions": {
-    "app/api/**/route.ts": {
-      "maxDuration": 30
-    }
-  },
   "env": {
-    "NODE_ENV": "production"
+    "DATABASE_URL": "@database_url"
   },
-  "regions": ["iad1"],
   "build": {
     "env": {
-      "NODE_ENV": "production",
-      "BUILD_ID": "v1.0.1",
-      "PRISMA_GENERATE_DATAPROXY": "true"
+      "DATABASE_URL": "@database_url"
     }
   }
 }
