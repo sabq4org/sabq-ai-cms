@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, writeFile } from 'fs/promises';
-import { join } from 'path';
+import { promises as fs } from 'fs';
+import path from 'path';
 import { DeepAnalysis, UpdateAnalysisRequest } from '@/types/deep-analysis';
 
+export const runtime = 'nodejs';
+
 // مسار ملف البيانات
-const DATA_PATH = join(process.cwd(), 'data', 'deep_analyses.json');
+const DATA_PATH = path.join(process.cwd(), 'data', 'deep_analyses.json');
 
 // قراءة التحليلات من الملف
 async function readAnalyses(): Promise<DeepAnalysis[]> {
   try {
-    const data = await readFile(DATA_PATH, 'utf-8');
+    const data = await fs.readFile(DATA_PATH, 'utf-8');
     return JSON.parse(data);
   } catch (error) {
     return [];
@@ -18,7 +20,7 @@ async function readAnalyses(): Promise<DeepAnalysis[]> {
 
 // كتابة التحليلات إلى الملف
 async function writeAnalyses(analyses: DeepAnalysis[]): Promise<void> {
-  await writeFile(DATA_PATH, JSON.stringify(analyses, null, 2));
+  await fs.writeFile(DATA_PATH, JSON.stringify(analyses, null, 2));
 }
 
 interface RouteParams {

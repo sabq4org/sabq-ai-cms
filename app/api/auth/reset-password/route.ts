@@ -3,6 +3,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 
+export const runtime = 'nodejs';
+
 interface User {
   id: string;
   name: string;

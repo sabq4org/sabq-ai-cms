@@ -3,6 +3,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { sendVerificationEmail, generateVerificationCode } from '@/lib/email';
 
+export const runtime = 'nodejs';
+
 interface User {
   id: string;
   name: string;

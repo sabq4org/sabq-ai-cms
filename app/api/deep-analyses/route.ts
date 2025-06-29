@@ -8,6 +8,10 @@ import {
   SourceType
 } from '@/types/deep-analysis';
 import { generateDeepAnalysis, initializeOpenAI } from '@/lib/services/deepAnalysisService';
+import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/app/lib/auth';
+
+export const runtime = 'nodejs';
 
 // مسار ملف البيانات
 const DATA_PATH = join(process.cwd(), 'data', 'deep_analyses.json');

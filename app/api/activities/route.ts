@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePermission } from '@/app/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+export const runtime = 'nodejs';
 
 // GET /api/activities - الحصول على سجل النشاطات
 export async function GET(request: NextRequest) {

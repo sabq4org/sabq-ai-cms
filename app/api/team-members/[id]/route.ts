@@ -4,6 +4,8 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import { TeamMember, UpdateTeamMemberInput } from '@/types/team';
 
+export const runtime = 'nodejs';
+
 interface RouteParams {
   params: Promise<{ id: string }>;
 }

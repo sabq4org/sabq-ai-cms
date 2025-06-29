@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-
+export const runtime = 'nodejs';
 
 // GET: جلب التفاعلات
 export async function GET(request: NextRequest) {

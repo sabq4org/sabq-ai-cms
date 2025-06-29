@@ -3,6 +3,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { Role } from '@/types/roles';
 
+export const runtime = 'nodejs';
+
 const ROLES_FILE = path.join(process.cwd(), 'data', 'roles.json');
 
 interface RouteParams {

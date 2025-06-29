@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { promises as fs } from 'fs'
+import path from 'path'
 import { prisma } from '@/lib/prisma'
 import { filterTestContent, rejectTestContent } from '@/lib/data-protection'
+
+export const runtime = 'nodejs'
 
 // جلب المقالات
 export async function GET(request: NextRequest) {

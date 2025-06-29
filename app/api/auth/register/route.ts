@@ -4,6 +4,8 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import { sendVerificationEmail, generateVerificationCode } from '@/lib/email';
 
+export const runtime = 'nodejs';
+
 interface User {
   id: string;
   name: string;

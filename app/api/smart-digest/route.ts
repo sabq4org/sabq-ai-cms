@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const runtime = 'nodejs';
+
 type TimeIntent = 'morning' | 'afternoon' | 'evening';
 
 // دالة لتحديد ما إذا كان المقال في آخر 48 ساعة

@@ -3,6 +3,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
+export const runtime = 'nodejs';
+
 interface Message {
   id: string;
   type: 'suggestion' | 'complaint' | 'feedback' | 'appreciation' | 'inquiry' | 'other';
