@@ -4,7 +4,10 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 };
 
-const prismaOptions: any = {};
+const prismaOptions: any = {
+  // نضمن استخدام محرك المكتبة دائماً لنتجنّب أخطاء Data Proxy (P6001)
+  engineType: 'library',
+};
 
 // في بيئة Vercel، يجب تحديد رابط قاعدة البيانات مباشرة لتجنب مشاكل pooling
 // هذا هو الحل الجذري لمشكلة "the URL must start with the protocol `prisma://`"
