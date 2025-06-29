@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import CategoryFormModal from '../../../components/CategoryFormModal';
+import CategoriesAnalytics from '../../../components/dashboard/CategoriesAnalytics';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { Category } from '@/types/category';
 import { 
@@ -668,16 +669,10 @@ export default function CategoriesPage() {
         )}
 
         {activeTab === 'analytics' && (
-          <div className="p-6">
-            <h3 className={`text-lg font-bold mb-6 transition-colors duration-300 ${
-              darkMode ? 'text-white' : 'text-gray-800'
-            }`}>📊 إحصائيات الاستخدام</h3>
-            <p className={`text-center py-8 transition-colors duration-300 ${
-              darkMode ? 'text-gray-400' : 'text-gray-500'
-            }`}>
-              تحليلات تفصيلية لاستخدام التصنيفات ومعدلات القراءة (قريباً)
-            </p>
-          </div>
+          <CategoriesAnalytics 
+            categories={categories} 
+            darkMode={darkMode} 
+          />
         )}
 
         {activeTab === 'settings' && (
