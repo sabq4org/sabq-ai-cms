@@ -111,7 +111,7 @@ export default function SmartDigestBlock() {
   const { title, subtitle } = getTimeBasedContent();
 
   return (
-    <section className={`w-full py-20 mb-12 relative overflow-hidden transition-all duration-500 ${darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-[#0f52ba] to-[#3783ff]'} shadow-2xl`}>
+    <section className={`w-full py-20 relative overflow-hidden transition-all duration-500 ${darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-[#0f52ba] to-[#3783ff]'} shadow-2xl`}>
       <div className={`absolute inset-0 opacity-40 ${darkMode ? 'bg-gradient-to-br from-blue-900/20 via-transparent to-indigo-900/20' : 'bg-gradient-to-br from-[#1f3f75] via-transparent to-[#5fa9ff]'}`}></div>
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="text-center relative">
@@ -134,13 +134,13 @@ export default function SmartDigestBlock() {
               </div>
             ) : articles[0] ? (
               <Link href={`/article/${articles[0].slug || articles[0].id}`} className="block">
-                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white/95 hover:bg-white'}`}>
+                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95' : 'bg-white/95'}`}>
                   {/* Card Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
                       src={articles[0].featured_image || articles[0].image || "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80"}
                       alt={articles[0].title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -181,13 +181,13 @@ export default function SmartDigestBlock() {
               </div>
             ) : articles[1] ? (
               <Link href={`/article/${articles[1].slug || articles[1].id}`} className="block">
-                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white/95 hover:bg-white'}`}>
+                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95' : 'bg-white/95'}`}>
                   {/* Card Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
                       src={articles[1].featured_image || articles[1].image || "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80"}
                       alt={articles[1].title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -228,13 +228,13 @@ export default function SmartDigestBlock() {
               </div>
             ) : articles[2] ? (
               <Link href={`/article/${articles[2].slug || articles[2].id}`} className="block">
-                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95 hover:bg-gray-800' : 'bg-white/95 hover:bg-white'}`}>
+                <div className={`group backdrop-blur-md rounded-3xl shadow-xl dark:shadow-gray-900/50 min-h-[320px] flex flex-col overflow-hidden ${darkMode ? 'bg-gray-800/95' : 'bg-white/95'}`}>
                   {/* Card Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img 
                       src={articles[2].featured_image || articles[2].image || "https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=800&q=80"}
                       alt={articles[2].title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

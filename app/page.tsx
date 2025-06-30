@@ -1,30 +1,127 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { User, Globe, ChevronRight, 
-  Clock, TrendingUp, Heart, Share2, Eye, Calendar, Star, BookOpen, Settings, Zap, Award, Volume2,
-  Sparkles, Brain, Download,
-  PlayCircle, Users, Flame, AlertCircle, Lightbulb, Target,
-  Compass, Globe2, Newspaper, Activity, ArrowLeft,
-  Crown, Leaf, Tag, X, Bookmark, GraduationCap,
-  Laptop, Trophy, Building2, Beaker, Palette, Car, Plane, Briefcase,
-  CloudRain, Home as HomeIcon
-} from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import toast from 'react-hot-toast';
+import Image from 'next/image';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'react-hot-toast';
+import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
+import FooterDashboard from '@/components/FooterDashboard';
+import { 
+  Share2, 
+  Eye, 
+  Clock, 
+  Calendar,
+  TrendingUp,
+  Brain,
+  Award,
+  Target,
+  Users,
+  MapPin,
+  Play,
+  Volume2,
+  Star,
+  Zap,
+  Globe,
+  Newspaper,
+  BarChart3,
+  Lightbulb,
+  Sparkles,
+  Crown,
+  Trophy,
+  Gift,
+  Coins,
+  Activity,
+  ArrowRight,
+  ChevronRight,
+  ExternalLink,
+  Filter,
+  Search,
+  Bell,
+  Settings,
+  User,
+  LogOut,
+  Sun,
+  Moon,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Wifi,
+  Signal,
+  Battery,
+  WifiOff,
+  SignalHigh,
+  SignalMedium,
+  SignalLow,
+  BatteryFull,
+  BatteryMedium,
+  BatteryLow,
+  Laptop,
+  Building2,
+  Leaf,
+  BookOpen,
+  Home,
+  Beaker,
+  Palette,
+  Car,
+  Plane,
+  GraduationCap,
+  Briefcase,
+  CloudRain,
+  Tag,
+  Flame,
+  AlertCircle,
+  Compass,
+  PlayCircle,
+  Download,
+  Globe2,
+  X,
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getCookie } from '@/lib/cookies';
 
 import CategoryBadge from './components/CategoryBadge';
 import Header from '../components/Header';
 import { SmartSlot } from '@/components/home/SmartSlot';
-import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
-import { useReactions } from '@/hooks/useReactions';
+
 import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
 import { useReaderProfile } from '@/hooks/useReaderProfile';
 import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
 import SmartContextWidget from '@/components/home/SmartContextWidget';
 import InteractiveArticle from '@/components/InteractiveArticle';
+
+// دالة تشخيص المصادقة
+function DebugAuth() {
+  const { isLoggedIn, userId, user } = useAuth();
+
+  useEffect(() => {
+    console.log("====[تشخيص المصادقة]====");
+    console.log("isLoggedIn:", isLoggedIn);
+    console.log("userId:", userId);
+    console.log("user:", user);
+    console.log("localStorage.user_id:", localStorage.getItem("user_id"));
+    console.log("localStorage.user:", localStorage.getItem("user"));
+    console.log("كوكيز:", document.cookie);
+
+    fetch("/api/auth/me", {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("/api/auth/me =>", data);
+      })
+      .catch((err) => {
+        console.error("خطأ في /api/auth/me:", err);
+      });
+  }, [isLoggedIn, userId]);
+
+  return null; // لا يعرض شيء في الواجهة
+}
 
 // أيقونات التصنيفات
 const categoryIcons: { [key: string]: any } = {
@@ -32,10 +129,10 @@ const categoryIcons: { [key: string]: any } = {
   'رياضة': Trophy,
   'اقتصاد': TrendingUp,
   'سياسة': Building2,
-  'صحة': Heart,
+  'صحة': Activity,
   'بيئة': Leaf,
   'ثقافة': BookOpen,
-  'محلي': HomeIcon,
+  'محلي': Home,
   'دولي': Globe,
   'منوعات': Activity,
   'علوم': Beaker,
@@ -55,7 +152,7 @@ const categoryIcons: { [key: string]: any } = {
 interface UserInteraction {
   user_id: string;
   article_id: string;
-  interaction_type: 'view' | 'read' | 'like' | 'share' | 'comment' | 'save';
+  interaction_type: 'view' | 'read' | 'share' | 'comment';
   category: string;
   read_duration_seconds?: number;
   scroll_percentage?: number;
@@ -108,32 +205,31 @@ class UserIntelligenceTracker {
       this.preferences[this.userId] = {};
     }
 
-    const current = this.preferences[this.userId][interaction.category] || 0;
-    const weights = {
+    const current = this.preferences[this.userId][interaction.category] || 1;
+    
+    // أوزان التفاعلات
+    const weights: { [key: string]: number } = {
       view: 0.1,
       read: 0.5,
-      like: 0.3,
       share: 0.7,
-      comment: 0.8,
-      save: 0.6
+      comment: 0.8
     };
 
-    const newWeight = Math.min(5, Math.max(0, current + weights[interaction.interaction_type]));
+    const weight = weights[interaction.interaction_type] || 0;
+    const newWeight = Math.min(5, Math.max(0, current + weight));
     this.preferences[this.userId][interaction.category] = Number(newWeight.toFixed(2));
   }
 
   // حساب النقاط
   private calculatePoints(interaction: UserInteraction): number {
-    const pointRules = {
+    const pointsMap: { [key: string]: number } = {
       view: 1,
-      read: 10,
-      like: 5,
-      share: 15,
-      comment: 20,
-      save: 8
+      read: 2,
+      share: 5,
+      comment: 4
     };
-
-    return pointRules[interaction.interaction_type] || 0;
+    
+    return pointsMap[interaction.interaction_type] || 0;
   }
 
   // الحصول على التفضيلات
@@ -223,6 +319,8 @@ function NewspaperHomePage(): React.ReactElement {
   const [mounted, setMounted] = useState(false);
   const [showUserWidget, setShowUserWidget] = useState(true);
 
+  const { user, isLoggedIn: authIsLoggedIn, userId: authUserId } = useAuth();
+
   // تحميل تفضيل إظهار الويدجت من localStorage
   useEffect(() => {
     const savedPreference = localStorage.getItem('showUserWidget');
@@ -241,9 +339,6 @@ function NewspaperHomePage(): React.ReactElement {
     setMounted(true);
   }, []);
 
-  // هوك التفاعلات الموحد
-  const { isLiked: reactionLiked, isSaved: reactionSaved, toggleLike, toggleSave } = useReactions('articles');
-  
   // هوك ملف القارئ الذكي
   const { profile: readerProfile, isLoading: readerProfileLoading } = useReaderProfile();
 
@@ -364,14 +459,64 @@ function NewspaperHomePage(): React.ReactElement {
     }
   };
 
+  // دالة مساعدة لاختبار حالة تسجيل الدخول
+  const testAuthStatus = useCallback(async () => {
+    try {
+      console.log('🔍 اختبار حالة تسجيل الدخول...');
+      
+      // التحقق من localStorage
+      const localUser = localStorage.getItem('user');
+      const localUserId = localStorage.getItem('user_id');
+      console.log('📱 localStorage:', { localUser, localUserId });
+      
+      // التحقق من الكوكيز
+      const cookies = document.cookie;
+      console.log('🍪 Cookies:', cookies);
+      
+      // اختبار API المصادقة
+      const response = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('🔐 API Response Status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ API Response Data:', data);
+        return data.success && data.user;
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.log('❌ API Error:', errorData);
+        return false;
+      }
+    } catch (error) {
+      console.error('🚨 Error testing auth status:', error);
+      return false;
+    }
+  }, []);
+
   // دالة تتبع التفاعلات الذكية
-  const trackUserInteraction = useCallback((articleId: string, type: UserInteraction['interaction_type'], category: string, additionalData: any = {}) => {
+  const trackUserInteraction = useCallback(async (articleId: string, type: UserInteraction['interaction_type'], category: string, additionalData: any = {}) => {
     if (!userTracker) return;
     
-    // التحقق من تسجيل الدخول
-    if (!isLoggedIn) {
-      // عرض رسالة للمستخدم
-      alert('يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯');
+    // التحقق من تسجيل الدخول بشكل أكثر دقة
+    if (!isLoggedIn || !userId) {
+      console.log('🔍 حالة تسجيل الدخول:', { isLoggedIn, userId, user });
+      
+      // عرض رسالة أكثر تفصيلاً للمستخدم
+      toast.error('يرجى تسجيل الدخول للاحتفاظ بتفاعلاتك وكسب النقاط 🎯', {
+        duration: 4000,
+        position: 'top-center',
+        style: {
+          background: '#EF4444',
+          color: 'white',
+          fontSize: '14px',
+        }
+      });
       return;
     }
     
@@ -382,13 +527,42 @@ function NewspaperHomePage(): React.ReactElement {
     setUserPoints(newPoints);
     localStorage.setItem('user_points', JSON.stringify(newPoints));
     
+    // إرسال التفاعل إلى API
+    try {
+      const response = await fetch('/api/interactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          article_id: articleId,
+          type: type,
+          metadata: {
+            category: category,
+            ...additionalData
+          }
+        })
+      });
+      
+      if (!response.ok) {
+        console.error('فشل في إرسال التفاعل إلى API:', response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('تفاصيل الخطأ:', errorData);
+      } else {
+        console.log('✅ تم إرسال التفاعل بنجاح:', { type, articleId, userId });
+      }
+    } catch (error) {
+      console.error('خطأ في إرسال التفاعل إلى API:', error);
+    }
+    
     // إظهار إشعار النقاط (اختياري)
     if (points > 0) {
       console.log(`🎉 حصلت على ${points} نقطة! (المجموع: ${newPoints})`);
     }
     
     return points;
-  }, [userTracker, userPoints, isLoggedIn]);
+  }, [userTracker, userPoints, isLoggedIn, userId, user]);
 
   // Time-based content
   const getTimeContent = () => {
@@ -477,70 +651,20 @@ function NewspaperHomePage(): React.ReactElement {
 
   // NewsCard component with AI tracking
   const NewsCard = ({ news }: { news: any }) => {
+    
     const confidenceScore = userTracker ? userTracker.calculateConfidence(news.category) : 1;
     const isPersonalized = confidenceScore > 2.5;
     
-    // استخدام حالة الإعجابات من الصفحة الرئيسية بدلاً من الحالة المحلية
-    const isLiked = reactionLiked(news.id);
-    const isBookmarked = reactionSaved(news.id);
-    const [isShared, setIsShared] = useState(false);
-    const [interactionLoading, setInteractionLoading] = useState<string | null>(null);
-    
-    // دالة للتفاعل مع ردود فعل بصرية فورية
-    const handleInteraction = async (interactionType: string) => {
-      setInteractionLoading(interactionType);
-      
-      try {
-        // تحديث الواجهة فوراً لتحسين تجربة المستخدم
-        if (interactionType === 'like') {
-          // تحديث حالة الإعجاب على مستوى الصفحة
-          const wasLiked = reactionLiked(news.id);
-          toggleLike(news.id);
-          // إظهار الإشعار خارج setState
-          toast.success(wasLiked ? 'تم إلغاء الإعجاب' : 'تم الإعجاب! ❤️', {
-            duration: 2000,
-            position: 'bottom-center'
-          });
-        } else if (interactionType === 'share') {
-          setIsShared(true);
-          toast.success('تم تسجيل المشاركة! 📤', {
-            duration: 2000,
-            position: 'bottom-center'
-          });
-          // إعادة تعيين حالة المشاركة بعد ثانيتين
-          setTimeout(() => setIsShared(false), 2000);
-        } else if (interactionType === 'save') {
-          // تحديث حالة الحفظ على مستوى الصفحة
-          const wasSaved = reactionSaved(news.id);
-          toggleSave(news.id);
-          // إظهار الإشعار خارج setState
-          toast.success(wasSaved ? 'تم إلغاء الحفظ' : 'تم حفظ المقال! 🔖', {
-            duration: 2000,
-            position: 'bottom-center'
-          });
-        }
-        
-        // إرسال التفاعل إلى الخادم
-        await trackInteraction(news.id, interactionType, news.categoryId);
-        
-      } catch (error) {
-        console.error('خطأ في التفاعل:', error);
-        toast.error('حدث خطأ، يرجى المحاولة مرة أخرى');
-      } finally {
-        setInteractionLoading(null);
-      }
-    };
-    
     return (
-      <Link href={`/article/${news.id}`} className="block" prefetch={true}>
+      <Link href={`/article/${news.id}`} className="block h-full" prefetch={true}>
         <div 
-        className={`group rounded-3xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] bg-white dark:bg-gray-800 ${isPersonalized ? 'ring-2 ring-blue-400/30' : ''} shadow-lg dark:shadow-gray-900/50 overflow-hidden`}
+        className={`group h-full flex flex-col rounded-3xl bg-white dark:bg-gray-800 ${isPersonalized ? 'ring-2 ring-blue-400/30' : ''} shadow-lg dark:shadow-gray-900/50 overflow-hidden`}
       >
           <div className="relative h-48 overflow-hidden">
             <img 
               src={news.featured_image || news.image || generatePlaceholderImage(news.title)} 
               alt={news.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover"
               loading="lazy"
             />
             {/* تأثير التدرج على الصورة */}
@@ -627,7 +751,7 @@ function NewspaperHomePage(): React.ReactElement {
             </div>
           </div>
           
-          <div className="p-6">
+          <div className="p-6 flex-grow flex flex-col">
             <h3 className="text-lg font-bold mb-3 leading-tight transition-colors duration-300 text-gray-800 dark:text-white">
               {news.title}
             </h3>
@@ -638,26 +762,27 @@ function NewspaperHomePage(): React.ReactElement {
               </p>
             )}
             
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <span className="text-xs transition-colors duration-300 text-gray-500 dark:text-gray-400">
-                  {news.author?.name || ''}
-                </span>
-                {news.reading_time && (
+            <div className="mt-auto">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
                   <span className="text-xs transition-colors duration-300 text-gray-500 dark:text-gray-400">
-                    {news.reading_time} دقائق قراءة
+                    {news.author?.name || ''}
                   </span>
-                )}
+                  {news.reading_time && (
+                    <span className="text-xs transition-colors duration-300 text-gray-500 dark:text-gray-400">
+                      {news.reading_time} دقائق قراءة
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <span className="text-xs transition-colors duration-300 text-gray-500 dark:text-gray-400">
+                    {news.views_count || 0}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-xs transition-colors duration-300 text-gray-500 dark:text-gray-400">
-                  {news.views_count || 0}
-                </span>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between">
+              
+              <div className="flex items-center justify-between">
               <div className="flex gap-1">
                 {news.tags && Array.isArray(news.tags) && news.tags.slice(0, 2).map((tag: string) => (
                   <span key={tag} className="px-2 py-1 text-xs rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
@@ -667,57 +792,27 @@ function NewspaperHomePage(): React.ReactElement {
               </div>
               
               <div className="flex items-center gap-2">
-                {/* زر الإعجاب المحسن */}
+                {/* زر المشاركة */}
                 <button 
                   onClick={(e) => {
                     e.preventDefault();
-                    handleInteraction('like');
+                    // يمكن إضافة وظيفة المشاركة هنا لاحقاً
+                    navigator.share({
+                      title: news.title,
+                      url: `/article/${news.id}`
+                    }).catch(() => {
+                      // Fallback للمتصفحات التي لا تدعم Web Share API
+                      navigator.clipboard.writeText(`${window.location.origin}/article/${news.id}`);
+                      toast.success('تم نسخ الرابط');
+                    });
                   }}
-                  disabled={interactionLoading === 'like'}
-                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${ isLiked ? 'bg-red-100 dark:bg-red-900/30 text-red-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400' } ${interactionLoading === 'like' ? 'animate-pulse' : ''}`}
-                  title={isLiked ? 'إلغاء الإعجاب' : 'إعجاب'}
-                >
-                  {interactionLoading === 'like' ? (
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-                  )}
-                </button>
-                
-                {/* زر المشاركة المحسن */}
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleInteraction('share');
-                  }}
-                  disabled={interactionLoading === 'share'}
-                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${ isShared ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400' } ${interactionLoading === 'share' ? 'animate-pulse' : ''}`}
+                  className="p-2 rounded-lg transition-all duration-300 transform hover:scale-110 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
                   title="مشاركة"
                 >
-                  {interactionLoading === 'share' ? (
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Share2 className="w-4 h-4" />
-                  )}
-                </button>
-                
-                {/* زر الحفظ المحسن */}
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleInteraction('save');
-                  }}
-                  disabled={interactionLoading === 'save'}
-                  className={`p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${ isBookmarked ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-500' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400' } ${interactionLoading === 'save' ? 'animate-pulse' : ''}`}
-                  title={isBookmarked ? 'إلغاء الحفظ' : 'حفظ'}
-                >
-                  {interactionLoading === 'save' ? (
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
-                  )}
+                  <Share2 className="w-4 h-4" />
                 </button>
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -725,237 +820,121 @@ function NewspaperHomePage(): React.ReactElement {
     );
   };
 
-  // تسجيل تفاعل المستخدم مع API
-  const trackInteraction = async (articleId: string, interactionType: string, categoryId?: string) => {
-    try {
-      // فحص شامل لحالة تسجيل الدخول
-      const userId = localStorage.getItem('user_id');
-      const userData = localStorage.getItem('user');
-      const currentUserData = localStorage.getItem('currentUser');
-      
-      console.log('🔍 فحص تفصيلي لحالة تسجيل الدخول:');
-      console.log('- user_id من localStorage:', userId);
-      console.log('- user من localStorage:', userData ? 'موجود' : 'غير موجود');
-      console.log('- currentUser من localStorage:', currentUserData ? 'موجود' : 'غير موجود');
-      console.log('- isLoggedIn state:', isLoggedIn);
-      
-      // شروط التحقق الصارمة
-      const hasUserId = userId && userId.trim() !== '' && userId !== 'null' && userId !== 'undefined';
-      const isNotAnonymous = userId !== 'anonymous';
-      const hasUserData = userData && userData.trim() !== '' && userData !== 'null' && userData !== 'undefined';
-      
-      console.log('📋 نتائج الفحص:');
-      console.log('- hasUserId:', hasUserId);
-      console.log('- isNotAnonymous:', isNotAnonymous);
-      console.log('- hasUserData:', hasUserData);
-      
-      // التحقق النهائي من تسجيل الدخول
-      const isUserLoggedIn = !!(hasUserId && isNotAnonymous && hasUserData);
-      
-      console.log('🎯 النتيجة النهائية:', isUserLoggedIn ? 'مسجل دخول' : 'غير مسجل دخول');
-      
-      if (!isUserLoggedIn) {
-        console.log('👥 مستخدم زائر - حفظ التفاعل محلياً');
-        
-        // إنشاء معرف ضيف إذا لم يكن موجود
-        let guestId = localStorage.getItem('guestId');
-        if (!guestId) {
-          guestId = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-          localStorage.setItem('guestId', guestId);
-          console.log('تم إنشاء معرف ضيف:', guestId);
-        }
-        
-        // حفظ التفاعل محلياً
-        const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
-        const result = saveLocalInteraction(
-          guestId,
-          articleId,
-          interactionType as any,
-          { 
-            source: 'newspaper',
-            categoryId: categoryId || categories.find(c => c.name_ar === 'عام')?.id
-          }
-        );
-        
-        if (result.success && result.points > 0) {
-          // عرض إشعار بالنقاط
-          toast(`🎉 ${result.message}`, {
-            duration: 3000,
-            position: 'top-center',
-            style: {
-              background: '#10B981',
-              color: 'white',
-            }
-          });
-        }
-        
-        // تحديث حالة تسجيل الدخول إذا كانت خاطئة
-        if (isLoggedIn) {
-          console.log('🔄 تصحيح حالة isLoggedIn إلى false');
-          setIsLoggedIn(false);
-        }
-        return;
-      }
-      
-      // تحديث حالة تسجيل الدخول إذا كانت خاطئة
-      if (!isLoggedIn) {
-        console.log('🔄 تصحيح حالة isLoggedIn إلى true');
-        setIsLoggedIn(true);
-      }
-      
-      console.log('✅ المستخدم مسجل دخول - إرسال التفاعل إلى API');
-      
-      // إرسال التفاعل إلى API
-      const response = await fetch('/api/interactions/track', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: userId,
-          article_id: articleId,
-          interaction_type: interactionType,
-          category_id: categoryId,
-          source: 'newspaper',
-          device_type: userTracker?.getDeviceType() || 'unknown'
-        })
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('✅ تم إرسال التفاعل بنجاح:', result);
-        
-        // تحديث النقاط إذا تم منحها
-        if (result.points_earned) {
-          const newPoints = userPoints + result.points_earned;
-          setUserPoints(newPoints);
-          localStorage.setItem('user_points', JSON.stringify(newPoints));
-          console.log(`🎉 تم كسب ${result.points_earned} نقطة! المجموع: ${newPoints}`);
-        }
-        
-        // إشعار نجاح التفاعل
-        if (interactionType === 'like') {
-          console.log('❤️ تم تسجيل الإعجاب');
-        } else if (interactionType === 'share') {
-          console.log('📤 تم تسجيل المشاركة');
-        } else if (interactionType === 'read') {
-          console.log('📖 تم تسجيل القراءة');
-        }
-        
-      } else {
-        let error: any = {};
-        try {
-          error = await response.json();
-        } catch (e) {
-          error = { message: 'خطأ في معالجة الاستجابة' };
-        }
-        console.error('❌ خطأ في API التفاعل:', error);
-        
-        if (response.status === 401) {
-          console.log('🔐 خطأ في المصادقة - عرض رسالة تسجيل الدخول');
-          alert(error.message || 'يرجى تسجيل الدخول لبدء رحلتك الذكية وكسب النقاط 🎯');
-          
-          // إعادة تعيين حالة تسجيل الدخول
-          setIsLoggedIn(false);
-        } else {
-          console.log('⚠️ خطأ آخر في API:', response.status, error.message);
-        }
-      }
-    } catch (error) {
-      console.error('💥 خطأ في دالة trackInteraction:', error);
-      console.log('🔧 تفاصيل الخطأ:', {
-        message: error instanceof Error ? error.message : 'خطأ غير معروف',
-        stack: error instanceof Error ? error.stack : undefined,
-        articleId,
-        interactionType,
-        categoryId
-      });
-    }
-  };
-
   // مكون ويدجت الذكاء الشخصي
   const UserIntelligenceWidget = () => {
-    const preferences = userTracker?.getPreferences() || {};
-    const topCategories = Object.entries(preferences)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 3);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [showDebug, setShowDebug] = useState(false);
 
     return (
-      <div className={`rounded-3xl p-6 shadow-2xl border transition-all duration-300 ${darkMode ? 'bg-gray-800/95 border-gray-700/50 backdrop-blur-lg' : 'bg-white/95 backdrop-blur-lg border-gray-200/50'}`}>
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
-              <Brain className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>ملفك الذكي</h2>
-              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400'}`}>تحليل اهتماماتك</p>
+      <div className="fixed bottom-4 left-4 z-50">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 text-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <Brain className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">الذكاء الاصطناعي</h3>
+                  <p className="text-sm opacity-90">نظام التوصيات الذكي</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 text-yellow-500" />
-            <span className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
-              {userPoints} نقطة
-            </span>
-          </div>
-        </div>
 
-        {/* الاهتمامات الرئيسية */}
-        <div className="mb-6">
-          <h3 className={`text-sm font-semibold mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-            اهتماماتك الرئيسية:
-          </h3>
-          <div className="space-y-2">
-            {topCategories.length > 0 ? (
-              topCategories.map(([category, score], index) => (
-                <div key={category} className="flex items-center justify-between">
-                  <span className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-                    {categories.find(c => c.id.toString() === category)?.name_ar || category}
+          {/* Expanded Content */}
+          {isExpanded && (
+            <div className="p-4 space-y-4">
+              {/* Auth Status */}
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    حالة تسجيل الدخول
                   </span>
-                  <div className="flex items-center gap-2">
-                    <div className={`h-2 w-24 rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-gray-200 dark:bg-gray-700'}`}>
-                      <div 
-                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                        style={{ width: `${Math.min(100, score * 20)}%` }}
-                      />
+                  <button
+                    onClick={() => setShowDebug(!showDebug)}
+                    className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                  >
+                    {showDebug ? 'إخفاء التفاصيل' : 'عرض التفاصيل'}
+                  </button>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${isLoggedIn ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span className="text-sm">
+                    {isLoggedIn ? 'مسجل دخول' : 'غير مسجل دخول'}
+                  </span>
+                </div>
+                
+                {showDebug && (
+                  <div className="mt-3 space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span>User ID:</span>
+                      <span className="font-mono">{userId || 'غير محدد'}</span>
                     </div>
-                    <span className={`text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`}>
-                      {score.toFixed(1)}
-                    </span>
+                    <div className="flex justify-between">
+                      <span>User Name:</span>
+                      <span>{user?.name || 'غير محدد'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>User Email:</span>
+                      <span>{user?.email || 'غير محدد'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>User Role:</span>
+                      <span>{user?.role || 'غير محدد'}</span>
+                    </div>
+                    <button
+                      onClick={testAuthStatus}
+                      className="w-full mt-2 px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                    >
+                      اختبار حالة المصادقة
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Points Display */}
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    نقاط الولاء
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-yellow-500" />
+                    <span className="font-bold text-lg">{userPoints}</span>
                   </div>
                 </div>
-              ))
-            ) : (
-              <p className={`text-sm ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`}>
-                ابدأ بقراءة المقالات لبناء ملفك الشخصي
-              </p>
-            )}
-          </div>
-        </div>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  استمر في التفاعل لكسب المزيد من النقاط
+                </p>
+              </div>
 
-        {/* إحصائيات سريعة */}
-        <div className={`grid grid-cols-2 gap-3 p-4 rounded-xl ${darkMode ? 'bg-gray-700/30' : 'bg-gray-50 dark:bg-gray-900'}`}>
-          <div className="text-center">
-            <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
-              {Object.keys(readingTime).length}
+              {/* Quick Actions */}
+              <div className="space-y-2">
+                <button
+                  onClick={() => window.location.href = '/profile'}
+                  className="w-full px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all text-sm font-medium"
+                >
+                  عرض الملف الشخصي
+                </button>
+                <button
+                  onClick={() => window.location.href = '/dashboard'}
+                  className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all text-sm"
+                >
+                  لوحة التحكم
+                </button>
+              </div>
             </div>
-            <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-              مقال مقروء
-            </div>
-          </div>
-          <div className="text-center">
-            <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
-              {Math.round(Object.values(readingTime).reduce((a, b) => a + b, 0) / 60)}
-            </div>
-            <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-              دقيقة قراءة
-            </div>
-          </div>
+          )}
         </div>
-
-        <button className={`w-full mt-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 ${darkMode ? 'bg-blue-900/30 hover:bg-blue-800/30 text-blue-300' : 'bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 text-blue-700'}`}>
-          عرض التقرير الكامل
-        </button>
       </div>
     );
   };
@@ -1071,10 +1050,7 @@ function NewspaperHomePage(): React.ReactElement {
                       <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
                         {item.views.toLocaleString()} قراءة
                       </span>
-                      <div className="flex items-center gap-1">
-                        <Heart className={`w-3 h-3 ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`} />
-                        <span className={`text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-400 dark:text-gray-500'}`}>1.2K</span>
-                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -1104,7 +1080,7 @@ function NewspaperHomePage(): React.ReactElement {
   };
 
   const AnalysisBlock = () => (
-    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl min-h-[320px] flex flex-col justify-between ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-purple-900/30' : 'bg-purple-50'}`}>
@@ -1261,10 +1237,7 @@ function NewspaperHomePage(): React.ReactElement {
                 <Eye className={`w-3 h-3 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`} />
                 <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>4.2K</span>
               </div>
-              <div className="flex items-center gap-1">
-                <Heart className={`w-3 h-3 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`} />
-                <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>156</span>
-              </div>
+
             </div>
             <div className="flex items-center gap-1">
               <Star className="w-3 h-3 text-yellow-500" />
@@ -1293,7 +1266,7 @@ function NewspaperHomePage(): React.ReactElement {
   };
 
   const CategoriesBlock = () => (
-    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl min-h-[320px] flex flex-col ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-indigo-900/30' : 'bg-indigo-50'}`}>
@@ -1348,7 +1321,7 @@ function NewspaperHomePage(): React.ReactElement {
   );
 
   const AudioBlock = () => (
-    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl min-h-[320px] flex flex-col ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-pink-900/30' : 'bg-pink-50'}`}>
@@ -1422,7 +1395,7 @@ function NewspaperHomePage(): React.ReactElement {
 
   const TodayEventBlock = () => (
     todayEvent.isActive ? (
-      <div className={`rounded-2xl p-6 shadow-sm dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+      <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl min-h-[320px] flex flex-col ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
         <div className="flex items-center gap-3 mb-6">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-red-900/30' : 'bg-red-50'}`}>
             <Calendar className="w-5 h-5 text-red-600" />
@@ -1445,7 +1418,7 @@ function NewspaperHomePage(): React.ReactElement {
   );
 
   const RegionsBlock = () => (
-    <div className={`rounded-2xl p-6 shadow-sm dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-lg dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+    <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl min-h-[320px] flex flex-col ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-teal-900/30' : 'bg-teal-50'}`}>
@@ -1678,31 +1651,24 @@ function NewspaperHomePage(): React.ReactElement {
         direction: 'rtl'
       }}
     >
+      {/* دالة تشخيص المصادقة - تظهر معلومات في Console فقط */}
+      <DebugAuth />
+      
       {/* Header */}
       <Header />
 
-      {/* ملف القارئ الذكي - يظهر فقط للمستخدمين المسجلين */}
-      {mounted && isLoggedIn && !readerProfileLoading && readerProfile && (
-        <div className="max-w-7xl mx-auto px-6 pt-4">
-          <ReaderProfileCard 
-            profile={readerProfile} 
-            darkMode={darkMode}
-          />
-        </div>
+      {/* بلوك الجرعات الذكي - أول بلوك بعد الهيدر */}
+      <SmartDigestBlock />
+      
+      {/* Deep Analysis Widget - ثاني بلوك مباشرة بعد الجرعات */}
+      {!deepInsightsLoading && deepInsights.length > 0 && (
+        <DeepAnalysisWidget insights={deepInsights} />
       )}
 
       {/* Smart Blocks - Top Banner */}
       <div className="max-w-7xl mx-auto px-6 py-4">
         <SmartSlot position="topBanner" />
       </div>
-
-      {/* Deep Analysis Widget - After Header */}
-      {!deepInsightsLoading && deepInsights.length > 0 && (
-        <DeepAnalysisWidget insights={deepInsights} />
-      )}
-
-      {/* بلوك الجرعات الذكي - يستبدل Welcome Section */}
-      <SmartDigestBlock />
 
       {/* Smart Blocks - After Highlights */}
       <SmartSlot position="afterHighlights" />
@@ -2027,17 +1993,11 @@ function NewspaperHomePage(): React.ReactElement {
                   <div className="flex items-center gap-3">
                     <Sparkles className={`w-5 h-5 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} />
                     <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      يتم عرض المحتوى بناءً على اهتماماتك: {userInterests.map(interest => {
-                        const interestMap: any = {
-                          'tech': 'تقنية',
-                          'business': 'اقتصاد', 
-                          'sports': 'رياضة',
-                          'culture': 'ثقافة',
-                          'health': 'صحة',
-                          'international': 'دولي'
-                        };
-                        return interestMap[interest] || interest;
-                      }).join(' • ')}
+                      يتم عرض المحتوى بناءً على اهتماماتك: {userInterests.map(interestId => {
+                        // البحث عن اسم الفئة من قائمة الفئات المحملة
+                        const category = categories.find(cat => cat.id === interestId);
+                        return category ? (category.name_ar || category.name) : '';
+                      }).filter(name => name).join(' • ')}
                     </p>
                   </div>
                   <Link 
@@ -2170,30 +2130,42 @@ function NewspaperHomePage(): React.ReactElement {
           </div>
 
           {/* Enhanced Smart Blocks Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="transform hover:scale-105 transition-all duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* الصف الأول - البلوكات الرئيسية */}
+            <div className="h-full">
               <BriefingBlock />
             </div>
-            <div className="transform hover:scale-105 transition-all duration-300">
+            <div className="h-full">
               <TrendingBlock />
             </div>
-            <div className="transform hover:scale-105 transition-all duration-300">
+            <div className="h-full">
               <AnalysisBlock />
             </div>
-            <div className="transform hover:scale-105 transition-all duration-300">
+            
+            {/* الصف الثاني - البلوكات التفاعلية */}
+            <div className="h-full">
               <RecommendationBlock />
             </div>
-            <div className="transform hover:scale-105 transition-all duration-300">
+            <div className="h-full">
               <CategoriesBlock />
             </div>
-            <div className="transform hover:scale-105 transition-all duration-300">
+            <div className="h-full">
               <AudioBlock />
             </div>
-            <div className="transform hover:scale-105 transition-all duration-300">
+            
+            {/* الصف الثالث - البلوكات الإضافية */}
+            <div className="h-full">
               <TodayEventBlock />
             </div>
-            <div className="transform hover:scale-105 transition-all duration-300">
+            <div className="h-full">
               <RegionsBlock />
+            </div>
+            {/* بلوك فارغ للتوازن */}
+            <div className="h-full flex items-center justify-center">
+              <div className={`w-full h-full min-h-[320px] rounded-3xl border-2 border-dashed ${darkMode ? 'border-gray-700' : 'border-gray-300'} flex flex-col items-center justify-center p-6`}>
+                <Sparkles className={`w-12 h-12 ${darkMode ? 'text-gray-600' : 'text-gray-400'} mb-3`} />
+                <p className={`text-sm font-medium ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>بلوك جديد قريباً</p>
+              </div>
             </div>
           </div>
 
@@ -2316,6 +2288,9 @@ function NewspaperHomePage(): React.ReactElement {
         </button>
       )}
 
+      {/* Footer Dashboard */}
+      <FooterDashboard />
+
       {/* Enhanced Footer */}
       <footer className={`${darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'}`}>
 
@@ -2379,7 +2354,7 @@ function NewspaperHomePage(): React.ReactElement {
                 © 2025 صحيفة سبق – جميع الحقوق محفوظة
               </p>
               <div className="flex items-center gap-1">
-                <Heart className="w-4 h-4 text-red-500" />
+                <span className="text-red-500">❤️</span>
                 <span className={`text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
                   صُنع بحب في المملكة العربية السعودية
                 </span>

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
@@ -9,36 +8,46 @@ export async function GET(
   try {
     const { id: userId } = await props.params;
     
-    // قراءة ملف التفاعلات
-    const interactionsPath = path.join(process.cwd(), 'data', 'user_article_interactions.json');
-    const interactionsData = await fs.readFile(interactionsPath, 'utf-8');
-    const data = JSON.parse(interactionsData);
-    
-    // التأكد من أن التفاعلات مصفوفة
-    const interactions = Array.isArray(data.interactions) ? data.interactions : [];
-    
-    // تصفية التفاعلات للمستخدم المحدد
-    const userInteractions = interactions.filter((interaction: any) => 
-      interaction.user_id === userId
-    );
+    // جلب التفاعلات من قاعدة البيانات
+    const interactions = await prisma.interaction.findMany({
+      where: { userId },
+      include: {
+        article: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            category: {
+              select: {
+                id: true,
+                name: true,
+                slug: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
     
     // حساب الإحصائيات
     const stats = {
-      articlesRead: userInteractions.filter((i: any) => 
-        i.interaction_type === 'read' || i.interaction_type === 'view'
+      articlesRead: interactions.filter(i => 
+        i.type === 'read' || i.type === 'view'
       ).length,
-      interactions: userInteractions.filter((i: any) => 
-        ['like', 'comment', 'save', 'bookmark'].includes(i.interaction_type)
+      interactions: interactions.filter(i => 
+        ['like', 'comment', 'save', 'bookmark'].includes(i.type)
       ).length,
-      shares: userInteractions.filter((i: any) => 
-        i.interaction_type === 'share'
+      shares: interactions.filter(i => 
+        i.type === 'share'
       ).length
     };
     
     return NextResponse.json({
       success: true,
+      interactions: interactions,
       stats: stats,
-      totalInteractions: userInteractions.length
+      totalInteractions: interactions.length
     });
   } catch (error) {
     console.error('Error fetching user interactions:', error);

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,8 +14,8 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // في بيئة الإنتاج، نرجع قيم افتراضية لأن التخزين يتم محلياً
-    if (process.env.NODE_ENV === 'production') {
+    // إذا كان المستخدم غير مسجل، نرجع قيم افتراضية
+    if (userId === 'anonymous') {
       return NextResponse.json({
         success: true,
         data: {
@@ -25,28 +24,20 @@ export async function GET(request: NextRequest) {
           shared: false
         },
         totalInteractions: 0,
-        message: 'Using local storage in production'
+        message: 'Anonymous user - using default state'
       });
     }
 
-    // قراءة ملف التفاعلات
-    const interactionsPath = path.join(process.cwd(), 'data', 'user_article_interactions.json');
-    const interactionsData = await fs.readFile(interactionsPath, 'utf-8');
-    const data = JSON.parse(interactionsData);
-    
-    // التأكد من أن التفاعلات مصفوفة
-    const interactions = Array.isArray(data.interactions) ? data.interactions : [];
-    
-    // البحث عن تفاعلات المستخدم مع هذا المقال
-    const userArticleInteractions = interactions.filter((interaction: any) => 
-      interaction.user_id === userId && 
-      interaction.article_id === articleId
-    );
-
-    // ترتيب التفاعلات حسب التوقيت (الأحدث أولاً)
-    const sortedInteractions = userArticleInteractions.sort((a: any, b: any) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
+    // جلب جميع التفاعلات للمستخدم مع هذا المقال من قاعدة البيانات
+    const interactions = await prisma.interaction.findMany({
+      where: {
+        userId: userId,
+        articleId: articleId
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
 
     // تحديد آخر حالة لكل نوع من التفاعلات
     let liked = false;
@@ -54,25 +45,23 @@ export async function GET(request: NextRequest) {
     let shared = false;
 
     // البحث عن آخر تفاعل من نوع like/unlike
-    const lastLikeInteraction = sortedInteractions.find((i: any) => 
-      i.interaction_type === 'like' || i.interaction_type === 'unlike'
+    const lastLikeInteraction = interactions.find(i => 
+      i.type === 'like' || i.type === 'unlike'
     );
     if (lastLikeInteraction) {
-      liked = lastLikeInteraction.interaction_type === 'like';
+      liked = lastLikeInteraction.type === 'like';
     }
 
     // البحث عن آخر تفاعل من نوع save/unsave
-    const lastSaveInteraction = sortedInteractions.find((i: any) => 
-      i.interaction_type === 'save' || i.interaction_type === 'unsave'
+    const lastSaveInteraction = interactions.find(i => 
+      i.type === 'save' || i.type === 'unsave'
     );
     if (lastSaveInteraction) {
-      saved = lastSaveInteraction.interaction_type === 'save';
+      saved = lastSaveInteraction.type === 'save';
     }
 
     // المشاركة لا يمكن إلغاؤها، لذا نبحث فقط عن وجودها
-    shared = sortedInteractions.some((i: any) => 
-      i.interaction_type === 'share'
-    );
+    shared = interactions.some(i => i.type === 'share');
 
     // الحالة النهائية
     const interactionState = {
@@ -84,7 +73,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: interactionState,
-      totalInteractions: userArticleInteractions.length
+      totalInteractions: interactions.length
     });
   } catch (error) {
     console.error('Error fetching user-article interactions:', error);

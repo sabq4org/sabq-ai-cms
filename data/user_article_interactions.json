@@ -1587,6 +1587,431 @@
       "timestamp": "2025-06-29T21:18:11.567Z",
       "source": "article_page",
       "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "id": "interaction-1751280201379-7daig4e7f",
+      "user_id": "test-user-123",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "94604730-5d3b-43f2-ab8d-fab7b1114f6b"
+        ]
+      },
+      "created_at": "2025-06-30T10:43:21.379Z"
+    },
+    {
+      "id": "interaction-1751284360076-pdpziogv4",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "05ef071c-db4f-432f-82b4-8117914edc89",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "1bde8162-d255-4e70-a623-4c87ac03ce01",
+          "94604730-5d3b-43f2-ab8d-fab7b1114f6b"
+        ]
+      },
+      "created_at": "2025-06-30T11:52:40.076Z"
+    },
+    {
+      "id": "interaction-1751284817575-c5s86otqg",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "1454b562-63e6-40f5-8f74-bb9c156d5a3a",
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "1bde8162-d255-4e70-a623-4c87ac03ce01",
+          "94604730-5d3b-43f2-ab8d-fab7b1114f6b",
+          "85165437-e2d6-4208-a7f3-2e3f82fb34c9",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "05ef071c-db4f-432f-82b4-8117914edc89",
+          "a806adbd-ead7-4242-8117-b316d120e7a6"
+        ]
+      },
+      "created_at": "2025-06-30T12:00:17.575Z"
+    },
+    {
+      "id": "interaction-1751288089673-8nfpnix1i",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "1454b562-63e6-40f5-8f74-bb9c156d5a3a",
+          "a806adbd-ead7-4242-8117-b316d120e7a6",
+          "05ef071c-db4f-432f-82b4-8117914edc89",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "85165437-e2d6-4208-a7f3-2e3f82fb34c9",
+          "94604730-5d3b-43f2-ab8d-fab7b1114f6b",
+          "1bde8162-d255-4e70-a623-4c87ac03ce01"
+        ]
+      },
+      "created_at": "2025-06-30T12:54:49.673Z"
+    },
+    {
+      "id": "interaction-1751288098839-v5csnruno",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "1454b562-63e6-40f5-8f74-bb9c156d5a3a",
+          "a806adbd-ead7-4242-8117-b316d120e7a6",
+          "05ef071c-db4f-432f-82b4-8117914edc89",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "85165437-e2d6-4208-a7f3-2e3f82fb34c9",
+          "94604730-5d3b-43f2-ab8d-fab7b1114f6b",
+          "1bde8162-d255-4e70-a623-4c87ac03ce01"
+        ]
+      },
+      "created_at": "2025-06-30T12:54:58.839Z"
+    },
+    {
+      "id": "interaction-1751291353370-8sya09yv4",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "1454b562-63e6-40f5-8f74-bb9c156d5a3a",
+          "1bde8162-d255-4e70-a623-4c87ac03ce01",
+          "94604730-5d3b-43f2-ab8d-fab7b1114f6b",
+          "85165437-e2d6-4208-a7f3-2e3f82fb34c9",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "05ef071c-db4f-432f-82b4-8117914edc89",
+          "a806adbd-ead7-4242-8117-b316d120e7a6"
+        ]
+      },
+      "created_at": "2025-06-30T13:49:13.370Z"
+    },
+    {
+      "id": "interaction-1751291365135-7hyh0zky4",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "1454b562-63e6-40f5-8f74-bb9c156d5a3a",
+          "1bde8162-d255-4e70-a623-4c87ac03ce01",
+          "94604730-5d3b-43f2-ab8d-fab7b1114f6b",
+          "85165437-e2d6-4208-a7f3-2e3f82fb34c9",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "05ef071c-db4f-432f-82b4-8117914edc89",
+          "a806adbd-ead7-4242-8117-b316d120e7a6"
+        ]
+      },
+      "created_at": "2025-06-30T13:49:25.135Z"
+    },
+    {
+      "id": "interaction-1751291365163-ml52fyyuj",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "1454b562-63e6-40f5-8f74-bb9c156d5a3a",
+          "1bde8162-d255-4e70-a623-4c87ac03ce01",
+          "94604730-5d3b-43f2-ab8d-fab7b1114f6b",
+          "85165437-e2d6-4208-a7f3-2e3f82fb34c9",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "05ef071c-db4f-432f-82b4-8117914edc89",
+          "a806adbd-ead7-4242-8117-b316d120e7a6"
+        ]
+      },
+      "created_at": "2025-06-30T13:49:25.163Z"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "2a331f24-290b-431f-af1b-abdc62587bea",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T13:53:37.772Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "id": "interaction-1751309241003-vcs0c5sol",
+      "user_id": "3a02d49c-16ca-48ee-a083-e4a44a03e07f",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "05ef071c-db4f-432f-82b4-8117914edc89"
+        ]
+      },
+      "created_at": "2025-06-30T18:47:21.003Z"
+    },
+    {
+      "id": "interaction-1751309254155-nojklmbvb",
+      "user_id": "3a02d49c-16ca-48ee-a083-e4a44a03e07f",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "05ef071c-db4f-432f-82b4-8117914edc89"
+        ]
+      },
+      "created_at": "2025-06-30T18:47:34.155Z"
+    },
+    {
+      "id": "interaction-1751309254156-6xkasxs5f",
+      "user_id": "3a02d49c-16ca-48ee-a083-e4a44a03e07f",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "05ef071c-db4f-432f-82b4-8117914edc89"
+        ]
+      },
+      "created_at": "2025-06-30T18:47:34.156Z"
+    },
+    {
+      "id": "interaction-1751311743629-tcovklj2m",
+      "user_id": "3a02d49c-16ca-48ee-a083-e4a44a03e07f",
+      "article_id": null,
+      "action": "select_preferences",
+      "details": {
+        "categoryIds": [
+          "1454b562-63e6-40f5-8f74-bb9c156d5a3a",
+          "656fb26d-ba59-4b1d-bb89-899abf61e6a3",
+          "1bde8162-d255-4e70-a623-4c87ac03ce01",
+          "cf47cbd2-4f55-44d3-8b14-36d415424f9d",
+          "05ef071c-db4f-432f-82b4-8117914edc89",
+          "a806adbd-ead7-4242-8117-b316d120e7a6"
+        ]
+      },
+      "created_at": "2025-06-30T19:29:03.629Z"
+    },
+    {
+      "user_id": "guest-1751317098733-3ljs",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T20:58:22.907Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318494736-3tcg",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:21:37.707Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318494736-3tcg",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:21:37.833Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318494736-3tcg",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:22:26.820Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318494736-3tcg",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:22:26.837Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318494736-3tcg",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:24:05.055Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318494736-3tcg",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:24:05.113Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318494736-3tcg",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:24:19.920Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318494736-3tcg",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:24:20.422Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318795282-7rr5",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:26:39.735Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318795282-7rr5",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:26:39.830Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318795282-7rr5",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:29:25.356Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318976621-l32l",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:29:38.322Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318976621-l32l",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:29:38.801Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318976621-l32l",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:29:41.069Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318976621-l32l",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:29:41.088Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318976621-l32l",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:30:19.484Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "guest-1751318976621-l32l",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:30:19.856Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:30:24.971Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:30:27.123Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:30:27.139Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:31:12.677Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:31:12.714Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:31:48.684Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:31:48.720Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:32:00.750Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "article_id": "a5e49603-42e7-4540-aa59-dfed8403f918",
+      "interaction_type": "view",
+      "timestamp": "2025-06-30T21:32:00.777Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
     }
   ]
 }

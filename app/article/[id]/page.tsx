@@ -3,17 +3,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Heart, Bookmark, Share2, Eye, Clock, Calendar,
+import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu
 } from 'lucide-react';
-import { useInteractions } from '../../../hooks/useInteractions';
+
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
 import { getImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
-import './article-redesign.css';
 import { marked } from 'marked';
 import Header from '@/components/Header';
 
@@ -131,7 +130,7 @@ interface PageProps {
 
 export default function ArticlePage({ params }: PageProps) {
   const router = useRouter();
-  const { recordInteraction, trackReadingProgress } = useInteractions();
+
   const { darkMode, toggleDarkMode } = useDarkModeContext();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -226,10 +225,7 @@ export default function ArticlePage({ params }: PageProps) {
         // حساب وقت القراءة
         const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
         
-        // تتبع التقدم
-        if (userId && article?.id) {
-          trackReadingProgress(userId, article.id, progress, duration);
-        }
+
         
         // تحديد القسم النشط
         if (tableOfContents.length > 0) {
@@ -263,21 +259,6 @@ export default function ArticlePage({ params }: PageProps) {
     async function fetchUserInteractions() {
       if (!article?.id || !userId) return;
 
-      const { getUserArticleInteraction, migrateOldData } = await import('@/lib/interactions-localStorage');
-      
-      // ترحيل البيانات القديمة إن وجدت
-      migrateOldData();
-      
-      // جلب التفاعلات من localStorage
-      const localInteractions = getUserArticleInteraction(userId, article.id);
-      
-      setInteraction(prev => ({
-        ...prev,
-        liked: localInteractions.liked,
-        saved: localInteractions.saved,
-        shared: localInteractions.shared
-      }));
-
       // محاولة جلب من الخادم للمستخدمين المسجلين
       if (userId && !userId.startsWith('guest-')) {
         try {
@@ -288,14 +269,14 @@ export default function ArticlePage({ params }: PageProps) {
               const serverInteractions = interactionsData.data;
               setInteraction(prev => ({
                 ...prev,
-                liked: serverInteractions.liked || localInteractions.liked,
-                saved: serverInteractions.saved || localInteractions.saved,
-                shared: serverInteractions.shared || localInteractions.shared
+                liked: serverInteractions.liked || false,
+                saved: serverInteractions.saved || false,
+                shared: serverInteractions.shared || false
               }));
             }
           }
         } catch (error) {
-          console.log('استخدام البيانات المحلية فقط');
+          console.log('خطأ في جلب التفاعلات');
         }
       }
     }
@@ -500,99 +481,7 @@ export default function ArticlePage({ params }: PageProps) {
     }
   };
 
-  const handleLike = async () => {
-    if (!article || !userId) return;
-    
-    const { updateUserArticleInteraction } = await import('@/lib/interactions-localStorage');
-    
-    const newLikedState = !interaction.liked;
-    const newLikesCount = newLikedState ? interaction.likesCount + 1 : Math.max(0, interaction.likesCount - 1);
-    
-    // تحديث الحالة المحلية فوراً
-    setInteraction(prev => ({
-      ...prev,
-      liked: newLikedState,
-      likesCount: newLikesCount
-    }));
-    
-    // حفظ في localStorage
-    updateUserArticleInteraction(userId, article.id, {
-      liked: newLikedState
-    });
-    
-    // تسجيل التفاعل
-    trackInteraction({
-      userId,
-      articleId: article.id,
-      interactionType: newLikedState ? 'like' : 'unlike',
-      source: 'article_page'
-    });
-    
-    // إرسال إلى الخادم للمستخدمين المسجلين
-    if (!userId.startsWith('guest-')) {
-      try {
-        await fetch('/api/interactions/track', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: userId,
-            article_id: article.id,
-            interaction_type: newLikedState ? 'like' : 'unlike',
-            source: 'article_page'
-          })
-        });
-      } catch (error) {
-        console.error('Error tracking like:', error);
-      }
-    }
-  };
 
-  const handleSave = async () => {
-    if (!article || !userId) return;
-    
-    const { updateUserArticleInteraction } = await import('@/lib/interactions-localStorage');
-    
-    const newSavedState = !interaction.saved;
-    const newSavesCount = newSavedState ? interaction.savesCount + 1 : Math.max(0, interaction.savesCount - 1);
-    
-    // تحديث الحالة المحلية فوراً
-    setInteraction(prev => ({
-      ...prev,
-      saved: newSavedState,
-      savesCount: newSavesCount
-    }));
-    
-    // حفظ في localStorage
-    updateUserArticleInteraction(userId, article.id, {
-      saved: newSavedState
-    });
-    
-    // تسجيل التفاعل
-    trackInteraction({
-      userId,
-      articleId: article.id,
-      interactionType: newSavedState ? 'save' : 'unsave',
-      source: 'article_page'
-    });
-    
-    // إرسال إلى الخادم للمستخدمين المسجلين
-    if (!userId.startsWith('guest-')) {
-      try {
-        await fetch('/api/interactions/track', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: userId,
-            article_id: article.id,
-            interaction_type: newSavedState ? 'save' : 'unsave',
-            source: 'article_page'
-          })
-        });
-      } catch (error) {
-        console.error('Error tracking save:', error);
-      }
-    }
-  };
 
   const handleAiQuestion = async (question: string) => {
     if (!question.trim() || !article) return;
@@ -1009,28 +898,6 @@ export default function ArticlePage({ params }: PageProps) {
         {/* شريط التفاعل السريع */}
         <div className="quick-interaction-bar">
           <button 
-            title="أعجبني"
-            onClick={handleLike}
-            className={`quick-interaction-button ripple-effect ${
-              interaction.liked ? 'active liked' : ''
-            }`}
-          >
-            <Heart className={`w-5 h-5 ${interaction.liked ? 'fill-current' : ''}`} />
-            <span>إعجاب</span>
-          </button>
-          
-          <button 
-            title="احفظ لوقت لاحق"
-            onClick={handleSave}
-            className={`quick-interaction-button ripple-effect ${
-              interaction.saved ? 'active' : ''
-            }`}
-          >
-            <Bookmark className={`w-5 h-5 ${interaction.saved ? 'fill-current' : ''}`} />
-            <span>حفظ</span>
-          </button>
-          
-          <button 
             title="شارك هذا المقال"
             onClick={() => setShowShareMenu(!showShareMenu)}
             className="quick-interaction-button ripple-effect relative"
@@ -1077,32 +944,8 @@ export default function ArticlePage({ params }: PageProps) {
               {renderArticleContent(article.content)}
             </div>
 
-            {/* Interaction Bar */}
+            {/* Share Bar */}
             <div className="flex items-center gap-4 my-8 py-4 border-t border-b">
-              <button 
-                onClick={handleLike}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  interaction.liked 
-                    ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' 
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Heart className={`w-5 h-5 ${interaction.liked ? 'fill-current' : ''}`} />
-                <span>{interaction.likesCount || 0} إعجاب</span>
-              </button>
-              
-              <button 
-                onClick={handleSave}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  interaction.saved 
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Bookmark className={`w-5 h-5 ${interaction.saved ? 'fill-current' : ''}`} />
-                <span>حفظ</span>
-              </button>
-              
               <button 
                 onClick={() => setShowShareMenu(!showShareMenu)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all relative"
@@ -1164,13 +1007,7 @@ export default function ArticlePage({ params }: PageProps) {
                     <div className="article-info-value">{calculateReadingTime(article.content)} دقائق</div>
                   </div>
                 </div>
-                <div className="article-info-item">
-                  <Heart className="w-5 h-5" />
-                  <div>
-                    <div className="article-info-label">الإعجابات</div>
-                    <div className="article-info-value">{interaction.likesCount || 0}</div>
-                  </div>
-                </div>
+
                 <div className="article-info-item">
                   <MessageCircle className="w-5 h-5" />
                   <div>
@@ -1437,13 +1274,6 @@ export default function ArticlePage({ params }: PageProps) {
             title="العودة للأعلى"
           >
             <ChevronRight className="w-6 h-6 rotate-90" />
-          </button>
-          <button 
-            onClick={handleLike}
-            className={`floating-action-button ${interaction.liked ? 'bg-red-600' : ''}`}
-            title="إعجاب"
-          >
-            <Heart className={`w-6 h-6 ${interaction.liked ? 'fill-current' : ''}`} />
           </button>
           <button 
             onClick={() => setShowShareMenu(!showShareMenu)}

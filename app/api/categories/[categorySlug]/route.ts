@@ -34,15 +34,15 @@ async function loadCategories(): Promise<Category[]> {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ categorySlug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const { categorySlug } = await params;
     
     // Try database first
     try {
       const category = await prisma.category.findUnique({
-        where: { slug },
+        where: { slug: categorySlug },
         include: {
           parent: true,
           _count: {
@@ -72,7 +72,7 @@ export async function GET(
     
     // Fallback to JSON
     const categories = await loadCategories();
-    const category = categories.find(cat => cat.slug === slug && cat.is_active);
+    const category = categories.find(cat => cat.slug === categorySlug && cat.is_active);
     
     if (!category) {
       return NextResponse.json(
@@ -98,15 +98,15 @@ export async function GET(
 // PUT: تحديث فئة
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ categorySlug: string }> }
 ) {
   try {
     const body = await request.json();
-    const { slug } = await params;
+    const { categorySlug } = await params;
     
     // Find category by slug
     const existingCategory = await prisma.category.findUnique({
-      where: { slug }
+      where: { slug: categorySlug }
     });
     
     if (!existingCategory) {
@@ -173,14 +173,14 @@ export async function PUT(
 // DELETE: حذف فئة
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ categorySlug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const { categorySlug } = await params;
     
     // Find category by slug
     const category = await prisma.category.findUnique({
-      where: { slug }
+      where: { slug: categorySlug }
     });
     
     if (!category) {
@@ -199,7 +199,7 @@ export async function DELETE(
       return NextResponse.json({
         success: false,
         error: 'لا يمكن حذف الفئة لوجود مقالات مرتبطة بها',
-        articles_count: articlesCount
+        articlesCount
       }, { status: 400 });
     }
     

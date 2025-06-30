@@ -20,6 +20,7 @@ export interface AuthContextType {
   loading: boolean;
   login: (token: string) => void;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,15 +29,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadUserFromCookie = () => {
+  const fetchUserFromAPI = async (): Promise<User | null> => {
     try {
-      // محاولة قراءة كوكيز المستخدم أولاً (المحفوظة من API)
+      const response = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.user) {
+          return data.user;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('خطأ في جلب بيانات المستخدم من API:', error);
+      return null;
+    }
+  };
+
+  const loadUserFromCookie = async () => {
+    try {
+      // التحقق من وجود توكن أولاً
+      const token = Cookies.get('auth-token');
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      // محاولة جلب بيانات المستخدم من API
+      const userData = await fetchUserFromAPI();
+      if (userData) {
+        setUser(userData);
+        // مزامنة مع localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(userData));
+          if (userData.id) {
+            localStorage.setItem('user_id', String(userData.id));
+          }
+        }
+        setLoading(false);
+        return;
+      }
+
+      // إذا فشل API، محاولة قراءة من الكوكيز كـ fallback
       const userCookie = Cookies.get('user');
       if (userCookie) {
         try {
           const userData = JSON.parse(decodeURIComponent(userCookie));
           setUser(userData);
-          // مزامنة مع localStorage لضمان توفر user_id في الواجهة
           if (typeof window !== 'undefined') {
             localStorage.setItem('user', JSON.stringify(userData));
             if (userData.id) {
@@ -47,46 +93,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         } catch (error) {
           console.error("فشل في قراءة كوكيز المستخدم:", error);
-        }
-      }
-
-      // إذا لم توجد كوكيز المستخدم، محاولة قراءة التوكن القديم
-      const token = Cookies.get('auth-token') || Cookies.get('token');
-      if (token) {
-        try {
-          const decodedUser = jwtDecode<User>(token);
-          setUser(decodedUser);
-          Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'lax' });
-
-          // مزامنة مع localStorage
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('user', JSON.stringify(decodedUser));
-            if (decodedUser.id) {
-              localStorage.setItem('user_id', String(decodedUser.id));
-            }
-          }
-          setLoading(false);
-          return;
-        } catch (error) {
-          console.error("فشل في معالجة التوكن عند تسجيل الدخول:", error);
-          // إزالة التوكن التالف
-          Cookies.remove('auth-token');
-          Cookies.remove('token');
-        }
-      }
-
-      // محاولة قراءة من localStorage كـ fallback
-      if (typeof window !== 'undefined') {
-        const localUser = localStorage.getItem('user');
-        if (localUser) {
-          try {
-            const userData = JSON.parse(localUser);
-            setUser(userData);
-            setLoading(false);
-            return;
-          } catch (error) {
-            console.error("فشل في قراءة localStorage:", error);
-          }
         }
       }
 
@@ -120,7 +126,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // استدعاء API تسجيل الخروج
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('خطأ في تسجيل الخروج:', error);
+    }
+
     setUser(null);
     // إزالة جميع الكوكيز المتعلقة بالمصادقة
     Cookies.remove('user');
@@ -137,8 +153,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = '/login';
   };
 
+  const refreshUser = async () => {
+    const userData = await fetchUserFromAPI();
+    if (userData) {
+      setUser(userData);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user', JSON.stringify(userData));
+        if (userData.id) {
+          localStorage.setItem('user_id', String(userData.id));
+        }
+      }
+    } else {
+      setUser(null);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
       {!loading && children}
     </AuthContext.Provider>
   );

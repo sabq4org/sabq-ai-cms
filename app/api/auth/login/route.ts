@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 export const runtime = 'nodejs';
 
-// مفتاح سري لتوقيع JWT (يجب تخزينه في متغير بيئة)
+const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
 export async function POST(request: NextRequest) {
@@ -34,6 +33,7 @@ export async function POST(request: NextRequest) {
     const { email, password } = body;
 
     console.log('محاولة تسجيل دخول:', { email });
+    console.log('BODY:', body);
 
     // التحقق من البيانات المطلوبة
     if (!email || !password) {
@@ -43,24 +43,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // قراءة ملف المستخدمين
-    const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-    let fileContents;
-    try {
-      fileContents = await readFile(usersFilePath, 'utf8');
-    } catch (fileError) {
-      console.error('خطأ في قراءة ملف المستخدمين:', fileError);
-      return NextResponse.json(
-        { success: false, error: 'خطأ في النظام' },
-        { status: 500 }
-      );
-    }
+    // البحث عن المستخدم في قاعدة البيانات
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        passwordHash: true,
+        role: true,
+        isVerified: true,
+        isAdmin: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
 
-    const data = JSON.parse(fileContents);
-    const users = data.users || [];
-
-    // البحث عن المستخدم بالبريد الإلكتروني
-    const user = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+    console.log('USER:', user);
 
     if (!user) {
       return NextResponse.json(
@@ -70,7 +69,9 @@ export async function POST(request: NextRequest) {
     }
 
     // التحقق من كلمة المرور
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash || '');
+    
+    console.log('Password validation result:', isPasswordValid);
     
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -80,25 +81,22 @@ export async function POST(request: NextRequest) {
     }
 
     // التحقق من حالة الحساب
-    if (user.status === 'suspended' || user.status === 'banned') {
+    if (!user.isVerified) {
       return NextResponse.json(
-        { success: false, error: 'عذراً، حسابك موقوف أو محظور' },
+        { success: false, error: 'يرجى تأكيد بريدك الإلكتروني أولاً' },
         { status: 403 }
       );
     }
-
-    // إزالة كلمة المرور من البيانات المرسلة
-    const { password: _, ...userWithoutPassword } = user;
 
     console.log('تسجيل دخول ناجح للمستخدم:', user.email);
 
     // إضافة معلومات إضافية للمستخدم
     const responseUser = {
-      ...userWithoutPassword,
-      is_admin: user.role === 'admin' || user.role === 'super_admin',
+      ...user,
+      is_admin: user.isAdmin,
       // التأكد من وجود جميع الحقول المطلوبة
-      loyaltyPoints: user.loyaltyPoints || 0,
-      status: user.status || 'active',
+      loyaltyPoints: 0, // قيمة افتراضية
+      status: 'active', // قيمة افتراضية
       role: user.role || 'regular',
       isVerified: user.isVerified || false
     };
@@ -160,5 +158,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 } 

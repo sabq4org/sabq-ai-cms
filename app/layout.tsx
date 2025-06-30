@@ -9,6 +9,7 @@ import { Toaster } from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 import { Providers } from './providers'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ThemeScript } from './theme-script'
 
 const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
   subsets: ['arabic'],
@@ -109,46 +110,15 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ar" dir="rtl" className="transition-colors duration-300">
+    <html lang="ar" dir="rtl" className="transition-colors duration-300" suppressHydrationWarning>
       <head>
+        <ThemeScript />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta name="theme-color" content="#1e40af" />
         <meta name="msapplication-TileColor" content="#1e40af" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        
-        {/* سكريبت تهيئة الوضع الليلي قبل تحميل React */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const theme = localStorage.getItem('theme') || 'system';
-                  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  
-                  // حساب ما إذا كان يجب تفعيل الوضع الليلي
-                  const shouldBeDark = theme === 'dark' || (theme === 'system' && systemPrefersDark);
-                  
-                  // تطبيق الكلاس على العنصر الجذر
-                  if (shouldBeDark) {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                  
-                  // تحديث meta theme-color
-                  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-                  if (metaThemeColor) {
-                    metaThemeColor.setAttribute('content', shouldBeDark ? '#111827' : '#1e40af');
-                  }
-                } catch (e) {
-                  console.error('خطأ في تهيئة الوضع الليلي:', e);
-                }
-              })();
-            `,
-          }}
-        />
       </head>
       <body className={cn(
         ibmPlexSansArabic.variable,
@@ -156,7 +126,7 @@ export default function RootLayout({
         "bg-white text-gray-900",
         "dark:bg-gray-900 dark:text-gray-100",
         "transition-all duration-300"
-      )}>
+      )} suppressHydrationWarning>
         <Providers>
           <AuthProvider>
             {children}

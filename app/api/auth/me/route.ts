@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { readFile } from 'fs/promises';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
 export async function GET(request: NextRequest) {
@@ -28,14 +28,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // قراءة ملف المستخدمين
-    const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-    const fileContents = await readFile(usersFilePath, 'utf8');
-    const data = JSON.parse(fileContents);
-    const users = data.users || [];
-
-    // البحث عن المستخدم
-    const user = users.find((u: any) => u.id === decoded.id);
+    // البحث عن المستخدم في قاعدة البيانات
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
+        avatar: true,
+        isAdmin: true,
+        loyaltyPoints: {
+          select: {
+            points: true
+          }
+        }
+      }
+    });
 
     if (!user) {
       return NextResponse.json(
@@ -44,16 +56,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // إزالة كلمة المرور من البيانات
-    const { password: _, ...userWithoutPassword } = user;
+    // حساب مجموع نقاط الولاء
+    const totalLoyaltyPoints = user.loyaltyPoints.reduce((total, lp) => total + lp.points, 0);
 
     // إضافة معلومات إضافية
     const responseUser = {
-      ...userWithoutPassword,
-      is_admin: user.role === 'admin' || user.role === 'super_admin',
-      loyaltyPoints: user.loyaltyPoints || 0,
-      status: user.status || 'active',
-      role: user.role || 'regular',
+      ...user,
+      is_admin: user.isAdmin || user.role === 'admin' || user.role === 'super_admin',
+      loyaltyPoints: totalLoyaltyPoints,
+      status: 'active', // قيمة افتراضية
+      role: user.role || 'user',
       isVerified: user.isVerified || false
     };
 
@@ -71,5 +83,7 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 } 
