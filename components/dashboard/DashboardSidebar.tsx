@@ -23,7 +23,8 @@ import {
   Newspaper,
   Brain,
   Grid3X3,
-  Award
+  Award,
+  Image
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDashboardCounts } from '@/hooks/useDashboardCounts';
@@ -62,6 +63,7 @@ const sidebarItems: SidebarItem[] = [
   { icon: FileText, label: 'المقالات', href: '/dashboard/articles', countKey: 'articles' },
   { icon: Edit3, label: 'التحرير', href: '/dashboard/editor' },
   { icon: FolderOpen, label: 'التصنيفات', href: '/dashboard/categories', countKey: 'categories' },
+  { icon: Image, label: 'مكتبة الوسائط', href: '/dashboard/media', badge: 'جديد' },
   { icon: Layout, label: 'القوالب', href: '/dashboard/templates', badge: 'جديد', countKey: 'templates' },
   { icon: TrendingUp, label: 'التحليلات', href: '/dashboard/analytics' },
   { icon: Users, label: 'المستخدمون', href: '/dashboard/users', countKey: 'users' },

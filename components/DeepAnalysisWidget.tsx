@@ -6,6 +6,9 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {
   TooltipProvider,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useInteractions } from '@/hooks/useInteractions';
 
@@ -42,6 +45,14 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
   
   const darkMode = false; // تم تعطيل الوضع الليلي
   const { recordInteraction } = useInteractions();
+  
+  // التحقق من حالة تسجيل الدخول
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    setIsAuthenticated(!!userId && userId !== 'anonymous');
+  }, []);
 
   const [readItems, setReadItems] = useState<string[]>([]);
   
@@ -81,7 +92,20 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
     
     const userId = localStorage.getItem('userId') || 'anonymous';
     
-    // تحديث الحالة المحلية
+    // إذا كان المستخدم غير مسجل، نعرض رسالة واحدة فقط
+    if (userId === 'anonymous') {
+      toast('سجل دخولك للاحتفاظ بمحفوظاتك', {
+        duration: 4000,
+        icon: '🔐',
+        style: {
+          background: '#8b5cf6',
+          color: '#fff',
+        }
+      });
+      return; // نوقف التنفيذ هنا
+    }
+    
+    // تحديث الحالة المحلية فقط للمستخدمين المسجلين
     const newSaves = isSaved(id) 
       ? localSaves.filter(item => item !== id)
       : [...localSaves, id];
@@ -90,23 +114,9 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
     localStorage.setItem('deep_analysis_saves', JSON.stringify(newSaves));
     
     if (!isSaved(id)) {
-      // إذا كان المستخدم غير مسجل، نعرض رسالة مختلفة
-      if (userId === 'anonymous') {
-        toast.success('تم حفظ التحليل (محلياً)', {
-          duration: 3000,
-          icon: '📌'
-        });
-        toast('سجل دخولك للاحتفاظ بمحفوظاتك', {
-          duration: 4000,
-          icon: '💡',
-          style: {
-            background: '#8b5cf6',
-            color: '#fff',
-          }
-        });
-      } else {
-        toast.success('تم حفظ التحليل');
-      }
+      toast.success('تم حفظ التحليل');
+    } else {
+      toast.success('تم إلغاء الحفظ');
     }
     
     // سجل تفاعل الحفظ
@@ -118,10 +128,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
       console.log(`[DeepAnalysisWidget] سجلت تفاعل حفظ للمقالة ${id}`);
     }).catch(error => {
       console.error('[DeepAnalysisWidget] خطأ في تسجيل تفاعل الحفظ:', error);
-      // لا نعرض رسالة خطأ للمستخدم غير المسجل
-      if (userId !== 'anonymous') {
-        toast.error('حدث خطأ في تسجيل التفاعل');
-      }
+      toast.error('حدث خطأ في تسجيل التفاعل');
     });
   };
 
@@ -131,7 +138,20 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
     
     const userId = localStorage.getItem('userId') || 'anonymous';
     
-    // تحديث الحالة المحلية
+    // إذا كان المستخدم غير مسجل، نعرض رسالة واحدة فقط
+    if (userId === 'anonymous') {
+      toast('سجل دخولك للاحتفاظ بتفاعلاتك', {
+        duration: 4000,
+        icon: '🔐',
+        style: {
+          background: '#3b82f6',
+          color: '#fff',
+        }
+      });
+      return; // نوقف التنفيذ هنا
+    }
+    
+    // تحديث الحالة المحلية فقط للمستخدمين المسجلين
     const newLikes = isLiked(id) 
       ? localLikes.filter(item => item !== id)
       : [...localLikes, id];
@@ -141,26 +161,12 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
     console.log('[DeepAnalysisWidget] Updated likes:', newLikes);
     
     if (!isLiked(id)) {
-      // إذا كان المستخدم غير مسجل، نعرض رسالة مختلفة
-      if (userId === 'anonymous') {
-        toast.success('تم الإعجاب بالتحليل (محلياً)', {
-          duration: 3000,
-          icon: '💙'
-        });
-        toast('سجل دخولك للاحتفاظ بتفاعلاتك', {
-          duration: 4000,
-          icon: '💡',
-          style: {
-            background: '#3b82f6',
-            color: '#fff',
-          }
-        });
-      } else {
-        toast.success('تم الإعجاب بالتحليل');
-      }
+      toast.success('تم الإعجاب بالتحليل', { icon: '💙' });
+    } else {
+      toast.success('تم إلغاء الإعجاب');
     }
     
-    // سجل تفاعل الإعجاب عبر API وأظهر لوج في الكونsole
+    // سجل تفاعل الإعجاب عبر API
     recordInteraction({
       userId: userId,
       articleId: id,
@@ -171,10 +177,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
       })
       .catch(err => {
         console.error('[DeepAnalysisWidget] خطأ في تسجيل التفاعل:', err);
-        // لا نعرض رسالة خطأ للمستخدم غير المسجل
-        if (userId !== 'anonymous') {
-          toast.error('حدث خطأ في تسجيل التفاعل');
-        }
+        toast.error('حدث خطأ في تسجيل التفاعل');
       });
   };
 
@@ -348,35 +351,57 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                           <Share2 className="w-3.5 h-3.5" />
                         </button>
                         
-                        <button
-                          onClick={() => handleSave(item.id)}
-                          className={`p-1.5 rounded-lg transition-all duration-300 border ${
-                            isSaved(item.id)
-                              ? 'text-purple-600 bg-purple-100 border-purple-300' 
-                              : 'text-gray-600 hover:text-purple-600 bg-gray-100 hover:bg-purple-100 border-gray-200'
-                          }`}
-                          title="حفظ"
-                        >
-                          <Bookmark className={`w-3.5 h-3.5 ${
-                            isSaved(item.id) ? 'fill-current' : ''
-                          }`} />
-                        </button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => handleSave(item.id)}
+                              className={`p-1.5 rounded-lg transition-all duration-300 border ${
+                                isAuthenticated
+                                  ? (isSaved(item.id)
+                                    ? 'text-purple-600 bg-purple-100 border-purple-300' 
+                                    : 'text-gray-600 hover:text-purple-600 bg-gray-100 hover:bg-purple-100 border-gray-200')
+                                  : 'text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed opacity-60'
+                              }`}
+                              title="حفظ"
+                            >
+                              <Bookmark className={`w-3.5 h-3.5 ${
+                                isSaved(item.id) ? 'fill-current' : ''
+                              }`} />
+                            </button>
+                          </TooltipTrigger>
+                          {!isAuthenticated && (
+                            <TooltipContent>
+                              <p>سجل دخولك للاحتفاظ بمحفوظاتك</p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
                         
-                        <button
-                          onClick={() => handleLike(item.id)}
-                          id={`like-btn-${item.id}`}
-                          data-testid={`like-btn-${item.id}`}
-                          className={`p-1.5 rounded-lg transition-all duration-300 border ${
-                            isLiked(item.id)
-                              ? 'text-red-500 bg-red-100 border-red-300' 
-                              : 'text-gray-600 hover:text-red-500 bg-gray-100 hover:bg-red-100 border-gray-200'
-                          }`}
-                          title="إعجاب"
-                        >
-                          <Heart className={`w-3.5 h-3.5 ${
-                            isLiked(item.id) ? 'fill-current' : ''
-                          }`} />
-                        </button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => handleLike(item.id)}
+                              id={`like-btn-${item.id}`}
+                              data-testid={`like-btn-${item.id}`}
+                              className={`p-1.5 rounded-lg transition-all duration-300 border ${
+                                isAuthenticated
+                                  ? (isLiked(item.id)
+                                    ? 'text-red-500 bg-red-100 border-red-300' 
+                                    : 'text-gray-600 hover:text-red-500 bg-gray-100 hover:bg-red-100 border-gray-200')
+                                  : 'text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed opacity-60'
+                              }`}
+                              title="إعجاب"
+                            >
+                              <Heart className={`w-3.5 h-3.5 ${
+                                isLiked(item.id) ? 'fill-current' : ''
+                              }`} />
+                            </button>
+                          </TooltipTrigger>
+                          {!isAuthenticated && (
+                            <TooltipContent>
+                              <p>سجل دخولك للاحتفاظ بتفاعلاتك</p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
                       </div>
 
                       {/* زر القراءة - أصغر ومحاذاة يسار */}
