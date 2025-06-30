@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/app/lib/auth";
+import { MediaType } from "@/lib/generated/prisma";
 
 export const runtime = 'nodejs';
 
@@ -235,152 +238,244 @@ function filterMedia(query: URLSearchParams) {
 // معالجات API
 // ===============================
 
-// GET: استرجاع الوسائط
+// GET: جلب الوسائط مع فلترة متقدمة
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    
-    // تطبيق الفلاتر
-    let filteredMedia = filterMedia(searchParams);
-    
-    // ترتيب حسب تاريخ الإنشاء (الأحدث أولاً)
-    const sortBy = searchParams.get('sort') || 'created_at';
-    const order = searchParams.get('order') || 'desc';
-    
-    filteredMedia.sort((a, b) => {
-      let aValue, bValue;
-      switch (sortBy) {
-        case 'name':
-          aValue = a.original_name;
-          bValue = b.original_name;
-          break;
-        case 'size':
-          aValue = a.file_size;
-          bValue = b.file_size;
-          break;
-        case 'usage':
-          aValue = a.usage_count;
-          bValue = b.usage_count;
-          break;
-        default:
-          aValue = a.created_at;
-          bValue = b.created_at;
-      }
-      
-      if (order === 'desc') {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      } else {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      }
-    });
-    
-    // تطبيق التقسيم
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    
-    const paginatedMedia = filteredMedia.slice(startIndex, endIndex);
-    
-    // إحصائيات
-    const stats = {
-      total: filteredMedia.length,
-      page,
-      limit,
-      totalPages: Math.ceil(filteredMedia.length / limit),
-      hasNext: endIndex < filteredMedia.length,
-      hasPrev: page > 1,
-      totalSize: filteredMedia.reduce((sum, file) => sum + file.file_size, 0),
-      typeBreakdown: {
-        image: filteredMedia.filter(f => f.media_type === 'image').length,
-        video: filteredMedia.filter(f => f.media_type === 'video').length,
-        audio: filteredMedia.filter(f => f.media_type === 'audio').length,
-        document: filteredMedia.filter(f => f.media_type === 'document').length
-      }
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const searchParams = request.nextUrl.searchParams;
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const type = searchParams.get("type") as MediaType | null;
+    const classification = searchParams.get("classification");
+    const search = searchParams.get("search");
+    const articleId = searchParams.get("articleId");
+    const unused = searchParams.get("unused") === "true";
+    const sortBy = searchParams.get("sortBy") || "created_at";
+    const sortOrder = searchParams.get("sortOrder") || "desc";
+
+    // بناء الفلاتر
+    const where: any = {
+      isArchived: false,
     };
 
-    return NextResponse.json({
-      success: true,
-      data: paginatedMedia.map(file => ({
-        ...file,
-        file_size_formatted: formatFileSize(file.file_size)
-      })),
-      pagination: stats
-    });
+    if (type) {
+      where.type = type;
+    }
 
-  } catch (error) {
+    if (classification) {
+      where.classification = classification;
+    }
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search } },
+        { description: { contains: search } },
+        { fileName: { contains: search } },
+      ];
+    }
+
+    if (articleId) {
+      where.articleMedia = {
+        some: {
+          articleId: articleId,
+        },
+      };
+    }
+
+    if (unused) {
+      where.usageCount = 0;
+    }
+
+    // جلب الوسائط مع العلاقات
+    const [media, total] = await Promise.all([
+      prisma.mediaFile.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: {
+          [sortBy]: sortOrder,
+        },
+        include: {
+          uploader: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+          categories: {
+            include: {
+              category: true,
+            },
+          },
+          articleMedia: {
+            include: {
+              article: {
+                select: {
+                  id: true,
+                  title: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              articleMedia: true,
+            },
+          },
+        },
+      }),
+      prisma.mediaFile.count({ where }),
+    ]);
+
+    // تحويل البيانات للعرض
+    const formattedMedia = media.map((item) => ({
+      id: item.id,
+      url: item.url,
+      type: item.type,
+      title: item.title,
+      description: item.description,
+      tags: item.tags,
+      classification: item.classification,
+      source: item.source,
+      fileName: item.fileName,
+      fileSize: item.fileSize,
+      mimeType: item.mimeType,
+      width: item.width,
+      height: item.height,
+      duration: item.duration,
+      thumbnailUrl: item.thumbnailUrl,
+      aiEntities: item.aiEntities,
+      uploadedBy: item.uploader,
+      createdAt: item.createdAt,
+      lastUsedAt: item.lastUsedAt,
+      usageCount: item.usageCount,
+      categories: item.categories.map((c) => c.category),
+      usedInArticles: item.articleMedia.map((am) => ({
+        articleId: am.article.id,
+        articleTitle: am.article.title,
+        articleSlug: am.article.slug,
+        position: am.position,
+      })),
+    }));
+
     return NextResponse.json({
-      success: false,
-      error: 'فشل في استرجاع الوسائط',
-      message: error instanceof Error ? error.message : 'خطأ غير معروف'
-    }, { status: 500 });
+      media: formattedMedia,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching media:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch media" },
+      { status: 500 }
+    );
   }
 }
 
-// POST: رفع ملف جديد
+// POST: رفع وسائط جديدة
 export async function POST(request: NextRequest) {
   try {
-    // في التطبيق الحقيقي، سيتم استخدام FormData لرفع الملفات
-    const body = await request.json();
-    
-    if (!body.filename || !body.mime_type || !body.file_size) {
-      return NextResponse.json({
-        success: false,
-        error: 'بيانات الملف مطلوبة'
-      }, { status: 400 });
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // إنشاء معرف فريد للملف
-    const fileId = `media-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const timestamp = new Date();
-    const year = timestamp.getFullYear();
-    const month = String(timestamp.getMonth() + 1).padStart(2, '0');
-    
-    const newFile: MediaFile = {
-      id: fileId,
-      filename: body.filename,
-      original_name: body.original_name || body.filename,
-      file_path: `/uploads/${getMediaTypeFromMime(body.mime_type)}s/${year}/${month}/${body.filename}`,
-      file_url: `/media/${body.filename}`,
-      mime_type: body.mime_type,
-      file_size: body.file_size,
-      media_type: getMediaTypeFromMime(body.mime_type),
-      width: body.width,
-      height: body.height,
-      duration: body.duration,
-      title: body.title?.trim(),
-      description: body.description?.trim(),
-      alt_text: body.alt_text?.trim(),
-      caption: body.caption?.trim(),
-      credit: body.credit?.trim(),
-      tags: body.tags || [],
-      uploaded_by: 'current-user-id', // سيتم استبداله بالمستخدم الحالي
-      article_id: body.article_id,
-      storage_provider: 'local',
-      is_public: body.is_public !== false,
-      is_optimized: false,
-      usage_count: 0,
-      created_at: timestamp.toISOString(),
-      updated_at: timestamp.toISOString()
-    };
+    const data = await request.json();
+    const {
+      url,
+      type = "IMAGE",
+      title,
+      description,
+      tags,
+      classification,
+      source,
+      fileName,
+      fileSize,
+      mimeType,
+      width,
+      height,
+      duration,
+      thumbnailUrl,
+      categoryIds = [],
+    } = data;
 
-    mediaFiles.unshift(newFile);
-
-    return NextResponse.json({
-      success: true,
+    // إنشاء الملف في قاعدة البيانات
+    const mediaFile = await prisma.mediaFile.create({
       data: {
-        ...newFile,
-        file_size_formatted: formatFileSize(newFile.file_size)
+        url,
+        type,
+        title,
+        description,
+        tags: tags || [],
+        classification,
+        source,
+        fileName,
+        fileSize,
+        mimeType,
+        width,
+        height,
+        duration,
+        thumbnailUrl,
+        uploadedBy: user.id,
+        categories: {
+          create: categoryIds.map((categoryId: string) => ({
+            categoryId,
+          })),
+        },
       },
-      message: 'تم رفع الملف بنجاح'
-    }, { status: 201 });
+      include: {
+        uploader: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
 
-  } catch (error) {
+    // تسجيل النشاط
+    await prisma.activityLog.create({
+      data: {
+        userId: user.id,
+        action: "media_upload",
+        entityType: "media",
+        entityId: mediaFile.id,
+        metadata: {
+          fileName: mediaFile.fileName,
+          type: mediaFile.type,
+        },
+      },
+    });
+
     return NextResponse.json({
-      success: false,
-      error: 'فشل في رفع الملف',
-      message: error instanceof Error ? error.message : 'خطأ غير معروف'
-    }, { status: 500 });
+      message: "Media uploaded successfully",
+      media: {
+        ...mediaFile,
+        categories: mediaFile.categories.map((c) => c.category),
+      },
+    });
+  } catch (error) {
+    console.error("Error uploading media:", error);
+    return NextResponse.json(
+      { error: "Failed to upload media" },
+      { status: 500 }
+    );
   }
 }
 

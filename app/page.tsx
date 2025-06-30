@@ -221,6 +221,21 @@ function NewspaperHomePage(): React.ReactElement {
   const [userInterests, setUserInterests] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [showUserWidget, setShowUserWidget] = useState(true);
+
+  // تحميل تفضيل إظهار الويدجت من localStorage
+  useEffect(() => {
+    const savedPreference = localStorage.getItem('showUserWidget');
+    if (savedPreference !== null) {
+      setShowUserWidget(savedPreference === 'true');
+    }
+  }, []);
+
+  // حفظ تفضيل إظهار الويدجت
+  const handleToggleWidget = (show: boolean) => {
+    setShowUserWidget(show);
+    localStorage.setItem('showUserWidget', show.toString());
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -866,7 +881,7 @@ function NewspaperHomePage(): React.ReactElement {
       .slice(0, 3);
 
     return (
-      <div className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+      <div className={`rounded-3xl p-6 shadow-2xl border transition-all duration-300 ${darkMode ? 'bg-gray-800/95 border-gray-700/50 backdrop-blur-lg' : 'bg-white/95 backdrop-blur-lg border-gray-200/50'}`}>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${darkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
@@ -2156,13 +2171,6 @@ function NewspaperHomePage(): React.ReactElement {
 
           {/* Enhanced Smart Blocks Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* ويدجت الذكاء الشخصي */}
-            {!isCheckingAuth && userTracker && isLoggedIn && (
-              <div className="transform hover:scale-105 transition-all duration-300">
-                <UserIntelligenceWidget />
-              </div>
-            )}
-            
             <div className="transform hover:scale-105 transition-all duration-300">
               <BriefingBlock />
             </div>
@@ -2271,6 +2279,43 @@ function NewspaperHomePage(): React.ReactElement {
       {/* Smart Blocks - Before Footer */}
       <SmartSlot position="beforeFooter" />
 
+      {/* ويدجت الذكاء الشخصي العائمة */}
+      {!isCheckingAuth && userTracker && isLoggedIn && showUserWidget && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-4 animate-slide-down">
+          <div className="relative">
+            {/* زر إغلاق الويدجت */}
+            <button
+              onClick={() => handleToggleWidget(false)}
+              className="absolute -top-2 -right-2 z-50 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+              aria-label="إغلاق ملف القارئ"
+            >
+              <svg className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            {/* الويدجت مع تأثير شفافية خفيفة */}
+            <div className="transform scale-95 hover:scale-100 transition-all duration-300">
+              <div style={{ backdropFilter: 'blur(10px)' }}>
+                <UserIntelligenceWidget />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* زر إعادة إظهار الويدجت */}
+      {!isCheckingAuth && userTracker && isLoggedIn && !showUserWidget && (
+        <button
+          onClick={() => handleToggleWidget(true)}
+          className="fixed bottom-6 right-6 z-40 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 group animate-bounce"
+          aria-label="إظهار ملف القارئ"
+        >
+          <Brain className="w-4 h-4 group-hover:animate-pulse" />
+          <span className="text-sm font-medium">ملفك الذكي</span>
+        </button>
+      )}
+
       {/* Enhanced Footer */}
       <footer className={`${darkMode ? 'bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'}`}>
 
@@ -2353,6 +2398,21 @@ function NewspaperHomePage(): React.ReactElement {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-slide-down {
+          animation: slideDown 0.5s ease-out;
+        }
+        
+        @keyframes slideDown {
+          from { 
+            opacity: 0; 
+            transform: translate(-50%, -20px);
+          }
+          to { 
+            opacity: 1; 
+            transform: translate(-50%, 0);
+          }
         }
         
         .animate-pulse {
