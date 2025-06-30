@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,47 +13,41 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
     
-    // قراءة ملف نقاط الولاء
-    const filePath = path.join(process.cwd(), 'data', 'user_loyalty_points.json');
-    let loyaltyData: { users: any[] } = { users: [] };
+    // جلب نقاط الولاء من قاعدة البيانات
+    const loyaltyPoints = await prisma.loyaltyPoint.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' }
+    });
     
-    try {
-      const fileContent = await fs.readFile(filePath, 'utf-8');
-      const parsed = JSON.parse(fileContent);
-      // إذا كان الملف بالتنسيق القديم (كائن بمفاتيح user_id)
-      if (Array.isArray(parsed.users)) {
-        loyaltyData = parsed as any;
-      } else {
-        // تحويل الكائن إلى مصفوفة users
-        loyaltyData = { users: Object.values(parsed) };
-      }
-    } catch (error) {
-      // الملف غير موجود
-      console.error('Error reading loyalty points:', error);
-    }
+    // حساب إجمالي النقاط
+    const totalPoints = loyaltyPoints.reduce((sum, point) => sum + point.points, 0);
+    const earnedPoints = loyaltyPoints.filter(p => p.points > 0).reduce((sum, point) => sum + point.points, 0);
+    const redeemedPoints = loyaltyPoints.filter(p => p.points < 0).reduce((sum, point) => sum + Math.abs(point.points), 0);
     
-    // البحث عن نقاط المستخدم
-    const userRecord = loyaltyData.users.find((u: any) => u.user_id === userId);
+    // تحديد المستوى
+    let tier = 'bronze';
+    if (totalPoints >= 2000) tier = 'platinum';
+    else if (totalPoints >= 500) tier = 'gold';
+    else if (totalPoints >= 100) tier = 'silver';
     
-    if (!userRecord) {
-      // إنشاء سجل جديد للمستخدم
-      const newRecord = {
-        user_id: userId,
-        total_points: 100, // نقاط ترحيبية
-        earned_points: 100,
-        redeemed_points: 0,
-        created_at: new Date().toISOString(),
-        last_updated: new Date().toISOString()
-      };
-      
-      loyaltyData.users.push(newRecord);
-      await fs.writeFile(filePath, JSON.stringify(loyaltyData, null, 2));
-      
-      return NextResponse.json({
-        success: true,
-        data: newRecord
-      });
-    }
+    // حساب النقاط المطلوبة للمستوى التالي
+    const getNextTierPoints = (points: number) => {
+      if (points < 100) return 100;
+      if (points < 500) return 500;
+      if (points < 2000) return 2000;
+      return null; // بلاتيني - أعلى مستوى
+    };
+    
+    const userRecord = {
+      user_id: userId,
+      total_points: totalPoints,
+      earned_points: earnedPoints,
+      redeemed_points: redeemedPoints,
+      tier: tier,
+      next_tier_points: getNextTierPoints(totalPoints),
+      created_at: loyaltyPoints.length > 0 ? loyaltyPoints[loyaltyPoints.length - 1].createdAt.toISOString() : new Date().toISOString(),
+      last_updated: loyaltyPoints.length > 0 ? loyaltyPoints[0].createdAt.toISOString() : new Date().toISOString()
+    };
     
     return NextResponse.json({
       success: true,
@@ -83,67 +76,52 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
     
-    // قراءة ملف التفاعلات للحصول على تاريخ النقاط
-    const interactionsPath = path.join(process.cwd(), 'data', 'user_article_interactions.json');
-    let interactions: any[] = [];
+    // جلب نقاط الولاء من قاعدة البيانات
+    const loyaltyPoints = await prisma.loyaltyPoint.findMany({
+      where: { userId: user_id },
+      orderBy: { createdAt: 'desc' },
+      take: 50
+    });
     
-    try {
-      const fileContent = await fs.readFile(interactionsPath, 'utf-8');
-      const data = JSON.parse(fileContent);
-      interactions = data.interactions || [];
-    } catch (error) {
-      console.error('Error reading interactions:', error);
-    }
-    
-    // فلترة تفاعلات المستخدم
-    const userInteractions = interactions
-      .filter((i: any) => i.user_id === user_id && i.points_earned)
-      .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .slice(0, 50); // آخر 50 تفاعل
+    // جلب التفاعلات من قاعدة البيانات
+    const interactions = await prisma.interaction.findMany({
+      where: { userId: user_id },
+      include: {
+        article: {
+          select: {
+            id: true,
+            title: true,
+            slug: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50
+    });
     
     // حساب إحصائيات النقاط
     const stats = {
-      total_interactions: userInteractions.length,
-      points_from_reading: userInteractions.filter((i: any) => i.interaction_type === 'read').reduce((sum: number, i: any) => sum + (i.points_earned || 0), 0),
-      points_from_likes: userInteractions.filter((i: any) => i.interaction_type === 'like').reduce((sum: number, i: any) => sum + (i.points_earned || 0), 0),
-      points_from_shares: userInteractions.filter((i: any) => i.interaction_type === 'share').reduce((sum: number, i: any) => sum + (i.points_earned || 0), 0),
-      points_from_saves: userInteractions.filter((i: any) => i.interaction_type === 'save').reduce((sum: number, i: any) => sum + (i.points_earned || 0), 0),
-      recent_activities: userInteractions.slice(0, 10).map((i: any) => ({
-        type: i.interaction_type,
-        points: i.points_earned,
-        article_id: i.article_id,
-        timestamp: i.timestamp
+      total_interactions: interactions.length,
+      points_from_reading: loyaltyPoints.filter(p => p.action === 'read' || p.action === 'view').reduce((sum, p) => sum + p.points, 0),
+      points_from_likes: loyaltyPoints.filter(p => p.action === 'like').reduce((sum, p) => sum + p.points, 0),
+      points_from_shares: loyaltyPoints.filter(p => p.action === 'share').reduce((sum, p) => sum + p.points, 0),
+      points_from_saves: loyaltyPoints.filter(p => p.action === 'save').reduce((sum, p) => sum + p.points, 0),
+      recent_activities: loyaltyPoints.slice(0, 10).map(p => ({
+        type: p.action,
+        points: p.points,
+        article_id: p.referenceId,
+        timestamp: p.createdAt.toISOString()
       }))
     };
     
-    // جلب نقاط المستخدم الحالية
-    const loyaltyPath = path.join(process.cwd(), 'data', 'user_loyalty_points.json');
-    let loyaltyData: { users: any[] } = { users: [] };
-    
-    try {
-      const fileContent = await fs.readFile(loyaltyPath, 'utf-8');
-      const parsed = JSON.parse(fileContent);
-      // إذا كان الملف بالتنسيق القديم (كائن بمفاتيح user_id)
-      if (Array.isArray(parsed.users)) {
-        loyaltyData = parsed as any;
-      } else {
-        // تحويل الكائن إلى مصفوفة users
-        loyaltyData = { users: Object.values(parsed) };
-      }
-    } catch (error) {
-      console.error('Error reading loyalty points:', error);
-    }
-    
-    const userRecord = loyaltyData.users.find((u: any) => u.user_id === user_id);
-    
-    const currentPoints = userRecord?.total_points || 0;
+    const currentPoints = loyaltyPoints.reduce((sum, p) => sum + p.points, 0);
     
     // حساب النقاط المطلوبة للمستوى التالي
     const getNextTierPoints = (points: number) => {
-      if (points < 101) return 101;
-      if (points < 501) return 501;
-      if (points < 2001) return 2001;
-      return null; // سفير - أعلى مستوى
+      if (points < 100) return 100;
+      if (points < 500) return 500;
+      if (points < 2000) return 2000;
+      return null; // بلاتيني - أعلى مستوى
     };
     
     return NextResponse.json({

@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     }
     
     // جلب الفئات مع العلاقات
-    const categories = await prisma.category.findMany({
+    let categories = await prisma.category.findMany({
       where,
       orderBy: {
         displayOrder: 'asc'
@@ -77,6 +77,24 @@ export async function GET(request: NextRequest) {
         }
       }
     });
+
+    // إذا لم تكن هناك تصنيفات، أنشئ تصنيفاً افتراضياً
+    if (categories.length === 0) {
+      const defaultCategory = await prisma.category.create({
+        data: {
+          name: 'عام',
+          nameEn: 'General',
+          slug: 'general',
+          description: 'التصنيف الافتراضي',
+          color: '#6B7280',
+          icon: '📄',
+          isActive: true,
+          displayOrder: 0
+        }
+      });
+
+      categories = [defaultCategory];
+    }
     
     // تحويل البيانات للتوافق مع الواجهة
     const formattedCategories = categories.map(category => ({

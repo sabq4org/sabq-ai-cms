@@ -102,11 +102,11 @@ export async function POST(request: NextRequest) {
       (pref: UserPreference) => pref.user_id !== userId
     );
 
-    // إضافة التفضيلات الجديدة
-    const newPreferences = categoryIds.map((categoryId: number) => ({
+    // إضافة التفضيلات الجديدة - نقبل categoryIds كـ string array (UUIDs)
+    const newPreferences = categoryIds.map((categoryId: string) => ({
       id: `pref-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       user_id: userId,
-      category_id: categoryId,
+      category_id: categoryId, // نحفظه كـ string
       source,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()

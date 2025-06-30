@@ -4,6 +4,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
+import { v2 as cloudinary } from 'cloudinary';
 
 // الحد الأقصى لحجم الملف (10MB)
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -15,6 +16,17 @@ const ALLOWED_TYPES = {
   DOCUMENT: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
   AUDIO: ['audio/mpeg', 'audio/wav', 'audio/ogg'],
 };
+
+// تكوين Cloudinary من متغيرات البيئة لحماية المفاتيح
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
+
+if (!process.env.CLOUDINARY_CLOUD_NAME) {
+  console.warn('⚠️  لم يتم ضبط مفاتيح Cloudinary فى متغيرات البيئة');
+}
 
 // دالة لضغط الصور
 async function compressImage(buffer: Buffer, mimeType: string): Promise<{
@@ -83,135 +95,126 @@ function getFileType(mimeType: string): 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'AUDIO'
   return 'DOCUMENT';
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const formData = await req.formData();
-    const files = formData.getAll('files') as File[];
-    const userId = formData.get('userId') as string || 'anonymous';
-    const autoAnalyze = formData.get('autoAnalyze') === 'true';
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const type = formData.get('type') as string || 'general';
+    const userId = formData.get('userId') as string || '1'; // مؤقتاً
 
-    if (!files || files.length === 0) {
+    if (!file) {
       return NextResponse.json(
-        { error: 'لم يتم اختيار أي ملفات' },
+        { error: 'لم يتم توفير ملف' },
         { status: 400 }
       );
     }
 
-    const uploadedFiles = [];
-    const errors = [];
+    // تحويل الملف إلى Buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-    // إنشاء مجلد الرفع إذا لم يكن موجوداً
-    const uploadDir = join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadDir, { recursive: true });
-
-    // معالجة كل ملف
-    for (const file of files) {
+    // التحقق من مفاتيح Cloudinary
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.error('⚠️ مفاتيح Cloudinary غير مكتملة');
+      // حفظ محلياً كبديل
+      const fileName = `${Date.now()}-${file.name}`;
+      const filePath = join(process.cwd(), 'public', 'uploads', fileName);
+      
       try {
-        // التحقق من حجم الملف
-        if (file.size > MAX_FILE_SIZE) {
-          errors.push({
-            fileName: file.name,
-            error: 'حجم الملف أكبر من الحد المسموح (10MB)',
-          });
-          continue;
-        }
-
-        // التحقق من نوع الملف
-        const fileType = getFileType(file.type);
-        if (!ALLOWED_TYPES[fileType].includes(file.type)) {
-          errors.push({
-            fileName: file.name,
-            error: 'نوع الملف غير مسموح',
-          });
-          continue;
-        }
-
-        // قراءة محتوى الملف
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        // إنشاء أسماء فريدة للملفات
-        const fileId = uuidv4();
-        const extension = file.name.split('.').pop();
-        const fileName = `${fileId}.${extension}`;
-        const filePath = join(uploadDir, fileName);
-
-        let finalBuffer: Uint8Array = new Uint8Array(buffer);
-        let thumbnailUrl = null;
-        let imageMetadata = null;
-
-        // معالجة الصور
-        if (fileType === 'IMAGE') {
-          try {
-            const { compressed, thumbnail, metadata } = await compressImage(buffer, file.type);
-            finalBuffer = new Uint8Array(compressed);
-            imageMetadata = metadata;
-
-            // حفظ الصورة المصغرة
-            const thumbnailName = `${fileId}_thumb.jpg`;
-            const thumbnailPath = join(uploadDir, thumbnailName);
-            await writeFile(thumbnailPath, thumbnail);
-            thumbnailUrl = `/uploads/${thumbnailName}`;
-          } catch (error) {
-            console.error('خطأ في ضغط الصورة:', error);
-            // الاستمرار مع الصورة الأصلية
-          }
-        }
-
-        // حفظ الملف
-        await writeFile(filePath, finalBuffer);
-        const fileUrl = `/uploads/${fileName}`;
-
-        // حفظ في قاعدة البيانات
-        const mediaFile = await prisma.mediaFile.create({
-          data: {
-            url: fileUrl,
-            type: fileType,
-            title: file.name.split('.')[0],
-            fileName: file.name,
-            fileSize: finalBuffer.length,
-            mimeType: file.type,
-            width: imageMetadata?.width,
-            height: imageMetadata?.height,
-            thumbnailUrl,
-            uploadedBy: userId,
-          },
+        await mkdir(join(process.cwd(), 'public', 'uploads'), { recursive: true });
+        await writeFile(filePath, buffer);
+        
+        return NextResponse.json({
+          id: uuidv4(),
+          url: `/uploads/${fileName}`,
+          width: null,
+          height: null,
+          format: file.type.split('/')[1]
         });
-
-        uploadedFiles.push(mediaFile);
-
-        // تحليل الصورة تلقائياً إذا طُلب ذلك
-        if (autoAnalyze && fileType === 'IMAGE') {
-          // إرسال طلب تحليل غير متزامن
-          fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/media/analyze`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mediaId: mediaFile.id }),
-          }).catch(console.error);
-        }
       } catch (error) {
-        console.error('خطأ في رفع الملف:', error);
-        errors.push({
-          fileName: file.name,
-          error: 'فشل رفع الملف',
-        });
+        console.error('خطأ في حفظ الملف محلياً:', error);
+        return NextResponse.json(
+          { error: 'فشل في حفظ الملف' },
+          { status: 500 }
+        );
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      uploaded: uploadedFiles,
-      errors,
-      summary: {
-        total: files.length,
-        succeeded: uploadedFiles.length,
-        failed: errors.length,
-      },
-    });
+    // رفع إلى Cloudinary
+    try {
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: `news/${type}`,
+            resource_type: 'auto',
+            transformation: [
+              { quality: 'auto:good' },
+              { fetch_format: 'auto' }
+            ]
+          },
+          (error, result) => {
+            if (error) {
+              console.error('خطأ Cloudinary:', error);
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+        
+        // كتابة البيانات للـ stream
+        uploadStream.end(buffer);
+      }) as any;
+
+      if (!result || !result.secure_url) {
+        throw new Error('لم يتم استلام رابط الصورة من Cloudinary');
+      }
+
+      // حفظ في قاعدة البيانات
+      const mediaFile = await prisma.mediaFile.create({
+        data: {
+          fileName: file.name,
+          title: file.name,
+          url: result.secure_url,
+          publicId: result.public_id,
+          type: 'IMAGE',
+          fileSize: result.bytes,
+          width: result.width || null,
+          height: result.height || null,
+          mimeType: file.type,
+          metadata: {
+            originalName: file.name,
+            uploadType: type,
+            cloudinaryData: {
+              version: result.version,
+              signature: result.signature,
+              etag: result.etag
+            }
+          },
+          uploadedBy: userId
+        }
+      });
+
+      return NextResponse.json({
+        id: mediaFile.id,
+        url: mediaFile.url,
+        width: mediaFile.width,
+        height: mediaFile.height,
+        format: file.type.split('/')[1]
+      });
+
+    } catch (cloudinaryError) {
+      console.error('خطأ في رفع الملف إلى Cloudinary:', cloudinaryError);
+      return NextResponse.json(
+        { error: 'فشل في رفع الملف إلى السحابة' },
+        { status: 500 }
+      );
+    }
+
   } catch (error) {
-    console.error('خطأ في معالجة الرفع:', error);
+    console.error('خطأ في معالجة الملف:', error);
     return NextResponse.json(
-      { error: 'فشل في معالجة الملفات' },
+      { error: 'فشل في معالجة الملف' },
       { status: 500 }
     );
   }

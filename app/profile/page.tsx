@@ -6,11 +6,17 @@ import Link from 'next/link';
 import { Crown, Heart, 
   Edit2, X, Star, TrendingUp,
   Calendar, Activity, BookOpen, Share2, ChevronRight, Zap, Eye,
-  MessageCircle, Bookmark, Camera
+  MessageCircle, Bookmark, Camera, Brain, Trophy, Clock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Header from '@/components/Header';
 import { getMembershipLevel, getProgressToNextLevel, getPointsToNextLevel } from '@/lib/loyalty';
+
+// المكونات الجديدة
+import ReadingInsights from '@/components/profile/ReadingInsights';
+import AchievementBadges from '@/components/profile/AchievementBadges';
+import ReadingTimeline from '@/components/profile/ReadingTimeline';
+import SavedArticles from '@/components/profile/SavedArticles';
 
 interface UserProfile {
   id: string;
@@ -49,6 +55,73 @@ interface UserPreference {
   category_color: string;
 }
 
+// الواجهات الجديدة للبيانات المتقدمة
+interface UserInsights {
+  readingProfile: {
+    type: string;
+    description: string;
+    level: string;
+  };
+  categoryDistribution: {
+    distribution: Array<{
+      name: string;
+      count: number;
+      percentage: number;
+      color?: string;
+      icon?: string;
+    }>;
+    topCategory: string;
+    diversity: number;
+    recommendations: string[];
+  };
+  timePatterns: {
+    bestTime: string;
+    bestDay: string;
+    hourlyDistribution: Record<number, number>;
+    dailyDistribution: Record<string, number>;
+  };
+  stats: {
+    totalArticlesRead: number;
+    totalLikes: number;
+    totalShares: number;
+    totalSaves: number;
+    totalComments: number;
+    averageReadingTime: number;
+    streakDays: number;
+  };
+  achievements: Array<{
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    color: string;
+  }>;
+  timeline: Array<{
+    date: string;
+    articlesCount: number;
+    totalReadingTime: number;
+    articles: Array<{
+      time: string;
+      title: string;
+      category: string;
+      readingTime: number;
+    }>;
+  }>;
+  savedArticles: Array<{
+    id: string;
+    title: string;
+    category?: string;
+    savedAt: string;
+  }>;
+  unfinishedArticles: Array<{
+    id: string;
+    title: string;
+    category?: string;
+    readingTime: number;
+    excerpt?: string;
+  }>;
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -63,10 +136,16 @@ export default function ProfilePage() {
   });
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showLoyaltyModal, setShowLoyaltyModal] = useState(false);
+  
+  // الحالات الجديدة
+  const [userInsights, setUserInsights] = useState<UserInsights | null>(null);
+  const [loadingInsights, setLoadingInsights] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'insights' | 'achievements' | 'timeline'>('overview');
 
   useEffect(() => {
     checkAuth();
     fetchUserData();
+    fetchUserInsights();
   }, []);
 
   const checkAuth = async () => {
@@ -129,7 +208,8 @@ export default function ProfilePage() {
       // جلب التفضيلات - جرب أولاً من API ثم من localStorage
       console.log('🔍 محاولة جلب التفضيلات من API للمستخدم:', user.id);
       try {
-        const prefsResponse = await fetch(`/api/user/preferences/${user.id}`);
+        // جلب التفضيلات من API الجديد
+        const prefsResponse = await fetch(`/api/user/preferences?userId=${user.id}`);
         console.log('📡 استجابة API التفضيلات:', prefsResponse.status);
         
         if (prefsResponse.ok) {
@@ -137,7 +217,27 @@ export default function ProfilePage() {
           console.log('✅ تم جلب التفضيلات من API:', prefsData);
           
           if (prefsData.success && prefsData.data && prefsData.data.length > 0) {
-            setPreferences(prefsData.data);
+            // تحويل البيانات من ملف JSON إلى شكل مناسب للعرض
+            const categoryIds = prefsData.data.map((pref: any) => pref.category_id);
+            
+            // جلب معلومات التصنيفات
+            const categoriesResponse = await fetch('/api/categories');
+            if (categoriesResponse.ok) {
+              const categoriesData = await categoriesResponse.json();
+              const allCategories = categoriesData.categories || categoriesData || [];
+              
+              const userCategories = allCategories
+                .filter((cat: any) => categoryIds.includes(cat.id))
+                .map((cat: any) => ({
+                  category_id: parseInt(cat.id) || 0,
+                  category_name: cat.name || cat.name_ar,
+                  category_icon: cat.icon || '📌',
+                  category_color: cat.color || '#6B7280'
+                }));
+              
+              console.log('🎯 التصنيفات المحولة:', userCategories);
+              setPreferences(userCategories);
+            }
           } else {
             console.log('⚠️ لا توجد تفضيلات في API، محاولة جلبها من localStorage');
             throw new Error('No preferences in API');
@@ -155,51 +255,73 @@ export default function ProfilePage() {
           const userInterests = currentUser.interests || [];
           console.log('🏠 اهتمامات المستخدم من localStorage:', userInterests);
           
-          const interestMap: any = {
-            'tech': { category_id: 1, category_name: 'تقنية', category_icon: '⚡', category_color: '#3B82F6' },
-            'business': { category_id: 2, category_name: 'اقتصاد', category_icon: '📈', category_color: '#10B981' },
-            'sports': { category_id: 3, category_name: 'رياضة', category_icon: '⚽', category_color: '#F97316' },
-            'culture': { category_id: 4, category_name: 'ثقافة', category_icon: '📚', category_color: '#A855F7' },
-            'health': { category_id: 5, category_name: 'صحة', category_icon: '❤️', category_color: '#EC4899' },
-            'international': { category_id: 6, category_name: 'دولي', category_icon: '🌍', category_color: '#6366F1' }
-          };
-          
-          const mappedPreferences = userInterests.map((interestId: string) => {
-            return interestMap[interestId];
-          }).filter(Boolean);
-          
-          console.log('🎯 التفضيلات المحولة:', mappedPreferences);
-          setPreferences(mappedPreferences);
-          
-          // إذا كانت هناك اهتمامات في localStorage ولكن ليس في API، احفظها في API
-          if (mappedPreferences.length > 0) {
-            console.log('💾 حفظ التفضيلات في API...');
-            try {
-              const categoryIds = userInterests.map((interestId: string) => {
-                const interest = Object.entries(interestMap).find(([key]) => key === interestId);
-                return interest ? (interest[1] as any).category_id : null;
-              }).filter(Boolean);
+          // جلب معلومات التصنيفات
+          try {
+            const categoriesResponse = await fetch('/api/categories');
+            if (categoriesResponse.ok) {
+              const categoriesData = await categoriesResponse.json();
+              const allCategories = categoriesData.categories || categoriesData || [];
+              
+              const userCategories = allCategories
+                .filter((cat: any) => userInterests.includes(cat.id))
+                .map((cat: any) => ({
+                  category_id: parseInt(cat.id) || 0,
+                  category_name: cat.name || cat.name_ar,
+                  category_icon: cat.icon || '📌',
+                  category_color: cat.color || '#6B7280'
+                }));
+              
+              console.log('🎯 التفضيلات المحولة من localStorage:', userCategories);
+              setPreferences(userCategories);
+              
+              // حفظ التفضيلات في API إذا كانت موجودة في localStorage فقط
+              if (userCategories.length > 0) {
+                console.log('💾 حفظ التفضيلات في API...');
+                try {
+                  const saveResponse = await fetch('/api/user/preferences', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      userId: user.id,
+                      categoryIds: userInterests,
+                      source: 'sync_from_localstorage'
+                    }),
+                  });
 
-              const saveResponse = await fetch('/api/user/preferences', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  userId: user.id,
-                  categoryIds: categoryIds,
-                  source: 'sync_from_localstorage'
-                }),
-              });
-
-              if (saveResponse.ok) {
-                console.log('✅ تم حفظ التفضيلات في API بنجاح');
-              } else {
-                console.log('❌ فشل حفظ التفضيلات في API');
+                  if (saveResponse.ok) {
+                    console.log('✅ تم حفظ التفضيلات في API بنجاح');
+                  } else {
+                    console.log('❌ فشل حفظ التفضيلات في API');
+                  }
+                } catch (saveError) {
+                  console.error('❌ خطأ في حفظ التفضيلات:', saveError);
+                }
               }
-            } catch (saveError) {
-              console.error('❌ خطأ في حفظ التفضيلات:', saveError);
             }
+          } catch (catError) {
+            console.error('❌ خطأ في جلب التصنيفات:', catError);
+            // استخدام بيانات افتراضية كحل أخير
+            const defaultCategories = [
+              { id: '1', name: 'تقنية', icon: '💻', color: '#3B82F6' },
+              { id: '2', name: 'اقتصاد', icon: '📈', color: '#10B981' },
+              { id: '3', name: 'رياضة', icon: '⚽', color: '#F97316' },
+              { id: '4', name: 'ثقافة', icon: '📚', color: '#A855F7' },
+              { id: '5', name: 'صحة', icon: '❤️', color: '#EC4899' },
+              { id: '6', name: 'دولي', icon: '🌍', color: '#6366F1' }
+            ];
+            
+            const userCategories = defaultCategories
+              .filter(cat => userInterests.includes(cat.id))
+              .map(cat => ({
+                category_id: parseInt(cat.id) || 0,
+                category_name: cat.name,
+                category_icon: cat.icon,
+                category_color: cat.color
+              }));
+            
+            setPreferences(userCategories);
           }
         }
       }
@@ -228,6 +350,29 @@ export default function ProfilePage() {
       console.error('خطأ في جلب البيانات:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // جلب البيانات المتقدمة
+  const fetchUserInsights = async () => {
+    const userData = localStorage.getItem('user');
+    if (!userData) return;
+    
+    const user = JSON.parse(userData);
+    setLoadingInsights(true);
+    
+    try {
+      const response = await fetch(`/api/user/${user.id}/insights`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setUserInsights(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user insights:', error);
+    } finally {
+      setLoadingInsights(false);
     }
   };
 
@@ -376,23 +521,18 @@ export default function ProfilePage() {
       <Header />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* رأس الصفحة بتصميم محسّن */}
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
           <div className="max-w-screen-xl mx-auto px-4 py-12">
-            <div className="flex items-center justify-between mb-8">
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">الملف الشخصي</h1>
-            </div>
-
-            {/* بطاقة المستخدم */}
             <div className="flex items-center gap-6">
               <div className="relative group">
                 {user.avatar ? (
                   <img 
                     src={user.avatar} 
                     alt={user.name}
-                    className="w-24 h-24 rounded-full object-cover shadow-xl dark:shadow-gray-900/50 border-4 border-gray-200 dark:border-gray-700"
+                    className="w-32 h-32 rounded-full object-cover shadow-xl border-4 border-white/20"
                   />
                 ) : (
-                  <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-4xl font-bold shadow-xl dark:shadow-gray-900/50 text-gray-700 dark:text-gray-300">
+                  <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center text-5xl font-bold shadow-xl">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -413,32 +553,113 @@ export default function ProfilePage() {
                   )}
                 </label>
                 
-                <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center shadow-lg dark:shadow-gray-900/50">
-                  <span className="text-xl">{membership.icon}</span>
+                <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-2xl">{membership.icon}</span>
                 </div>
               </div>
               
               <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-1 text-gray-800 dark:text-gray-100">{user.name}</h2>
-                <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-2">{user.email}</p>
-                <div className="flex items-center gap-4 text-sm text-gray-700 dark:text-gray-300">
-                  <span className="flex items-center gap-1">
+                <h1 className="text-3xl font-bold mb-2">{user.name}</h1>
+                <p className="text-white/80 mb-3">{user.email}</p>
+                
+                {/* معلومات سريعة */}
+                <div className="flex flex-wrap items-center gap-6 text-sm">
+                  <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    عضو منذ {formatDate(user.created_at)}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Crown className="w-4 h-4 text-amber-500" />
-                    عضوية {membership.name}
-                  </span>
+                    <span>عضو منذ {formatDate(user.created_at)}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Crown className="w-4 h-4" />
+                    <span>{membership.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4" />
+                    <span>{userPoints} نقطة</span>
+                  </div>
+                  {userInsights && (
+                    <div className="flex items-center gap-2">
+                      <Brain className="w-4 h-4" />
+                      <span>{userInsights.readingProfile.type === 'analytical' ? 'قارئ تحليلي' : 
+                             userInsights.readingProfile.type === 'balanced' ? 'قارئ متوازن' : 'قارئ عادي'}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => router.push('/profile/edit')}
+                  className="px-6 py-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-all font-medium flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  <Edit2 className="w-5 h-5" />
+                  تعديل الملف
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  تسجيل الخروج
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* التبويبات */}
+        <div className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
+          <div className="max-w-screen-xl mx-auto px-4">
+            <div className="flex gap-1">
               <button
-                onClick={() => router.push('/profile/edit')}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg dark:shadow-gray-900/50 transition-all font-medium flex items-center gap-2"
+                onClick={() => setActiveTab('overview')}
+                className={`px-6 py-4 font-medium transition-all relative ${
+                  activeTab === 'overview'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
               >
-                <Edit2 className="w-5 h-5" />
-                تعديل الملف
+                نظرة عامة
+                {activeTab === 'overview' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('insights')}
+                className={`px-6 py-4 font-medium transition-all relative ${
+                  activeTab === 'insights'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
+              >
+                تحليلات القراءة
+                {activeTab === 'insights' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('achievements')}
+                className={`px-6 py-4 font-medium transition-all relative ${
+                  activeTab === 'achievements'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
+              >
+                الإنجازات
+                {activeTab === 'achievements' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('timeline')}
+                className={`px-6 py-4 font-medium transition-all relative ${
+                  activeTab === 'timeline'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
+              >
+                سجل القراءة
+                {activeTab === 'timeline' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                )}
               </button>
             </div>
           </div>
@@ -446,168 +667,172 @@ export default function ProfilePage() {
 
         {/* المحتوى الرئيسي */}
         <div className="max-w-screen-xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            
-            {/* العمود الأول - النقاط والإحصائيات */}
-            <div className="space-y-6 lg:col-span-1">
-              
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 transition-shadow p-6">
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-amber-500" />
-                  نقاط الولاء
-                </h3>
-                
-                <div className="text-center mb-6">
-                  <div className="text-4xl font-bold text-amber-600 mb-2">
-                    {loyaltyData?.total_points || 0}
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500">نقطة</p>
-                </div>
-
-                {/* شريط التقدم */}
-                {membership.nextLevel && (
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
-                      <span>المستوى التالي</span>
-                      <span>{pointsToNext} نقطة</span>
+          {activeTab === 'overview' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* العمود الأيسر */}
+              <div className="lg:col-span-1 space-y-6">
+                {/* بطاقة النقاط */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-amber-500" />
+                    نقاط الولاء
+                  </h3>
+                  
+                  <div className="text-center mb-6">
+                    <div className="text-4xl font-bold text-amber-600 mb-2">
+                      {userPoints}
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-amber-400 to-amber-600 h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${getProgressToNextLevel(userPoints)}%` }}
-                      />
-                    </div>
+                    <p className="text-gray-600 dark:text-gray-400">نقطة</p>
                   </div>
-                )}
 
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                  {membership.nextLevel && (
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                        <span>المستوى التالي</span>
+                        <span>{pointsToNext} نقطة</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-amber-400 to-amber-600 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${getProgressToNextLevel(userPoints)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   <button 
                     onClick={() => setShowLoyaltyModal(true)}
                     className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium flex items-center justify-center gap-1 w-full"
                   >
-                    عرض تفاصيل النقاط
+                    عرض التفاصيل
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
 
-              {/* بطاقة الإحصائيات */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 transition-shadow p-6">
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
-                  إحصائياتي
-                </h3>
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 dark:text-gray-400 dark:text-gray-500">مقالات مقروءة</span>
-                    <span className="font-semibold text-gray-800 dark:text-gray-100">{userStats.articlesRead}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 dark:text-gray-400 dark:text-gray-500">تفاعلات</span>
-                    <span className="font-semibold text-gray-800 dark:text-gray-100">{userStats.interactions}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 dark:text-gray-400 dark:text-gray-500">مشاركات</span>
-                    <span className="font-semibold text-gray-800 dark:text-gray-100">{userStats.shares}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* العمود الأوسط - الاهتمامات والنشاطات */}
-            <div className="lg:col-span-2 space-y-6">
-              
-              {/* بطاقة الاهتمامات */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 transition-shadow p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                    <Heart className="w-5 h-5 text-red-500" />
-                    اهتماماتي
+                {/* بطاقة الإحصائيات السريعة */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-green-600" />
+                    إحصائيات سريعة
                   </h3>
-                  <Link
-                    href="/welcome/preferences"
-                    className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1 text-sm"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    تعديل الاهتمامات
-                  </Link>
-                </div>
-
-                {preferences.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {preferences.map((pref) => (
-                      <div 
-                        key={pref.category_id}
-                        className="flex items-center gap-3 p-3 rounded-lg border-2 hover:shadow-md dark:shadow-gray-900/50 transition-shadow"
-                        style={{ 
-                          backgroundColor: pref.category_color + '10',
-                          borderColor: pref.category_color + '30'
-                        }}
-                      >
-                        <span className="text-2xl">{pref.category_icon}</span>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">
-                          {pref.category_name}
-                        </span>
-                      </div>
-                    ))}
+                  
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 dark:text-gray-400">مقالات مقروءة</span>
+                      <span className="font-semibold text-gray-800 dark:text-gray-100">
+                        {userInsights?.stats.totalArticlesRead || userStats.articlesRead}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 dark:text-gray-400">إعجابات</span>
+                      <span className="font-semibold text-gray-800 dark:text-gray-100">
+                        {userInsights?.stats.totalLikes || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 dark:text-gray-400">مشاركات</span>
+                      <span className="font-semibold text-gray-800 dark:text-gray-100">
+                        {userInsights?.stats.totalShares || userStats.shares}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 dark:text-gray-400">مقالات محفوظة</span>
+                      <span className="font-semibold text-gray-800 dark:text-gray-100">
+                        {userInsights?.stats.totalSaves || 0}
+                      </span>
+                    </div>
                   </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">لم تختر اهتمامات بعد</p>
+                </div>
+              </div>
+
+              {/* العمود الأيمن */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* الاهتمامات */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold flex items-center gap-2">
+                      <Heart className="w-5 h-5 text-red-500" />
+                      اهتماماتي
+                    </h3>
                     <Link
                       href="/welcome/preferences"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg dark:shadow-gray-900/50 transition-all"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1 text-sm"
                     >
-                      <Heart className="w-5 h-5" />
-                      اختر اهتماماتك الآن
+                      <Edit2 className="w-4 h-4" />
+                      تعديل
                     </Link>
                   </div>
-                )}
-              </div>
 
-              {/* بطاقة آخر النشاطات */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 hover:shadow-md dark:shadow-gray-900/50 transition-shadow p-6">
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-blue-600" />
-                  آخر النشاطات
-                </h3>
-
-                <div className="space-y-4">
-                  {loyaltyData?.recent_activities && loyaltyData.recent_activities.length > 0 ? (
-                    loyaltyData.recent_activities.slice(0, 5).map((activity) => (
-                      <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
-                            {getActionIcon(activity.action)}
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800 dark:text-gray-100">{activity.description}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">{formatDate(activity.created_at)}</p>
-                          </div>
-                        </div>
-                        {activity.points > 0 && (
-                          <span className="font-bold text-green-600">
-                            +{activity.points}
+                  {preferences.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {preferences.map((pref) => (
+                        <div 
+                          key={pref.category_id}
+                          className="flex items-center gap-3 p-3 rounded-lg border-2 hover:shadow-md transition-shadow"
+                          style={{ 
+                            backgroundColor: pref.category_color + '10',
+                            borderColor: pref.category_color + '30'
+                          }}
+                        >
+                          <span className="text-2xl">{pref.category_icon}</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">
+                            {pref.category_name}
                           </span>
-                        )}
-                      </div>
-                    ))
+                        </div>
+                      ))}
+                    </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-                      <p className="text-gray-500 dark:text-gray-400">لا توجد نشاطات حتى الآن</p>
-                      <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">ابدأ بقراءة المقالات لكسب النقاط!</p>
+                    <div className="text-center py-12">
+                      <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">لم تختر اهتمامات بعد</p>
+                      <Link
+                        href="/welcome/preferences"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                      >
+                        <Heart className="w-5 h-5" />
+                        اختر اهتماماتك الآن
+                      </Link>
                     </div>
                   )}
                 </div>
+
+                {/* المقالات المحفوظة وغير المكتملة */}
+                {userInsights && (
+                  <SavedArticles 
+                    savedArticles={userInsights.savedArticles}
+                    unfinishedArticles={userInsights.unfinishedArticles}
+                  />
+                )}
               </div>
             </div>
-          </div>
+          )}
+
+          {activeTab === 'insights' && userInsights && (
+            <ReadingInsights 
+              readingProfile={userInsights.readingProfile}
+              categoryDistribution={userInsights.categoryDistribution}
+              timePatterns={userInsights.timePatterns}
+              stats={userInsights.stats}
+            />
+          )}
+
+          {activeTab === 'achievements' && userInsights && (
+            <AchievementBadges achievements={userInsights.achievements} />
+          )}
+
+          {activeTab === 'timeline' && userInsights && (
+            <ReadingTimeline timeline={userInsights.timeline} />
+          )}
+
+          {/* رسالة التحميل للبيانات المتقدمة */}
+          {loadingInsights && activeTab !== 'overview' && (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          )}
         </div>
 
-                        {/* Modal تفاصيل النقاط */}
+        {/* Modal تفاصيل النقاط */}
         {showLoyaltyModal && (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
@@ -616,7 +841,7 @@ export default function ProfilePage() {
                   <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">تفاصيل نقاط الولاء</h3>
                   <button
                     onClick={() => setShowLoyaltyModal(false)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -634,20 +859,20 @@ export default function ProfilePage() {
                         </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">النقاط الحالية</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">النقاط الحالية</p>
                         <p className="text-2xl font-bold text-amber-600">{userPoints}</p>
                       </div>
                     </div>
                     {membership.nextLevel && (
                       <div className="mt-4">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-2">التقدم نحو المستوى التالي ({membership.nextLevel} نقطة)</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">التقدم نحو المستوى التالي ({membership.nextLevel} نقطة)</p>
                         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                           <div 
                             className="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500"
                             style={{ width: `${getProgressToNextLevel(userPoints)}%` }}
                           />
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-1">باقي {pointsToNext} نقطة للوصول إلى المستوى التالي</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">باقي {pointsToNext} نقطة للوصول إلى المستوى التالي</p>
                       </div>
                     )}
                   </div>
@@ -685,21 +910,6 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 mt-4">
-                    <p className="text-sm text-amber-800 dark:text-amber-200">
-                      <strong>ملاحظة:</strong> يتم تحديث النقاط تلقائياً عند كل تفاعل. 
-                      احرص على القراءة والتفاعل مع المحتوى لكسب المزيد من النقاط والوصول لمستويات أعلى!
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-400 dark:text-gray-500">إجمالي النقاط</span>
-                  <span className="text-2xl font-bold text-amber-600">
-                    {userPoints} نقطة
-                  </span>
                 </div>
               </div>
             </div>
