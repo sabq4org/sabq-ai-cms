@@ -2,7 +2,6 @@ generator client {
   provider      = "prisma-client-js"
   output        = "../lib/generated/prisma"
   binaryTargets = ["native", "debian-openssl-1.1.x", "rhel-openssl-1.1.x"]
-  engineType    = "library"
 }
 
 datasource db {
@@ -34,7 +33,6 @@ model User {
   preferences       UserPreference[]
   userRoles         UserRole[]
   comments          Comment[]
-  uploadedMedia     MediaFile[]
 
   @@index([email])
   @@index([role])
@@ -106,7 +104,6 @@ model Article {
   deepAnalysis   DeepAnalysis?
   keywords       ArticleKeyword[]
   comments       Comment[]
-  media          ArticleMedia[]
 
   @@index([slug])
   @@index([authorId])
@@ -303,101 +300,10 @@ model AnalyticsData {
   @@map("analytics_data")
 }
 
-model MediaFile {
-  id               String             @id @default(uuid())
-  url              String             @db.Text
-  type             MediaType          @default(IMAGE)
-  title            String
-  description      String?            @db.Text
-  tags             Json?              // ["وزارة", "رسمي", "مؤتمر"]
-  classification   String?            // "ملك", "وزارة", "حدث", "مبنى"
-  source           String?            // "داخلي", "وكالة", "موقع رسمي"
-  fileName         String             @map("file_name")
-  fileSize         Int                @map("file_size") // بالبايت
-  mimeType         String             @map("mime_type")
-  width            Int?               // للصور
-  height           Int?               // للصور
-  duration         Int?               // للفيديو بالثواني
-  thumbnailUrl     String?            @map("thumbnail_url") @db.Text
-  aiEntities       Json?              @map("ai_entities") // ["الملك سلمان", "الرياض"]
-  aiAnalysis       Json?              @map("ai_analysis") // نتائج تحليل Vision API
-  uploadedBy       String             @map("uploaded_by")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
-  lastUsedAt       DateTime?          @map("last_used_at")
-  usageCount       Int                @default(0) @map("usage_count")
-  isArchived       Boolean            @default(false) @map("is_archived")
-  metadata         Json?
-  uploader         User               @relation(fields: [uploadedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  articleMedia     ArticleMedia[]
-  categories       MediaFileCategory[]
-
-  @@index([type])
-  @@index([classification])
-  @@index([uploadedBy])
-  @@index([createdAt])
-  @@map("media_files")
-}
-
-model ArticleMedia {
-  id         String    @id @default(uuid())
-  articleId  String    @map("article_id")
-  mediaId    String    @map("media_id")
-  position   String?   // "featured", "content", "gallery"
-  orderIndex Int       @default(0) @map("order_index")
-  caption    String?   @db.Text
-  createdAt  DateTime  @default(now()) @map("created_at")
-  article    Article   @relation(fields: [articleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  media      MediaFile @relation(fields: [mediaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([articleId, mediaId, position])
-  @@index([articleId])
-  @@index([mediaId])
-  @@map("article_media")
-}
-
-model MediaCategory {
-  id          String    @id @default(uuid())
-  name        String    @unique
-  slug        String    @unique
-  type        String    // "person", "place", "event", "organization"
-  icon        String?
-  parentId    String?   @map("parent_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  parent      MediaCategory?  @relation("MediaCategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children    MediaCategory[] @relation("MediaCategoryHierarchy")
-  mediaFiles  MediaFileCategory[]
-
-  @@index([slug])
-  @@index([type])
-  @@map("media_categories")
-}
-
-model MediaFileCategory {
-  id         String        @id @default(uuid())
-  mediaId    String        @map("media_id")
-  categoryId String        @map("category_id")
-  createdAt  DateTime      @default(now()) @map("created_at")
-  media      MediaFile     @relation(fields: [mediaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  category   MediaCategory @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([mediaId, categoryId])
-  @@index([mediaId])
-  @@index([categoryId])
-  @@map("media_file_categories")
-}
-
 enum InteractionType {
   like
   save
   share
   comment
   view
-}
-
-enum MediaType {
-  IMAGE
-  VIDEO
-  DOCUMENT
-  AUDIO
 }
