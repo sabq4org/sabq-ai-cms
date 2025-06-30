@@ -6,7 +6,8 @@ import {
   Save, Eye, Send, AlertTriangle, Image, Video,
   Sparkles, Brain, Globe, Settings, Hash, FileText, CheckCircle,
   XCircle, Lightbulb, Target, RefreshCw, Upload,
-  Wand2, PenTool, BarChart3, Rocket, ArrowLeft, Loader2, X, Plus
+  Wand2, PenTool, BarChart3, Rocket, ArrowLeft, Loader2, X, Plus,
+  ImageIcon
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -18,6 +19,10 @@ const ContentEditorWithBlocks = dynamic(() => import('@/components/ContentEditor
 });
 
 const FeaturedImageUpload = dynamic(() => import('@/components/FeaturedImageUpload'), {
+  ssr: false
+});
+
+const MediaPicker = dynamic(() => import('@/components/MediaPicker'), {
   ssr: false
 });
 
@@ -101,6 +106,7 @@ export default function CreateArticlePage() {
   const [readingTime, setReadingTime] = useState(0);
   const [keywordInput, setKeywordInput] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   // Load categories
   useEffect(() => {
@@ -853,25 +859,36 @@ export default function CreateArticlePage() {
                           </button>
                         </div>
                       ) : (
-                        <label className="block">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="hidden"
-                          />
-                          <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition-colors cursor-pointer">
-                            {uploadingImage ? (
-                              <Loader2 className="w-12 h-12 mx-auto text-blue-500 animate-spin" />
-                            ) : (
-                              <>
-                                <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                <p className="text-gray-600">اضغط لرفع صورة أو اسحبها هنا</p>
-                                <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF حتى 5MB</p>
-                              </>
-                            )}
-                          </div>
-                        </label>
+                        <div className="space-y-2">
+                          <label className="block">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition-colors cursor-pointer">
+                              {uploadingImage ? (
+                                <Loader2 className="w-12 h-12 mx-auto text-blue-500 animate-spin" />
+                              ) : (
+                                <>
+                                  <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                                  <p className="text-gray-600">اضغط لرفع صورة أو اسحبها هنا</p>
+                                  <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF حتى 5MB</p>
+                                </>
+                              )}
+                            </div>
+                          </label>
+                          
+                          <button
+                            type="button"
+                            onClick={() => setShowMediaPicker(true)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all shadow-lg"
+                          >
+                            <ImageIcon className="w-5 h-5" />
+                            اختر من مكتبة الوسائط
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1302,6 +1319,30 @@ export default function CreateArticlePage() {
           </div>
         </div>
       </div>
+      
+      {/* Media Picker Modal */}
+      {showMediaPicker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setShowMediaPicker(false)} />
+          <div className="relative z-10 w-full max-w-4xl">
+            <MediaPicker
+              onSelect={(media) => {
+                setFormData(prev => ({ ...prev, featured_image: media.url }));
+                setShowMediaPicker(false);
+              }}
+              articleTitle={formData.title}
+              articleContent={formData.content_blocks.map(b => b.data?.text || '').join(' ')}
+              allowedTypes={["IMAGE"]}
+            />
+            <button
+              onClick={() => setShowMediaPicker(false)}
+              className="absolute top-4 left-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
