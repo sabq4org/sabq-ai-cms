@@ -73,7 +73,8 @@ export default function SettingsPage() {
     enableAutoSummary: true,
     showAIHints: true,
     useCustomModel: false,
-    aiOutputLanguage: 'auto'
+    aiOutputLanguage: 'auto',
+    enableDeepAnalysis: false
   });
 
   // 🔐 إعدادات الأمان والإدارة
@@ -853,6 +854,23 @@ export default function SettingsPage() {
                       type="checkbox"
                       checked={aiSettings.useCustomModel}
                       onChange={(e) => setAiSettings({...aiSettings, useCustomModel: e.target.checked})}
+                      className="w-4 h-4"
+                    />
+                  </label>
+
+                  <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <Brain className="w-5 h-5 text-purple-600" />
+                      <span className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>تفعيل نظام التحليل العميق</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={aiSettings.enableDeepAnalysis}
+                      onChange={(e) => {
+                        setAiSettings({...aiSettings, enableDeepAnalysis: e.target.checked});
+                        // حفظ حالة التحليل العميق مباشرة
+                        localStorage.setItem('deep_analysis_enabled', e.target.checked.toString());
+                      }}
                       className="w-4 h-4"
                     />
                   </label>

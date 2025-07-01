@@ -28,7 +28,12 @@ import {
   RefreshCw,
   Eye,
   Edit,
-  Upload
+  Upload,
+  AlertCircle,
+  CheckCircle2,
+  Image as ImageIcon,
+  Hash,
+  Info
 } from 'lucide-react';
 import { CreateAnalysisRequest, SourceType, CreationType, DisplayPosition } from '@/types/deep-analysis';
 import toast from 'react-hot-toast';
@@ -62,6 +67,8 @@ const CreateDeepAnalysisPage = () => {
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDeepAnalysisEnabled, setIsDeepAnalysisEnabled] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const mainCategories = [
     'الاقتصاد', 'التقنية', 'رؤية 2030', 'الأمن السيبراني', 
@@ -77,9 +84,14 @@ const CreateDeepAnalysisPage = () => {
     }
   }, []);
 
-  // جلب المقالات
+  // جلب المقالات والتحقق من تفعيل التحليل العميق
   useEffect(() => {
     fetchArticles();
+    // التحقق من تفعيل التحليل العميق من الإعدادات
+    const deepAnalysisSettings = localStorage.getItem('deep_analysis_enabled');
+    if (deepAnalysisSettings === 'true') {
+      setIsDeepAnalysisEnabled(true);
+    }
   }, []);
 
   const fetchArticles = async () => {
@@ -111,7 +123,7 @@ const CreateDeepAnalysisPage = () => {
   };
 
   // معالجة رفع الصورة
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
@@ -125,9 +137,17 @@ const CreateDeepAnalysisPage = () => {
       }
 
       setImageFile(file);
+      setUploadingImage(true);
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+        setUploadingImage(false);
+        toast.success('تم تحميل الصورة بنجاح!');
+      };
+      reader.onerror = () => {
+        setUploadingImage(false);
+        toast.error('فشل تحميل الصورة');
       };
       reader.readAsDataURL(file);
     }
@@ -308,17 +328,38 @@ const CreateDeepAnalysisPage = () => {
     isSelected: boolean;
     onClick: () => void;
     color?: string;
-  }) => (
-    <button
-      onClick={onClick}
-      className={`w-full p-6 rounded-2xl border-2 transition-all duration-300 text-right ${
-        isSelected
-          ? `bg-${color}-500 text-white shadow-md border-b-4 border-${color}-600`
-          : darkMode
-            ? 'text-gray-300 hover:bg-gray-700 border-gray-700 hover:border-gray-600'
-            : 'text-gray-600 hover:bg-gray-50 border-gray-200 hover:border-gray-300'
-      }`}
-    >
+  }) => {
+    // تحديد الكلاسات بناءً على اللون
+    const getColorClasses = () => {
+      if (!isSelected) return '';
+      
+      switch (color) {
+        case 'blue':
+          return 'bg-blue-500 text-white shadow-lg border-blue-600 transform scale-105';
+        case 'purple':
+          return 'bg-purple-500 text-white shadow-lg border-purple-600 transform scale-105';
+        case 'orange':
+          return 'bg-orange-500 text-white shadow-lg border-orange-600 transform scale-105';
+        case 'green':
+          return 'bg-green-500 text-white shadow-lg border-green-600 transform scale-105';
+        case 'indigo':
+          return 'bg-indigo-500 text-white shadow-lg border-indigo-600 transform scale-105';
+        default:
+          return 'bg-blue-500 text-white shadow-lg border-blue-600 transform scale-105';
+      }
+    };
+
+    return (
+      <button
+        onClick={onClick}
+        className={`w-full p-6 rounded-2xl border-2 transition-all duration-300 text-right ${
+          isSelected
+            ? getColorClasses()
+            : darkMode
+              ? 'text-gray-300 hover:bg-gray-700 border-gray-700 hover:border-gray-600'
+              : 'text-gray-600 hover:bg-gray-50 border-gray-200 hover:border-gray-300'
+        }`}
+      >
       <div className="flex items-start gap-4">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
           isSelected
@@ -335,7 +376,8 @@ const CreateDeepAnalysisPage = () => {
         </div>
       </div>
     </button>
-  );
+    );
+  };
 
   return (
     <div className={`p-8 transition-colors duration-300 ${
@@ -888,6 +930,145 @@ const CreateDeepAnalysisPage = () => {
                 <option value="top">أعلى الصفحة</option>
                 <option value="sidebar">الشريط الجانبي</option>
               </select>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* معاينة الخيارات المختارة */}
+      <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
+        <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${
+          darkMode ? 'text-white' : 'text-gray-800'
+        }`}>
+          <Eye className="w-5 h-5 text-indigo-600" />
+          معاينة الخيارات المختارة
+        </h3>
+
+        {/* تنبيه التحليل العميق */}
+        {isDeepAnalysisEnabled && (
+          <div className={`mb-4 p-4 rounded-lg flex items-start gap-3 ${
+            darkMode 
+              ? 'bg-purple-900/30 border border-purple-700' 
+              : 'bg-purple-50 border border-purple-200'
+          }`}>
+            <Info className="w-5 h-5 text-purple-600 mt-0.5" />
+            <div className="flex-1">
+              <p className={`font-semibold ${darkMode ? 'text-purple-300' : 'text-purple-800'}`}>
+                تحليل عميق مفعّل
+              </p>
+              <p className={`text-sm mt-1 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+                هذا المحتوى سيتم معالجته كتحليل عميق وسيُعرض في البلوك المخصص له
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* طريقة الإنشاء */}
+          <div className={`p-4 rounded-lg ${
+            darkMode ? 'bg-gray-700' : 'bg-gray-50'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Layers className="w-4 h-4 text-purple-600" />
+              <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                طريقة الإنشاء
+              </span>
+            </div>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              {creationType === 'manual' && 'يدوي'}
+              {creationType === 'gpt' && 'ذكاء اصطناعي'}
+              {creationType === 'mixed' && 'مختلط'}
+            </p>
+          </div>
+
+          {/* نوع المصدر */}
+          <div className={`p-4 rounded-lg ${
+            darkMode ? 'bg-gray-700' : 'bg-gray-50'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="w-4 h-4 text-blue-600" />
+              <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                نوع المصدر
+              </span>
+            </div>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              {sourceType === 'original' && 'محتوى أصلي'}
+              {sourceType === 'article' && selectedArticle ? `من مقال: ${selectedArticle.title}` : sourceType === 'article' ? 'من مقال (غير محدد)' : ''}
+            </p>
+          </div>
+
+          {/* الكلمات المفتاحية */}
+          <div className={`p-4 rounded-lg ${
+            darkMode ? 'bg-gray-700' : 'bg-gray-50'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Hash className="w-4 h-4 text-green-600" />
+              <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                الكلمات المفتاحية
+              </span>
+            </div>
+            {tags.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {tags.map((tag, index) => (
+                  <span key={index} className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                لم يتم إضافة كلمات مفتاحية
+              </p>
+            )}
+          </div>
+
+          {/* الصورة المميزة */}
+          <div className={`p-4 rounded-lg ${
+            darkMode ? 'bg-gray-700' : 'bg-gray-50'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <ImageIcon className="w-4 h-4 text-orange-600" />
+              <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                الصورة المميزة
+              </span>
+            </div>
+            {uploadingImage ? (
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} flex items-center gap-2`}>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                جارٍ رفع الصورة...
+              </p>
+            ) : imagePreview ? (
+              <p className={`text-sm ${darkMode ? 'text-green-400' : 'text-green-600'} flex items-center gap-2`}>
+                <CheckCircle2 className="w-4 h-4" />
+                تم رفع الصورة بنجاح
+              </p>
+            ) : (
+              <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                لم يتم رفع صورة
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* التحقق من البيانات المطلوبة */}
+        {(!title || !summary) && (
+          <div className={`mt-4 p-4 rounded-lg flex items-start gap-3 ${
+            darkMode 
+              ? 'bg-red-900/30 border border-red-700' 
+              : 'bg-red-50 border border-red-200'
+          }`}>
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+            <div className="flex-1">
+              <p className={`font-semibold ${darkMode ? 'text-red-300' : 'text-red-800'}`}>
+                بيانات مطلوبة
+              </p>
+              <p className={`text-sm mt-1 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+                يرجى ملء العنوان والملخص قبل النشر
+              </p>
             </div>
           </div>
         )}
