@@ -54,8 +54,8 @@ const CreateDeepAnalysisPage = () => {
   const [content, setContent] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
-  const [sourceType, setSourceType] = useState<SourceType>('manual');
-  const [creationType, setCreationType] = useState<CreationType>('new');
+  const [sourceType, setSourceType] = useState<SourceType>('original');
+  const [creationType, setCreationType] = useState<CreationType>('manual');
   const [externalLink, setExternalLink] = useState('');
   const [authorName, setAuthorName] = useState('');
   const [gptPrompt, setGptPrompt] = useState('');
@@ -335,24 +335,24 @@ const CreateDeepAnalysisPage = () => {
       
       switch (color) {
         case 'blue':
-          return 'bg-blue-500 text-white shadow-lg border-blue-600 transform scale-105';
+          return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl border-blue-600 transform scale-[1.02]';
         case 'purple':
-          return 'bg-purple-500 text-white shadow-lg border-purple-600 transform scale-105';
+          return 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl border-purple-600 transform scale-[1.02]';
         case 'orange':
-          return 'bg-orange-500 text-white shadow-lg border-orange-600 transform scale-105';
+          return 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-xl border-orange-600 transform scale-[1.02]';
         case 'green':
-          return 'bg-green-500 text-white shadow-lg border-green-600 transform scale-105';
+          return 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-xl border-green-600 transform scale-[1.02]';
         case 'indigo':
-          return 'bg-indigo-500 text-white shadow-lg border-indigo-600 transform scale-105';
+          return 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-xl border-indigo-600 transform scale-[1.02]';
         default:
-          return 'bg-blue-500 text-white shadow-lg border-blue-600 transform scale-105';
+          return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl border-blue-600 transform scale-[1.02]';
       }
     };
 
     return (
       <button
         onClick={onClick}
-        className={`w-full p-6 rounded-2xl border-2 transition-all duration-300 text-right ${
+        className={`relative w-full p-6 rounded-2xl border-2 transition-all duration-300 text-right overflow-hidden ${
           isSelected
             ? getColorClasses()
             : darkMode
@@ -360,10 +360,22 @@ const CreateDeepAnalysisPage = () => {
               : 'text-gray-600 hover:bg-gray-50 border-gray-200 hover:border-gray-300'
         }`}
       >
+      {/* شريط جانبي للعنصر المختار */}
+      {isSelected && (
+        <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50" />
+      )}
+      
+      {/* أيقونة التحديد */}
+      {isSelected && (
+        <div className="absolute top-4 left-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg">
+          <CheckCircle2 className="w-5 h-5 text-green-600" />
+        </div>
+      )}
+      
       <div className="flex items-start gap-4">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
           isSelected
-            ? 'bg-white/20'
+            ? 'bg-white/20 scale-110'
             : darkMode
               ? 'bg-gray-700 text-gray-400'
               : 'bg-gray-100 text-gray-600'
@@ -371,8 +383,8 @@ const CreateDeepAnalysisPage = () => {
           <Icon className="w-6 h-6" />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-bold mb-1">{title}</h3>
-          <p className={`text-sm ${isSelected ? 'text-white/90' : ''}`}>{description}</p>
+          <h3 className={`text-lg font-bold mb-1 ${isSelected ? 'text-white' : ''}`}>{title}</h3>
+          <p className={`text-sm ${isSelected ? 'text-white/90' : darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{description}</p>
         </div>
       </div>
     </button>
@@ -439,6 +451,22 @@ const CreateDeepAnalysisPage = () => {
           </div>
         </div>
       </div>
+
+      {/* رسالة ترحيب ذكية */}
+      {title === '' && summary === '' && (
+        <div className={`rounded-xl p-4 mb-6 flex items-start gap-3 ${
+          darkMode 
+            ? 'bg-blue-900/20 border border-blue-700' 
+            : 'bg-blue-50 border border-blue-200'
+        }`}>
+          <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+          <div className="flex-1">
+            <p className={`text-sm font-medium ${darkMode ? 'text-blue-300' : 'text-blue-800'}`}>
+              مرحباً! ابدأ بتحديد طريقة الإنشاء ونوع المصدر، ثم املأ تفاصيل التحليل العميق.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* أنواع الإنشاء */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
@@ -519,7 +547,7 @@ const CreateDeepAnalysisPage = () => {
 
       {/* اختيار المقال */}
       {sourceType === 'article' && (
-        <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
+        <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-all duration-500 animate-slideIn ${
           darkMode 
             ? 'bg-gray-800 border-gray-700' 
             : 'bg-white border-gray-100'
@@ -549,7 +577,7 @@ const CreateDeepAnalysisPage = () => {
 
       {/* محتوى GPT */}
       {(creationType === 'gpt' || creationType === 'mixed') && (
-        <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
+        <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-all duration-500 animate-slideIn ${
           darkMode 
             ? 'bg-gray-800 border-gray-700' 
             : 'bg-white border-gray-100'
@@ -935,7 +963,33 @@ const CreateDeepAnalysisPage = () => {
         )}
       </div>
 
-      {/* معاينة الخيارات المختارة */}
+      {/* ملخص سريع للاختيارات */}
+      <div className={`rounded-xl p-4 mb-6 transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gradient-to-r from-gray-800 to-gray-700 border border-gray-600' 
+          : 'bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200'
+      }`}>
+        <div className="flex items-center justify-between">
+          <h4 className={`text-sm font-semibold flex items-center gap-2 ${
+            darkMode ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+            <CheckCircle2 className="w-4 h-4 text-green-500" />
+            ملخص الاختيارات
+          </h4>
+          <div className="flex gap-4 text-sm">
+            <span className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <Layers className="w-4 h-4" />
+              {creationType === 'manual' ? 'يدوي' : creationType === 'gpt' ? 'ذكاء اصطناعي' : 'مختلط'}
+            </span>
+            <span className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <FileText className="w-4 h-4" />
+              {sourceType === 'original' ? 'محتوى أصلي' : 'من مقال'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* معاينة الخيارات المختارة - تفصيلية */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
@@ -945,7 +999,7 @@ const CreateDeepAnalysisPage = () => {
           darkMode ? 'text-white' : 'text-gray-800'
         }`}>
           <Eye className="w-5 h-5 text-indigo-600" />
-          معاينة الخيارات المختارة
+          معاينة تفصيلية
         </h3>
 
         {/* تنبيه التحليل العميق */}
