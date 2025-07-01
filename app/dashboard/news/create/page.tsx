@@ -94,13 +94,21 @@ export default function CreateArticlePage() {
 
   const fetchAuthors = async () => {
     try {
-      const response = await fetch('/api/team-members');
+      console.log('🔄 جلب المراسلين...');
+      const response = await fetch('/api/authors?role=correspondent,editor,author');
       const data = await response.json();
-      // التأكد من أن البيانات في شكل مصفوفة
-      setAuthors(Array.isArray(data.data) ? data.data : []);
+      
+      if (data.success) {
+        const authorsData = Array.isArray(data.data) ? data.data : [];
+        console.log(`✅ تم جلب ${authorsData.length} مراسل:`, authorsData.map((a: any) => `${a.name} (${a.role})`));
+        setAuthors(authorsData);
+      } else {
+        console.error('❌ خطأ في جلب المراسلين:', data.error);
+        setAuthors([]);
+      }
     } catch (error) {
-      console.error('خطأ في تحميل المراسلين:', error);
-      setAuthors([]); // تعيين مصفوفة فارغة في حالة الخطأ
+      console.error('❌ خطأ في جلب المراسلين:', error);
+      setAuthors([]);
     }
   };
 
@@ -115,17 +123,29 @@ export default function CreateArticlePage() {
 
     try {
       setUploadingImage(true);
-      const response = await fetch('/api/media/upload', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
 
       if (response.ok) {
         const data = await response.json();
-        setFormData(prev => ({ ...prev, featuredImage: data.url }));
+        if (data.success) {
+          setFormData(prev => ({ ...prev, featuredImage: data.url }));
+          toast.success('تم رفع الصورة بنجاح!');
+          console.log('✅ تم رفع الصورة:', data.url);
+        } else {
+          toast.error(data.error || 'فشل في رفع الصورة');
+          console.error('❌ خطأ في رفع الصورة:', data.error);
+        }
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'فشل في رفع الصورة');
+        console.error('❌ خطأ في رفع الصورة:', errorData);
       }
     } catch (error) {
       console.error('خطأ في رفع الصورة:', error);
+      toast.error('حدث خطأ في رفع الصورة');
     } finally {
       setUploadingImage(false);
     }
@@ -138,6 +158,8 @@ export default function CreateArticlePage() {
 
     setUploadingImage(true);
     const uploadedImages: UploadedImage[] = [];
+    let successCount = 0;
+    let errorCount = 0;
 
     for (const file of Array.from(files)) {
       const formData = new FormData();
@@ -145,16 +167,27 @@ export default function CreateArticlePage() {
       formData.append('type', 'gallery');
 
       try {
-        const response = await fetch('/api/media/upload', {
+        const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
 
         if (response.ok) {
           const data = await response.json();
-          uploadedImages.push(data);
+          if (data.success) {
+            uploadedImages.push(data);
+            successCount++;
+          } else {
+            errorCount++;
+            console.error('❌ خطأ في رفع الصورة:', data.error);
+          }
+        } else {
+          errorCount++;
+          const errorData = await response.json();
+          console.error('❌ خطأ في رفع الصورة:', errorData);
         }
       } catch (error) {
+        errorCount++;
         console.error('خطأ في رفع الصورة:', error);
       }
     }
@@ -164,6 +197,14 @@ export default function CreateArticlePage() {
       gallery: [...prev.gallery, ...uploadedImages] 
     }));
     setUploadingImage(false);
+
+    // إظهار رسائل النتيجة
+    if (successCount > 0) {
+      toast.success(`تم رفع ${successCount} صورة بنجاح!`);
+    }
+    if (errorCount > 0) {
+      toast.error(`فشل في رفع ${errorCount} صورة`);
+    }
   };
 
   // استدعاء الذكاء الاصطناعي
