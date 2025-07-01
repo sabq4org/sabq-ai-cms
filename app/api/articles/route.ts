@@ -3,6 +3,12 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { prisma } from '@/lib/prisma'
 import { filterTestContent, rejectTestContent } from '@/lib/data-protection'
+import { handleOptions, corsResponse } from '@/lib/cors'
+
+// معالجة طلبات OPTIONS للـ CORS
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export const runtime = 'nodejs'
 
@@ -82,69 +88,64 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10')
     const skip = (page - 1) * limit
 
-    // جلب المقالات مع العلاقات
-    const [articles, total] = await Promise.all([
-      prisma.article.findMany({
-        where,
-        orderBy,
-        skip,
-        take: limit
-      }),
-      prisma.article.count({ where })
-    ])
-    
-    // جلب بيانات المؤلفين والتصنيفات
-    const authorIds = [...new Set(articles.map(a => a.authorId).filter(Boolean))] as string[]
-    const categoryIds = [...new Set(articles.map(a => a.categoryId).filter(Boolean))] as string[]
-    
-    const [authors, categories] = await Promise.all([
-      authorIds.length > 0 ? prisma.user.findMany({
-        where: { id: { in: authorIds } },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          avatar: true
+    // جلب المقالات مع العلاقات في استعلام واحد لتحسين الأداء
+    const articles = await prisma.article.findMany({
+      where,
+      orderBy,
+      skip,
+      take: limit,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            color: true
+          }
         }
-      }) : [],
-      categoryIds.length > 0 ? prisma.category.findMany({
-        where: { id: { in: categoryIds } }
-      }) : []
-    ])
-    
-    // إنشاء خرائط للوصول السريع
-    const authorsMap = new Map(authors.map(a => [a.id, a]))
-    const categoriesMap = new Map(categories.map(c => [c.id, c]))
-
-    // تحويل البيانات للتوافق مع الواجهة القديمة
-    const formattedArticles = articles.map(article => {
-      const author = article.authorId ? authorsMap.get(article.authorId) : undefined
-      const category = article.categoryId ? categoriesMap.get(article.categoryId) : undefined
-      
-      return {
-        id: article.id,
-        title: article.title,
-        slug: article.slug,
-        content: article.content,
-        summary: article.excerpt,
-        author_id: article.authorId,
-        author: author,
-        category_id: article.categoryId,
-        category_name: category?.name || 'غير مصنف',
-        status: article.status,
-        featured_image: article.featuredImage,
-        is_breaking: article.breaking,
-        is_featured: article.featured,
-        views_count: article.views,
-        reading_time: article.readingTime || calculateReadingTime(article.content),
-        created_at: article.createdAt.toISOString(),
-        updated_at: article.updatedAt.toISOString(),
-        published_at: article.publishedAt?.toISOString(),
-        tags: article.metadata && typeof article.metadata === 'object' && 'tags' in article.metadata ? (article.metadata as any).tags : [],
-        interactions_count: 0, // TODO: حساب عدد التفاعلات
-        comments_count: 0 // TODO: حساب عدد التعليقات
       }
     })
+    
+    // جلب العدد الإجمالي
+    const total = await prisma.article.count({ where })
+
+    // جلب بيانات المؤلفين منفصلة لتحسين الأداء
+    const authorIds = [...new Set(articles.map(a => a.authorId).filter(Boolean))] as string[]
+    const authors = authorIds.length > 0 ? await prisma.user.findMany({
+      where: { id: { in: authorIds } },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true
+      }
+    }) : []
+    
+    const authorsMap = new Map(authors.map(a => [a.id, a]))
+
+    // تحويل البيانات للتوافق مع الواجهة
+    const formattedArticles = articles.map(article => ({
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      content: article.content,
+      summary: article.excerpt,
+      author_id: article.authorId,
+      author: authorsMap.get(article.authorId),
+      category_id: article.categoryId,
+      category_name: article.category?.name || 'غير مصنف',
+      status: article.status,
+      featured_image: article.featuredImage,
+      is_breaking: article.breaking,
+      is_featured: article.featured,
+      views_count: article.views,
+      reading_time: article.readingTime || calculateReadingTime(article.content),
+      created_at: article.createdAt.toISOString(),
+      updated_at: article.updatedAt.toISOString(),
+      published_at: article.publishedAt?.toISOString(),
+      tags: article.metadata && typeof article.metadata === 'object' && 'tags' in article.metadata ? (article.metadata as any).tags : [],
+      interactions_count: 0,
+      comments_count: 0
+    }))
 
     // تصفية المحتوى التجريبي في الإنتاج
     const filteredArticles = filterTestContent(formattedArticles)
@@ -159,7 +160,9 @@ export async function GET(request: NextRequest) {
       hasPrev: page > 1
     }
 
-    return NextResponse.json({
+    console.log(`✅ تم جلب ${filteredArticles.length} مقال من أصل ${total}`)
+
+    return corsResponse({
       success: true,
       articles: filteredArticles,
       data: filteredArticles,
@@ -174,11 +177,11 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('خطأ في جلب المقالات:', error)
-    return NextResponse.json({
+    return corsResponse({
       success: false,
       error: 'فشل في استرجاع المقالات',
       message: error instanceof Error ? error.message : 'خطأ غير معروف'
-    }, { status: 500 })
+    }, 500)
   }
 }
 
@@ -220,6 +223,20 @@ export async function POST(request: NextRequest) {
         success: false,
         error: validation.error
       }, { status: 400 })
+    }
+
+    // التحقق من مسارات الصور
+    if (body.featured_image) {
+      const imageUrl = body.featured_image;
+      // منع المسارات المحلية - يجب أن تكون الصور من Cloudinary أو خدمة سحابية
+      if (imageUrl.startsWith('/uploads/') || imageUrl.startsWith('/public/') || 
+          (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://'))) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'مسار الصورة غير صحيح',
+          message: 'يجب رفع الصور إلى Cloudinary. المسارات المحلية غير مسموحة.' 
+        }, { status: 400 });
+      }
     }
 
     // إعداد البيانات للحفظ

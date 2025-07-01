@@ -97,11 +97,19 @@ export default function NewsManagementPage() {
     const fetchNewsData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/articles');
+        setError(null);
+        
+        console.log('🔄 بدء جلب البيانات...');
+        const startTime = Date.now();
+        
+        const response = await fetch('/api/articles?limit=50');
         if (!response.ok) {
           throw new Error('فشل في تحميل البيانات');
         }
+        
         const data = await response.json();
+        console.log(`✅ تم جلب البيانات في ${Date.now() - startTime}ms`);
+        
         const mapped: NewsItem[] = (data.articles || []).map((a: any) => {
           // تحديد الحالة بناءً على التاريخ
           let status = a.status as NewsStatus;
@@ -119,10 +127,10 @@ export default function NewsManagementPage() {
             id: a.id,
             title: a.title,
             author: a.author_id || '—',
-            author_name: a.author_name || 'كاتب غير معروف',
+            author_name: a.author?.name || a.author_name || 'كاتب غير معروف',
             category: a.category_id || 0,
-            category_name: a.category_name || 'غير مصنف',
-            category_color: a.category_color || '#6B7280',
+            category_name: a.category?.name || a.category_name || 'غير مصنف',
+            category_color: a.category?.color || a.category_color || '#6B7280',
             publishTime: a.published_at ? new Date(a.published_at).toLocaleString('ar-SA', {
               year: 'numeric',
               month: 'short',
@@ -147,8 +155,12 @@ export default function NewsManagementPage() {
             slug: a.slug
           };
         });
+        
+        console.log(`📊 تم تحويل ${mapped.length} مقال`);
         setNewsData(mapped);
+        
       } catch (err) {
+        console.error('❌ خطأ في جلب البيانات:', err);
         setError(err instanceof Error ? err.message : 'حدث خطأ في تحميل البيانات');
       } finally {
         setLoading(false);

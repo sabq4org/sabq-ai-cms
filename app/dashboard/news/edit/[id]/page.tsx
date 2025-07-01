@@ -101,6 +101,7 @@ export default function EditArticlePage() {
   const [wordCount, setWordCount] = useState(0);
   const [readingTime, setReadingTime] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [authors, setAuthors] = useState<{ id: string; name: string; role?: string }[]>([]);
 
   // تحميل بيانات المقال الحالية
   useEffect(() => {
@@ -176,7 +177,28 @@ export default function EditArticlePage() {
       }
     };
 
+    const fetchAuthors = async () => {
+      try {
+        console.log('🔄 جلب المراسلين...');
+        const response = await fetch('/api/authors?role=correspondent,editor,author');
+        const data = await response.json();
+        
+        if (data.success) {
+          const authorsData = Array.isArray(data.data) ? data.data : [];
+          console.log(`✅ تم جلب ${authorsData.length} مراسل:`, authorsData.map((a: any) => `${a.name} (${a.role})`));
+          setAuthors(authorsData);
+        } else {
+          console.error('❌ خطأ في جلب المراسلين:', data.error);
+          setAuthors([]);
+        }
+      } catch (error) {
+        console.error('❌ خطأ في جلب المراسلين:', error);
+        setAuthors([]);
+      }
+    };
+
     fetchCategories();
+    fetchAuthors();
   }, []);
 
   // حساب عدد الكلمات ووقت القراءة
@@ -727,6 +749,29 @@ export default function EditArticlePage() {
                       placeholder="عنوان فرعي يدعم العنوان الرئيسي..."
                       className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
+                  </div>
+
+                  {/* المراسل/الكاتب */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      المراسل/الكاتب <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.author_id}
+                      onChange={(e) => setFormData(prev => ({ ...prev, author_id: e.target.value }))}
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="">اختر المراسل...</option>
+                      {authors.map(author => (
+                        <option key={author.id} value={author.id}>
+                          {author.name} ({author.role || 'مراسل'})
+                        </option>
+                      ))}
+                    </select>
+                    {authors.length === 0 && (
+                      <p className="text-xs text-gray-500 mt-1">لا يوجد مراسلين متاحين</p>
+                    )}
                   </div>
 
                   {/* التصنيف والنطاق */}
