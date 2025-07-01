@@ -15,6 +15,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import AnalysisTypeIcon from './AnalysisTypeIcon';
 
 interface DeepAnalysisCardProps {
   analysis: {
@@ -26,6 +27,7 @@ interface DeepAnalysisCardProps {
     tags: string[];
     authorName: string;
     sourceType: string;
+    analysisType?: 'manual' | 'ai' | 'mixed';
     readingTime: number;
     views: number;
     likes: number;
@@ -116,6 +118,9 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
             <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-lg backdrop-blur-sm">
               <Brain className="w-4 h-4" />
               تحليل عميق
+              {analysis.analysisType && (
+                <AnalysisTypeIcon type={analysis.analysisType} size="small" />
+              )}
             </div>
           </div>
 

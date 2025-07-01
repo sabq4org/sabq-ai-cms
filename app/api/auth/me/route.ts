@@ -45,6 +45,17 @@ export async function GET(request: NextRequest) {
           select: {
             points: true
           }
+        },
+        interests: {
+          select: {
+            id: true,
+            interest: true,
+            score: true,
+            source: true
+          },
+          orderBy: {
+            score: 'desc'
+          }
         }
       }
     });
@@ -66,7 +77,8 @@ export async function GET(request: NextRequest) {
       loyaltyPoints: totalLoyaltyPoints,
       status: 'active', // قيمة افتراضية
       role: user.role || 'user',
-      isVerified: user.isVerified || false
+      isVerified: user.isVerified || false,
+      interests: user.interests.map(i => i.interest) // تحويل الاهتمامات إلى array من الأسماء
     };
 
     return NextResponse.json({

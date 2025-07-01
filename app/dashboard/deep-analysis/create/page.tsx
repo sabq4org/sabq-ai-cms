@@ -56,6 +56,7 @@ const CreateDeepAnalysisPage = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [sourceType, setSourceType] = useState<SourceType>('original');
   const [creationType, setCreationType] = useState<CreationType>('manual');
+  const [analysisType, setAnalysisType] = useState<'manual' | 'ai' | 'mixed'>('manual');
   const [externalLink, setExternalLink] = useState('');
   const [authorName, setAuthorName] = useState('');
   const [gptPrompt, setGptPrompt] = useState('');
@@ -263,26 +264,27 @@ const CreateDeepAnalysisPage = () => {
       // تحديد ما إذا كان يجب استخدام GPT
       const shouldUseGPT = (creationType === 'gpt' || creationType === 'mixed') && !content;
       
-      const analysisData: CreateAnalysisRequest = {
-        title,
-        summary,
-        content,
-        sourceType,
-        creationType,
-        categories,
-        tags,
-        authorName,
-        isActive,
-        isFeatured,
-        displayPosition,
-        status: status === 'published' ? 'published' : 'draft',
-        sourceArticleId: selectedArticle?.id,
-        externalLink: sourceType === 'external' ? externalLink : undefined,
-        generateWithGPT: shouldUseGPT,
-        gptPrompt: shouldUseGPT ? (gptPrompt || title) : undefined,
-        openaiApiKey: openaiKey || undefined,
-        featuredImage: uploadedImageUrl
-      };
+              const analysisData: CreateAnalysisRequest = {
+          title,
+          summary,
+          content,
+          sourceType,
+          creationType,
+          analysisType,
+          categories,
+          tags,
+          authorName,
+          isActive,
+          isFeatured,
+          displayPosition,
+          status: status === 'published' ? 'published' : 'draft',
+          sourceArticleId: selectedArticle?.id,
+          externalLink: sourceType === 'external' ? externalLink : undefined,
+          generateWithGPT: shouldUseGPT,
+          gptPrompt: shouldUseGPT ? (gptPrompt || title) : undefined,
+          openaiApiKey: openaiKey || undefined,
+          featuredImage: uploadedImageUrl
+        };
 
       console.log('Submitting analysis with data:', {
         ...analysisData,
@@ -487,7 +489,10 @@ const CreateDeepAnalysisPage = () => {
             description="كتابة التحليل بشكل كامل يدوياً"
             icon={PenTool}
             isSelected={creationType === 'manual'}
-            onClick={() => setCreationType('manual')}
+            onClick={() => {
+              setCreationType('manual');
+              setAnalysisType('manual');
+            }}
             color="blue"
           />
           <TypeCard
@@ -496,7 +501,10 @@ const CreateDeepAnalysisPage = () => {
             description="توليد التحليل بواسطة GPT-4"
             icon={Sparkles}
             isSelected={creationType === 'gpt'}
-            onClick={() => setCreationType('gpt')}
+            onClick={() => {
+              setCreationType('gpt');
+              setAnalysisType('ai');
+            }}
             color="purple"
           />
           <TypeCard
@@ -505,7 +513,10 @@ const CreateDeepAnalysisPage = () => {
             description="دمج الكتابة اليدوية مع الذكاء الاصطناعي"
             icon={Zap}
             isSelected={creationType === 'mixed'}
-            onClick={() => setCreationType('mixed')}
+            onClick={() => {
+              setCreationType('mixed');
+              setAnalysisType('mixed');
+            }}
             color="orange"
           />
         </div>

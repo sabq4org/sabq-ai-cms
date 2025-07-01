@@ -43,40 +43,39 @@ export async function GET(request: NextRequest) {
       where.parentId = parentId;
     }
     
-    // جلب الفئات مع العلاقات
+    // جلب الفئات
     let categories = await prisma.category.findMany({
       where,
       orderBy: {
         displayOrder: 'asc'
-      },
-      select: {
-        id: true,
-        name: true,
-        nameEn: true,
-        slug: true,
-        displayOrder: true,
-        isActive: true,
-        parentId: true,
-        description: true,
-        color: true,
-        icon: true,
-        metadata: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: {
-          select: {
-            articles: true
-          }
-        },
-        parent: {
-          select: {
-            id: true,
-            name: true,
-            slug: true
-          }
-        }
       }
     });
+    
+    // حساب عدد المقالات لكل تصنيف
+    const categoryIds = categories.map(c => c.id);
+    const articleCounts = await prisma.article.groupBy({
+      by: ['categoryId'],
+      where: {
+        categoryId: { in: categoryIds }
+      },
+      _count: {
+        id: true
+      }
+    });
+    
+    // إنشاء خريطة لعدد المقالات
+    const articleCountMap = new Map(
+      articleCounts.map(item => [item.categoryId, item._count.id])
+    );
+    
+    // جلب التصنيفات الأب إن وجدت
+    const parentIds = [...new Set(categories.map(c => c.parentId).filter(Boolean))] as string[];
+    const parents = parentIds.length > 0 ? await prisma.category.findMany({
+      where: { id: { in: parentIds } },
+      select: { id: true, name: true, slug: true }
+    }) : [];
+    
+    const parentsMap = new Map(parents.map(p => [p.id, p]));
 
     // إذا لم تكن هناك تصنيفات، أنشئ تصنيفاً افتراضياً
     if (categories.length === 0) {
@@ -97,27 +96,32 @@ export async function GET(request: NextRequest) {
     }
     
     // تحويل البيانات للتوافق مع الواجهة
-    const formattedCategories = categories.map(category => ({
-      id: category.id,
-      name: category.name,
-      name_ar: category.name, // للتوافق العكسي
-      name_en: category.nameEn,
-      slug: category.slug,
-      description: category.description,
-      color: category.color || '#6B7280', // لون افتراضي
-      color_hex: category.color || '#6B7280', // للتوافق العكسي
-      icon: category.icon || '📁', // أيقونة افتراضية
-      parent_id: category.parentId,
-      parent: category.parent,
-      children: [], // يمكن جلبها بطلب منفصل
-      articles_count: category._count.articles,
-      children_count: 0, // يمكن حسابها بطلب منفصل
-      order_index: category.displayOrder,
-      is_active: category.isActive,
-      created_at: category.createdAt.toISOString(),
-      updated_at: category.updatedAt.toISOString(),
-      metadata: category.metadata
-    }));
+    const formattedCategories = categories.map(category => {
+      const parent = category.parentId ? parentsMap.get(category.parentId) : null;
+      const articleCount = articleCountMap.get(category.id) || 0;
+      
+      return {
+        id: category.id,
+        name: category.name,
+        name_ar: category.name, // للتوافق العكسي
+        name_en: category.nameEn,
+        slug: category.slug,
+        description: category.description,
+        color: category.color || '#6B7280', // لون افتراضي
+        color_hex: category.color || '#6B7280', // للتوافق العكسي
+        icon: category.icon || '📁', // أيقونة افتراضية
+        parent_id: category.parentId,
+        parent: parent,
+        children: [], // يمكن جلبها بطلب منفصل
+        articles_count: articleCount,
+        children_count: 0, // يمكن حسابها بطلب منفصل
+        order_index: category.displayOrder,
+        is_active: category.isActive,
+        created_at: category.createdAt.toISOString(),
+        updated_at: category.updatedAt.toISOString(),
+        metadata: category.metadata
+      };
+    });
     
     return NextResponse.json({
       success: true,
