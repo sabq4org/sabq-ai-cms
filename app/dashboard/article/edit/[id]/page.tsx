@@ -16,6 +16,8 @@ import ContentEditorWithBlocks from '../../../../../components/ContentEditorWith
 import FeaturedImageUpload from '../../../../../components/FeaturedImageUpload';
 import { logActions, getCurrentUser } from '../../../../../lib/log-activity';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import Editor from '@/components/Editor/Editor';
+import { useToast } from '@/hooks/use-toast';
 
 // ===============================
 // أنواع البيانات
@@ -48,6 +50,7 @@ interface ArticleFormData {
   content_blocks: ContentBlock[];
   featured_image?: string;
   featured_image_alt?: string;
+  content?: string;
 }
 
 // استخدام أنواع Block من محرر البلوكات
@@ -75,9 +78,10 @@ interface Reporter {
 }
 
 export default function EditArticlePage() {
-  const params = useParams();
   const router = useRouter();
+  const params = useParams();
   const { darkMode } = useDarkModeContext();
+  const { toast } = useToast();
   const articleId = params?.id as string;
 
   const [formData, setFormData] = useState<ArticleFormData>({
@@ -103,7 +107,11 @@ export default function EditArticlePage() {
   const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
   const [previewMode, setPreviewMode] = useState(false);
   const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'seo' | 'ai' | 'publish'>('content');
-  const [aiLoading, setAiLoading] = useState<{ [key: string]: boolean }>({});
+  const [aiLoading, setAiLoading] = useState({
+    title: false,
+    description: false,
+    keywords: false
+  });
   const [qualityScore, setQualityScore] = useState(0);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [wordCount, setWordCount] = useState(0);
@@ -154,7 +162,8 @@ export default function EditArticlePage() {
           status: articleData.status || 'draft',
           content_blocks: articleData.content_blocks || [],
           featured_image: articleData.featured_image || '',
-          featured_image_alt: articleData.featured_image_alt || ''
+          featured_image_alt: articleData.featured_image_alt || '',
+          content: articleData.content || '' // إضافة المحتوى
         });
       } catch (err) {
         console.error('خطأ في تحميل المقال:', err);
@@ -361,6 +370,30 @@ export default function EditArticlePage() {
       setFormData(prev => ({ ...prev, keywords }));
     } finally {
       setAiLoading({ ...aiLoading, keywords: false });
+    }
+  };
+
+  // دالة لاستدعاء AI
+  const callAI = async (type: string, content: string) => {
+    try {
+      const response = await fetch('/api/ai/editor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, content })
+      });
+      
+      if (!response.ok) throw new Error('AI request failed');
+      
+      const data = await response.json();
+      return data.result;
+    } catch (error) {
+      console.error('AI error:', error);
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ في معالج الذكاء الاصطناعي",
+        variant: "destructive"
+      });
+      return null;
     }
   };
 
@@ -848,13 +881,32 @@ export default function EditArticlePage() {
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       محتوى المقال <span className="text-red-500">*</span>
                     </label>
-                    <ContentEditorWithBlocks 
-                      formData={formData}
-                      setFormData={setFormData}
-                      categories={categories}
-                      aiLoading={aiLoading}
-                      onGenerateTitle={generateTitle}
-                      onGenerateDescription={generateDescription}
+                    <Editor
+                      content={formData.content || ''}
+                      onChange={(content) => {
+                        // حفظ كل من HTML والنص العادي
+                        if (typeof content === 'object' && content.html) {
+                          setFormData(prev => ({ ...prev, content: content.html }));
+                        } else if (typeof content === 'string') {
+                          setFormData(prev => ({ ...prev, content }));
+                        }
+                      }}
+                      placeholder="اكتب محتوى المقال هنا..."
+                      enableAI={true}
+                      onAIAction={async (action: string, content: string) => {
+                        const result = await callAI(action, content);
+                        if (result) {
+                          // إدراج النتيجة في المحرر
+                          if (action === 'rewrite') {
+                            // استبدال النص المحدد
+                            return result;
+                          } else {
+                            // إضافة نص جديد
+                            return content + '\n\n' + result;
+                          }
+                        }
+                        return content;
+                      }}
                     />
                   </div>
                 </div>
@@ -883,7 +935,8 @@ export default function EditArticlePage() {
                     { icon: Globe, title: 'ترجمة ذكية', desc: 'ترجمة احترافية للإنجليزية', color: 'from-indigo-500 to-purple-600', action: () => {} }
                   ].map((tool, index) => {
                     const Icon = tool.icon;
-                    const isLoading = aiLoading[tool.title];
+                    // استخدام false كقيمة افتراضية لأن aiLoading لا يحتوي على مفاتيح ديناميكية
+                    const isLoading = false;
                     return (
                       <button
                         key={index}

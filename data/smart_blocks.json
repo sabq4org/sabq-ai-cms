@@ -24,7 +24,7 @@
     "name": "أخبار الرياضة",
     "position": "afterCards",
     "type": "smart",
-    "status": "inactive",
+    "status": "active",
     "displayType": "cards",
     "keywords": [
       "رياضة"
@@ -38,7 +38,7 @@
     },
     "order": 2,
     "createdAt": "2025-06-27T06:53:04.687Z",
-    "updatedAt": "2025-06-27T11:42:00.840Z"
+    "updatedAt": "2025-07-01T08:13:10.592Z"
   },
   {
     "name": "يوم القهوة العالمي",

@@ -104,9 +104,36 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
       }
       
       const response = await fetch(url);
+      
+      if (!response.ok) {
+        console.error(`[SmartSlot] خطأ في جلب المقالات: ${response.status} ${response.statusText}`);
+        setBlockArticles(prev => ({
+          ...prev,
+          [block.id]: []
+        }));
+        return;
+      }
+      
       const data = await response.json();
       
-      const articlesData = data.data || data.articles || data || [];
+      // التأكد من أن articlesData دائماً مصفوفة
+      let articlesData: any[] = [];
+      
+      if (Array.isArray(data)) {
+        articlesData = data;
+      } else if (data && typeof data === 'object') {
+        articlesData = data.data || data.articles || [];
+      }
+      
+      // التحقق من أن articlesData مصفوفة قبل استخدام filter
+      if (!Array.isArray(articlesData)) {
+        console.error('[SmartSlot] البيانات المستلمة ليست مصفوفة:', articlesData);
+        setBlockArticles(prev => ({
+          ...prev,
+          [block.id]: []
+        }));
+        return;
+      }
       
       // فلترة المقالات بناءً على الكلمات المفتاحية
       const filteredArticles = articlesData.filter((article: any) => {

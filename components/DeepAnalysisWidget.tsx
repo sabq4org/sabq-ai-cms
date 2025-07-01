@@ -3,6 +3,7 @@
 import { Clock3, Brain, Share2 } from "lucide-react";
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import AnalysisTypeIcon from './deep-analysis/AnalysisTypeIcon';
 
 interface DeepInsight {
   id: string;
@@ -15,6 +16,7 @@ interface DeepInsight {
   aiConfidence: number;
   tags: string[];
   type: 'AI' | 'تحرير بشري';
+  analysisType?: 'manual' | 'ai' | 'mixed';
   url: string;
   isNew?: boolean;
   qualityScore?: number;
@@ -150,8 +152,11 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                       </div>
                       
                       {/* بادج تحليل عميق - محدث بتدرج ناعم */}
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-300 bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-sm">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-300 bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-sm gap-1">
                         تحليل عميق
+                        {item.analysisType && (
+                          <AnalysisTypeIcon type={item.analysisType} size="small" />
+                        )}
                       </span>
                       
                       {isAI && (

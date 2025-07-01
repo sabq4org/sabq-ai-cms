@@ -271,6 +271,7 @@ export async function POST(request: NextRequest) {
       authorName: body.authorName || 'محرر سبق',
       sourceType: body.generateWithGPT ? 'gpt' : body.sourceType,
       creationType: body.creationType,
+      analysisType: body.analysisType || 'manual',
       sourceArticleId: body.sourceArticleId,
       externalLink: body.externalLink,
       readingTime,

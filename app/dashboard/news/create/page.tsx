@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calendar, Upload, Save, Send, Eye, Sparkles, AlertCircle, X, Plus, Loader2, FileText, Image as ImageIcon, User, Tag, Globe, Zap, Palette, Link2, Search, Clock, TrendingUp, BookOpen, Hash, Type } from 'lucide-react';
+import { Calendar, Upload, Save, Send, Eye, Sparkles, AlertCircle, X, Plus, Loader2, FileText, Image as ImageIcon, User, Tag, Globe, Zap, Palette, Link2, Search, Clock, TrendingUp, BookOpen, Hash, Type, Target, Lightbulb, Info } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { toast } from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -784,12 +784,96 @@ export default function CreateArticlePage() {
           {activeTab === 'seo' && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Search className="w-5 h-5 text-blue-500" />
-                  تحسين محركات البحث (SEO)
-                </CardTitle>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Target className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl">تحسين محركات البحث</CardTitle>
+                    <p className="text-muted-foreground mt-1">حسّن ظهور مقالك في نتائج البحث</p>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                {/* معاينة نتيجة البحث */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">معاينة في نتائج البحث</h3>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <h4 className="text-blue-600 text-lg font-medium mb-1 hover:underline cursor-pointer">
+                      {formData.seoTitle || formData.title || 'عنوان المقال سيظهر هنا...'}
+                    </h4>
+                    <p className="text-green-700 text-sm mb-2">
+                      sabq.org › article › {formData.title ? generateSlug(formData.title) : new Date().toISOString().split('T')[0]}
+                    </p>
+                    <p className="text-gray-600 text-sm">
+                      {formData.seoDescription || formData.excerpt || 'وصف المقال سيظهر هنا. اكتب وصفاً جذاباً يشجع على النقر...'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* نصائح SEO */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { 
+                      title: 'طول العنوان', 
+                      current: formData.seoTitle ? formData.seoTitle.length : formData.title.length, 
+                      ideal: '50-60', 
+                      status: formData.seoTitle || formData.title
+                        ? ((formData.seoTitle || formData.title).length >= 50 && (formData.seoTitle || formData.title).length <= 60 ? 'good' 
+                          : (formData.seoTitle || formData.title).length > 0 ? 'warning' 
+                          : 'bad')
+                        : 'bad'
+                    },
+                    { 
+                      title: 'طول الوصف', 
+                      current: formData.seoDescription ? formData.seoDescription.length : formData.excerpt.length, 
+                      ideal: '120-160', 
+                      status: formData.seoDescription || formData.excerpt
+                        ? ((formData.seoDescription || formData.excerpt).length >= 120 && (formData.seoDescription || formData.excerpt).length <= 160 ? 'good' 
+                          : (formData.seoDescription || formData.excerpt).length > 0 ? 'warning' 
+                          : 'bad')
+                        : 'bad'
+                    },
+                    { 
+                      title: 'الكلمات المفتاحية', 
+                      current: formData.keywords.length, 
+                      ideal: '3-5', 
+                      status: formData.keywords.length >= 3 && formData.keywords.length <= 5 ? 'good' 
+                        : formData.keywords.length > 0 ? 'warning' 
+                        : 'bad'
+                    },
+                    { 
+                      title: 'الصور', 
+                      current: formData.gallery.length + (formData.featuredImage ? 1 : 0), 
+                      ideal: '2+', 
+                      status: (formData.gallery.length + (formData.featuredImage ? 1 : 0)) >= 2 ? 'good' 
+                        : (formData.gallery.length + (formData.featuredImage ? 1 : 0)) > 0 ? 'warning' 
+                        : 'bad'
+                    }
+                  ].map((metric, index) => (
+                    <div key={index} className="bg-gray-50 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-gray-900">{metric.title}</span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          metric.status === 'good' ? 'bg-green-100 text-green-700' :
+                          metric.status === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {metric.current} / {metric.ideal}
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full transition-all duration-300 ${
+                          metric.status === 'good' ? 'bg-green-500' :
+                          metric.status === 'warning' ? 'bg-yellow-500' :
+                          'bg-red-500'
+                        }`} style={{ width: metric.status === 'good' ? '100%' : metric.status === 'warning' ? '60%' : '20%' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* عنوان SEO */}
                 <div>
                   <Label htmlFor="seo-title">عنوان SEO</Label>
                   <Input
@@ -803,6 +887,7 @@ export default function CreateArticlePage() {
                   </p>
                 </div>
 
+                {/* وصف SEO */}
                 <div>
                   <Label htmlFor="seo-description">وصف SEO</Label>
                   <Textarea
@@ -817,67 +902,100 @@ export default function CreateArticlePage() {
                   </p>
                 </div>
 
-                <div>
-                  <Label>الكلمات المفتاحية</Label>
-                  <div className="flex gap-2 mb-2">
-                    <Input
-                      placeholder="أضف كلمة مفتاحية..."
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          const input = e.target as HTMLInputElement;
-                          if (input.value.trim()) {
-                            addKeyword(input.value.trim());
-                            input.value = '';
-                          }
-                        }
-                      }}
-                    />
+                {/* الكلمات المفتاحية المحسنة */}
+                <div className="border-2 border-gray-100 rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <Hash className="w-5 h-5 text-purple-600" />
+                      الكلمات المفتاحية
+                      {formData.keywords.length > 0 && (
+                        <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
+                          {formData.keywords.length}
+                        </span>
+                      )}
+                    </h3>
                     <Button
                       type="button"
                       size="sm"
                       variant="outline"
                       onClick={suggestKeywords}
                       disabled={isAILoading}
+                      className="flex items-center gap-2"
                     >
                       {isAILoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
                         <Sparkles className="w-4 h-4" />
                       )}
-                      <span className="mr-1">اقتراح</span>
+                      اقتراح بالذكاء الاصطناعي
                     </Button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.keywords.map(keyword => (
-                      <div
-                        key={keyword}
-                        className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm flex items-center gap-1"
-                      >
-                        <span>{keyword}</span>
+                  
+                  {/* عرض الكلمات المفتاحية الحالية */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {formData.keywords.map((keyword, index) => (
+                      <span key={index} className="px-3 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-purple-200 transition-colors">
+                        <Hash className="w-3 h-3" />
+                        {keyword}
                         <button
                           onClick={() => removeKeyword(keyword)}
-                          className="hover:text-destructive"
+                          className="ml-1 hover:text-purple-900 hover:bg-purple-300 rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                          title="حذف الكلمة المفتاحية"
                         >
-                          <X className="w-3 h-3" />
+                          ×
                         </button>
-                      </div>
+                      </span>
                     ))}
+                    
+                    {/* حقل إدخال جديد */}
+                    <input
+                      type="text"
+                      placeholder="أضف كلمة مفتاحية واضغط Enter..."
+                      className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-w-[200px]"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const value = (e.target as HTMLInputElement).value.trim();
+                          if (value && !formData.keywords.includes(value)) {
+                            addKeyword(value);
+                            (e.target as HTMLInputElement).value = '';
+                          }
+                        }
+                      }}
+                    />
                   </div>
-                </div>
-
-                {/* معاينة البحث */}
-                <div className="p-4 bg-secondary/20 rounded-lg">
-                  <h4 className="font-medium mb-2">معاينة في محركات البحث</h4>
-                  <div className="space-y-1">
-                    <p className="text-blue-600 font-medium">
-                      {formData.seoTitle || formData.title || 'عنوان المقال'}
-                    </p>
-                    <p className="text-sm text-green-600">sabq.org › article › {formData.title ? generateSlug(formData.title) : 'slug'}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {formData.seoDescription || formData.excerpt || 'وصف المقال سيظهر هنا...'}
-                    </p>
+                  
+                  {/* اقتراحات سريعة */}
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4 text-yellow-500" />
+                      اقتراحات سريعة
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {['السعودية', 'الرياض', 'أخبار', 'عاجل', 'تقنية', 'اقتصاد', 'رياضة', 'صحة'].map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          onClick={() => {
+                            if (!formData.keywords.includes(suggestion)) {
+                              addKeyword(suggestion);
+                            }
+                          }}
+                          disabled={formData.keywords.includes(suggestion)}
+                          className="px-3 py-1 bg-white border border-gray-200 text-gray-600 rounded-full text-xs hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          + {suggestion}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+                  
+                  {/* نصائح للكلمات المفتاحية */}
+                  <Alert className="mt-4 bg-blue-50 border-blue-200">
+                    <Info className="h-4 w-4 text-blue-600" />
+                    <AlertDescription className="text-blue-800">
+                      استخدم 3-5 كلمات مفتاحية ذات صلة بالمحتوى. تجنب تكرار نفس الكلمات وركز على المصطلحات التي يبحث عنها القراء.
+                    </AlertDescription>
+                  </Alert>
                 </div>
               </CardContent>
             </Card>

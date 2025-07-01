@@ -158,17 +158,21 @@ export default function ProfilePage() {
     
     // جلب البيانات المحدثة من API
     try {
-      const response = await fetch('/api/users');
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include'
+      });
+      
       if (response.ok) {
         const data = await response.json();
-        const users = Array.isArray(data) ? data : data.users || [];
-        const updatedUser = users.find((u: any) => u.id === localUser.id);
-        
-        if (updatedUser) {
+        if (data.success && data.user) {
           // دمج البيانات المحدثة مع البيانات المحلية
-          const mergedUser = { ...localUser, ...updatedUser };
-          setUser(mergedUser);
-          localStorage.setItem('user', JSON.stringify(mergedUser));
+          const updatedUser = {
+            ...localUser,
+            ...data.user,
+            interests: data.user.interests || []
+          };
+          setUser(updatedUser);
+          localStorage.setItem('user', JSON.stringify(updatedUser));
         } else {
           setUser(localUser);
         }
@@ -182,148 +186,51 @@ export default function ProfilePage() {
   };
 
   const fetchUserData = async () => {
+    const userData = localStorage.getItem('user');
+    if (!userData) return;
+    
+    const user = JSON.parse(userData);
+    setLoading(true);
+    
     try {
-      const userData = localStorage.getItem('user');
-      if (!userData) return;
-      
-      const user = JSON.parse(userData);
-      console.log('📱 بيانات المستخدم من localStorage:', user);
-      setUser(user); // تحديث state بأحدث بيانات المستخدم
-      
       // جلب نقاط الولاء
-      const loyaltyResponse = await fetch(`/api/loyalty/points?user_id=${user.id}`);
+      const loyaltyResponse = await fetch(`/api/loyalty/points?userId=${user.id}`);
       if (loyaltyResponse.ok) {
         const loyaltyData = await loyaltyResponse.json();
-        if (loyaltyData.success) {
-          const pointsData = loyaltyData.data || loyaltyData;
-          setLoyaltyData({
-            total_points: pointsData.total_points || 0,
-            level: '', // لم نعد نحتاج المستوى، سيُحسب من النقاط
-            next_level_points: 0,
-            recent_activities: []
-          });
-        }
+        setLoyaltyData(loyaltyData);
       }
 
-      // جلب التفضيلات - جرب أولاً من API ثم من localStorage
-      console.log('🔍 محاولة جلب التفضيلات من API للمستخدم:', user.id);
-      try {
-        // جلب التفضيلات من API الجديد
-        const prefsResponse = await fetch(`/api/user/preferences?userId=${user.id}`);
-        console.log('📡 استجابة API التفضيلات:', prefsResponse.status);
+      // جلب الاهتمامات من المستخدم
+      console.log('🔍 جلب الاهتمامات من بيانات المستخدم...');
+      if (user.interests && user.interests.length > 0) {
+        console.log('✅ الاهتمامات موجودة:', user.interests);
         
-        if (prefsResponse.ok) {
-          const prefsData = await prefsResponse.json();
-          console.log('✅ تم جلب التفضيلات من API:', prefsData);
-          
-          if (prefsData.success && prefsData.data && prefsData.data.length > 0) {
-            // تحويل البيانات من ملف JSON إلى شكل مناسب للعرض
-            const categoryIds = prefsData.data.map((pref: any) => pref.category_id);
+        // جلب معلومات التصنيفات
+        try {
+          const categoriesResponse = await fetch('/api/categories');
+          if (categoriesResponse.ok) {
+            const categoriesData = await categoriesResponse.json();
+            const allCategories = categoriesData.categories || categoriesData || [];
             
-            // جلب معلومات التصنيفات
-            const categoriesResponse = await fetch('/api/categories');
-            if (categoriesResponse.ok) {
-              const categoriesData = await categoriesResponse.json();
-              const allCategories = categoriesData.categories || categoriesData || [];
-              
-              const userCategories = allCategories
-                .filter((cat: any) => categoryIds.includes(cat.id))
-                .map((cat: any) => ({
-                  category_id: parseInt(cat.id) || 0,
-                  category_name: cat.name || cat.name_ar,
-                  category_icon: cat.icon || '📌',
-                  category_color: cat.color || '#6B7280'
-                }));
-              
-              console.log('🎯 التصنيفات المحولة:', userCategories);
-              setPreferences(userCategories);
-            }
-          } else {
-            console.log('⚠️ لا توجد تفضيلات في API، محاولة جلبها من localStorage');
-            throw new Error('No preferences in API');
-          }
-        } else {
-          console.log('❌ فشل API التفضيلات:', prefsResponse.status);
-          throw new Error('API not available');
-        }
-      } catch (error) {
-        console.log('🔄 محاولة جلب الاهتمامات من localStorage...');
-        // إذا فشل API، احصل على الاهتمامات من localStorage
-        const currentUserData = localStorage.getItem('user');
-        if (currentUserData) {
-          const currentUser = JSON.parse(currentUserData);
-          const userInterests = currentUser.interests || [];
-          console.log('🏠 اهتمامات المستخدم من localStorage:', userInterests);
-          
-          // جلب معلومات التصنيفات
-          try {
-            const categoriesResponse = await fetch('/api/categories');
-            if (categoriesResponse.ok) {
-              const categoriesData = await categoriesResponse.json();
-              const allCategories = categoriesData.categories || categoriesData || [];
-              
-              const userCategories = allCategories
-                .filter((cat: any) => userInterests.includes(cat.id))
-                .map((cat: any) => ({
-                  category_id: parseInt(cat.id) || 0,
-                  category_name: cat.name || cat.name_ar,
-                  category_icon: cat.icon || '📌',
-                  category_color: cat.color || '#6B7280'
-                }));
-              
-              console.log('🎯 التفضيلات المحولة من localStorage:', userCategories);
-              setPreferences(userCategories);
-              
-              // حفظ التفضيلات في API إذا كانت موجودة في localStorage فقط
-              if (userCategories.length > 0) {
-                console.log('💾 حفظ التفضيلات في API...');
-                try {
-                  const saveResponse = await fetch('/api/user/preferences', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      userId: user.id,
-                      categoryIds: userInterests,
-                      source: 'sync_from_localstorage'
-                    }),
-                  });
-
-                  if (saveResponse.ok) {
-                    console.log('✅ تم حفظ التفضيلات في API بنجاح');
-                  } else {
-                    console.log('❌ فشل حفظ التفضيلات في API');
-                  }
-                } catch (saveError) {
-                  console.error('❌ خطأ في حفظ التفضيلات:', saveError);
-                }
-              }
-            }
-          } catch (catError) {
-            console.error('❌ خطأ في جلب التصنيفات:', catError);
-            // استخدام بيانات افتراضية كحل أخير
-            const defaultCategories = [
-              { id: '1', name: 'تقنية', icon: '💻', color: '#3B82F6' },
-              { id: '2', name: 'اقتصاد', icon: '📈', color: '#10B981' },
-              { id: '3', name: 'رياضة', icon: '⚽', color: '#F97316' },
-              { id: '4', name: 'ثقافة', icon: '📚', color: '#A855F7' },
-              { id: '5', name: 'صحة', icon: '❤️', color: '#EC4899' },
-              { id: '6', name: 'دولي', icon: '🌍', color: '#6366F1' }
-            ];
-            
-            const userCategories = defaultCategories
-              .filter(cat => userInterests.includes(cat.id))
-              .map(cat => ({
-                category_id: parseInt(cat.id) || 0,
-                category_name: cat.name,
-                category_icon: cat.icon,
-                category_color: cat.color
+            // تحويل الاهتمامات إلى تصنيفات
+            const userCategories = allCategories
+              .filter((cat: any) => user.interests.includes(cat.slug) || user.interests.includes(cat.name))
+              .map((cat: any) => ({
+                category_id: cat.id,
+                category_name: cat.name || cat.name_ar,
+                category_icon: cat.icon || '📌',
+                category_color: cat.color || '#6B7280'
               }));
             
+            console.log('🎯 التفضيلات المحولة:', userCategories);
             setPreferences(userCategories);
           }
+        } catch (catError) {
+          console.error('❌ خطأ في جلب التصنيفات:', catError);
         }
+      } else {
+        console.log('⚠️ لا توجد اهتمامات محفوظة');
+        setPreferences([]);
       }
 
       // جلب إحصائيات المستخدم

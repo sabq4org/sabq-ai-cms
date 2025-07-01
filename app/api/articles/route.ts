@@ -88,53 +88,63 @@ export async function GET(request: NextRequest) {
         where,
         orderBy,
         skip,
-        take: limit,
-        include: {
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              avatar: true
-            }
-          },
-          category: true,
-          deepAnalysis: true,
-          _count: {
-            select: {
-              interactions: true,
-              comments: true
-            }
-          }
-        }
+        take: limit
       }),
       prisma.article.count({ where })
     ])
+    
+    // جلب بيانات المؤلفين والتصنيفات
+    const authorIds = [...new Set(articles.map(a => a.authorId).filter(Boolean))] as string[]
+    const categoryIds = [...new Set(articles.map(a => a.categoryId).filter(Boolean))] as string[]
+    
+    const [authors, categories] = await Promise.all([
+      authorIds.length > 0 ? prisma.user.findMany({
+        where: { id: { in: authorIds } },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true
+        }
+      }) : [],
+      categoryIds.length > 0 ? prisma.category.findMany({
+        where: { id: { in: categoryIds } }
+      }) : []
+    ])
+    
+    // إنشاء خرائط للوصول السريع
+    const authorsMap = new Map(authors.map(a => [a.id, a]))
+    const categoriesMap = new Map(categories.map(c => [c.id, c]))
 
     // تحويل البيانات للتوافق مع الواجهة القديمة
-    const formattedArticles = articles.map(article => ({
-      id: article.id,
-      title: article.title,
-      slug: article.slug,
-      content: article.content,
-      summary: article.excerpt,
-      author_id: article.authorId,
-      author: article.author,
-      category_id: article.categoryId,
-      category_name: article.category?.name || 'غير مصنف',
-      status: article.status,
-      featured_image: article.featuredImage,
-      is_breaking: article.breaking,
-      is_featured: article.featured,
-      views_count: article.views,
-      reading_time: article.readingTime || calculateReadingTime(article.content),
-      created_at: article.createdAt.toISOString(),
-      updated_at: article.updatedAt.toISOString(),
-      published_at: article.publishedAt?.toISOString(),
-      tags: article.metadata && typeof article.metadata === 'object' && 'tags' in article.metadata ? (article.metadata as any).tags : [],
-      interactions_count: article._count.interactions,
-      comments_count: article._count.comments
-    }))
+    const formattedArticles = articles.map(article => {
+      const author = article.authorId ? authorsMap.get(article.authorId) : undefined
+      const category = article.categoryId ? categoriesMap.get(article.categoryId) : undefined
+      
+      return {
+        id: article.id,
+        title: article.title,
+        slug: article.slug,
+        content: article.content,
+        summary: article.excerpt,
+        author_id: article.authorId,
+        author: author,
+        category_id: article.categoryId,
+        category_name: category?.name || 'غير مصنف',
+        status: article.status,
+        featured_image: article.featuredImage,
+        is_breaking: article.breaking,
+        is_featured: article.featured,
+        views_count: article.views,
+        reading_time: article.readingTime || calculateReadingTime(article.content),
+        created_at: article.createdAt.toISOString(),
+        updated_at: article.updatedAt.toISOString(),
+        published_at: article.publishedAt?.toISOString(),
+        tags: article.metadata && typeof article.metadata === 'object' && 'tags' in article.metadata ? (article.metadata as any).tags : [],
+        interactions_count: 0, // TODO: حساب عدد التفاعلات
+        comments_count: 0 // TODO: حساب عدد التعليقات
+      }
+    })
 
     // تصفية المحتوى التجريبي في الإنتاج
     const filteredArticles = filterTestContent(formattedArticles)
@@ -327,19 +337,24 @@ export async function POST(request: NextRequest) {
 
     // إنشاء المقال
     const newArticle = await prisma.article.create({
-      data: articleData,
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true
-          }
-        },
-        category: true
-      }
+      data: articleData
     })
+    
+    // جلب بيانات المؤلف والتصنيف
+    const [author, category] = await Promise.all([
+      newArticle.authorId ? prisma.user.findUnique({
+        where: { id: newArticle.authorId },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true
+        }
+      }) : null,
+      newArticle.categoryId ? prisma.category.findUnique({
+        where: { id: newArticle.categoryId }
+      }) : null
+    ])
 
     // إنشاء تحليل عميق للمقال (اختياري)
     if (newArticle.content && newArticle.content.length > 100) {
@@ -361,7 +376,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: newArticle,
+      data: {
+        ...newArticle,
+        author,
+        category
+      },
       message: 'تم إنشاء المقال بنجاح'
     }, { status: 201 })
   } catch (error) {
