@@ -24,13 +24,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**.cloudinary.com',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '3000',
-        pathname: '/uploads/**',
+        hostname: 'source.unsplash.com',
       },
       {
         protocol: 'https',
@@ -38,8 +32,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**',
-      }
+        hostname: 'sabq-ai-cms.vercel.app',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
   },
@@ -118,6 +116,43 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin'
+          },
+          // إضافة CORS headers لحل مشكلة RSC
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*'
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS'
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'X-Requested-With, Content-Type, Authorization, Accept'
+          },
+          {
+            key: 'Access-Control-Allow-Credentials',
+            value: 'true'
+          }
+        ]
+      },
+      // Headers خاصة لـ RSC
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'query',
+            key: '_rsc'
+          }
+        ],
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/x-component'
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*'
           }
         ]
       },
@@ -127,6 +162,22 @@ const nextConfig = {
           {
             key: 'Cache-Control',
             value: 'no-store, must-revalidate',
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*'
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS'
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'X-Requested-With, Content-Type, Authorization, Accept'
+          },
+          {
+            key: 'Access-Control-Allow-Credentials',
+            value: 'true'
           }
         ]
       },
@@ -193,15 +244,28 @@ const nextConfig = {
         aggregateTimeout: 300,
         ignored: ['**/node_modules', '**/.next', '**/.git'],
       };
+      
+      // إضافة إعدادات لحل مشاكل HMR و RSC
+      config.optimization = {
+        ...config.optimization,
+        runtimeChunk: false,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+          },
+        },
+      };
     }
     
     return config;
   },
   
   // Experimental features
-  experimental: {
-    optimizeCss: true,
-  },
+  // experimental: {
+  //   optimizeCss: true,
+  // },
   
   // Turbopack configuration
   turbopack: {

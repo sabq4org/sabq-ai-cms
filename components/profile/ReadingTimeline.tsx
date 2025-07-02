@@ -96,7 +96,7 @@ export default function ReadingTimeline({ timeline }: Props) {
                         <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
                           <span className="flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                            {article.category}
+                            {typeof article.category === 'string' ? article.category : ((article.category as any)?.name_ar || (article.category as any)?.name || 'عام')}
                           </span>
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />

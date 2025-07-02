@@ -125,6 +125,7 @@ export default function EditDeepAnalysisPage() {
 
     const formData = new FormData();
     formData.append('file', imageFile);
+    formData.append('type', 'analysis');
 
     try {
       const response = await fetch('/api/upload', {
@@ -137,7 +138,11 @@ export default function EditDeepAnalysisPage() {
       }
 
       const data = await response.json();
-      return data.url;
+      if (data.success) {
+        return data.url;
+      } else {
+        throw new Error(data.error || 'فشل رفع الصورة');
+      }
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('حدث خطأ أثناء رفع الصورة');

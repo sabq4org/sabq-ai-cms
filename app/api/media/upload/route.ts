@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import sharp from 'sharp';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 import { v4 as uuidv4 } from 'uuid';
-import { v2 as cloudinary } from 'cloudinary';
 
 // الحد الأقصى لحجم الملف (10MB)
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -17,72 +14,25 @@ const ALLOWED_TYPES = {
   AUDIO: ['audio/mpeg', 'audio/wav', 'audio/ogg'],
 };
 
-// تكوين Cloudinary من متغيرات البيئة لحماية المفاتيح
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-  api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!,
-});
-
-if (!process.env.CLOUDINARY_CLOUD_NAME) {
-  console.warn('⚠️  لم يتم ضبط مفاتيح Cloudinary فى متغيرات البيئة');
-}
-
-// دالة لضغط الصور
-async function compressImage(buffer: Buffer, mimeType: string): Promise<{
-  compressed: Buffer;
-  thumbnail: Buffer;
-  metadata: {
-    width: number;
-    height: number;
-    format: string;
-    size: number;
-  };
+// دالة لضغط الصور (سيتم التعامل معها من Cloudinary)
+async function processImage(file: File): Promise<{
+  width: number;
+  height: number;
+  format: string;
+  size: number;
 }> {
-  const image = sharp(buffer);
-  const metadata = await image.metadata();
-
-  // ضغط الصورة الأصلية
-  let compressed = image.clone();
-  
-  // تحديد الجودة بناءً على النوع
-  if (mimeType === 'image/jpeg') {
-    compressed = compressed.jpeg({ quality: 85, progressive: true });
-  } else if (mimeType === 'image/png') {
-    compressed = compressed.png({ compressionLevel: 8 });
-  } else if (mimeType === 'image/webp') {
-    compressed = compressed.webp({ quality: 85 });
-  }
-
-  // تغيير حجم الصورة إذا كانت كبيرة جداً
-  if (metadata.width && metadata.width > 2000) {
-    compressed = compressed.resize(2000, null, {
-      withoutEnlargement: true,
-      fit: 'inside',
-    });
-  }
-
-  // إنشاء صورة مصغرة
-  const thumbnail = await image.clone()
-    .resize(400, 300, {
-      fit: 'cover',
-      position: 'center',
-    })
-    .jpeg({ quality: 80 })
-    .toBuffer();
-
-  const compressedBuffer = await compressed.toBuffer();
-
-  return {
-    compressed: compressedBuffer,
-    thumbnail,
-    metadata: {
-      width: metadata.width || 0,
-      height: metadata.height || 0,
-      format: metadata.format || 'unknown',
-      size: compressedBuffer.length,
-    },
-  };
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      resolve({
+        width: img.width,
+        height: img.height,
+        format: file.type.split('/')[1] || 'unknown',
+        size: file.size,
+      });
+    };
+    img.src = URL.createObjectURL(file);
+  });
 }
 
 // دالة لتحديد نوع الملف
@@ -113,93 +63,80 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // التحقق من مفاتيح Cloudinary
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      console.error('⚠️ مفاتيح Cloudinary غير مكتملة');
-      // حفظ محلياً كبديل
-      const fileName = `${Date.now()}-${file.name}`;
-      const filePath = join(process.cwd(), 'public', 'uploads', fileName);
-      
-      try {
-        await mkdir(join(process.cwd(), 'public', 'uploads'), { recursive: true });
-        await writeFile(filePath, buffer);
-        
-        return NextResponse.json({
-          id: uuidv4(),
-          url: `/uploads/${fileName}`,
-          width: null,
-          height: null,
-          format: file.type.split('/')[1]
-        });
-      } catch (error) {
-        console.error('خطأ في حفظ الملف محلياً:', error);
-        return NextResponse.json(
-          { error: 'فشل في حفظ الملف' },
-          { status: 500 }
-        );
-      }
-    }
-
     // رفع إلى Cloudinary
     try {
-      const result = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder: `news/${type}`,
-            resource_type: 'auto',
-            transformation: [
-              { quality: 'auto:good' },
-              { fetch_format: 'auto' }
-            ]
-          },
-          (error, result) => {
-            if (error) {
-              console.error('خطأ Cloudinary:', error);
-              reject(error);
-            } else {
-              resolve(result);
-            }
-          }
-        );
-        
-        // كتابة البيانات للـ stream
-        uploadStream.end(buffer);
-      }) as any;
+      // تحديد مجلد الرفع حسب النوع
+      let folder = 'sabq-cms/media';
+      switch (type) {
+        case 'avatar':
+          folder = 'sabq-cms/avatars';
+          break;
+        case 'featured':
+          folder = 'sabq-cms/featured';
+          break;
+        case 'gallery':
+          folder = 'sabq-cms/gallery';
+          break;
+        case 'team':
+          folder = 'sabq-cms/team';
+          break;
+        case 'analysis':
+          folder = 'sabq-cms/analysis';
+          break;
+        default:
+          folder = 'sabq-cms/media';
+      }
 
-      if (!result || !result.secure_url) {
+      // رفع الملف إلى Cloudinary
+      const result = await uploadToCloudinary(file, {
+        folder,
+        publicId: `${Date.now()}-${file.name.replace(/\.[^/.]+$/, "")}`,
+        transformation: [
+          { quality: 'auto:good' },
+          { fetch_format: 'auto' }
+        ]
+      });
+
+      if (!result || !result.url) {
         throw new Error('لم يتم استلام رابط الصورة من Cloudinary');
       }
 
-      // حفظ في قاعدة البيانات
-      const mediaFile = await prisma.mediaFile.create({
-        data: {
-          fileName: file.name,
-          title: file.name,
-          url: result.secure_url,
-          publicId: result.public_id,
-          type: 'IMAGE',
-          fileSize: result.bytes,
-          width: result.width || null,
-          height: result.height || null,
-          mimeType: file.type,
-          metadata: {
-            originalName: file.name,
-            uploadType: type,
-            cloudinaryData: {
-              version: result.version,
-              signature: result.signature,
-              etag: result.etag
-            }
-          },
-          uploadedBy: userId
-        }
-      });
+      // حفظ في قاعدة البيانات (إذا كان الجدول موجود)
+      let mediaFileId = uuidv4();
+      try {
+        // محاولة حفظ في قاعدة البيانات إذا كان الجدول موجود
+        const mediaFile = await prisma.mediaFile.create({
+          data: {
+            fileName: file.name,
+            title: file.name,
+            url: result.url,
+            publicId: result.publicId,
+            type: 'IMAGE',
+            fileSize: result.bytes || file.size,
+            width: result.width || null,
+            height: result.height || null,
+            mimeType: file.type,
+            metadata: {
+              originalName: file.name,
+              uploadType: type,
+              cloudinaryData: {
+                publicId: result.publicId,
+                format: result.format
+              }
+            },
+            uploadedBy: userId
+          }
+        });
+        mediaFileId = mediaFile.id;
+      } catch (dbError) {
+        console.warn('⚠️ جدول mediaFile غير موجود، سيتم حفظ البيانات فقط في Cloudinary');
+      }
 
       return NextResponse.json({
-        id: mediaFile.id,
-        url: mediaFile.url,
-        width: mediaFile.width,
-        height: mediaFile.height,
+        id: mediaFileId,
+        url: result.url,
+        width: result.width,
+        height: result.height,
         format: file.type.split('/')[1]
       });
 

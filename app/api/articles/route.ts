@@ -85,44 +85,60 @@ export async function GET(request: NextRequest) {
 
     // التقسيم (Pagination)
     const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
+    const limit = parseInt(searchParams.get('limit') || '6')
     const skip = (page - 1) * limit
 
-    // جلب المقالات مع العلاقات في استعلام واحد لتحسين الأداء
+    // جلب المقالات مع بيانات التصنيف والمؤلف في استعلام واحد
+    console.time('🔍 جلب المقالات من قاعدة البيانات')
     const articles = await prisma.article.findMany({
       where,
       orderBy,
       skip,
       take: limit,
-      include: {
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        content: true,
+        excerpt: true,
+        authorId: true,
+        categoryId: true,
+        status: true,
+        featuredImage: true,
+        breaking: true,
+        featured: true,
+        views: true,
+        readingTime: true,
+        createdAt: true,
+        updatedAt: true,
+        publishedAt: true,
+        metadata: true,
         category: {
           select: {
             id: true,
             name: true,
             color: true
           }
+        },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
         }
       }
     })
-    
-    // جلب العدد الإجمالي
-    const total = await prisma.article.count({ where })
+    console.timeEnd('🔍 جلب المقالات من قاعدة البيانات')
 
-    // جلب بيانات المؤلفين منفصلة لتحسين الأداء
-    const authorIds = [...new Set(articles.map(a => a.authorId).filter(Boolean))] as string[]
-    const authors = authorIds.length > 0 ? await prisma.user.findMany({
-      where: { id: { in: authorIds } },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        avatar: true
-      }
-    }) : []
-    
-    const authorsMap = new Map(authors.map(a => [a.id, a]))
+    // جلب العدد الإجمالي
+    console.time('📊 جلب العدد الإجمالي للمقالات')
+    const total = await prisma.article.count({ where })
+    console.timeEnd('📊 جلب العدد الإجمالي للمقالات')
 
     // تحويل البيانات للتوافق مع الواجهة
+    console.time('🔄 تحويل وتنسيق البيانات')
     const formattedArticles = articles.map(article => ({
       id: article.id,
       title: article.title,
@@ -130,7 +146,7 @@ export async function GET(request: NextRequest) {
       content: article.content,
       summary: article.excerpt,
       author_id: article.authorId,
-      author: authorsMap.get(article.authorId),
+      author: article.author,
       category_id: article.categoryId,
       category_name: article.category?.name || 'غير مصنف',
       status: article.status,
@@ -146,9 +162,12 @@ export async function GET(request: NextRequest) {
       interactions_count: 0,
       comments_count: 0
     }))
+    console.timeEnd('🔄 تحويل وتنسيق البيانات')
 
     // تصفية المحتوى التجريبي في الإنتاج
+    console.time('🚫 تصفية المحتوى التجريبي')
     const filteredArticles = filterTestContent(formattedArticles)
+    console.timeEnd('🚫 تصفية المحتوى التجريبي')
 
     // إحصائيات التقسيم
     const stats = {

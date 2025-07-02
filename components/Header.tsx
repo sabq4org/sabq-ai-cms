@@ -168,7 +168,7 @@ export default function Header() {
         toast.success('تم تسجيل الخروج بنجاح');
         
         setTimeout(() => {
-          window.location.href = '/login';
+          window.location.href = '/'; // العودة للصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
         }, 500);
       } else {
         toast.error('حدث خطأ في تسجيل الخروج');

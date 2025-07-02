@@ -86,7 +86,7 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
                             color: 'white'
                           }}
                         >
-                          {mainArticle.category}
+                          {typeof mainArticle.category === 'string' ? mainArticle.category : ((mainArticle.category as any)?.name_ar || (mainArticle.category as any)?.name || 'عام')}
                         </span>
                       )}
                       
@@ -152,7 +152,7 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
                       className="article-category-badge"
                       style={{ color: block.theme.primaryColor }}
                     >
-                      {article.category}
+                      {typeof article.category === 'string' ? article.category : ((article.category as any)?.name_ar || (article.category as any)?.name || 'عام')}
                     </div>
                   )}
                 </div>
@@ -209,7 +209,7 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
                     <div className="flex items-center gap-3 text-xs text-gray-500">
                       {article.category && (
                         <span style={{ color: block.theme.primaryColor }}>
-                          {article.category}
+                          {typeof article.category === 'string' ? article.category : ((article.category as any)?.name_ar || (article.category as any)?.name || 'عام')}
                         </span>
                       )}
                       
