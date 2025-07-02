@@ -291,29 +291,19 @@ export async function POST(request: NextRequest) {
       if (authorExists) {
         finalAuthorId = authorExists.id;
       } else {
-        console.warn('⚠️ المؤلف المحدد غير موجود، سيتم استخدام مؤلف افتراضي');
+        // إضافة لوج واضح في السيرفر
+        console.error('❌ محاولة نشر بمراسل غير موجود:', body.author_id);
+        return NextResponse.json({
+          success: false,
+          error: 'المراسل المحدد غير موجود في قاعدة البيانات. يرجى اختيار مراسل صحيح.'
+        }, { status: 400 });
       }
-    }
-
-    if (!finalAuthorId) {
-      // جلب أول مستخدم فى النظام كمؤلف افتراضى
-      const firstUser = await prisma.user.findFirst();
-      if (firstUser) {
-        finalAuthorId = firstUser.id;
-      } else {
-        // إذا لم يوجد مستخدم، أنشئ مستخدم إدارى بسيط
-        const newUser = await prisma.user.create({
-          data: {
-            email: `admin-${Date.now()}@sabq.local`,
-            name: 'مدير النظام',
-            passwordHash: '',
-            role: 'admin',
-            isAdmin: true,
-            isVerified: true,
-          }
-        });
-        finalAuthorId = newUser.id;
-      }
+    } else {
+      // إذا لم يتم إرسال معرف مراسل
+      return NextResponse.json({
+        success: false,
+        error: 'يجب اختيار مراسل/كاتب للمقال.'
+      }, { status: 400 });
     }
 
     articleData.authorId = finalAuthorId;
