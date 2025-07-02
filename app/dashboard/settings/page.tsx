@@ -95,7 +95,34 @@ export default function SettingsPage() {
 
   // Load settings from localStorage
   useEffect(() => {
-    const loadSettings = () => {
+    const loadSettings = async () => {
+      try {
+        // جلب الإعدادات من قاعدة البيانات PlanetScale
+        const response = await fetch('/api/settings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            // تحديث الإعدادات من قاعدة البيانات
+            if (data.data.identity) setIdentitySettings(data.data.identity);
+            if (data.data.seo) setSeoSettings(data.data.seo);
+            if (data.data.social) setSocialSettings(data.data.social);
+            if (data.data.ai) setAiSettings(data.data.ai);
+            if (data.data.security) setSecuritySettings(data.data.security);
+            if (data.data.backup) setBackupSettings(data.data.backup);
+          }
+        } else {
+          // إذا فشل الاتصال بقاعدة البيانات، استخدم localStorage
+          console.warn('فشل في جلب الإعدادات من قاعدة البيانات، استخدام localStorage');
+          loadFromLocalStorage();
+        }
+      } catch (error) {
+        console.error('Error loading settings from database:', error);
+        // استخدام localStorage كبديل
+        loadFromLocalStorage();
+      }
+    };
+
+    const loadFromLocalStorage = () => {
       const savedIdentity = localStorage.getItem('settings_identity');
       const savedSeo = localStorage.getItem('settings_seo');
       const savedSocial = localStorage.getItem('settings_social');
@@ -167,7 +194,7 @@ export default function SettingsPage() {
     }
   };
 
-  const saveSettings = (section: string) => {
+  const saveSettings = async (section: string) => {
     let settings;
     switch(section) {
       case 'identity': settings = identitySettings; break;
@@ -178,8 +205,30 @@ export default function SettingsPage() {
       case 'backup': settings = backupSettings; break;
     }
     
-    localStorage.setItem(`settings_${section}`, JSON.stringify(settings));
-    showSuccess();
+    try {
+      // حفظ في قاعدة البيانات PlanetScale
+      const response = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          section,
+          data: settings
+        })
+      });
+      
+      if (response.ok) {
+        // حفظ في localStorage كنسخة احتياطية
+        localStorage.setItem(`settings_${section}`, JSON.stringify(settings));
+        showSuccess();
+        toast.success('تم حفظ الإعدادات في قاعدة البيانات بنجاح');
+      } else {
+        const errorData = await response.json();
+        toast.error(`فشل في حفظ الإعدادات: ${errorData.error || 'خطأ غير معروف'}`);
+      }
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast.error('فشل في حفظ الإعدادات. تحقق من الاتصال بقاعدة البيانات.');
+    }
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

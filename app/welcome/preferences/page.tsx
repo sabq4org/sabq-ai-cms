@@ -25,6 +25,38 @@ export default function PreferencesPage() {
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // جلب الاهتمامات المحفوظة للمستخدم
+  const fetchUserInterests = async () => {
+    try {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        const userId = user.id;
+        
+        if (userId) {
+          // جلب التصنيفات المحفوظة من قاعدة البيانات
+          const response = await fetch(`/api/user/saved-categories?userId=${userId}`);
+          if (response.ok) {
+            const data = await response.json();
+            
+            if (data.success && data.categoryIds && data.categoryIds.length > 0) {
+              setSelectedCategoryIds(data.categoryIds);
+              console.log('تم تحميل الاهتمامات المحفوظة:', data.categoryIds, 'من:', data.source);
+            } else {
+              // إذا لم نجد في قاعدة البيانات، نحاول من localStorage
+              if (user.interests && Array.isArray(user.interests)) {
+                setSelectedCategoryIds(user.interests);
+                console.log('تم تحميل الاهتمامات من localStorage:', user.interests);
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('خطأ في تحميل الاهتمامات:', error);
+    }
+  };
+
   // جلب التصنيفات من قاعدة البيانات
   const fetchCategories = async () => {
     setLoadingCategories(true);
@@ -64,7 +96,9 @@ export default function PreferencesPage() {
   };
 
   useEffect(() => {
+    // تحميل التصنيفات والاهتمامات المحفوظة
     fetchCategories();
+    fetchUserInterests();
   }, []);
 
   const handleCategoryToggle = (categoryId: string) => {

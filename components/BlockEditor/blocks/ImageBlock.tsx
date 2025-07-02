@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Image as ImageIcon, Upload, Link, Loader } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { getDefaultImageUrl } from '@/lib/cloudinary';
 
 interface ImageBlockProps {
   data: { url: string; alt?: string; caption?: string };
@@ -117,7 +118,7 @@ export default function ImageBlock({ data, onChange, readOnly = false }: ImageBl
                   src: e.currentTarget.src,
                   alt: e.currentTarget.alt
                 });
-                e.currentTarget.src = '/default-avatar.png';
+                e.currentTarget.src = getDefaultImageUrl('article');
               }}
             />
             {data.caption && (
@@ -232,7 +233,7 @@ export default function ImageBlock({ data, onChange, readOnly = false }: ImageBl
                   src: e.currentTarget.src,
                   alt: e.currentTarget.alt
                 });
-                e.currentTarget.src = '/default-avatar.png';
+                e.currentTarget.src = getDefaultImageUrl('article');
               }}
             />
             <button

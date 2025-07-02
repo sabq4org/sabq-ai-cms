@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect, useContext } from 'react';
-import { AuthContext, AuthContextType, User } from '@/contexts/AuthContext';
+import { useAuth as useAuthContext } from '@/contexts/AuthContext';
 
 interface UseAuthReturn {
-  user: User | null;
+  user: any;
   isLoggedIn: boolean;
   isAdmin: boolean;
   isLoading: boolean;
@@ -13,35 +12,16 @@ interface UseAuthReturn {
 }
 
 export const useAuth = (): UseAuthReturn => {
-  const authContext = useContext(AuthContext);
-
-  if (authContext === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-
-  const { user, loading, logout } = authContext;
+  const { user, loading, logout } = useAuthContext();
   
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const isLoggedIn = !!user;
+  const isAdmin = isLoggedIn && user ? (user.role === 'admin' || user.role === 'super_admin') : false;
+  const userId = user?.id ? String(user.id) : null;
 
-  useEffect(() => {
-    if (!loading) {
-      const userIsLoggedIn = !!user;
-      setIsLoggedIn(userIsLoggedIn);
-      const userIsAdmin = userIsLoggedIn && user ? (user.role === 'admin' || user.role === 'super_admin') : false;
-      setIsAdmin(userIsAdmin);
-      if (user?.id) {
-        setUserId(String(user.id));
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('user_id', String(user.id));
-        }
-      } else if (typeof window !== 'undefined') {
-        const id = localStorage.getItem('user_id');
-        setUserId(id);
-      }
-    }
-  }, [user, loading]);
+  // حفظ user_id في localStorage
+  if (userId && typeof window !== 'undefined') {
+    localStorage.setItem('user_id', userId);
+  }
 
   return { 
     user, 

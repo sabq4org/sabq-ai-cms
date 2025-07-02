@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, User, Award, Zap } from 'lucide-react';
 import { formatDateOnly } from '@/lib/date-utils';
+import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 
 interface Article {
   id: string;
@@ -27,34 +28,10 @@ interface ArticleCardProps {
   viewMode?: 'grid' | 'list';
 }
 
-// دالة توليد صورة افتراضية
-function generatePlaceholderImage(title: string) {
-  const colors = [
-    'FF6B6B', '4ECDC4', '45B7D1', 'FFA07A', '98D8C8',
-    'F7DC6F', 'BB8FCE', '85C1E2', 'F8C471', 'F1948A',
-    '73C6B6', 'D7BDE2', 'A9DFBF', 'F9E79F', 'AED6F1'
-  ];
-  const color = colors[Math.floor(Math.random() * colors.length)];
-  const text = encodeURIComponent(title.substring(0, 50));
-  return `https://via.placeholder.com/600x400/${color}/FFFFFF?text=${text}`;
-}
 
-// دالة التحقق من صحة رابط الصورة
-function getValidImageUrl(imageUrl?: string, title?: string): string {
-  if (!imageUrl || imageUrl === '' || imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
-    return generatePlaceholderImage(title || 'مقال');
-  }
-  
-  // التأكد من أن الرابط يبدأ بـ / أو http
-  if (!imageUrl.startsWith('/') && !imageUrl.startsWith('http')) {
-    return '/' + imageUrl;
-  }
-  
-  return imageUrl;
-}
 
 export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardProps) {
-  const imageUrl = getValidImageUrl(article.featured_image, article.title);
+  const imageUrl = getValidImageUrl(article.featured_image, article.title, 'article');
   
   return (
     <Link href={`/article/${article.id}`}>
@@ -77,7 +54,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
             onError={(e) => {
               // في حالة فشل تحميل الصورة، استخدم صورة افتراضية
               const target = e.target as HTMLImageElement;
-              target.src = generatePlaceholderImage(article.title);
+              target.src = generatePlaceholderImage(article.title, 'article');
             }}
             priority={false}
             loading="lazy"

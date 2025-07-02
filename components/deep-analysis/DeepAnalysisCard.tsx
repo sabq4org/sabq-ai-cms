@@ -152,7 +152,7 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
                   }
                 `}
               >
-                {category}
+                {typeof category === 'string' ? category : ((category as any).name_ar || (category as any).name || 'عام')}
               </span>
             ))}
             {analysis.categories.length > 3 && (

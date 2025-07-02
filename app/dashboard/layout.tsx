@@ -25,7 +25,8 @@ import {
   Mail,
   ChevronRight,
   Sun,
-  Moon
+  Moon,
+  Image
 } from 'lucide-react';
 import { getCurrentUser, logActions } from '@/lib/log-activity';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -50,10 +51,10 @@ export default function DashboardLayout({
     // حذف معلومات المستخدم من localStorage
     localStorage.removeItem('currentUser');
     
-    // توجيه المستخدم إلى صفحة تسجيل الدخول
-          if (typeof window !== "undefined") {
-        window.location.href = '/login';
-      }
+    // توجيه المستخدم إلى الصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
+    if (typeof window !== "undefined") {
+      window.location.href = '/';
+    }
   };
 
   // إغلاق القائمة عند النقر خارجها
@@ -508,6 +509,30 @@ export default function DashboardLayout({
                         : 'bg-indigo-100 text-indigo-700 group-hover:bg-indigo-500 group-hover:text-white'
                     }`}>
                       0
+                    </div>
+                  </Link>
+
+                  <Link href="/dashboard/images" 
+                    onClick={() => setSidebarOpen(false)}
+                    className={`group flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+                    darkMode 
+                      ? 'text-gray-300 hover:bg-gradient-to-r hover:from-orange-900/30 hover:to-red-900/30 hover:text-orange-300' 
+                      : 'text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-red-50 hover:text-orange-700'
+                  }`}>
+                    <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-orange-900/40 group-hover:bg-orange-500 group-hover:text-white' 
+                        : 'bg-orange-100 group-hover:bg-orange-500 group-hover:text-white'
+                    }`}>
+                      <Image className="w-4 h-4 lg:w-5 lg:h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-sm lg:text-base font-medium">إدارة الصور</span>
+                      <p className={`text-xs hidden lg:block transition-colors duration-300 ${
+                        darkMode 
+                          ? 'text-gray-400 group-hover:text-orange-300' 
+                          : 'text-gray-500 group-hover:text-orange-600'
+                      }`}>فحص وإصلاح الصور</p>
                     </div>
                   </Link>
 

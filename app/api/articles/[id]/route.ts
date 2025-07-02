@@ -144,39 +144,6 @@ export async function GET(
           { id },
           { slug: id }
         ]
-      },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        content: true,
-        excerpt: true,
-        authorId: true,
-        categoryId: true,
-        status: true,
-        views: true,
-        featured: true,
-        breaking: true,
-        featuredImage: true,
-        readingTime: true,
-        createdAt: true,
-        updatedAt: true,
-        publishedAt: true,
-        metadata: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true
-          }
-        },
-        category: {
-          select: {
-            id: true,
-            name: true,
-            color: true
-          }
-        }
       }
     });
 
@@ -212,6 +179,24 @@ export async function GET(
       where: { articleId: dbArticle.id }
     }).catch(() => 0);
 
+    // جلب بيانات المؤلف والتصنيف بشكل منفصل
+    let author = null;
+    let category = null;
+    
+    if (dbArticle.authorId) {
+      author = await prisma.user.findUnique({
+        where: { id: dbArticle.authorId },
+        select: { id: true, name: true, avatar: true }
+      }).catch(() => null);
+    }
+    
+    if (dbArticle.categoryId) {
+      category = await prisma.category.findUnique({
+        where: { id: dbArticle.categoryId },
+        select: { id: true, name: true, color: true }
+      }).catch(() => null);
+    }
+
     // تنسيق البيانات للاستجابة
     const formatted = {
       id: dbArticle.id,
@@ -220,12 +205,12 @@ export async function GET(
       content: dbArticle.content,
       summary: dbArticle.excerpt,
       author_id: dbArticle.authorId,
-      author: dbArticle.author,
+      author: author,
       category_id: dbArticle.categoryId,
-      category_name: dbArticle.category?.name,
-      category: dbArticle.category,
-      category_display_name: dbArticle.category?.name,
-      category_color: dbArticle.category?.color || '#3B82F6',
+      category_name: category?.name,
+      category: category,
+      category_display_name: category?.name,
+      category_color: category?.color || '#3B82F6',
       status: dbArticle.status,
       featured_image: dbArticle.featuredImage,
       is_breaking: dbArticle.breaking,
@@ -245,8 +230,14 @@ export async function GET(
         comments: commentsCount,
         saves: interactionCounts.saves
       },
-      author_name: dbArticle.author?.name,
-      author_avatar: dbArticle.author?.avatar
+      author_name: author?.name,
+      author_avatar: author?.avatar,
+      // إضافة حقول إضافية قد تحتاجها صفحة التعديل
+      seo_keywords: dbArticle.seoKeywords,
+      seo_description: dbArticle.seoDescription,
+      seo_title: dbArticle.seoTitle,
+      allow_comments: dbArticle.allowComments,
+      scheduled_for: dbArticle.scheduledFor
     };
 
     // حفظ في Cache
@@ -296,11 +287,7 @@ export async function PATCH(
     
     const updatedArticle = await prisma.article.update({
       where: { id },
-      data: updates,
-      include: {
-        author: true,
-        category: true
-      }
+      data: updates
     });
     
     return NextResponse.json(updatedArticle);
@@ -325,16 +312,86 @@ export async function PUT(
     // حذف من Cache عند التحديث
     articleCache.delete(id);
     
+    // تحويل أسماء الحقول من snake_case إلى camelCase
+    const updateData: any = {
+      updatedAt: new Date()
+    };
+    
+    // خريطة تحويل الأسماء
+    const fieldMapping: Record<string, string> = {
+      author_id: 'authorId',
+      category_id: 'categoryId',
+      featured_image: 'featuredImage',
+      is_featured: 'featured',
+      is_breaking: 'breaking',
+      allow_comments: 'allowComments',
+      reading_time: 'readingTime',
+      scheduled_for: 'scheduledFor',
+      seo_description: 'seoDescription',
+      seo_keywords: 'seoKeywords',
+      seo_title: 'seoTitle',
+      social_image: 'socialImage',
+      published_at: 'publishedAt',
+      created_at: 'createdAt',
+      updated_at: 'updatedAt'
+    };
+    
+    // تحويل البيانات
+    for (const [key, value] of Object.entries(body)) {
+      const mappedKey = fieldMapping[key] || key;
+      
+      // التحقق من مسارات الصور
+      if ((key === 'featured_image' || key === 'social_image') && value) {
+        const imageUrl = value as string;
+        // منع المسارات المحلية - يجب أن تكون الصور من Cloudinary أو خدمة سحابية
+        if (imageUrl.startsWith('/uploads/') || imageUrl.startsWith('/public/') || 
+            (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://'))) {
+          return NextResponse.json({ 
+            success: false, 
+            error: 'مسار الصورة غير صحيح',
+            message: 'يجب رفع الصور إلى Cloudinary. المسارات المحلية غير مسموحة.' 
+          }, { status: 400 });
+        }
+        updateData[fieldMapping[key]] = imageUrl;
+      }
+      // تحويل keywords إلى seoKeywords كـ string
+      else if (key === 'keywords' && Array.isArray(value)) {
+        updateData.seoKeywords = value.join(', ');
+      } 
+      // معالجة الحقول المنطقية
+      else if (['is_featured', 'is_breaking', 'allow_comments'].includes(key)) {
+        updateData[fieldMapping[key]] = Boolean(value);
+      }
+      // معالجة summary كـ excerpt
+      else if (key === 'summary') {
+        updateData.excerpt = value;
+      }
+      // معالجة التواريخ
+      else if (value && (key === 'scheduled_for' || key === 'published_at')) {
+        updateData[fieldMapping[key]] = new Date(value as string);
+      }
+      // الحقول العادية
+      else if (value !== undefined && value !== null) {
+        updateData[mappedKey] = value;
+      }
+    }
+    
+    // التأكد من وجود المقال أولاً
+    const existingArticle = await prisma.article.findUnique({
+      where: { id }
+    });
+    
+    if (!existingArticle) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'المقال غير موجود' 
+      }, { status: 404 });
+    }
+    
+    // تحديث المقال
     const updated = await prisma.article.update({
       where: { id },
-      data: {
-        ...body,
-        updatedAt: new Date()
-      },
-      include: {
-        author: true,
-        category: true
-      }
+      data: updateData
     });
 
     return NextResponse.json({ 
@@ -346,7 +403,8 @@ export async function PUT(
     console.error('خطأ في تحديث المقال:', e);
     return NextResponse.json({ 
       success: false, 
-      error: 'فشل في تحديث المقال' 
+      error: 'فشل في تحديث المقال',
+      details: e instanceof Error ? e.message : 'خطأ غير معروف'
     }, { status: 500 });
   }
 }

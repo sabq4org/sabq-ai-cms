@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { handleOptions, corsResponse } from '@/lib/cors';
+
+// معالجة طلبات OPTIONS للـ CORS
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export const runtime = 'nodejs';
 
@@ -82,7 +88,6 @@ export async function GET(request: NextRequest) {
       const defaultCategory = await prisma.category.create({
         data: {
           name: 'عام',
-          nameEn: 'General',
           slug: 'general',
           description: 'التصنيف الافتراضي',
           color: '#6B7280',
@@ -104,7 +109,7 @@ export async function GET(request: NextRequest) {
         id: category.id,
         name: category.name,
         name_ar: category.name, // للتوافق العكسي
-        name_en: category.nameEn,
+        name_en: category.name_en,
         slug: category.slug,
         description: category.description,
         color: category.color || '#6B7280', // لون افتراضي
@@ -123,7 +128,7 @@ export async function GET(request: NextRequest) {
       };
     });
     
-    return NextResponse.json({
+    return corsResponse({
       success: true,
       categories: formattedCategories,
       total: formattedCategories.length
@@ -131,11 +136,11 @@ export async function GET(request: NextRequest) {
     
   } catch (error) {
     console.error('خطأ في جلب الفئات:', error);
-    return NextResponse.json({
+    return corsResponse({
       success: false,
       error: 'فشل في جلب الفئات',
       message: error instanceof Error ? error.message : 'خطأ غير معروف'
-    }, { status: 500 });
+    }, 500);
   }
 }
 
@@ -149,10 +154,10 @@ export async function POST(request: NextRequest) {
     const categorySlug = body.slug;
     
     if (!categoryName || !categorySlug) {
-      return NextResponse.json({
+      return corsResponse({
         success: false,
         error: 'الاسم والمعرف (slug) مطلوبان'
-      }, { status: 400 });
+      }, 400);
     }
     
     // التحقق من عدم تكرار الـ slug
@@ -161,17 +166,17 @@ export async function POST(request: NextRequest) {
     });
     
     if (existingCategory) {
-      return NextResponse.json({
+      return corsResponse({
         success: false,
         error: 'يوجد فئة أخرى بنفس المعرف (slug)'
-      }, { status: 400 });
+      }, 400);
     }
     
     // إنشاء الفئة الجديدة
     const newCategory = await prisma.category.create({
       data: {
         name: categoryName,
-        nameEn: body.name_en,
+        name_en: body.name_en,
         slug: categorySlug,
         description: body.description,
         color: body.color || body.color_hex || '#6B7280',
@@ -190,19 +195,19 @@ export async function POST(request: NextRequest) {
       }
     });
     
-    return NextResponse.json({
+    return corsResponse({
       success: true,
       data: newCategory,
       message: 'تم إنشاء الفئة بنجاح'
-    }, { status: 201 });
+    }, 201);
     
   } catch (error) {
     console.error('خطأ في إنشاء الفئة:', error);
-    return NextResponse.json({
+    return corsResponse({
       success: false,
       error: 'فشل في إنشاء الفئة',
       message: error instanceof Error ? error.message : 'خطأ غير معروف'
-    }, { status: 500 });
+    }, 500);
   }
 }
 
@@ -212,10 +217,10 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     
     if (!body.id) {
-      return NextResponse.json({
+      return corsResponse({
         success: false,
         error: 'معرف الفئة مطلوب'
-      }, { status: 400 });
+      }, 400);
     }
     
     // التحقق من وجود الفئة
@@ -224,10 +229,10 @@ export async function PUT(request: NextRequest) {
     });
     
     if (!existingCategory) {
-      return NextResponse.json({
+      return corsResponse({
         success: false,
         error: 'الفئة غير موجودة'
-      }, { status: 404 });
+      }, 404);
     }
     
     // تحديث الفئة
@@ -246,7 +251,7 @@ export async function PUT(request: NextRequest) {
       }
     });
     
-    return NextResponse.json({
+    return corsResponse({
       success: true,
       data: updatedCategory,
       message: 'تم تحديث الفئة بنجاح'
@@ -254,11 +259,11 @@ export async function PUT(request: NextRequest) {
     
   } catch (error) {
     console.error('خطأ في تحديث الفئة:', error);
-    return NextResponse.json({
+    return corsResponse({
       success: false,
       error: 'فشل في تحديث الفئة',
       message: error instanceof Error ? error.message : 'خطأ غير معروف'
-    }, { status: 500 });
+    }, 500);
   }
 }
 
@@ -269,10 +274,10 @@ export async function DELETE(request: NextRequest) {
     const ids = body.ids || [];
     
     if (!Array.isArray(ids) || ids.length === 0) {
-      return NextResponse.json({
+      return corsResponse({
         success: false,
         error: 'معرفات الفئات مطلوبة'
-      }, { status: 400 });
+      }, 400);
     }
     
     // التحقق من عدم وجود مقالات مرتبطة
@@ -283,11 +288,11 @@ export async function DELETE(request: NextRequest) {
     });
     
     if (articlesCount > 0) {
-      return NextResponse.json({
+      return corsResponse({
         success: false,
         error: 'لا يمكن حذف الفئات لوجود مقالات مرتبطة بها',
         articles_count: articlesCount
-      }, { status: 400 });
+      }, 400);
     }
     
     // حذف الفئات
@@ -297,7 +302,7 @@ export async function DELETE(request: NextRequest) {
       }
     });
     
-    return NextResponse.json({
+    return corsResponse({
       success: true,
       affected: result.count,
       message: `تم حذف ${result.count} فئة/فئات بنجاح`
@@ -305,10 +310,10 @@ export async function DELETE(request: NextRequest) {
     
   } catch (error) {
     console.error('خطأ في حذف الفئات:', error);
-    return NextResponse.json({
+    return corsResponse({
       success: false,
       error: 'فشل في حذف الفئات',
       message: error instanceof Error ? error.message : 'خطأ غير معروف'
-    }, { status: 500 });
+    }, 500);
   }
 } 

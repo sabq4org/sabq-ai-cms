@@ -82,7 +82,7 @@ export default function SavedArticles({ savedArticles, unfinishedArticles }: Pro
                     {article.category && (
                       <span className="flex items-center gap-1">
                         <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                        {article.category}
+                        {typeof article.category === 'string' ? article.category : ((article.category as any)?.name_ar || (article.category as any)?.name || 'عام')}
                       </span>
                     )}
                     <span className="flex items-center gap-1">
@@ -127,7 +127,7 @@ export default function SavedArticles({ savedArticles, unfinishedArticles }: Pro
                       {article.category && (
                         <span className="flex items-center gap-1">
                           <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                          {article.category}
+                          {typeof article.category === 'string' ? article.category : ((article.category as any)?.name_ar || (article.category as any)?.name || 'عام')}
                         </span>
                       )}
                       <span className="flex items-center gap-1">

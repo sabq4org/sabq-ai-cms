@@ -78,10 +78,14 @@ import {
   X,
   ArrowLeft,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Heart,
+  Bookmark,
+  MessageSquare
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
-import { getCookie } from '@/lib/cookies';
+import { getCookie, setCookie } from '@/lib/cookies';
+import { generatePlaceholderImage } from '@/lib/cloudinary';
 
 import CategoryBadge from './components/CategoryBadge';
 import Header from '../components/Header';
@@ -345,8 +349,8 @@ function NewspaperHomePage(): React.ReactElement {
   // التحقق من حالة تسجيل الدخول
   useEffect(() => {
     const checkAuthStatus = () => {
-      const storedUserId = localStorage.getItem('user_id');
-      const userData = localStorage.getItem('user');
+      let storedUserId = localStorage.getItem('user_id');
+      let userData = localStorage.getItem('user');
       
       let hasUserId = storedUserId && storedUserId.trim() !== '' && storedUserId !== 'null' && storedUserId !== 'undefined';
       let isNotAnonymous = storedUserId !== 'anonymous';
@@ -355,6 +359,8 @@ function NewspaperHomePage(): React.ReactElement {
       // في حال عدم وجود بيانات في localStorage، نحاول جلبها من الكوكيز
       if (!hasUserId || !hasUserData) {
         const cookieUser = getCookie('user');
+        const cookieUserId = getCookie('userId');
+        
         if (cookieUser) {
           try {
             const parsed = JSON.parse(cookieUser);
@@ -362,6 +368,10 @@ function NewspaperHomePage(): React.ReactElement {
               localStorage.setItem('user_id', parsed.id);
               localStorage.setItem('user', cookieUser);
               localStorage.setItem('currentUser', cookieUser);
+              // إضافة cookie userId للتوافق
+              setCookie('userId', parsed.id, 7);
+              storedUserId = parsed.id;  // تحديث storedUserId
+              userData = cookieUser;     // تحديث userData
               hasUserId = true;
               isNotAnonymous = true;
               hasUserData = true;
@@ -369,6 +379,12 @@ function NewspaperHomePage(): React.ReactElement {
           } catch (_) {
             // تجاهل أخطاء JSON
           }
+        } else if (cookieUserId) {
+          // إذا كان هناك userId في الكوكيز ولكن لا يوجد user data
+          localStorage.setItem('user_id', cookieUserId);
+          storedUserId = cookieUserId;
+          hasUserId = true;
+          isNotAnonymous = true;
         }
       }
 
@@ -403,32 +419,7 @@ function NewspaperHomePage(): React.ReactElement {
     checkAuthStatus();
   }, []);
 
-  // دالة لتوليد صورة بديلة بناءً على العنوان
-  const generatePlaceholderImage = (title: string) => {
-    const placeholderImages = [
-      'https://images.unsplash.com/photo-1542281286-9e0a16bb7366',
-      'https://images.unsplash.com/photo-1485827404703-89b55fcc595e',
-      'https://images.unsplash.com/photo-1518770660439-4636190af475',
-      'https://images.unsplash.com/photo-1550745165-9bc0b252726f',
-      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
-      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
-      'https://images.unsplash.com/photo-1523961131990-5ea7c61b2107',
-      'https://images.unsplash.com/photo-1504384308090-c894fdcc538d'
-    ];
-    
-    // التحقق من وجود العنوان قبل استخدامه
-    if (!title || typeof title !== 'string') {
-      // إرجاع صورة عشوائية إذا لم يكن هناك عنوان
-      const randomIndex = Math.floor(Math.random() * placeholderImages.length);
-      return `${placeholderImages[randomIndex]}?auto=format&fit=crop&w=800&q=80`;
-    }
-    
-    // اختيار صورة بناءً على hash العنوان للحصول على نفس الصورة لنفس المقال
-    const hash = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const imageIndex = hash % placeholderImages.length;
-    
-    return `${placeholderImages[imageIndex]}?auto=format&fit=crop&w=800&q=80`;
-  };
+
 
   // دالة جلب مقالات التصنيف
   const fetchCategoryArticles = async (categoryId: string) => {
@@ -652,7 +643,9 @@ function NewspaperHomePage(): React.ReactElement {
   // NewsCard component with AI tracking
   const NewsCard = ({ news }: { news: any }) => {
     
-    const confidenceScore = userTracker ? userTracker.calculateConfidence(news.category) : 1;
+    const categoryForConfidence = typeof news.category === 'string' ? news.category : 
+      (typeof news.category === 'object' && news.category ? news.category.name_ar || news.category.name : 'عام');
+    const confidenceScore = userTracker ? userTracker.calculateConfidence(categoryForConfidence) : 1;
     const isPersonalized = confidenceScore > 2.5;
     
     return (
@@ -662,7 +655,7 @@ function NewspaperHomePage(): React.ReactElement {
       >
           <div className="relative h-48 overflow-hidden">
             <img 
-              src={news.featured_image || news.image || generatePlaceholderImage(news.title)} 
+              src={news.featured_image || news.image || generatePlaceholderImage(news.title, 'article')} 
               alt={news.title}
               className="w-full h-full object-cover"
               loading="lazy"
@@ -709,14 +702,42 @@ function NewspaperHomePage(): React.ReactElement {
                 <div className="flex items-center gap-2">
                   {/* شارة التصنيف الذكية */}
                   {(() => {
-                    const categoryData = Array.isArray(categories) ? categories.find((cat: any) => 
-                      cat.name_ar === news.category || cat.name_en === news.category
-                    ) : null;
+                    // التحقق من أن categories موجودة ومصفوفة
+                    if (!Array.isArray(categories)) {
+                      return (
+                        <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-md">
+                          {typeof news.category_name === 'string' ? news.category_name : 
+                           typeof news.category === 'string' ? news.category : 'عام'}
+                        </span>
+                      );
+                    }
                     
-                    if (categoryData) {
+                    const newsCategory = typeof news.category === 'object' && news.category
+                      ? (news.category.name_ar || news.category.name)
+                      : news.category;
+                    
+                    const categoryData = categories.find((cat: any) => 
+                      cat.name_ar === newsCategory || 
+                      cat.name_en === newsCategory ||
+                      cat.name === newsCategory ||
+                      cat.id === news.category_id
+                    );
+                    
+                    if (categoryData && typeof categoryData === 'object') {
+                      // التأكد من أن categoryData يحتوي على الخصائص المطلوبة
+                      const safeCategoryData = {
+                        id: categoryData.id || 0,
+                        name_ar: categoryData.name_ar || categoryData.name || 'عام',
+                        name_en: categoryData.name_en || '',
+                        slug: categoryData.slug || '',
+                        color_hex: categoryData.color_hex || categoryData.color || '#3B82F6',
+                        icon: categoryData.icon || '📁',
+                        description: categoryData.description || ''
+                      };
+                      
                       return (
                         <CategoryBadge
-                          category={categoryData}
+                          category={safeCategoryData}
                           size="sm"
                           variant="filled"
                           showIcon={true}
@@ -729,7 +750,8 @@ function NewspaperHomePage(): React.ReactElement {
                     // إذا لم يُعثر على التصنيف، استخدم التصميم القديم
                     return (
                       <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-md">
-                        {news.category_name || news.category || 'عام'}
+                        {typeof news.category_name === 'string' ? news.category_name : 
+                         typeof news.category === 'string' ? news.category : 'عام'}
                       </span>
                     );
                   })()}
@@ -793,6 +815,30 @@ function NewspaperHomePage(): React.ReactElement {
               
               <div className="flex items-center gap-2">
                 {/* زر المشاركة */}
+                {/* زر الإعجاب */}
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toast('ميزة الإعجاب قيد التطوير 🚧');
+                  }}
+                  className="p-2 rounded-lg transition-all duration-300 transform hover:scale-110 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-red-500"
+                  title="إعجاب"
+                >
+                  <Heart className="w-4 h-4" />
+                </button>
+                
+                {/* زر الحفظ */}
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toast('ميزة الحفظ قيد التطوير 🚧');
+                  }}
+                  className="p-2 rounded-lg transition-all duration-300 transform hover:scale-110 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-blue-500"
+                  title="حفظ"
+                >
+                  <Bookmark className="w-4 h-4" />
+                </button>
+                
                 <button 
                   onClick={(e) => {
                     e.preventDefault();
@@ -1044,7 +1090,7 @@ function NewspaperHomePage(): React.ReactElement {
                   <h4 className={`text-sm font-medium mb-3 leading-relaxed whitespace-pre-line ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>{item.title}</h4>
                   <div className="flex items-center justify-between">
                     <span className={`px-2 py-1 rounded-md text-xs font-medium ${darkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-                      {item.category}
+                      {typeof item.category === 'object' ? (item.category.name_ar || item.category.name || 'عام') : (item.category || 'عام')}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
@@ -1573,11 +1619,11 @@ function NewspaperHomePage(): React.ReactElement {
       
       try {
         setPersonalizedLoading(true);
-        const response = await fetch(`/api/content/personalized?user_id=${userId}&limit=12`);
+        const response = await fetch(`/api/articles/personalized?userId=${userId}&limit=12`);
         const data = await response.json();
         
-        if (data.success && data.data && data.data.articles && data.data.articles.length > 0) {
-          setPersonalizedArticles(data.data.articles);
+        if (data.articles && data.articles.length > 0) {
+          setPersonalizedArticles(data.articles);
           setShowPersonalized(true);
         } else {
           setShowPersonalized(false);
@@ -1623,21 +1669,52 @@ function NewspaperHomePage(): React.ReactElement {
     const fetchCategoriesData = async () => {
       setCategoriesLoading(true);
       try {
+        // إذا كان المستخدم مسجل دخول، جلب التصنيفات المخصصة
+        if (isLoggedIn && userId) {
+          const response = await fetch(`/api/categories/personalized?userId=${userId}&limit=6`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              setCategories(data.categories);
+              console.log('تم جلب التصنيفات المخصصة:', data.personalization_info);
+            } else {
+              console.error('Failed to fetch personalized categories:', data.error);
+              // إذا فشل، جلب التصنيفات العادية
+              await fetchRegularCategories();
+            }
+          } else {
+            console.error('Failed to fetch personalized categories:', response.status);
+            // إذا فشل، جلب التصنيفات العادية
+            await fetchRegularCategories();
+          }
+        } else {
+          // إذا لم يكن مسجل دخول، جلب التصنيفات العادية
+          await fetchRegularCategories();
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        // في حالة الخطأ، جلب التصنيفات العادية
+        await fetchRegularCategories();
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    const fetchRegularCategories = async () => {
+      try {
         const response = await fetch('/api/categories');
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
             setCategories(data.categories);
           } else {
-            console.error('Failed to fetch categories:', data.error);
+            console.error('Failed to fetch regular categories:', data.error);
           }
         } else {
-          console.error('Failed to fetch categories:', response.status);
+          console.error('Failed to fetch regular categories:', response.status);
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
-      } finally {
-        setCategoriesLoading(false);
+        console.error('Error fetching regular categories:', error);
       }
     };
 
@@ -1665,13 +1742,13 @@ function NewspaperHomePage(): React.ReactElement {
         <DeepAnalysisWidget insights={deepInsights} />
       )}
 
-      {/* Smart Blocks - Top Banner */}
-      <div className="max-w-7xl mx-auto px-6 py-4">
+      {/* Smart Blocks - Top Banner - مخفي للنسخة المطورة */}
+      {/* <div className="max-w-7xl mx-auto px-6 py-4">
         <SmartSlot position="topBanner" />
-      </div>
+      </div> */}
 
-      {/* Smart Blocks - After Highlights */}
-      <SmartSlot position="afterHighlights" />
+      {/* Smart Blocks - After Highlights - مخفي للنسخة المطورة */}
+      {/* <SmartSlot position="afterHighlights" /> */}
 
       {/* Elegant Separator */}
       <div className="max-w-7xl mx-auto px-6 mb-12">
@@ -1712,20 +1789,30 @@ function NewspaperHomePage(): React.ReactElement {
             <h2 className={`text-2xl font-bold mb-3 transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'
             }`}>
-              استكشف بحسب التصنيفات
+              {isLoggedIn ? 'استكشف بحسب اهتماماتك' : 'استكشف بحسب التصنيفات'}
             </h2>
             
             {/* الوصف */}
             <p className={`text-sm transition-colors duration-300 ${
               darkMode ? 'text-gray-400' : 'text-gray-600'
             }`}>
-              اختر التصنيف الذي يهمك لتصفح الأخبار المتخصصة
+              {isLoggedIn 
+                ? 'التصنيفات المختارة لك بناءً على تفضيلاتك وتفاعلاتك'
+                : 'اختر التصنيف الذي يهمك لتصفح الأخبار المتخصصة'
+              }
             </p>
-            <p className={`text-xs mt-2 transition-colors duration-300 ${
+            <div className={`text-xs mt-2 transition-colors duration-300 ${
               darkMode ? 'text-gray-500' : 'text-gray-500'
             }`}>
-              <span className="opacity-75">التصنيفات مرتبطة بنظام إدارة المحتوى</span>
-            </p>
+              {isLoggedIn ? (
+                <div className="flex items-center gap-1 justify-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="opacity-75">مخصص لك بناءً على تفضيلاتك</span>
+                </div>
+              ) : (
+                <span className="opacity-75">التصنيفات مرتبطة بنظام إدارة المحتوى</span>
+              )}
+            </div>
           </div>
 
           {categoriesLoading ? (
@@ -1739,8 +1826,13 @@ function NewspaperHomePage(): React.ReactElement {
                   <button
                     key={category.id}
                     onClick={() => handleCategoryClick(category.id)}
-                    className={`group px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${ selectedCategory === category.id ? darkMode ? 'bg-blue-600 text-white border-2 border-blue-500 shadow-lg dark:shadow-gray-900/50' : 'bg-blue-500 text-white border-2 border-blue-400 shadow-lg dark:shadow-gray-900/50' : darkMode ? 'bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50' : 'bg-white dark:bg-gray-800/80 hover:bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-blue-600 border border-blue-200/50 hover:border-blue-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 backdrop-blur-sm' }`}
+                    className={`group px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 relative ${ selectedCategory === category.id ? darkMode ? 'bg-blue-600 text-white border-2 border-blue-500 shadow-lg dark:shadow-gray-900/50' : 'bg-blue-500 text-white border-2 border-blue-400 shadow-lg dark:shadow-gray-900/50' : darkMode ? 'bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50' : 'bg-white dark:bg-gray-800/80 hover:bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-blue-600 border border-blue-200/50 hover:border-blue-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 backdrop-blur-sm' }`}
                   >
+                    {/* شارة "مخصص" للتصنيفات المخصصة */}
+                    {isLoggedIn && category.is_personalized && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse"></div>
+                    )}
+                    
                     <div className="flex items-center gap-2">
                       {(() => {
                         const IconComponent = categoryIcons[category.name_ar] || categoryIcons['default'];
@@ -1930,15 +2022,15 @@ function NewspaperHomePage(): React.ReactElement {
                       <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-6">
                         <Brain className="w-5 h-5 text-blue-600" />
                         <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          مدعوم بالذكاء الاصطناعي
+                          نسخة مطورة بالذكاء الاصطناعي
                         </span>
                         <Sparkles className="w-5 h-5 text-purple-600" />
                       </div>
                       <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                        📡 محتوى ذكي مخصص لك
+                        🎯 محتوى ذكي مخصص لاهتماماتك
                       </h2>
                       <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        مقالات وتحليلات مختارة بعناية بناءً على اهتماماتك وتفضيلاتك المعرفية
+                        نقدم لك أفضل المقالات المختارة خصيصاً بناءً على اهتماماتك المحددة
                       </p>
                     </>
                   ) : (
@@ -2085,208 +2177,287 @@ function NewspaperHomePage(): React.ReactElement {
           )}
         </section>
 
-        {/* Smart Blocks - After Cards */}
-        <SmartSlot position="afterCards" />
+        {/* Smart Blocks - After Cards - مخفي للنسخة المطورة */}
+        {/* <SmartSlot position="afterCards" /> */}
 
-        {/* Smart Blocks - Before Personalization */}
-        <SmartSlot position="beforePersonalization" />
+        {/* Smart Blocks - Before Personalization - مخفي للنسخة المطورة */}
+        {/* <SmartSlot position="beforePersonalization" /> */}
 
-        {/* Enhanced Smart Blocks Section */}
-        <section className="mb-16">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <div className="relative inline-block mb-8">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-2xl blur-lg opacity-20"></div>
-              <div className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-2xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-white dark:bg-gray-800 rounded-full animate-pulse"></div>
-                  <span className="font-bold text-lg">البلوكات الذكية</span>
-                  <div className="w-2 h-2 bg-white dark:bg-gray-800 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                </div>
-              </div>
-            </div>
-            <h2 className={`text-4xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
-              تجربة مخصصة لك
-            </h2>
-            <p className={`text-xl max-w-3xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-              استكشف المحتوى المنظم والمقسم بذكاء حسب اهتماماتك وتفضيلاتك الشخصية
-            </p>
-            
-            {/* Stats */}
-            <div className="flex items-center justify-center gap-8 mt-8">
-              <div className={`text-center px-6 py-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}`}>
-                <div className="text-2xl font-bold text-blue-600 mb-1">8</div>
-                <div className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>بلوك ذكي</div>
-              </div>
-              <div className={`text-center px-6 py-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}`}>
-                <div className="text-2xl font-bold text-green-600 mb-1">24/7</div>
-                <div className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>تحديث مستمر</div>
-              </div>
-              <div className={`text-center px-6 py-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}`}>
-                <div className="text-2xl font-bold text-purple-600 mb-1">AI</div>
-                <div className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>ذكاء اصطناعي</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Enhanced Smart Blocks Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* الصف الأول - البلوكات الرئيسية */}
-            <div className="h-full">
-              <BriefingBlock />
-            </div>
-            <div className="h-full">
-              <TrendingBlock />
-            </div>
-            <div className="h-full">
-              <AnalysisBlock />
-            </div>
-            
-            {/* الصف الثاني - البلوكات التفاعلية */}
-            <div className="h-full">
-              <RecommendationBlock />
-            </div>
-            <div className="h-full">
-              <CategoriesBlock />
-            </div>
-            <div className="h-full">
-              <AudioBlock />
-            </div>
-            
-            {/* الصف الثالث - البلوكات الإضافية */}
-            <div className="h-full">
-              <TodayEventBlock />
-            </div>
-            <div className="h-full">
-              <RegionsBlock />
-            </div>
-            {/* بلوك فارغ للتوازن */}
-            <div className="h-full flex items-center justify-center">
-              <div className={`w-full h-full min-h-[320px] rounded-3xl border-2 border-dashed ${darkMode ? 'border-gray-700' : 'border-gray-300'} flex flex-col items-center justify-center p-6`}>
-                <Sparkles className={`w-12 h-12 ${darkMode ? 'text-gray-600' : 'text-gray-400'} mb-3`} />
-                <p className={`text-sm font-medium ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>بلوك جديد قريباً</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Center */}
-          <div className="text-center mt-16">
-            <div className={`inline-flex flex-wrap items-center gap-4 p-6 rounded-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700'}`}>
-              <button className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold transition-colors">
-                <Settings className="w-4 h-4" />
-                تخصيص البلوكات
-              </button>
-              <button className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border'}`}>
-                <Eye className="w-4 h-4" />
-                عرض الإحصائيات
-              </button>
-              <button className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border'}`}>
-                <Share2 className="w-4 h-4" />
-                مشاركة التفضيلات
-              </button>
-            </div>
-          </div>
-        </section>
+        {/* Enhanced Smart Blocks Section - مخفي للنسخة المطورة */}
+        {/* <section className="mb-16">
+          ... البلوكات الذكية مخفية للتركيز على المحتوى المخصص ...
+        </section> */}
 
         {/* السياق الذكي */}
         <section className="mb-16">
           <SmartContextWidget />
         </section>
 
-        {/* المقالات التفاعلية */}
+        {/* المقالات التفاعلية - التصميم الجديد */}
         <section className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-              🎯 مقالات تفاعلية
-            </h2>
-            <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              تفاعل مع المحتوى بطريقة جديدة ومبتكرة
-            </p>
-          </div>
-          
-          {articles.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {articles.slice(0, 2).map((article) => (
-                <InteractiveArticle 
-                  key={article.id} 
-                  title={article.title}
-                  subtitle={article.excerpt}
-                  author={{
-                    name: article.author_name || article.author?.name || 'كاتب سبق',
-                    avatar: article.author?.avatar || '/default-avatar.png'
-                  }}
-                  publishedAt={new Date(article.published_at || article.created_at).toLocaleDateString('ar-SA')}
-                  readingTime={article.reading_time || 5}
-                  blocks={[
-                    {
-                      id: '1',
-                      type: 'intro',
-                      content: article.excerpt || 'مقدمة المقال'
-                    },
-                    {
-                      id: '2',
-                      type: 'ai-insight',
-                      content: article.ai_summary || 'يقدم هذا المقال نظرة شاملة حول الموضوع مع تحليل عميق للجوانب المختلفة'
-                    },
-                    {
-                      id: '3',
-                      type: 'poll',
-                      content: 'ما رأيك في هذا المقال؟',
-                      metadata: {
-                        pollOptions: [
-                          { id: 'opt1', text: 'ممتاز ومفيد', votes: 125 },
-                          { id: 'opt2', text: 'جيد', votes: 87 },
-                          { id: 'opt3', text: 'يحتاج تحسين', votes: 23 }
-                        ]
-                      }
-                    }
-                  ]}
-                />
-              ))}
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 mb-6">
+                <MessageSquare className="w-5 h-5 text-purple-600" />
+                <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  تفاعل مباشر
+                </span>
+                <Zap className="w-5 h-5 text-pink-600" />
+              </div>
+              <h2 className={`text-3xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                🎯 شارك رأيك وتفاعل مع المحتوى
+              </h2>
+              <p className={`text-lg max-w-3xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                مقالات مميزة تتيح لك التصويت والمشاركة في استطلاعات الرأي والنقاش المباشر مع القراء
+              </p>
             </div>
-          )}
-        </section>
-      </main>
 
-      {/* Smart Blocks - Before Footer */}
-      <SmartSlot position="beforeFooter" />
+            {/* التصميم الجديد - Mix */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              {/* بطاقة التصويت السريع */}
+              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 hover:shadow-3xl transition-all duration-500 transform hover:scale-105 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                {/* شارة النوع */}
+                <div className="absolute top-4 right-4 z-10">
+                  <span className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
+                    تصويت سريع
+                  </span>
+                </div>
+                
+                {/* الصورة */}
+                <div className="relative h-56 overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80" 
+                    alt="الذكاء الاصطناعي في التعليم"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  
+                  {/* عداد المشاركين */}
+                  <div className="absolute bottom-4 left-4">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
+                      <Users className="w-4 h-4" />
+                      <span>2.3K مشارك</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* المحتوى */}
+                <div className="p-6">
+                  <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                    هل يجب تدريس الذكاء الاصطناعي في المدارس؟
+                  </h3>
+                  <p className={`text-sm mb-6 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    شارك برأيك في أهمية إدخال مناهج الذكاء الاصطناعي في التعليم الأساسي
+                  </p>
+                  
+                  {/* أزرار التصويت */}
+                  <div className="space-y-3 mb-6">
+                    <button className={`w-full p-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                      darkMode 
+                        ? 'border-gray-600 hover:border-green-500 bg-gray-800 hover:bg-green-900/20' 
+                        : 'border-gray-200 hover:border-green-500 bg-white hover:bg-green-50'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <span className={`font-medium ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>نعم، ضروري</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>68%</span>
+                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="h-full bg-green-500 rounded-full" style={{width: '68%'}}></div>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                    
+                    <button className={`w-full p-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                      darkMode 
+                        ? 'border-gray-600 hover:border-red-500 bg-gray-800 hover:bg-red-900/20' 
+                        : 'border-gray-200 hover:border-red-500 bg-white hover:bg-red-50'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <span className={`font-medium ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>لا، مبكر جداً</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>32%</span>
+                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="h-full bg-red-500 rounded-full" style={{width: '32%'}}></div>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                  
+                  {/* زر المشاركة */}
+                  <button className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    صوت الآن
+                  </button>
+                </div>
+              </div>
 
-      {/* ويدجت الذكاء الشخصي العائمة */}
-      {!isCheckingAuth && userTracker && isLoggedIn && showUserWidget && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-4 animate-slide-down">
-          <div className="relative">
-            {/* زر إغلاق الويدجت */}
-            <button
-              onClick={() => handleToggleWidget(false)}
-              className="absolute -top-2 -right-2 z-50 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
-              aria-label="إغلاق ملف القارئ"
-            >
-              <svg className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            
-            {/* الويدجت مع تأثير شفافية خفيفة */}
-            <div className="transform scale-95 hover:scale-100 transition-all duration-300">
-              <div style={{ backdropFilter: 'blur(10px)' }}>
-                <UserIntelligenceWidget />
+              {/* بطاقة الاستطلاع المتعدد */}
+              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 hover:shadow-3xl transition-all duration-500 transform hover:scale-105 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                {/* شارة النوع */}
+                <div className="absolute top-4 right-4 z-10">
+                  <span className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
+                    استطلاع متعدد
+                  </span>
+                </div>
+                
+                {/* الصورة */}
+                <div className="relative h-56 overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=800&q=80" 
+                    alt="كأس آسيا"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  
+                  {/* مؤقت */}
+                  <div className="absolute bottom-4 left-4">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
+                      <Clock className="w-4 h-4" />
+                      <span>ينتهي خلال 4 ساعات</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* المحتوى */}
+                <div className="p-6">
+                  <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                    من سيفوز بكأس آسيا هذا العام؟
+                  </h3>
+                  <p className={`text-sm mb-6 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    توقع الفريق الفائز وشارك في النقاش مع المشجعين
+                  </p>
+                  
+                  {/* خيارات الاستطلاع */}
+                  <div className="space-y-3 mb-6">
+                    {[
+                      {name: 'السعودية', votes: 45, color: 'green'},
+                      {name: 'اليابان', votes: 25, color: 'blue'},
+                      {name: 'كوريا الجنوبية', votes: 20, color: 'red'},
+                      {name: 'أستراليا', votes: 10, color: 'yellow'}
+                    ].map((option, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-300 transition-all cursor-pointer">
+                        <div className={`w-4 h-4 rounded-full bg-${option.color}-500`}></div>
+                        <span className={`flex-1 font-medium ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>{option.name}</span>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{option.votes}%</span>
+                        <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className={`h-full bg-${option.color}-500 rounded-full`} style={{width: `${option.votes}%`}}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* زر المشاركة */}
+                  <button className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    شارك توقعك
+                  </button>
+                </div>
+              </div>
+
+              {/* بطاقة النقاش المفتوح */}
+              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 hover:shadow-3xl transition-all duration-500 transform hover:scale-105 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                {/* شارة النوع */}
+                <div className="absolute top-4 right-4 z-10">
+                  <span className="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
+                    نقاش مفتوح
+                  </span>
+                </div>
+                
+                {/* الصورة */}
+                <div className="relative h-56 overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80" 
+                    alt="رؤية 2030"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  
+                  {/* عدد التعليقات */}
+                  <div className="absolute bottom-4 left-4">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
+                      <MessageSquare className="w-4 h-4" />
+                      <span>134 تعليق</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* المحتوى */}
+                <div className="p-6">
+                  <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                    تأثير رؤية 2030 على الاقتصاد المحلي
+                  </h3>
+                  <p className={`text-sm mb-6 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    ناقش التحولات الاقتصادية وشارك تجربتك الشخصية مع القراء
+                  </p>
+                  
+                  {/* آخر التعليقات */}
+                  <div className="space-y-3 mb-6">
+                    <div className={`p-3 rounded-xl ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">أ</div>
+                        <div className="flex-1">
+                          <p className={`text-sm ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                            "شهدت تحسناً كبيراً في فرص العمل..."
+                          </p>
+                          <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>أحمد محمد - منذ ساعة</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={`p-3 rounded-xl ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">س</div>
+                        <div className="flex-1">
+                          <p className={`text-sm ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                            "الاستثمارات الأجنبية زادت بشكل ملحوظ"
+                          </p>
+                          <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>سارة أحمد - منذ 3 ساعات</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* زر المشاركة */}
+                  <Link href="/article/interactive/vision-2030-impact" className="block">
+                    <button className="w-full py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl font-medium hover:from-green-600 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                      انضم للنقاش
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* شريط الإحصائيات */}
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className={`text-center p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
+                <div className="text-3xl font-bold text-orange-500 mb-2">15K+</div>
+                <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>تصويت اليوم</div>
+              </div>
+              <div className={`text-center p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
+                <div className="text-3xl font-bold text-purple-500 mb-2">8.2K</div>
+                <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>مشارك نشط</div>
+              </div>
+              <div className={`text-center p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
+                <div className="text-3xl font-bold text-green-500 mb-2">2.1K</div>
+                <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>تعليق جديد</div>
+              </div>
+              <div className={`text-center p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
+                <div className="text-3xl font-bold text-blue-500 mb-2">94%</div>
+                <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>معدل التفاعل</div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </section>
+      </main>
 
-      {/* زر إعادة إظهار الويدجت */}
-      {!isCheckingAuth && userTracker && isLoggedIn && !showUserWidget && (
-        <button
-          onClick={() => handleToggleWidget(true)}
-          className="fixed bottom-6 right-6 z-40 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 group animate-bounce"
-          aria-label="إظهار ملف القارئ"
-        >
-          <Brain className="w-4 h-4 group-hover:animate-pulse" />
-          <span className="text-sm font-medium">ملفك الذكي</span>
-        </button>
-      )}
+      {/* Smart Blocks - Before Footer - مخفي للنسخة المطورة */}
+      {/* <SmartSlot position="beforeFooter" /> */}
+
+      {/* ويدجت الذكاء الشخصي العائمة - تم إخفاؤه */}
+      {/* {!isCheckingAuth && userTracker && isLoggedIn && showUserWidget && (
+        <UserIntelligenceWidget />
+      )} */}
 
       {/* Footer Dashboard */}
       <FooterDashboard />

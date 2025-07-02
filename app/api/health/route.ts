@@ -14,7 +14,7 @@ export async function GET() {
       environment: process.env.NODE_ENV,
       database: {
         connected: true,
-        type: process.env.DATABASE_URL?.includes('postgresql') ? 'PostgreSQL' : 'MySQL'
+        type: 'MySQL'
       },
       uptime: process.uptime(),
       memory: {

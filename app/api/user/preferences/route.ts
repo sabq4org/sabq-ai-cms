@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import prisma from '@/lib/prisma';
 
 interface UserPreference {
   id: string;
@@ -87,61 +88,74 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // قراءة ملف التفضيلات
-    await ensurePreferencesFile();
-    const fileContent = await fs.readFile(preferencesFilePath, 'utf-8');
-    const data = JSON.parse(fileContent);
-
-    // التأكد من وجود مصفوفة preferences
-    if (!data.preferences) {
-      data.preferences = [];
-    }
-
-    // حذف التفضيلات القديمة للمستخدم
-    data.preferences = data.preferences.filter(
-      (pref: UserPreference) => pref.user_id !== userId
-    );
-
-    // إضافة التفضيلات الجديدة - نقبل categoryIds كـ string array (UUIDs)
-    const newPreferences = categoryIds.map((categoryId: string) => ({
-      id: `pref-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      user_id: userId,
-      category_id: categoryId, // نحفظه كـ string
-      source,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }));
-
-    data.preferences.push(...newPreferences);
-
-    // حفظ الملف
-    await fs.writeFile(preferencesFilePath, JSON.stringify(data, null, 2));
-
-    // تسجيل التفاعل
-    await ensureInteractionsFile();
-    const interactionsContent = await fs.readFile(interactionsFilePath, 'utf-8');
-    const interactionsData = JSON.parse(interactionsContent);
-
-    // التأكد من وجود مصفوفة interactions
-    if (!interactionsData.interactions) {
-      interactionsData.interactions = [];
-    }
-
-    interactionsData.interactions.push({
-      id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      user_id: userId,
-      article_id: null,
-      action: 'select_preferences',
-      details: { categoryIds },
-      created_at: new Date().toISOString()
+    // جلب التصنيفات لاستخدام أسمائها كاهتمامات
+    const categories = await prisma.category.findMany({
+      where: { id: { in: categoryIds } },
+      select: { id: true, name: true, slug: true }
     });
 
-    await fs.writeFile(interactionsFilePath, JSON.stringify(interactionsData, null, 2));
+    if (categories.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'التصنيفات المختارة غير صحيحة' },
+        { status: 400 }
+      );
+    }
+
+    // حذف الاهتمامات القديمة للمستخدم
+    await prisma.userInterest.deleteMany({
+      where: { userId }
+    });
+
+    // إضافة الاهتمامات الجديدة
+    const newInterests = await prisma.userInterest.createMany({
+      data: categories.map(category => ({
+        userId,
+        interest: category.slug, // استخدام slug كمعرف الاهتمام
+        score: 1.0,
+        source: source
+      }))
+    });
+
+    // تسجيل النشاط
+    await prisma.activityLog.create({
+      data: {
+        userId,
+        action: 'preferences_updated',
+        entityType: 'user_interests',
+        metadata: { 
+          categoryIds,
+          categories: categories.map(c => ({ id: c.id, name: c.name, slug: c.slug })),
+          source 
+        }
+      }
+    });
+
+    // حفظ تفضيلات إضافية في UserPreference
+    await prisma.userPreference.upsert({
+      where: {
+        userId_key: {
+          userId,
+          key: 'selected_categories'
+        }
+      },
+      update: {
+        value: categoryIds,
+        updatedAt: new Date()
+      },
+      create: {
+        userId,
+        key: 'selected_categories',
+        value: categoryIds
+      }
+    });
 
     return NextResponse.json({
       success: true,
       message: 'تم حفظ التفضيلات بنجاح',
-      data: newPreferences
+      data: {
+        count: newInterests.count,
+        interests: categories.map(c => c.slug)
+      }
     });
 
   } catch (error) {

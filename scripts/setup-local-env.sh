@@ -12,7 +12,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3002
 NEXT_PUBLIC_API_URL=http://localhost:3002/api
 
 # قاعدة البيانات (استخدم نفس الإعدادات من السيرفر)
-DATABASE_URL=mysql://j3uar_sabq_aiuser:J3uarSabqCMS2025@localhost:3306/j3uar_sabq_ai?authentication_plugin=mysql_native_password
+# DATABASE_URL=mysql://j3uar_sabq_aiuser:J3uarSabqCMS2025@localhost:3306/j3uar_sabq_ai?authentication_plugin=mysql_native_password
 
 # مفتاح JWT
 JWT_SECRET=your-local-secret-key-change-this

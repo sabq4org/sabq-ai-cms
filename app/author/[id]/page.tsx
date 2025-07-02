@@ -182,7 +182,7 @@ export default function AuthorPage() {
           <div className="absolute bottom-4 right-4 z-20">
             <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold rounded-full shadow-lg">
               <BookOpen className="w-3 h-3" />
-              {article.category}
+              {typeof article.category === 'string' ? article.category : ((article.category as any)?.name_ar || (article.category as any)?.name || 'عام')}
             </span>
           </div>
         </div>

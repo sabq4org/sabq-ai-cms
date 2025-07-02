@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
+import { handleOptions, corsResponse, addCorsHeaders } from '@/lib/cors';
 
-const prisma = new PrismaClient();
+// معالجة طلبات OPTIONS للـ CORS
+export async function OPTIONS() {
+  return handleOptions();
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
 export async function GET(request: NextRequest) {
@@ -11,9 +16,9 @@ export async function GET(request: NextRequest) {
     const token = request.cookies.get('auth-token')?.value;
     
     if (!token) {
-      return NextResponse.json(
+      return corsResponse(
         { success: false, error: 'لم يتم العثور على معلومات المصادقة' },
-        { status: 401 }
+        401
       );
     }
 
@@ -22,9 +27,9 @@ export async function GET(request: NextRequest) {
     try {
       decoded = jwt.verify(token, JWT_SECRET);
     } catch (error) {
-      return NextResponse.json(
+      return corsResponse(
         { success: false, error: 'جلسة غير صالحة' },
-        { status: 401 }
+        401
       );
     }
 
@@ -61,9 +66,9 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
+      return corsResponse(
         { success: false, error: 'المستخدم غير موجود' },
-        { status: 404 }
+        404
       );
     }
 
@@ -81,19 +86,19 @@ export async function GET(request: NextRequest) {
       interests: user.interests.map(i => i.interest) // تحويل الاهتمامات إلى array من الأسماء
     };
 
-    return NextResponse.json({
+    return corsResponse({
       success: true,
       user: responseUser
     });
 
   } catch (error) {
     console.error('خطأ في جلب بيانات المستخدم:', error);
-    return NextResponse.json(
+    return corsResponse(
       { 
         success: false, 
         error: 'حدث خطأ في جلب بيانات المستخدم'
       },
-      { status: 500 }
+      500
     );
   } finally {
     await prisma.$disconnect();

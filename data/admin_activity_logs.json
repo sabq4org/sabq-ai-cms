@@ -1,6 +1,45 @@
 {
   "logs": [
     {
+      "id": "1751398818980",
+      "timestamp": "2025-07-01T19:40:18.980Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15",
+      "user_id": "admin",
+      "user_name": "علي الحازمي",
+      "email": "Ali@alhazmi.org",
+      "role": "مدير النظام",
+      "action_type": "logout",
+      "details": "علي الحازمي سجّل خروجاً من النظام",
+      "severity": "info"
+    },
+    {
+      "id": "1751398627360",
+      "timestamp": "2025-07-01T19:37:07.360Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15",
+      "user_id": "admin",
+      "user_name": "علي الحازمي",
+      "email": "Ali@alhazmi.org",
+      "role": "مدير النظام",
+      "action_type": "logout",
+      "details": "علي الحازمي سجّل خروجاً من النظام",
+      "severity": "info"
+    },
+    {
+      "id": "1751369107861",
+      "timestamp": "2025-07-01T11:25:07.861Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15",
+      "user_id": "admin",
+      "user_name": "علي الحازمي",
+      "email": "Ali@alhazmi.org",
+      "role": "مدير النظام",
+      "action_type": "logout",
+      "details": "علي الحازمي سجّل خروجاً من النظام",
+      "severity": "info"
+    },
+    {
       "id": "1750748715438",
       "timestamp": "2025-06-24T07:05:15.438Z",
       "ip": "::1",

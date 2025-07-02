@@ -141,112 +141,178 @@ function determineTraits(stats: any, engagementRate?: number, activeHours?: numb
 }
 
 export async function buildReaderProfile(userId: string): Promise<ReaderProfile> {
-  // جلب تفاعلات المستخدم
-  const interactions = await prisma.interaction.findMany({
-    where: { userId },
-    include: {
-      article: {
-        include: {
-          category: true
-        }
+  try {
+    // جلب تفاعلات المستخدم
+    const interactions = await prisma.interaction.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // جلب نقاط الولاء
+    const loyaltyPoints = await prisma.loyaltyPoint.aggregate({
+      where: { userId },
+      _sum: { points: true }
+    });
+
+    // جلب معلومات المقالات والتصنيفات بشكل منفصل
+    const articleIds = [...new Set(interactions.map(i => i.articleId))];
+    const articles = await prisma.article.findMany({
+      where: { id: { in: articleIds } },
+      select: {
+        id: true,
+        categoryId: true
       }
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+    });
 
-  // جلب نقاط الولاء
-  const loyaltyPoints = await prisma.loyaltyPoint.aggregate({
-    where: { userId },
-    _sum: { points: true }
-  });
+    // إنشاء خريطة للمقالات وتصنيفاتها
+    const articleCategoryMap = new Map<string, string | null>();
+    articles.forEach(article => {
+      articleCategoryMap.set(article.id, article.categoryId);
+    });
 
-  // حساب الإحصائيات
-  const totalInteractions = interactions.length;
-  const uniqueArticles = new Set(interactions.map(i => i.articleId)).size;
-  
-  // حساب التفاعلات حسب النوع
-  const interactionsByType = interactions.reduce((acc, interaction) => {
-    acc[interaction.type] = (acc[interaction.type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  // حساب التفضيلات حسب التصنيف
-  const categoryPreferences = interactions
-    .filter(i => i.article && i.article.category)
-    .reduce((acc, interaction) => {
-      const categoryName = interaction.article.category!.name;
-      if (!acc[categoryName]) {
-        acc[categoryName] = { count: 0, percentage: 0 };
+    // جلب التصنيفات
+    const categoryIds = [...new Set(articles.map(a => a.categoryId).filter(id => id !== null))] as string[];
+    const categories = await prisma.category.findMany({
+      where: { id: { in: categoryIds } },
+      select: {
+        id: true,
+        name: true
       }
-      acc[categoryName].count++;
+    });
+
+    // إنشاء خريطة للتصنيفات
+    const categoryMap = new Map<string, string>();
+    categories.forEach(category => {
+      categoryMap.set(category.id, category.name);
+    });
+
+    // حساب الإحصائيات
+    const totalInteractions = interactions.length;
+    const uniqueArticles = new Set(interactions.map(i => i.articleId)).size;
+    
+    // حساب التفاعلات حسب النوع
+    const interactionsByType = interactions.reduce((acc, interaction) => {
+      acc[interaction.type] = (acc[interaction.type] || 0) + 1;
       return acc;
-    }, {} as Record<string, { count: number; percentage: number }>);
+    }, {} as Record<string, number>);
 
-  // حساب النسب المئوية للتصنيفات
-  const totalCategoryInteractions = Object.values(categoryPreferences).reduce((sum, cat) => sum + cat.count, 0);
-  Object.keys(categoryPreferences).forEach(category => {
-    categoryPreferences[category].percentage = Math.round((categoryPreferences[category].count / totalCategoryInteractions) * 100);
-  });
+    // حساب التفضيلات حسب التصنيف
+    const categoryPreferences = interactions
+      .filter(i => {
+        const categoryId = articleCategoryMap.get(i.articleId);
+        return categoryId && categoryMap.has(categoryId);
+      })
+      .reduce((acc, interaction) => {
+        const categoryId = articleCategoryMap.get(interaction.articleId)!;
+        const categoryName = categoryMap.get(categoryId)!;
+        
+        if (!acc[categoryName]) {
+          acc[categoryName] = { count: 0, percentage: 0 };
+        }
+        acc[categoryName].count++;
+        return acc;
+      }, {} as Record<string, { count: number; percentage: number }>);
 
-  // حساب معدل القراءة اليومي
-  const firstInteractionDate = interactions.length > 0 
-    ? new Date(interactions[interactions.length - 1].createdAt)
-    : new Date();
-  const daysSinceFirstInteraction = Math.max(1, Math.ceil((Date.now() - firstInteractionDate.getTime()) / (1000 * 60 * 60 * 24)));
-  const dailyReadingAverage = Math.round(uniqueArticles / daysSinceFirstInteraction * 10) / 10;
+    // حساب النسب المئوية للتصنيفات
+    const totalCategoryInteractions = Object.values(categoryPreferences).reduce((sum, cat) => sum + cat.count, 0);
+    Object.keys(categoryPreferences).forEach(category => {
+      categoryPreferences[category].percentage = totalCategoryInteractions > 0 
+        ? Math.round((categoryPreferences[category].count / totalCategoryInteractions) * 100)
+        : 0;
+    });
 
-  // حساب سلسلة الأيام المتتالية
-  const streakDays = calculateStreakDays(interactions);
+    // حساب معدل القراءة اليومي
+    const firstInteractionDate = interactions.length > 0 
+      ? new Date(interactions[interactions.length - 1].createdAt)
+      : new Date();
+    const daysSinceFirstInteraction = Math.max(1, Math.ceil((Date.now() - firstInteractionDate.getTime()) / (1000 * 60 * 60 * 24)));
+    const dailyReadingAverage = Math.round(uniqueArticles / daysSinceFirstInteraction * 10) / 10;
 
-  // تحضير توزيع التصنيفات للشخصية
-  const categoryDistribution = Object.entries(categoryPreferences).reduce((acc, [name, data]) => {
-    acc[name] = data.count;
-    return acc;
-  }, {} as Record<string, number>);
+    // حساب سلسلة الأيام المتتالية
+    const streakDays = calculateStreakDays(interactions);
 
-  // تحديد الشخصية المعرفية
-  const personality = determinePersonality(categoryDistribution, dailyReadingAverage, interactionsByType.share || 0);
+    // تحضير توزيع التصنيفات للشخصية
+    const categoryDistribution = Object.entries(categoryPreferences).reduce((acc, [name, data]) => {
+      acc[name] = data.count;
+      return acc;
+    }, {} as Record<string, number>);
 
-  // تحديد السمات
-  const traits = determineTraits(
-    {
-      dailyReadingAverage,
-      totalArticlesRead: uniqueArticles,
-      totalInteractions,
-      streakDays,
-      loyaltyPoints: loyaltyPoints._sum.points || 0
-    },
-    interactionsByType.share || 0,
-    undefined // activeHours - يمكن إضافتها لاحقاً
-  );
+    // تحديد الشخصية المعرفية
+    const personality = determinePersonality(categoryDistribution, dailyReadingAverage, interactionsByType.share || 0);
 
-  return {
-    userId,
-    personality,
-    traits,
-    stats: {
-      totalArticlesRead: uniqueArticles,
-      totalInteractions,
-      dailyReadingAverage,
-      streakDays,
-      loyaltyPoints: loyaltyPoints._sum.points || 0,
-      favoriteCategories: Object.entries(categoryPreferences)
-        .sort((a, b) => b[1].count - a[1].count)
-        .slice(0, 3)
-        .map(([name, data]) => ({
-          name,
-          percentage: data.percentage
-        })),
-      interactionBreakdown: {
-        views: interactionsByType.view || 0,
-        likes: interactionsByType.like || 0,
-        saves: interactionsByType.save || 0,
-        shares: interactionsByType.share || 0,
-        comments: interactionsByType.comment || 0
-      }
-    },
-    lastUpdated: new Date()
-  };
+    // تحديد السمات
+    const traits = determineTraits(
+      {
+        dailyReadingAverage,
+        totalArticlesRead: uniqueArticles,
+        totalInteractions,
+        streakDays,
+        loyaltyPoints: loyaltyPoints._sum.points || 0
+      },
+      interactionsByType.share || 0,
+      undefined // activeHours - يمكن إضافتها لاحقاً
+    );
+
+    return {
+      userId,
+      personality,
+      traits,
+      stats: {
+        totalArticlesRead: uniqueArticles,
+        totalInteractions,
+        dailyReadingAverage,
+        streakDays,
+        loyaltyPoints: loyaltyPoints._sum.points || 0,
+        favoriteCategories: Object.entries(categoryPreferences)
+          .sort((a, b) => b[1].count - a[1].count)
+          .slice(0, 3)
+          .map(([name, data]) => ({
+            name,
+            percentage: data.percentage
+          })),
+        interactionBreakdown: {
+          views: interactionsByType.view || 0,
+          likes: interactionsByType.like || 0,
+          saves: interactionsByType.save || 0,
+          shares: interactionsByType.share || 0,
+          comments: interactionsByType.comment || 0
+        }
+      },
+      lastUpdated: new Date()
+    };
+  } catch (error) {
+    console.error('Error building reader profile:', error);
+    
+    // إرجاع ملف شخصي افتراضي في حالة الخطأ
+    return {
+      userId,
+      personality: {
+        type: 'balanced-reader',
+        title: 'القارئ المتوازن',
+        description: 'تقرأ باعتدال وتنوع في اختياراتك',
+        icon: '⚖️',
+        color: 'gray',
+        gradient: 'from-gray-500 to-slate-500'
+      },
+      traits: [],
+      stats: {
+        totalArticlesRead: 0,
+        totalInteractions: 0,
+        dailyReadingAverage: 0,
+        streakDays: 0,
+        loyaltyPoints: 0,
+        favoriteCategories: [],
+        interactionBreakdown: {
+          views: 0,
+          likes: 0,
+          saves: 0,
+          shares: 0,
+          comments: 0
+        }
+      },
+      lastUpdated: new Date()
+    };
+  }
 }
 
 function calculateStreakDays(interactions: any[]): number {

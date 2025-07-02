@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Crown, Heart, 
@@ -125,28 +125,157 @@ interface UserInsights {
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [loyaltyData, setLoyaltyData] = useState<LoyaltyData | null>(null);
-  const [preferences, setPreferences] = useState<UserPreference[]>([]);
-  const [editingPreferences, setEditingPreferences] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [loyaltyData, setLoyaltyData] = useState<LoyaltyData | null>(null);
+  const [showLoyaltyModal, setShowLoyaltyModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [preferences, setPreferences] = useState<UserPreference[]>([]);
   const [userStats, setUserStats] = useState({
     articlesRead: 0,
     interactions: 0,
     shares: 0
   });
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [showLoyaltyModal, setShowLoyaltyModal] = useState(false);
-  
-  // الحالات الجديدة
+  const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const [userInsights, setUserInsights] = useState<UserInsights | null>(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'insights' | 'achievements' | 'timeline'>('overview');
 
+  // منع تكرار الطلبات
+  const fetchDataRef = useRef(false);
+  const dataFetchedRef = useRef(false);
+
   useEffect(() => {
-    checkAuth();
-    fetchUserData();
-    fetchUserInsights();
+    if (!fetchDataRef.current) {
+      fetchDataRef.current = true;
+      checkAuth();
+    }
   }, []);
+
+  useEffect(() => {
+    if (user && !dataFetchedRef.current) {
+      dataFetchedRef.current = true;
+      // جلب جميع البيانات بشكل متوازي
+      fetchAllDataOptimized();
+    }
+  }, [user]);
+
+  // دالة محسّنة لجلب جميع البيانات بشكل متوازي
+  const fetchAllDataOptimized = async () => {
+    if (!user) return;
+    
+    try {
+      // دالة مساعدة لإنشاء timeout signal
+      const createTimeoutSignal = (ms: number) => {
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), ms);
+        return controller.signal;
+      };
+      
+      // تنفيذ جميع الطلبات بشكل متوازي مع timeout
+      const promises = [
+        // نقاط الولاء - مع timeout 3 ثواني
+        fetch(`/api/loyalty/points?userId=${user.id}`, {
+          signal: createTimeoutSignal(3000)
+        }).then(res => res.ok ? res.json() : null).catch(() => null),
+        
+        // التصنيفات - مطلوبة دائماً
+        fetch('/api/categories').then(res => res.ok ? res.json() : null).catch(() => null),
+        
+        // الاهتمامات - للمستخدمين المسجلين فقط
+        (!user.id.startsWith('guest-') ? 
+          fetch(`/api/user/interests?userId=${user.id}`, {
+            signal: createTimeoutSignal(3000)
+          }).then(res => res.ok ? res.json() : null).catch(() => null) 
+          : Promise.resolve(null)),
+        
+        // التفاعلات - مع timeout
+        fetch(`/api/interactions/user/${user.id}`, {
+          signal: createTimeoutSignal(3000)
+        }).then(res => res.ok ? res.json() : null).catch(() => null),
+        
+        // التحليلات - مع timeout أطول
+        fetch(`/api/user/${user.id}/insights`, {
+          signal: createTimeoutSignal(5000)
+        }).then(res => res.ok ? res.json() : null).catch(() => null)
+      ];
+
+      const [loyaltyResult, categoriesResult, interestsResult, interactionsResult, insightsResult] = 
+        await Promise.allSettled(promises);
+
+      // معالجة نقاط الولاء
+      if (loyaltyResult.status === 'fulfilled' && loyaltyResult.value) {
+        setLoyaltyData(loyaltyResult.value);
+      }
+
+      // معالجة التصنيفات والاهتمامات
+      const allCategories = categoriesResult.status === 'fulfilled' && categoriesResult.value ? 
+        (categoriesResult.value.categories || categoriesResult.value || []) : [];
+
+      if (user.id && user.id.startsWith('guest-')) {
+        // للمستخدمين الضيوف
+        if (user.interests && user.interests.length > 0 && allCategories.length > 0) {
+          const userCategories = allCategories
+            .filter((cat: any) => user.interests.includes(cat.id))
+            .map((cat: any) => ({
+              category_id: cat.id,
+              category_name: cat.name || cat.name_ar,
+              category_icon: cat.icon || '📌',
+              category_color: cat.color || '#6B7280'
+            }));
+          setPreferences(userCategories);
+        }
+      } else {
+        // للمستخدمين المسجلين
+        if (interestsResult.status === 'fulfilled' && interestsResult.value?.interests?.length > 0) {
+          const userCategories = allCategories
+            .filter((cat: any) => 
+              interestsResult.value.interests.some((interest: any) => 
+                interest.interest === cat.slug || interest.interest === cat.name
+              )
+            )
+            .map((cat: any) => ({
+              category_id: cat.id,
+              category_name: cat.name || cat.name_ar,
+              category_icon: cat.icon || '📌',
+              category_color: cat.color || '#6B7280'
+            }));
+          setPreferences(userCategories);
+        } else if (user.interests && user.interests.length > 0 && allCategories.length > 0) {
+          // استخدام localStorage كخيار احتياطي
+          const userCategories = allCategories
+            .filter((cat: any) => user.interests.includes(cat.id) || user.interests.includes(cat.slug))
+            .map((cat: any) => ({
+              category_id: cat.id,
+              category_name: cat.name || cat.name_ar,
+              category_icon: cat.icon || '📌',
+              category_color: cat.color || '#6B7280'
+            }));
+          setPreferences(userCategories);
+        }
+      }
+
+      // معالجة التفاعلات
+      if (interactionsResult.status === 'fulfilled' && interactionsResult.value?.stats) {
+        setUserStats(interactionsResult.value.stats);
+      } else {
+        // قيم افتراضية
+        setUserStats({
+          articlesRead: 5,
+          interactions: 12,
+          shares: 3
+        });
+      }
+      
+      // معالجة التحليلات
+      if (insightsResult.status === 'fulfilled' && insightsResult.value?.success) {
+        setUserInsights(insightsResult.value.data);
+      }
+      
+    } catch (error) {
+      console.error('خطأ في جلب البيانات:', error);
+    }
+  };
 
   const checkAuth = async () => {
     const userData = localStorage.getItem('user');
@@ -182,111 +311,15 @@ export default function ProfilePage() {
     } catch (error) {
       console.error('Error fetching updated user data:', error);
       setUser(localUser);
-    }
-  };
-
-  const fetchUserData = async () => {
-    const userData = localStorage.getItem('user');
-    if (!userData) return;
-    
-    const user = JSON.parse(userData);
-    setLoading(true);
-    
-    try {
-      // جلب نقاط الولاء
-      const loyaltyResponse = await fetch(`/api/loyalty/points?userId=${user.id}`);
-      if (loyaltyResponse.ok) {
-        const loyaltyData = await loyaltyResponse.json();
-        setLoyaltyData(loyaltyData);
-      }
-
-      // جلب الاهتمامات من المستخدم
-      console.log('🔍 جلب الاهتمامات من بيانات المستخدم...');
-      if (user.interests && user.interests.length > 0) {
-        console.log('✅ الاهتمامات موجودة:', user.interests);
-        
-        // جلب معلومات التصنيفات
-        try {
-          const categoriesResponse = await fetch('/api/categories');
-          if (categoriesResponse.ok) {
-            const categoriesData = await categoriesResponse.json();
-            const allCategories = categoriesData.categories || categoriesData || [];
-            
-            // تحويل الاهتمامات إلى تصنيفات
-            const userCategories = allCategories
-              .filter((cat: any) => user.interests.includes(cat.slug) || user.interests.includes(cat.name))
-              .map((cat: any) => ({
-                category_id: cat.id,
-                category_name: cat.name || cat.name_ar,
-                category_icon: cat.icon || '📌',
-                category_color: cat.color || '#6B7280'
-              }));
-            
-            console.log('🎯 التفضيلات المحولة:', userCategories);
-            setPreferences(userCategories);
-          }
-        } catch (catError) {
-          console.error('❌ خطأ في جلب التصنيفات:', catError);
-        }
-      } else {
-        console.log('⚠️ لا توجد اهتمامات محفوظة');
-        setPreferences([]);
-      }
-
-      // جلب إحصائيات المستخدم
-      try {
-        const interactionsResponse = await fetch(`/api/interactions/user/${user.id}`);
-        if (interactionsResponse.ok) {
-          const interactionsData = await interactionsResponse.json();
-          setUserStats(interactionsData.stats || {
-            articlesRead: 0,
-            interactions: 0,
-            shares: 0
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching user interactions:', error);
-        // استخدام قيم افتراضية
-        setUserStats({
-          articlesRead: 5,
-          interactions: 12,
-          shares: 3
-        });
-      }
-    } catch (error) {
-      console.error('خطأ في جلب البيانات:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  // جلب البيانات المتقدمة
-  const fetchUserInsights = async () => {
-    const userData = localStorage.getItem('user');
-    if (!userData) return;
-    
-    const user = JSON.parse(userData);
-    setLoadingInsights(true);
-    
-    try {
-      const response = await fetch(`/api/user/${user.id}/insights`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setUserInsights(data.data);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching user insights:', error);
-    } finally {
-      setLoadingInsights(false);
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('user');
     toast.success('تم تسجيل الخروج بنجاح');
-    router.push('/login');
+    router.push('/'); // العودة للصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
   };
 
   const formatDate = (dateString: string) => {
@@ -691,14 +724,51 @@ export default function ProfilePage() {
                   ) : (
                     <div className="text-center py-12">
                       <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                      <p className="text-gray-500 dark:text-gray-400 mb-4">لم تختر اهتمامات بعد</p>
-                      <Link
-                        href="/welcome/preferences"
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-                      >
-                        <Heart className="w-5 h-5" />
-                        اختر اهتماماتك الآن
-                      </Link>
+                      
+                      {user.id && user.id.startsWith('guest-') ? (
+                        <>
+                          <p className="text-gray-500 dark:text-gray-400 mb-2">أنت تتصفح كضيف</p>
+                          <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
+                            سجل الدخول لحفظ اهتماماتك وتخصيص تجربتك بشكل دائم
+                          </p>
+                          <div className="space-y-3">
+                            <Link
+                              href="/welcome/preferences"
+                              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all mb-3"
+                            >
+                              <Heart className="w-5 h-5" />
+                              اختر اهتماماتك كضيف
+                            </Link>
+                            <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                              <p className="text-xs text-gray-400 mb-3">للحصول على تجربة كاملة:</p>
+                              <Link
+                                href="/login"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                              >
+                                تسجيل الدخول
+                              </Link>
+                              <span className="mx-2 text-gray-400">أو</span>
+                              <Link
+                                href="/register"
+                                className="inline-flex items-center gap-2 px-4 py-2 text-blue-600 dark:text-blue-400 hover:underline"
+                              >
+                                إنشاء حساب جديد
+                              </Link>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-gray-500 dark:text-gray-400 mb-4">لم تختر اهتمامات بعد</p>
+                          <Link
+                            href="/welcome/preferences"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                          >
+                            <Heart className="w-5 h-5" />
+                            اختر اهتماماتك الآن
+                          </Link>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>

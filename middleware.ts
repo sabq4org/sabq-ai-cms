@@ -107,11 +107,32 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
   
-  // استثناء جميع مسارات API من معالجة الأمان لتجنب مشاكل body
-  // سنطبق الأمان فقط على الصفحات وليس على API endpoints
+  // معالجة CORS لمسارات API
   if (pathname.startsWith('/api/')) {
-    console.log('Skipping API route:', pathname);
-    return NextResponse.next();
+    console.log('Processing API route:', pathname);
+    
+    // معالجة طلبات OPTIONS (preflight)
+    if (request.method === 'OPTIONS') {
+      return new NextResponse(null, {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, Accept',
+          'Access-Control-Allow-Credentials': 'true',
+          'Access-Control-Max-Age': '86400',
+        },
+      });
+    }
+    
+    // إضافة CORS headers لجميع طلبات API
+    const response = NextResponse.next();
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept');
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    
+    return response;
   }
   
   // التحقق من ملفات الأصول الثابتة

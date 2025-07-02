@@ -229,7 +229,7 @@ export default function WelcomeFeedPage() {
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">
-                      {article.category}
+                      {typeof article.category === 'string' ? article.category : ((article.category as any)?.name_ar || (article.category as any)?.name || 'عام')}
                     </span>
                     <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400 text-xs">
                       <Clock className="w-3 h-3" />

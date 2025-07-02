@@ -23,7 +23,7 @@ const defaultConfig = {
   NEXT_PUBLIC_SITE_URL: 'https://jur3a.ai',
   NEXT_PUBLIC_API_URL: 'https://jur3a.ai/api',
   JWT_SECRET: 'your-super-secret-jwt-key-change-this-in-production',
-  DATABASE_URL: 'postgresql://user:password@localhost:5432/sabq_cms',
+  // DATABASE_URL: 'postgresql://user:password@localhost:5432/sabq_cms',
   OPENAI_API_KEY: 'your-openai-api-key-here',
   NODE_ENV: 'development'
 };
@@ -51,7 +51,7 @@ function createEnvFile() {
   
   // إنشاء محتوى الملف
   let envContent = `# إعدادات قاعدة البيانات
-DATABASE_URL="${defaultConfig.DATABASE_URL}"
+# DATABASE_URL="${defaultConfig.DATABASE_URL}"
 
 # مفتاح JWT للمصادقة
 JWT_SECRET="${defaultConfig.JWT_SECRET}"

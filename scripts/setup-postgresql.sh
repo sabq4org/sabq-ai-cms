@@ -6,7 +6,7 @@ echo "🚀 إعداد PostgreSQL لمشروع سبق..."
 if [ ! -f .env.local ]; then
     echo "📝 إنشاء ملف .env.local..."
     cp env.example .env.local
-    echo "⚠️  تذكير: قم بتحديث DATABASE_URL في .env.local"
+    # echo "⚠️  تذكير: قم بتحديث DATABASE_URL في .env.local"
 fi
 
 # حذف ملفات Prisma القديمة
@@ -40,6 +40,6 @@ fi
 
 echo ""
 echo "✅ تم الإعداد! الخطوات التالية:"
-echo "1. تأكد من تحديث DATABASE_URL في .env.local"
+# echo "1. تأكد من تحديث DATABASE_URL في .env.local"
 echo "2. شغل: npx prisma migrate dev --name init"
 echo "3. أو للإنتاج: npx prisma migrate deploy" 

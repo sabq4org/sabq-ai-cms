@@ -470,9 +470,20 @@ export default function PersonalizedContent() {
                       <div className="flex items-start space-x-4 space-x-reverse">
                         {/* صورة المقال */}
                         <div className="flex-shrink-0">
+                          {article.featured_image ? (
+                            <img 
+                              src={article.featured_image} 
+                              alt={article.title}
+                              className="w-16 h-16 rounded-lg object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
                           <div className={`w-16 h-16 rounded-lg flex items-center justify-center ${
                             darkMode ? 'bg-gray-700' : 'bg-gray-200'
-                          }`}>
+                          } ${article.featured_image ? 'hidden' : ''}`}>
                             <span className="text-2xl">📰</span>
                           </div>
                         </div>

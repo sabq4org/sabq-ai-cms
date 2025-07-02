@@ -397,9 +397,9 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
               <div className="space-y-3">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-400">التصنيفات:</span>
-                  {analysis.categories.map((category) => (
-                    <Badge key={category} variant="default" className="cursor-pointer">
-                      {category}
+                  {analysis.categories.map((category: any) => (
+                    <Badge key={typeof category === 'string' ? category : category.id} variant="default" className="cursor-pointer">
+                      {typeof category === 'string' ? category : (category.name_ar || category.name || 'عام')}
                     </Badge>
                   ))}
                 </div>

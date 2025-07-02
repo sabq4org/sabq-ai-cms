@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, createContext, ReactNode } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import Cookies from 'js-cookie';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 
@@ -24,6 +24,15 @@ export interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Hook لاستخدام AuthContext
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -54,15 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserFromCookie = async () => {
     try {
-      // التحقق من وجود توكن أولاً
-      const token = Cookies.get('auth-token');
-      if (!token) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      // محاولة جلب بيانات المستخدم من API
+      // محاولة جلب بيانات المستخدم من API أولاً
       const userData = await fetchUserFromAPI();
       if (userData) {
         setUser(userData);
@@ -94,6 +95,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error) {
           console.error("فشل في قراءة كوكيز المستخدم:", error);
         }
+      }
+
+      // إذا لم نجد أي بيانات مستخدم، تنظيف localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user');
+        localStorage.removeItem('user_id');
       }
 
       // إذا لم نجد أي بيانات مستخدم
@@ -147,10 +154,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('user');
       localStorage.removeItem('user_id');
+      localStorage.removeItem('user_preferences');
+      localStorage.removeItem('darkMode');
       sessionStorage.removeItem('user');
+      sessionStorage.clear(); // تنظيف جميع بيانات الجلسة
     }
     
-    window.location.href = '/login';
+    window.location.href = '/'; // العودة للصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
   };
 
   const refreshUser = async () => {
