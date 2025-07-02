@@ -98,14 +98,33 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
   useEffect(() => {
     fetchLoyaltyPoints();
     
-    const handlePointsUpdate = () => {
-      fetchLoyaltyPoints();
+    const handlePointsUpdate = (e: Event) => {
+      try {
+        // التحقق من أن الحدث صحيح
+        if (e && e.type === 'loyalty-points-updated') {
+          fetchLoyaltyPoints();
+        }
+      } catch (error) {
+        console.error('Error handling loyalty points update:', error);
+      }
     };
     
-    window.addEventListener('loyalty-points-updated', handlePointsUpdate);
+    try {
+      if (typeof window !== 'undefined') {
+        window.addEventListener('loyalty-points-updated', handlePointsUpdate);
+      }
+    } catch (error) {
+      console.error('Error adding loyalty points listener:', error);
+    }
     
     return () => {
-      window.removeEventListener('loyalty-points-updated', handlePointsUpdate);
+      try {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('loyalty-points-updated', handlePointsUpdate);
+        }
+      } catch (error) {
+        console.error('Error removing loyalty points listener:', error);
+      }
     };
   }, []);
 

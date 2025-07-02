@@ -19,33 +19,40 @@ export function useLocalStorageSync({
   const [lastUpdate, setLastUpdate] = useState<any>(null);
   
   const broadcast = useCallback((type: string, data: any) => {
-    const event = {
-      type,
-      data,
-      userId,
-      timestamp: Date.now(),
-      tabId: window.name || Math.random().toString(36)
-    };
-    
-    // حفظ في localStorage
-    const storageKey = `sync_${key}_${type}`;
-    localStorage.setItem(storageKey, JSON.stringify(event));
-    
-    // إطلاق حدث مخصص للتبويبات في نفس النافذة
-    window.dispatchEvent(new CustomEvent('localSync', { 
-      detail: event 
-    }));
-    
-    console.log('📡 Broadcasting:', type, data);
+    try {
+      const event = {
+        type,
+        data,
+        userId,
+        timestamp: Date.now(),
+        tabId: window.name || Math.random().toString(36)
+      };
+      
+      // حفظ في localStorage
+      const storageKey = `sync_${key}_${type}`;
+      localStorage.setItem(storageKey, JSON.stringify(event));
+      
+      // إطلاق حدث مخصص للتبويبات في نفس النافذة
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        const customEvent = new CustomEvent('localSync', { 
+          detail: event 
+        });
+        window.dispatchEvent(customEvent);
+      }
+      
+      console.log('📡 Broadcasting:', type, data);
+    } catch (error) {
+      console.error('Error in broadcast:', error);
+    }
   }, [key, userId]);
 
   useEffect(() => {
     // الاستماع لتغييرات localStorage من تبويبات أخرى
     const handleStorageChange = (e: StorageEvent) => {
-      if (!e.key?.startsWith(`sync_${key}_`)) return;
-      if (!e.newValue) return;
-      
       try {
+        if (!e.key?.startsWith(`sync_${key}_`)) return;
+        if (!e.newValue) return;
+        
         const event = JSON.parse(e.newValue);
         
         // تجاهل الأحداث من نفس المستخدم والتبويب
@@ -78,46 +85,68 @@ export function useLocalStorageSync({
     };
     
     // الاستماع للأحداث المخصصة في نفس النافذة
-    const handleLocalSync = (e: CustomEvent) => {
-      const event = e.detail;
-      if (event.userId === userId && event.tabId === (window.name || Math.random().toString(36))) {
-        return;
+    const handleLocalSync = (e: Event) => {
+      try {
+        const customEvent = e as CustomEvent;
+        const event = customEvent.detail;
+        
+        if (!event || event.userId === userId && event.tabId === (window.name || Math.random().toString(36))) {
+          return;
+        }
+        
+        console.log('📥 Received local sync:', event.type, event.data);
+        setLastUpdate(event);
+        onUpdate?.(event);
+      } catch (error) {
+        console.error('Error handling local sync:', error);
       }
-      
-      console.log('📥 Received local sync:', event.type, event.data);
-      setLastUpdate(event);
-      onUpdate?.(event);
     };
     
-    // إضافة المستمعين
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('localSync' as any, handleLocalSync);
+    // إضافة المستمعين مع حماية من الأخطاء
+    try {
+      if (typeof window !== 'undefined') {
+        window.addEventListener('storage', handleStorageChange);
+        window.addEventListener('localSync', handleLocalSync);
+      }
+    } catch (error) {
+      console.error('Error adding event listeners:', error);
+    }
     
     // تنظيف المستمعين
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('localSync' as any, handleLocalSync);
+      try {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('storage', handleStorageChange);
+          window.removeEventListener('localSync', handleLocalSync);
+        }
+      } catch (error) {
+        console.error('Error removing event listeners:', error);
+      }
     };
   }, [key, userId, onUpdate]);
   
   // تنظيف البيانات القديمة (أكثر من 5 دقائق)
   useEffect(() => {
     const cleanup = () => {
-      const now = Date.now();
-      const maxAge = 5 * 60 * 1000; // 5 دقائق
-      
-      Object.keys(localStorage).forEach(key => {
-        if (!key.startsWith('sync_')) return;
+      try {
+        const now = Date.now();
+        const maxAge = 5 * 60 * 1000; // 5 دقائق
         
-        try {
-          const data = JSON.parse(localStorage.getItem(key) || '{}');
-          if (now - data.timestamp > maxAge) {
+        Object.keys(localStorage).forEach(key => {
+          if (!key.startsWith('sync_')) return;
+          
+          try {
+            const data = JSON.parse(localStorage.getItem(key) || '{}');
+            if (now - data.timestamp > maxAge) {
+              localStorage.removeItem(key);
+            }
+          } catch {
             localStorage.removeItem(key);
           }
-        } catch {
-          localStorage.removeItem(key);
-        }
-      });
+        });
+      } catch (error) {
+        console.error('Error in cleanup:', error);
+      }
     };
     
     // تنظيف عند التحميل وكل دقيقة
