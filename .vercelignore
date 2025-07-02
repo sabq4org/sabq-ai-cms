@@ -115,4 +115,7 @@ yarn.lock
 package-lock.json
 
 # TypeScript build info
-*.tsbuildinfo 
+*.tsbuildinfo
+
+# Prisma generated files (force regeneration)
+lib/generated/ 

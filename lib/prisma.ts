@@ -1,49 +1,51 @@
-import { PrismaClient } from './generated/prisma'
-
-// تجنب إنشاء عدة نسخ من PrismaClient في بيئة التطوير
-// https://www.prisma.io/docs/guides/performance-and-optimization/connection-management#prevent-hot-reloading-from-creating-new-database-connections
+import { PrismaClient } from './generated/prisma';
+import { logEnvironment, logDatabaseConnection, getEnvironmentConfig } from './debug';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
+};
+
+// الحصول على تكوين البيئة
+const envConfig = getEnvironmentConfig();
+
+// تسجيل معلومات البيئة للتشخيص
+if (envConfig.debug) {
+  logEnvironment();
 }
 
+// تكوين Prisma بناءً على البيئة
+const prismaOptions: any = {
+  log: envConfig.isDevelopment ? ['query', 'error', 'warn'] : ['error'],
+};
+
+// التأكد من وجود رابط قاعدة البيانات
+if (!process.env.DATABASE_URL) {
+  console.error('[Prisma] ❌ خطأ: DATABASE_URL غير محدد!');
+  throw new Error('DATABASE_URL is required');
+}
+
+// تكوين مصدر البيانات
+prismaOptions.datasources = {
+  db: {
+    url: process.env.DATABASE_URL,
+  },
+};
+
+// إنشاء عميل Prisma
 export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  })
+  globalForPrisma.prisma ??
+  new PrismaClient(prismaOptions);
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
-
-// وظائف مساعدة للتعامل مع قاعدة البيانات
-export async function checkDatabaseConnection() {
-  try {
-    await prisma.$connect()
-    console.log('✅ تم الاتصال بقاعدة البيانات بنجاح')
-    return true
-  } catch (error) {
-    console.error('❌ فشل الاتصال بقاعدة البيانات:', error)
-    return false
-  }
+// حفظ المثيل في البيئة التطويرية فقط
+if (!envConfig.isProduction) {
+  globalForPrisma.prisma = prisma;
 }
 
-// تنظيف الاتصالات عند إيقاف التطبيق
-export async function disconnectDatabase() {
-  await prisma.$disconnect()
+// اختبار الاتصال عند بدء التشغيل
+if (envConfig.debug) {
+  prisma.$connect()
+    .then(() => logDatabaseConnection(true))
+    .catch((error) => logDatabaseConnection(false, error));
 }
 
-// دالة مساعدة للتعامل مع الأخطاء
-export function handlePrismaError(error: any) {
-  if (error.code === 'P2002') {
-    return 'البيانات المُدخلة موجودة مسبقاً'
-  }
-  if (error.code === 'P2025') {
-    return 'السجل المطلوب غير موجود'
-  }
-  if (error.code === 'P2003') {
-    return 'خطأ في العلاقة - تأكد من وجود السجل المرتبط'
-  }
-  
-  console.error('Prisma Error:', error)
-  return 'حدث خطأ في قاعدة البيانات'
-}
+export default prisma;
