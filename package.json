@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:staging": "NODE_ENV=development next dev",
-    "build": "prisma generate && next build",
+    "build": "node scripts/vercel-build-optimization.js && prisma generate && next build",
     "build:force": "rm -rf .next && NEXT_TELEMETRY_DISABLED=1 next build",
     "start": "next start",
     "lint": "next lint",
@@ -45,6 +45,7 @@
     "prisma:prod": "NODE_ENV=production npx prisma db push",
     "deploy:prod": "npm run setup:prod && npm run build:prod && npm run prisma:prod",
     "postbuild": "echo 'Build completed successfully'",
+    "vercel:check": "node scripts/vercel-deploy-check.js",
     "migrate:prod": "node scripts/migrate-production.js"
   },
   "dependencies": {
