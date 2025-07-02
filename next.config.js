@@ -3,6 +3,19 @@ const nextConfig = {
   // Enable React strict mode for better error handling
   reactStrictMode: true,
   
+  // تحسين البناء
+  swcMinify: true,
+  compress: true,
+  
+  // تعطيل telemetry
+  telemetry: false,
+  
+  // تحسين الأداء
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['@mui/material', '@mui/icons-material', 'lucide-react'],
+  },
+  
   // Remove standalone output for Vercel deployment
   // output: 'standalone',
   

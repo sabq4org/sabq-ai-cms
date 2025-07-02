@@ -2,11 +2,16 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "18.19.0",
+    "npm": "10.9.2"
+  },
   "scripts": {
     "dev": "next dev",
     "dev:staging": "NODE_ENV=development next dev",
-    "build": "node scripts/vercel-build-optimization.js && prisma generate && next build",
+    "build": "node scripts/setup-build-env.js && node scripts/fix-prisma-build.js && node scripts/vercel-build-optimization.js && next build",
     "build:force": "rm -rf .next && NEXT_TELEMETRY_DISABLED=1 next build",
+    "build:no-prisma": "SKIP_PRISMA=true next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",

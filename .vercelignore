@@ -11,6 +11,7 @@ out
 .env.local
 .env.production
 .env.development
+.env.test
 
 # Logs
 *.log
@@ -66,6 +67,7 @@ frontend/
 .next/
 node_modules/
 .cache/
+.turbo
 
 # Logs
 *.log
@@ -126,6 +128,7 @@ scripts/
 docs/
 reports/
 backups/
+data/exports/
 database/*.sql
 *.md
 
@@ -157,4 +160,9 @@ coverage/
 
 # Local development files
 public/uploads/
-*.log 
+*.log
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore 
