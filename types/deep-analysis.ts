@@ -25,6 +25,7 @@ export interface DeepAnalysis {
   authorName: string;
   sourceType: SourceType;
   creationType: CreationType;
+  analysisType?: 'manual' | 'ai' | 'mixed';
   sourceArticleId?: string;
   externalLink?: string;
   
@@ -167,6 +168,7 @@ export interface CreateAnalysisRequest {
   content?: string;
   sourceType: SourceType;
   creationType: CreationType;
+  analysisType?: 'manual' | 'ai' | 'mixed';
   sourceArticleId?: string;
   externalLink?: string;
   categories: string[];

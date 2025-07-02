@@ -1,94 +1,92 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 
 export const runtime = 'nodejs';
-
-// Cloudinary configuration (for production)
-const cloudinaryConfig = {
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dybhezmvb',
-  api_key: process.env.CLOUDINARY_API_KEY || '559894124915114',
-  api_secret: process.env.CLOUDINARY_API_SECRET || 'vuiA8rLNm7d1U-UAOTED6FyC4hY',
-};
 
 export async function POST(request: NextRequest) {
   try {
     const data = await request.formData();
     const file: File | null = data.get('file') as unknown as File;
+    const type = data.get('type') as string || 'general';
 
     if (!file) {
       return NextResponse.json({ success: false, error: 'لم يتم رفع أي ملف' });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Check if we're in production and have Cloudinary config
-    const isProduction = process.env.NODE_ENV === 'production';
-    const hasCloudinaryConfig = cloudinaryConfig.cloud_name && cloudinaryConfig.api_key && cloudinaryConfig.api_secret;
-
-    if (hasCloudinaryConfig) {
-      // Use Cloudinary for both production and development
-      try {
-        const cloudinary = require('cloudinary').v2;
-        
-        cloudinary.config({
-          cloud_name: cloudinaryConfig.cloud_name,
-          api_key: cloudinaryConfig.api_key,
-          api_secret: cloudinaryConfig.api_secret,
-        });
-
-        // Convert buffer to base64
-        const base64String = buffer.toString('base64');
-        const dataURI = `data:${file.type};base64,${base64String}`;
-
-        // Upload to Cloudinary
-        const result = await cloudinary.uploader.upload(dataURI, {
-          folder: 'sabq-cms',
-          resource_type: 'auto',
-          public_id: `${Date.now()}-${file.name.replace(/\.[^/.]+$/, "")}`,
-          transformation: [
-            { width: 1200, height: 800, crop: 'limit' },
-            { quality: 'auto' },
-            { format: 'auto' }
-          ]
-        });
-
-        console.log('✅ تم رفع الملف إلى Cloudinary:', result.secure_url);
-
-        return NextResponse.json({ 
-          success: true, 
-          url: result.secure_url,
-          public_id: result.public_id,
-          width: result.width,
-          height: result.height,
-          format: result.format,
-          message: 'تم رفع الصورة بنجاح إلى Cloudinary'
-        });
-
-      } catch (cloudinaryError) {
-        console.error('❌ خطأ في رفع الملف إلى Cloudinary:', cloudinaryError);
-        // Fallback to local storage if Cloudinary fails
-      }
+    // التحقق من نوع الملف
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'نوع الملف غير مسموح',
+        message: 'يسمح فقط بملفات الصور (JPEG, PNG, GIF, WebP)'
+      }, { status: 400 });
     }
 
-    // Local storage (fallback only)
-    const uploadsDir = join(process.cwd(), 'public', 'uploads');
-    const fileName = `${Date.now()}-${file.name}`;
-    const path = join(uploadsDir, fileName);
+    // التحقق من حجم الملف (10MB max)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'حجم الملف كبير جداً',
+        message: 'حجم الملف يجب أن يكون أقل من 10 ميجابايت'
+      }, { status: 400 });
+    }
 
-    // حفظ الملف محلياً
-    await writeFile(path, buffer);
-    console.log(`✅ تم رفع الملف محلياً: ${path}`);
+    try {
+      // تحديد مجلد الرفع حسب النوع
+      let folder = 'sabq-cms';
+      switch (type) {
+        case 'avatar':
+          folder = 'sabq-cms/avatars';
+          break;
+        case 'featured':
+          folder = 'sabq-cms/featured';
+          break;
+        case 'gallery':
+          folder = 'sabq-cms/gallery';
+          break;
+        case 'team':
+          folder = 'sabq-cms/team';
+          break;
+        case 'analysis':
+          folder = 'sabq-cms/analysis';
+          break;
+        default:
+          folder = 'sabq-cms/general';
+      }
 
-    // إرجاع المسار العام للملف
-    const publicPath = `/uploads/${fileName}`;
+      // رفع الملف إلى Cloudinary
+      const result = await uploadToCloudinary(file, {
+        folder,
+        publicId: `${Date.now()}-${file.name.replace(/\.[^/.]+$/, "")}`,
+        transformation: [
+          { quality: 'auto:good' },
+          { fetch_format: 'auto' }
+        ]
+      });
 
-    return NextResponse.json({ 
-      success: true, 
-      url: publicPath,
-      message: 'تم رفع الصورة محلياً (تحذير: قد تختفي عند إعادة النشر على Vercel)'
-    });
+      console.log('✅ تم رفع الملف إلى Cloudinary:', result.url);
+
+      return NextResponse.json({ 
+        success: true, 
+        url: result.url,
+        public_id: result.publicId,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+        message: 'تم رفع الصورة بنجاح إلى Cloudinary'
+      });
+
+    } catch (cloudinaryError) {
+      console.error('❌ خطأ في رفع الملف إلى Cloudinary:', cloudinaryError);
+      return NextResponse.json({ 
+        success: false, 
+        error: 'فشل رفع الصورة إلى السحابة',
+        message: 'لا يمكن حفظ الصور محلياً. يجب رفعها إلى Cloudinary فقط.',
+        details: cloudinaryError instanceof Error ? cloudinaryError.message : 'خطأ غير معروف'
+      }, { status: 500 });
+    }
 
   } catch (error) {
     console.error('❌ خطأ في رفع الملف:', error);

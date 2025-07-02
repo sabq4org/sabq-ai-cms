@@ -123,5 +123,20 @@
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2025-06-22T18:52:10.453Z",
     "isSystem": true
+  },
+  {
+    "id": "author",
+    "name": "كاتب",
+    "description": "كاتب محتوى يمكنه إنشاء وتعديل المقالات",
+    "color": "#06B6D4",
+    "permissions": [
+      "articles.create",
+      "articles.edit",
+      "analytics.view_own",
+      "media.upload"
+    ],
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2025-07-01T22:00:00.000Z",
+    "isSystem": true
   }
 ]

@@ -1,7 +1,6 @@
 generator client {
-  provider      = "prisma-client-js"
-  output        = "../lib/generated/prisma"
-  binaryTargets = ["native", "debian-openssl-1.1.x", "rhel-openssl-1.1.x"]
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
 }
 
 datasource db {
@@ -53,7 +52,7 @@ model Category {
   color        String?    @db.VarChar(7)
   icon         String?    @db.VarChar(10)
   metadata     Json?
-  nameEn       String?    @map("name_en")
+  name_en      String?
   parent       Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children     Category[] @relation("CategoryHierarchy")
   articles     Article[]
@@ -307,4 +306,16 @@ enum InteractionType {
   share
   comment
   view
+}
+
+// نموذج إعدادات الموقع
+model SiteSettings {
+  id        String   @id @default(uuid())
+  section   String   @unique @db.VarChar(50) // identity, seo, social, ai, security, backup
+  data      Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@map("site_settings")
+  @@index([section])
 }

@@ -388,7 +388,7 @@ export default function DeepAnalysesPage() {
                     }
                   `}
                 >
-                  {category}
+                  {typeof category === 'string' ? category : ((category as any).name_ar || (category as any).name || 'عام')}
                 </button>
               ))}
             </div>

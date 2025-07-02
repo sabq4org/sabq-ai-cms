@@ -151,10 +151,48 @@ export default function CreateUserPage() {
     }));
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setFormData(prev => ({ ...prev, avatar: file }));
+    if (!file) return;
+
+    // التحقق من نوع الملف
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('يرجى اختيار ملف صورة صالح (PNG أو JPG)');
+      return;
+    }
+
+    // التحقق من حجم الملف (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('حجم الصورة يجب أن يكون أقل من 2 ميجابايت');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'avatar');
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setFormData(prev => ({ ...prev, avatar: data.url }));
+          console.log('تم رفع الصورة بنجاح:', data.url);
+        } else {
+          alert(data.error || 'فشل في رفع الصورة');
+        }
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'فشل في رفع الصورة');
+      }
+    } catch (error) {
+      console.error('خطأ في رفع الصورة:', error);
+      alert('حدث خطأ في رفع الصورة');
     }
   };
 

@@ -115,4 +115,46 @@ yarn.lock
 package-lock.json
 
 # TypeScript build info
-*.tsbuildinfo 
+*.tsbuildinfo
+
+# Prisma generated files (force regeneration)
+lib/generated/
+
+# Development files and scripts
+__dev__/
+scripts/
+docs/
+reports/
+backups/
+database/*.sql
+*.md
+
+# Node.js files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git files
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Coverage files
+coverage/
+.nyc_output/
+*.test.js
+*.spec.js
+
+# Local development files
+public/uploads/
+*.log 

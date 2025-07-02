@@ -1,23 +1,38 @@
 {
-  "version": 2,
-  "name": "sabq-ai-cms",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "outputDirectory": ".next",
-  "installCommand": "npm install --production=false",
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "build": {
+    "env": {
+      "NODE_OPTIONS": "--max-old-space-size=4096"
+    }
+  },
   "functions": {
-    "app/api/**/route.ts": {
+    "app/api/**/*.ts": {
       "maxDuration": 30
     }
   },
-  "env": {
-    "NODE_ENV": "production"
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" }
+      ]
+    }
+  ],
+  "github": {
+    "silent": true
   },
   "regions": ["iad1"],
-  "build": {
-    "env": {
-      "NODE_ENV": "production",
-      "BUILD_ID": "v1.0.1",
-      "PRISMA_GENERATE_DATAPROXY": "true"
-    }
+  "experimental": {
+    "serverComponentsExternalPackages": ["@prisma/client"]
   }
 }

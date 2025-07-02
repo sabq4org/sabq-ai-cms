@@ -7,6 +7,7 @@ import { Filter, TrendingUp, Clock, Eye,
 import Link from 'next/link';
 import Header from '@/components/Header';
 import CategoryBadge from '@/app/components/CategoryBadge';
+import { generatePlaceholderImage } from '@/lib/cloudinary';
 
 interface Article {
   id: string;
@@ -125,28 +126,7 @@ export default function ForYouPage() {
     fetchPersonalizedContent();
   };
 
-  // توليد صورة بديلة
-  const generatePlaceholderImage = (title: string) => {
-    const placeholderImages = [
-      'https://images.unsplash.com/photo-1504711434969-e33886168f5c',
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa',
-      'https://images.unsplash.com/photo-1495020689067-958852a7765e',
-      'https://images.unsplash.com/photo-1585829365295-ab7cd400c167',
-      'https://images.unsplash.com/photo-1478940020726-e9e191651f1a',
-    ];
-    
-    // التحقق من وجود العنوان قبل استخدامه
-    if (!title || typeof title !== 'string') {
-      // إرجاع صورة عشوائية إذا لم يكن هناك عنوان
-      const randomIndex = Math.floor(Math.random() * placeholderImages.length);
-      return `${placeholderImages[randomIndex]}?auto=format&fit=crop&w=800&q=80`;
-    }
-    
-    const hash = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const imageIndex = hash % placeholderImages.length;
-    
-    return `${placeholderImages[imageIndex]}?auto=format&fit=crop&w=800&q=80`;
-  };
+
 
   // تنسيق الأرقام
   const formatNumber = (num: number) => {
@@ -353,7 +333,7 @@ export default function ForYouPage() {
                   {/* الصورة مع نسبة عرض ثابتة */}
                   <div className="relative aspect-[16/9] overflow-hidden">
                     <img 
-                      src={article.featured_image || generatePlaceholderImage(article.title)} 
+                      src={article.featured_image || generatePlaceholderImage(article.title, 'article')} 
                       alt={article.title}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />

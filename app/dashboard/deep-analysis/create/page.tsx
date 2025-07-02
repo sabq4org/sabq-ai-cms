@@ -28,7 +28,12 @@ import {
   RefreshCw,
   Eye,
   Edit,
-  Upload
+  Upload,
+  AlertCircle,
+  CheckCircle2,
+  Image as ImageIcon,
+  Hash,
+  Info
 } from 'lucide-react';
 import { CreateAnalysisRequest, SourceType, CreationType, DisplayPosition } from '@/types/deep-analysis';
 import toast from 'react-hot-toast';
@@ -49,8 +54,9 @@ const CreateDeepAnalysisPage = () => {
   const [content, setContent] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
-  const [sourceType, setSourceType] = useState<SourceType>('manual');
-  const [creationType, setCreationType] = useState<CreationType>('new');
+  const [sourceType, setSourceType] = useState<SourceType>('original');
+  const [creationType, setCreationType] = useState<CreationType>('manual');
+  const [analysisType, setAnalysisType] = useState<'manual' | 'ai' | 'mixed'>('manual');
   const [externalLink, setExternalLink] = useState('');
   const [authorName, setAuthorName] = useState('');
   const [gptPrompt, setGptPrompt] = useState('');
@@ -62,6 +68,8 @@ const CreateDeepAnalysisPage = () => {
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDeepAnalysisEnabled, setIsDeepAnalysisEnabled] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const mainCategories = [
     'الاقتصاد', 'التقنية', 'رؤية 2030', 'الأمن السيبراني', 
@@ -77,9 +85,14 @@ const CreateDeepAnalysisPage = () => {
     }
   }, []);
 
-  // جلب المقالات
+  // جلب المقالات والتحقق من تفعيل التحليل العميق
   useEffect(() => {
     fetchArticles();
+    // التحقق من تفعيل التحليل العميق من الإعدادات
+    const deepAnalysisSettings = localStorage.getItem('deep_analysis_enabled');
+    if (deepAnalysisSettings === 'true') {
+      setIsDeepAnalysisEnabled(true);
+    }
   }, []);
 
   const fetchArticles = async () => {
@@ -111,7 +124,7 @@ const CreateDeepAnalysisPage = () => {
   };
 
   // معالجة رفع الصورة
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
@@ -125,9 +138,17 @@ const CreateDeepAnalysisPage = () => {
       }
 
       setImageFile(file);
+      setUploadingImage(true);
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+        setUploadingImage(false);
+        toast.success('تم تحميل الصورة بنجاح!');
+      };
+      reader.onerror = () => {
+        setUploadingImage(false);
+        toast.error('فشل تحميل الصورة');
       };
       reader.readAsDataURL(file);
     }
@@ -243,26 +264,27 @@ const CreateDeepAnalysisPage = () => {
       // تحديد ما إذا كان يجب استخدام GPT
       const shouldUseGPT = (creationType === 'gpt' || creationType === 'mixed') && !content;
       
-      const analysisData: CreateAnalysisRequest = {
-        title,
-        summary,
-        content,
-        sourceType,
-        creationType,
-        categories,
-        tags,
-        authorName,
-        isActive,
-        isFeatured,
-        displayPosition,
-        status: status === 'published' ? 'published' : 'draft',
-        sourceArticleId: selectedArticle?.id,
-        externalLink: sourceType === 'external' ? externalLink : undefined,
-        generateWithGPT: shouldUseGPT,
-        gptPrompt: shouldUseGPT ? (gptPrompt || title) : undefined,
-        openaiApiKey: openaiKey || undefined,
-        featuredImage: uploadedImageUrl
-      };
+              const analysisData: CreateAnalysisRequest = {
+          title,
+          summary,
+          content,
+          sourceType,
+          creationType,
+          analysisType,
+          categories,
+          tags,
+          authorName,
+          isActive,
+          isFeatured,
+          displayPosition,
+          status: status === 'published' ? 'published' : 'draft',
+          sourceArticleId: selectedArticle?.id,
+          externalLink: sourceType === 'external' ? externalLink : undefined,
+          generateWithGPT: shouldUseGPT,
+          gptPrompt: shouldUseGPT ? (gptPrompt || title) : undefined,
+          openaiApiKey: openaiKey || undefined,
+          featuredImage: uploadedImageUrl
+        };
 
       console.log('Submitting analysis with data:', {
         ...analysisData,
@@ -308,21 +330,54 @@ const CreateDeepAnalysisPage = () => {
     isSelected: boolean;
     onClick: () => void;
     color?: string;
-  }) => (
-    <button
-      onClick={onClick}
-      className={`w-full p-6 rounded-2xl border-2 transition-all duration-300 text-right ${
-        isSelected
-          ? `bg-${color}-500 text-white shadow-md border-b-4 border-${color}-600`
-          : darkMode
-            ? 'text-gray-300 hover:bg-gray-700 border-gray-700 hover:border-gray-600'
-            : 'text-gray-600 hover:bg-gray-50 border-gray-200 hover:border-gray-300'
-      }`}
-    >
-      <div className="flex items-start gap-4">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+  }) => {
+    // تحديد الكلاسات بناءً على اللون
+    const getColorClasses = () => {
+      if (!isSelected) return '';
+      
+      switch (color) {
+        case 'blue':
+          return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl border-blue-600 transform scale-[1.02]';
+        case 'purple':
+          return 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl border-purple-600 transform scale-[1.02]';
+        case 'orange':
+          return 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-xl border-orange-600 transform scale-[1.02]';
+        case 'green':
+          return 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-xl border-green-600 transform scale-[1.02]';
+        case 'indigo':
+          return 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-xl border-indigo-600 transform scale-[1.02]';
+        default:
+          return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl border-blue-600 transform scale-[1.02]';
+      }
+    };
+
+    return (
+      <button
+        onClick={onClick}
+        className={`relative w-full p-6 rounded-2xl border-2 transition-all duration-300 text-right overflow-hidden ${
           isSelected
-            ? 'bg-white/20'
+            ? getColorClasses()
+            : darkMode
+              ? 'text-gray-300 hover:bg-gray-700 border-gray-700 hover:border-gray-600'
+              : 'text-gray-600 hover:bg-gray-50 border-gray-200 hover:border-gray-300'
+        }`}
+      >
+      {/* شريط جانبي للعنصر المختار */}
+      {isSelected && (
+        <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50" />
+      )}
+      
+      {/* أيقونة التحديد */}
+      {isSelected && (
+        <div className="absolute top-4 left-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg">
+          <CheckCircle2 className="w-5 h-5 text-green-600" />
+        </div>
+      )}
+      
+      <div className="flex items-start gap-4">
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+          isSelected
+            ? 'bg-white/20 scale-110'
             : darkMode
               ? 'bg-gray-700 text-gray-400'
               : 'bg-gray-100 text-gray-600'
@@ -330,12 +385,13 @@ const CreateDeepAnalysisPage = () => {
           <Icon className="w-6 h-6" />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-bold mb-1">{title}</h3>
-          <p className={`text-sm ${isSelected ? 'text-white/90' : ''}`}>{description}</p>
+          <h3 className={`text-lg font-bold mb-1 ${isSelected ? 'text-white' : ''}`}>{title}</h3>
+          <p className={`text-sm ${isSelected ? 'text-white/90' : darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{description}</p>
         </div>
       </div>
     </button>
-  );
+    );
+  };
 
   return (
     <div className={`p-8 transition-colors duration-300 ${
@@ -398,6 +454,22 @@ const CreateDeepAnalysisPage = () => {
         </div>
       </div>
 
+      {/* رسالة ترحيب ذكية */}
+      {title === '' && summary === '' && (
+        <div className={`rounded-xl p-4 mb-6 flex items-start gap-3 ${
+          darkMode 
+            ? 'bg-blue-900/20 border border-blue-700' 
+            : 'bg-blue-50 border border-blue-200'
+        }`}>
+          <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+          <div className="flex-1">
+            <p className={`text-sm font-medium ${darkMode ? 'text-blue-300' : 'text-blue-800'}`}>
+              مرحباً! ابدأ بتحديد طريقة الإنشاء ونوع المصدر، ثم املأ تفاصيل التحليل العميق.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* أنواع الإنشاء */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -417,7 +489,10 @@ const CreateDeepAnalysisPage = () => {
             description="كتابة التحليل بشكل كامل يدوياً"
             icon={PenTool}
             isSelected={creationType === 'manual'}
-            onClick={() => setCreationType('manual')}
+            onClick={() => {
+              setCreationType('manual');
+              setAnalysisType('manual');
+            }}
             color="blue"
           />
           <TypeCard
@@ -426,7 +501,10 @@ const CreateDeepAnalysisPage = () => {
             description="توليد التحليل بواسطة GPT-4"
             icon={Sparkles}
             isSelected={creationType === 'gpt'}
-            onClick={() => setCreationType('gpt')}
+            onClick={() => {
+              setCreationType('gpt');
+              setAnalysisType('ai');
+            }}
             color="purple"
           />
           <TypeCard
@@ -435,7 +513,10 @@ const CreateDeepAnalysisPage = () => {
             description="دمج الكتابة اليدوية مع الذكاء الاصطناعي"
             icon={Zap}
             isSelected={creationType === 'mixed'}
-            onClick={() => setCreationType('mixed')}
+            onClick={() => {
+              setCreationType('mixed');
+              setAnalysisType('mixed');
+            }}
             color="orange"
           />
         </div>
@@ -477,7 +558,7 @@ const CreateDeepAnalysisPage = () => {
 
       {/* اختيار المقال */}
       {sourceType === 'article' && (
-        <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
+        <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-all duration-500 animate-slideIn ${
           darkMode 
             ? 'bg-gray-800 border-gray-700' 
             : 'bg-white border-gray-100'
@@ -507,7 +588,7 @@ const CreateDeepAnalysisPage = () => {
 
       {/* محتوى GPT */}
       {(creationType === 'gpt' || creationType === 'mixed') && (
-        <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
+        <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-all duration-500 animate-slideIn ${
           darkMode 
             ? 'bg-gray-800 border-gray-700' 
             : 'bg-white border-gray-100'
@@ -888,6 +969,171 @@ const CreateDeepAnalysisPage = () => {
                 <option value="top">أعلى الصفحة</option>
                 <option value="sidebar">الشريط الجانبي</option>
               </select>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ملخص سريع للاختيارات */}
+      <div className={`rounded-xl p-4 mb-6 transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gradient-to-r from-gray-800 to-gray-700 border border-gray-600' 
+          : 'bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200'
+      }`}>
+        <div className="flex items-center justify-between">
+          <h4 className={`text-sm font-semibold flex items-center gap-2 ${
+            darkMode ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+            <CheckCircle2 className="w-4 h-4 text-green-500" />
+            ملخص الاختيارات
+          </h4>
+          <div className="flex gap-4 text-sm">
+            <span className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <Layers className="w-4 h-4" />
+              {creationType === 'manual' ? 'يدوي' : creationType === 'gpt' ? 'ذكاء اصطناعي' : 'مختلط'}
+            </span>
+            <span className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <FileText className="w-4 h-4" />
+              {sourceType === 'original' ? 'محتوى أصلي' : 'من مقال'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* معاينة الخيارات المختارة - تفصيلية */}
+      <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
+        <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${
+          darkMode ? 'text-white' : 'text-gray-800'
+        }`}>
+          <Eye className="w-5 h-5 text-indigo-600" />
+          معاينة تفصيلية
+        </h3>
+
+        {/* تنبيه التحليل العميق */}
+        {isDeepAnalysisEnabled && (
+          <div className={`mb-4 p-4 rounded-lg flex items-start gap-3 ${
+            darkMode 
+              ? 'bg-purple-900/30 border border-purple-700' 
+              : 'bg-purple-50 border border-purple-200'
+          }`}>
+            <Info className="w-5 h-5 text-purple-600 mt-0.5" />
+            <div className="flex-1">
+              <p className={`font-semibold ${darkMode ? 'text-purple-300' : 'text-purple-800'}`}>
+                تحليل عميق مفعّل
+              </p>
+              <p className={`text-sm mt-1 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+                هذا المحتوى سيتم معالجته كتحليل عميق وسيُعرض في البلوك المخصص له
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* طريقة الإنشاء */}
+          <div className={`p-4 rounded-lg ${
+            darkMode ? 'bg-gray-700' : 'bg-gray-50'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Layers className="w-4 h-4 text-purple-600" />
+              <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                طريقة الإنشاء
+              </span>
+            </div>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              {creationType === 'manual' && 'يدوي'}
+              {creationType === 'gpt' && 'ذكاء اصطناعي'}
+              {creationType === 'mixed' && 'مختلط'}
+            </p>
+          </div>
+
+          {/* نوع المصدر */}
+          <div className={`p-4 rounded-lg ${
+            darkMode ? 'bg-gray-700' : 'bg-gray-50'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="w-4 h-4 text-blue-600" />
+              <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                نوع المصدر
+              </span>
+            </div>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              {sourceType === 'original' && 'محتوى أصلي'}
+              {sourceType === 'article' && selectedArticle ? `من مقال: ${selectedArticle.title}` : sourceType === 'article' ? 'من مقال (غير محدد)' : ''}
+            </p>
+          </div>
+
+          {/* الكلمات المفتاحية */}
+          <div className={`p-4 rounded-lg ${
+            darkMode ? 'bg-gray-700' : 'bg-gray-50'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Hash className="w-4 h-4 text-green-600" />
+              <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                الكلمات المفتاحية
+              </span>
+            </div>
+            {tags.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {tags.map((tag, index) => (
+                  <span key={index} className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                لم يتم إضافة كلمات مفتاحية
+              </p>
+            )}
+          </div>
+
+          {/* الصورة المميزة */}
+          <div className={`p-4 rounded-lg ${
+            darkMode ? 'bg-gray-700' : 'bg-gray-50'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <ImageIcon className="w-4 h-4 text-orange-600" />
+              <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                الصورة المميزة
+              </span>
+            </div>
+            {uploadingImage ? (
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} flex items-center gap-2`}>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                جارٍ رفع الصورة...
+              </p>
+            ) : imagePreview ? (
+              <p className={`text-sm ${darkMode ? 'text-green-400' : 'text-green-600'} flex items-center gap-2`}>
+                <CheckCircle2 className="w-4 h-4" />
+                تم رفع الصورة بنجاح
+              </p>
+            ) : (
+              <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                لم يتم رفع صورة
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* التحقق من البيانات المطلوبة */}
+        {(!title || !summary) && (
+          <div className={`mt-4 p-4 rounded-lg flex items-start gap-3 ${
+            darkMode 
+              ? 'bg-red-900/30 border border-red-700' 
+              : 'bg-red-50 border border-red-200'
+          }`}>
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+            <div className="flex-1">
+              <p className={`font-semibold ${darkMode ? 'text-red-300' : 'text-red-800'}`}>
+                بيانات مطلوبة
+              </p>
+              <p className={`text-sm mt-1 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+                يرجى ملء العنوان والملخص قبل النشر
+              </p>
             </div>
           </div>
         )}

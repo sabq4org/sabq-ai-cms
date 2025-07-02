@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { readFile } from 'fs/promises';
-import path from 'path';
+import prisma from '@/lib/prisma';
+import { handleOptions, corsResponse, addCorsHeaders } from '@/lib/cors';
+
+// معالجة طلبات OPTIONS للـ CORS
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
@@ -11,9 +16,9 @@ export async function GET(request: NextRequest) {
     const token = request.cookies.get('auth-token')?.value;
     
     if (!token) {
-      return NextResponse.json(
+      return corsResponse(
         { success: false, error: 'لم يتم العثور على معلومات المصادقة' },
-        { status: 401 }
+        401
       );
     }
 
@@ -22,54 +27,80 @@ export async function GET(request: NextRequest) {
     try {
       decoded = jwt.verify(token, JWT_SECRET);
     } catch (error) {
-      return NextResponse.json(
+      return corsResponse(
         { success: false, error: 'جلسة غير صالحة' },
-        { status: 401 }
+        401
       );
     }
 
-    // قراءة ملف المستخدمين
-    const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-    const fileContents = await readFile(usersFilePath, 'utf8');
-    const data = JSON.parse(fileContents);
-    const users = data.users || [];
-
-    // البحث عن المستخدم
-    const user = users.find((u: any) => u.id === decoded.id);
+    // البحث عن المستخدم في قاعدة البيانات
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
+        avatar: true,
+        isAdmin: true,
+        loyaltyPoints: {
+          select: {
+            points: true
+          }
+        },
+        interests: {
+          select: {
+            id: true,
+            interest: true,
+            score: true,
+            source: true
+          },
+          orderBy: {
+            score: 'desc'
+          }
+        }
+      }
+    });
 
     if (!user) {
-      return NextResponse.json(
+      return corsResponse(
         { success: false, error: 'المستخدم غير موجود' },
-        { status: 404 }
+        404
       );
     }
 
-    // إزالة كلمة المرور من البيانات
-    const { password: _, ...userWithoutPassword } = user;
+    // حساب مجموع نقاط الولاء
+    const totalLoyaltyPoints = user.loyaltyPoints.reduce((total, lp) => total + lp.points, 0);
 
     // إضافة معلومات إضافية
     const responseUser = {
-      ...userWithoutPassword,
-      is_admin: user.role === 'admin' || user.role === 'super_admin',
-      loyaltyPoints: user.loyaltyPoints || 0,
-      status: user.status || 'active',
-      role: user.role || 'regular',
-      isVerified: user.isVerified || false
+      ...user,
+      is_admin: user.isAdmin || user.role === 'admin' || user.role === 'super_admin',
+      loyaltyPoints: totalLoyaltyPoints,
+      status: 'active', // قيمة افتراضية
+      role: user.role || 'user',
+      isVerified: user.isVerified || false,
+      interests: user.interests.map(i => i.interest) // تحويل الاهتمامات إلى array من الأسماء
     };
 
-    return NextResponse.json({
+    return corsResponse({
       success: true,
       user: responseUser
     });
 
   } catch (error) {
     console.error('خطأ في جلب بيانات المستخدم:', error);
-    return NextResponse.json(
+    return corsResponse(
       { 
         success: false, 
         error: 'حدث خطأ في جلب بيانات المستخدم'
       },
-      { status: 500 }
+      500
     );
+  } finally {
+    await prisma.$disconnect();
   }
 } 
