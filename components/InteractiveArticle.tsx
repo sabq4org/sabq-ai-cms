@@ -8,6 +8,7 @@ import {
   PlayCircle, Volume2, Eye, Clock
 } from 'lucide-react';
 import Image from 'next/image';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface ArticleBlock {
   id: string;
@@ -61,6 +62,8 @@ export default function InteractiveArticle({
   const [savedBlocks, setSavedBlocks] = useState<Set<string>>(new Set());
   const [isListening, setIsListening] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   // تتبع تقدم القراءة
   useEffect(() => {
@@ -111,11 +114,15 @@ export default function InteractiveArticle({
     switch (block.type) {
       case 'intro':
         return (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-6">
-            <p className="text-lg font-medium text-gray-800 leading-relaxed">
+          <div className={`${
+            isDark 
+              ? 'bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700' 
+              : 'bg-gradient-to-r from-blue-50 to-indigo-50'
+          } rounded-2xl p-6 mb-6`}>
+            <p className={`text-lg font-medium leading-relaxed ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
               {block.content}
             </p>
-            <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
+            <div className={`mt-4 flex items-center gap-4 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               <span className="flex items-center gap-1">
                 <Eye className="w-4 h-4" />
                 مقدمة
@@ -131,7 +138,7 @@ export default function InteractiveArticle({
       case 'paragraph':
         return (
           <div className="mb-6 group relative">
-            <p className="text-gray-700 leading-relaxed text-lg">
+            <p className={`leading-relaxed text-lg ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
               {block.content}
             </p>
             <BlockActions 
@@ -139,6 +146,7 @@ export default function InteractiveArticle({
               isSaved={isSaved} 
               onSave={() => toggleSaveBlock(block.id)}
               onInteraction={onBlockInteraction}
+              isDark={isDark}
             />
           </div>
         );
@@ -146,7 +154,7 @@ export default function InteractiveArticle({
       case 'image':
         return (
           <div className="mb-8 group relative">
-            <div className="relative rounded-2xl overflow-hidden shadow-lg">
+            <div className={`relative rounded-2xl overflow-hidden shadow-lg ${isDark ? 'border border-gray-700' : ''}`}>
               <img
                 src={block.metadata?.imageUrl || '/placeholder.jpg'}
                 alt={block.metadata?.imageAlt || 'صورة'}
@@ -161,6 +169,7 @@ export default function InteractiveArticle({
               isSaved={isSaved} 
               onSave={() => toggleSaveBlock(block.id)}
               onInteraction={onBlockInteraction}
+              isDark={isDark}
             />
           </div>
         );
@@ -170,16 +179,20 @@ export default function InteractiveArticle({
         const userVote = userVotes[block.id];
 
         return (
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 mb-8">
+          <div className={`${
+            isDark 
+              ? 'bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-800/50' 
+              : 'bg-gradient-to-br from-purple-50 to-pink-50'
+          } rounded-2xl p-6 mb-8`}>
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h4 className="text-lg font-bold text-gray-900 mb-1">
-                  <BarChart className="inline-block w-5 h-5 mr-2 text-purple-600" />
+                <h4 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  <BarChart className={`inline-block w-5 h-5 mr-2 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
                   استطلاع رأي
                 </h4>
-                <p className="text-gray-700">{block.content}</p>
+                <p className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{block.content}</p>
               </div>
-              <span className="text-sm text-gray-500">{totalVotes} صوت</span>
+              <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{totalVotes} صوت</span>
             </div>
 
             <div className="space-y-3">
@@ -193,19 +206,23 @@ export default function InteractiveArticle({
                     onClick={() => handleVote(block.id, option.id)}
                     className={`w-full text-right p-4 rounded-xl border-2 transition-all ${
                       isSelected 
-                        ? 'border-purple-500 bg-purple-50' 
-                        : 'border-gray-200 hover:border-purple-300 bg-white'
+                        ? isDark 
+                          ? 'border-purple-500 bg-purple-900/30' 
+                          : 'border-purple-500 bg-purple-50'
+                        : isDark
+                          ? 'border-gray-700 hover:border-purple-600 bg-gray-800/50'
+                          : 'border-gray-200 hover:border-purple-300 bg-white'
                     }`}
                     disabled={!!userVote}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-gray-900">{option.text}</span>
+                      <span className={`font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{option.text}</span>
                       {userVote && (
-                        <span className="text-sm text-gray-600">{percentage.toFixed(1)}%</span>
+                        <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{percentage.toFixed(1)}%</span>
                       )}
                     </div>
                     {userVote && (
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className={`w-full rounded-full h-2 ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}>
                         <div 
                           className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
                           style={{ width: `${percentage}%` }}
@@ -221,13 +238,17 @@ export default function InteractiveArticle({
 
       case 'quote':
         return (
-          <div className="border-r-4 border-indigo-500 bg-indigo-50 rounded-xl p-6 mb-8 relative">
-            <Quote className="absolute top-4 right-4 w-8 h-8 text-indigo-200" />
-            <blockquote className="text-xl font-medium text-gray-800 italic mb-3 pr-8">
+          <div className={`border-r-4 ${
+            isDark 
+              ? 'border-purple-500 bg-gray-800/50' 
+              : 'border-indigo-500 bg-indigo-50'
+          } rounded-xl p-6 mb-8 relative`}>
+            <Quote className={`absolute top-4 right-4 w-8 h-8 ${isDark ? 'text-purple-700' : 'text-indigo-200'}`} />
+            <blockquote className={`text-xl font-medium italic mb-3 pr-8 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
               "{block.content}"
             </blockquote>
             {block.metadata?.author && (
-              <cite className="text-sm text-gray-600 not-italic">
+              <cite className={`text-sm not-italic ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                 — {block.metadata.author}
                 {block.metadata.source && ` (${block.metadata.source})`}
               </cite>
@@ -237,18 +258,22 @@ export default function InteractiveArticle({
 
       case 'list':
         return (
-          <div className="bg-gray-50 rounded-2xl p-6 mb-8">
-            <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <List className="w-5 h-5 text-gray-600" />
+          <div className={`${isDark ? 'bg-gray-800/50 border border-gray-700' : 'bg-gray-50'} rounded-2xl p-6 mb-8`}>
+            <h4 className={`font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <List className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
               النقاط الرئيسية
             </h4>
             <ul className="space-y-2">
               {block.metadata?.items?.map((item, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-sm font-bold">
+                  <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
+                    isDark 
+                      ? 'bg-indigo-900/50 text-indigo-300' 
+                      : 'bg-indigo-100 text-indigo-600'
+                  }`}>
                     {index + 1}
                   </span>
-                  <span className="text-gray-700">{item}</span>
+                  <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{item}</span>
                 </li>
               ))}
             </ul>
@@ -275,12 +300,15 @@ export default function InteractiveArticle({
 
       case 'summary':
         return (
-          <div className={`bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 ${
-            !isExpanded ? 'cursor-pointer' : ''
-          }`} onClick={() => !isExpanded && toggleBlockExpansion(block.id)}>
+          <div className={`${
+            isDark 
+              ? 'bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-800/50' 
+              : 'bg-gradient-to-r from-green-50 to-emerald-50'
+          } rounded-2xl p-6 mb-8 ${!isExpanded ? 'cursor-pointer' : ''}`} 
+          onClick={() => !isExpanded && toggleBlockExpansion(block.id)}>
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-gray-900 text-lg flex items-center gap-2">
-                <FileText className="w-5 h-5 text-green-600" />
+              <h4 className={`font-bold text-lg flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <FileText className={`w-5 h-5 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
                 ملخص المقال
               </h4>
               <button
@@ -288,20 +316,22 @@ export default function InteractiveArticle({
                   e.stopPropagation();
                   toggleBlockExpansion(block.id);
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className={`${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'}`}
               >
                 {isExpanded ? <ChevronUp /> : <ChevronDown />}
               </button>
             </div>
             
-            <div className={`text-gray-700 transition-all duration-300 ${
+            <div className={`transition-all duration-300 ${
               isExpanded ? 'max-h-96' : 'max-h-20 overflow-hidden'
-            }`}>
+            } ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
               {block.content}
             </div>
             
             {!isExpanded && (
-              <p className="text-sm text-green-600 mt-2">اضغط لقراءة الملخص الكامل</p>
+              <p className={`text-sm mt-2 ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+                اضغط لقراءة الملخص الكامل
+              </p>
             )}
           </div>
         );
@@ -314,7 +344,7 @@ export default function InteractiveArticle({
   return (
     <article className="max-w-4xl mx-auto">
       {/* Progress Bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-50">
+      <div className={`fixed top-0 left-0 right-0 h-1 z-50 ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}>
         <div 
           className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
           style={{ width: `${readProgress}%` }}
@@ -323,12 +353,14 @@ export default function InteractiveArticle({
 
       {/* Header */}
       <header className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">{title}</h1>
+        <h1 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>{title}</h1>
         {subtitle && (
-          <p className="text-xl text-gray-600 mb-6">{subtitle}</p>
+          <p className={`text-xl mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{subtitle}</p>
         )}
         
-        <div className="flex items-center justify-between flex-wrap gap-4 pb-6 border-b border-gray-200">
+        <div className={`flex items-center justify-between flex-wrap gap-4 pb-6 border-b ${
+          isDark ? 'border-gray-700' : 'border-gray-200'
+        }`}>
           <div className="flex items-center gap-4">
             {author.avatar && (
               <img 
@@ -338,12 +370,12 @@ export default function InteractiveArticle({
               />
             )}
             <div>
-              <p className="font-semibold text-gray-900">{author.name}</p>
-              <p className="text-sm text-gray-600">{publishedAt}</p>
+              <p className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{author.name}</p>
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{publishedAt}</p>
             </div>
           </div>
           
-          <div className="flex items-center gap-6 text-sm text-gray-600">
+          <div className={`flex items-center gap-6 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
             <span className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
               {readingTime} دقائق قراءة
@@ -351,7 +383,9 @@ export default function InteractiveArticle({
             <button 
               onClick={() => setIsListening(!isListening)}
               className={`flex items-center gap-1 px-3 py-1 rounded-full transition-colors ${
-                isListening ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'
+                isListening 
+                  ? isDark ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-700'
+                  : isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               }`}
             >
               <Volume2 className="w-4 h-4" />
@@ -372,11 +406,15 @@ export default function InteractiveArticle({
 
       {/* Floating Action Button */}
       <div className="fixed bottom-8 left-8 flex flex-col gap-3">
-        <button className="w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow">
-          <MessageSquare className="w-6 h-6 text-gray-700" />
+        <button className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow ${
+          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+        }`}>
+          <MessageSquare className={`w-6 h-6 ${isDark ? 'text-gray-300' : 'text-gray-700'}`} />
         </button>
-        <button className="w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow">
-          <Share2 className="w-6 h-6 text-gray-700" />
+        <button className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow ${
+          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+        }`}>
+          <Share2 className={`w-6 h-6 ${isDark ? 'text-gray-300' : 'text-gray-700'}`} />
         </button>
       </div>
     </article>
@@ -388,26 +426,30 @@ function BlockActions({
   block, 
   isSaved, 
   onSave, 
-  onInteraction 
+  onInteraction,
+  isDark
 }: { 
   block: ArticleBlock;
   isSaved: boolean;
   onSave: () => void;
   onInteraction?: (blockId: string, type: 'like' | 'comment' | 'share') => void;
+  isDark: boolean;
 }) {
   return (
     <div className="absolute -left-16 top-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2">
       <button 
         onClick={() => onInteraction?.(block.id, 'like')}
-        className="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:shadow-lg transition-shadow"
+        className={`w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:shadow-lg transition-shadow ${
+          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+        }`}
       >
-        <ThumbsUp className="w-4 h-4 text-gray-600" />
+        <ThumbsUp className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
       </button>
       <button 
         onClick={onSave}
-        className={`w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:shadow-lg transition-shadow ${
-          isSaved ? 'text-blue-600' : 'text-gray-600'
-        }`}
+        className={`w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:shadow-lg transition-shadow ${
+          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+        } ${isSaved ? isDark ? 'text-blue-400' : 'text-blue-600' : isDark ? 'text-gray-400' : 'text-gray-600'}`}
       >
         <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
       </button>

@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { handleOptions, corsResponse } from '@/lib/cors';
+
+// معالجة طلبات OPTIONS للـ CORS
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export const runtime = 'nodejs';
 
@@ -86,12 +92,6 @@ export async function GET(request: NextRequest) {
             name: true,
             slug: true
           }
-        },
-        author: {
-          select: {
-            id: true,
-            name: true
-          }
         }
       },
       orderBy: {
@@ -128,12 +128,6 @@ export async function GET(request: NextRequest) {
               name: true,
               slug: true
             }
-          },
-          author: {
-            select: {
-              id: true,
-              name: true
-            }
           }
         },
         orderBy: {
@@ -145,7 +139,7 @@ export async function GET(request: NextRequest) {
       topArticles.push(...additionalArticles);
     }
     
-    return NextResponse.json({
+    return corsResponse({
       articles: topArticles,
       intent,
       timestamp: new Date().toISOString()
@@ -194,7 +188,7 @@ export async function GET(request: NextRequest) {
       }
     ];
     
-    return NextResponse.json({
+    return corsResponse({
       articles: mockArticles,
       intent: intent,
       timestamp: new Date().toISOString(),

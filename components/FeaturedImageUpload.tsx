@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Upload, Image as ImageIcon, X, Link, Loader } from 'lucide-react';
+import { getDefaultImageUrl } from '@/lib/cloudinary';
 
 interface FeaturedImageUploadProps {
   value: string;
@@ -175,8 +176,8 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
                 src: e.currentTarget.src,
                 alt: e.currentTarget.alt
               });
-              // استخدام صورة افتراضية بدلاً من SVG inline
-              e.currentTarget.src = '/default-avatar.png';
+              // استخدام صورة افتراضية من Cloudinary
+              e.currentTarget.src = getDefaultImageUrl('article');
             }}
           />
           

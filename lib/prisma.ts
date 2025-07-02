@@ -21,7 +21,10 @@ const prismaOptions: any = {
 // التأكد من وجود رابط قاعدة البيانات
 if (!process.env.DATABASE_URL) {
   console.error('[Prisma] ❌ خطأ: DATABASE_URL غير محدد!');
+  console.error('[Prisma] 📁 المتغيرات المتاحة:', Object.keys(process.env).filter(k => k.includes('DATABASE')));
   throw new Error('DATABASE_URL is required');
+} else {
+  console.log('[Prisma] ✅ DATABASE_URL موجود:', process.env.DATABASE_URL.replace(/:[^:@]+@/, ':****@'));
 }
 
 // تكوين مصدر البيانات
