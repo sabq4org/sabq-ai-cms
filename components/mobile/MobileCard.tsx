@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, Share2, Bookmark, MessageSquare } from 'lucide-react';
+import { getValidImageUrl } from '@/lib/cloudinary';
 
 interface MobileCardProps {
   article: {
@@ -56,9 +57,7 @@ export default function MobileCard({
   };
 
   const getImageUrl = (url?: string) => {
-    if (!url) return '/images/placeholder-article.jpg';
-    if (url.startsWith('http')) return url;
-    return `https://res.cloudinary.com/your-cloud/image/fetch/w_400,h_200,c_fill,f_auto,q_auto/${encodeURIComponent(url)}`;
+    return getValidImageUrl(url, article.title, 'article');
   };
 
   if (variant === 'compact') {
