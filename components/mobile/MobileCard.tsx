@@ -85,7 +85,7 @@ export default function MobileCard({
                   <span 
                     className="inline-block px-2 py-1 text-xs font-medium rounded-full"
                     style={{ 
-                      backgroundColor: article.category.color + '20' || '#3b82f620',
+                      backgroundColor: (article.category.color || '#3b82f6') + '20',
                       color: article.category.color || '#3b82f6'
                     }}
                   >
@@ -251,7 +251,7 @@ export default function MobileCard({
               <span 
                 className="inline-block px-2 py-1 text-xs font-medium rounded-full"
                 style={{ 
-                  backgroundColor: article.category.color + '20' || '#3b82f620',
+                  backgroundColor: (article.category.color || '#3b82f6') + '20',
                   color: article.category.color || '#3b82f6'
                 }}
               >

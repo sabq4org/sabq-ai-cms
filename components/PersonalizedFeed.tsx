@@ -285,8 +285,8 @@ export default function PersonalizedFeed({ userId, limit = 10 }: PersonalizedFee
                     <span 
                       className="px-2 py-1 rounded-full text-xs font-medium"
                       style={{ 
-                        backgroundColor: `${article.category.color}20`,
-                        color: article.category.color 
+                        backgroundColor: `${article.category.color || '#3b82f6'}20`,
+                        color: article.category.color || '#3b82f6'
                       }}
                     >
                       {article.category.name}
