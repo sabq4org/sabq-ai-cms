@@ -1,55 +1,13 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "buildCommand": "node scripts/ensure-prisma-generation.js && next build",
-  "installCommand": "npm install && npx prisma generate",
-  "devCommand": "next dev",
+  "buildCommand": "npx prisma generate && next build",
   "outputDirectory": ".next",
+  "framework": "nextjs",
   "env": {
-    "NEXT_TELEMETRY_DISABLED": "1",
-    "NODE_ENV": "production"
+    "NEXT_TELEMETRY_DISABLED": "1"
   },
   "build": {
     "env": {
-      "NODE_OPTIONS": "--max-old-space-size=4096",
-      "NODE_ENV": "production"
+      "NODE_OPTIONS": "--max-old-space-size=4096"
     }
-  },
-  "functions": {
-    "app/api/**/*.ts": {
-      "maxDuration": 30,
-      "runtime": "nodejs20.x"
-    }
-  },
-  "crons": [
-    {
-      "path": "/api/cron/cleanup",
-      "schedule": "0 2 * * *"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "github": {
-    "silent": true
-  },
-  "regions": ["iad1"]
+  }
 }
