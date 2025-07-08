@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
 import { interactions_type, interactions } from '@/lib/generated/prisma';

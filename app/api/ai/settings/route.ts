@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { NextResponse } from "next/server";
 
 

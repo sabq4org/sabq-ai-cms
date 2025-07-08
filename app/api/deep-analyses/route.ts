@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';

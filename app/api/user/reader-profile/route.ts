@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { buildReaderProfile } from '@/lib/services/readerProfileService';
 

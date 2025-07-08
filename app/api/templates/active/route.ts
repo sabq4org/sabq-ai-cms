@@ -1,8 +1,3 @@
-import Image from 'next/image';
-
-
-
-
 import { NextRequest, NextResponse } from 'next/server'
 import { templateService } from '@/lib/services/templateService'
 import { TemplateType } from '@/types/template'
