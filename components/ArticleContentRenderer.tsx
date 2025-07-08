@@ -84,7 +84,7 @@ const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
               <Quote className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
               <div>
                 <p className="text-gray-800 italic text-lg leading-relaxed">
-                  "{block.content.text}"
+                  &quot;{block.content.text}&quot;
                 </p>
                 {block.content.author && (
                   <cite className="block mt-3 text-sm text-gray-600 font-medium">

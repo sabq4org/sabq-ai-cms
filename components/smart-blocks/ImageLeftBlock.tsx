@@ -66,10 +66,7 @@ export const ImageLeftBlock: React.FC<ImageLeftBlockProps> = ({ block, articles 
               {/* الصورة على اليسار */}
               {article.imageUrl && (
                 <div className="flex-shrink-0 w-32 h-24 rounded-lg overflow-hidden">
-                  <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
+                  <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                 </div>
               )}
 

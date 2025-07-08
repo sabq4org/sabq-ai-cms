@@ -83,7 +83,7 @@ export default function QuoteExtractor({
 
   // مشاركة الاقتباس
   const shareQuote = (quote: ExtractedQuote) => {
-    const shareText = `"${quote.text}"\n\n- ${quote.author}\n\nمن مقال: ${articleTitle}`;
+    const shareText = &quot;"${quote.text}"\n\n- ${quote.author}\n\nمن مقال: ${articleTitle}`;
     
     if (navigator.share) {
       navigator.share({
@@ -99,7 +99,7 @@ export default function QuoteExtractor({
 
   // نسخ الاقتباس
   const copyQuote = (quote: ExtractedQuote) => {
-    const quoteText = `"${quote.text}" - ${quote.author}`;
+    const quoteText = &quot;"${quote.text}" - ${quote.author}`;
     navigator.clipboard.writeText(quoteText);
     alert('تم نسخ الاقتباس!');
   };

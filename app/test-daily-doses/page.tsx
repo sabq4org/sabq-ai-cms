@@ -4,6 +4,8 @@ import React from 'react';
 import Image from 'next/image';
 import { useState } from 'react'
 import { Calendar, Zap, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import Link from 'next/link';
+
 interface TestResult {
   success: boolean
   data?: any
@@ -267,18 +269,18 @@ export default function TestDailyDosesPage() {
         <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
           <h2 className="text-xl font-bold mb-4">🔗 روابط مفيدة</h2>
           <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
-            <a href="/" className="text-blue-600 hover:underline">
+            <Link href="/" className="text-blue-600 hover:underline">
               🏠 الصفحة الرئيسية
-            </a>
-            <a href="/test-time-slots" className="text-blue-600 hover:underline">
+            </Link>
+            <Link href="/test-time-slots" className="text-blue-600 hover:underline">
               ⏰ اختبار الفترات الزمنية
-            </a>
-            <a href="/daily-dose" className="text-blue-600 hover:underline">
+            </Link>
+            <Link href="/daily-dose" className="text-blue-600 hover:underline">
               📖 صفحة الجرعة الكاملة
-            </a>
-            <a href="/dashboard/daily-doses" className="text-blue-600 hover:underline">
+            </Link>
+            <Link href="/dashboard/daily-doses" className="text-blue-600 hover:underline">
               ⚙️ لوحة تحكم الجرعات
-            </a>
+            </Link>
           </div>
         </div>
         {/* معلومات النظام */}

@@ -244,7 +244,7 @@ export default function InteractiveArticle({
           } rounded-xl p-6 mb-8 relative`}>
             <Quote className={`absolute top-4 right-4 w-8 h-8 ${isDark ? 'text-purple-700' : 'text-indigo-200'}`} />
             <blockquote className={`text-xl font-medium italic mb-3 pr-8 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-              "{block.content}"
+              &quot;{block.content}&quot;
             </blockquote>
             {block.metadata?.author && (
               <cite className={`text-sm not-italic ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>

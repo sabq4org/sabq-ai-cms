@@ -4,6 +4,8 @@ import React from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+
 export default function TestAuthPage() {
   const { user, isLoggedIn, isLoading } = useAuth();
   const [debugInfo, setDebugInfo] = useState<any>({});
@@ -105,12 +107,12 @@ export default function TestAuthPage() {
         </div>
         {/* رابط العودة */}
         <div className="mt-8">
-          <a 
+          <Link 
             href="/" 
             className="text-blue-500 hover:text-blue-600 underline"
           >
             العودة للصفحة الرئيسية
-          </a>
+          </Link>
         </div>
       </div>
     </div>

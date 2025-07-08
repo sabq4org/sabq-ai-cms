@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import AnalysisTypeIcon from './deep-analysis/AnalysisTypeIcon';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface DeepInsight {
   id: string;
@@ -375,7 +376,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
 
         {/* زر استكشاف المزيد - محسّن */}
         <div className="text-center">
-          <a 
+          <Link 
             href="/insights/deep" 
             className="inline-flex items-center gap-2 px-5 py-2 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-white/30 backdrop-blur-sm group relative overflow-hidden"
           >
@@ -385,7 +386,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
             <BookOpen className="w-4 h-4 relative z-10" />
             <span className="relative z-10">جميع التحليلات</span>
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform relative z-10" />
-          </a>
+          </Link>
         </div>
       </div>
 

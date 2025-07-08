@@ -289,7 +289,7 @@ export default function ActivityTimeline({ searchQuery = '' }: ActivityTimelineP
                 </span>
                 {activity.target.type === 'article' && (
                   <a href="#" className="text-sm text-blue-600 hover:underline truncate max-w-xs">
-                    "{activity.target.title}"
+                    &quot;{activity.target.title}&quot;
                   </a>
                 )}
               </div>

@@ -155,7 +155,7 @@ export default function TestCommentAI() {
                                 onClick={() => setComment(example)}
                                 className="text-sm text-gray-600 hover:text-purple-600 hover:underline text-right"
                               >
-                                "{example}"
+                                &quot;{example}&quot;
                               </button>
                             </li>
                           ))}
