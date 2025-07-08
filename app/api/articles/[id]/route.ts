@@ -27,10 +27,10 @@ export const runtime = 'nodejs';
 // GET - جلب مقال واحد
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const dbArticle = await prisma.articles.findFirst({
       where: {
         OR: [
@@ -51,13 +51,15 @@ export async function GET(
 // PATCH - تحديث مقال
 export async function PATCH(
   request: Request,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  let articleId = '';
   try {
-    const { id } = context.params;
+    const { id: idFromParams } = await context.params;
+    articleId = idFromParams;
     const updates = await request.json();
 
-    console.log('🔄 [API] محاولة تحديث المقال:', id);
+    console.log('🔄 [API] محاولة تحديث المقال:', articleId);
     
     // معالجة عدم تطابق اسم الحقل: تحويل summary إلى excerpt
     if (updates.summary) {
@@ -99,16 +101,16 @@ export async function PATCH(
 
     // تحديث المقال وتعيين updated_at تلقائياً
     const updatedArticle = await prisma.articles.update({
-      where: { id },
+      where: { id: articleId },
       data: dataToUpdate,
     });
 
-    console.log('✅ [API] تم تحديث المقال بنجاح:', id);
+    console.log('✅ [API] تم تحديث المقال بنجاح:', articleId);
     return NextResponse.json(updatedArticle);
 
   } catch (error: any) {
     console.error('❌ [API] خطأ فادح في تحديث المقال:', {
-      id: context.params.id,
+      id: articleId,
       message: error.message,
       code: error.code,
       stack: error.stack,
@@ -144,10 +146,10 @@ export async function PATCH(
 // DELETE - حذف مقال
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await prisma.articles.delete({ where: { id } });
     return NextResponse.json({ message: 'Article deleted successfully' });
   } catch (error) {
