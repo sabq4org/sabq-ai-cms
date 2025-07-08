@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
 import { useDarkModeContext } from '@/contexts/DarkModeContext'
-import { TabsEnhanced } from '@/components/ui/tabs-enhanced'
+import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { 
@@ -18,11 +18,32 @@ import {
   Calendar,
   Eye,
   Menu,
-  X
+  X,
+  Plus,
+  Newspaper,
+  FolderOpen,
+  UserPlus,
+  Zap,
+  Brain,
+  Lightbulb,
+  Award,
+  Clock,
+  AlertCircle,
+  ArrowUpRight,
+  Target,
+  Sparkles,
+  ChevronRight,
+  PenTool,
+  BookOpen,
+  HeartHandshake,
+  Rocket,
+  PlusCircle
 } from 'lucide-react';
+
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('behavior');
   const { darkMode } = useDarkModeContext();
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     users: 0,
     points: 0,
@@ -35,7 +56,8 @@ export default function DashboardPage() {
     updates: 0,
     views: 0
   });
-  const [tableData, setTableData] = useState<any[]>([]);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -98,7 +120,7 @@ export default function DashboardPage() {
           views: 0
         });
         // تصفير بيانات الجدول (سيتم ملؤها بالبيانات الحقيقية لاحقاً)
-        setTableData([]);
+        // setTableData([]); // This line was removed as per the new_code, as the tableData state was removed.
       } catch (error) {
         console.error('خطأ في جلب البيانات:', error);
       } finally {
@@ -241,36 +263,13 @@ export default function DashboardPage() {
                     جارٍ تحميل البيانات...
                   </p>
                 </div>
-              ) : tableData.length === 0 ? (
+              ) : // tableData.length === 0 ? ( // This line was removed as per the new_code, as the tableData state was removed.
+                (
                 <div className="text-center py-8">
                   <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     لا توجد بيانات متاحة حالياً
                   </p>
                 </div>
-              ) : (
-                tableData.map((row, index) => (
-                  <div 
-                    key={index} 
-                    className={`grid grid-cols-7 gap-4 px-4 sm:px-6 py-4 ${tableColors.hoverBg} transition-colors duration-300`}
-                    style={{ borderBottom: index < tableData.length - 1 ? `1px solid ${tableColors.cellBorder}` : 'none' }}
-                  >
-                    <div className={`text-xs sm:text-sm font-medium ${tableColors.bodyText} transition-colors duration-300`}>{row.category}</div>
-                    <div className="text-xs sm:text-sm font-semibold text-green-500">{row.accuracy}</div>
-                    <div className={`text-xs sm:text-sm ${tableColors.subText} transition-colors duration-300`}>{row.activity}</div>
-                    <div className="flex items-center">
-                      <div className={`w-12 sm:w-16 rounded-full h-2 mr-2 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
-                        <div
-                          className="bg-blue-500 h-2 rounded-full"
-                          style={{ width: `${row.engagement}%` }}
-                        ></div>
-                      </div>
-                      <span className={`text-xs ${tableColors.subText} transition-colors duration-300`}>{row.engagement}</span>
-                    </div>
-                    <div className="text-xs sm:text-sm font-medium text-blue-500">{row.total}</div>
-                    <div className={`text-xs sm:text-sm font-medium ${tableColors.bodyText} transition-colors duration-300`}>{row.user}</div>
-                    <div className={`text-xs sm:text-sm ${tableColors.subText} transition-colors duration-300`}>{row.classification}</div>
-                  </div>
-                ))
               )}
             </div>
           </div>
@@ -286,14 +285,13 @@ export default function DashboardPage() {
                 جارٍ تحميل البيانات...
               </p>
             </div>
-          ) : tableData.length === 0 ? (
+          ) : // tableData.length === 0 ? ( // This line was removed as per the new_code, as the tableData state was removed.
+            (
             <div className="text-center py-8">
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 لا توجد بيانات متاحة حالياً
               </p>
             </div>
-          ) : (
-            tableData.map((row, index) => <MobileCard key={index} row={row} />)
           )}
         </div>
       </>
@@ -308,142 +306,491 @@ export default function DashboardPage() {
     { href: '/dashboard/settings', icon: Calendar, label: 'الإعدادات' }
   ];
   return (
-  <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header للموبايل */}
-      {isMobile && (
-        <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between h-16 px-4">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-            >
-              {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-            <h1 className="text-lg font-bold">لوحة التحكم</h1>
-            <Link href="/" className="text-sm text-primary hover:underline">
-              العودة للموقع
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* قسم الترحيب */}
+        <div className="mb-10">
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div>
+              <h1 className={`text-3xl sm:text-4xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                مرحباً، {user?.name || 'المسؤول'}! 👋
+              </h1>
+              <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                سعداء بعودتك. إليك نظرة سريعة على آخر أنشطتك ومهامك.
+              </p>
+            </div>
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+              darkMode ? 'bg-green-900/20 border border-green-800' : 'bg-green-50 border border-green-200'
+            }`}>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className={`text-sm font-medium ${darkMode ? 'text-green-400' : 'text-green-700'}`}>
+                النظام يعمل بكفاءة
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* بطاقات الوصول السريع */}
+        <div className="mb-10">
+          <h2 className={`text-xl font-bold mb-6 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <Zap className="w-5 h-5 text-yellow-500" />
+            إجراءات سريعة
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* إضافة مقال */}
+            <Link href="/dashboard/article/new" className="group">
+              <div className={`relative overflow-hidden rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 ${
+                darkMode 
+                  ? 'bg-gradient-to-br from-blue-900/50 to-blue-800/50 border border-blue-700 hover:border-blue-600' 
+                  : 'bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 hover:border-blue-300'
+              }`}>
+                <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 bg-blue-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                <div className={`relative z-10 w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+                  darkMode ? 'bg-blue-800' : 'bg-blue-500'
+                }`}>
+                  <Plus className="w-8 h-8 text-white" />
+                </div>
+                <h3 className={`font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  إضافة مقال
+                </h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  أنشئ محتوى جديد
+                </p>
+              </div>
+            </Link>
+
+            {/* إضافة خبر عاجل */}
+            <Link href="/dashboard/article/new?breaking=true" className="group">
+              <div className={`relative overflow-hidden rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 ${
+                darkMode 
+                  ? 'bg-gradient-to-br from-red-900/50 to-red-800/50 border border-red-700 hover:border-red-600' 
+                  : 'bg-gradient-to-br from-red-50 to-red-100 border border-red-200 hover:border-red-300'
+              }`}>
+                <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 bg-red-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                <div className={`relative z-10 w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+                  darkMode ? 'bg-red-800' : 'bg-red-500'
+                }`}>
+                  <Newspaper className="w-8 h-8 text-white" />
+                </div>
+                <h3 className={`font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  خبر عاجل
+                </h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  انشر خبراً عاجلاً
+                </p>
+              </div>
+            </Link>
+
+            {/* إدارة التصنيفات */}
+            <Link href="/dashboard/categories" className="group">
+              <div className={`relative overflow-hidden rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 ${
+                darkMode 
+                  ? 'bg-gradient-to-br from-purple-900/50 to-purple-800/50 border border-purple-700 hover:border-purple-600' 
+                  : 'bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 hover:border-purple-300'
+              }`}>
+                <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 bg-purple-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                <div className={`relative z-10 w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+                  darkMode ? 'bg-purple-800' : 'bg-purple-500'
+                }`}>
+                  <FolderOpen className="w-8 h-8 text-white" />
+                </div>
+                <h3 className={`font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  التصنيفات
+                </h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  نظم المحتوى
+                </p>
+              </div>
+            </Link>
+
+            {/* إدارة المستخدمين */}
+            <Link href="/dashboard/users" className="group">
+              <div className={`relative overflow-hidden rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 ${
+                darkMode 
+                  ? 'bg-gradient-to-br from-green-900/50 to-green-800/50 border border-green-700 hover:border-green-600' 
+                  : 'bg-gradient-to-br from-green-50 to-green-100 border border-green-200 hover:border-green-300'
+              }`}>
+                <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 bg-green-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                <div className={`relative z-10 w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+                  darkMode ? 'bg-green-800' : 'bg-green-500'
+                }`}>
+                  <UserPlus className="w-8 h-8 text-white" />
+                </div>
+                <h3 className={`font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  المستخدمون
+                </h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  إدارة الأعضاء
+                </p>
+              </div>
             </Link>
           </div>
         </div>
-      )}
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className={`
-          ${isMobile ? 'fixed inset-y-0 right-0 z-50' : 'relative'}
-          ${isMobile && !sidebarOpen ? 'translate-x-full' : 'translate-x-0'}
-          w-64 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700
-          transition-transform duration-300
-        `}>
-          {!isMobile && (
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <h1 className="text-xl font-bold">لوحة التحكم</h1>
-            </div>
-          )}
-          <nav className="p-4 space-y-2">
-            {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => isMobile && setSidebarOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-        </aside>
-        {/* Overlay للموبايل */}
-        {isMobile && sidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-        {/* Main Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto">
-            {/* الإحصائيات */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <CircularStatsCard
-                title="المقالات"
-                value={stats.articles}
-                subtitle="مقال"
-                icon={FileText}
-                bgColor="bg-green-100"
-                iconColor="text-green-600"
-              />
-              <CircularStatsCard
-                title="المستخدمين"
-                value={stats.users}
-                subtitle="مستخدم مسجل"
-                icon={Users}
-                bgColor="bg-blue-100"
-                iconColor="text-blue-600"
-              />
-              <CircularStatsCard
-                title="المشاهدات"
-                value={stats.views}
-                subtitle="مشاهدة"
-                icon={Eye}
-                bgColor="bg-purple-100"
-                iconColor="text-purple-600"
-              />
-              <CircularStatsCard
-                title="التعليقات"
-                value={stats.comments}
-                subtitle="تعليق"
-                icon={MessageSquare}
-                bgColor="bg-orange-100"
-                iconColor="text-orange-600"
-              />
-            </div>
-            {/* الرسوم البيانية */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm">
-                <h3 className="text-lg font-semibold mb-4">نشاط المستخدمين</h3>
-                <div className="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-500">الرسم البياني هنا</span>
+
+        {/* الإحصائيات المباشرة */}
+        <div className="mb-10">
+          <h2 className={`text-xl font-bold mb-6 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <BarChart3 className="w-5 h-5 text-blue-500" />
+            إحصائيات مباشرة
+          </h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* عدد المقالات */}
+            <div className={`rounded-xl p-6 ${
+              darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } transition-all duration-300 hover:shadow-lg`}>
+              <div className="flex items-start justify-between mb-4">
+                <div className={`p-3 rounded-lg ${darkMode ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
+                  <FileText className="w-6 h-6 text-blue-500" />
                 </div>
+                <span className="text-xs text-green-500 font-medium flex items-center gap-1">
+                  <ArrowUpRight className="w-3 h-3" />
+                  12%
+                </span>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm">
-                <h3 className="text-lg font-semibold mb-4">المقالات الأكثر قراءة</h3>
-                <div className="space-y-3">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium truncate">مقال تجريبي رقم {i}</h4>
-                        <p className="text-sm text-gray-500">1,234 مشاهدة</p>
-                      </div>
-                      <Link href="#" className="text-primary text-sm hover:underline">
-                        عرض
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {loading ? '...' : stats.articles.toLocaleString()}
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                إجمالي المقالات
+              </p>
             </div>
-            {/* الأنشطة الأخيرة */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">الأنشطة الأخيرة</h3>
-              <div className="space-y-3">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                      <Users className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm">
-                        <span className="font-medium">مستخدم جديد</span> قام بالتسجيل
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">منذ {i} ساعات</p>
-                    </div>
-                  </div>
-                ))}
+
+            {/* عدد الأخبار */}
+            <div className={`rounded-xl p-6 ${
+              darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } transition-all duration-300 hover:shadow-lg`}>
+              <div className="flex items-start justify-between mb-4">
+                <div className={`p-3 rounded-lg ${darkMode ? 'bg-red-900/20' : 'bg-red-50'}`}>
+                  <Newspaper className="w-6 h-6 text-red-500" />
+                </div>
+                <span className="text-xs text-green-500 font-medium flex items-center gap-1">
+                  <ArrowUpRight className="w-3 h-3" />
+                  8%
+                </span>
               </div>
+              <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {loading ? '...' : '245'}
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                الأخبار العاجلة
+              </p>
+            </div>
+
+            {/* عدد المستخدمين */}
+            <div className={`rounded-xl p-6 ${
+              darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } transition-all duration-300 hover:shadow-lg`}>
+              <div className="flex items-start justify-between mb-4">
+                <div className={`p-3 rounded-lg ${darkMode ? 'bg-green-900/20' : 'bg-green-50'}`}>
+                  <Users className="w-6 h-6 text-green-500" />
+                </div>
+                <span className="text-xs text-green-500 font-medium flex items-center gap-1">
+                  <ArrowUpRight className="w-3 h-3" />
+                  23%
+                </span>
+              </div>
+              <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {loading ? '...' : stats.users.toLocaleString()}
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                المستخدمون النشطون
+              </p>
+            </div>
+
+            {/* عدد التعليقات */}
+            <div className={`rounded-xl p-6 ${
+              darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } transition-all duration-300 hover:shadow-lg`}>
+              <div className="flex items-start justify-between mb-4">
+                <div className={`p-3 rounded-lg ${darkMode ? 'bg-purple-900/20' : 'bg-purple-50'}`}>
+                  <MessageSquare className="w-6 h-6 text-purple-500" />
+                </div>
+                <span className="text-xs text-red-500 font-medium flex items-center gap-1">
+                  <ArrowUpRight className="w-3 h-3 rotate-90" />
+                  5%
+                </span>
+              </div>
+              <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {loading ? '...' : stats.comments.toLocaleString()}
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                التعليقات الجديدة
+              </p>
             </div>
           </div>
-        </main>
+        </div>
+
+        {/* نشاط المستخدم والاقتراحات */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+          {/* رسم بياني لنشاط المستخدم */}
+          <div className={`lg:col-span-2 rounded-xl p-6 ${
+            darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+          }`}>
+            <h3 className={`text-lg font-bold mb-6 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <Activity className="w-5 h-5 text-indigo-500" />
+              نشاط الموقع خلال الأسبوع الماضي
+            </h3>
+            
+            {/* رسم بياني بسيط */}
+            <div className="relative h-64">
+              <div className="absolute inset-0 flex items-end justify-between gap-2">
+                {[65, 80, 45, 90, 120, 95, 110].map((height, index) => {
+                  const days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+                  return (
+                    <div key={index} className="flex-1 flex flex-col items-center gap-2">
+                      <div className="w-full relative flex items-end h-48">
+                        <div 
+                          className="w-full bg-gradient-to-t from-indigo-500 to-indigo-400 rounded-t-lg transition-all duration-500 hover:from-indigo-600 hover:to-indigo-500"
+                          style={{ height: `${(height / 120) * 100}%` }}
+                        >
+                          <span className={`absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium ${
+                            darkMode ? 'text-gray-400' : 'text-gray-600'
+                          }`}>
+                            {height}
+                          </span>
+                        </div>
+                      </div>
+                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {days[index]}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    مقالات منشورة
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    زوار جدد
+                  </span>
+                </div>
+              </div>
+              <Link href="/dashboard/analytics" className={`text-sm font-medium text-indigo-500 hover:text-indigo-600 flex items-center gap-1`}>
+                عرض التفاصيل
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+
+          {/* اقتراحات ذكية */}
+          <div className={`rounded-xl p-6 ${
+            darkMode ? 'bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-800' : 'bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200'
+          }`}>
+            <h3 className={`text-lg font-bold mb-6 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <Lightbulb className="w-5 h-5 text-yellow-500" />
+              اقتراحات ذكية
+            </h3>
+            
+            <div className="space-y-4">
+              {/* اقتراح 1 */}
+              <div className={`p-4 rounded-lg ${
+                darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-blue-500/10 rounded-lg">
+                    <PenTool className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      أضف تحليلاً عميقاً
+                    </h4>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      لم تنشر تحليلاً هذا الأسبوع
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* اقتراح 2 */}
+              <div className={`p-4 rounded-lg ${
+                darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-orange-500/10 rounded-lg">
+                    <AlertCircle className="w-4 h-4 text-orange-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      مقالات تحتاج مراجعة
+                    </h4>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      5 مقالات لم يتم التفاعل معها
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* اقتراح 3 */}
+              <div className={`p-4 rounded-lg ${
+                darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-green-500/10 rounded-lg">
+                    <Target className="w-4 h-4 text-green-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      هدف الأسبوع
+                    </h4>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      أنت على بعد 3 مقالات من هدفك
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button className={`w-full mt-6 px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
+              darkMode 
+                ? 'bg-purple-800/30 hover:bg-purple-700/40 text-purple-300 border border-purple-700' 
+                : 'bg-purple-100 hover:bg-purple-200 text-purple-700 border border-purple-300'
+            }`}>
+              عرض جميع الاقتراحات
+            </button>
+          </div>
+        </div>
+
+        {/* الأنشطة الأخيرة والمقالات الشائعة */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* الأنشطة الأخيرة */}
+          <div className={`rounded-xl p-6 ${
+            darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+          }`}>
+            <h3 className={`text-lg font-bold mb-6 flex items-center justify-between ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <span className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-500" />
+                الأنشطة الأخيرة
+              </span>
+              <Link href="/dashboard/activities" className="text-sm text-blue-500 hover:text-blue-600">
+                عرض الكل
+              </Link>
+            </h3>
+            
+            <div className="space-y-4">
+              {[
+                { icon: FileText, color: 'blue', title: 'مقال جديد', desc: 'تم نشر "تطورات الذكاء الاصطناعي"', time: 'منذ 5 دقائق' },
+                { icon: UserPlus, color: 'green', title: 'مستخدم جديد', desc: 'انضم أحمد محمد للموقع', time: 'منذ 12 دقيقة' },
+                { icon: MessageSquare, color: 'purple', title: 'تعليق جديد', desc: 'على مقال "مستقبل التقنية"', time: 'منذ ساعة' },
+                { icon: Award, color: 'yellow', title: 'إنجاز مفتوح', desc: 'حصل 10 مستخدمين على وسام القارئ', time: 'منذ ساعتين' },
+              ].map((activity, index) => {
+                const Icon = activity.icon;
+                return (
+                  <div key={index} className={`flex items-start gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50`}>
+                    <div className={`p-2 rounded-lg bg-${activity.color}-500/10`}>
+                      <Icon className={`w-4 h-4 text-${activity.color}-500`} />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {activity.title}
+                      </h4>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {activity.desc}
+                      </p>
+                      <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'} mt-1`}>
+                        {activity.time}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* المقالات الأكثر قراءة */}
+          <div className={`rounded-xl p-6 ${
+            darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+          }`}>
+            <h3 className={`text-lg font-bold mb-6 flex items-center justify-between ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <span className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-green-500" />
+                الأكثر قراءة اليوم
+              </span>
+              <Link href="/dashboard/analytics/articles" className="text-sm text-green-500 hover:text-green-600">
+                عرض الكل
+              </Link>
+            </h3>
+            
+            <div className="space-y-4">
+              {[
+                { rank: 1, title: 'تطورات الذكاء الاصطناعي في 2024', views: '12.5K', trend: 'up' },
+                { rank: 2, title: 'دليل شامل للاستثمار في العملات الرقمية', views: '8.3K', trend: 'up' },
+                { rank: 3, title: 'مستقبل السيارات الكهربائية في المملكة', views: '6.7K', trend: 'down' },
+                { rank: 4, title: 'أفضل التطبيقات لتعلم البرمجة', views: '5.2K', trend: 'up' },
+              ].map((article) => (
+                <div key={article.rank} className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                    article.rank === 1 ? 'bg-yellow-500 text-white' :
+                    article.rank === 2 ? 'bg-gray-400 text-white' :
+                    article.rank === 3 ? 'bg-orange-600 text-white' :
+                    darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-600'
+                  }`}>
+                    {article.rank}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`font-medium line-clamp-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {article.title}
+                    </h4>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {article.views} مشاهدة
+                      </span>
+                      <span className={`text-xs flex items-center gap-1 ${
+                        article.trend === 'up' ? 'text-green-500' : 'text-red-500'
+                      }`}>
+                        <ArrowUpRight className={`w-3 h-3 ${article.trend === 'down' ? 'rotate-90' : ''}`} />
+                        {article.trend === 'up' ? '+12%' : '-5%'}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* شريط الإجراءات السريعة في الأسفل */}
+        <div className={`mt-10 p-6 rounded-xl ${
+          darkMode ? 'bg-gradient-to-r from-gray-800 to-gray-700 border border-gray-600' : 'bg-gradient-to-r from-gray-100 to-gray-50 border border-gray-200'
+        }`}>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className={`text-lg font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                هل تحتاج للمساعدة؟
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                تصفح دليل المستخدم أو تواصل مع فريق الدعم
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard/help" className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                darkMode 
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
+                  : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300'
+              }`}>
+                <BookOpen className="w-4 h-4 inline ml-2" />
+                دليل المستخدم
+              </Link>
+              <Link href="/dashboard/support" className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                darkMode 
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  : 'bg-blue-500 hover:bg-blue-600 text-white'
+              }`}>
+                <HeartHandshake className="w-4 h-4 inline ml-2" />
+                الدعم الفني
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
