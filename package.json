@@ -59,7 +59,7 @@
     "migrate:prod": "node scripts/migrate-production.js",
     "backup": "node scripts/auto-backup.js",
     "backup:daily": "node scripts/auto-backup.js && echo 'نسخة احتياطية يومية تمت بنجاح'",
-    "db:ping": "ts-node-esm scripts/db-ping.ts"
+    "db:ping": "node -r ts-node/register scripts/db-ping.ts"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.840.0",
