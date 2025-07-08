@@ -11,7 +11,7 @@ import {
   Tag, ArrowRight, Calendar, Clock, Eye, Heart, 
   BookOpen, TrendingUp, Loader2, ChevronLeft,
   Trophy, Laptop, Building2, Leaf, Activity, Globe,
-  Grid, List, SortDesc, Sparkles
+  Grid, List, SortDesc, Sparkles, Filter, X, Check
 } from 'lucide-react';
 interface Category {
   id: number;

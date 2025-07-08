@@ -1,15 +1,10 @@
-import Image from 'next/image';
-import React from 'react';
+'use client'
+
+import React, { useState } from 'react';
+import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
-'use client';
-
-
-
-
-
-
+import Image from 'next/image';
 
 export interface TabItem {
   id: string;

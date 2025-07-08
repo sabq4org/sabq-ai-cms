@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
@@ -18,9 +20,10 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
 import { useTheme } from '@/contexts/ThemeContext';
 import Link from 'next/link';
-'use client';
+
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
+
 interface Category {
   id: string;
   name: string;
@@ -35,6 +38,7 @@ interface Category {
   display_order?: number;
   is_active?: boolean;
 }
+
 interface Author {
   id: string;
   name: string;
@@ -42,6 +46,7 @@ interface Author {
   avatar?: string;
   role?: string;
 }
+
 interface UploadedImage {
   id: string;
   url: string;
@@ -50,6 +55,7 @@ interface UploadedImage {
   height: number;
   format: string;
 }
+
 export default function EditArticlePage() {
   const router = useRouter();
   const params = useParams();

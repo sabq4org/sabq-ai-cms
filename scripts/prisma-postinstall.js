@@ -1,13 +1,7 @@
 #!/usr/bin/env node
 
-// Simple postinstall script that doesn't fail the build
-console.log('📦 Running postinstall...');
+console.log('🔧 Running Prisma postinstall script...');
 
-try {
-  require('child_process').execSync('npx prisma generate', { stdio: 'inherit' });
-  console.log('✅ Prisma Client generated');
-} catch (e) {
-  console.log('⚠️ Prisma generation skipped (will be done during build)');
-}
-
-console.log('✅ Postinstall completed'); 
+// هذا الملف فارغ عمداً
+// يتم التعامل مع Prisma generation في ملفات أخرى
+console.log('✅ Prisma postinstall completed'); 

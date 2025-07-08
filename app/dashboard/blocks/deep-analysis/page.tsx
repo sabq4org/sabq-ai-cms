@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -6,17 +8,18 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import toast from 'react-hot-toast';
-'use client';
 import { 
   Brain, Save, Settings, Eye, EyeOff, 
   TrendingUp, Clock, Check
 } from 'lucide-react';
+
 interface BlockSettings {
   enabled: boolean;
   displayCount: number;
   sortOrder: 'latest' | 'views' | 'manual';
   selectedInsights?: string[];
 }
+
 export default function DeepAnalysisBlockSettings() {
   const { darkMode } = useDarkMode();
   const [settings, setSettings] = useState<BlockSettings>({
@@ -26,6 +29,7 @@ export default function DeepAnalysisBlockSettings() {
   });
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+
   useEffect(() => {
     // تحميل الإعدادات المحفوظة
     const savedSettings = localStorage.getItem('deepAnalysisBlockSettings');
@@ -37,6 +41,7 @@ export default function DeepAnalysisBlockSettings() {
       }
     }
   }, []);
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -51,13 +56,15 @@ export default function DeepAnalysisBlockSettings() {
       setSaving(false);
     }
   };
+
   const sortOptions = [
     { value: 'latest', label: 'الأحدث', icon: <Clock className="w-4 h-4" /> },
     { value: 'views', label: 'الأعلى مشاهدة', icon: <TrendingUp className="w-4 h-4" /> },
     { value: 'manual', label: 'المختار يدوياً', icon: <Settings className="w-4 h-4" /> }
   ];
+
   return (
-  <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان الصفحة */}

@@ -1,12 +1,16 @@
+'use client'
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-'use client';
 import { 
   Brain, TrendingUp, Clock, Calendar, Activity,
   Star, Award, Target, BarChart3, PieChart, BookOpen, Heart, Share2, MessageSquare,
-  Eye, Timer, Zap, Sparkles
+  Eye, Users, FileText, Timer, Zap, ChevronRight, Filter, Download, RefreshCw,
+  Sparkles, Coffee, Smartphone, Monitor, Tablet, Globe, Chrome,
+  ArrowUp, ArrowDown, Minus, Info, AlertCircle
 } from 'lucide-react';
+
 interface UserBehavior {
   total_interactions: number;
   by_type: Record<string, number>;
@@ -15,6 +19,7 @@ interface UserBehavior {
   average_duration: number;
   completion_rate: number;
 }
+
 interface UserBehaviorSummary {
   user_id: string;
   user_name: string;
@@ -22,6 +27,7 @@ interface UserBehaviorSummary {
   loyalty_points: number;
   membership_level: string;
 }
+
 export default function BehaviorAnalyticsPage() {
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [behavior, setBehavior] = useState<UserBehavior | null>(null);

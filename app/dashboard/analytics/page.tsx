@@ -1,7 +1,9 @@
+'use client'
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Database, Brain, TrendingUp, Target, Clock, Cpu } from 'lucide-react';
-'use client';
+
 export default function AnalyticsPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
