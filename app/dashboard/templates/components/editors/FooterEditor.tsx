@@ -312,9 +312,9 @@ export function FooterEditor({ content, onChange }: FooterEditorProps) {
             <p className="text-xs text-blue-700">
               <strong>متغيرات ديناميكية:</strong>
               <br />
-              استخدم {'{year}'} لإدراج السنة الحالية تلقائياً
+              استخدم &quot;{year}&quot; لإدراج السنة الحالية تلقائياً
               <br />
-              مثال: © {'{year}'} صحيفة سبق. جميع الحقوق محفوظة.
+              مثال: © &quot;{year}&quot; صحيفة سبق. جميع الحقوق محفوظة.
             </p>
           </div>
         </div>

@@ -169,11 +169,11 @@ const AuthorProfilePage = () => {
     if (navigator.share) {
       navigator.share({
         title: 'اقتباس من د. محمد الأحمد',
-        text: `"${quote.text}" - من مقال: ${quote.articleTitle}`,
+        text: `&quot;${quote.text}&quot; - من مقال: ${quote.articleTitle}`,
         url: `${window.location.origin}/opinion/${quote.articleId}`
       });
     } else {
-      navigator.clipboard.writeText(`"${quote.text}" - ${author?.name}`);
+      navigator.clipboard.writeText(`&quot;${quote.text}&quot; - ${author?.name}`);
     }
   };
   if (loading) {
@@ -514,7 +514,7 @@ const AuthorProfilePage = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <blockquote className={`text-lg italic mb-3 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                          "{quote.text}"
+                          &quot;{quote.text}&quot;
                         </blockquote>
                         <div className="flex items-center gap-4 text-sm">
                           <Link href={`/opinion/${quote.articleId}`} className={`hover:text-blue-600 transition-colors ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>

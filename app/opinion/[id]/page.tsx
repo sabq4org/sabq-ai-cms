@@ -340,7 +340,7 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
               <div className={`mt-6 p-6 rounded-xl ${darkMode ? 'bg-purple-900/20 border border-purple-700' : 'bg-purple-50 border border-purple-200'}`}>
                 <Quote className={`w-8 h-8 mx-auto mb-4 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} />
                 <p className={`text-lg font-medium italic ${darkMode ? 'text-purple-200' : 'text-purple-800'}`}>
-                  "الاستثمار في التعليم الذكي اليوم هو استثمار في مستقبل الأجيال القادمة"
+                  &quot;الاستثمار في التعليم الذكي اليوم هو استثمار في مستقبل الأجيال القادمة&quot;
                 </p>
               </div>
             )}
