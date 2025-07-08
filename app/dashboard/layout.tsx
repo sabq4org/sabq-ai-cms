@@ -34,6 +34,7 @@ import {
   MessageCircle,
   Globe
 } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function DashboardLayout({
   children,
@@ -42,6 +43,7 @@ export default function DashboardLayout({
 }) {
   const { resolvedTheme, mounted, toggleTheme } = useTheme();
   const darkMode = resolvedTheme === 'dark';
+  const { user } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
@@ -206,10 +208,10 @@ export default function DashboardLayout({
                 <div className="hidden md:block text-right">
                   <p className={`text-sm font-medium transition-colors duration-300 ${
                     darkMode ? 'text-white' : 'text-gray-800'
-                  }`}>علي الحازمي</p>
+                  }`}>{user?.name || user?.email?.split('@')[0] || 'مستخدم'}</p>
                   <p className={`text-xs transition-colors duration-300 ${
                     darkMode ? 'text-gray-300' : 'text-gray-500'
-                  }`}>مدير النظام</p>
+                  }`}>{user?.role === 'admin' || user?.is_admin ? 'مدير النظام' : user?.role || 'عضو'}</p>
                 </div>
                 <ChevronDown className={`hidden md:block w-4 h-4 transition-transform duration-300 ${
                   darkMode ? 'text-gray-400' : 'text-gray-400'
