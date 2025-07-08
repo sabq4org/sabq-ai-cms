@@ -1,4 +1,4 @@
-import { PrismaClient } from '@/lib/generated/prisma'
+import { PrismaClient, Prisma } from '@/lib/generated/prisma'
 
 // PrismaClient is attached to the `global` object in development to prevent
 // exhausting your database connection limit.
@@ -11,33 +11,42 @@ const globalForPrisma = globalThis as unknown as {
 
 let prisma: PrismaClient
 
-// Special handling for Vercel and other serverless environments
-if (typeof window === 'undefined') {
+// Robust initialization for different environments
+function initializePrismaClient() {
+  const clientOptions: Prisma.PrismaClientOptions = {
+    log: process.env.NODE_ENV === 'development' 
+      ? [
+          { emit: 'stdout', level: 'query' },
+          { emit: 'stdout', level: 'error' },
+          { emit: 'stdout', level: 'info' },
+          { emit: 'stdout', level: 'warn' }
+        ]
+      : [{ emit: 'stdout', level: 'error' }]
+  }
+
   try {
-    if (process.env.NODE_ENV === 'production') {
-      // In production (Vercel), create a new instance each time
-      prisma = new PrismaClient({
-        log: ['error'],
-      })
-    } else {
-      // In development, use global instance
-      if (!globalForPrisma.prisma) {
-        globalForPrisma.prisma = new PrismaClient({
-          log: ['query', 'error', 'warn'],
-        })
-      }
-      prisma = globalForPrisma.prisma
-    }
+    return new PrismaClient(clientOptions)
   } catch (error) {
     console.error('Failed to initialize Prisma Client:', error)
-    // Fallback: create a new instance
-    prisma = new PrismaClient({
-      log: ['error'],
-    })
+    throw error
+  }
+}
+
+// Serverless-friendly initialization
+if (typeof window === 'undefined') {
+  if (process.env.NODE_ENV === 'production') {
+    // Always create a new instance in production/serverless
+    prisma = initializePrismaClient()
+  } else {
+    // Use global instance in development
+    if (!globalForPrisma.prisma) {
+      globalForPrisma.prisma = initializePrismaClient()
+    }
+    prisma = globalForPrisma.prisma
   }
 } else {
-  // Client-side fallback (should not happen in API routes)
-  prisma = new PrismaClient()
+  // Fallback for client-side (should rarely happen)
+  prisma = initializePrismaClient()
 }
 
 export default prisma
