@@ -1,63 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import prisma from '@/lib/prisma';
+import { PrismaClient } from '@/lib/generated/prisma';
 
-
-
-
-
-
-
-
-
-
-
-
+const prisma = new PrismaClient();
 
 export const runtime = 'nodejs';
-
-const TEAM_MEMBERS_FILE = path.join(process.cwd(), 'data', 'team-members.json');
-const ROLES_FILE = path.join(process.cwd(), 'data', 'roles.json');
-
-interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  roleId: string;
-  isActive: boolean;
-  isVerified: boolean;
-  createdAt: string;
-  avatar?: string;
-}
-
-interface Role {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
-  permissions: string[];
-}
-
-async function getTeamMembers(): Promise<TeamMember[]> {
-  try {
-    const data = await fs.readFile(TEAM_MEMBERS_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading team members:', error);
-    return [];
-  }
-}
-
-async function getRoles(): Promise<Role[]> {
-  try {
-    const data = await fs.readFile(ROLES_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading roles:', error);
-    return [];
-  }
-}
 
 // GET: جلب المراسلين والكتاب
 export async function GET(request: NextRequest) {
@@ -67,46 +13,51 @@ export async function GET(request: NextRequest) {
     
     console.log('🔍 جلب المراسلين مع فلتر الأدوار:', roleFilter);
     
-    // جلب أعضاء الفريق
-    const teamMembers = await getTeamMembers();
-    const roles = await getRoles();
+    // بناء شروط البحث
+    let whereCondition: any = {
+      // استثناء المستخدمين العاديين
+      role: {
+        not: 'user'
+      }
+    };
     
-    console.log('📊 عدد أعضاء الفريق:', teamMembers.length);
-    console.log('📊 عدد الأدوار:', roles.length);
-    
-    // فلترة الأعضاء حسب الدور إذا تم تحديده
-    let filteredMembers = teamMembers;
+    // إضافة فلتر الأدوار إذا تم تحديده
     if (roleFilter) {
       const allowedRoles = roleFilter.split(',').map(role => role.trim());
       console.log('🎯 الأدوار المطلوبة:', allowedRoles);
-      filteredMembers = teamMembers.filter(member => allowedRoles.includes(member.roleId));
-      console.log('📊 عدد الأعضاء بعد الفلترة:', filteredMembers.length);
+      whereCondition.role = {
+        in: allowedRoles
+      };
     }
     
-    // فلترة الأعضاء النشطين فقط
-    filteredMembers = filteredMembers.filter(member => member.isActive);
-    console.log('📊 عدد الأعضاء النشطين:', filteredMembers.length);
-    
-    // إضافة معلومات الدور لكل عضو
-    const authorsWithRoles = filteredMembers.map(member => {
-      const role = roles.find(r => r.id === member.roleId);
-      return {
-        id: member.id,
-        name: member.name,
-        email: member.email,
-        avatar: member.avatar || '/default-avatar.png',
-        role: role?.name || member.roleId,
-        roleId: member.roleId,
-        isVerified: member.isVerified,
-        isActive: member.isActive,
-        createdAt: member.createdAt
-      };
+    // جلب المستخدمين من قاعدة البيانات
+    const users = await prisma.users.findMany({
+      where: whereCondition,
+      orderBy: {
+        created_at: 'desc'
+      }
     });
     
-    // ترتيب حسب تاريخ الإنشاء (الأحدث أولاً)
-    authorsWithRoles.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    console.log('📊 عدد المستخدمين:', users.length);
     
-    console.log(`✅ تم العثور على ${authorsWithRoles.length} مراسل:`, authorsWithRoles.map(a => `${a.name} (${a.role})`));
+    // جلب الأدوار لعرض الأسماء بالعربية
+    const roles = await prisma.roles.findMany();
+    const rolesMap = new Map(roles.map(role => [role.name, role.display_name || role.name]));
+    
+    // تحويل البيانات للتوافق مع الواجهة
+    const authorsWithRoles = users.map(user => ({
+      id: user.id,
+      name: user.name || user.email.split('@')[0],
+      email: user.email,
+      avatar: user.avatar || '/default-avatar.png',
+      role: user.role,
+      roleDisplayName: rolesMap.get(user.role) || user.role,
+      isVerified: user.is_verified,
+      isActive: true, // يمكن إضافة حقل في قاعدة البيانات لاحقاً
+      createdAt: user.created_at.toISOString()
+    }));
+    
+    console.log(`✅ تم العثور على ${authorsWithRoles.length} مستخدم:`, authorsWithRoles.map(a => `${a.name} (${a.roleDisplayName})`));
     
     return NextResponse.json({
       success: true,
@@ -121,6 +72,8 @@ export async function GET(request: NextRequest) {
       error: 'فشل في جلب المراسلين',
       message: error instanceof Error ? error.message : 'خطأ غير معروف'
     }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
@@ -138,7 +91,7 @@ export async function POST(request: NextRequest) {
     }
     
     // التحقق من صحة الدور
-    const roles = await getRoles();
+    const roles = await prisma.roles.findMany();
     const validRole = roles.find(r => r.id === body.roleId);
     if (!validRole) {
       return NextResponse.json({
@@ -148,9 +101,9 @@ export async function POST(request: NextRequest) {
     }
     
     // التحقق من عدم تكرار البريد الإلكتروني
-    const teamMembers = await getTeamMembers();
-    const emailExists = teamMembers.some(member => 
-      member.email.toLowerCase() === body.email.toLowerCase()
+    const users = await prisma.users.findMany();
+    const emailExists = users.some(user => 
+      user.email.toLowerCase() === body.email.toLowerCase()
     );
     
     if (emailExists) {
@@ -161,33 +114,30 @@ export async function POST(request: NextRequest) {
     }
     
     // إنشاء مراسل جديد
-    const newAuthor: TeamMember = {
-      id: `author-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name: body.name,
-      email: body.email,
-      roleId: body.roleId,
-      isActive: body.isActive ?? true,
-      isVerified: body.isVerified ?? false,
-      createdAt: new Date().toISOString(),
-      avatar: body.avatar
-    };
-    
-    // إضافة المراسل الجديد
-    teamMembers.push(newAuthor);
-    await fs.writeFile(TEAM_MEMBERS_FILE, JSON.stringify(teamMembers, null, 2));
+    const newAuthor = await prisma.users.create({
+      data: {
+        id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name: body.name,
+        email: body.email,
+        role: body.roleId,
+        is_verified: body.isVerified ?? false,
+        avatar: body.avatar,
+        updated_at: new Date()
+      }
+    });
     
     // إرجاع المراسل الجديد مع معلومات الدور
-    const role = roles.find(r => r.id === newAuthor.roleId);
+    const role = roles.find(r => r.id === newAuthor.role);
     const authorWithRole = {
       id: newAuthor.id,
-      name: newAuthor.name,
+      name: newAuthor.name || newAuthor.email.split('@')[0],
       email: newAuthor.email,
       avatar: newAuthor.avatar || '/default-avatar.png',
-      role: role?.name || newAuthor.roleId,
-      roleId: newAuthor.roleId,
-      isVerified: newAuthor.isVerified,
-      isActive: newAuthor.isActive,
-      createdAt: newAuthor.createdAt
+      role: newAuthor.role,
+      roleDisplayName: role?.display_name || newAuthor.role,
+      isVerified: newAuthor.is_verified,
+      isActive: true,
+      createdAt: newAuthor.created_at.toISOString()
     };
     
     return NextResponse.json({

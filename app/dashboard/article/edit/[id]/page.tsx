@@ -45,6 +45,7 @@ interface Author {
   email: string;
   avatar?: string;
   role?: string;
+  roleDisplayName?: string;
 }
 
 interface UploadedImage {
@@ -1275,7 +1276,7 @@ export default function EditArticlePage() {
                   {authors.length > 0 ? (
                     authors.map(author => (
                       <option key={author.id} value={author.id} className="text-sm">
-                        {author.name} ({author.role === 'admin' ? 'مدير' : author.role === 'editor' ? 'محرر' : author.role === 'author' ? 'كاتب' : 'مستخدم'})
+                        {author.name} {author.roleDisplayName ? `(${author.roleDisplayName})` : ''}
                       </option>
                     ))
                   ) : (

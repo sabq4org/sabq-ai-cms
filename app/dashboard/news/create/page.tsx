@@ -28,6 +28,8 @@ interface Author {
   id: string;
   name: string;
   email: string;
+  role?: string;
+  roleDisplayName?: string;
 }
 interface UploadedImage {
   id: string;
@@ -1174,7 +1176,7 @@ export default function CreateArticlePage() {
                   <option value="">اختر المراسل...</option>
                   {authors.map(author => (
                     <option key={author.id} value={author.id}>
-                      {author.name}
+                      {author.name} {author.roleDisplayName ? `(${author.roleDisplayName})` : ''}
                     </option>
                   ))}
                 </select>
