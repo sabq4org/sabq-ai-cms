@@ -27,10 +27,10 @@ export const runtime = 'nodejs';
 // GET - جلب مقال واحد
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     const dbArticle = await prisma.articles.findFirst({
       where: {
         OR: [
@@ -144,10 +144,10 @@ export async function PATCH(
 // DELETE - حذف مقال
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     await prisma.articles.delete({ where: { id } });
     return NextResponse.json({ message: 'Article deleted successfully' });
   } catch (error) {
