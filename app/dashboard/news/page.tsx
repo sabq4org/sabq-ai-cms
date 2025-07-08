@@ -759,16 +759,24 @@ export default function NewsManagementPage() {
                             })}
                           </div>
                         </div>
-                      ) : news.publishTime && news.publishTime !== '-' && news.publishAt ? (
+                      ) : news.status === 'published' ? (
                         <div className="space-y-1">
                           <div className="flex items-center gap-1 font-medium text-green-600 dark:text-green-400">
                             <Calendar className="w-3 h-3" />
-                            <span title={news.publishTime}>{getRelativeTime(news.publishAt)}</span>
+                            <span title={news.publishTime || 'منشور'}>
+                              {news.publishAt ? getRelativeTime(news.publishAt) : 'منشور'}
+                            </span>
                           </div>
-                          <div className="text-xs opacity-75">
-                            {news.publishTime}
-                          </div>
+                          {news.publishTime && news.publishTime !== '-' && (
+                            <div className="text-xs opacity-75">
+                              {news.publishTime}
+                            </div>
+                          )}
                         </div>
+                      ) : news.status === 'draft' ? (
+                        <span className="text-yellow-600 dark:text-yellow-400">مسودة</span>
+                      ) : news.status === 'pending' ? (
+                        <span className="text-blue-600 dark:text-blue-400">في الانتظار</span>
                       ) : (
                         <span className="text-gray-400">غير منشور</span>
                       )}
