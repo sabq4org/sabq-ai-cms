@@ -1,17 +1,4 @@
-import Image from 'next/image';
 import { MetadataRoute } from 'next';
-import fs from 'fs/promises';
-import path from 'path';
-
-
-
-
-
-
-
-
-
-
 
 interface Article {
   id: string;
@@ -24,6 +11,15 @@ interface Article {
 
 async function getArticles(): Promise<Article[]> {
   try {
+    // في بيئة الإنتاج، نعيد مصفوفة فارغة أو نستخدم API
+    // يمكن تحديث هذا لاحقاً لاستخدام قاعدة البيانات مباشرة
+    if (process.env.NODE_ENV === 'production') {
+      return [];
+    }
+    
+    // في بيئة التطوير فقط
+    const fs = await import('fs/promises');
+    const path = await import('path');
     const articlesPath = path.join(process.cwd(), 'data', 'articles.json');
     const articlesData = await fs.readFile(articlesPath, 'utf-8');
     const data = JSON.parse(articlesData);
@@ -40,7 +36,7 @@ async function getArticles(): Promise<Article[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://sabq.org';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sabq.org';
   const articles = await getArticles();
   
   // الصفحات الثابتة
@@ -58,16 +54,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/opinion`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/categories`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/about`,
+      url: `${baseUrl}/insights/deep`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/forum`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/moment-by-moment`,
+      lastModified: new Date(),
+      changeFrequency: 'hourly',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/contact`,
