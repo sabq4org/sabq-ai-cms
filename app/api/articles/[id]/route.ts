@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
 
 // تهيئة Prisma Client بشكل آمن
@@ -26,7 +26,7 @@ export const runtime = 'nodejs';
 
 // GET - جلب مقال واحد
 export async function GET(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -50,7 +50,7 @@ export async function GET(
 
 // PATCH - تحديث مقال
 export async function PATCH(
-  request: NextRequest,
+  request: Request,
   context: { params: { id: string } }
 ) {
   try {
@@ -143,7 +143,7 @@ export async function PATCH(
 
 // DELETE - حذف مقال
 export async function DELETE(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
