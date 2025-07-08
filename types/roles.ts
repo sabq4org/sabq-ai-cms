@@ -11,6 +11,7 @@ export interface Permission {
 export interface Role {
   id: string;
   name: string;
+  display_name?: string;
   description: string;
   color: string; // hex color
   permissions: string[]; // array of permission IDs

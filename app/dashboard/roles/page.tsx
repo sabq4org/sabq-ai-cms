@@ -17,6 +17,7 @@ export default function RolesPage() {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: '',
+    display_name: '',
     description: '',
     permissions: [] as string[],
     color: '#4B82F2'
@@ -69,6 +70,7 @@ export default function RolesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
+          display_name: formData.display_name || formData.name,
           description: formData.description,
           permissions: formData.permissions,
           color: formData.color
@@ -77,7 +79,7 @@ export default function RolesPage() {
       const data = await response.json();
       if (data.success) {
         fetchRoles(); // إعادة جلب البيانات
-        setFormData({ name: '', description: '', permissions: [], color: '#4B82F2' });
+        setFormData({ name: '', display_name: '', description: '', permissions: [], color: '#4B82F2' });
         setShowCreateModal(false);
         showSuccess('تم إنشاء الدور بنجاح');
       } else {
@@ -96,6 +98,7 @@ export default function RolesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
+          display_name: formData.display_name || formData.name,
           description: formData.description,
           permissions: formData.permissions,
           color: formData.color
@@ -156,6 +159,7 @@ export default function RolesPage() {
     setSelectedRole(role);
     setFormData({
       name: role.name,
+      display_name: role.display_name || role.name,
       description: role.description,
       permissions: [...role.permissions],
       color: role.color
@@ -238,7 +242,7 @@ export default function RolesPage() {
         <h2 className={`text-xl font-semibold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>الأدوار المتاحة</h2>
         <button 
           onClick={() => {
-            setFormData({ name: '', description: '', permissions: [], color: '#4B82F2' });
+            setFormData({ name: '', display_name: '', description: '', permissions: [], color: '#4B82F2' });
             setShowCreateModal(true);
           }}
           className="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 flex items-center gap-2 font-medium transition-all duration-300 shadow-md hover:shadow-lg"
@@ -262,7 +266,7 @@ export default function RolesPage() {
                   </div>
                   <div>
                     <h3 className={`text-lg font-semibold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                      {role.name}
+                      {role.display_name || role.name}
                       {role.isSystem && (
                         <span className="text-xs text-gray-500 mr-2">(نظام)</span>
                       )}
@@ -343,11 +347,22 @@ export default function RolesPage() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>اسم الدور</label>
+                  <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>اسم الدور (ID)</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
+                    placeholder="مثال: editor"
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>اسم العرض</label>
+                  <input
+                    type="text"
+                    value={formData.display_name}
+                    onChange={(e) => setFormData({...formData, display_name: e.target.value})}
                     className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                     placeholder="مثال: محرر أول"
                   />
