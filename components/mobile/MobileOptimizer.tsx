@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
@@ -449,4 +449,4 @@ export function MobileImage({
       />
     </div>
   )
-} 
+}

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
@@ -241,7 +241,7 @@ export default function CategoriesPage() {
                     <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700 h-full">
                       {/* Background Image with Overlay */}
                       <div className="absolute inset-0">
-                        <Image src={undefined} alt="" width={100} height={100} />
+                        <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-gray-800 dark:via-gray-800/80"></div>
                       </div>
                       {/* Content */}

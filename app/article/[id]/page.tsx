@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useState, useEffect, useRef, use } from 'react';
@@ -544,7 +544,7 @@ export default function ArticlePage({ params }: PageProps) {
                 case 'image':
                   return (
                     <figure key={block.id || index} className="my-8">
-                      <Image src={undefined} alt="" width={100} height={100} />
+                      <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                       {block.caption && (
                         <figcaption className="text-center text-sm text-gray-600 dark:text-gray-400 mt-2">
                           {block.caption}
@@ -559,7 +559,7 @@ export default function ArticlePage({ params }: PageProps) {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {block.images?.map((image: any, imgIndex: number) => (
                           <figure key={imgIndex} className="relative group overflow-hidden rounded-lg shadow-lg">
-                            <Image src={undefined} alt="" width={100} height={100} />
+                            <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                             {image.caption && (
                               <figcaption className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent text-white p-3 text-sm">
                                 {image.caption}
@@ -1243,4 +1243,4 @@ function calculateReadingTime(content: any): number {
     });
   }
   return Math.max(1, Math.ceil(wordCount / 200)); // 200 كلمة في الدقيقة
-} 
+}

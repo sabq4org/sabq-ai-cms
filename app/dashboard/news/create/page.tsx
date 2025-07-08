@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
@@ -13,9 +15,10 @@ import dynamic from 'next/dynamic';
 import { toast } from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
-'use client';
+
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
+
 interface Category {
   id: string;
   name: string;
@@ -656,7 +659,7 @@ export default function CreateArticlePage() {
                     <div className="mt-2">
                       {formData.featuredImage ? (
                         <div className="relative">
-                          <Image src={undefined} alt="الصورة البارزة" width={100} height={100} />
+                          <Image src="/placeholder.jpg" alt="الصورة البارزة" width={100} height={100} />
                           <Button
                             variant="destructive"
                             size="icon"
@@ -704,7 +707,7 @@ export default function CreateArticlePage() {
                         <div className="grid grid-cols-3 gap-2">
                           {formData.gallery.map((image, index) => (
                             <div key={image.id} className="relative">
-                              <Image src={undefined} alt="" width={100} height={100} />
+                              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                               <Button
                                 variant="destructive"
                                 size="icon"
@@ -1324,7 +1327,7 @@ export default function CreateArticlePage() {
             <div className="space-y-4">
               {formData.featuredImage ? (
                 <div className="relative">
-                  <Image src={undefined} alt="الصورة البارزة" width={100} height={100} />
+                  <Image src="/placeholder.jpg" alt="الصورة البارزة" width={100} height={100} />
                   <button
                     onClick={() => setFormData(prev => ({ ...prev, featuredImage: '' }))}
                     className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
@@ -1365,4 +1368,4 @@ export default function CreateArticlePage() {
       </div>
     </div>
   );
-} 
+}

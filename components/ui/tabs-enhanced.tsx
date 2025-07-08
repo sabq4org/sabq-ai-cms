@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -69,4 +69,4 @@ export function TabsEnhanced({ tabs, activeTab, onTabChange, className = '' }: T
       </div>
     </div>
   );
-} 
+}

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
@@ -360,4 +360,4 @@ export function SimpleMobileHeader() {
       <div className="h-16" />
     </>
   );
-} 
+}

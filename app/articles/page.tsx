@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -301,13 +301,13 @@ export default function ArticlesPage() {
       return (
   <div key={article.id} className="flex gap-6 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
           <div className="flex-shrink-0 w-48 h-32 rounded-xl overflow-hidden">
-            <Image src={undefined} alt="" width={100} height={100} />
+            <Image src="/placeholder.jpg" alt="" width={100} height={100} />
           </div>
           <div className="flex-1">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 {article.author_avatar && (
-                  <Image src={undefined} alt="" width={100} height={100} />
+                  <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                 )}
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white text-sm">
@@ -392,7 +392,7 @@ export default function ArticlesPage() {
         </div>
         {/* صورة المقال */}
         <div className={`relative overflow-hidden ${isLarge ? 'h-64' : 'h-48'}`}>
-          <Image src={undefined} alt="" width={100} height={100} />
+          <Image src="/placeholder.jpg" alt="" width={100} height={100} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
         {/* محتوى البطاقة */}
@@ -400,7 +400,7 @@ export default function ArticlesPage() {
           {/* معلومات الكاتب */}
           <div className="flex items-center gap-3 mb-3">
             {article.author_avatar && (
-              <Image src={undefined} alt="" width={100} height={100} />
+              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
             )}
             <div>
               <p className="font-medium text-gray-900 dark:text-white text-sm">
@@ -761,4 +761,4 @@ export default function ArticlesPage() {
       )}
     </div>
   );
-} 
+}

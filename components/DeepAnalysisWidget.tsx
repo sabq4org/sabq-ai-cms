@@ -412,4 +412,4 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
       `}</style>
     </div>
   );
-} 
+}

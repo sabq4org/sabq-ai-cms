@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React from 'react'
 import Image from 'next/image'
@@ -37,4 +37,4 @@ export function Providers({ children }: { children: React.ReactNode }) {
       </ThemeProvider>
     </QueryClientProvider>
   )
-} 
+}

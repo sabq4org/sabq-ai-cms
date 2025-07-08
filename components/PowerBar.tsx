@@ -1,12 +1,7 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-
-'use client';
-
-
-
 
 import { 
   Zap, TrendingUp, Users, BookOpen, Timer, Flame, 
@@ -248,4 +243,4 @@ export default function PowerBar({
       </div>
     </div>
   );
-} 
+}

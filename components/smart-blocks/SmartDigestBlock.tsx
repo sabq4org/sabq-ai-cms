@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Clock, TrendingUp, ArrowLeft, BookOpen, Zap, Crown, Leaf, Sun, Cloud, Moon, Star, Sparkles, Volume2, Headphones, Coffee, Sunrise, Sunset, Pause, Play, ExternalLink, Heart, Share2, BookmarkPlus } from 'lucide-react';
@@ -535,4 +535,4 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
       `}</style>
     </section>
   );
-} 
+}

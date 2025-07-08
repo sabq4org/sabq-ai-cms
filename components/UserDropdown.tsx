@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image'
 import React, { useState, useRef, useEffect } from 'react'
@@ -299,4 +299,4 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
   );
 
   return ReactDOM.createPortal(dropdownContent, document.body);
-} 
+}

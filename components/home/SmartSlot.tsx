@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
@@ -238,4 +238,4 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
       ))}
     </div>
   );
-} 
+}

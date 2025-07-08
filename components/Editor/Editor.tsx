@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -22,34 +24,6 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Button } from '@/components/ui/button';
 import { Undo2, Redo2, Save, RotateCcw, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-'use client';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 interface EditorProps {
   content?: any;
@@ -475,4 +449,4 @@ const Editor = forwardRef<EditorRef, EditorProps>(({
 
 Editor.displayName = 'Editor';
 
-export default Editor; 
+export default Editor;

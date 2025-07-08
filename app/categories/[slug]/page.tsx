@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import { getArticleLink } from '@/lib/utils';
-'use client';
 import { 
   Tag, ArrowRight, Calendar, Clock, Eye, Heart, 
   BookOpen, TrendingUp, Loader2, ChevronLeft,
@@ -252,7 +251,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
       </div>
       {/* Hero Section with Cover Image */}
       <section className="relative h-96 overflow-hidden">
-        <Image src={undefined} alt="" width={100} height={100} />
+        <Image src="/placeholder.jpg" alt="" width={100} height={100} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         {/* Content Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-8">
@@ -377,7 +376,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
                     <article className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden h-full">
                       {/* Image */}
                       <div className="relative h-48 overflow-hidden">
-                        <Image src={undefined} alt="" width={100} height={100} />
+                        <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                         {article.is_breaking && (
                           <div className="absolute top-3 right-3 px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
                             عاجل
@@ -438,7 +437,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
                     <article className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 p-6 flex gap-6">
                       {/* Image */}
                       <div className="relative w-48 h-32 rounded-xl overflow-hidden flex-shrink-0">
-                        <Image src={undefined} alt="" width={100} height={100} />
+                        <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                         {article.is_breaking && (
                           <div className="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
                             عاجل
@@ -497,4 +496,4 @@ export default function CategoryDetailPage({ params }: PageProps) {
       </section>
     </div>
   );
-} 
+}

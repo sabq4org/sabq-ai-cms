@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useState, useEffect, use } from 'react';
@@ -201,7 +201,7 @@ const AuthorProfilePage = () => {
       <section className="relative h-96 overflow-hidden">
         {/* خلفية متدرجة مع صورة */}
         <div className="absolute inset-0">
-          <Image src={undefined} alt="خلفية الكاتب" width={100} height={100} />
+          <Image src="/placeholder.jpg" alt="خلفية الكاتب" width={100} height={100} />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30"></div>
         </div>
@@ -211,7 +211,7 @@ const AuthorProfilePage = () => {
             <div className="flex items-end gap-6">
               {/* صورة الكاتب */}
               <div className="relative">
-                <Image src={undefined} alt="" width={100} height={100} />
+                <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                 <div className={`absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-r ${writerClubColors[author.club]} flex items-center justify-center border-4 border-white`}>
                   <Star className="w-5 h-5 text-white" />
                 </div>
@@ -437,7 +437,7 @@ const AuthorProfilePage = () => {
                       <div key={article.id} className="w-full flex-shrink-0">
                         <Link href={`/opinion/${article.id}`} className="block group">
                           <div className="flex gap-4">
-                            <Image src={undefined} alt="" width={100} height={100} />
+                            <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
                                 <span className={`text-xs px-2 py-1 rounded ${darkMode ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-700'}`}>

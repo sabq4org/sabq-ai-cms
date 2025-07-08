@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -268,7 +268,7 @@ export default function DailyDosePage() {
                         {/* Image */}
                         {content.imageUrl && (
                           <div className="lg:w-2/5 h-64 lg:h-auto relative overflow-hidden">
-                            <Image src={undefined} alt="" width={100} height={100} />
+                            <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:bg-gradient-to-r"></div>
                           </div>
                         )}
@@ -476,4 +476,4 @@ export default function DailyDosePage() {
       </div>
     </div>
   );
-} 
+}

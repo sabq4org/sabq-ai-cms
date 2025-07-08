@@ -1257,4 +1257,4 @@ export default function Page() {
       <NewspaperHomePage />
     </MobileLayout>
   );
-} 
+}

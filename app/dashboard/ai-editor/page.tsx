@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-'use client';
 import { 
   Card, 
   CardContent, 
@@ -943,4 +942,4 @@ export default function AIEditorPage() {
       )}
     </div>
   );
-} 
+}

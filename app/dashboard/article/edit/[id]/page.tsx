@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -788,7 +788,7 @@ export default function EditArticlePage() {
                   <div className="mt-2">
                     {formData.featuredImage ? (
                       <div className="relative">
-                        <Image src={undefined} alt="الصورة البارزة" width={100} height={100} />
+                        <Image src="/placeholder.jpg" alt="الصورة البارزة" width={100} height={100} />
                         <div className="absolute top-2 right-2 flex gap-2">
                           <Button
                             variant="secondary"
@@ -855,7 +855,7 @@ export default function EditArticlePage() {
                         <div className="grid grid-cols-3 gap-2">
                           {formData.gallery.map((image, index) => (
                             <div key={image.id} className="relative group">
-                              <Image src={undefined} alt="" width={100} height={100} />
+                              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                                 <div className="flex gap-1">
                                   <Button
@@ -1394,4 +1394,4 @@ export default function EditArticlePage() {
       </div>
     </div>
   );
-} 
+}

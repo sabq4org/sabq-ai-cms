@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -174,4 +174,4 @@ export function DashboardMobileLayout({ children }: { children: React.ReactNode 
       </div>
     </MobileLayout>
   );
-} 
+}
