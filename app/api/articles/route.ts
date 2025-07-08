@@ -309,6 +309,34 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // إضافة حدث إلى timeline_events عند نشر المقال
+    if (status === 'published') {
+      try {
+        await prisma.timeline_events.create({
+          data: {
+            id: crypto.randomUUID(),
+            event_type: 'article_published',
+            entity_type: 'article',
+            entity_id: article.id,
+            title: `مقال جديد: ${title}`,
+            description: excerpt || content.substring(0, 100) + '...',
+            user_id: author_id || null,
+            author_name: author_name || 'كاتب مجهول',
+            metadata: {
+              category_id: category_id,
+              featured_image: featured_image,
+              is_breaking: metadata.is_breaking || false
+            },
+            created_at: new Date()
+          }
+        })
+        console.log('✅ تم إضافة الحدث إلى timeline_events')
+      } catch (error) {
+        console.error('⚠️ فشل إضافة الحدث إلى timeline_events:', error)
+        // لا نريد أن نفشل العملية بالكامل إذا فشل إضافة الحدث
+      }
+    }
+
     console.log('✅ تم إنشاء المقال:', {
       id: article.id,
       title: article.title,

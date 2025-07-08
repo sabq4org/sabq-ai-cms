@@ -12,16 +12,25 @@ interface Article {
   id: string;
   title: string;
   summary?: string;
+  excerpt?: string;
   featured_image?: string;
   category_id: number;
   category_name?: string;
   author_name?: string;
-  views_count: number;
+  views_count?: number;
+  views?: number;
   created_at: string;
   published_at?: string;
   reading_time?: number;
   is_breaking?: boolean;
+  breaking?: boolean;
   is_featured?: boolean;
+  featured?: boolean;
+  metadata?: {
+    is_breaking?: boolean;
+    is_featured?: boolean;
+    [key: string]: any;
+  };
 }
 
 interface ArticleCardProps {
@@ -33,6 +42,12 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+
+  // استخدام الحقول الصحيحة مع fallback
+  const isBreaking = article.is_breaking || article.breaking || article.metadata?.is_breaking || false;
+  const isFeatured = article.is_featured || article.featured || article.metadata?.is_featured || false;
+  const viewsCount = article.views_count || article.views || 0;
+  const summary = article.summary || article.excerpt;
 
   useEffect(() => {
     // جلب معرف المستخدم
@@ -108,7 +123,11 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
   
   return (
     <Link href={getArticleLink(article)}>
-      <div className={`group h-full bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:hover:shadow-gray-900/70 transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 ${
+      <div className={`group h-full ${
+        isBreaking 
+          ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800' 
+          : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700'
+      } rounded-lg shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:hover:shadow-gray-900/70 transition-all duration-300 overflow-hidden border hover:border-blue-300 dark:hover:border-blue-600 ${
         viewMode === 'list' ? 'flex gap-4 p-4' : 'flex flex-col'
       }`}>
         {/* صورة المقال */}
@@ -136,13 +155,13 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
           {/* شارات - فقط في وضع الشبكة */}
           {viewMode === 'grid' && (
             <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
-              {article.is_breaking && (
+              {isBreaking && (
                 <div className="px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse flex items-center gap-1">
                   <Zap className="w-3 h-3" />
                   عاجل
                 </div>
               )}
-              {article.is_featured && (
+              {isFeatured && (
                 <div className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
                   <Award className="w-3 h-3" />
                   مميز
@@ -190,16 +209,20 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
         {/* محتوى البطاقة */}
         <div className={`${viewMode === 'list' ? 'flex-1 min-w-0' : ''} ${viewMode === 'grid' ? 'p-6' : ''}`}>
           {/* العنوان */}
-          <h3 className={`font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
+          <h3 className={`font-semibold ${
+            isBreaking 
+              ? 'text-red-700 dark:text-red-400' 
+              : 'text-gray-900 dark:text-gray-100'
+          } mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
             viewMode === 'list' ? 'text-lg line-clamp-2' : 'text-lg line-clamp-2'
           }`}>
             {article.title}
           </h3>
 
           {/* الوصف - فقط في وضع الشبكة */}
-          {viewMode === 'grid' && article.summary && (
+          {viewMode === 'grid' && summary && (
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-              {article.summary}
+              {summary}
             </p>
           )}
 
@@ -222,10 +245,10 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
             </div>
 
             {/* المشاهدات */}
-            {article.views_count > 0 && (
+            {viewsCount > 0 && (
               <div className="flex items-center gap-1">
                 <Eye className="w-3 h-3" />
-                <span>{article.views_count.toLocaleString('ar-SA')}</span>
+                <span>{viewsCount.toLocaleString('ar-SA')}</span>
               </div>
             )}
 
@@ -239,15 +262,15 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
             )}
 
             {/* الشارات للوضع القائمة */}
-            {viewMode === 'list' && (article.is_breaking || article.is_featured) && (
+            {viewMode === 'list' && (isBreaking || isFeatured) && (
               <div className="flex items-center gap-1">
-                {article.is_breaking && (
+                {isBreaking && (
                   <span className="px-2 py-1 bg-red-500 text-white text-xs rounded flex items-center gap-1">
                     <Zap className="w-3 h-3" />
                     عاجل
                   </span>
                 )}
-                {article.is_featured && (
+                {isFeatured && (
                   <span className="px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs rounded flex items-center gap-1">
                     <Award className="w-3 h-3" />
                     مميز

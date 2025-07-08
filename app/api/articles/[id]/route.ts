@@ -155,4 +155,123 @@ export async function DELETE(
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete article' }, { status: 500 });
   }
+}
+
+// PUT - تحديث كامل للمقال
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  let articleId = '';
+  try {
+    const { id: idFromParams } = await context.params;
+    articleId = idFromParams;
+    const body = await request.json();
+
+    console.log('🔄 [API PUT] محاولة تحديث المقال:', articleId);
+    
+    // معالجة الموجز
+    const excerpt = body.excerpt || body.summary || '';
+    
+    // معالجة metadata مع الحقول المهمة
+    const metadata = body.metadata || {};
+    
+    // معالجة is_breaking - إعطاء الأولوية للقيمة المباشرة ثم metadata
+    const is_breaking = body.is_breaking === true || metadata.is_breaking === true || false;
+    
+    // معالجة is_featured
+    const is_featured = body.is_featured === true || metadata.is_featured === true || false;
+    
+    // تحديث metadata بالقيم الصحيحة
+    metadata.is_breaking = is_breaking;
+    metadata.is_featured = is_featured;
+    
+    // إذا كان هناك كلمات مفتاحية في body
+    if (body.keywords) {
+      metadata.keywords = body.keywords;
+    }
+    
+    // إذا كان هناك اسم مؤلف
+    if (body.author_name) {
+      metadata.author_name = body.author_name;
+    }
+
+    const updateData: any = {
+      title: body.title,
+      content: body.content || '',
+      excerpt: excerpt,
+      status: body.status || 'draft',
+      featured_image: body.featured_image || null,
+      featured_image_alt: body.featured_image_alt || null,
+      seo_title: body.seo_title || body.title,
+      seo_description: body.seo_description || excerpt,
+      metadata: metadata,
+      breaking: is_breaking,
+      featured: is_featured,
+      updated_at: new Date()
+    };
+
+    // معالجة content_blocks إذا كان موجوداً
+    if (body.content_blocks) {
+      updateData.content_blocks = body.content_blocks;
+    }
+
+    // معالجة category_id
+    if (body.category_id) {
+      updateData.categories = {
+        connect: { id: body.category_id }
+      };
+    }
+
+    // معالجة publish_at
+    if (body.publish_at) {
+      updateData.published_at = new Date(body.publish_at);
+    }
+
+    // تحديث المقال
+    const updatedArticle = await prisma.articles.update({
+      where: { id: articleId },
+      data: updateData
+    });
+
+    console.log('✅ [API PUT] تم تحديث المقال بنجاح:', {
+      id: articleId,
+      is_breaking: updatedArticle.breaking,
+      metadata_is_breaking: updatedArticle.metadata?.is_breaking
+    });
+
+    return NextResponse.json({
+      success: true,
+      article: updatedArticle,
+      message: 'تم تحديث المقال بنجاح'
+    });
+
+  } catch (error: any) {
+    console.error('❌ [API PUT] خطأ في تحديث المقال:', {
+      id: articleId,
+      message: error.message,
+      code: error.code
+    });
+
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'المقال غير موجود',
+          code: error.code 
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'فشل تحديث المقال',
+        details: error.message || 'خطأ غير معروف',
+        code: error.code
+      },
+      { status: 500 }
+    );
+  }
 } 

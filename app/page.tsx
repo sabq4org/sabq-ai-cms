@@ -338,7 +338,15 @@ function NewspaperHomePage(): React.ReactElement {
     
     return (
       <Link href={getArticleLink(news)} className="group block">
-        <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'}`}>
+        <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${
+          news.is_breaking 
+            ? darkMode 
+              ? 'bg-red-950/20 border border-red-800' 
+              : 'bg-red-50 border border-red-200'
+            : darkMode 
+              ? 'bg-gray-800 border border-gray-700' 
+              : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'
+        }`}>
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden">
             {imageLoading && (
@@ -368,11 +376,26 @@ function NewspaperHomePage(): React.ReactElement {
                 </span>
               </div>
             )}
+            {/* شارة عاجل */}
+            {news.is_breaking && (
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
+                <span className="inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold bg-red-500 text-white backdrop-blur-sm animate-pulse">
+                  <Zap className="w-2 h-2 sm:w-3 sm:h-3" />
+                  عاجل
+                </span>
+              </div>
+            )}
           </div>
           {/* محتوى البطاقة */}
           <div className="p-4 sm:p-5">
             {/* العنوان - محدود بسطرين */}
-            <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors ${darkMode ? 'text-white' : 'text-gray-900 dark:text-white'}`} title={news.title}>
+            <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 ${
+              news.is_breaking 
+                ? 'text-red-700 dark:text-red-400' 
+                : darkMode 
+                  ? 'text-white' 
+                  : 'text-gray-900 dark:text-white'
+            } group-hover:text-blue-600 transition-colors`} title={news.title}>
               {news.title}
             </h4>
             {/* الملخص */}
@@ -695,7 +718,13 @@ function NewspaperHomePage(): React.ReactElement {
                               {/* محتوى البطاقة */}
                               <div className="p-4 sm:p-5">
                                 {/* العنوان */}
-                                <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors ${darkMode ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+                                <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 ${
+                                  article.is_breaking 
+                                    ? 'text-red-700 dark:text-red-400' 
+                                    : darkMode 
+                                      ? 'text-white' 
+                                      : 'text-gray-900 dark:text-white'
+                                } group-hover:text-blue-600 transition-colors`} title={article.title}>
                                   {article.title}
                                 </h4>
                                 {/* الملخص */}
@@ -983,7 +1012,7 @@ function NewspaperHomePage(): React.ReactElement {
             {/* التصميم الجديد - Mix */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* بطاقة التصويت السريع */}
-              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 hover:shadow-3xl transition-all duration-500 transform hover:scale-105 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 {/* شارة النوع */}
                 <div className="absolute top-4 right-4 z-10">
                   <span className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
@@ -992,8 +1021,15 @@ function NewspaperHomePage(): React.ReactElement {
                 </div>
                 {/* الصورة */}
                 <div className="relative h-56 overflow-hidden">
-                  <Image src={"https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80"} alt="الذكاء الاصطناعي في التعليم" width={100} height={100} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Brain className="w-8 h-8 text-white" />
+                      </div>
+                      <p className="text-orange-600 font-medium text-sm">الذكاء الاصطناعي في التعليم</p>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                   {/* عداد المشاركين */}
                   <div className="absolute bottom-4 left-4">
                     <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
@@ -1012,9 +1048,9 @@ function NewspaperHomePage(): React.ReactElement {
                   </p>
                   {/* أزرار التصويت */}
                   <div className="space-y-3 mb-6">
-                    <button className={`w-full p-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                    <button className={`w-full p-3 rounded-xl border-2 transition-all duration-200 ${
                       darkMode 
-                        ? 'border-gray-600 hover:border-green-500 bg-gray-800 hover:bg-green-900/20' 
+                        ? 'border-gray-600 hover:border-green-500 bg-gray-800 hover:bg-green-900/10' 
                         : 'border-gray-200 hover:border-green-500 bg-white hover:bg-green-50'
                     }`}>
                       <div className="flex items-center justify-between">
@@ -1027,9 +1063,9 @@ function NewspaperHomePage(): React.ReactElement {
                         </div>
                       </div>
                     </button>
-                    <button className={`w-full p-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                    <button className={`w-full p-3 rounded-xl border-2 transition-all duration-200 ${
                       darkMode 
-                        ? 'border-gray-600 hover:border-red-500 bg-gray-800 hover:bg-red-900/20' 
+                        ? 'border-gray-600 hover:border-red-500 bg-gray-800 hover:bg-red-900/10' 
                         : 'border-gray-200 hover:border-red-500 bg-white hover:bg-red-50'
                     }`}>
                       <div className="flex items-center justify-between">
@@ -1044,13 +1080,13 @@ function NewspaperHomePage(): React.ReactElement {
                     </button>
                   </div>
                   {/* زر المشاركة */}
-                  <button className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  <button className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg">
                     صوت الآن
                   </button>
                 </div>
               </div>
               {/* بطاقة الاستطلاع المتعدد */}
-              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 hover:shadow-3xl transition-all duration-500 transform hover:scale-105 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 {/* شارة النوع */}
                 <div className="absolute top-4 right-4 z-10">
                   <span className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
@@ -1059,8 +1095,15 @@ function NewspaperHomePage(): React.ReactElement {
                 </div>
                 {/* الصورة */}
                 <div className="relative h-56 overflow-hidden">
-                  <Image src={"https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=800&q=80"} alt="كأس آسيا" width={100} height={100} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Trophy className="w-8 h-8 text-white" />
+                      </div>
+                      <p className="text-purple-600 font-medium text-sm">كأس آسيا</p>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                   {/* مؤقت */}
                   <div className="absolute bottom-4 left-4">
                     <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
@@ -1096,13 +1139,13 @@ function NewspaperHomePage(): React.ReactElement {
                     ))}
                   </div>
                   {/* زر المشاركة */}
-                  <button className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  <button className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg">
                     شارك توقعك
                   </button>
                 </div>
               </div>
               {/* بطاقة النقاش المفتوح */}
-              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 hover:shadow-3xl transition-all duration-500 transform hover:scale-105 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 {/* شارة النوع */}
                 <div className="absolute top-4 right-4 z-10">
                   <span className="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
@@ -1111,8 +1154,15 @@ function NewspaperHomePage(): React.ReactElement {
                 </div>
                 {/* الصورة */}
                 <div className="relative h-56 overflow-hidden">
-                  <Image src={"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80"} alt="رؤية 2030" width={100} height={100} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  <div className="w-full h-full bg-gradient-to-br from-green-100 to-teal-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <TrendingUp className="w-8 h-8 text-white" />
+                      </div>
+                      <p className="text-green-600 font-medium text-sm">رؤية 2030</p>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                   {/* عدد التعليقات */}
                   <div className="absolute bottom-4 left-4">
                     <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
@@ -1156,7 +1206,7 @@ function NewspaperHomePage(): React.ReactElement {
                   </div>
                   {/* زر المشاركة */}
                   <Link href="/article/interactive/vision-2030-impact" className="block">
-                    <button className="w-full py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl font-medium hover:from-green-600 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <button className="w-full py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl font-medium hover:from-green-600 hover:to-teal-600 transition-all duration-200 shadow-lg">
                       انضم للنقاش
                     </button>
                   </Link>

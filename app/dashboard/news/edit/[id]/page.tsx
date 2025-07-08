@@ -109,17 +109,17 @@ export default function EditArticlePage() {
           id: articleData.id,
           title: articleData.title || '',
           subtitle: articleData.subtitle || '',
-          description: articleData.summary || articleData.seo_description || '',
+          description: articleData.excerpt || articleData.summary || articleData.seo_description || '',
           category_id: articleData.category_id || 1,
           subcategory_id: articleData.subcategory_id,
-          is_breaking: articleData.is_breaking || false,
-          is_featured: articleData.is_featured || false,
+          is_breaking: articleData.is_breaking === true || articleData.metadata?.is_breaking === true || false,
+          is_featured: articleData.is_featured === true || articleData.metadata?.is_featured === true || false,
           is_smart_newsletter: articleData.is_smart_newsletter || false,
           keywords: Array.isArray(articleData.seo_keywords) 
             ? articleData.seo_keywords 
             : typeof articleData.seo_keywords === 'string' 
             ? articleData.seo_keywords.split(',').map((k: string) => k.trim()).filter((k: string) => k)
-            : [],
+            : articleData.metadata?.keywords || [],
           cover_image: articleData.featured_image || '',
           featured_image: articleData.featured_image || '',
           featured_image_alt: articleData.featured_image_alt || '',
@@ -321,13 +321,17 @@ export default function EditArticlePage() {
         title: formData.title,
         content_blocks: formData.content_blocks,
         content: textContent || 'محتوى المقال', // fallback نصي للتوافق
-        summary: formData.description,
+        excerpt: formData.description,
+        summary: formData.description, // للتوافق القديم
         category_id: formData.category_id,
         author_id: formData.author_id,
         author_name: selectedAuthor?.name || undefined, // إضافة اسم المؤلف
         status,
-        is_breaking: formData.is_breaking,
-        is_featured: formData.is_featured,
+        metadata: {
+          is_breaking: formData.is_breaking,
+          is_featured: formData.is_featured,
+          keywords: formData.keywords
+        },
         featured_image: formData.featured_image || formData.cover_image,
         featured_image_alt: formData.featured_image_alt,
         seo_title: formData.title,

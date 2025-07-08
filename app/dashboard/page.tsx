@@ -68,10 +68,12 @@ export default function DashboardPage() {
         setLoading(true);
         
         // جلب إحصائيات المقالات
-        const articlesRes = await fetch('/api/articles?limit=1000');
+        const articlesRes = await fetch('/api/articles?status=published&limit=100&page=1');
         const articlesData = await articlesRes.json();
         const articlesArray = articlesData.articles || articlesData.data || articlesData || [];
-        const totalArticles = Array.isArray(articlesArray) ? articlesArray.length : 0;
+        
+        // جلب إجمالي عدد المقالات من البيانات الوصفية
+        const totalArticles = articlesData.total || articlesData.totalCount || articlesArray.length;
         
         // حساب مقالات اليوم
         const today = new Date();
@@ -433,7 +435,7 @@ export default function DashboardPage() {
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <h1 className={`text-3xl sm:text-4xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                مرحباً، {user?.name || 'المسؤول'}! 👋
+                مرحباً، {user?.name || user?.email?.split('@')[0] || 'المسؤول'}! 👋
               </h1>
               <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 سعداء بعودتك. إليك نظرة سريعة على آخر أنشطتك ومهامك.
@@ -457,8 +459,8 @@ export default function DashboardPage() {
             إجراءات سريعة
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* إضافة مقال */}
-            <Link href="/dashboard/article/new" className="group">
+            {/* إضافة خبر */}
+            <Link href="/dashboard/news/create" className="group">
               <div className={`relative overflow-hidden rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 ${
                 darkMode 
                   ? 'bg-gradient-to-br from-blue-900/50 to-blue-800/50 border border-blue-700 hover:border-blue-600' 
@@ -471,7 +473,7 @@ export default function DashboardPage() {
                   <Plus className="w-8 h-8 text-white" />
                 </div>
                 <h3 className={`font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  إضافة مقال
+                  أضف خبراً
                 </h3>
                 <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   أنشئ محتوى جديد
@@ -571,7 +573,7 @@ export default function DashboardPage() {
                 {loading ? '...' : stats.totalArticles.toLocaleString()}
               </h3>
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                إجمالي المقالات
+                إجمالي الأخبار
               </p>
             </div>
 
