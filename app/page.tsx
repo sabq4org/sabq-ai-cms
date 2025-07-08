@@ -525,9 +525,7 @@ function NewspaperHomePage(): React.ReactElement {
       {/* بلوك الجرعات الذكي - ثاني بلوك */}
       <SmartDigestBlock />
       {/* Deep Analysis Widget - ثالث بلوك */}
-      {!deepInsightsLoading && deepInsights.length > 0 && (
-        <DeepAnalysisWidget insights={deepInsights.slice(0, 3)} />
-      )}
+      <DeepAnalysisWidget insights={deepInsights.length > 0 ? deepInsights.slice(0, 3) : []} />
       {/* Smart Blocks - قبل المحتوى المخصص (محتوى مخصص لك) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="beforePersonalization" />

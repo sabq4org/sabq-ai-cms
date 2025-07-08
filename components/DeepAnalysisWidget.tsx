@@ -39,6 +39,62 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
   const [currentIndex, setCurrentIndex] = useState(0);
   const router = useRouter();
 
+  // بيانات افتراضية للعرض
+  const defaultInsights: DeepInsight[] = [
+    {
+      id: 'default-1',
+      title: 'تحليل عميق: مستقبل الذكاء الاصطناعي في المملكة',
+      summary: 'دراسة شاملة حول تطور تقنيات الذكاء الاصطناعي وتأثيرها على الاقتصاد السعودي',
+      author: 'فريق التحليل',
+      createdAt: new Date().toISOString(),
+      readTime: 15,
+      views: 1250,
+      aiConfidence: 95,
+      tags: ['ذكاء اصطناعي', 'اقتصاد', 'تقنية'],
+      type: 'AI',
+      analysisType: 'ai',
+      url: '/insights/deep/ai-future-ksa',
+      isNew: true,
+      qualityScore: 92,
+      category: 'تقنية'
+    },
+    {
+      id: 'default-2',
+      title: 'رؤية 2030: تحليل التقدم والإنجازات',
+      summary: 'تقييم شامل للمشاريع المنجزة والأهداف المحققة في إطار رؤية المملكة 2030',
+      author: 'د. عبدالله السالم',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      readTime: 20,
+      views: 3200,
+      aiConfidence: 88,
+      tags: ['رؤية 2030', 'اقتصاد', 'تنمية'],
+      type: 'تحليل عميق',
+      analysisType: 'manual',
+      url: '/insights/deep/vision-2030-progress',
+      qualityScore: 89,
+      category: 'اقتصاد'
+    },
+    {
+      id: 'default-3',
+      title: 'التحول الرقمي في القطاع الحكومي',
+      summary: 'كيف تسهم التقنيات الحديثة في تطوير الخدمات الحكومية وتحسين تجربة المواطن',
+      author: 'م. سارة الأحمد',
+      createdAt: new Date(Date.now() - 172800000).toISOString(),
+      readTime: 12,
+      views: 890,
+      aiConfidence: 91,
+      tags: ['حكومة رقمية', 'تقنية', 'خدمات'],
+      type: 'AI',
+      analysisType: 'mixed',
+      url: '/insights/deep/digital-transformation',
+      qualityScore: 87,
+      category: 'تقنية'
+    }
+  ];
+
+  // استخدام البيانات الافتراضية إذا لم تكن هناك insights
+  const displayInsights = insights.length > 0 ? insights : defaultInsights;
+
   useEffect(() => {
     // قراءة العناصر المقروءة من localStorage
     const read = localStorage.getItem('readAnalysis');
@@ -171,9 +227,9 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
             <div className="flex gap-4 pb-4 px-4" style={{ 
               width: 'max-content',
               minWidth: '100%',
-              justifyContent: insights.length <= 3 ? 'center' : 'flex-start'
+              justifyContent: displayInsights.length <= 3 ? 'center' : 'flex-start'
             }}>
-              {insights.slice(0, 6).map((item, index) => {
+              {displayInsights.slice(0, 6).map((item, index) => {
                 const isUnread = !readItems.includes(item.id);
                 const isAI = item.type === 'AI';
                 const isNew = isNewInsight(item.createdAt);
@@ -367,7 +423,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
             <button 
               onClick={() => handleScroll('right')}
               className="p-2 bg-white/10 backdrop-blur-sm rounded-full shadow-lg hover:bg-white/20 transition-all duration-300 hover:scale-110"
-              disabled={currentIndex >= insights.length - 3}
+              disabled={currentIndex >= displayInsights.length - 3}
             >
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
