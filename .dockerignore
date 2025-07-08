@@ -72,5 +72,5 @@ README.md
 *.md
 data/
 backups/
-scripts/
+# scripts/ - نحتاج scripts في Docker build
 docs/ 

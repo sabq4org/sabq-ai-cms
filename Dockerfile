@@ -7,9 +7,16 @@ WORKDIR /app
 # نسخ ملفات التبعيات
 COPY package.json package-lock.json ./
 COPY prisma ./prisma/
+# نسخ السكريبتات المطلوبة لـ postinstall
+COPY scripts ./scripts/
+# إنشاء مجلد lib/generated المطلوب لـ Prisma
+RUN mkdir -p lib/generated
 
 # تثبيت التبعيات مع إصلاح مشاكل التبعيات
-RUN npm install --omit=dev --legacy-peer-deps
+# نحتاج لتثبيت كل التبعيات أولاً لتشغيل postinstall
+RUN npm install --legacy-peer-deps
+# بعد تشغيل postinstall، نحذف devDependencies
+RUN npm prune --production
 
 # مرحلة البناء
 FROM node:20-alpine AS builder

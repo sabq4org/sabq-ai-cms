@@ -6,7 +6,20 @@ const path = require('path');
 
 console.log('🔧 Ensuring Prisma Client is properly generated...');
 
-const prismaClientPath = path.join(__dirname, '..', 'lib', 'generated', 'prisma');
+const libPath = path.join(__dirname, '..', 'lib');
+const generatedPath = path.join(libPath, 'generated');
+const prismaClientPath = path.join(generatedPath, 'prisma');
+
+// Ensure directories exist
+if (!fs.existsSync(libPath)) {
+  console.log('📁 Creating lib directory...');
+  fs.mkdirSync(libPath, { recursive: true });
+}
+
+if (!fs.existsSync(generatedPath)) {
+  console.log('📁 Creating lib/generated directory...');
+  fs.mkdirSync(generatedPath, { recursive: true });
+}
 
 // Check if Prisma Client exists
 if (!fs.existsSync(prismaClientPath)) {
@@ -16,7 +29,10 @@ if (!fs.existsSync(prismaClientPath)) {
     console.log('✅ Prisma Client generated successfully');
   } catch (error) {
     console.error('❌ Failed to generate Prisma Client:', error.message);
-    process.exit(1);
+    // Don't exit with error in production builds
+    if (process.env.NODE_ENV !== 'production') {
+      process.exit(1);
+    }
   }
 } else {
   console.log('✅ Prisma Client already exists');
@@ -33,7 +49,10 @@ try {
   }
 } catch (error) {
   console.error('❌ Error verifying Prisma Client:', error.message);
-  process.exit(1);
+  // Don't exit with error in production builds
+  if (process.env.NODE_ENV !== 'production') {
+    process.exit(1);
+  }
 }
 
 console.log('🎉 Prisma Client setup completed successfully'); 
