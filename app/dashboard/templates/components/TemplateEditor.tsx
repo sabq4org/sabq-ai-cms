@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Save, Calendar, Globe, Tag, Eye, Palette, Image } from 'lucide-react'
+import { ArrowLeft, Save, Calendar, Globe, Tag, Eye, Palette, Image as ImageIcon } from 'lucide-react'
 import { HeaderEditor } from './editors/HeaderEditor'
 import { FooterEditor } from './editors/FooterEditor'
 import { Template, TemplateType } from '@/types/template'
@@ -236,7 +236,7 @@ export function TemplateEditor({ template, type, isNew, onSave, onCancel }: Temp
               {/* إعدادات الشعار */}
               <div className="bg-gray-50 rounded-xl p-4 space-y-4">
                 <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Image className="w-4 h-4" />
+                  <ImageIcon className="w-4 h-4" />
                   إعدادات الشعار
                 </div>
                 
