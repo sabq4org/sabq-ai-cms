@@ -18,7 +18,8 @@ export const useAuth = (): UseAuthReturn => {
   const isAdmin = isLoggedIn && user ? (user.role === 'admin' || user.role === 'super_admin') : false;
   const userId = user?.id ? String(user.id) : null;
 
-  // حفظ user_id في localStorage
+  // ملاحظة: هذا localStorage مؤقت للتوافق مع الأنظمة القديمة
+  // TODO: استبدال بـ cookies أو session storage
   if (userId && typeof window !== 'undefined') {
     localStorage.setItem('user_id', userId);
   }

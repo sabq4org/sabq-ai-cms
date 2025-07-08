@@ -7,6 +7,8 @@ interface UseDarkModeHook {
   toggleDarkMode: () => void;
 }
 
+// ملاحظة: هذا localStorage ضروري للـ theme/UI فقط
+// لا يحتوي على بيانات حساسة أو بيانات تطبيق
 export function useDarkMode(): UseDarkModeHook {
   const [darkMode, setDarkMode] = useState<boolean>(false);
 

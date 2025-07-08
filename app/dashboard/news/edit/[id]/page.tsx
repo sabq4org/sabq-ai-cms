@@ -94,6 +94,42 @@ export default function EditArticlePage() {
   const [readingTime, setReadingTime] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [authors, setAuthors] = useState<{ id: string; name: string; role?: string }[]>([]);
+  
+  // دالة لتنسيق التاريخ
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      
+      // تنسيق التاريخ كـ YYYY-MM-DD HH:MM للاستخدام في input datetime-local
+      return date.toISOString().slice(0, 16);
+    } catch (error) {
+      console.error('خطأ في تنسيق التاريخ:', error);
+      return '';
+    }
+  };
+  
+  // دالة لتحويل التاريخ إلى نص عربي
+  const formatDateArabic = (dateString: string) => {
+    if (!dateString) return 'غير محدد';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'تاريخ غير صحيح';
+      
+      return date.toLocaleDateString('ar-SA', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error('خطأ في تنسيق التاريخ:', error);
+      return 'تاريخ غير صحيح';
+    }
+  };
+  
   // تحميل بيانات المقال الحالية
   useEffect(() => {
     const fetchArticle = async () => {
@@ -123,7 +159,7 @@ export default function EditArticlePage() {
           cover_image: articleData.featured_image || '',
           featured_image: articleData.featured_image || '',
           featured_image_alt: articleData.featured_image_alt || '',
-          publish_time: articleData.publish_at || articleData.published_at || new Date().toISOString(),
+          publish_time: formatDate(articleData.publish_at || articleData.published_at) || formatDate(new Date().toISOString()),
           author_id: articleData.author_id || 'current_user',
           scope: articleData.scope || 'local',
           status: articleData.status || 'draft',
@@ -317,27 +353,33 @@ export default function EditArticlePage() {
         .join('\n\n');
       // الحصول على اسم المؤلف من القائمة
       const selectedAuthor = authors.find(a => a.id === formData.author_id);
+      
       const articleData = {
         title: formData.title,
         content_blocks: formData.content_blocks,
         content: textContent || 'محتوى المقال', // fallback نصي للتوافق
-        excerpt: formData.description,
+        excerpt: formData.description, // حفظ الموجز في الحقل الأساسي
         summary: formData.description, // للتوافق القديم
         category_id: formData.category_id,
         author_id: formData.author_id,
         author_name: selectedAuthor?.name || undefined, // إضافة اسم المؤلف
         status,
+        // حفظ القيم في الحقول الأساسية بدلاً من metadata
+        breaking: formData.is_breaking, // حفظ في الحقل الأساسي
+        is_breaking: formData.is_breaking, // للتوافق القديم
+        featured: formData.is_featured, // حفظ في الحقل الأساسي
+        is_featured: formData.is_featured, // للتوافق القديم
         metadata: {
-          is_breaking: formData.is_breaking,
-          is_featured: formData.is_featured,
-          keywords: formData.keywords
+          keywords: formData.keywords, // الكلمات المفتاحية فقط
+          author_name: selectedAuthor?.name,
+          updated_at: new Date().toISOString()
         },
         featured_image: formData.featured_image || formData.cover_image,
         featured_image_alt: formData.featured_image_alt,
         seo_title: formData.title,
         seo_description: formData.description,
         seo_keywords: formData.keywords,
-        publish_at: formData.publish_time
+        publish_at: formData.publish_time ? new Date(formData.publish_time).toISOString() : null
       };
       // استخدام PUT للتحديث
       const res = await fetch(`/api/articles/${articleId}`, {
@@ -443,7 +485,13 @@ export default function EditArticlePage() {
               </div>
               {/* معلومات المقال */}
               <div className="flex items-center gap-4 bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/30">
-                <div className="text-center px-4 border-r border-white/30">
+                <div className={`text-center px-4 ${
+                  darkMode ? 'text-white' : 'text-gray-800'
+                }`}>
+                  <div className="text-3xl font-bold">{qualityScore}%</div>
+                  <div className="text-sm text-blue-100 text-opacity-80">جودة المحتوى</div>
+                </div>
+                <div className="text-center px-4">
                   <div className="text-3xl font-bold text-white">{wordCount}</div>
                   <div className="text-sm text-blue-100">كلمة</div>
                 </div>
@@ -457,6 +505,7 @@ export default function EditArticlePage() {
                 </div>
               </div>
             </div>
+            
             {/* شريط التقدم والحالة */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
               {/* حالة الحفظ */}
@@ -535,6 +584,7 @@ export default function EditArticlePage() {
                 </div>
               </div>
             </div>
+            
             {/* أزرار التنقل */}
             <div className="flex flex-wrap gap-4 mb-8">
               <button
@@ -568,11 +618,11 @@ export default function EditArticlePage() {
                 {saving ? (
                   <RefreshCw className="w-5 h-5 animate-spin" />
                 ) : (
-                <Eye className="w-5 h-5" />
+                  <Eye className="w-5 h-5" />
                 )}
                 <span className="font-medium">تحديث ونشر</span>
               </button>
-        </div>
+            </div>
             {/* التبويبات المحسنة */}
             <div className="flex flex-wrap gap-2">
               {[

@@ -1,44 +1,56 @@
 'use client';
 
-import React from 'react';
-import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ThumbsUp, Bookmark, Share2, RefreshCw, Trash2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Star, 
+  Bookmark, 
+  Share, 
+  User, 
+  TrendingUp, 
+  Trophy,
+  Activity,
+  Eye,
+  Heart
+} from 'lucide-react';
+
+// دوال محلية مؤقتة لتفادي الأخطاء
+const mockInteractionFunctions = {
+  saveLocalInteraction: (userId: string, articleId: string, type: string) => {
+    return { success: true, points: 1, message: 'تم التفاعل' };
+  },
+  getUserArticleInteraction: (userId: string, articleId: string) => {
+    return { liked: false, saved: false, shared: false };
+  },
+  getUserStats: (userId: string) => {
+    return { totalLikes: 0, totalSaves: 0, totalShares: 0, totalPoints: 0, tier: 'bronze' };
+  }
+};
+
 export default function TestInteractionsPage() {
-  const [guestId, setGuestId] = useState<string>('');
-  const [interactions, setInteractions] = useState<any>({});
-  const [stats, setStats] = useState<any>({});
-  const [history, setHistory] = useState<any[]>([]);
-  // تحميل البيانات
-  const loadData = () => {
-    const storedGuestId = localStorage.getItem('guestId') || 'لا يوجد';
-    setGuestId(storedGuestId);
-    const storedInteractions = localStorage.getItem('sabq_interactions');
-    setInteractions(storedInteractions ? JSON.parse(storedInteractions) : {});
-    const storedStats = localStorage.getItem('sabq_user_stats');
-    setStats(storedStats ? JSON.parse(storedStats) : {});
-    const storedHistory = localStorage.getItem('sabq_points_history');
-    setHistory(storedHistory ? JSON.parse(storedHistory) : []);
-  };
+  const [testResults, setTestResults] = useState<any[]>([]);
+  const [guestId, setGuestId] = useState('');
+  const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('test');
+
+  // إنشاء معرف ضيف مؤقت
   useEffect(() => {
-    loadData();
+    const storedGuestId = localStorage.getItem('guestId');
+    if (storedGuestId) {
+      setGuestId(storedGuestId);
+    } else {
+      const newGuestId = 'guest-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+      localStorage.setItem('guestId', newGuestId);
+      setGuestId(newGuestId);
+    }
   }, []);
-  // اختبار التفاعل
-  const testInteraction = async (type: 'like' | 'save' | 'share') => {
-    const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
-    const testArticleId = 'test-article-123';
-    const result = saveLocalInteraction(
-      guestId,
-      testArticleId,
-      type,
-      { source: 'test-page' }
-    );
-    alert(`${type} نتيجة: ${result.message}`);
-    loadData();
-  };
-  // مسح البيانات
+
+  // دالة مسح البيانات
   const clearData = () => {
     if (confirm('هل أنت متأكد من مسح جميع البيانات المحلية؟')) {
       localStorage.removeItem('guestId');
@@ -48,142 +60,76 @@ export default function TestInteractionsPage() {
       window.location.reload();
     }
   };
+
+  // دالة اختبار التفاعل
+  const testInteraction = (articleId: string, type: string) => {
+    const result = mockInteractionFunctions.saveLocalInteraction(guestId, articleId, type);
+    setTestResults(prev => [...prev, {
+      id: Date.now(),
+      userId: guestId,
+      articleId,
+      type,
+      result,
+      timestamp: new Date().toISOString()
+    }]);
+  };
+
+  // دالة اختبار الحصول على التفاعل
+  const testGetInteraction = (articleId: string) => {
+    const interaction = mockInteractionFunctions.getUserArticleInteraction(guestId, articleId);
+    setTestResults(prev => [...prev, {
+      id: Date.now(),
+      userId: guestId,
+      articleId,
+      type: 'get',
+      result: interaction,
+      timestamp: new Date().toISOString()
+    }]);
+  };
+
+  // دالة اختبار الإحصائيات
+  const testStats = () => {
+    const stats = mockInteractionFunctions.getUserStats(guestId);
+    setTestResults(prev => [...prev, {
+      id: Date.now(),
+      userId: guestId,
+      type: 'stats',
+      result: stats,
+      timestamp: new Date().toISOString()
+    }]);
+  };
+
   return (
-  <div className="container mx-auto p-6 max-w-4xl" dir="rtl">
-      <h1 className="text-3xl font-bold mb-8 text-center">🧪 اختبار نظام التفاعلات المحلي</h1>
-      {/* معلومات المستخدم */}
+    <div className="container mx-auto p-6 max-w-4xl" dir="rtl">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">اختبار التفاعلات</h1>
+        <p className="text-gray-600">صفحة اختبار مؤقتة لاختبار التفاعلات (معطلة حاليًا)</p>
+      </div>
+
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>👤 معلومات المستخدم</CardTitle>
+          <CardTitle>معلومات المستخدم</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <p><strong>معرف الضيف:</strong> {guestId}</p>
             <p className="text-sm text-gray-500">
-              {guestId && guestId !== 'لا يوجد' ? '✅ معرف ثابت موجود' : '❌ لا يوجد معرف'}
+              ⚠️ ملاحظة: نظام التفاعلات المحلية معطل حاليًا لأن المشروع يستخدم Supabase فقط
             </p>
           </div>
         </CardContent>
       </Card>
-      {/* أزرار الاختبار */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>🎮 اختبار التفاعلات</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 flex-wrap">
-            <Button onClick={() => testInteraction('like')} className="flex items-center gap-2">
-              <ThumbsUp className="w-4 h-4" />
-              إعجاب
-            </Button>
-            <Button onClick={() => testInteraction('save')} className="flex items-center gap-2">
-              <Bookmark className="w-4 h-4" />
-              حفظ
-            </Button>
-            <Button onClick={() => testInteraction('share')} className="flex items-center gap-2">
-              <Share2 className="w-4 h-4" />
-              مشاركة
-            </Button>
-            <Button onClick={loadData} variant="outline" className="flex items-center gap-2">
-              <RefreshCw className="w-4 h-4" />
-              تحديث البيانات
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      {/* الإحصائيات */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>📊 الإحصائيات</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {Object.entries(stats).map(([userId, userStats]: [string, any]) => (
-            <div key={userId} className="mb-4 p-4 bg-gray-50 rounded">
-              <h4 className="font-semibold mb-2">{userId}</h4>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <p>إجمالي الإعجابات: {userStats.totalLikes || 0}</p>
-                <p>إجمالي الحفظ: {userStats.totalSaves || 0}</p>
-                <p>إجمالي المشاركات: {userStats.totalShares || 0}</p>
-                <p>إجمالي النقاط: {userStats.totalPoints || 0}</p>
-                <p>المستوى: {userStats.tier || 'bronze'}</p>
-                <p>آخر نشاط: {new Date(userStats.lastActivity).toLocaleString('ar')}</p>
-              </div>
-            </div>
-          ))}
-          {Object.keys(stats).length === 0 && (
-            <p className="text-gray-500">لا توجد إحصائيات بعد</p>
-          )}
-        </CardContent>
-      </Card>
-      {/* التفاعلات المحفوظة */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>💾 التفاعلات المحفوظة</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm">
-            {Object.entries(interactions).map(([key, interaction]: [string, any]) => (
-              <div key={key} className="p-3 bg-gray-50 rounded">
-                <p><strong>المفتاح:</strong> {key}</p>
-                <div className="flex gap-4 mt-1">
-                  <span className={interaction.liked ? 'text-green-600' : 'text-gray-400'}>
-                    {interaction.liked ? '❤️ معجب' : '🤍 غير معجب'}
-                  </span>
-                  <span className={interaction.saved ? 'text-blue-600' : 'text-gray-400'}>
-                    {interaction.saved ? '🔖 محفوظ' : '📄 غير محفوظ'}
-                  </span>
-                  <span className={interaction.shared ? 'text-purple-600' : 'text-gray-400'}>
-                    {interaction.shared ? '📤 مشارك' : '📥 غير مشارك'}
-                  </span>
-                </div>
-              </div>
-            ))}
-            {Object.keys(interactions).length === 0 && (
-              <p className="text-gray-500">لا توجد تفاعلات محفوظة</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-      {/* سجل النقاط */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>📜 سجل النقاط (آخر 10)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm">
-            {history.slice(-10).reverse().map((entry, index) => (
-              <div key={index} className="p-2 bg-gray-50 rounded flex justify-between">
-                <span>{entry.action} - {entry.articleId}</span>
-                <span className="text-green-600">+{entry.points} نقطة</span>
-              </div>
-            ))}
-            {history.length === 0 && (
-              <p className="text-gray-500">لا يوجد سجل نقاط</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-      {/* البيانات الخام */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>🔍 البيانات الخام (localStorage)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <pre className="bg-gray-100 p-4 rounded overflow-x-auto text-xs" dir="ltr">
-{JSON.stringify({
-  guestId,
-  sabq_interactions: interactions,
-  sabq_user_stats: stats,
-  sabq_points_history: history
-}, null, 2)}
-          </pre>
-        </CardContent>
-      </Card>
-      {/* زر مسح البيانات */}
-      <div className="text-center">
-        <Button onClick={clearData} variant="destructive" className="flex items-center gap-2 mx-auto">
-          <Trash2 className="w-4 h-4" />
-          مسح جميع البيانات
+
+      <div className="text-center p-8 bg-yellow-50 rounded-lg border border-yellow-200">
+        <h2 className="text-xl font-semibold mb-4">صفحة اختبار معطلة</h2>
+        <p className="text-gray-600 mb-4">
+          تم تعطيل هذه الصفحة لأن المشروع يستخدم Supabase للتفاعلات والبيانات.
+        </p>
+        <Button 
+          onClick={() => window.location.href = '/dashboard'}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          العودة للوحة التحكم
         </Button>
       </div>
     </div>

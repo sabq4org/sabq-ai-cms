@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useLocalStorageSync } from '@/hooks/useLocalStorageSync';
 import { useDebounce } from '@/hooks/useDebounce';
 import toast from 'react-hot-toast';
 
@@ -14,6 +13,11 @@ interface RealtimeEditorProps {
   initialContent?: string;
   onSave?: (content: string) => void;
 }
+
+// دالة مؤقتة لتفادي الأخطاء
+const mockBroadcast = (type: string, data: any) => {
+  console.log('Mock broadcast:', type, data);
+};
 
 export default function RealtimeEditor({
   articleId,
@@ -25,25 +29,6 @@ export default function RealtimeEditor({
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const debouncedContent = useDebounce(content, 1000);
-  
-  // إعداد التزامن المحلي
-  const { broadcast, lastUpdate } = useLocalStorageSync({
-    key: `article-${articleId}`,
-    userId,
-    onUpdate: (event) => {
-      if (event.type === 'content-update' && editor) {
-        // تحديث المحرر بالمحتوى الجديد
-        editor.commands.setContent(event.data.content);
-        setContent(event.data.content);
-        
-        // إظهار مؤشر التحديث
-        toast.success(`تم التحديث بواسطة ${event.data.userName || 'مستخدم آخر'}`, {
-          icon: '✏️',
-          duration: 3000
-        });
-      }
-    }
-  });
   
   // إعداد محرر TipTap
   const editor = useEditor({
@@ -79,8 +64,8 @@ export default function RealtimeEditor({
         await onSave(contentToSave);
       }
       
-      // بث التحديث للمتصفحات الأخرى
-      broadcast('content-update', {
+      // بث التحديث (معطل حاليًا)
+      mockBroadcast('content-update', {
         content: contentToSave,
         userName: localStorage.getItem('userName') || 'مستخدم',
         savedAt: new Date().toISOString()
@@ -122,13 +107,11 @@ export default function RealtimeEditor({
             ) : null}
           </div>
           
-          {/* مؤشر التحديثات */}
-          {lastUpdate && (
-            <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              <span>تحديث من {lastUpdate.data.userName}</span>
-            </div>
-          )}
+          {/* ملاحظة التعطيل */}
+          <div className="flex items-center gap-2 text-sm text-yellow-600 dark:text-yellow-400">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+            <span>المزامنة الفورية معطلة</span>
+          </div>
         </div>
         
         {/* أزرار التحكم */}
@@ -153,7 +136,7 @@ export default function RealtimeEditor({
       
       {/* معلومات إضافية */}
       <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-        <p>💡 نصيحة: التغييرات تُحفظ تلقائياً وتُزامن مع المتصفحات الأخرى</p>
+        <p>⚠️ ملاحظة: المزامنة الفورية معطلة حاليًا. يتم الحفظ محليًا فقط</p>
       </div>
     </div>
   );

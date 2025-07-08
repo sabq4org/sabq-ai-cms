@@ -21,58 +21,57 @@ import {
   ArrowUp,
   ArrowDown,
   CheckCircle,
-  Target
+  Target,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
+
 // أنواع البيانات
+interface Article {
+  id: string;
+  title: string;
+  views: number;
+  likes: number;
+  shares: number;
+  status: string;
+  created_at: string;
+  published_at?: string;
+  category?: {
+    id: string;
+    name: string;
+    color: string;
+  };
+  author?: {
+    id: string;
+    name: string;
+  };
+}
+
 interface KPIData {
   publishedThisWeek: number;
   currentDrafts: number;
+  totalViews: number;
+  totalInteractions: number;
+  avgReadingTime: number;
   mostActiveCategory: { name: string; count: number };
-  mostActiveEditor: { name: string; count: number };
-  dailyPublishingRate: number;
-  editRateBeforePublish: number;
+  mostActiveAuthor: { name: string; count: number };
 }
-interface EditorActivity {
-  id: string;
-  name: string;
-  articleCount: number;
-  aiUsageCount: number;
-  weeklyRate: number;
-  avatar?: string;
-}
-interface CategoryStats {
-  id: number;
-  name: string;
-  color: string;
-  articleCount: number;
-  viewsCount: number;
-  likesCount: number;
-  sharesCount: number;
-}
-interface TimeSeriesData {
-  date: string;
-  published: number;
-  edited: number;
-  deleted: number;
-  interactions: number;
-}
-interface ActivityLog {
-  id: string;
-  user: string;
-  action: string;
-  type: string;
-  articleTitle?: string;
-  timestamp: string;
-}
+
 export default function NewsInsightsPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [kpiData, setKpiData] = useState<KPIData | null>(null);
-  const [editorsActivity, setEditorsActivity] = useState<EditorActivity[]>([]);
-  const [categoryStats, setCategoryStats] = useState<CategoryStats[]>([]);
-  const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([]);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
-  const [selectedPeriod, setSelectedPeriod] = useState('week'); // week, month, year
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [kpiData, setKpiData] = useState<KPIData>({
+    publishedThisWeek: 0,
+    currentDrafts: 0,
+    totalViews: 0,
+    totalInteractions: 0,
+    avgReadingTime: 0,
+    mostActiveCategory: { name: '-', count: 0 },
+    mostActiveAuthor: { name: '-', count: 0 }
+  });
+  const [selectedPeriod, setSelectedPeriod] = useState('week');
+
   // استرجاع حالة الوضع الليلي
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
@@ -80,49 +79,87 @@ export default function NewsInsightsPage() {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-  // تحميل البيانات
+
+  // تحميل البيانات الحقيقية
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // جلب جميع البيانات بشكل متوازي
-        const [kpiRes, editorsRes, categoriesRes, timeSeriesRes, logsRes] = await Promise.all([
-          fetch('/api/analytics/kpi'),
-          fetch('/api/analytics/editors'),
-          fetch('/api/analytics/categories'),
-          fetch(`/api/analytics/timeseries?period=${selectedPeriod}`),
-          fetch('/api/analytics/activity-logs')
-        ]);
-        // معالجة الاستجابات
-        if (kpiRes.ok) {
-          const kpiData = await kpiRes.json();
-          setKpiData(kpiData);
-        }
-        if (editorsRes.ok) {
-          const editorsData = await editorsRes.json();
-          setEditorsActivity(editorsData);
-        }
-        if (categoriesRes.ok) {
-          const categoriesData = await categoriesRes.json();
-          setCategoryStats(categoriesData);
-        }
-        if (timeSeriesRes.ok) {
-          const timeData = await timeSeriesRes.json();
-          setTimeSeriesData(timeData);
-        }
-        if (logsRes.ok) {
-          const logsData = await logsRes.json();
-          setActivityLogs(logsData);
+        
+        // جلب المقالات مع التصنيفات
+        const articlesResponse = await fetch('/api/articles?limit=50&include=category,author');
+        const articlesData = await articlesResponse.json();
+        
+        if (articlesData.success) {
+          const articles = articlesData.data || articlesData.articles || [];
+          setArticles(articles);
+          
+          // حساب KPI من البيانات الحقيقية
+          const now = new Date();
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          
+          const publishedThisWeek = articles.filter((article: Article) => {
+            const publishedAt = new Date(article.published_at || article.created_at);
+            return publishedAt >= weekAgo && article.status === 'published';
+          }).length;
+          
+          const currentDrafts = articles.filter((article: Article) => 
+            article.status === 'draft'
+          ).length;
+          
+          const totalViews = articles.reduce((sum: number, article: Article) => 
+            sum + (article.views || 0), 0
+          );
+          
+          const totalInteractions = articles.reduce((sum: number, article: Article) => 
+            sum + (article.likes || 0) + (article.shares || 0), 0
+          );
+          
+          // حساب أكثر فئة نشاطاً
+          const categoryCount: { [key: string]: number } = {};
+          articles.forEach((article: Article) => {
+            if (article.category) {
+              categoryCount[article.category.name] = (categoryCount[article.category.name] || 0) + 1;
+            }
+          });
+          
+          const mostActiveCategory = Object.entries(categoryCount).reduce((max, [name, count]) => 
+            count > max.count ? { name, count } : max, { name: '-', count: 0 }
+          );
+          
+          // حساب أكثر مؤلف نشاطاً
+          const authorCount: { [key: string]: number } = {};
+          articles.forEach((article: Article) => {
+            if (article.author) {
+              authorCount[article.author.name] = (authorCount[article.author.name] || 0) + 1;
+            }
+          });
+          
+          const mostActiveAuthor = Object.entries(authorCount).reduce((max, [name, count]) => 
+            count > max.count ? { name, count } : max, { name: '-', count: 0 }
+          );
+          
+          setKpiData({
+            publishedThisWeek,
+            currentDrafts,
+            totalViews,
+            totalInteractions,
+            avgReadingTime: 3.5, // يمكن حسابه من بيانات المقال
+            mostActiveCategory,
+            mostActiveAuthor
+          });
         }
       } catch (error) {
         console.error('خطأ في تحميل البيانات:', error);
-        toast.error('فشل تحميل بعض البيانات');
+        toast.error('فشل في تحميل البيانات');
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [selectedPeriod]);
+
   // مكون KPI Card
   const KPICard = ({ 
     title, 
@@ -168,64 +205,23 @@ export default function NewsInsightsPage() {
       </div>
     </div>
   );
-  // رسم بياني بسيط للتوزيع
-  const SimplePieChart = ({ data }: { data: CategoryStats[] }) => {
-    const total = data.reduce((sum, item) => sum + item.articleCount, 0);
-    let currentAngle = 0;
-    return (
-  <div className="relative w-64 h-64 mx-auto">
-        <svg viewBox="0 0 100 100" className="transform -rotate-90">
-          {data.map((item, index) => {
-            const percentage = (item.articleCount / total) * 100;
-            const angle = (percentage / 100) * 360;
-            const largeArc = angle > 180 ? 1 : 0;
-            const x1 = 50 + 40 * Math.cos((currentAngle * Math.PI) / 180);
-            const y1 = 50 + 40 * Math.sin((currentAngle * Math.PI) / 180);
-            currentAngle += angle;
-            const x2 = 50 + 40 * Math.cos((currentAngle * Math.PI) / 180);
-            const y2 = 50 + 40 * Math.sin((currentAngle * Math.PI) / 180);
-            return (
-              <path
-                key={index}
-                d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                fill={item.color}
-                stroke="white"
-                strokeWidth="1"
-                className="hover:opacity-80 transition-opacity cursor-pointer"
-              />
-            );
-          })}
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-              {total}
-            </div>
-            <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              إجمالي المقالات
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
+
   // عرض حالة التحميل
   if (loading) {
     return (
-  <div className={`p-8 ${darkMode ? 'bg-gray-900' : ''}`}>
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              جارٍ تحميل البيانات التحليلية...
-            </p>
-          </div>
+      <div className={`p-8 min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="text-center">
+          <Loader2 className="w-16 h-16 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            جارٍ تحميل البيانات التحليلية...
+          </p>
         </div>
       </div>
     );
   }
+
   return (
-  <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
+    <div className={`p-8 min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* الرأس */}
       <div className="mb-8 flex items-center justify-between">
         <div>
@@ -237,24 +233,21 @@ export default function NewsInsightsPage() {
           <p className={`transition-colors duration-300 ${
             darkMode ? 'text-gray-300' : 'text-gray-600'
           }`}>
-            نظرة شاملة على أداء المحتوى التحريري ونشاط المحررين
+            نظرة شاملة على أداء المحتوى التحريري من البيانات الحقيقية
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {/* اختيار الفترة الزمنية */}
-          <select
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-            className={`px-4 py-2 rounded-lg border transition-colors duration-300 ${
+          <button
+            onClick={() => window.location.reload()}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors duration-300 ${
               darkMode 
-                ? 'bg-gray-800 border-gray-700 text-gray-200' 
-                : 'bg-white border-gray-300 text-gray-900'
-            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                ? 'bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700' 
+                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+            }`}
           >
-            <option value="week">آخر أسبوع</option>
-            <option value="month">آخر شهر</option>
-            <option value="year">آخر سنة</option>
-          </select>
+            <RefreshCw className="w-4 h-4" />
+            تحديث
+          </button>
           <Link
             href="/dashboard/news"
             className={`px-4 py-2 rounded-lg border transition-colors duration-300 ${
@@ -267,11 +260,12 @@ export default function NewsInsightsPage() {
           </Link>
         </div>
       </div>
+
       {/* مؤشرات الأداء الرئيسية KPIs */}
-      <div className="grid grid-cols-6 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <KPICard
           title="منشور هذا الأسبوع"
-          value={kpiData?.publishedThisWeek || 0}
+          value={kpiData.publishedThisWeek}
           subtitle="مقال جديد"
           icon={FileText}
           trend={{ value: 12, isUp: true }}
@@ -280,307 +274,172 @@ export default function NewsInsightsPage() {
         />
         <KPICard
           title="المسودات الحالية"
-          value={kpiData?.currentDrafts || 0}
+          value={kpiData.currentDrafts}
           subtitle="في انتظار النشر"
           icon={Edit}
           bgColor="bg-yellow-100"
           iconColor="text-yellow-600"
         />
         <KPICard
-          title="أكثر تصنيف نشاطاً"
-          value={kpiData?.mostActiveCategory?.name || '-'}
-          subtitle={`${kpiData?.mostActiveCategory?.count || 0} مقال`}
-          icon={Target}
-          bgColor="bg-purple-100"
-          iconColor="text-purple-600"
-        />
-        <KPICard
-          title="أكثر محرر نشاطاً"
-          value={kpiData?.mostActiveEditor?.name || '-'}
-          subtitle={`${kpiData?.mostActiveEditor?.count || 0} مقال`}
-          icon={Award}
+          title="إجمالي المشاهدات"
+          value={kpiData.totalViews.toLocaleString()}
+          subtitle="مشاهدة"
+          icon={Eye}
           bgColor="bg-green-100"
           iconColor="text-green-600"
         />
         <KPICard
-          title="معدل النشر اليومي"
-          value={kpiData?.dailyPublishingRate?.toFixed(1) || '0'}
-          subtitle="مقال/يوم"
-          icon={TrendingUp}
-          trend={{ value: 8, isUp: true }}
-          bgColor="bg-orange-100"
-          iconColor="text-orange-600"
-        />
-        <KPICard
-          title="معدل التعديل قبل النشر"
-          value={`${kpiData?.editRateBeforePublish?.toFixed(0) || 0}%`}
-          subtitle="من المقالات"
-          icon={CheckCircle}
-          bgColor="bg-teal-100"
-          iconColor="text-teal-600"
+          title="إجمالي التفاعل"
+          value={kpiData.totalInteractions.toLocaleString()}
+          subtitle="إعجاب ومشاركة"
+          icon={Heart}
+          bgColor="bg-purple-100"
+          iconColor="text-purple-600"
         />
       </div>
-      {/* القسم الأول: المحررون الأكثر نشاطاً */}
-      <div className={`rounded-2xl shadow-sm border p-6 mb-8 transition-colors duration-300 ${
-        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
-      }`}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className={`text-xl font-bold flex items-center gap-3 ${
-            darkMode ? 'text-white' : 'text-gray-800'
-          }`}>
-            <Users className="w-6 h-6 text-blue-600" />
-            المحررون الأكثر نشاطاً
-          </h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                <th className={`text-right py-3 px-4 text-sm font-medium ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>المحرر</th>
-                <th className={`text-center py-3 px-4 text-sm font-medium ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>عدد المقالات</th>
-                <th className={`text-center py-3 px-4 text-sm font-medium ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>استخدام الذكاء الاصطناعي</th>
-                <th className={`text-center py-3 px-4 text-sm font-medium ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>معدل النشر/أسبوع</th>
-              </tr>
-            </thead>
-            <tbody>
-              {editorsActivity.map((editor, index) => (
-                <tr key={editor.id} className={`border-b ${
-                  darkMode ? 'border-gray-700' : 'border-gray-100'
-                } hover:bg-opacity-50 transition-colors`}>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
-                        ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500'][index % 4]
-                      }`}>
-                        {editor.name.charAt(0)}
-                      </div>
-                      <span className={`font-medium ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                        {editor.name}
-                      </span>
-                    </div>
-                  </td>
-                  <td className={`text-center py-4 px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    {editor.articleCount}
-                  </td>
-                  <td className="text-center py-4 px-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <Brain className="w-4 h-4 text-purple-500" />
-                      <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
-                        {editor.aiUsageCount} مرة
-                      </span>
-                    </div>
-                  </td>
-                  <td className={`text-center py-4 px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    {editor.weeklyRate.toFixed(1)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      {/* القسم الثاني: التوزيع حسب التصنيف */}
-      <div className="grid grid-cols-2 gap-8 mb-8">
-        {/* الرسم البياني الدائري */}
+
+      {/* أكثر التصنيفات والمؤلفين نشاطاً */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className={`rounded-2xl shadow-sm border p-6 transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
         }`}>
-          <h3 className={`text-xl font-bold mb-6 flex items-center gap-3 ${
+          <h3 className={`text-xl font-bold mb-4 flex items-center gap-3 ${
             darkMode ? 'text-white' : 'text-gray-800'
           }`}>
-            <BarChart3 className="w-6 h-6 text-purple-600" />
-            توزيع المقالات حسب التصنيف
+            <Target className="w-6 h-6 text-purple-600" />
+            أكثر تصنيف نشاطاً
           </h3>
-          <SimplePieChart data={categoryStats} />
-          {/* قائمة التصنيفات */}
-          <div className="grid grid-cols-2 gap-3 mt-6">
-            {categoryStats.slice(0, 6).map((category) => (
-              <div key={category.id} className="flex items-center gap-2">
-                <div 
-                  className="w-4 h-4 rounded" 
-                  style={{ backgroundColor: category.color }}
-                />
-                <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {category.name} ({category.articleCount})
-                </span>
-              </div>
-            ))}
+          <div className="text-center">
+            <div className={`text-3xl font-bold mb-2 ${
+              darkMode ? 'text-white' : 'text-gray-800'
+            }`}>
+              {kpiData.mostActiveCategory.name}
+            </div>
+            <div className={`text-lg ${
+              darkMode ? 'text-gray-300' : 'text-gray-600'
+            }`}>
+              {kpiData.mostActiveCategory.count} مقال
+            </div>
           </div>
         </div>
-        {/* جدول التفاعل حسب التصنيف */}
+
         <div className={`rounded-2xl shadow-sm border p-6 transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
         }`}>
-          <h3 className={`text-xl font-bold mb-6 flex items-center gap-3 ${
+          <h3 className={`text-xl font-bold mb-4 flex items-center gap-3 ${
             darkMode ? 'text-white' : 'text-gray-800'
           }`}>
-            <Activity className="w-6 h-6 text-green-600" />
-            التفاعل حسب التصنيف
+            <Award className="w-6 h-6 text-orange-600" />
+            أكثر مؤلف نشاطاً
           </h3>
-          <div className="space-y-3">
-            {categoryStats.map((category) => (
-              <div key={category.id} className={`p-4 rounded-lg border ${
-                darkMode ? 'border-gray-700' : 'border-gray-200'
-              }`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded" 
-                      style={{ backgroundColor: category.color }}
-                    />
-                    <span className={`font-medium ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                      {category.name}
-                    </span>
-                  </div>
-                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {category.articleCount} مقال
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className={`p-2 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                    <Eye className="w-4 h-4 mx-auto mb-1 text-blue-500" />
-                    <div className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {category.viewsCount.toLocaleString()}
-                    </div>
-                    <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                      مشاهدة
-                    </div>
-                  </div>
-                  <div className={`p-2 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                    <Heart className="w-4 h-4 mx-auto mb-1 text-red-500" />
-                    <div className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {category.likesCount.toLocaleString()}
-                    </div>
-                    <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                      إعجاب
-                    </div>
-                  </div>
-                  <div className={`p-2 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                    <Share2 className="w-4 h-4 mx-auto mb-1 text-green-500" />
-                    <div className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {category.sharesCount.toLocaleString()}
-                    </div>
-                    <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                      مشاركة
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="text-center">
+            <div className={`text-3xl font-bold mb-2 ${
+              darkMode ? 'text-white' : 'text-gray-800'
+            }`}>
+              {kpiData.mostActiveAuthor.name}
+            </div>
+            <div className={`text-lg ${
+              darkMode ? 'text-gray-300' : 'text-gray-600'
+            }`}>
+              {kpiData.mostActiveAuthor.count} مقال
+            </div>
           </div>
         </div>
       </div>
-      {/* القسم الثالث: حركة الأخبار بمرور الوقت */}
-      <div className={`rounded-2xl shadow-sm border p-6 mb-8 transition-colors duration-300 ${
-        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
-      }`}>
-        <h3 className={`text-xl font-bold mb-6 flex items-center gap-3 ${
-          darkMode ? 'text-white' : 'text-gray-800'
-        }`}>
-          <TrendingUp className="w-6 h-6 text-orange-600" />
-          حركة الأخبار بمرور الوقت
-        </h3>
-        {/* رسم بياني بسيط للخط الزمني */}
-        <div className="h-64 relative">
-          <div className="absolute inset-0 flex items-end justify-between px-4">
-            {timeSeriesData.map((data, index) => (
-              <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                <div className="w-full flex flex-col items-center gap-1">
-                  <div 
-                    className="w-full bg-blue-500 rounded-t"
-                    style={{ height: `${(data.published / 20) * 100}%`, minHeight: '4px' }}
-                    title={`نشر: ${data.published}`}
-                  />
-                  <div 
-                    className="w-full bg-yellow-500"
-                    style={{ height: `${(data.edited / 20) * 100}%`, minHeight: '4px' }}
-                    title={`تعديل: ${data.edited}`}
-                  />
-                  <div 
-                    className="w-full bg-red-500 rounded-b"
-                    style={{ height: `${(data.deleted / 20) * 100}%`, minHeight: '4px' }}
-                    title={`حذف: ${data.deleted}`}
-                  />
-                </div>
-                <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  {new Date(data.date).toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' })}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* مفتاح الألوان */}
-        <div className="flex items-center justify-center gap-6 mt-4">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-blue-500 rounded" />
-            <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>نشر</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-yellow-500 rounded" />
-            <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>تعديل</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-500 rounded" />
-            <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>حذف</span>
-          </div>
-        </div>
-      </div>
-      {/* القسم الرابع: سجل النشاط التحريري */}
+
+      {/* المقالات الأكثر مشاهدة */}
       <div className={`rounded-2xl shadow-sm border p-6 transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
       }`}>
         <h3 className={`text-xl font-bold mb-6 flex items-center gap-3 ${
           darkMode ? 'text-white' : 'text-gray-800'
         }`}>
-          <Clock className="w-6 h-6 text-teal-600" />
-          سجل النشاط التحريري
+          <TrendingUp className="w-6 h-6 text-green-600" />
+          المقالات الأكثر مشاهدة
         </h3>
-        <div className="space-y-3">
-          {activityLogs.map((log) => (
-            <div key={log.id} className={`flex items-center justify-between p-4 rounded-lg border ${
-              darkMode ? 'border-gray-700' : 'border-gray-200'
-            }`}>
-              <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  log.action === 'نشر' ? 'bg-green-100' :
-                  log.action === 'تعديل' ? 'bg-yellow-100' :
-                  log.action === 'حذف' ? 'bg-red-100' :
-                  'bg-gray-100'
-                }`}>
-                  {log.action === 'نشر' && <CheckCircle className="w-5 h-5 text-green-600" />}
-                  {log.action === 'تعديل' && <Edit className="w-5 h-5 text-yellow-600" />}
-                  {log.action === 'حذف' && <Trash2 className="w-5 h-5 text-red-600" />}
-                  {log.action === 'مشاركة' && <Share2 className="w-5 h-5 text-blue-600" />}
-                </div>
-                <div>
-                  <div className={`font-medium ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                    {log.user} - {log.action}
-                  </div>
-                  {log.articleTitle && (
-                    <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {log.articleTitle}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <th className={`text-right py-3 px-4 text-sm font-medium ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>العنوان</th>
+                <th className={`text-center py-3 px-4 text-sm font-medium ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>المشاهدات</th>
+                <th className={`text-center py-3 px-4 text-sm font-medium ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>التفاعل</th>
+                <th className={`text-center py-3 px-4 text-sm font-medium ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>التصنيف</th>
+                <th className={`text-center py-3 px-4 text-sm font-medium ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>الحالة</th>
+              </tr>
+            </thead>
+            <tbody>
+              {articles
+                .sort((a, b) => (b.views || 0) - (a.views || 0))
+                .slice(0, 10)
+                .map((article) => (
+                <tr key={article.id} className={`border-b ${
+                  darkMode ? 'border-gray-700' : 'border-gray-100'
+                } hover:bg-opacity-50 transition-colors`}>
+                  <td className="py-4 px-4">
+                    <div className="max-w-md">
+                      <div className={`font-medium ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                        {article.title}
+                      </div>
+                      <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {article.author?.name || 'مؤلف غير معروف'}
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
-              <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {new Date(log.timestamp).toLocaleString('ar-SA', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  day: 'numeric',
-                  month: 'short'
-                })}
-              </div>
-            </div>
-          ))}
+                  </td>
+                  <td className={`text-center py-4 px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <div className="flex items-center justify-center gap-1">
+                      <Eye className="w-4 h-4" />
+                      {(article.views || 0).toLocaleString()}
+                    </div>
+                  </td>
+                  <td className={`text-center py-4 px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <div className="flex items-center justify-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <Heart className="w-4 h-4 text-red-500" />
+                        {(article.likes || 0)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Share2 className="w-4 h-4 text-green-500" />
+                        {(article.shares || 0)}
+                      </span>
+                    </div>
+                  </td>
+                  <td className={`text-center py-4 px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      article.category?.color 
+                        ? `bg-${article.category.color}-100 text-${article.category.color}-800`
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {article.category?.name || 'غير مصنف'}
+                    </span>
+                  </td>
+                  <td className={`text-center py-4 px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      article.status === 'published' 
+                        ? 'bg-green-100 text-green-800' 
+                        : article.status === 'draft'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {article.status === 'published' ? 'منشور' : 
+                       article.status === 'draft' ? 'مسودة' : 
+                       article.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

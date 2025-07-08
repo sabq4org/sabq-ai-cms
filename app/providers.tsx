@@ -6,9 +6,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { DarkModeProvider } from '@/contexts/DarkModeContext'
-import { migrateThemeSettings } from '@/lib/theme-migration'
 import { Toaster } from 'react-hot-toast'
 
+// دالة بسيطة لترحيل الإعدادات القديمة
+const migrateThemeSettings = () => {
+  if (typeof window !== 'undefined') {
+    const darkMode = localStorage.getItem('darkMode');
+    const theme = localStorage.getItem('theme');
+    
+    if (darkMode && !theme) {
+      localStorage.setItem('theme', JSON.parse(darkMode) ? 'dark' : 'light');
+    }
+  }
+};
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(

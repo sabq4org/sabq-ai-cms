@@ -37,8 +37,8 @@ export async function logActivity(params: LogActivityParams) {
 
 // دالة مساعدة للحصول على معلومات المستخدم الحالي
 export function getCurrentUser() {
-  // في بيئة الإنتاج، يجب الحصول على هذه المعلومات من الجلسة
-  // حالياً سنستخدم قيم افتراضية للتطوير
+  // ملاحظة: هذا localStorage مؤقت للتطوير فقط
+  // TODO: يجب استبداله بـ session/cookies في الإنتاج
   const storedUser = localStorage.getItem('currentUser');
   if (storedUser) {
     return JSON.parse(storedUser);
