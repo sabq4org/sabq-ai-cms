@@ -1310,6 +1310,9 @@ function NewspaperHomePage(): React.ReactElement {
           </div>
         </div>
       </footer>
+      
+      {/* بلوك "ليلة هادئة" - يظهر فقط في الليل */}
+      <FooterDashboard />
     </div>
   );
 }
