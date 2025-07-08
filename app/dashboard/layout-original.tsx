@@ -31,7 +31,7 @@ import {
   ChevronRight,
   Sun,
   Moon,
-  Image,
+  Image as ImageIcon,
   MessageCircle
 } from 'lucide-react';
 
@@ -637,7 +637,7 @@ export default function DashboardLayout({
                         ? 'bg-orange-900/40 group-hover:bg-orange-500 group-hover:text-white' 
                         : 'bg-orange-100 group-hover:bg-orange-500 group-hover:text-white'
                     }`}>
-                      <Image className="w-4 h-4 lg:w-5 lg:h-5" />
+                      <ImageIcon className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <div className="flex-1">
                       <span className="text-sm lg:text-base font-medium">إدارة الصور</span>
