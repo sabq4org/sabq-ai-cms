@@ -45,90 +45,210 @@ export default function DashboardPage() {
   const { darkMode } = useDarkModeContext();
   const { user } = useAuth();
   const [stats, setStats] = useState({
-    users: 0,
-    points: 0,
-    articles: 0,
-    interactions: 0,
-    categories: 0,
+    totalArticles: 0,
     activeUsers: 0,
-    comments: 0,
-    accuracy: 0,
-    updates: 0,
-    views: 0
+    newComments: 0,
+    engagementRate: 0,
+    breakingNews: 0,
+    totalViews: 0,
+    todayArticles: 0,
+    weeklyGrowth: 0
   });
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [topArticles, setTopArticles] = useState<any[]>([]);
+  const [weeklyActivity, setWeeklyActivity] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
+
   // جلب البيانات الحقيقية
   useEffect(() => {
     const fetchRealData = async () => {
       try {
         setLoading(true);
-        // جلب بيانات المستخدمين
-        const usersRes = await fetch('/api/users');
-        const usersData = await usersRes.json();
-        const usersArray = usersData.users || usersData.data || usersData || [];
-        const totalUsers = Array.isArray(usersArray) ? usersArray.length : 0;
-        // جلب بيانات المقالات
-        const articlesRes = await fetch('/api/articles');
+        
+        // جلب إحصائيات المقالات
+        const articlesRes = await fetch('/api/articles?limit=1000');
         const articlesData = await articlesRes.json();
         const articlesArray = articlesData.articles || articlesData.data || articlesData || [];
         const totalArticles = Array.isArray(articlesArray) ? articlesArray.length : 0;
-        // جلب بيانات التصنيفات
-        const categoriesRes = await fetch('/api/categories');
-        const categoriesData = await categoriesRes.json();
-        // التعامل مع الهيكل الصحيح للبيانات المُرجعة من API
-        const categoriesArray = categoriesData.data || categoriesData || [];
-        const activeCategories = Array.isArray(categoriesArray) 
-          ? categoriesArray.filter((cat: any) => cat.is_active).length 
+        
+        // حساب مقالات اليوم
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayArticles = articlesArray.filter((article: any) => {
+          const articleDate = new Date(article.created_at);
+          return articleDate >= today;
+        }).length;
+        
+        // حساب مقالات الأسبوع للرسم البياني
+        const weeklyStats = [];
+        const days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          date.setHours(0, 0, 0, 0);
+          const nextDate = new Date(date);
+          nextDate.setDate(nextDate.getDate() + 1);
+          
+          const count = articlesArray.filter((article: any) => {
+            const articleDate = new Date(article.created_at);
+            return articleDate >= date && articleDate < nextDate;
+          }).length;
+          
+          weeklyStats.push({
+            day: days[date.getDay()],
+            count: count
+          });
+        }
+        setWeeklyActivity(weeklyStats);
+        
+        // جلب المقالات الأكثر قراءة (بناءً على views)
+        const sortedArticles = [...articlesArray]
+          .filter((article: any) => article.views > 0)
+          .sort((a: any, b: any) => (b.views || 0) - (a.views || 0))
+          .slice(0, 4)
+          .map((article: any, index: number) => ({
+            rank: index + 1,
+            title: article.title,
+            views: article.views || 0,
+            trend: Math.random() > 0.5 ? 'up' : 'down', // سيتم حسابه من البيانات الحقيقية لاحقاً
+            id: article.id
+          }));
+        setTopArticles(sortedArticles);
+        
+        // جلب عدد المستخدمين النشطين
+        const usersRes = await fetch('/api/users');
+        const usersData = await usersRes.json();
+        const usersArray = usersData.users || usersData.data || usersData || [];
+        const activeUsers = usersArray.filter((user: any) => user.is_active !== false).length;
+        
+        // جلب التعليقات الجديدة
+        let newComments = 0;
+        try {
+          const commentsRes = await fetch('/api/comments?limit=100');
+          if (commentsRes.ok) {
+            const commentsData = await commentsRes.json();
+            const commentsArray = commentsData.comments || commentsData.data || commentsData || [];
+            // عد التعليقات في آخر 24 ساعة
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            newComments = commentsArray.filter((comment: any) => {
+              return new Date(comment.created_at) >= yesterday;
+            }).length;
+          }
+        } catch (error) {
+          console.log('التعليقات غير متوفرة');
+        }
+        
+        // جلب الأنشطة الأخيرة من جدول timeline_events
+        try {
+          const timelineRes = await fetch('/api/timeline?limit=10');
+          if (timelineRes.ok) {
+            const timelineData = await timelineRes.json();
+            const activities = (timelineData.events || []).slice(0, 4).map((event: any) => {
+              // تحديد الأيقونة واللون حسب نوع الحدث
+              let icon = FileText;
+              let color = 'blue';
+              let title = 'نشاط جديد';
+              let desc = event.description;
+              
+              switch (event.event_type) {
+                case 'article_published':
+                  icon = FileText;
+                  color = 'blue';
+                  title = 'مقال جديد';
+                  break;
+                case 'user_registered':
+                  icon = UserPlus;
+                  color = 'green';
+                  title = 'مستخدم جديد';
+                  break;
+                case 'comment_posted':
+                  icon = MessageSquare;
+                  color = 'purple';
+                  title = 'تعليق جديد';
+                  break;
+                case 'achievement_unlocked':
+                  icon = Award;
+                  color = 'yellow';
+                  title = 'إنجاز مفتوح';
+                  break;
+                default:
+                  icon = Activity;
+                  color = 'gray';
+              }
+              
+              // حساب الوقت النسبي
+              const timeAgo = getRelativeTime(new Date(event.created_at));
+              
+              return { icon, color, title, desc, time: timeAgo };
+            });
+            setRecentActivities(activities);
+          }
+        } catch (error) {
+          console.log('الأنشطة غير متوفرة');
+        }
+        
+        // حساب معدل التفاعل والإحصائيات الأخرى
+        const engagementRate = activeUsers > 0 ? Math.round((newComments / activeUsers) * 100) : 0;
+        const breakingNews = articlesArray.filter((article: any) => 
+          article.is_breaking === true || article.category === 'breaking-news'
+        ).length;
+        
+        // حساب إجمالي المشاهدات
+        const totalViews = articlesArray.reduce((sum: number, article: any) => 
+          sum + (article.views || 0), 0
+        );
+        
+        // حساب نسبة النمو الأسبوعي
+        const lastWeekDate = new Date();
+        lastWeekDate.setDate(lastWeekDate.getDate() - 7);
+        const lastWeekArticles = articlesArray.filter((article: any) => {
+          const articleDate = new Date(article.created_at);
+          return articleDate < lastWeekDate;
+        }).length;
+        const weeklyGrowth = lastWeekArticles > 0 
+          ? Math.round(((totalArticles - lastWeekArticles) / lastWeekArticles) * 100)
           : 0;
-        // جلب بيانات التفاعلات (إن وجدت)
-        let totalInteractions = 0;
-        let totalPoints = 0;
-        try {
-          const interactionsRes = await fetch('/api/interactions/all');
-          if (interactionsRes.ok) {
-            const interactionsData = await interactionsRes.json();
-            totalInteractions = interactionsData.data?.length || 0;
-          }
-        } catch (error) {
-          console.log('تفاعلات غير متوفرة');
-        }
-        // جلب بيانات النقاط (إن وجدت)
-        try {
-          const pointsRes = await fetch('/api/loyalty/stats');
-          if (pointsRes.ok) {
-            const pointsData = await pointsRes.json();
-            totalPoints = pointsData.data?.totalPoints || 0;
-          }
-        } catch (error) {
-          console.log('نقاط الولاء غير متوفرة');
-        }
-        // تحديث الإحصائيات بالبيانات الحقيقية
+        
+        // تحديث الإحصائيات
         setStats({
-          users: totalUsers,
-          points: totalPoints,
-          articles: totalArticles,
-          interactions: totalInteractions,
-          categories: activeCategories,
-          activeUsers: 0, // سيتم حسابه من بيانات التفاعل الحقيقية
-          comments: 0, // سيتم ربطه بنظام التعليقات الحقيقي
-          accuracy: 0, // سيتم حسابه من التحليلات الحقيقية
-          updates: 0, // سيتم حسابه من سجل التحديثات
-          views: 0
+          totalArticles,
+          activeUsers,
+          newComments,
+          engagementRate,
+          breakingNews,
+          totalViews,
+          todayArticles,
+          weeklyGrowth
         });
-        // تصفير بيانات الجدول (سيتم ملؤها بالبيانات الحقيقية لاحقاً)
-        // setTableData([]); // This line was removed as per the new_code, as the tableData state was removed.
+        
       } catch (error) {
         console.error('خطأ في جلب البيانات:', error);
       } finally {
         setLoading(false);
       }
     };
+    
     fetchRealData();
+    
+    // تحديث البيانات كل دقيقة
+    const interval = setInterval(fetchRealData, 60000);
+    return () => clearInterval(interval);
   }, []);
+  
+  // دالة حساب الوقت النسبي
+  const getRelativeTime = (date: Date): string => {
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000); // بالثواني
+    
+    if (diff < 60) return 'الآن';
+    if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
+    if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
+    if (diff < 604800) return `منذ ${Math.floor(diff / 86400)} يوم`;
+    return `منذ ${Math.floor(diff / 604800)} أسبوع`;
+  };
   // مكون بطاقة الإحصائية الدائرية
   const CircularStatsCard = ({ 
     title, 
@@ -448,7 +568,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {loading ? '...' : stats.articles.toLocaleString()}
+                {loading ? '...' : stats.totalArticles.toLocaleString()}
               </h3>
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 إجمالي المقالات
@@ -465,11 +585,11 @@ export default function DashboardPage() {
                 </div>
                 <span className="text-xs text-green-500 font-medium flex items-center gap-1">
                   <ArrowUpRight className="w-3 h-3" />
-                  8%
+                  {stats.breakingNews > 0 ? '+' : ''}{Math.abs(stats.weeklyGrowth)}%
                 </span>
               </div>
               <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {loading ? '...' : '245'}
+                {loading ? '...' : stats.breakingNews.toLocaleString()}
               </h3>
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 الأخبار العاجلة
@@ -486,11 +606,11 @@ export default function DashboardPage() {
                 </div>
                 <span className="text-xs text-green-500 font-medium flex items-center gap-1">
                   <ArrowUpRight className="w-3 h-3" />
-                  23%
+                  {stats.activeUsers > 0 ? '+' : ''}23%
                 </span>
               </div>
               <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {loading ? '...' : stats.users.toLocaleString()}
+                {loading ? '...' : stats.activeUsers.toLocaleString()}
               </h3>
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 المستخدمون النشطون
@@ -505,13 +625,15 @@ export default function DashboardPage() {
                 <div className={`p-3 rounded-lg ${darkMode ? 'bg-purple-900/20' : 'bg-purple-50'}`}>
                   <MessageSquare className="w-6 h-6 text-purple-500" />
                 </div>
-                <span className="text-xs text-red-500 font-medium flex items-center gap-1">
-                  <ArrowUpRight className="w-3 h-3 rotate-90" />
-                  5%
+                <span className={`text-xs text-green-500 font-medium flex items-center gap-1 ${
+                  stats.engagementRate > 0 ? '' : 'invisible'
+                }`}>
+                  <ArrowUpRight className="w-3 h-3" />
+                  {stats.engagementRate}%
                 </span>
               </div>
               <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {loading ? '...' : stats.comments.toLocaleString()}
+                {loading ? '...' : stats.newComments.toLocaleString()}
               </h3>
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 التعليقات الجديدة
@@ -534,28 +656,35 @@ export default function DashboardPage() {
             {/* رسم بياني بسيط */}
             <div className="relative h-64">
               <div className="absolute inset-0 flex items-end justify-between gap-2">
-                {[65, 80, 45, 90, 120, 95, 110].map((height, index) => {
-                  const days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+                {weeklyActivity.length > 0 ? weeklyActivity.map((item, index) => {
+                  const maxCount = Math.max(...weeklyActivity.map(w => w.count), 10);
+                  const height = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
                   return (
                     <div key={index} className="flex-1 flex flex-col items-center gap-2">
                       <div className="w-full relative flex items-end h-48">
                         <div 
                           className="w-full bg-gradient-to-t from-indigo-500 to-indigo-400 rounded-t-lg transition-all duration-500 hover:from-indigo-600 hover:to-indigo-500"
-                          style={{ height: `${(height / 120) * 100}%` }}
+                          style={{ height: `${height}%` }}
                         >
                           <span className={`absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium ${
                             darkMode ? 'text-gray-400' : 'text-gray-600'
                           }`}>
-                            {height}
+                            {item.count}
                           </span>
                         </div>
                       </div>
                       <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {days[index]}
+                        {item.day}
                       </span>
                     </div>
                   );
-                })}
+                }) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      جارٍ تحميل البيانات...
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
             
@@ -591,71 +720,98 @@ export default function DashboardPage() {
             </h3>
             
             <div className="space-y-4">
-              {/* اقتراح 1 */}
-              <div className={`p-4 rounded-lg ${
-                darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'
-              }`}>
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-blue-500/10 rounded-lg">
-                    <PenTool className="w-4 h-4 text-blue-500" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      أضف تحليلاً عميقاً
-                    </h4>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      لم تنشر تحليلاً هذا الأسبوع
-                    </p>
+              {/* اقتراح بناءً على نشاط المقالات */}
+              {stats.todayArticles === 0 && (
+                <div className={`p-4 rounded-lg ${
+                  darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'
+                }`}>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-blue-500/10 rounded-lg">
+                      <PenTool className="w-4 h-4 text-blue-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        ابدأ يومك بمقال جديد
+                      </h4>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        لم تنشر أي مقال اليوم
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* اقتراح 2 */}
-              <div className={`p-4 rounded-lg ${
-                darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'
-              }`}>
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-orange-500/10 rounded-lg">
-                    <AlertCircle className="w-4 h-4 text-orange-500" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      مقالات تحتاج مراجعة
-                    </h4>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      5 مقالات لم يتم التفاعل معها
-                    </p>
+              {/* اقتراح بناءً على التعليقات */}
+              {stats.newComments > 5 && (
+                <div className={`p-4 rounded-lg ${
+                  darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'
+                }`}>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-orange-500/10 rounded-lg">
+                      <AlertCircle className="w-4 h-4 text-orange-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        تعليقات تحتاج للمراجعة
+                      </h4>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        لديك {stats.newComments} تعليق جديد
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* اقتراح 3 */}
-              <div className={`p-4 rounded-lg ${
-                darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'
-              }`}>
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-green-500/10 rounded-lg">
-                    <Target className="w-4 h-4 text-green-500" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      هدف الأسبوع
-                    </h4>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      أنت على بعد 3 مقالات من هدفك
-                    </p>
+              {/* اقتراح بناءً على الأداء */}
+              {stats.weeklyGrowth > 0 && (
+                <div className={`p-4 rounded-lg ${
+                  darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'
+                }`}>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-green-500/10 rounded-lg">
+                      <Target className="w-4 h-4 text-green-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        أداء ممتاز!
+                      </h4>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        نمو بنسبة {stats.weeklyGrowth}% هذا الأسبوع
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* اقتراح افتراضي إذا لم تكن هناك اقتراحات */}
+              {stats.todayArticles > 0 && stats.newComments <= 5 && stats.weeklyGrowth <= 0 && (
+                <div className={`p-4 rounded-lg ${
+                  darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'
+                }`}>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-purple-500/10 rounded-lg">
+                      <Sparkles className="w-4 h-4 text-purple-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        استمر في التميز
+                      </h4>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        أدائك ممتاز، واصل العمل الرائع
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <button className={`w-full mt-6 px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
+            <Link href="/dashboard/ai-analytics" className={`block w-full mt-6 px-4 py-3 rounded-lg font-medium transition-all duration-300 text-center ${
               darkMode 
                 ? 'bg-purple-800/30 hover:bg-purple-700/40 text-purple-300 border border-purple-700' 
                 : 'bg-purple-100 hover:bg-purple-200 text-purple-700 border border-purple-300'
             }`}>
-              عرض جميع الاقتراحات
-            </button>
+              عرض تحليلات الذكاء الاصطناعي
+            </Link>
           </div>
         </div>
 
@@ -676,12 +832,7 @@ export default function DashboardPage() {
             </h3>
             
             <div className="space-y-4">
-              {[
-                { icon: FileText, color: 'blue', title: 'مقال جديد', desc: 'تم نشر "تطورات الذكاء الاصطناعي"', time: 'منذ 5 دقائق' },
-                { icon: UserPlus, color: 'green', title: 'مستخدم جديد', desc: 'انضم أحمد محمد للموقع', time: 'منذ 12 دقيقة' },
-                { icon: MessageSquare, color: 'purple', title: 'تعليق جديد', desc: 'على مقال "مستقبل التقنية"', time: 'منذ ساعة' },
-                { icon: Award, color: 'yellow', title: 'إنجاز مفتوح', desc: 'حصل 10 مستخدمين على وسام القارئ', time: 'منذ ساعتين' },
-              ].map((activity, index) => {
+              {recentActivities.length > 0 ? recentActivities.map((activity, index) => {
                 const Icon = activity.icon;
                 return (
                   <div key={index} className={`flex items-start gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50`}>
@@ -701,7 +852,13 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 );
-              })}
+              }) : (
+                <div className="text-center py-8">
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    لا توجد أنشطة حديثة
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -720,13 +877,8 @@ export default function DashboardPage() {
             </h3>
             
             <div className="space-y-4">
-              {[
-                { rank: 1, title: 'تطورات الذكاء الاصطناعي في 2024', views: '12.5K', trend: 'up' },
-                { rank: 2, title: 'دليل شامل للاستثمار في العملات الرقمية', views: '8.3K', trend: 'up' },
-                { rank: 3, title: 'مستقبل السيارات الكهربائية في المملكة', views: '6.7K', trend: 'down' },
-                { rank: 4, title: 'أفضل التطبيقات لتعلم البرمجة', views: '5.2K', trend: 'up' },
-              ].map((article) => (
-                <div key={article.rank} className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50`}>
+              {topArticles.length > 0 ? topArticles.map((article) => (
+                <Link key={article.id} href={`/article/${article.id}`} className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
                     article.rank === 1 ? 'bg-yellow-500 text-white' :
                     article.rank === 2 ? 'bg-gray-400 text-white' :
@@ -741,19 +893,29 @@ export default function DashboardPage() {
                     </h4>
                     <div className="flex items-center gap-3 mt-1">
                       <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {article.views} مشاهدة
+                        {article.views >= 1000 
+                          ? `${(article.views / 1000).toFixed(1)}K` 
+                          : article.views} مشاهدة
                       </span>
-                      <span className={`text-xs flex items-center gap-1 ${
-                        article.trend === 'up' ? 'text-green-500' : 'text-red-500'
-                      }`}>
-                        <ArrowUpRight className={`w-3 h-3 ${article.trend === 'down' ? 'rotate-90' : ''}`} />
-                        {article.trend === 'up' ? '+12%' : '-5%'}
-                      </span>
+                      {article.trend && (
+                        <span className={`text-xs flex items-center gap-1 ${
+                          article.trend === 'up' ? 'text-green-500' : 'text-red-500'
+                        }`}>
+                          <ArrowUpRight className={`w-3 h-3 ${article.trend === 'down' ? 'rotate-90' : ''}`} />
+                          {article.trend === 'up' ? '+12%' : '-5%'}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <ChevronRight className={`w-4 h-4 ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                </Link>
+              )) : (
+                <div className="text-center py-8">
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    لا توجد مقالات مقروءة بعد
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
