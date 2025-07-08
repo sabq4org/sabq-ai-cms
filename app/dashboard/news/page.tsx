@@ -761,15 +761,26 @@ export default function NewsManagementPage() {
                         </div>
                       ) : news.status === 'published' ? (
                         <div className="space-y-1">
-                          <div className="flex items-center gap-1 font-medium text-green-600 dark:text-green-400">
-                            <Calendar className="w-3 h-3" />
-                            <span title={news.publishTime || 'منشور'}>
-                              {news.publishAt ? getRelativeTime(news.publishAt) : 'منشور'}
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-green-600 dark:text-green-400" />
+                            <span className="font-medium text-green-600 dark:text-green-400">
+                              {news.publishAt || news.publishTime ? (
+                                new Date(news.publishAt || news.publishTime).toLocaleString('ar-SA', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: true
+                                })
+                              ) : (
+                                'منشور'
+                              )}
                             </span>
                           </div>
-                          {news.publishTime && news.publishTime !== '-' && (
+                          {news.publishAt && (
                             <div className="text-xs opacity-75">
-                              {news.publishTime}
+                              {getRelativeTime(news.publishAt)}
                             </div>
                           )}
                         </div>

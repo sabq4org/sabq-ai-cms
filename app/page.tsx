@@ -465,7 +465,7 @@ function NewspaperHomePage(): React.ReactElement {
     const fetchArticles = async () => {
       try {
         setArticlesLoading(true);
-        const res = await fetch('/api/articles?status=published&limit=12');
+        const res = await fetch('/api/articles?status=published&limit=12&sort=created_at&order=desc');
         const json = await res.json();
         const list = Array.isArray(json) ? json : (json.articles ?? []);
         // تعيين المقالات للعرض في بلوك "محتوى مخصص لك"
@@ -483,7 +483,7 @@ function NewspaperHomePage(): React.ReactElement {
     setSelectedCategory(categoryId);
     setCategoryArticlesLoading(true);
     try {
-      const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=12`);
+      const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=12&sort=created_at&order=desc`);
       const json = await res.json();
       const list = Array.isArray(json) ? json : (json.articles ?? []);
       setCategoryArticles(list);
