@@ -22,10 +22,23 @@ const defaultRoles = [
     updated_at: new Date()
   },
   {
+    id: 'correspondent',
+    name: 'correspondent',
+    display_name: 'مراسل',
+    description: 'إرسال الأخبار والمقالات للمراجعة والنشر',
+    permissions: JSON.stringify([
+      'articles.create', 'articles.edit', 'submissions.view',
+      'ai.generate', 'ai.enhance', 'analytics.view_own', 
+      'media.upload', 'calendar.view'
+    ]),
+    is_system: true,
+    updated_at: new Date()
+  },
+  {
     id: 'editor',
     name: 'editor',
     display_name: 'محرر',
-    description: 'إدارة المحتوى والمقالات',
+    description: 'مراجعة وتحرير ونشر المحتوى',
     permissions: JSON.stringify([
       'articles.create', 'articles.edit', 'articles.delete', 'articles.publish',
       'articles.review', 'submissions.view', 'submissions.approve', 'submissions.comment',
@@ -84,18 +97,26 @@ async function seedRoles() {
       });
 
       if (existingRole) {
-        console.log(`⚠️  الدور ${role.display_name} موجود بالفعل`);
-        continue;
+        // تحديث الدور الموجود
+        await prisma.roles.update({
+          where: { id: role.id },
+          data: {
+            display_name: role.display_name,
+            description: role.description,
+            permissions: role.permissions,
+            updated_at: new Date()
+          }
+        });
+        console.log(`✅ تم تحديث الدور: ${role.display_name}`);
+      } else {
+        // إضافة الدور
+        await prisma.roles.create({
+          data: role
+        });
+        console.log(`✅ تم إضافة الدور: ${role.display_name}`);
       }
-
-      // إضافة الدور
-      await prisma.roles.create({
-        data: role
-      });
-
-      console.log(`✅ تم إضافة الدور: ${role.display_name}`);
     } catch (error) {
-      console.error(`❌ خطأ في إضافة الدور ${role.display_name}:`, error);
+      console.error(`❌ خطأ في معالجة الدور ${role.display_name}:`, error);
     }
   }
 

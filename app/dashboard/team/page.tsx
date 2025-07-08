@@ -495,7 +495,7 @@ export default function TeamPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`text-sm font-medium transition-colors duration-300 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                      {roles.find(r => r.id === member.roleId)?.name}
+                      {roles.find(r => r.id === member.roleId)?.display_name || roles.find(r => r.id === member.roleId)?.name || member.roleId}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -615,7 +615,7 @@ export default function TeamPage() {
                     >
                       <option value="">اختر الدور</option>
                       {roles.map(role => (
-                        <option key={role.id} value={role.id}>{role.name}</option>
+                        <option key={role.id} value={role.id}>{role.display_name || role.name}</option>
                       ))}
                     </select>
                   </div>
