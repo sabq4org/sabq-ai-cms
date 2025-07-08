@@ -1,8 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
+'use client';
+
+
+
+
+
+
 
 export interface TabItem {
   id: string;

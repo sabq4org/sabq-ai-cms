@@ -1,21 +1,18 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Users, Plus, Search, Download, Bell, Shield, CheckCircle, AlertCircle, UserPlus, Edit3, Trash2, X, Camera, Eye, EyeOff, Upload } from 'lucide-react';
 import { Role } from '@/types/roles';
 import { TeamMember } from '@/types/team';
-
+'use client';
 interface Notification {
   id: number;
   message: string;
   type: 'success' | 'info' | 'warning';
   timestamp: string;
 }
-
 export default function TeamPage() {
   // إضافة رسالة تشخيص
   console.log('TeamPage component loaded');
-  
   const [darkMode, setDarkMode] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -30,7 +27,6 @@ export default function TeamPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState('');
-  
   // بيانات إضافة عضو جديد
   const [formData, setFormData] = useState({
     name: '',
@@ -44,26 +40,21 @@ export default function TeamPage() {
     isActive: true,
     isVerified: false
   });
-
   const availableDepartments = ['التحرير', 'المراسلين', 'التقنية', 'التسويق', 'المراجعة والتدقيق', 'الإدارة'];
-
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
-    
     // جلب البيانات
     fetchTeamMembers();
     fetchRoles();
   }, []);
-  
   // جلب أعضاء الفريق
   const fetchTeamMembers = async () => {
     try {
       const response = await fetch('/api/team-members');
       const data = await response.json();
-      
       if (data.success && data.data) {
         setTeamMembers(data.data);
       }
@@ -74,13 +65,11 @@ export default function TeamPage() {
       setLoading(false);
     }
   };
-  
   // جلب الأدوار
   const fetchRoles = async () => {
     try {
       const response = await fetch('/api/roles');
       const data = await response.json();
-      
       if (data.success && data.data) {
         setRoles(data.data);
       }
@@ -88,7 +77,6 @@ export default function TeamPage() {
       console.error('Error fetching roles:', error);
     }
   };
-
   const addNotification = (message: string, type: 'success' | 'info' | 'warning') => {
     const newNotification: Notification = {
       id: Date.now(),
@@ -101,13 +89,11 @@ export default function TeamPage() {
       setNotifications(prev => prev.filter(n => n.id !== newNotification.id));
     }, 5000);
   };
-
   const handleAddMember = async () => {
     if (!formData.name || !formData.email || !formData.password || !formData.roleId) {
       addNotification('يرجى ملء جميع الحقول المطلوبة', 'warning');
       return;
     }
-    
     try {
       const response = await fetch('/api/team-members', {
         method: 'POST',
@@ -122,9 +108,7 @@ export default function TeamPage() {
           isVerified: formData.isVerified
         })
       });
-      
       const data = await response.json();
-      
       if (data.success) {
         addNotification('تمت إضافة العضو بنجاح', 'success');
         fetchTeamMembers();
@@ -138,7 +122,6 @@ export default function TeamPage() {
       addNotification('حدث خطأ في إضافة العضو', 'warning');
     }
   };
-  
   const resetForm = () => {
     setFormData({
       name: '',
@@ -155,10 +138,8 @@ export default function TeamPage() {
     setAvatarPreview('');
     setShowPassword(false);
   };
-
   const handleEditMember = async () => {
     if (!selectedMember) return;
-    
     try {
       const updateData: any = {
         name: formData.name,
@@ -170,23 +151,18 @@ export default function TeamPage() {
         isActive: formData.isActive,
         isVerified: formData.isVerified
       };
-      
       if (formData.password) {
         updateData.password = formData.password;
       }
-      
       if (formData.avatar !== selectedMember.avatar) {
         updateData.avatar = formData.avatar;
       }
-      
       const response = await fetch(`/api/team-members/${selectedMember.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData)
       });
-
       const data = await response.json();
-
       if (data.success) {
         addNotification('تم تحديث بيانات العضو', 'success');
         fetchTeamMembers();
@@ -199,17 +175,13 @@ export default function TeamPage() {
       addNotification('حدث خطأ في التحديث', 'warning');
     }
   };
-
   const handleDeleteMember = async (memberId: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا العضو؟')) return;
-    
     try {
       const response = await fetch(`/api/team-members/${memberId}`, {
         method: 'DELETE'
       });
-      
       const data = await response.json();
-      
       if (data.success) {
         addNotification('تم حذف العضو بنجاح', 'success');
         fetchTeamMembers();
@@ -221,7 +193,6 @@ export default function TeamPage() {
       addNotification('حدث خطأ في حذف العضو', 'warning');
     }
   };
-
   const openEditModal = (member: TeamMember) => {
     setSelectedMember(member);
     setFormData({
@@ -239,43 +210,33 @@ export default function TeamPage() {
     setAvatarPreview(member.avatar || '');
     setShowEditModal(true);
   };
-
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     console.log('بدء رفع الملف:', file.name, file.size, file.type);
-
     try {
       // عرض رسالة تحميل
       setUploadingAvatar(true);
       addNotification('جاري رفع الصورة...', 'info');
-      
       // إنشاء FormData
       const formData = new FormData();
       formData.append('file', file);
-      
       console.log('إرسال الطلب إلى /api/upload');
-      
       // رفع الصورة إلى الخادم
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
-      
       const result = await response.json();
       console.log('نتيجة الرفع:', result);
-      
       if (!response.ok || !result.success) {
         throw new Error(result.error || 'فشل رفع الصورة');
       }
-      
       // تحديث معاينة الصورة ورابط الصورة
       console.log('تحديث معاينة الصورة:', result.data.url);
       const imageUrl = result.data.url; // استخدام URL الملف وليس data URL
       setAvatarPreview(imageUrl);
       setFormData(prev => ({ ...prev, avatar: imageUrl }));
-      
       addNotification('تم رفع الصورة بنجاح', 'success');
     } catch (error) {
       console.error('Error uploading avatar:', error);
@@ -289,7 +250,6 @@ export default function TeamPage() {
       e.target.value = '';
     }
   };
-
   const exportToCSV = () => {
     const csvContent = [
       ['الاسم', 'البريد الإلكتروني', 'الهاتف', 'الدور', 'القسم', 'تاريخ الانضمام', 'الحالة', 'التوثيق'],
@@ -307,7 +267,6 @@ export default function TeamPage() {
         ];
       })
     ].map(row => row.join(',')).join('\n');
-
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -315,7 +274,6 @@ export default function TeamPage() {
     link.click();
     addNotification('تم تصدير قائمة الفريق بنجاح', 'success');
   };
-
   const filteredMembers = teamMembers.filter(member => {
     const role = roles.find(r => r.id === member.roleId);
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -329,17 +287,15 @@ export default function TeamPage() {
                          (filterStatus === 'unverified' && !member.isVerified);
     return matchesSearch && matchesDepartment && matchesStatus;
   });
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+  <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`} dir="rtl">
+  <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`} dir="rtl">
       {/* الإشعارات */}
       {notifications.length > 0 && (
         <div className="fixed top-4 right-4 z-50 space-y-2">
@@ -360,13 +316,11 @@ export default function TeamPage() {
           ))}
         </div>
       )}
-
       {/* العنوان والوصف */}
       <div className="mb-8">
         <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>إدارة الفريق</h1>
         <p className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>إدارة أعضاء الفريق وصلاحياتهم في النظام</p>
       </div>
-
       {/* الإحصائيات */}
       <div className="grid grid-cols-4 gap-6 mb-8">
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
@@ -383,7 +337,6 @@ export default function TeamPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -400,7 +353,6 @@ export default function TeamPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
@@ -417,7 +369,6 @@ export default function TeamPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
@@ -435,7 +386,6 @@ export default function TeamPage() {
           </div>
         </div>
       </div>
-
       {/* شريط البحث والتصفية */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-6 transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
         <div className="flex flex-wrap gap-4 items-center justify-between">
@@ -452,7 +402,6 @@ export default function TeamPage() {
                 } focus:ring-2 focus:ring-blue-500 w-80`}
               />
             </div>
-
             <select
               value={filterDepartment}
               onChange={(e) => setFilterDepartment(e.target.value)}
@@ -465,7 +414,6 @@ export default function TeamPage() {
                 <option key={dept} value={dept}>{dept}</option>
               ))}
             </select>
-
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -480,7 +428,6 @@ export default function TeamPage() {
               <option value="unverified">غير موثق</option>
             </select>
           </div>
-
           <div className="flex gap-2">
             <button 
               onClick={exportToCSV}
@@ -489,7 +436,6 @@ export default function TeamPage() {
               <Download className="w-4 h-4" />
               تصدير CSV
             </button>
-            
             <button 
               onClick={() => {
                 setFormData({
@@ -515,7 +461,6 @@ export default function TeamPage() {
           </div>
         </div>
       </div>
-
       {/* جدول الأعضاء */}
       <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
         <div className="overflow-x-auto">
@@ -534,11 +479,7 @@ export default function TeamPage() {
                 <tr key={member.id} className={`transition-colors duration-300 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={member.avatar || '/default-avatar.png'}
-                        alt={member.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
+                      <Image src={undefined} alt="" width={100} height={100} />
                       <div>
                         <p className={`font-medium transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{member.name}</p>
                         <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.email}</p>
@@ -590,7 +531,6 @@ export default function TeamPage() {
           </table>
         </div>
       </div>
-
       {/* نوافذ منبثقة للإضافة والتعديل */}
       {(showAddModal || showEditModal) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -611,7 +551,6 @@ export default function TeamPage() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -623,7 +562,6 @@ export default function TeamPage() {
                       className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                     />
                   </div>
-
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>البريد الإلكتروني</label>
                     <input
@@ -634,7 +572,6 @@ export default function TeamPage() {
                     />
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -657,7 +594,6 @@ export default function TeamPage() {
                       </button>
                     </div>
                   </div>
-
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الهاتف</label>
                     <input
@@ -668,7 +604,6 @@ export default function TeamPage() {
                     />
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الدور</label>
@@ -683,7 +618,6 @@ export default function TeamPage() {
                       ))}
                     </select>
                   </div>
-
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>القسم</label>
                     <select
@@ -698,7 +632,6 @@ export default function TeamPage() {
                     </select>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الحالة</label>
@@ -711,7 +644,6 @@ export default function TeamPage() {
                       <option value="inactive">غير نشط</option>
                     </select>
                   </div>
-
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>التوثيق</label>
                     <select
@@ -724,7 +656,6 @@ export default function TeamPage() {
                     </select>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الصورة الشخصية</label>
@@ -781,15 +712,10 @@ export default function TeamPage() {
                       )}
                     </div>
                   </div>
-
                   <div className={avatarPreview ? 'block' : 'hidden'}>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>معاينة الصورة</label>
                     <div className="relative inline-block">
-                      <img
-                        src={avatarPreview || '/default-avatar.png'}
-                        alt="Avatar Preview"
-                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600"
-                      />
+                      <Image src={undefined} alt="Avatar Preview" width={100} height={100} />
                       {avatarPreview && (
                         <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
                           <CheckCircle className="w-4 h-4 text-white" />
@@ -798,7 +724,6 @@ export default function TeamPage() {
                     </div>
                   </div>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>نبذة شخصية</label>
                   <textarea
@@ -809,7 +734,6 @@ export default function TeamPage() {
                     placeholder="نبذة مختصرة عن العضو..."
                   />
                 </div>
-
                 {/* عرض معلومات الدور المختار */}
                 {formData.roleId && (
                   <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
@@ -828,7 +752,6 @@ export default function TeamPage() {
                   </div>
                 )}
               </div>
-
               <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
                 <button 
                   onClick={showAddModal ? handleAddMember : handleEditMember}

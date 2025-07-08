@@ -1,5 +1,4 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { CreateAnalysisRequest, SourceType, CreationType, DisplayPosition } from '@/types/deep-analysis';
+import toast from 'react-hot-toast';
+'use client';
 import { 
   ArrowLeft, 
   Sparkles, 
@@ -35,9 +37,6 @@ import {
   Hash,
   Info
 } from 'lucide-react';
-import { CreateAnalysisRequest, SourceType, CreationType, DisplayPosition } from '@/types/deep-analysis';
-import toast from 'react-hot-toast';
-
 const CreateDeepAnalysisPage = () => {
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
@@ -47,7 +46,6 @@ const CreateDeepAnalysisPage = () => {
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  
   // حقول النموذج
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
@@ -70,13 +68,11 @@ const CreateDeepAnalysisPage = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isDeepAnalysisEnabled, setIsDeepAnalysisEnabled] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-
   const mainCategories = [
     'الاقتصاد', 'التقنية', 'رؤية 2030', 'الأمن السيبراني', 
     'التعليم', 'الصحة', 'البيئة', 'السياسة', 'الرياضة', 
     'الثقافة', 'السياحة', 'الطاقة'
   ];
-
   // استرجاع حالة الوضع الليلي من localStorage
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
@@ -84,7 +80,6 @@ const CreateDeepAnalysisPage = () => {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   // جلب المقالات والتحقق من تفعيل التحليل العميق
   useEffect(() => {
     fetchArticles();
@@ -94,7 +89,6 @@ const CreateDeepAnalysisPage = () => {
       setIsDeepAnalysisEnabled(true);
     }
   }, []);
-
   const fetchArticles = async () => {
     try {
       const response = await fetch('/api/articles?status=published&limit=10&sort=published_at&order=desc');
@@ -106,7 +100,6 @@ const CreateDeepAnalysisPage = () => {
       console.error('Error fetching articles:', error);
     }
   };
-
   // إضافة تصنيف
   const addCategory = () => {
     if (currentCategory && !categories.includes(currentCategory)) {
@@ -114,7 +107,6 @@ const CreateDeepAnalysisPage = () => {
       setCurrentCategory('');
     }
   };
-
   // إضافة وسم
   const addTag = () => {
     if (currentTag && !tags.includes(currentTag)) {
@@ -122,7 +114,6 @@ const CreateDeepAnalysisPage = () => {
       setCurrentTag('');
     }
   };
-
   // معالجة رفع الصورة
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -131,15 +122,12 @@ const CreateDeepAnalysisPage = () => {
         toast.error('حجم الملف يجب أن يكون أقل من 5 ميجابايت');
         return;
       }
-      
       if (!file.type.startsWith('image/')) {
         toast.error('الرجاء اختيار ملف صورة صالح');
         return;
       }
-
       setImageFile(file);
       setUploadingImage(true);
-      
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -153,24 +141,19 @@ const CreateDeepAnalysisPage = () => {
       reader.readAsDataURL(file);
     }
   };
-
   // رفع الصورة
   const uploadImage = async (): Promise<string | null> => {
     if (!imageFile) return null;
-
     const formData = new FormData();
     formData.append('file', imageFile);
-
     try {
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
-
       if (!response.ok) {
         throw new Error('فشل رفع الصورة');
       }
-
       const data = await response.json();
       return data.url;
     } catch (error) {
@@ -179,31 +162,26 @@ const CreateDeepAnalysisPage = () => {
       return null;
     }
   };
-
   // توليد المحتوى بالذكاء الاصطناعي
   const generateWithGPT = async () => {
     if (!gptPrompt) {
       toast.error('يرجى كتابة وصف للمحتوى المطلوب');
       return;
     }
-
     setGenerating(true);
     try {
       // الحصول على مفتاح OpenAI من الإعدادات المحفوظة
       const savedAiSettings = localStorage.getItem('settings_ai');
       let openaiKey = '';
-      
       if (savedAiSettings) {
         const aiSettings = JSON.parse(savedAiSettings);
         openaiKey = aiSettings.openaiKey;
       }
-      
       if (!openaiKey) {
         toast.error('يرجى إضافة مفتاح OpenAI من إعدادات الذكاء الاصطناعي');
         setGenerating(false);
         return;
       }
-      
       const response = await fetch('/api/deep-analyses/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -217,16 +195,13 @@ const CreateDeepAnalysisPage = () => {
           articleUrl: selectedArticle?.id
         })
       });
-
       const data = await response.json();
-      
       if (response.ok) {
         setTitle(data.title || 'تحليل عميق');
         setSummary(data.summary || '');
         // المحتوى الآن يأتي منسقاً من الخادم
         setContent(data.content || '');
         setTags(data.tags || []);
-        
         // إضافة رسالة نجاح مع معلومات إضافية
         if (data.qualityScore) {
           toast.success(`تم توليد المحتوى بنجاح (جودة: ${data.qualityScore}%)`);
@@ -243,14 +218,12 @@ const CreateDeepAnalysisPage = () => {
       setGenerating(false);
     }
   };
-
   // حفظ التحليل
   const handleSubmit = async (status: 'draft' | 'published' = 'published') => {
     if (!title || !summary) {
       toast.error('يرجى ملء العنوان والملخص على الأقل');
       return;
     }
-
     setLoading(true);
     try {
       // رفع الصورة إذا كانت موجودة
@@ -260,10 +233,8 @@ const CreateDeepAnalysisPage = () => {
       }
       // الحصول على مفتاح OpenAI من localStorage
       const openaiKey = localStorage.getItem('openai_api_key');
-      
       // تحديد ما إذا كان يجب استخدام GPT
       const shouldUseGPT = (creationType === 'gpt' || creationType === 'mixed') && !content;
-      
               const analysisData: CreateAnalysisRequest = {
           title,
           summary,
@@ -285,18 +256,15 @@ const CreateDeepAnalysisPage = () => {
           openaiApiKey: openaiKey || undefined,
           featuredImage: uploadedImageUrl
         };
-
       console.log('Submitting analysis with data:', {
         ...analysisData,
         openaiApiKey: analysisData.openaiApiKey ? 'PROVIDED' : 'NOT PROVIDED'
       });
-
       const response = await fetch('/api/deep-analyses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(analysisData)
       });
-
       const data = await response.json();
       if (response.ok) {
         toast.success(status === 'published' ? 'تم نشر التحليل بنجاح' : 'تم حفظ المسودة بنجاح');
@@ -312,7 +280,6 @@ const CreateDeepAnalysisPage = () => {
       setLoading(false);
     }
   };
-
   // مكون بطاقة النوع
   const TypeCard = ({ 
     type, 
@@ -334,7 +301,6 @@ const CreateDeepAnalysisPage = () => {
     // تحديد الكلاسات بناءً على اللون
     const getColorClasses = () => {
       if (!isSelected) return '';
-      
       switch (color) {
         case 'blue':
           return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl border-blue-600 transform scale-[1.02]';
@@ -350,7 +316,6 @@ const CreateDeepAnalysisPage = () => {
           return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl border-blue-600 transform scale-[1.02]';
       }
     };
-
     return (
       <button
         onClick={onClick}
@@ -366,14 +331,12 @@ const CreateDeepAnalysisPage = () => {
       {isSelected && (
         <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50" />
       )}
-      
       {/* أيقونة التحديد */}
       {isSelected && (
         <div className="absolute top-4 left-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg">
           <CheckCircle2 className="w-5 h-5 text-green-600" />
         </div>
       )}
-      
       <div className="flex items-start gap-4">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
           isSelected
@@ -392,9 +355,8 @@ const CreateDeepAnalysisPage = () => {
     </button>
     );
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`} dir="rtl">
       {/* عنوان وتعريف الصفحة */}
@@ -418,7 +380,6 @@ const CreateDeepAnalysisPage = () => {
           </Button>
         </div>
       </div>
-
       {/* قسم نظام التحليل العميق */}
       <div className="mb-8">
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -453,7 +414,6 @@ const CreateDeepAnalysisPage = () => {
           </div>
         </div>
       </div>
-
       {/* رسالة ترحيب ذكية */}
       {title === '' && summary === '' && (
         <div className={`rounded-xl p-4 mb-6 flex items-start gap-3 ${
@@ -469,7 +429,6 @@ const CreateDeepAnalysisPage = () => {
           </div>
         </div>
       )}
-
       {/* أنواع الإنشاء */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -521,7 +480,6 @@ const CreateDeepAnalysisPage = () => {
           />
         </div>
       </div>
-
       {/* نوع المصدر */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -555,7 +513,6 @@ const CreateDeepAnalysisPage = () => {
           />
         </div>
       </div>
-
       {/* اختيار المقال */}
       {sourceType === 'article' && (
         <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-all duration-500 animate-slideIn ${
@@ -585,7 +542,6 @@ const CreateDeepAnalysisPage = () => {
           </select>
         </div>
       )}
-
       {/* محتوى GPT */}
       {(creationType === 'gpt' || creationType === 'mixed') && (
         <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-all duration-500 animate-slideIn ${
@@ -628,7 +584,6 @@ const CreateDeepAnalysisPage = () => {
           </div>
         </div>
       )}
-
       {/* محتوى التحليل */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -641,7 +596,6 @@ const CreateDeepAnalysisPage = () => {
           <FileCheck className="w-5 h-5 text-green-600" />
           محتوى التحليل
         </h3>
-        
         <div className="space-y-6">
           <div>
             <Label htmlFor="title">عنوان التحليل *</Label>
@@ -657,7 +611,6 @@ const CreateDeepAnalysisPage = () => {
               }`}
             />
           </div>
-
           <div>
             <Label htmlFor="summary">الملخص *</Label>
             <Textarea
@@ -673,18 +626,13 @@ const CreateDeepAnalysisPage = () => {
               }`}
             />
           </div>
-
           {/* صورة مميزة */}
           <div>
             <Label htmlFor="featuredImage">الصورة المميزة</Label>
             <div className={`mt-2 space-y-4`}>
               {imagePreview ? (
                 <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="معاينة الصورة"
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
+                  <Image src={undefined} alt="معاينة الصورة" width={100} height={100} />
                   <button
                     onClick={() => {
                       setImageFile(null);
@@ -731,7 +679,6 @@ const CreateDeepAnalysisPage = () => {
               )}
             </div>
           </div>
-
           <div>
             <div className="flex items-center justify-between mb-2">
               <Label htmlFor="content">المحتوى التفصيلي</Label>
@@ -801,7 +748,6 @@ const CreateDeepAnalysisPage = () => {
               />
             )}
           </div>
-
           {/* التصنيفات */}
           <div>
             <Label>التصنيفات</Label>
@@ -846,7 +792,6 @@ const CreateDeepAnalysisPage = () => {
               ))}
             </div>
           </div>
-
           {/* الوسوم */}
           <div>
             <Label>الوسوم</Label>
@@ -890,7 +835,6 @@ const CreateDeepAnalysisPage = () => {
           </div>
         </div>
       </div>
-
       {/* الإعدادات المتقدمة */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -909,7 +853,6 @@ const CreateDeepAnalysisPage = () => {
           </span>
           {showAdvanced ? <ChevronUp /> : <ChevronDown />}
         </button>
-
         {showAdvanced && (
           <div className="mt-6 space-y-4">
             <div>
@@ -926,7 +869,6 @@ const CreateDeepAnalysisPage = () => {
                 }`}
               />
             </div>
-
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -939,7 +881,6 @@ const CreateDeepAnalysisPage = () => {
                   نشط
                 </span>
               </label>
-
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -952,7 +893,6 @@ const CreateDeepAnalysisPage = () => {
                 </span>
               </label>
             </div>
-
             <div>
               <Label>موضع العرض</Label>
               <select
@@ -973,7 +913,6 @@ const CreateDeepAnalysisPage = () => {
           </div>
         )}
       </div>
-
       {/* ملخص سريع للاختيارات */}
       <div className={`rounded-xl p-4 mb-6 transition-colors duration-300 ${
         darkMode 
@@ -999,7 +938,6 @@ const CreateDeepAnalysisPage = () => {
           </div>
         </div>
       </div>
-
       {/* معاينة الخيارات المختارة - تفصيلية */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -1012,7 +950,6 @@ const CreateDeepAnalysisPage = () => {
           <Eye className="w-5 h-5 text-indigo-600" />
           معاينة تفصيلية
         </h3>
-
         {/* تنبيه التحليل العميق */}
         {isDeepAnalysisEnabled && (
           <div className={`mb-4 p-4 rounded-lg flex items-start gap-3 ${
@@ -1031,7 +968,6 @@ const CreateDeepAnalysisPage = () => {
             </div>
           </div>
         )}
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* طريقة الإنشاء */}
           <div className={`p-4 rounded-lg ${
@@ -1049,7 +985,6 @@ const CreateDeepAnalysisPage = () => {
               {creationType === 'mixed' && 'مختلط'}
             </p>
           </div>
-
           {/* نوع المصدر */}
           <div className={`p-4 rounded-lg ${
             darkMode ? 'bg-gray-700' : 'bg-gray-50'
@@ -1065,7 +1000,6 @@ const CreateDeepAnalysisPage = () => {
               {sourceType === 'article' && selectedArticle ? `من مقال: ${selectedArticle.title}` : sourceType === 'article' ? 'من مقال (غير محدد)' : ''}
             </p>
           </div>
-
           {/* الكلمات المفتاحية */}
           <div className={`p-4 rounded-lg ${
             darkMode ? 'bg-gray-700' : 'bg-gray-50'
@@ -1090,7 +1024,6 @@ const CreateDeepAnalysisPage = () => {
               </p>
             )}
           </div>
-
           {/* الصورة المميزة */}
           <div className={`p-4 rounded-lg ${
             darkMode ? 'bg-gray-700' : 'bg-gray-50'
@@ -1118,7 +1051,6 @@ const CreateDeepAnalysisPage = () => {
             )}
           </div>
         </div>
-
         {/* التحقق من البيانات المطلوبة */}
         {(!title || !summary) && (
           <div className={`mt-4 p-4 rounded-lg flex items-start gap-3 ${
@@ -1138,7 +1070,6 @@ const CreateDeepAnalysisPage = () => {
           </div>
         )}
       </div>
-
       {/* أزرار الإجراءات */}
       <div className="flex justify-end gap-4">
         <Button
@@ -1187,5 +1118,4 @@ const CreateDeepAnalysisPage = () => {
     </div>
   );
 };
-
 export default CreateDeepAnalysisPage; 

@@ -1,18 +1,19 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+'use client';
 import { 
   Card, 
   CardContent, 
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { 
   Select, 
   SelectContent, 
@@ -64,15 +65,12 @@ import {
   Pause,
   RotateCcw
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-
 // أنواع البيانات
 interface Category {
   id: string;
   name: string;
   color?: string;
 }
-
 interface Attachment {
   id: string;
   name: string;
@@ -80,14 +78,12 @@ interface Attachment {
   type: 'image' | 'video' | 'document';
   size: number;
 }
-
 interface AIResult {
   success: boolean;
   result: string;
   service: string;
   metadata?: any;
 }
-
 // الخدمات المتاحة
 const AI_SERVICES = [
   { id: 'generate_title', label: 'توليد عنوان', icon: BookOpen, color: 'bg-blue-500', bgColor: 'bg-blue-50', textColor: 'text-blue-700' },
@@ -99,7 +95,6 @@ const AI_SERVICES = [
   { id: 'extract_keywords', label: 'كلمات مفتاحية', icon: Hash, color: 'bg-teal-500', bgColor: 'bg-teal-50', textColor: 'text-teal-700' },
   { id: 'generate_report', label: 'تقرير كامل', icon: FileText, color: 'bg-pink-500', bgColor: 'bg-pink-50', textColor: 'text-pink-700' },
 ];
-
 // أنواع الأخبار
 const NEWS_TYPES = [
   { id: 'regular', label: 'خبر عادي', color: 'bg-gray-500' },
@@ -107,18 +102,15 @@ const NEWS_TYPES = [
   { id: 'featured', label: 'رئيسي', color: 'bg-blue-500' },
   { id: 'gps', label: 'GPS جغرافي', color: 'bg-green-500' },
 ];
-
 // خيارات النشر
 const PUBLISH_OPTIONS = [
   { id: 'draft', label: 'مسودة', color: 'bg-gray-500', bgColor: 'bg-gray-50', textColor: 'text-gray-700', icon: FileText },
   { id: 'review', label: 'بانتظار مراجعة', color: 'bg-yellow-500', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700', icon: Eye },
   { id: 'publish', label: 'نشر فوري', color: 'bg-green-500', bgColor: 'bg-green-50', textColor: 'text-green-700', icon: Play },
 ];
-
 export default function AIEditorPage() {
   const router = useRouter();
   const { toast } = useToast();
-  
   // الحالة الرئيسية
   const [initialContent, setInitialContent] = useState('');
   const [editorContent, setEditorContent] = useState('');
@@ -131,12 +123,10 @@ export default function AIEditorPage() {
   const [keywords, setKeywords] = useState('');
   const [gpsLocation, setGpsLocation] = useState({ lat: '', lng: '' });
   const [isGPSSent, setIsGPSSent] = useState(false);
-  
   // حالة التحميل
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
-  
   // سجل العمليات
   const [operations, setOperations] = useState<Array<{
     id: string;
@@ -145,11 +135,9 @@ export default function AIEditorPage() {
     success: boolean;
     result: string;
   }>>([]);
-  
   // مراجع
   const fileInputRef = useRef<HTMLInputElement>(null);
   const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
-
   // جلب التصنيفات
   useEffect(() => {
     const fetchCategories = async () => {
@@ -165,7 +153,6 @@ export default function AIEditorPage() {
     };
     fetchCategories();
   }, []);
-
   // حفظ تلقائي
   useEffect(() => {
     if (autoSave && editorContent) {
@@ -182,11 +169,9 @@ export default function AIEditorPage() {
       }
     };
   }, [editorContent, autoSave]);
-
   // استدعاء خدمة الذكاء الاصطناعي
   const callAIService = async (service: string, content: string) => {
     setIsLoading(true);
-    
     try {
       const response = await fetch('/api/ai/editor', {
         method: 'POST',
@@ -202,9 +187,7 @@ export default function AIEditorPage() {
           }
         })
       });
-
       const data: AIResult = await response.json();
-      
       if (data.success) {
         // إضافة العملية للسجل
         const operation = {
@@ -215,10 +198,8 @@ export default function AIEditorPage() {
           result: data.result
         };
         setOperations(prev => [operation, ...prev.slice(0, 9)]); // الاحتفاظ بـ 10 عمليات فقط
-        
         // تطبيق النتيجة
         applyAIResult(service, data.result);
-        
         toast({
           title: 'نجح التنفيذ',
           description: `تم تنفيذ ${AI_SERVICES.find(s => s.id === service)?.label} بنجاح`,
@@ -238,7 +219,6 @@ export default function AIEditorPage() {
       setIsLoading(false);
     }
   };
-
   // تطبيق نتيجة الذكاء الاصطناعي
   const applyAIResult = (service: string, result: string) => {
     switch (service) {
@@ -258,15 +238,12 @@ export default function AIEditorPage() {
         break;
     }
   };
-
   // رفع المرفقات
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    
     files.forEach(file => {
       const formData = new FormData();
       formData.append('file', file);
-      
       fetch('/api/upload', {
         method: 'POST',
         body: formData
@@ -283,7 +260,6 @@ export default function AIEditorPage() {
             size: file.size
           };
           setAttachments(prev => [...prev, attachment]);
-          
           toast({
             title: 'تم رفع الملف',
             description: `تم رفع ${file.name} بنجاح`,
@@ -301,12 +277,10 @@ export default function AIEditorPage() {
       });
     });
   };
-
   // حذف مرفق
   const removeAttachment = (id: string) => {
     setAttachments(prev => prev.filter(att => att.id !== id));
   };
-
   // حفظ تلقائي
   const handleAutoSave = () => {
     if (editorContent) {
@@ -321,11 +295,9 @@ export default function AIEditorPage() {
       }));
     }
   };
-
   // حفظ كمسودة
   const handleSaveDraft = async () => {
     setIsSaving(true);
-    
     try {
       const articleData = {
         title: title || 'مسودة المحرر الذكي',
@@ -347,29 +319,23 @@ export default function AIEditorPage() {
           createdAt: new Date().toISOString()
         }
       };
-
       const response = await fetch('/api/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(articleData)
       });
-
       const data = await response.json();
-      
       if (data.success) {
         const statusMessage = selectedPublishOption === 'publish' ? 'تم النشر بنجاح' :
                              selectedPublishOption === 'review' ? 'تم إرسال المادة للمراجعة' :
                              'تم حفظ المقال كمسودة';
-        
         toast({
           title: 'تم الحفظ',
           description: statusMessage,
           variant: 'default'
         });
-        
         // مسح البيانات المحلية
         localStorage.removeItem('ai-editor-draft');
-        
         // الانتقال إلى لوحة إدارة الأخبار
         router.push('/dashboard/news');
       } else {
@@ -386,7 +352,6 @@ export default function AIEditorPage() {
       setIsSaving(false);
     }
   };
-
   // إرسال المادة إلى إدارة الأخبار كـ GPS
   const handleSendToGPS = async () => {
     if (!editorContent.trim()) {
@@ -397,9 +362,7 @@ export default function AIEditorPage() {
       });
       return;
     }
-
     setIsLoading(true);
-    
     try {
       const gpsData = {
         title: title || 'مادة GPS من المحرر الذكي',
@@ -420,15 +383,12 @@ export default function AIEditorPage() {
           createdAt: new Date().toISOString()
         }
       };
-
       const response = await fetch('/api/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(gpsData)
       });
-
       const data = await response.json();
-      
       if (data.success) {
         setIsGPSSent(true);
         toast({
@@ -450,7 +410,6 @@ export default function AIEditorPage() {
       setIsLoading(false);
     }
   };
-
   // مسح المحتوى
   const handleClearContent = () => {
     setInitialContent('');
@@ -461,7 +420,6 @@ export default function AIEditorPage() {
     setOperations([]);
     localStorage.removeItem('ai-editor-draft');
   };
-
   // استعادة المسودة المحفوظة
   const loadDraft = () => {
     const saved = localStorage.getItem('ai-editor-draft');
@@ -479,9 +437,8 @@ export default function AIEditorPage() {
       }
     }
   };
-
   return (
-    <div className="container mx-auto p-6 space-y-6">
+  <div className="container mx-auto p-6 space-y-6">
       {/* العنوان الرئيسي */}
       <div className="flex items-center justify-between">
         <div>
@@ -492,7 +449,6 @@ export default function AIEditorPage() {
             محرر ذكي متقدم بأسلوب صحيفة سبق
           </p>
         </div>
-        
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           <Button
             variant="outline"
@@ -505,7 +461,6 @@ export default function AIEditorPage() {
             </div>
             استعادة مسودة
           </Button>
-          
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" size="sm">
@@ -532,7 +487,6 @@ export default function AIEditorPage() {
           </AlertDialog>
         </div>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* العمود الأيسر - المحتوى الأولي */}
         <div className="lg:col-span-1 space-y-6">
@@ -558,7 +512,6 @@ export default function AIEditorPage() {
                   className="mt-2"
                 />
               </div>
-              
               <div className="flex items-center space-x-2 rtl:space-x-reverse">
                 <Button
                   size="sm"
@@ -574,7 +527,6 @@ export default function AIEditorPage() {
               </div>
             </CardContent>
           </Card>
-
           {/* أدوات الذكاء الاصطناعي */}
           <Card>
             <CardHeader>
@@ -605,7 +557,6 @@ export default function AIEditorPage() {
               </div>
             </CardContent>
           </Card>
-
           {/* إعدادات المقال */}
           <Card>
             <CardHeader>
@@ -628,7 +579,6 @@ export default function AIEditorPage() {
                   className="mt-2"
                 />
               </div>
-
               {/* التصنيف */}
               <div>
                 <Label htmlFor="category">التصنيف</Label>
@@ -645,7 +595,6 @@ export default function AIEditorPage() {
                   ))}
                 </select>
               </div>
-
               {/* نوع الخبر */}
               <div>
                 <Label>نوع الخبر</Label>
@@ -663,7 +612,6 @@ export default function AIEditorPage() {
                   ))}
                 </div>
               </div>
-
               {/* إعدادات GPS */}
               {selectedNewsType === 'gps' && (
                 <div className="space-y-2">
@@ -687,7 +635,6 @@ export default function AIEditorPage() {
                   </div>
                 </div>
               )}
-
               {/* الكلمات المفتاحية */}
               <div>
                 <Label htmlFor="keywords" className="flex items-center">
@@ -706,7 +653,6 @@ export default function AIEditorPage() {
               </div>
             </CardContent>
           </Card>
-
           {/* المرفقات */}
           <Card>
             <CardHeader>
@@ -728,7 +674,6 @@ export default function AIEditorPage() {
                 </div>
                 رفع ملفات
               </Button>
-              
               <input
                 ref={fileInputRef}
                 type="file"
@@ -737,7 +682,6 @@ export default function AIEditorPage() {
                 onChange={handleFileUpload}
                 className="hidden"
               />
-
               {attachments.length > 0 && (
                 <div className="space-y-2">
                   {attachments.map((attachment) => (
@@ -779,7 +723,6 @@ export default function AIEditorPage() {
             </CardContent>
           </Card>
         </div>
-
         {/* العمود الأوسط - المحرر */}
         <div className="lg:col-span-2 space-y-6">
           {/* المحرر الذكي */}
@@ -821,7 +764,6 @@ export default function AIEditorPage() {
               />
             </CardContent>
           </Card>
-
           {/* خيارات النشر */}
           <Card>
             <CardHeader>
@@ -855,7 +797,6 @@ export default function AIEditorPage() {
                   })}
                 </div>
               </div>
-
               {/* شارة GPS */}
               {selectedNewsType === 'gps' && (
                 <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -875,7 +816,6 @@ export default function AIEditorPage() {
                   )}
                 </div>
               )}
-
               {/* شارة المحرر الذكي */}
               <div className="flex items-center space-x-2 rtl:space-x-reverse">
                 <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
@@ -893,7 +833,6 @@ export default function AIEditorPage() {
               </div>
             </CardContent>
           </Card>
-
           {/* أزرار الحفظ */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -907,7 +846,6 @@ export default function AIEditorPage() {
                 </div>
                 حفظ مؤقت
               </Button>
-
               {/* زر إرسال GPS */}
               {selectedNewsType === 'gps' && (
                 <Button
@@ -923,7 +861,6 @@ export default function AIEditorPage() {
                 </Button>
               )}
             </div>
-            
             <Button
               onClick={handleSaveDraft}
               disabled={!editorContent || isSaving || isLoading}
@@ -947,7 +884,6 @@ export default function AIEditorPage() {
           </div>
         </div>
       </div>
-
       {/* سجل العمليات */}
       {operations.length > 0 && (
         <Card>
@@ -994,7 +930,6 @@ export default function AIEditorPage() {
           </CardContent>
         </Card>
       )}
-
       {/* مؤشر التحميل */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

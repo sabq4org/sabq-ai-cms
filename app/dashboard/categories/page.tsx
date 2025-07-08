@@ -1,10 +1,14 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import CategoryFormModal from '../../../components/CategoryFormModal';
 import CategoriesAnalytics from '../../../components/dashboard/CategoriesAnalytics';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { Category } from '@/types/category';
+import { Button } from '@/components/ui/button';
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+'use client';
 import { 
   Plus, 
   Edit3,
@@ -29,12 +33,6 @@ import {
   Upload,
   PlusCircle
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { toast } from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
-
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
 export default function CategoriesPage() {
   const [activeTab, setActiveTab] = useState('list');
   const { darkMode } = useDarkModeContext();
@@ -53,21 +51,16 @@ export default function CategoriesPage() {
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-
   // دالة جلب التصنيفات من API الحقيقي
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       setNotification(null); // مسح أي إشعارات سابقة
-      
       const response = await fetch('/api/categories');
-      
       console.log('Response status:', response.status);
       console.log('Response ok:', response.ok);
-      
       const data = await response.json();
       console.log('API Response:', data);
-      
       if (data.success) {
         setCategories(data.categories || data.data || []);
       } else {
@@ -89,17 +82,14 @@ export default function CategoriesPage() {
       setLoading(false);
     }
   }, []);
-
   // تحميل التصنيفات عند بدء التطبيق
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
-
   // دالة معالجة حفظ التصنيف (للنموذج الجديد)
   const handleSaveCategory = async (formData: any) => {
     try {
       setLoading(true);
-
       // إعداد البيانات للإرسال
       const categoryData = {
         name_ar: formData.name_ar.trim(),
@@ -118,9 +108,7 @@ export default function CategoriesPage() {
         noindex: formData.noindex,
         og_type: formData.og_type.trim() || 'website'
       };
-
       let response;
-      
       if (showEditModal && selectedCategory) {
         // تحديث التصنيف الموجود
         response = await fetch(`/api/categories/${selectedCategory.id}`, {
@@ -140,28 +128,22 @@ export default function CategoriesPage() {
           body: JSON.stringify(categoryData)
         });
       }
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'فشل في حفظ التصنيف');
       }
-
       const result = await response.json();
-      
       if (result.success) {
         setNotification({
           type: 'success',
           message: showEditModal ? 'تم تحديث التصنيف بنجاح' : 'تم إضافة التصنيف بنجاح'
         });
-        
         // إعادة تحميل التصنيفات
         await fetchCategories();
-        
         // إغلاق النموذج
         setShowAddModal(false);
         setShowEditModal(false);
         setSelectedCategory(null);
-        
         setTimeout(() => setNotification(null), 3000);
       } else {
         throw new Error(result.error || 'فشل في حفظ التصنيف');
@@ -177,7 +159,6 @@ export default function CategoriesPage() {
       setLoading(false);
     }
   };
-
   // وظائف إدارة التصنيفات
   const handleToggleStatus = async (categoryId: string) => {
     try {
@@ -192,12 +173,10 @@ export default function CategoriesPage() {
               )
             }
       ));
-      
       setNotification({
         type: 'success',
         message: 'تم تحديث حالة التصنيف بنجاح'
       });
-      
       setTimeout(() => setNotification(null), 3000);
     } catch (error) {
       setNotification({
@@ -206,11 +185,9 @@ export default function CategoriesPage() {
       });
     }
   };
-
   const handleDeleteCategory = async (categoryId: string) => {
     const category = categories.find(cat => cat.id === categoryId) || 
                      categories.find(cat => cat.children?.some(child => child.id === categoryId));
-    
     const articleCount = category?.articles_count || category?.article_count || 0;
     if (category && !category.can_delete && articleCount > 0) {
       setNotification({
@@ -220,7 +197,6 @@ export default function CategoriesPage() {
       setTimeout(() => setNotification(null), 5000);
       return;
     }
-    
     if (window.confirm('هل أنت متأكد من حذف هذا التصنيف؟ هذا الإجراء لا يمكن التراجع عنه.')) {
       try {
         // TODO: إضافة API call لحذف التصنيف
@@ -231,12 +207,10 @@ export default function CategoriesPage() {
               children: cat.children?.filter(child => child.id !== categoryId)
             }))
         );
-        
         setNotification({
           type: 'success',
           message: 'تم حذف التصنيف بنجاح'
         });
-        
         setTimeout(() => setNotification(null), 3000);
       } catch (error) {
         setNotification({
@@ -246,7 +220,6 @@ export default function CategoriesPage() {
       }
     }
   };
-
   // ألوان التصنيفات المتاحة - مجموعة موسعة من الألوان الهادئة والفاتحة
   const categoryColors = [
     { name: 'أزرق سماوي', value: '#E5F1FA', textColor: '#1E40AF' },
@@ -262,7 +235,6 @@ export default function CategoriesPage() {
     { name: 'رمادي هادئ', value: '#F9FAFB', textColor: '#374151' },
     { name: 'تركوازي ناعم', value: '#F0FDFA', textColor: '#0F766E' }
   ];
-
   // الأيقونات المتاحة - مجموعة موسعة مع تنوع أكبر
   const categoryIcons = [
     '📰', '🏛️', '💼', '⚽', '🎭', '💡', '🌍', '📱', 
@@ -270,7 +242,6 @@ export default function CategoriesPage() {
     '🎨', '🎵', '📺', '🍽️', '👗', '💊', '🌱', '🔥',
     '💎', '⭐', '🎯', '🚀', '🏆', '📊', '🎪', '🌈'
   ];
-
   // مكون بطاقة الإحصائية الدائرية
   const CircularStatsCard = ({ 
     title, 
@@ -312,7 +283,6 @@ export default function CategoriesPage() {
       </div>
     </div>
   );
-
   // تعريف التابات
   const tabs: TabItem[] = [
     { id: 'list', name: 'قائمة التصنيفات', icon: Folder, count: categories.filter(cat => !cat.parent_id).length },
@@ -320,11 +290,10 @@ export default function CategoriesPage() {
     { id: 'analytics', name: 'إحصائيات الاستخدام', icon: Tag },
     { id: 'settings', name: 'إعدادات التصنيفات', icon: Palette }
   ];
-
   // مكون شجرة التصنيفات
   const CategoryTree = ({ categories, level = 0 }: { categories: Category[], level?: number }) => {
     return (
-      <div className={level > 0 ? 'mr-6' : ''}>
+  <div className={level > 0 ? 'mr-6' : ''}>
         {categories.map((category) => (
           <div key={category.id} className="mb-2">
             <div className={`p-4 rounded-xl border transition-colors duration-200 ${
@@ -354,7 +323,6 @@ export default function CategoriesPage() {
                       )}
                     </button>
                   )}
-                  
                   <div 
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
                     style={{ 
@@ -364,7 +332,6 @@ export default function CategoriesPage() {
                   >
                     {category.icon}
                   </div>
-                  
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className={`font-semibold transition-colors duration-300 ${
@@ -392,7 +359,6 @@ export default function CategoriesPage() {
                     </div>
                   </div>
                 </div>
-                
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => router.push(`/dashboard/categories/${category.id}`)}
@@ -465,7 +431,6 @@ export default function CategoriesPage() {
                 </div>
               </div>
             </div>
-            
             {/* التصنيفات الفرعية */}
             {category.children && 
              category.children.length > 0 && 
@@ -479,11 +444,9 @@ export default function CategoriesPage() {
       </div>
     );
   };
-
   // مكون الإشعارات
   const NotificationComponent = () => {
     if (!notification) return null;
-    
     const getNotificationIcon = () => {
       switch (notification.type) {
         case 'success':
@@ -498,7 +461,6 @@ export default function CategoriesPage() {
           return <Info className="w-5 h-5" />;
       }
     };
-
     const getNotificationColor = () => {
       switch (notification.type) {
         case 'success':
@@ -513,9 +475,8 @@ export default function CategoriesPage() {
           return 'bg-gray-100 text-gray-800 border-gray-200';
       }
     };
-    
     return (
-      <div className="fixed top-4 right-4 z-50">
+  <div className="fixed top-4 right-4 z-50">
         <div className={`flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg ${getNotificationColor()}`}>
           {getNotificationIcon()}
           <span className="font-medium">{notification.message}</span>
@@ -529,26 +490,21 @@ export default function CategoriesPage() {
       </div>
     );
   };
-
   // تصدير التصنيفات كملف JSON
   const handleExport = () => {
     window.location.href = '/api/categories/export';
   };
-
   // استيراد التصنيفات من ملف JSON
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append('file', file);
-
     try {
       const response = await fetch('/api/categories/import', {
         method: 'POST',
         body: formData,
       });
-
       const result = await response.json();
       if (response.ok) {
         toast.success(`${result.message} (الجديدة: ${result.created}, المحدثة: ${result.updated})`);
@@ -561,14 +517,12 @@ export default function CategoriesPage() {
       toast.error('حدث خطأ غير متوقع أثناء استيراد الملف.');
     }
   };
-
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
-
   if (loading) {
     return (
-      <div className="p-8 flex items-center justify-center min-h-screen">
+  <div className="p-8 flex items-center justify-center min-h-screen">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-500" />
           <p className="text-gray-600">جارٍ تحميل التصنيفات...</p>
@@ -576,9 +530,8 @@ export default function CategoriesPage() {
       </div>
     );
   }
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -591,7 +544,6 @@ export default function CategoriesPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
           }`}>تنظيم وإدارة تصنيفات الأخبار بنظام هرمي ذكي مع دعم SEO متقدم</p>
         </div>
-        
         <div className="flex items-center gap-3">
           <Button onClick={handleExport} variant="outline">
             <Download className="ml-2 h-4 w-4" />
@@ -614,7 +566,6 @@ export default function CategoriesPage() {
           </Button>
         </div>
       </div>
-
       {/* إحصائيات التصنيفات */}
       <div className="grid grid-cols-4 gap-6 mb-8">
         <CircularStatsCard
@@ -650,14 +601,12 @@ export default function CategoriesPage() {
           iconColor="text-orange-600"
         />
       </div>
-
       {/* تبويبات التنقل */}
       <TabsEnhanced
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-
       {/* محتوى التبويبات */}
       <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
@@ -670,13 +619,11 @@ export default function CategoriesPage() {
             <CategoryTree categories={categories} />
           </div>
         )}
-
         {activeTab === 'hierarchy' && (
           <div className="p-6">
             <h3 className={`text-lg font-bold mb-6 transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800'
             }`}>🌳 التسلسل الهرمي</h3>
-            
             {/* عرض شجري محسن للتصنيفات */}
             <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
               <div className="mb-4">
@@ -684,7 +631,6 @@ export default function CategoriesPage() {
                   عرض التصنيفات في تسلسل هرمي يوضح العلاقات بين التصنيفات الرئيسية والفرعية
                 </p>
               </div>
-              
               {/* شجرة التصنيفات مع تحسينات بصرية */}
               <div className="space-y-4">
                 {categories.filter(cat => !cat.parent_id).map(parentCat => (
@@ -707,7 +653,6 @@ export default function CategoriesPage() {
                         </p>
                       </div>
                     </div>
-                    
                     {/* التصنيفات الفرعية */}
                     {categories.filter(cat => cat.parent_id === parentCat.id).length > 0 && (
                       <div className="mr-12 space-y-2">
@@ -740,20 +685,17 @@ export default function CategoriesPage() {
             </div>
           </div>
         )}
-
         {activeTab === 'analytics' && (
           <CategoriesAnalytics 
             categories={categories} 
             darkMode={darkMode} 
           />
         )}
-
         {activeTab === 'settings' && (
           <div className="p-6">
             <h3 className={`text-lg font-bold mb-6 transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800'
             }`}>⚙️ إعدادات التصنيفات</h3>
-            
             <div className="space-y-6">
               {/* إعدادات العرض */}
               <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-700' : 'bg-white'} border ${
@@ -783,7 +725,6 @@ export default function CategoriesPage() {
                   </label>
                 </div>
               </div>
-
               {/* إعدادات SEO */}
               <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-700' : 'bg-white'} border ${
                 darkMode ? 'border-gray-600' : 'border-gray-200'
@@ -824,7 +765,6 @@ export default function CategoriesPage() {
                   </div>
                 </div>
               </div>
-
               {/* إحصائيات عامة */}
               <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-700' : 'bg-white'} border ${
                 darkMode ? 'border-gray-600' : 'border-gray-200'
@@ -871,7 +811,6 @@ export default function CategoriesPage() {
           </div>
         )}
       </div>
-
       {/* النماذج */}
       {(showAddModal || showEditModal) && (
         <CategoryFormModal
@@ -889,7 +828,6 @@ export default function CategoriesPage() {
           loading={loading}
         />
       )}
-
       {/* مكون الإشعارات */}
       <NotificationComponent />
     </div>

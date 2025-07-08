@@ -1,6 +1,16 @@
+import React from 'react';
+import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Image from "next/image";
+
+
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -9,11 +19,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
+
+
+
+
 import {
   Image as ImageIcon,
   Upload,
@@ -27,7 +37,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import Image from "next/image";
+
 
 interface MediaFile {
   id: string;

@@ -1,6 +1,6 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+'use client';
 import { 
   Activity,
   Users,
@@ -13,7 +13,6 @@ import {
   Layers,
   Award
 } from 'lucide-react';
-
 interface ActivityLog {
   id: string;
   timestamp: string;
@@ -26,7 +25,6 @@ interface ActivityLog {
   ip?: string;
   location?: string;
 }
-
 interface Interaction {
   id: string;
   user_id: string;
@@ -37,7 +35,6 @@ interface Interaction {
   timestamp: string;
   points_awarded: number;
 }
-
 interface CategoryStats {
   id: string;
   name: string;
@@ -50,7 +47,6 @@ interface CategoryStats {
   avgDuration: number;
   growth: number;
 }
-
 interface UserStats {
   user_id: string;
   total_interactions: number;
@@ -58,7 +54,6 @@ interface UserStats {
   categories: Record<string, number>;
   last_active: string;
 }
-
 export default function ConsolePage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [darkMode, setDarkMode] = useState(false);
@@ -74,7 +69,6 @@ export default function ConsolePage() {
     avgReadingTime: 0,
     growthRate: 0
   });
-
   // استرجاع حالة الوضع الليلي
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
@@ -82,23 +76,19 @@ export default function ConsolePage() {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   // جلب البيانات الحقيقية
   useEffect(() => {
     const fetchRealData = async () => {
       try {
         setLoading(true);
-
         // جلب التفاعلات
         const interactionsRes = await fetch('/api/interactions/all');
         if (interactionsRes.ok) {
           const interactionsData = await interactionsRes.json();
           setInteractions(interactionsData.interactions || []);
-          
           // حساب إحصائيات التصنيفات
           const categoryMap = new Map<string, CategoryStats>();
           const userMap = new Map<string, UserStats>();
-          
           interactionsData.interactions.forEach((interaction: Interaction) => {
             // إحصائيات التصنيفات
             if (!categoryMap.has(interaction.category_id)) {
@@ -115,10 +105,8 @@ export default function ConsolePage() {
                 growth: 0
               });
             }
-            
             const catStats = categoryMap.get(interaction.category_id)!;
             catStats.interactions++;
-            
             switch (interaction.action) {
               case 'read':
                 catStats.views++;
@@ -136,7 +124,6 @@ export default function ConsolePage() {
                 catStats.comments++;
                 break;
             }
-            
             // إحصائيات المستخدمين
             if (!userMap.has(interaction.user_id)) {
               userMap.set(interaction.user_id, {
@@ -147,18 +134,15 @@ export default function ConsolePage() {
                 last_active: interaction.timestamp
               });
             }
-            
             const userStat = userMap.get(interaction.user_id)!;
             userStat.total_interactions++;
             userStat.total_points += interaction.points_awarded;
             userStat.categories[interaction.category_id] = (userStat.categories[interaction.category_id] || 0) + 1;
             userStat.last_active = interaction.timestamp;
           });
-          
           // تحويل Maps إلى Arrays
           setCategoryStats(Array.from(categoryMap.values()).sort((a, b) => b.interactions - a.interactions));
           setUserStats(Array.from(userMap.values()).sort((a, b) => b.total_interactions - a.total_interactions));
-          
           // حساب الإحصائيات العامة
           const totalInteractions = interactionsData.interactions.length;
           const activeUsers = userMap.size;
@@ -170,7 +154,6 @@ export default function ConsolePage() {
               .reduce((sum: number, i: Interaction) => sum + (i.duration || 0), 0) / 
             interactionsData.interactions.filter((i: Interaction) => i.action === 'read').length
           ) || 0;
-          
           setStats({
             totalInteractions,
             activeUsers,
@@ -180,17 +163,14 @@ export default function ConsolePage() {
             growthRate: 0 // سيتم حسابه من البيانات التاريخية
           });
         }
-
       } catch (error) {
         console.error('خطأ في جلب البيانات:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchRealData();
   }, []);
-
   // مكون بطاقة الإحصائية
   const StatsCard = ({ 
     title, 
@@ -232,7 +212,6 @@ export default function ConsolePage() {
       </div>
     </div>
   );
-
   // مكون أزرار التنقل
   const NavigationTabs = () => {
     const tabs = [
@@ -242,9 +221,8 @@ export default function ConsolePage() {
       { id: 'realtime', name: 'التفاعل اللحظي', icon: Activity },
       { id: 'growth', name: 'النمو والاتجاهات', icon: TrendingUp }
     ];
-
     return (
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
+  <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
@@ -273,12 +251,11 @@ export default function ConsolePage() {
       </div>
     );
   };
-
   // مكون محتوى التبويبات
   const renderTabContent = () => {
     if (loading) {
       return (
-        <div className="flex items-center justify-center py-16">
+  <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -288,11 +265,10 @@ export default function ConsolePage() {
         </div>
       );
     }
-
     switch (activeTab) {
       case 'dashboard':
         return (
-          <div className="space-y-8">
+  <div className="space-y-8">
             {/* إحصائيات رئيسية */}
             <div className="grid grid-cols-3 gap-6">
               <StatsCard
@@ -320,7 +296,6 @@ export default function ConsolePage() {
                 iconColor="text-purple-600"
               />
             </div>
-
             {/* أكثر التصنيفات تفاعلاً */}
             <div className={`rounded-2xl shadow-sm border overflow-hidden ${
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
@@ -377,7 +352,6 @@ export default function ConsolePage() {
                 </div>
               </div>
             </div>
-
             {/* أكثر المستخدمين نشاطاً */}
             <div className={`rounded-2xl shadow-sm border overflow-hidden ${
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
@@ -438,10 +412,9 @@ export default function ConsolePage() {
             </div>
           </div>
         );
-
       case 'categories':
         return (
-          <div className="space-y-6">
+  <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {categoryStats.map((category) => (
                 <div key={category.id} className={`rounded-2xl p-6 border ${
@@ -458,7 +431,6 @@ export default function ConsolePage() {
                       {category.interactions}
                     </span>
                   </div>
-
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -468,7 +440,6 @@ export default function ConsolePage() {
                         {Math.round(category.avgDuration)} ثانية
                       </span>
                     </div>
-
                     <div className="grid grid-cols-2 gap-4 pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}">
                       <div className="text-center">
                         <Eye className="w-5 h-5 text-blue-500 mx-auto mb-1" />
@@ -495,10 +466,9 @@ export default function ConsolePage() {
             </div>
           </div>
         );
-
       case 'realtime':
         return (
-          <div className={`rounded-2xl shadow-sm border overflow-hidden ${
+  <div className={`rounded-2xl shadow-sm border overflow-hidden ${
             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
           }`}>
             <div className="px-6 py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-100'}">
@@ -550,10 +520,9 @@ export default function ConsolePage() {
             </div>
           </div>
         );
-
       default:
         return (
-          <div className={`rounded-2xl shadow-sm border p-8 text-center ${
+  <div className={`rounded-2xl shadow-sm border p-8 text-center ${
             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
           }`}>
             <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -563,9 +532,8 @@ export default function ConsolePage() {
         );
     }
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -577,7 +545,6 @@ export default function ConsolePage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>تحليل السلوك والتفاعل في الوقت الفعلي</p>
       </div>
-
       {/* قسم الإحصائيات السريعة */}
       <div className="mb-8">
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -621,10 +588,8 @@ export default function ConsolePage() {
           </div>
         </div>
       </div>
-
       {/* Navigation Tabs */}
       <NavigationTabs />
-
       {/* Content */}
       {renderTabContent()}
     </div>

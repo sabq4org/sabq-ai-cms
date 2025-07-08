@@ -1,5 +1,7 @@
+import React from 'react';
+import Image from 'next/image';
+'use client';
 'use client'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, Edit, Trash2, Eye, Calendar, User, MessageSquare, TrendingUp, FileText } from 'lucide-react'
@@ -16,13 +18,11 @@ import { Select, SelectOption } from '@/components/ui/select'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter } from 'next/navigation'
-
 interface OpinionAuthor {
   id: string
   name: string
   avatar?: string
 }
-
 interface Article {
   id: string
   title: string
@@ -39,7 +39,6 @@ interface Article {
     comments: number
   }
 }
-
 export default function OpinionsPage() {
   const { darkMode } = useDarkModeContext()
   const { toast } = useToast()
@@ -51,11 +50,9 @@ export default function OpinionsPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | string>('all')
   const [sortBy, setSortBy] = useState('createdAt')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-
   useEffect(() => {
     fetchArticles()
   }, [])
-
   const fetchArticles = async () => {
     try {
       const response = await fetch('/api/articles?type=OPINION&limit=100')
@@ -80,16 +77,13 @@ export default function OpinionsPage() {
       setLoading(false)
     }
   }
-
   const handleDelete = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا المقال؟')) return
-
     setDeleting(id)
     try {
       const response = await fetch(`/api/articles/${id}`, {
         method: 'DELETE'
       })
-
       if (response.ok) {
         toast({
           title: 'تم الحذف بنجاح',
@@ -114,27 +108,23 @@ export default function OpinionsPage() {
       setDeleting(null)
     }
   }
-
   const getStatusBadge = (status: string) => {
     const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
       published: 'default',
       draft: 'secondary',
       scheduled: 'outline'
     }
-
     const labels: Record<string, string> = {
       published: 'منشور',
       draft: 'مسودة',
       scheduled: 'مجدول'
     }
-
     return (
       <Badge variant={variants[status] || 'default'}>
         {labels[status] || status}
       </Badge>
     )
   }
-
   const StatsCard = ({ 
     title, 
     value, 
@@ -175,10 +165,9 @@ export default function OpinionsPage() {
       </div>
     </div>
   )
-
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
+  <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-32" />
@@ -191,9 +180,8 @@ export default function OpinionsPage() {
       </div>
     )
   }
-
   return (
-    <div className="p-6 space-y-6">
+  <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">مقالات الرأي</h1>
@@ -206,7 +194,6 @@ export default function OpinionsPage() {
           </Button>
         </Link>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatsCard
           title="إجمالي المقالات"
@@ -241,7 +228,6 @@ export default function OpinionsPage() {
           iconColor="text-purple-500"
         />
       </div>
-
       <div className="flex justify-between items-center mb-4">
         <Input
           placeholder="ابحث عن مقال"
@@ -259,7 +245,6 @@ export default function OpinionsPage() {
           <SelectOption value="draft">مسودة</SelectOption>
         </Select>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>جميع مقالات الرأي</CardTitle>
@@ -290,11 +275,7 @@ export default function OpinionsPage() {
                     <div className="flex-1">
                       <div className="flex items-start gap-3">
                         {article.opinion_author?.avatar && (
-                          <img
-                            src={article.opinion_author.avatar}
-                            alt={article.opinion_author.name}
-                            className="w-12 h-12 rounded-full object-cover"
-                          />
+                          <Image src={undefined} alt="" width={100} height={100} />
                         )}
                         <div className="flex-1">
                           <h3 className="font-semibold text-lg mb-1">

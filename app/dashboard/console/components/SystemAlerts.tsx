@@ -1,3 +1,8 @@
+import Image from 'next/image';
+
+
+
+
 'use client'
 
 import { AlertCircle, CheckCircle, Info, XCircle } from 'lucide-react'

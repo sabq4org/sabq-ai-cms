@@ -1,21 +1,19 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+import Header from '@/components/Header';
+'use client';
 import { 
   ArrowLeft, Save, User, Mail, Lock, Bell,
   Shield, Globe, Moon, Sun, Check
 } from 'lucide-react';
-import toast from 'react-hot-toast';
-import Header from '@/components/Header';
-
 export default function ProfileSettingsPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,21 +21,18 @@ export default function ProfileSettingsPage() {
     newPassword: '',
     confirmPassword: ''
   });
-
   const [notifications, setNotifications] = useState({
     emailNotifications: true,
     pushNotifications: true,
     newsAlerts: true,
     weeklyDigest: false
   });
-
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (!userData) {
       router.push('/login');
       return;
     }
-    
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
     setFormData({
@@ -46,27 +41,21 @@ export default function ProfileSettingsPage() {
       email: parsedUser.email
     });
   }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
       toast.error('كلمات المرور غير متطابقة');
       return;
     }
-
     setLoading(true);
-    
     try {
       // هنا يمكن إضافة API call لتحديث البيانات
-      
       // تحديث البيانات المحلية
       const updatedUser = {
         ...user,
         name: formData.name,
         email: formData.email
       };
-      
       localStorage.setItem('user', JSON.stringify(updatedUser));
       toast.success('تم حفظ التغييرات بنجاح');
     } catch (error) {
@@ -75,7 +64,6 @@ export default function ProfileSettingsPage() {
       setLoading(false);
     }
   };
-
   return (
     <>
       <Header />
@@ -90,11 +78,9 @@ export default function ProfileSettingsPage() {
               <ArrowLeft className="w-5 h-5" />
               العودة للملف الشخصي
             </Link>
-            
             <h1 className="text-3xl font-bold text-gray-800">إعدادات الحساب</h1>
             <p className="text-gray-600 mt-2">قم بإدارة معلوماتك الشخصية وتفضيلاتك</p>
           </div>
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* القائمة الجانبية */}
             <div className="lg:col-span-1">
@@ -123,13 +109,11 @@ export default function ProfileSettingsPage() {
                 </nav>
               </div>
             </div>
-
             {/* المحتوى الرئيسي */}
             <div className="lg:col-span-2 space-y-8">
               {/* معلومات الحساب */}
               <div id="account" className="bg-white rounded-xl shadow-md p-6">
                 <h2 className="text-xl font-bold text-gray-800 mb-6">معلومات الحساب</h2>
-                
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -143,7 +127,6 @@ export default function ProfileSettingsPage() {
                       required
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       البريد الإلكتروني
@@ -156,7 +139,6 @@ export default function ProfileSettingsPage() {
                       required
                     />
                   </div>
-
                   <button
                     type="submit"
                     disabled={loading}
@@ -167,11 +149,9 @@ export default function ProfileSettingsPage() {
                   </button>
                 </form>
               </div>
-
               {/* الأمان وكلمة المرور */}
               <div id="security" className="bg-white rounded-xl shadow-md p-6">
                 <h2 className="text-xl font-bold text-gray-800 mb-6">تغيير كلمة المرور</h2>
-                
                 <form className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -184,7 +164,6 @@ export default function ProfileSettingsPage() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       كلمة المرور الجديدة
@@ -196,7 +175,6 @@ export default function ProfileSettingsPage() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       تأكيد كلمة المرور الجديدة
@@ -208,7 +186,6 @@ export default function ProfileSettingsPage() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-
                   <button
                     type="submit"
                     className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -218,11 +195,9 @@ export default function ProfileSettingsPage() {
                   </button>
                 </form>
               </div>
-
               {/* الإشعارات */}
               <div id="notifications" className="bg-white rounded-xl shadow-md p-6">
                 <h2 className="text-xl font-bold text-gray-800 mb-6">إعدادات الإشعارات</h2>
-                
                 <div className="space-y-4">
                   <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
                     <div className="flex items-center gap-3">
@@ -239,7 +214,6 @@ export default function ProfileSettingsPage() {
                       className="w-5 h-5 text-blue-600"
                     />
                   </label>
-
                   <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
                     <div className="flex items-center gap-3">
                       <Bell className="w-5 h-5 text-gray-600" />
@@ -255,7 +229,6 @@ export default function ProfileSettingsPage() {
                       className="w-5 h-5 text-blue-600"
                     />
                   </label>
-
                   <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
                     <div className="flex items-center gap-3">
                       <Globe className="w-5 h-5 text-gray-600" />
@@ -272,17 +245,14 @@ export default function ProfileSettingsPage() {
                     />
                   </label>
                 </div>
-
                 <button className="mt-6 flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                   <Check className="w-5 h-5" />
                   حفظ الإعدادات
                 </button>
               </div>
-
               {/* التفضيلات */}
               <div id="preferences" className="bg-white rounded-xl shadow-md p-6">
                 <h2 className="text-xl font-bold text-gray-800 mb-6">التفضيلات العامة</h2>
-                
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-4">
@@ -309,7 +279,6 @@ export default function ProfileSettingsPage() {
                       </button>
                     </div>
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       اللغة المفضلة

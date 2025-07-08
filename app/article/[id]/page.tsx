@@ -1,13 +1,7 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect, useRef, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Share2, Eye, Clock, Calendar,
-  User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
-  Twitter, Copy, Check, X, Menu, Heart, Bookmark
-} from 'lucide-react';
-
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
 import { getImageUrl } from '@/lib/utils';
@@ -15,14 +9,17 @@ import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
 import { marked } from 'marked';
 import Header from '@/components/Header';
-
+'use client';
+import { Share2, Eye, Clock, Calendar,
+  User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
+  Twitter, Copy, Check, X, Menu, Heart, Bookmark
+} from 'lucide-react';
 // تعريف نوع twttr لتويتر
 declare global {
   interface Window {
     twttr: any;
   }
 }
-
 // دالة لتسجيل التفاعل عبر API
 async function trackInteraction(data: {
   userId: string;
@@ -47,7 +44,6 @@ async function trackInteraction(data: {
         completed: data.completed
       }),
     });
-    
     if (!response.ok) {
       console.error('Failed to track interaction');
     }
@@ -55,7 +51,6 @@ async function trackInteraction(data: {
     console.error('Error tracking interaction:', error);
   }
 }
-
 interface Article {
   id: string;
   title: string;
@@ -104,7 +99,6 @@ interface Article {
   related_articles?: RelatedArticle[];
   ai_summary?: string;
 }
-
 interface RelatedArticle {
   id: string;
   title: string;
@@ -114,7 +108,6 @@ interface RelatedArticle {
   created_at?: string;
   category_name?: string;
 }
-
 interface UserInteraction {
   liked: boolean;
   saved: boolean;
@@ -123,16 +116,13 @@ interface UserInteraction {
   sharesCount: number;
   savesCount: number;
 }
-
 interface PageProps {
   params: Promise<{ id: string }>
 }
-
 export default function ArticlePage({ params }: PageProps) {
   const router = useRouter();
   const resolvedParams = use(params);
   const articleId = resolvedParams.id;
-
   const { darkMode, toggleDarkMode } = useDarkModeContext();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -160,16 +150,13 @@ export default function ArticlePage({ params }: PageProps) {
   const [aiQuestion, setAiQuestion] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
-
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
   // إنشاء معرف ثابت للضيف عند تحميل الصفحة
   useEffect(() => {
     // نقل كل منطق العميل إلى useEffect لتجنب مشاكل SSR
     let guestId = localStorage.getItem('guestId');
-    
     if (!guestId) {
       // استخدام معرف ثابت بدلاً من Date.now() و Math.random()
       const timestamp = new Date().getTime();
@@ -177,15 +164,12 @@ export default function ArticlePage({ params }: PageProps) {
       guestId = `guest-${timestamp}-${randomPart}`;
       localStorage.setItem('guestId', guestId);
     }
-    
     // التحقق من تسجيل الدخول
     const storedUserId = localStorage.getItem('user_id');
     const userData = localStorage.getItem('user');
-    
     const isValidLogin = !!(storedUserId && storedUserId !== 'anonymous' && userData);
     setUserId(isValidLogin ? storedUserId : guestId);
   }, []);
-
   useEffect(() => {
     async function loadArticle() {
       if (articleId) {
@@ -194,7 +178,6 @@ export default function ArticlePage({ params }: PageProps) {
     }
     loadArticle();
   }, [articleId]);
-
   // تتبع المشاهدة والقراءة
   useEffect(() => {
     if (article && article.id && userId) {
@@ -206,7 +189,6 @@ export default function ArticlePage({ params }: PageProps) {
       });
     }
   }, [article, userId]);
-
   // تتبع تقدم القراءة
   useEffect(() => {
     const handleScroll = () => {
@@ -216,17 +198,12 @@ export default function ArticlePage({ params }: PageProps) {
         const scrollTop = window.scrollY;
         const progress = (scrollTop / (documentHeight - windowHeight)) * 100;
         setReadProgress(Math.min(100, Math.max(0, progress)));
-        
         // حساب وقت القراءة
         const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        
-
-        
         // تحديد القسم النشط
         if (tableOfContents.length > 0) {
           const scrollPosition = window.scrollY + 150;
           let currentSection = '';
-          
           for (let i = tableOfContents.length - 1; i >= 0; i--) {
             const section = document.getElementById(tableOfContents[i].id);
             if (section && section.offsetTop <= scrollPosition) {
@@ -234,26 +211,21 @@ export default function ArticlePage({ params }: PageProps) {
               break;
             }
           }
-          
           if (currentSection && currentSection !== activeSection) {
             setActiveSection(currentSection);
           }
         }
       }
-      
       // إظهار/إخفاء الأزرار العائمة
       setShowFloatingActions(window.scrollY > 300);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [userId, article, tableOfContents, activeSection]);
-  
   // جلب التفاعلات المحفوظة
   useEffect(() => {
     async function fetchUserInteractions() {
       if (!article?.id || !userId) return;
-
       // محاولة جلب من الخادم للمستخدمين المسجلين
       if (userId && !userId.startsWith('guest-')) {
         try {
@@ -275,17 +247,14 @@ export default function ArticlePage({ params }: PageProps) {
         }
       }
     }
-
     fetchUserInteractions();
   }, [userId, article]);
-
   // تحميل سكريبت تويتر
   useEffect(() => {
     if (article && article.content) {
       try {
         const blocks = JSON.parse(article.content);
         const hasTweets = blocks.some((block: any) => block.type === 'tweet');
-        
         if (hasTweets && !window.twttr) {
           const script = document.createElement('script');
           script.src = 'https://platform.twitter.com/widgets.js';
@@ -306,11 +275,6 @@ export default function ArticlePage({ params }: PageProps) {
       }
     }
   }, [article]);
-
-
-
-
-
   // استخراج فهرس المحتويات عند تحديث المقال
   useEffect(() => {
     if (article && contentRef.current) {
@@ -319,7 +283,6 @@ export default function ArticlePage({ params }: PageProps) {
       }, 100);
     }
   }, [article]);
-
   const fetchArticle = async (id: string) => {
     try {
       setLoading(true);
@@ -329,21 +292,16 @@ export default function ArticlePage({ params }: PageProps) {
           'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=59'
         }
       });
-      
       if (!response.ok) {
         router.push('/');
         return;
       }
-      
       const data = await response.json();
-      
       // تحضير البيانات
       if (data.content_blocks && Array.isArray(data.content_blocks) && data.content_blocks.length > 0) {
         data.content = JSON.stringify(data.content_blocks);
       }
-      
       setArticle(data);
-      
       // تحديث عدادات التفاعل
       if (data.stats) {
         setInteraction(prev => ({
@@ -353,7 +311,6 @@ export default function ArticlePage({ params }: PageProps) {
           savesCount: data.stats.saves || 0
         }));
       }
-      
       // التحقق من أن المقال جديد (نُشر خلال آخر 24 ساعة)
       // تأجيل هذا الحساب لتجنب اختلاف التوقيت بين الخادم والعميل
       if (data.published_at || data.created_at) {
@@ -364,7 +321,6 @@ export default function ArticlePage({ params }: PageProps) {
           setIsNewArticle(hoursDiff <= 24);
         }, 0);
       }
-      
     } catch (error) {
       console.log('Network error while fetching article:', error);
       router.push('/');
@@ -372,13 +328,11 @@ export default function ArticlePage({ params }: PageProps) {
       setLoading(false);
     }
   };
-
   // إيقاف توليد فهرس المحتويات (تم إلغاء البلوك بناءً على طلب العميل)
   const generateTableOfContents = () => {
     // مسح أي بيانات سابقة لضمان عدم ظهور البلوك
     setTableOfContents([]);
   };
-
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -389,17 +343,13 @@ export default function ArticlePage({ params }: PageProps) {
       setActiveSection(id);
     }
   };
-
   const handleAiQuestion = async (question: string) => {
     if (!question.trim() || !article) return;
-    
     setIsAiLoading(true);
     setAiResponse('');
-    
     try {
       // محاكاة استجابة AI (يمكن استبدالها بـ API حقيقي لاحقاً)
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
       // استجابات محاكاة بناءً على نوع السؤال
       if (question.includes('النقاط الرئيسية') || question.includes('الملخص')) {
         setAiResponse('بناءً على تحليلي للمقال، النقاط الرئيسية هي: ' + (article.summary || article.ai_summary || 'يتناول المقال موضوعاً مهماً يستحق القراءة بتمعن.'));
@@ -416,13 +366,10 @@ export default function ArticlePage({ params }: PageProps) {
       setIsAiLoading(false);
     }
   };
-
   const handleShare = async (platform: string) => {
     if (!article) return;
-    
     const url = window.location.href;
     const title = article.title;
-    
     if (platform === 'copy') {
       try {
         await navigator.clipboard.writeText(url);
@@ -434,7 +381,6 @@ export default function ArticlePage({ params }: PageProps) {
     } else {
       shareOnSocial(platform, title, url);
     }
-    
     // تسجيل المشاركة
     if (userId) {
       trackInteraction({
@@ -444,10 +390,8 @@ export default function ArticlePage({ params }: PageProps) {
         source: platform
       });
     }
-    
     setShowShareMenu(false);
   };
-
   // دالة معالجة الإعجاب
   const handleLike = async () => {
     if (!article || !userId) {
@@ -455,7 +399,6 @@ export default function ArticlePage({ params }: PageProps) {
       router.push('/login?redirect=' + encodeURIComponent(window.location.pathname));
       return;
     }
-
     try {
       const response = await fetch('/api/interactions', {
         method: 'POST',
@@ -467,7 +410,6 @@ export default function ArticlePage({ params }: PageProps) {
           action: interaction.liked ? 'remove' : 'add'
         })
       });
-
       if (response.ok) {
         const data = await response.json();
         setInteraction(prev => ({
@@ -475,7 +417,6 @@ export default function ArticlePage({ params }: PageProps) {
           liked: !prev.liked,
           likesCount: prev.liked ? prev.likesCount - 1 : prev.likesCount + 1
         }));
-        
         // تسجيل التفاعل
         trackInteraction({
           userId,
@@ -488,7 +429,6 @@ export default function ArticlePage({ params }: PageProps) {
       console.error('Error handling like:', error);
     }
   };
-
   // دالة معالجة الحفظ
   const handleSave = async () => {
     if (!article || !userId) {
@@ -496,7 +436,6 @@ export default function ArticlePage({ params }: PageProps) {
       router.push('/login?redirect=' + encodeURIComponent(window.location.pathname));
       return;
     }
-
     try {
       const response = await fetch('/api/bookmarks', {
         method: 'POST',
@@ -507,7 +446,6 @@ export default function ArticlePage({ params }: PageProps) {
           itemType: 'article'
         })
       });
-
       if (response.ok) {
         const data = await response.json();
         setInteraction(prev => ({
@@ -515,7 +453,6 @@ export default function ArticlePage({ params }: PageProps) {
           saved: data.action === 'added',
           savesCount: data.action === 'added' ? prev.savesCount + 1 : prev.savesCount - 1
         }));
-        
         // تسجيل التفاعل
         trackInteraction({
           userId,
@@ -528,20 +465,16 @@ export default function ArticlePage({ params }: PageProps) {
       console.error('Error handling save:', error);
     }
   };
-
   const getCategoryColor = (category?: any) => {
     if (category?.color_hex) return category.color_hex;
     if ((category as any)?.color) return (category as any).color;
-    
     const colors = ['#1a73e8', '#ea4335', '#34a853', '#fbbc04', '#673ab7', '#e91e63'];
     const index = Math.abs(category?.id || 0) % colors.length;
     return colors[index];
   };
-
   const generatePlaceholderImage = (title: string) => {
     const colors = ['#1a73e8', '#ea4335', '#34a853', '#fbbc04', '#673ab7'];
     const colorIndex = Math.abs(title.charCodeAt(0) - 65) % colors.length;
-    
     return `data:image/svg+xml,${encodeURIComponent(`
       <svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -557,16 +490,14 @@ export default function ArticlePage({ params }: PageProps) {
       </svg>
     `)}`;
   };
-
   const renderArticleContent = (content: string) => {
     if (!content) return null;
-    
     // محاولة معالجة المحتوى كـ JSON blocks
     try {
       const blocks = JSON.parse(content);
       if (Array.isArray(blocks)) {
         return (
-          <div className="space-y-6">
+  <div className="space-y-6">
             {blocks.map((block, index) => {
               switch (block.type) {
                 case 'paragraph':
@@ -575,7 +506,6 @@ export default function ArticlePage({ params }: PageProps) {
                       {block.text}
                     </p>
                   );
-                
                 case 'heading':
                   const level = block.level || 2;
                   const headingClasses: Record<number, string> = {
@@ -587,7 +517,6 @@ export default function ArticlePage({ params }: PageProps) {
                     6: 'text-sm'
                   };
                   const headingClass = headingClasses[level] || 'text-xl';
-                  
                   return React.createElement(
                     `h${level}`,
                     {
@@ -596,7 +525,6 @@ export default function ArticlePage({ params }: PageProps) {
                     },
                     block.text
                   );
-                
                 case 'list':
                   return (
                     <ul key={block.id || index} className="list-disc list-inside space-y-2">
@@ -605,7 +533,6 @@ export default function ArticlePage({ params }: PageProps) {
                       ))}
                     </ul>
                   );
-                
                 case 'quote':
                   return (
                     <blockquote key={block.id || index} className="border-r-4 border-blue-600 pr-4 italic text-lg text-gray-600 dark:text-gray-400">
@@ -613,15 +540,10 @@ export default function ArticlePage({ params }: PageProps) {
                       {block.caption && <cite className="block mt-2 text-sm not-italic">— {block.caption}</cite>}
                     </blockquote>
                   );
-                
                 case 'image':
                   return (
                     <figure key={block.id || index} className="my-8">
-                      <img 
-                        src={block.url} 
-                        alt={block.alt || ''} 
-                        className="w-full rounded-lg shadow-lg"
-                      />
+                      <Image src={undefined} alt="" width={100} height={100} />
                       {block.caption && (
                         <figcaption className="text-center text-sm text-gray-600 dark:text-gray-400 mt-2">
                           {block.caption}
@@ -629,19 +551,14 @@ export default function ArticlePage({ params }: PageProps) {
                       )}
                     </figure>
                   );
-                
                 case 'gallery':
                 case 'imageGallery':
                   return (
-                    <div key={block.id || index} className="my-8">
+  <div key={block.id || index} className="my-8">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {block.images?.map((image: any, imgIndex: number) => (
                           <figure key={imgIndex} className="relative group overflow-hidden rounded-lg shadow-lg">
-                            <img 
-                              src={image.url || image} 
-                              alt={image.alt || `صورة ${imgIndex + 1}`} 
-                              className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
-                            />
+                            <Image src={undefined} alt="" width={100} height={100} />
                             {image.caption && (
                               <figcaption className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent text-white p-3 text-sm">
                                 {image.caption}
@@ -657,16 +574,14 @@ export default function ArticlePage({ params }: PageProps) {
                       )}
                     </div>
                   );
-                
                 case 'html':
                   return (
-                    <div 
+  <div 
                       key={block.id || index}
                       dangerouslySetInnerHTML={{ __html: block.content || '' }}
                       className="prose prose-lg max-w-none dark:prose-invert"
                     />
                   );
-                
                 default:
                   return null;
               }
@@ -678,12 +593,10 @@ export default function ArticlePage({ params }: PageProps) {
       // ليس JSON، نتابع للمعالجات الأخرى
       console.log('Content is not JSON blocks, trying Markdown...');
     }
-    
     // معالجة المحتوى كـ Markdown
     // تحسين الكشف عن المحتوى Markdown
     const markdownIndicators = ['#', '**', '*', '![', '[', '|', '>', '-', '```'];
     const hasMarkdown = markdownIndicators.some(indicator => content.includes(indicator));
-    
     if (hasMarkdown) {
       console.log('Processing as Markdown content...');
       // تكوين marked للغة العربية
@@ -691,16 +604,13 @@ export default function ArticlePage({ params }: PageProps) {
         breaks: true,
         gfm: true
       });
-      
       // معالجة المحتوى وتحويله إلى HTML
       let htmlContent = marked(content) as string;
-      
       // إضافة أنماط للجداول
       htmlContent = htmlContent.replace(/<table>/g, '<div class="table-container"><table>');
       htmlContent = htmlContent.replace(/<\/table>/g, '</table></div>');
-      
       return (
-        <div 
+  <div 
           dangerouslySetInnerHTML={{ __html: htmlContent }}
           className="prose prose-lg max-w-none dark:prose-invert 
             prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
@@ -723,16 +633,14 @@ export default function ArticlePage({ params }: PageProps) {
         />
       );
     }
-    
     // معالجة المحتوى النصي العادي
     const paragraphs = content
       .split(/\n\s*\n|\r\n\s*\r\n|(?:\. )(?=[A-Z\u0600-\u06FF])/)
       .map(p => p.trim())
       .filter(p => p.length > 0);
-    
     if (paragraphs.length > 0) {
       return (
-        <div className="space-y-6">
+  <div className="space-y-6">
           {paragraphs.map((paragraph, index) => (
             <p key={index} className="text-lg leading-[1.9] text-gray-700 dark:text-gray-300">
               {paragraph}
@@ -741,20 +649,18 @@ export default function ArticlePage({ params }: PageProps) {
         </div>
       );
     }
-    
     // عرض المحتوى كـ HTML كخيار أخير
     return (
-      <div 
+  <div 
         dangerouslySetInnerHTML={{ __html: content }}
         className="prose prose-lg max-w-none dark:prose-invert"
       />
     );
   };
-
   // عرض مؤشر تحميل موحد قبل تحميل الصفحة بالكامل في المتصفح لتجنب أخطاء Hydration
   if (!isMounted || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
           <p className="text-gray-500 dark:text-gray-400">جاري تحميل المقال...</p>
@@ -762,10 +668,9 @@ export default function ArticlePage({ params }: PageProps) {
       </div>
     );
   }
-
   if (!article) {
     return (
-      <div>
+  <div>
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
           <div className="text-center">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">المقال غير موجود</h3>
@@ -782,11 +687,9 @@ export default function ArticlePage({ params }: PageProps) {
       </div>
     );
   }
-
   return (
-    <div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+  <div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
       {article && <ArticleJsonLd article={article} />}
-      
       {/* أنماط CSS مخصصة لأزرار "لا أرغب بهذا النوع" */}
       <style jsx>{`
         .no-thanks-button {
@@ -809,93 +712,75 @@ export default function ArticlePage({ params }: PageProps) {
           cursor: pointer;
           border: none;
         }
-        
         .group:hover .no-thanks-button {
           opacity: 1;
           transform: scale(1);
         }
-        
         .no-thanks-button:hover {
           background-color: rgb(220, 38, 38);
           transform: scale(1.1);
         }
-        
         @media (max-width: 768px) {
           .no-thanks-button {
             opacity: 1;
             transform: scale(1);
           }
         }
-
         /* إزالة خلفيات محتوى المقال */
         .prose :global(pre) {
           background: transparent !important;
           background-color: transparent !important;
         }
-        
         .prose :global(blockquote) {
           background: transparent !important;
           background-color: transparent !important;
         }
-        
         .prose :global(code) {
           background: transparent !important;
           background-color: transparent !important;
         }
-        
         .prose :global(.highlight) {
           background: transparent !important;
           background-color: transparent !important;
         }
-        
         .prose :global(.code-block) {
           background: transparent !important;
           background-color: transparent !important;
         }
-
         .prose :global(table) {
           background: transparent !important;
           background-color: transparent !important;
         }
-
         .prose :global(th) {
           background: transparent !important;
           background-color: transparent !important;
         }
-
         .prose :global(td) {
           background: transparent !important;
           background-color: transparent !important;
         }
-
         .prose :global(tr) {
           background: transparent !important;
           background-color: transparent !important;
         }
-
         .prose :global(.table-container) {
           background: transparent !important;
           background-color: transparent !important;
         }
-
         /* إزالة خلفيات إضافية */
         .prose :global(*) {
           background-color: transparent !important;
         }
-
         /* الحفاظ على خلفية الصور فقط */
         .prose :global(img) {
           background-color: initial !important;
         }
-
         .prose :global(figure) {
           background-color: transparent !important;
         }
       `}</style>
-      
       {/* Header */}
       <Header />
-
       {/* مؤشر تقدم القراءة */}
       <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700 z-50">
         <div 
@@ -903,7 +788,6 @@ export default function ArticlePage({ params }: PageProps) {
           style={{ width: `${readProgress}%` }}
         />
       </div>
-
       {/* Hero Image + Meta */}
       <section className="relative hero-image-container">
         <div className="w-full h-[50vh] md:h-[60vh] overflow-hidden">
@@ -912,18 +796,13 @@ export default function ArticlePage({ params }: PageProps) {
               جديد
             </div>
           )}
-          <img
-            src={getImageUrl(article.featured_image) || generatePlaceholderImage(article.title)}
-            alt={article.featured_image_alt || article.title}
-            className="w-full h-full object-cover hero-image"
-            onError={(e) => {
+          <Image src={undefined} alt="" width={100} height={100} /> {
               e.currentTarget.src = generatePlaceholderImage(article.title);
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
       </section>
-
       {/* Article Title & Meta */}
       <section className="px-4 md:px-8 py-6 max-w-5xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold leading-tight article-title">
@@ -934,7 +813,6 @@ export default function ArticlePage({ params }: PageProps) {
             {article.subtitle}
           </p>
         )}
-        
         {/* ملخص AI - جديد */}
         {(article.summary || article.ai_summary) && (
           <div className="my-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
@@ -956,7 +834,6 @@ export default function ArticlePage({ params }: PageProps) {
             </div>
           </div>
         )}
-        
         {/* معلومات المقال */}
         <div className="article-meta-info">
           <div className="article-meta-item">
@@ -984,7 +861,6 @@ export default function ArticlePage({ params }: PageProps) {
             <span>{article.views_count || 0} مشاهدة</span>
           </div>
         </div>
-
         {/* الكلمات المفتاحية */}
         {article.seo_keywords && Array.isArray(article.seo_keywords) && article.seo_keywords.length > 0 && (
           <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -1009,7 +885,6 @@ export default function ArticlePage({ params }: PageProps) {
             </div>
           </div>
         )}
-        
         {/* شريط التفاعل السريع */}
         <div className="quick-interaction-bar">
           {/* زر الإعجاب */}
@@ -1028,7 +903,6 @@ export default function ArticlePage({ params }: PageProps) {
               </span>
             )}
           </button>
-
           {/* زر الحفظ */}
           <button 
             onClick={handleSave}
@@ -1045,7 +919,6 @@ export default function ArticlePage({ params }: PageProps) {
               </span>
             )}
           </button>
-
           {/* زر المشاركة */}
           <button 
             title="شارك هذا المقال"
@@ -1059,7 +932,6 @@ export default function ArticlePage({ params }: PageProps) {
                 {interaction.sharesCount}
               </span>
             )}
-            
             {/* قائمة المشاركة */}
             {showShareMenu && (
               <div className="absolute top-full mt-2 left-0 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-[200px] z-10">
@@ -1089,7 +961,6 @@ export default function ArticlePage({ params }: PageProps) {
           </button>
         </div>
       </section>
-
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12" ref={contentRef}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1099,7 +970,6 @@ export default function ArticlePage({ params }: PageProps) {
               {renderArticleContent(article.content)}
             </div>
           </section>
-
           {/* Sidebar */}
           <aside className="lg:col-span-1 space-y-6">
             {/* Article Stats */}
@@ -1124,7 +994,6 @@ export default function ArticlePage({ params }: PageProps) {
                     <div className="article-info-value">{calculateReadingTime(article.content)} دقائق</div>
                   </div>
                 </div>
-
                 <div className="article-info-item">
                   <MessageCircle className="w-5 h-5" />
                   <div>
@@ -1134,7 +1003,6 @@ export default function ArticlePage({ params }: PageProps) {
                 </div>
               </div>
             </div>
-
             {/* فهرس المحتويات */}
             {tableOfContents.length > 0 && (
               <div className="sidebar-card sticky top-20">
@@ -1170,7 +1038,6 @@ export default function ArticlePage({ params }: PageProps) {
                 </div>
               </div>
             )}
-
             {/* مساعد AI - جديد */}
             <div className="sidebar-card bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800">
               <div className="flex items-center gap-3 mb-4">
@@ -1184,12 +1051,10 @@ export default function ArticlePage({ params }: PageProps) {
                   <p className="text-xs text-gray-600 dark:text-gray-400">اسأل عن محتوى المقال</p>
                 </div>
               </div>
-              
               <div className="space-y-3">
                 <p className="text-sm text-gray-700 dark:text-gray-300">
                   لديك سؤال حول المقال؟ اسألني وسأساعدك في فهم المحتوى بشكل أفضل.
                 </p>
-                
                 {/* أمثلة على الأسئلة */}
                 <div className="space-y-2">
                   <button 
@@ -1211,7 +1076,6 @@ export default function ArticlePage({ params }: PageProps) {
                     📊 ما هي الإحصائيات المذكورة؟
                   </button>
                 </div>
-                
                 {/* عرض الاستجابة */}
                 {(aiResponse || isAiLoading) && (
                   <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
@@ -1227,7 +1091,6 @@ export default function ArticlePage({ params }: PageProps) {
                     )}
                   </div>
                 )}
-                
                 <div className="mt-4 pt-4 border-t border-purple-200 dark:border-purple-700">
                   <div className="flex items-center gap-2">
                     <input
@@ -1259,14 +1122,9 @@ export default function ArticlePage({ params }: PageProps) {
                 </div>
               </div>
             </div>
-
-
-
-
           </aside>
         </div>
       </div>
-
       {/* الأزرار العائمة */}
       {showFloatingActions && (
         <div className="floating-actions">
@@ -1295,7 +1153,6 @@ export default function ArticlePage({ params }: PageProps) {
           )}
         </div>
       )}
-
       {/* Modal فهرس المحتويات للموبايل */}
       {showMobileToc && (
         <div className="lg:hidden fixed inset-0 z-50 overflow-y-auto">
@@ -1348,32 +1205,26 @@ export default function ArticlePage({ params }: PageProps) {
           </div>
         </div>
       )}
-
       {/* Footer */}
       <Footer />
     </div>
   );
 }
-
 // دوال مساعدة
 function shareOnSocial(platform: string, title: string, url: string) {
   const encodedTitle = encodeURIComponent(title);
   const encodedUrl = encodeURIComponent(url);
-  
   const urls = {
     twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
     whatsapp: `https://wa.me/?text=${encodedTitle} ${encodedUrl}`,
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
   };
-  
   if (urls[platform as keyof typeof urls]) {
     window.open(urls[platform as keyof typeof urls], '_blank', 'width=600,height=400');
   }
 }
-
 function calculateReadingTime(content: any): number {
   if (!content) return 1;
-  
   let wordCount = 0;
   if (typeof content === 'string') {
     wordCount = content.split(' ').length;
@@ -1384,6 +1235,5 @@ function calculateReadingTime(content: any): number {
       }
     });
   }
-  
   return Math.max(1, Math.ceil(wordCount / 200)); // 200 كلمة في الدقيقة
 } 

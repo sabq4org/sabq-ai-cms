@@ -1,6 +1,11 @@
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+
+
+
 import { 
   Save, Send, Eye, Globe, MapPin, Clock, User, RefreshCw, CheckCircle, AlertTriangle,
   Sparkles

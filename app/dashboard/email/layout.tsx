@@ -1,7 +1,19 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+
+'use client';
+
+
+
+
+
+
+
+
+
+
 import { 
   BarChart3, 
   Users, 

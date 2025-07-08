@@ -1,4 +1,8 @@
+import Image from 'next/image';
 import { Block, BlockType, BlockData } from './types';
+
+
+
 
 let blockCounter = 0;
 

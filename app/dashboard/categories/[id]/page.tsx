@@ -1,5 +1,4 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Edit3, Eye, FileText, TrendingUp, Calendar, Tag, BarChart3, Users, Clock } from 'lucide-react';
@@ -7,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Category } from '@/types/category';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
+'use client';
 export default function CategoryDetailsPage() {
   const params = useParams();
   const router = useRouter();
@@ -16,7 +15,6 @@ export default function CategoryDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [articles, setArticles] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
-
   useEffect(() => {
     if (params?.id) {
       fetchCategoryDetails();
@@ -24,7 +22,6 @@ export default function CategoryDetailsPage() {
       fetchCategoryAnalytics();
     }
   }, [params?.id]);
-
   const fetchCategoryDetails = async () => {
     try {
       setLoading(true);
@@ -39,7 +36,6 @@ export default function CategoryDetailsPage() {
       setLoading(false);
     }
   };
-
   const fetchCategoryArticles = async () => {
     try {
       const response = await fetch(`/api/articles?category_id=${params?.id}&limit=10`);
@@ -51,7 +47,6 @@ export default function CategoryDetailsPage() {
       console.error('Error fetching articles:', error);
     }
   };
-
   const fetchCategoryAnalytics = async () => {
     // محاكاة بيانات التحليلات
     setAnalytics({
@@ -72,10 +67,9 @@ export default function CategoryDetailsPage() {
       ]
     });
   };
-
   if (loading) {
     return (
-      <div className="p-8 flex items-center justify-center min-h-screen">
+  <div className="p-8 flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className={darkMode ? 'text-gray-300' : 'text-gray-600'}>جارٍ التحميل...</p>
@@ -83,10 +77,9 @@ export default function CategoryDetailsPage() {
       </div>
     );
   }
-
   if (!category) {
     return (
-      <div className="p-8 text-center">
+  <div className="p-8 text-center">
         <p className={darkMode ? 'text-gray-300' : 'text-gray-600'}>التصنيف غير موجود</p>
         <Button onClick={() => router.push('/dashboard/categories')} className="mt-4">
           العودة للتصنيفات
@@ -94,11 +87,9 @@ export default function CategoryDetailsPage() {
       </div>
     );
   }
-
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
-
   return (
-    <div className={`p-8 ${darkMode ? 'bg-gray-900' : ''}`}>
+  <div className={`p-8 ${darkMode ? 'bg-gray-900' : ''}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
@@ -134,7 +125,6 @@ export default function CategoryDetailsPage() {
           تعديل التصنيف
         </Button>
       </div>
-
       {/* معلومات أساسية */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${
@@ -152,7 +142,6 @@ export default function CategoryDetailsPage() {
             <FileText className="w-8 h-8 text-blue-500" />
           </div>
         </div>
-
         <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${
           darkMode ? 'border-gray-700' : 'border-gray-200'
         }`}>
@@ -168,7 +157,6 @@ export default function CategoryDetailsPage() {
             <Eye className="w-8 h-8 text-green-500" />
           </div>
         </div>
-
         <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${
           darkMode ? 'border-gray-700' : 'border-gray-200'
         }`}>
@@ -184,7 +172,6 @@ export default function CategoryDetailsPage() {
             <TrendingUp className="w-8 h-8 text-purple-500" />
           </div>
         </div>
-
         <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${
           darkMode ? 'border-gray-700' : 'border-gray-200'
         }`}>
@@ -201,7 +188,6 @@ export default function CategoryDetailsPage() {
           </div>
         </div>
       </div>
-
       {/* الرسوم البيانية */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* مخطط المشاهدات */}
@@ -233,7 +219,6 @@ export default function CategoryDetailsPage() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-
         {/* مخطط التفاعل */}
         <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${
           darkMode ? 'border-gray-700' : 'border-gray-200'
@@ -262,7 +247,6 @@ export default function CategoryDetailsPage() {
           </ResponsiveContainer>
         </div>
       </div>
-
       {/* آخر المقالات */}
       <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${
         darkMode ? 'border-gray-700' : 'border-gray-200'
@@ -322,7 +306,6 @@ export default function CategoryDetailsPage() {
           </Button>
         )}
       </div>
-
       {/* معلومات SEO */}
       {(category.meta_title || category.meta_description) && (
         <div className={`rounded-xl p-6 mt-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${

@@ -1,8 +1,8 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-
+'use client';
 const TiptapEditor = dynamic(() => import('@/components/Editor/TiptapEditor'), {
   ssr: false,
   loading: () => (
@@ -11,23 +11,19 @@ const TiptapEditor = dynamic(() => import('@/components/Editor/TiptapEditor'), {
     </div>
   )
 });
-
 export default function TestTiptapPage() {
   const [content, setContent] = useState('');
   const [savedHtml, setSavedHtml] = useState('');
   const [savedJson, setSavedJson] = useState<any>(null);
-
   const handleChange = (html: string, json: any) => {
     setContent(html);
     setSavedHtml(html);
     setSavedJson(json);
   };
-
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+  <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">صفحة اختبار محرر TipTap</h1>
-        
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">المحرر:</h2>
           <TiptapEditor 
@@ -36,7 +32,6 @@ export default function TestTiptapPage() {
             placeholder="ابدأ الكتابة هنا... جرب الأزرار في شريط الأدوات!"
           />
         </div>
-
         {savedHtml && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4">HTML المحفوظ:</h2>
@@ -45,7 +40,6 @@ export default function TestTiptapPage() {
             </pre>
           </div>
         )}
-
         {savedJson && (
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-semibold mb-4">JSON المحفوظ:</h2>

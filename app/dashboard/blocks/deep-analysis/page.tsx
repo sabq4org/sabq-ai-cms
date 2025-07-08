@@ -1,24 +1,22 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { useDarkMode } from '@/hooks/useDarkMode';
+import toast from 'react-hot-toast';
+'use client';
 import { 
   Brain, Save, Settings, Eye, EyeOff, 
   TrendingUp, Clock, Check
 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
-import toast from 'react-hot-toast';
-
 interface BlockSettings {
   enabled: boolean;
   displayCount: number;
   sortOrder: 'latest' | 'views' | 'manual';
   selectedInsights?: string[];
 }
-
 export default function DeepAnalysisBlockSettings() {
   const { darkMode } = useDarkMode();
   const [settings, setSettings] = useState<BlockSettings>({
@@ -28,7 +26,6 @@ export default function DeepAnalysisBlockSettings() {
   });
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-
   useEffect(() => {
     // تحميل الإعدادات المحفوظة
     const savedSettings = localStorage.getItem('deepAnalysisBlockSettings');
@@ -40,16 +37,13 @@ export default function DeepAnalysisBlockSettings() {
       }
     }
   }, []);
-
   const handleSave = async () => {
     setSaving(true);
     try {
       // حفظ الإعدادات في localStorage
       localStorage.setItem('deepAnalysisBlockSettings', JSON.stringify(settings));
-      
       // في الإنتاج، سيتم إرسال الإعدادات إلى API
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       toast.success('تم حفظ الإعدادات بنجاح');
     } catch (error) {
       toast.error('حدث خطأ أثناء حفظ الإعدادات');
@@ -57,15 +51,13 @@ export default function DeepAnalysisBlockSettings() {
       setSaving(false);
     }
   };
-
   const sortOptions = [
     { value: 'latest', label: 'الأحدث', icon: <Clock className="w-4 h-4" /> },
     { value: 'views', label: 'الأعلى مشاهدة', icon: <TrendingUp className="w-4 h-4" /> },
     { value: 'manual', label: 'المختار يدوياً', icon: <Settings className="w-4 h-4" /> }
   ];
-
   return (
-    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+  <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان الصفحة */}
@@ -77,7 +69,6 @@ export default function DeepAnalysisBlockSettings() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>تحكم في إعدادات عرض التحليلات العميقة في الصفحة الرئيسية</p>
       </div>
-
       {/* البطاقة الرئيسية */}
       <Card className={`${
         darkMode 
@@ -99,7 +90,6 @@ export default function DeepAnalysisBlockSettings() {
               }`}>يعرض أحدث التحليلات العميقة أسفل الهيدر مباشرة</p>
             </div>
           </div>
-
           {/* الإعدادات */}
           <div className="space-y-6">
             {/* تفعيل/تعطيل البلوك */}
@@ -129,7 +119,6 @@ export default function DeepAnalysisBlockSettings() {
                 onCheckedChange={(checked) => setSettings({ ...settings, enabled: checked })}
               />
             </div>
-
             {/* عدد التحليلات */}
             <div className={`p-4 rounded-lg ${
               darkMode ? 'bg-gray-700' : 'bg-gray-50'
@@ -162,7 +151,6 @@ export default function DeepAnalysisBlockSettings() {
                 الافتراضي: 3 تحليلات
               </p>
             </div>
-
             {/* ترتيب العرض */}
             <div className={`p-4 rounded-lg ${
               darkMode ? 'bg-gray-700' : 'bg-gray-50'
@@ -206,7 +194,6 @@ export default function DeepAnalysisBlockSettings() {
                 ))}
               </div>
             </div>
-
             {/* معاينة */}
             <div className={`p-4 rounded-lg border-2 border-dashed ${
               darkMode ? 'border-gray-600' : 'border-gray-300'
@@ -234,7 +221,6 @@ export default function DeepAnalysisBlockSettings() {
               </div>
             </div>
           </div>
-
           {/* أزرار الإجراءات */}
           <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
             <Button
@@ -264,7 +250,6 @@ export default function DeepAnalysisBlockSettings() {
           </div>
         </div>
       </Card>
-
       {/* معاينة مباشرة */}
       {previewMode && (
         <div className="mt-8">
@@ -284,7 +269,6 @@ export default function DeepAnalysisBlockSettings() {
           </div>
         </div>
       )}
-
       {/* معلومات إضافية */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className={`p-6 ${
@@ -307,7 +291,6 @@ export default function DeepAnalysisBlockSettings() {
             darkMode ? 'text-gray-400' : 'text-gray-600'
           }`}>تحليل عميق منشور</p>
         </Card>
-
         <Card className={`p-6 ${
           darkMode 
             ? 'bg-gray-800 border-gray-700' 
@@ -328,7 +311,6 @@ export default function DeepAnalysisBlockSettings() {
             darkMode ? 'text-gray-400' : 'text-gray-600'
           }`}>مشاهدة هذا الشهر</p>
         </Card>
-
         <Card className={`p-6 ${
           darkMode 
             ? 'bg-gray-800 border-gray-700' 

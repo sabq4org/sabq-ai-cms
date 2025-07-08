@@ -1,8 +1,23 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { recordInteraction } from '@/lib/user-interactions';
 import { PrismaClient } from '@/lib/generated/prisma';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const runtime = 'nodejs';
 

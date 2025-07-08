@@ -1,8 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Calendar, Eye, User, Clock } from 'lucide-react';
+
+'use client';
+
+
+
+
+
+
 
 interface Article {
   id: string;
@@ -89,12 +96,7 @@ export const HeroSliderBlock: React.FC<HeroSliderBlockProps> = ({ block, article
               }`}
             >
               {article.imageUrl && (
-                <img
-                  src={article.imageUrl}
-                  alt={article.title}
-                  className="w-full h-full object-cover"
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                />
+                <Image src={undefined} alt="" width={100} height={100} />
               )}
               {/* تراكب التدرج */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -215,12 +217,7 @@ export const HeroSliderBlock: React.FC<HeroSliderBlockProps> = ({ block, article
             } as React.CSSProperties}
           >
             {article.imageUrl && (
-              <img
-                src={article.imageUrl}
-                alt={article.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
             <div className="absolute bottom-2 left-2 right-2">

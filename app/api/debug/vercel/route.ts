@@ -1,5 +1,14 @@
+import Image from 'next/image';
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
+
+
+
+
+
+
+
+
 
 export const dynamic = 'force-dynamic'; // Prevent caching
 

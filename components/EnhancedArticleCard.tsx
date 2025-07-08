@@ -1,16 +1,25 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { getArticleLink } from '@/lib/utils';
+import { formatDateOnly } from '@/lib/date-utils';
+import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
+
+'use client';
+
+
+
+
+
 import { 
   Eye, Heart, MessageCircle, Share2, Clock, PlayCircle, 
   PauseCircle, Bookmark, BookmarkCheck, TrendingUp, 
   Zap, Volume2, Headphones, ThumbsUp, ThumbsDown,
   User, Calendar, MoreHorizontal, ExternalLink
 } from 'lucide-react';
-import { getArticleLink } from '@/lib/utils';
-import { formatDateOnly } from '@/lib/date-utils';
-import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
+
+
+
 
 interface Article {
   id: string;
@@ -129,11 +138,7 @@ export default function EnhancedArticleCard({
         <div className="flex gap-4 p-4">
           {/* صورة صغيرة */}
           <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-            <img
-              src={getValidImageUrl(article.featured_image) || generatePlaceholderImage(article.title)}
-              alt={article.title}
-              className="w-full h-full object-cover"
-            />
+            <Image src={undefined} alt="" width={100} height={100} />
           </div>
 
           {/* المحتوى */}
@@ -146,11 +151,7 @@ export default function EnhancedArticleCard({
 
             <div className="flex items-center gap-2 mb-2">
               <Link href={`/author/${article.author_id}`} className="flex items-center gap-2">
-                <img
-                  src={article.author_avatar || generatePlaceholderImage(article.author_name || '')}
-                  alt={article.author_name}
-                  className="w-6 h-6 rounded-full"
-                />
+                <Image src={undefined} alt="" width={100} height={100} />
                 <span className="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600">
                   {article.author_name}
                 </span>
@@ -194,11 +195,7 @@ export default function EnhancedArticleCard({
       <div className="flex flex-col md:flex-row">
         {/* صورة المقال */}
         <div className="md:w-64 h-48 md:h-auto relative overflow-hidden">
-          <img
-            src={getValidImageUrl(article.featured_image) || generatePlaceholderImage(article.title)}
-            alt={article.title}
-            className="w-full h-full object-cover"
-          />
+          <Image src={undefined} alt="" width={100} height={100} />
           
           {/* شارات المقال */}
           <div className="absolute top-4 left-4 flex gap-2">
@@ -239,11 +236,7 @@ export default function EnhancedArticleCard({
           {/* معلومات الكاتب */}
           <div className="flex items-start justify-between mb-4">
             <Link href={`/author/${article.author_id}`} className="flex items-center gap-3 group">
-              <img
-                src={article.author_avatar || generatePlaceholderImage(article.author_name || '')}
-                alt={article.author_name}
-                className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700 group-hover:scale-110 transition-transform"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
               <div>
                 <p className="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
                   {article.author_name}

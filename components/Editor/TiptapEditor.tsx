@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -17,6 +15,26 @@ import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
 import toast from 'react-hot-toast';
+
+'use client';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 interface TiptapEditorProps {
   content?: string;

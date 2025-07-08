@@ -1,6 +1,11 @@
-// مكون الأزرار المخصص لصحيفة سبق
+import Image from 'next/image';
 import React from 'react';
 import { cn } from '@/lib/utils';
+
+
+// مكون الأزرار المخصص لصحيفة سبق
+
+
 
 interface SabqButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';

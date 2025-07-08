@@ -1,9 +1,8 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Heart, Bookmark, Eye, Clock, User } from 'lucide-react';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
-
+'use client';
 interface Article {
   id: string;
   title: string;
@@ -15,43 +14,36 @@ interface Article {
   created_at: string;
   published_at?: string;
 }
-
 interface SavedArticle {
   id: string;
   title: string;
   category?: string;
   savedAt: string;
 }
-
 export default function TestBookmarksPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [savedArticles, setSavedArticles] = useState<SavedArticle[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [interactions, setInteractions] = useState<Record<string, { liked: boolean; saved: boolean }>>({});
-
   useEffect(() => {
     // جلب معرف المستخدم
     const storedUserId = localStorage.getItem('user_id');
     if (storedUserId && storedUserId !== 'anonymous') {
       setUserId(storedUserId);
     }
-    
     // جلب المقالات
     fetchArticles();
   }, []);
-
   useEffect(() => {
     if (userId) {
       fetchSavedArticles();
     }
   }, [userId]);
-
   const fetchArticles = async () => {
     try {
       const response = await fetch('/api/articles?status=published&limit=10');
       const data = await response.json();
-      
       if (data.success && data.articles) {
         setArticles(data.articles);
       }
@@ -61,14 +53,11 @@ export default function TestBookmarksPage() {
       setLoading(false);
     }
   };
-
   const fetchSavedArticles = async () => {
     if (!userId) return;
-    
     try {
       const response = await fetch(`/api/user/${userId}/insights`);
       const data = await response.json();
-      
       if (data.success && data.data?.savedArticles) {
         setSavedArticles(data.data.savedArticles);
       }
@@ -76,13 +65,11 @@ export default function TestBookmarksPage() {
       console.error('Error fetching saved articles:', error);
     }
   };
-
   const handleLike = async (articleId: string) => {
     if (!userId) {
       alert('يرجى تسجيل الدخول أولاً');
       return;
     }
-
     try {
       const currentState = interactions[articleId]?.liked || false;
       const response = await fetch('/api/interactions', {
@@ -95,7 +82,6 @@ export default function TestBookmarksPage() {
           action: currentState ? 'remove' : 'add'
         })
       });
-
       if (response.ok) {
         setInteractions(prev => ({
           ...prev,
@@ -109,13 +95,11 @@ export default function TestBookmarksPage() {
       console.error('Error handling like:', error);
     }
   };
-
   const handleSave = async (articleId: string) => {
     if (!userId) {
       alert('يرجى تسجيل الدخول أولاً');
       return;
     }
-
     try {
       const currentState = interactions[articleId]?.saved || false;
       const response = await fetch('/api/bookmarks', {
@@ -127,7 +111,6 @@ export default function TestBookmarksPage() {
           itemType: 'article'
         })
       });
-
       if (response.ok) {
         const data = await response.json();
         setInteractions(prev => ({
@@ -137,7 +120,6 @@ export default function TestBookmarksPage() {
             saved: data.action === 'added'
           }
         }));
-        
         // تحديث قائمة المقالات المحفوظة
         if (data.action === 'added') {
           const article = articles.find(a => a.id === articleId);
@@ -157,10 +139,9 @@ export default function TestBookmarksPage() {
       console.error('Error handling save:', error);
     }
   };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">جاري التحميل...</p>
@@ -168,9 +149,8 @@ export default function TestBookmarksPage() {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+  <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">اختبار نظام الحفظ</h1>
@@ -183,7 +163,6 @@ export default function TestBookmarksPage() {
             <p className="text-sm text-red-600 mt-2">لم يتم تسجيل الدخول</p>
           )}
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* المقالات المتاحة */}
           <div className="bg-white rounded-xl shadow-sm p-6">
@@ -192,11 +171,7 @@ export default function TestBookmarksPage() {
               {articles.map((article) => (
                 <div key={article.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-start gap-4">
-                    <img
-                      src={getValidImageUrl(article.featured_image, article.title, 'article')}
-                      alt={article.title}
-                      className="w-16 h-16 rounded-lg object-cover"
-                      onError={(e) => {
+                    <Image src={undefined} alt="" width={100} height={100} /> {
                         e.currentTarget.src = generatePlaceholderImage(article.title, 'article');
                       }}
                     />
@@ -245,7 +220,6 @@ export default function TestBookmarksPage() {
               ))}
             </div>
           </div>
-
           {/* المقالات المحفوظة */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -282,7 +256,6 @@ export default function TestBookmarksPage() {
             )}
           </div>
         </div>
-
         {/* روابط مفيدة */}
         <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">روابط مفيدة</h2>

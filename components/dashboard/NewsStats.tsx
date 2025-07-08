@@ -1,6 +1,12 @@
+import Image from 'next/image';
+import React from 'react';
+import { SabqCard } from '@/components/ui';
+
 'use client';
 
-import React from 'react';
+
+
+
 import { 
   FileText, 
   Eye, 
@@ -11,7 +17,7 @@ import {
   Users,
   Calendar
 } from 'lucide-react';
-import { SabqCard } from '@/components/ui';
+
 
 interface NewsStatsProps {
   stats: {

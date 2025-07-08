@@ -1,9 +1,9 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Tag, X, BookOpen, Calendar, Clock, Eye, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-
+'use client';
 // أيقونات التصنيفات
 const categoryIcons: any = {
   'تقنية': '💻',
@@ -16,7 +16,6 @@ const categoryIcons: any = {
   'منوعات': '🎉',
   'default': '📁'
 };
-
 export default function TestCategoriesComponents() {
   const [categories, setCategories] = useState<any[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
@@ -24,23 +23,18 @@ export default function TestCategoriesComponents() {
   const [categoryArticles, setCategoryArticles] = useState<any[]>([]);
   const [categoryArticlesLoading, setCategoryArticlesLoading] = useState<boolean>(false);
   const darkMode = false; // للاختبار
-
   // جلب التصنيفات
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         setCategoriesLoading(true);
         console.log('🔍 جلب التصنيفات...');
-        
         const res = await fetch('/api/categories?is_active=true');
         console.log('📡 Response status:', res.status);
-        
         const json = await res.json();
         console.log('📦 البيانات المستلمة:', json);
-        
         const list = Array.isArray(json) ? json : (json.categories ?? []);
         console.log(`✅ عدد التصنيفات: ${list.length}`);
-        
         setCategories(list);
       } catch (err) {
         console.error('❌ خطأ في جلب التصنيفات:', err);
@@ -50,13 +44,11 @@ export default function TestCategoriesComponents() {
     };
     fetchCategories();
   }, []);
-
   // دالة اختيار التصنيف
   const handleCategoryClick = async (categoryId: number | string) => {
     console.log('🔘 تم اختيار التصنيف:', categoryId);
     setSelectedCategory(categoryId);
     setCategoryArticlesLoading(true);
-    
     try {
       const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=12`);
       const json = await res.json();
@@ -68,12 +60,10 @@ export default function TestCategoriesComponents() {
       setCategoryArticlesLoading(false);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gray-50 p-8" dir="rtl">
+  <div className="min-h-screen bg-gray-50 p-8" dir="rtl">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-center">اختبار مكونات التصنيفات</h1>
-        
         {/* معلومات التشخيص */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
           <h2 className="font-bold mb-2">معلومات التشخيص:</h2>
@@ -84,7 +74,6 @@ export default function TestCategoriesComponents() {
             <li>• عدد مقالات التصنيف: {categoryArticles.length}</li>
           </ul>
         </div>
-
         {/* شريط التصنيفات */}
         <section className="mb-8">
           <div className="rounded-3xl p-6 bg-blue-50 border border-blue-200">
@@ -94,16 +83,13 @@ export default function TestCategoriesComponents() {
                   <Tag className="w-10 h-10 text-white" />
                 </div>
               </div>
-              
               <h2 className="text-2xl font-bold mb-3 text-gray-800">
                 استكشف بحسب التصنيفات
               </h2>
-              
               <p className="text-sm text-gray-600">
                 اختر التصنيف الذي يهمك لتصفح الأخبار المتخصصة
               </p>
             </div>
-
             {categoriesLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -137,7 +123,6 @@ export default function TestCategoriesComponents() {
                     </button>
                   ))}
                 </div>
-
                 {/* عرض المقالات المرتبطة بالتصنيف المختار */}
                 {selectedCategory && (
                   <div className="mt-8 p-6 rounded-3xl shadow-lg bg-white border border-gray-200">
@@ -155,7 +140,6 @@ export default function TestCategoriesComponents() {
                         <X className="w-5 h-5 text-gray-600" />
                       </button>
                     </div>
-
                     {categoryArticlesLoading ? (
                       <div className="flex items-center justify-center py-8">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
@@ -187,7 +171,6 @@ export default function TestCategoriesComponents() {
             )}
           </div>
         </section>
-
         {/* عرض البيانات الخام */}
         <div className="mt-8 bg-gray-100 rounded-lg p-4">
           <h3 className="font-bold mb-2">البيانات الخام للتصنيفات:</h3>

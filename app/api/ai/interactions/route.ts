@@ -1,4 +1,11 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from "next/server";
+
+
+
+
+
+
 
 // POST - حفظ تفاعل ذكاء اصطناعي جديد
 export async function POST(request: NextRequest) {

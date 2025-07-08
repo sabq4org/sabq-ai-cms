@@ -1,9 +1,22 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
-
-const prisma = new PrismaClient();
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+
+
+
+
+
+
+
+
+
+
+
+const prisma = new PrismaClient();
+
+
 
 export const runtime = 'nodejs';
 

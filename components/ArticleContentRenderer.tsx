@@ -1,7 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import { Quote, Image as ImageIcon } from 'lucide-react';
+
+'use client';
+
+
+
+
+
 
 interface ContentBlock {
   id: string;
@@ -99,11 +105,7 @@ const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
         return (
           <figure className="my-8">
             {block.content.url ? (
-              <img
-                src={block.content.url}
-                alt={block.content.alt || 'صورة'}
-                className="w-full rounded-lg shadow-lg"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
             ) : (
               <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
                 <div className="text-center text-gray-500">
@@ -138,11 +140,7 @@ const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {(block.content.images || []).map((image: any, index: number) => (
                 <figure key={`gallery-${block.id}-${index}`} className="relative group">
-                  <img
-                    src={image.url}
-                    alt={image.alt || 'صورة من الألبوم'}
-                    className="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-300"
-                  />
+                  <Image src={undefined} alt="" width={100} height={100} />
                   {image.caption && (
                     <figcaption className="text-sm text-gray-600 text-center mt-2 italic">
                       {image.caption}

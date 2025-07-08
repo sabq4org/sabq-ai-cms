@@ -1,7 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import { CheckCircle, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
+
+'use client';
+
+
+
+
+
 
 interface Category {
   id: string;

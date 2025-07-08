@@ -1,4 +1,11 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
+
+
+
+
+
+
 
 // في التطبيق الحقيقي، سيتم حفظ هذه الإعدادات في قاعدة البيانات
 let aiSettings = {

@@ -1,10 +1,15 @@
-"use client";
-
+import React from 'react';
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
+'use client';
+"use client";
 import {
   RadixSelect as Select,
   SelectContent,
@@ -12,8 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +25,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
 import {
   Upload,
   Search,
@@ -48,8 +50,6 @@ import {
   BarChart,
   Sparkles,
 } from "lucide-react";
-import Image from "next/image";
-
 interface MediaFile {
   id: string;
   url: string;
@@ -88,7 +88,6 @@ interface MediaFile {
     position?: string;
   }>;
 }
-
 export default function MediaLibraryPage() {
   const [media, setMedia] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,7 +99,6 @@ export default function MediaLibraryPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { toast } = useToast();
-
   // جلب الوسائط
   const fetchMedia = useCallback(async () => {
     try {
@@ -112,10 +110,8 @@ export default function MediaLibraryPage() {
         ...(selectedType !== "all" && { type: selectedType }),
         ...(selectedClassification !== "all" && { classification: selectedClassification }),
       });
-
       const response = await fetch(`/api/media?${params}`);
       const data = await response.json();
-
       if (response.ok) {
         setMedia(data.media);
         setTotalPages(data.pagination.totalPages);
@@ -132,11 +128,9 @@ export default function MediaLibraryPage() {
       setLoading(false);
     }
   }, [page, searchQuery, selectedType, selectedClassification, toast]);
-
   useEffect(() => {
     fetchMedia();
   }, [fetchMedia]);
-
   // تحديد أيقونة نوع الملف
   const getFileIcon = (type: string) => {
     switch (type) {
@@ -152,7 +146,6 @@ export default function MediaLibraryPage() {
         return <FileText className="w-5 h-5" />;
     }
   };
-
   // تنسيق حجم الملف
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
@@ -161,7 +154,6 @@ export default function MediaLibraryPage() {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
-
   // عرض تفاصيل الوسائط
   const MediaDetails = ({ media }: { media: MediaFile }) => (
     <div className="space-y-4">
@@ -188,7 +180,6 @@ export default function MediaLibraryPage() {
           </div>
         )}
       </div>
-
       {/* معلومات الملف */}
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
@@ -220,7 +211,6 @@ export default function MediaLibraryPage() {
           <p className="font-medium">{media.usageCount}</p>
         </div>
       </div>
-
       {/* الوسوم */}
       {media.tags && media.tags.length > 0 && (
         <div>
@@ -234,7 +224,6 @@ export default function MediaLibraryPage() {
           </div>
         </div>
       )}
-
       {/* التصنيفات */}
       {media.categories && media.categories.length > 0 && (
         <div>
@@ -248,7 +237,6 @@ export default function MediaLibraryPage() {
           </div>
         </div>
       )}
-
       {/* المقالات المستخدمة فيها */}
       {media.usedInArticles && media.usedInArticles.length > 0 && (
         <div>
@@ -273,9 +261,8 @@ export default function MediaLibraryPage() {
       )}
     </div>
   );
-
   return (
-    <div className="container mx-auto p-6">
+  <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">مكتبة الوسائط</h1>
@@ -288,7 +275,6 @@ export default function MediaLibraryPage() {
           رفع ملفات جديدة
         </Button>
       </div>
-
       {/* الفلاتر والبحث */}
       <Card className="mb-6">
         <CardContent className="p-4">
@@ -305,7 +291,6 @@ export default function MediaLibraryPage() {
                 />
               </div>
             </div>
-
             {/* فلتر النوع */}
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger className="w-[180px]">
@@ -319,7 +304,6 @@ export default function MediaLibraryPage() {
                 <SelectItem value="AUDIO">صوت</SelectItem>
               </SelectContent>
             </Select>
-
             {/* فلتر التصنيف */}
             <Select value={selectedClassification} onValueChange={setSelectedClassification}>
               <SelectTrigger className="w-[180px]">
@@ -334,7 +318,6 @@ export default function MediaLibraryPage() {
                 <SelectItem value="places">أماكن</SelectItem>
               </SelectContent>
             </Select>
-
             {/* تبديل العرض */}
             <div className="flex gap-2">
               <Button
@@ -355,7 +338,6 @@ export default function MediaLibraryPage() {
           </div>
         </CardContent>
       </Card>
-
       {/* عرض الوسائط */}
       {loading ? (
         <div className="text-center py-12">
@@ -453,7 +435,6 @@ export default function MediaLibraryPage() {
                       </div>
                     )}
                   </div>
-
                   {/* معلومات */}
                   <div className="flex-1">
                     <h3 className="font-semibold">{item.title}</h3>
@@ -477,7 +458,6 @@ export default function MediaLibraryPage() {
                       </span>
                     </div>
                   </div>
-
                   {/* أزرار الإجراءات */}
                   <div className="flex gap-2">
                     <Dialog>
@@ -512,7 +492,6 @@ export default function MediaLibraryPage() {
           ))}
         </div>
       )}
-
       {/* التنقل بين الصفحات */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-6">

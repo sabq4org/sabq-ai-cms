@@ -1,16 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { formatDateOnly } from '@/lib/date-utils';
+import ArticleCard from '@/components/ArticleCard';
+'use client';
 import './news-styles.css';
 import { 
   Newspaper, Search, Loader2,
   Grid, List, ChevronRight
 } from 'lucide-react';
-import { formatDateOnly } from '@/lib/date-utils';
-import ArticleCard from '@/components/ArticleCard';
-
 interface Article {
   id: string;
   title: string;
@@ -28,7 +27,6 @@ interface Article {
   is_featured?: boolean;
   status?: string;
 }
-
 interface Category {
   id: number;
   name?: string;
@@ -40,7 +38,6 @@ interface Category {
   articles_count?: number;
   is_active?: boolean;
 }
-
 // ألوان التصنيفات الافتراضية
 const categoryColors: { [key: string]: string } = {
   'تقنية': 'from-purple-500 to-purple-600',
@@ -54,7 +51,6 @@ const categoryColors: { [key: string]: string } = {
   'منوعات': 'from-orange-500 to-orange-600',
   'default': 'from-gray-500 to-gray-600'
 };
-
 export default function NewsPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -65,22 +61,18 @@ export default function NewsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-
   // جلب التصنيفات
   useEffect(() => {
     fetchCategories();
   }, []);
-
   // جلب المقالات
   useEffect(() => {
     fetchArticles();
   }, [selectedCategory, sortBy, page]);
-
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/categories');
       const data = await response.json();
-      
       // التأكد من أن البيانات مصفوفة
       let categoriesArray: Category[] = [];
       if (Array.isArray(data)) {
@@ -90,23 +82,19 @@ export default function NewsPage() {
       } else if (data.data && Array.isArray(data.data)) {
         categoriesArray = data.data;
       }
-      
       setCategories(categoriesArray);
     } catch (error) {
       console.error('Error fetching categories:', error);
       setCategories([]); // تعيين مصفوفة فارغة في حالة الخطأ
     }
   };
-
   const fetchArticles = async () => {
     try {
       setLoading(true);
       let url = '/api/articles?status=published&limit=20';
-      
       if (selectedCategory) {
         url += `&category_id=${selectedCategory}`;
       }
-      
       if (sortBy === 'popular') {
         url += '&sort=views_count&order=desc';
       } else if (sortBy === 'trending') {
@@ -114,16 +102,13 @@ export default function NewsPage() {
       } else {
         url += '&sort=created_at&order=desc';
       }
-      
       if (page > 1) {
         url += `&page=${page}`;
       }
       const response = await fetch(url);
       const data = await response.json();
-      
       // التأكد من أن البيانات مصفوفة
       let articlesArray: Article[] = [];
-      
       // API يُرجع البيانات في حقل data
       if (data && data.data && Array.isArray(data.data)) {
         articlesArray = data.data;
@@ -132,18 +117,15 @@ export default function NewsPage() {
       } else if (Array.isArray(data)) {
         articlesArray = data;
       }
-      
       // فلترة المقالات المنشورة فقط
       articlesArray = articlesArray.filter(article => 
         !article.status || article.status === 'published'
       );
-      
       if (page === 1) {
         setArticles(articlesArray);
       } else {
         setArticles(prev => [...prev, ...articlesArray]);
       }
-      
       setHasMore(articlesArray.length === 20);
     } catch (error) {
       console.error('Error fetching articles:', error);
@@ -152,18 +134,15 @@ export default function NewsPage() {
       setLoading(false);
     }
   };
-
   const filteredArticles = articles.filter(article => 
     searchQuery === '' || 
     article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     article.summary?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
   const getCategoryName = (categoryId: number) => {
     const category = categories.find(c => c.id === categoryId);
     return category?.name_ar || category?.name_en || 'عام';
   };
-
   const getCategoryColor = (categoryId: number) => {
     const category = categories.find(c => c.id === categoryId);
     if (category?.color_hex) {
@@ -172,10 +151,8 @@ export default function NewsPage() {
     const categoryName = category?.name_ar || category?.name_en || '';
     return categoryColors[categoryName] || categoryColors['default'];
   };
-
   // استخدام دالة التاريخ الميلادي الموحدة
   const formatDate = formatDateOnly;
-
   const generatePlaceholderImage = (title: string) => {
     const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#EF4444', '#F59E0B'];
     const colorIndex = title.charCodeAt(0) % colors.length;
@@ -194,7 +171,6 @@ export default function NewsPage() {
       </svg>
     `)}`;
   };
-
   return (
     <>
       <Header />
@@ -202,14 +178,12 @@ export default function NewsPage() {
         {/* Hero Section - تصميم ملون */}
         <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 py-16">
           <div className="absolute inset-0 bg-black/20" />
-          
           {/* Animated Background Elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
             <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000" />
           </div>
-          
           <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
             <div className="inline-flex items-center justify-center p-8 mb-8 relative">
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full blur-xl opacity-70 animate-pulse" />
@@ -223,7 +197,6 @@ export default function NewsPage() {
             <p className="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
               تابع آخر الأخبار والمستجدات المحلية والعالمية لحظة بلحظة
             </p>
-            
             {/* Stats with Glass Effect */}
             <div className="inline-flex flex-col sm:flex-row items-center gap-4 sm:gap-8 bg-black bg-opacity-20 backdrop-blur-md rounded-2xl px-6 sm:px-8 py-4 shadow-xl border border-white border-opacity-20">
               <div className="text-center">
@@ -243,7 +216,6 @@ export default function NewsPage() {
             </div>
           </div>
         </section>
-
         {/* Search Section - تصميم بسيط */}
         <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10 shadow-md">
           <div className="max-w-7xl mx-auto px-6 py-6">
@@ -259,7 +231,6 @@ export default function NewsPage() {
             </div>
           </div>
         </section>
-
         {/* Main Content */}
         <section className="max-w-7xl mx-auto px-6 py-12">
           {loading && page === 1 ? (
@@ -278,7 +249,6 @@ export default function NewsPage() {
                   <ArticleCard key={article.id} article={article} viewMode={viewMode} />
                 ))}
               </div>
-
               {/* Load More */}
               {hasMore && (
                 <div className="text-center mt-16">
@@ -314,7 +284,6 @@ export default function NewsPage() {
         </section>
       </div>
       <Footer />
-      
       <style jsx>{`
         @keyframes blob {
           0% {
@@ -330,15 +299,12 @@ export default function NewsPage() {
             transform: translate(0px, 0px) scale(1);
           }
         }
-        
         .animate-blob {
           animation: blob 7s infinite;
         }
-        
         .animation-delay-2000 {
           animation-delay: 2s;
         }
-        
         .animation-delay-4000 {
           animation-delay: 4s;
         }

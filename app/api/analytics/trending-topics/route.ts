@@ -1,4 +1,11 @@
+import Image from 'next/image';
 import { NextResponse } from 'next/server';
+
+
+
+
+
+
 
 export async function GET() {
   try {

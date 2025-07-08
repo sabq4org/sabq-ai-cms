@@ -1,33 +1,27 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-
+'use client';
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!email) {
       toast.error('يرجى إدخال البريد الإلكتروني');
       return;
     }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.error('البريد الإلكتروني غير صحيح');
       return;
     }
-
     setIsLoading(true);
-
     try {
       const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
@@ -36,9 +30,7 @@ export default function ForgotPasswordPage() {
         },
         body: JSON.stringify({ email }),
       });
-
       const data = await response.json();
-
       if (data.success) {
         setIsSuccess(true);
         toast.success('تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني');
@@ -51,27 +43,22 @@ export default function ForgotPasswordPage() {
       setIsLoading(false);
     }
   };
-
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             تم إرسال الرابط!
           </h1>
-          
           <p className="text-gray-600 mb-6">
             إذا كان البريد الإلكتروني مسجلاً لدينا، ستتلقى رسالة تحتوي على رابط إعادة تعيين كلمة المرور.
           </p>
-          
           <p className="text-sm text-gray-500 mb-8">
             يرجى التحقق من بريدك الإلكتروني واتباع التعليمات الموجودة في الرسالة.
           </p>
-          
           <Link
             href="/login"
             className="inline-flex items-center gap-2 text-blue-600 hover:underline"
@@ -83,9 +70,8 @@ export default function ForgotPasswordPage() {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -98,7 +84,6 @@ export default function ForgotPasswordPage() {
             لا تقلق! أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين
           </p>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -114,7 +99,6 @@ export default function ForgotPasswordPage() {
               dir="ltr"
             />
           </div>
-
           <button
             type="submit"
             disabled={isLoading}
@@ -130,7 +114,6 @@ export default function ForgotPasswordPage() {
             )}
           </button>
         </form>
-
         <div className="mt-6 text-center">
           <Link
             href="/login"
@@ -140,7 +123,6 @@ export default function ForgotPasswordPage() {
             العودة لتسجيل الدخول
           </Link>
         </div>
-
         <div className="mt-8 p-4 bg-amber-50 rounded-lg border border-amber-200">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />

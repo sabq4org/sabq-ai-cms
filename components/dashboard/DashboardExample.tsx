@@ -1,5 +1,9 @@
-// مثال على لوحة التحكم بتصميم صحيفة سبق الأزرق
+import Image from 'next/image';
 import React from 'react';
+
+
+// مثال على لوحة التحكم بتصميم صحيفة سبق الأزرق
+
 
 const DashboardExample = () => {
   return (
@@ -7,7 +11,7 @@ const DashboardExample = () => {
       {/* الشريط العلوي */}
       <nav className="sabq-navbar h-16 flex items-center px-6">
         <div className="flex items-center gap-4">
-          <img src="/logo-sabq.svg" alt="صحيفة سبق" className="h-10 w-auto" />
+          <Image src={"/logo-sabq.svg"} alt="صحيفة سبق" width={100} height={100} />
           <h1 className="text-xl font-bold">لوحة التحكم</h1>
         </div>
         
@@ -18,7 +22,7 @@ const DashboardExample = () => {
             </svg>
           </button>
           <div className="flex items-center gap-2">
-            <img src="/avatar.jpg" alt="المستخدم" className="w-8 h-8 rounded-full" />
+            <Image src={"/avatar.jpg"} alt="المستخدم" width={100} height={100} />
             <span className="text-sm">مرحباً، أحمد</span>
           </div>
         </div>

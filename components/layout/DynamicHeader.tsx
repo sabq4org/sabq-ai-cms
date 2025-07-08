@@ -1,3 +1,5 @@
+
+
 'use client'
 
 import { useTemplates } from './TemplateProvider'
@@ -18,7 +20,7 @@ export function DynamicHeader() {
   const content = headerTemplate.content || {}
   
   return (
-    <header 
+    <div 
       className="bg-white shadow-sm"
       style={{
         backgroundColor: headerTemplate.primary_color || '#ffffff',
@@ -106,14 +108,14 @@ export function DynamicHeader() {
       {headerTemplate.custom_styles && (
         <style dangerouslySetInnerHTML={{ __html: headerTemplate.custom_styles }} />
       )}
-    </header>
+    </div>
   )
 }
 
 // مكون الهيكل العظمي أثناء التحميل
 function HeaderSkeleton() {
   return (
-    <header className="bg-white shadow-sm">
+    <div className="bg-white shadow-sm">
       <div className="container mx-auto px-4">
         <div className="py-4">
           <div className="h-12 w-32 bg-gray-200 rounded animate-pulse" />
@@ -126,14 +128,14 @@ function HeaderSkeleton() {
           </div>
         </nav>
       </div>
-    </header>
+    </div>
   )
 }
 
 // هيدر افتراضي
 function DefaultHeader() {
   return (
-    <header className="bg-white shadow-sm">
+    <div className="bg-white shadow-sm">
       <div className="container mx-auto px-4">
         <div className="py-4">
           <Link href="/" className="text-2xl font-bold">
@@ -148,7 +150,7 @@ function DefaultHeader() {
           </ul>
         </nav>
       </div>
-    </header>
+    </div>
   )
 }
 

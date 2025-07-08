@@ -1,11 +1,17 @@
+import Image from 'next/image';
+import React, { useState, useRef, useEffect } from 'react';
+import { generatePlaceholderImage } from '@/lib/cloudinary';
+
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+
+
+
 import { 
   MessageCircle, Send, User, Clock, Heart, Sparkles,
   ChevronDown, ChevronUp, Mic, MicOff, Volume2, X
 } from 'lucide-react';
-import { generatePlaceholderImage } from '@/lib/cloudinary';
+
 
 interface Author {
   id: string;
@@ -146,11 +152,7 @@ export default function AskAuthorWidget({
                   }`}
                 >
                   <div className="relative">
-                    <img
-                      src={author.avatar || generatePlaceholderImage(author.name)}
-                      alt={author.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
+                    <Image src={undefined} alt="" width={100} height={100} />
                     <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
                       author.is_online ? 'bg-green-500' : 'bg-gray-400'
                     }`} />

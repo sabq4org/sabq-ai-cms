@@ -1,8 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { Bookmark, Clock, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
+
+'use client';
+
+
+
+
+
+
 
 interface SavedArticle {
   id: string;

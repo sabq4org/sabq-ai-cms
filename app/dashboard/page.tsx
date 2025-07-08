@@ -1,6 +1,10 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
+import Link from 'next/link';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+'use client';
 import { 
   FileText, 
   Users, 
@@ -15,11 +19,6 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
-import Link from 'next/link';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('behavior');
   const { darkMode } = useDarkModeContext();
@@ -39,25 +38,21 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
-
   // جلب البيانات الحقيقية
   useEffect(() => {
     const fetchRealData = async () => {
       try {
         setLoading(true);
-
         // جلب بيانات المستخدمين
         const usersRes = await fetch('/api/users');
         const usersData = await usersRes.json();
         const usersArray = usersData.users || usersData.data || usersData || [];
         const totalUsers = Array.isArray(usersArray) ? usersArray.length : 0;
-
         // جلب بيانات المقالات
         const articlesRes = await fetch('/api/articles');
         const articlesData = await articlesRes.json();
         const articlesArray = articlesData.articles || articlesData.data || articlesData || [];
         const totalArticles = Array.isArray(articlesArray) ? articlesArray.length : 0;
-
         // جلب بيانات التصنيفات
         const categoriesRes = await fetch('/api/categories');
         const categoriesData = await categoriesRes.json();
@@ -66,7 +61,6 @@ export default function DashboardPage() {
         const activeCategories = Array.isArray(categoriesArray) 
           ? categoriesArray.filter((cat: any) => cat.is_active).length 
           : 0;
-
         // جلب بيانات التفاعلات (إن وجدت)
         let totalInteractions = 0;
         let totalPoints = 0;
@@ -79,7 +73,6 @@ export default function DashboardPage() {
         } catch (error) {
           console.log('تفاعلات غير متوفرة');
         }
-
         // جلب بيانات النقاط (إن وجدت)
         try {
           const pointsRes = await fetch('/api/loyalty/stats');
@@ -90,7 +83,6 @@ export default function DashboardPage() {
         } catch (error) {
           console.log('نقاط الولاء غير متوفرة');
         }
-
         // تحديث الإحصائيات بالبيانات الحقيقية
         setStats({
           users: totalUsers,
@@ -104,20 +96,16 @@ export default function DashboardPage() {
           updates: 0, // سيتم حسابه من سجل التحديثات
           views: 0
         });
-
         // تصفير بيانات الجدول (سيتم ملؤها بالبيانات الحقيقية لاحقاً)
         setTableData([]);
-
       } catch (error) {
         console.error('خطأ في جلب البيانات:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchRealData();
   }, []);
-
   // مكون بطاقة الإحصائية الدائرية
   const CircularStatsCard = ({ 
     title, 
@@ -161,7 +149,6 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-
   // مكون الجدول - محسّن للموبايل
   const DataTable = () => {
     // ألوان الجدول حسب الوضع
@@ -177,7 +164,6 @@ export default function DashboardPage() {
       subText: darkMode ? 'text-gray-400' : 'text-gray-600',
       hoverBg: darkMode ? 'hover:bg-gray-700' : 'hover:bg-slate-50'
     };
-
     // عرض بطاقات للموبايل بدلاً من الجدول
     const MobileCard = ({ row }: { row: any }) => (
       <div className={`${tableColors.containerBg} rounded-lg p-4 border ${tableColors.containerBorder} mb-3`}>
@@ -217,7 +203,6 @@ export default function DashboardPage() {
         </div>
       </div>
     );
-
     return (
       <>
         {/* عرض الجدول للشاشات الكبيرة */}
@@ -227,7 +212,6 @@ export default function DashboardPage() {
               سلوك المستخدمين الأكثر نشاطاً
             </h3>
           </div>
-          
           {/* جدول متجاوب */}
           <div className="overflow-x-auto">
             {/* رأس الجدول */}
@@ -248,7 +232,6 @@ export default function DashboardPage() {
                 <div className={`text-xs sm:text-sm font-medium ${tableColors.headerText} transition-colors duration-300`}>تصنيف العميق</div>
               </div>
             </div>
-
             {/* بيانات الجدول */}
             <div style={{ borderColor: tableColors.cellBorder }} className="divide-y min-w-[800px]">
               {loading ? (
@@ -291,7 +274,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
         {/* عرض البطاقات للموبايل */}
         <div className={`md:hidden ${tableColors.containerBg} rounded-xl p-4 border ${tableColors.containerBorder}`}>
           <h3 className={`text-base font-semibold ${tableColors.titleText} mb-4`}>
@@ -316,7 +298,6 @@ export default function DashboardPage() {
       </>
     );
   };
-
   const menuItems = [
     { href: '/dashboard/news', icon: FileText, label: 'المقالات' },
     { href: '/dashboard/categories', icon: BarChart3, label: 'التصنيفات' },
@@ -325,12 +306,11 @@ export default function DashboardPage() {
     { href: '/dashboard/comments', icon: MessageSquare, label: 'التعليقات' },
     { href: '/dashboard/settings', icon: Calendar, label: 'الإعدادات' }
   ];
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header للموبايل */}
       {isMobile && (
-        <header className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between h-16 px-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -343,9 +323,8 @@ export default function DashboardPage() {
               العودة للموقع
             </Link>
           </div>
-        </header>
+        </div>
       )}
-
       <div className="flex">
         {/* Sidebar */}
         <aside className={`
@@ -359,7 +338,6 @@ export default function DashboardPage() {
               <h1 className="text-xl font-bold">لوحة التحكم</h1>
             </div>
           )}
-          
           <nav className="p-4 space-y-2">
             {menuItems.map((item) => (
               <Link
@@ -374,7 +352,6 @@ export default function DashboardPage() {
             ))}
           </nav>
         </aside>
-
         {/* Overlay للموبايل */}
         {isMobile && sidebarOpen && (
           <div 
@@ -382,7 +359,6 @@ export default function DashboardPage() {
             onClick={() => setSidebarOpen(false)}
           />
         )}
-
         {/* Main Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto">
@@ -421,7 +397,6 @@ export default function DashboardPage() {
                 iconColor="text-orange-600"
               />
             </div>
-
             {/* الرسوم البيانية */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm">
@@ -430,7 +405,6 @@ export default function DashboardPage() {
                   <span className="text-gray-500">الرسم البياني هنا</span>
                 </div>
               </div>
-              
               <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm">
                 <h3 className="text-lg font-semibold mb-4">المقالات الأكثر قراءة</h3>
                 <div className="space-y-3">
@@ -448,7 +422,6 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-
             {/* الأنشطة الأخيرة */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">الأنشطة الأخيرة</h3>

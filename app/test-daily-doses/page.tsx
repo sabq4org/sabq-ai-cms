@@ -1,32 +1,29 @@
+import React from 'react';
+import Image from 'next/image';
+'use client';
 'use client'
-
 import { useState } from 'react'
 import { Calendar, Zap, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
-
 interface TestResult {
   success: boolean
   data?: any
   error?: string
   status?: number
 }
-
 interface TestResults {
   fetch?: TestResult
   generate?: TestResult
   manual?: TestResult
 }
-
 export default function TestDailyDosesPage() {
   const [testResults, setTestResults] = useState<TestResults>({})
   const [loading, setLoading] = useState<string | null>(null)
-
   // اختبار جلب الجرعة الحالية
   const testFetchDose = async () => {
     setLoading('fetch')
     try {
       const response = await fetch('/api/daily-doses')
       const data = await response.json()
-      
       setTestResults((prev: any) => ({
         ...prev,
         fetch: {
@@ -46,7 +43,6 @@ export default function TestDailyDosesPage() {
     }
     setLoading(null)
   }
-
   // اختبار توليد جرعة بالذكاء الاصطناعي
   const testGenerateDose = async () => {
     setLoading('generate')
@@ -54,7 +50,6 @@ export default function TestDailyDosesPage() {
       const now = new Date()
       const hour = now.getHours()
       let period = 'morning'
-      
       if (hour >= 11 && hour < 16) {
         period = 'afternoon'
       } else if (hour >= 16 && hour < 19) {
@@ -62,7 +57,6 @@ export default function TestDailyDosesPage() {
       } else if (hour >= 19 || hour < 6) {
         period = 'night'
       }
-      
       const response = await fetch('/api/daily-doses/generate', {
         method: 'POST',
         headers: {
@@ -73,9 +67,7 @@ export default function TestDailyDosesPage() {
           period: period
         })
       })
-      
       const data = await response.json()
-      
       setTestResults(prev => ({
         ...prev,
         generate: {
@@ -95,7 +87,6 @@ export default function TestDailyDosesPage() {
     }
     setLoading(null)
   }
-
   // اختبار إنشاء جرعة يدوية
   const testCreateManualDose = async () => {
     setLoading('manual')
@@ -120,9 +111,7 @@ export default function TestDailyDosesPage() {
           ]
         })
       })
-      
       const data = await response.json()
-      
       setTestResults(prev => ({
         ...prev,
         manual: {
@@ -142,14 +131,12 @@ export default function TestDailyDosesPage() {
     }
     setLoading(null)
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold text-center mb-8">
           🧪 اختبار نظام الجرعات اليومية
         </h1>
-
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* اختبار جلب الجرعة */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
@@ -157,7 +144,6 @@ export default function TestDailyDosesPage() {
               <Calendar className="w-5 h-5" />
               جلب الجرعة الحالية
             </h2>
-            
             <button
               onClick={testFetchDose}
               disabled={loading === 'fetch'}
@@ -172,7 +158,6 @@ export default function TestDailyDosesPage() {
                 'اختبار الجلب'
               )}
             </button>
-
             {testResults.fetch && (
               <div className="mt-4">
                 {testResults.fetch.success ? (
@@ -197,14 +182,12 @@ export default function TestDailyDosesPage() {
               </div>
             )}
           </div>
-
           {/* اختبار التوليد بالذكاء الاصطناعي */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <Zap className="w-5 h-5" />
               توليد بالذكاء الاصطناعي
             </h2>
-            
             <button
               onClick={testGenerateDose}
               disabled={loading === 'generate'}
@@ -219,7 +202,6 @@ export default function TestDailyDosesPage() {
                 'توليد جرعة جديدة'
               )}
             </button>
-
             {testResults.generate && (
               <div className="mt-4">
                 {testResults.generate.success ? (
@@ -243,14 +225,12 @@ export default function TestDailyDosesPage() {
               </div>
             )}
           </div>
-
           {/* اختبار الإنشاء اليدوي */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <Calendar className="w-5 h-5" />
               إنشاء جرعة يدوية
             </h2>
-            
             <button
               onClick={testCreateManualDose}
               disabled={loading === 'manual'}
@@ -265,7 +245,6 @@ export default function TestDailyDosesPage() {
                 'إنشاء جرعة تجريبية'
               )}
             </button>
-
             {testResults.manual && (
               <div className="mt-4">
                 {testResults.manual.success ? (
@@ -284,7 +263,6 @@ export default function TestDailyDosesPage() {
             )}
           </div>
         </div>
-
         {/* روابط مفيدة */}
         <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
           <h2 className="text-xl font-bold mb-4">🔗 روابط مفيدة</h2>
@@ -303,7 +281,6 @@ export default function TestDailyDosesPage() {
             </a>
           </div>
         </div>
-
         {/* معلومات النظام */}
         <div className="mt-8 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6">
           <h3 className="font-bold mb-2">📌 ملاحظات مهمة:</h3>

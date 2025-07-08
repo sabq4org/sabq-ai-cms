@@ -1,29 +1,24 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { Mail, Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
+'use client';
 export default function TestEmailPage() {
   const [email, setEmail] = useState('');
   const [testType, setTestType] = useState<'connection' | 'verification' | 'welcome'>('connection');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
-
   const handleTest = async () => {
     setLoading(true);
     setResult(null);
-
     try {
       let response;
-      
       switch (testType) {
         case 'connection':
           response = await fetch('/api/test-email-connection', {
             method: 'POST'
           });
           break;
-          
         case 'verification':
           if (!email) {
             toast.error('يرجى إدخال البريد الإلكتروني');
@@ -36,7 +31,6 @@ export default function TestEmailPage() {
             body: JSON.stringify({ email })
           });
           break;
-          
         case 'welcome':
           if (!email) {
             toast.error('يرجى إدخال البريد الإلكتروني');
@@ -50,10 +44,8 @@ export default function TestEmailPage() {
           });
           break;
       }
-
       const data = await response.json();
       setResult(data);
-      
       if (data.success) {
         toast.success(data.message || 'تم الاختبار بنجاح');
       } else {
@@ -66,9 +58,8 @@ export default function TestEmailPage() {
       setLoading(false);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
           <div className="text-center mb-8">
@@ -82,7 +73,6 @@ export default function TestEmailPage() {
               تحقق من أن إعدادات SMTP تعمل بشكل صحيح
             </p>
           </div>
-
           <div className="space-y-6">
             {/* نوع الاختبار */}
             <div>
@@ -103,7 +93,6 @@ export default function TestEmailPage() {
                     التحقق من SMTP
                   </div>
                 </button>
-                
                 <button
                   onClick={() => setTestType('verification')}
                   className={`p-3 rounded-lg border-2 transition-all ${
@@ -117,7 +106,6 @@ export default function TestEmailPage() {
                     إرسال رمز تحقق
                   </div>
                 </button>
-                
                 <button
                   onClick={() => setTestType('welcome')}
                   className={`p-3 rounded-lg border-2 transition-all ${
@@ -133,7 +121,6 @@ export default function TestEmailPage() {
                 </button>
               </div>
             </div>
-
             {/* حقل البريد الإلكتروني */}
             {(testType === 'verification' || testType === 'welcome') && (
               <div>
@@ -150,7 +137,6 @@ export default function TestEmailPage() {
                 />
               </div>
             )}
-
             {/* زر الاختبار */}
             <button
               onClick={handleTest}
@@ -169,7 +155,6 @@ export default function TestEmailPage() {
                 </>
               )}
             </button>
-
             {/* نتائج الاختبار */}
             {result && (
               <div className={`p-4 rounded-lg border ${
@@ -204,7 +189,6 @@ export default function TestEmailPage() {
               </div>
             )}
           </div>
-
           {/* معلومات SMTP الحالية */}
           <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <h3 className="font-medium text-gray-900 dark:text-white mb-2">إعدادات SMTP الحالية:</h3>

@@ -1,6 +1,11 @@
-// مكون البطاقة المخصص لصحيفة سبق
+import Image from 'next/image';
 import React from 'react';
 import { cn } from '@/lib/utils';
+
+
+// مكون البطاقة المخصص لصحيفة سبق
+
+
 
 interface SabqCardProps {
   children: React.ReactNode;

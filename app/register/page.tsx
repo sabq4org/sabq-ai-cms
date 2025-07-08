@@ -1,14 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+'use client';
 import { 
   User, Mail, Lock, Eye, EyeOff, 
   CheckCircle, AlertCircle, Sparkles 
 } from 'lucide-react';
-import toast from 'react-hot-toast';
-
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -22,43 +21,33 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>({});
-
   const validateForm = () => {
     const newErrors: any = {};
-
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'الاسم الكامل مطلوب';
     }
-
     if (!formData.email.trim()) {
       newErrors.email = 'البريد الإلكتروني مطلوب';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'البريد الإلكتروني غير صحيح';
     }
-
     if (!formData.password) {
       newErrors.password = 'كلمة المرور مطلوبة';
     } else if (formData.password.length < 8) {
       newErrors.password = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
     }
-
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'كلمات المرور غير متطابقة';
     }
-
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'يجب الموافقة على الشروط والأحكام';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-
     setLoading(true);
     try {
       const response = await fetch('/api/auth/register', {
@@ -70,16 +59,12 @@ export default function RegisterPage() {
           password: formData.password
         })
       });
-
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.error || 'فشل التسجيل');
       }
-
       // حفظ بيانات المستخدم في localStorage
       localStorage.setItem('user', JSON.stringify(data.user));
-      
       if (data.requiresVerification) {
         toast.success('تم إنشاء حسابك! يرجى التحقق من بريدك الإلكتروني');
         // توجيه إلى صفحة التحقق من البريد
@@ -95,16 +80,14 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 py-6 md:py-8">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 py-6 md:py-8">
       {/* خلفية ديناميكية - مخفية على الموبايل */}
       <div className="absolute inset-0 overflow-hidden hidden md:block">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 dark:bg-blue-800 rounded-full blur-3xl opacity-30 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 dark:bg-purple-800 rounded-full blur-3xl opacity-30 animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-300 dark:bg-indigo-800 rounded-full blur-3xl opacity-20"></div>
       </div>
-
       <div className="relative z-10 w-full max-w-md">
         {/* الشعار والعنوان */}
         <div className="text-center mb-4 md:mb-6">
@@ -118,7 +101,6 @@ export default function RegisterPage() {
             ✅ سجل الآن لبدء تخصيص محتواك الذكي
           </p>
         </div>
-
         {/* نموذج التسجيل */}
         <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 md:p-8 border border-white/50 dark:border-gray-700/50">
           <form onSubmit={handleSubmit} className="space-y-3 md:space-y-5">
@@ -147,7 +129,6 @@ export default function RegisterPage() {
                 </p>
               )}
             </div>
-
             {/* البريد الإلكتروني */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
@@ -174,7 +155,6 @@ export default function RegisterPage() {
                 </p>
               )}
             </div>
-
             {/* كلمة المرور */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
@@ -207,7 +187,6 @@ export default function RegisterPage() {
                 </p>
               )}
             </div>
-
             {/* تأكيد كلمة المرور */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
@@ -240,7 +219,6 @@ export default function RegisterPage() {
                 </p>
               )}
             </div>
-
             {/* الموافقة على الشروط */}
             <div>
               <label className="flex items-start gap-2 md:gap-3 cursor-pointer">
@@ -270,7 +248,6 @@ export default function RegisterPage() {
                 </p>
               )}
             </div>
-
             {/* زر التسجيل */}
             <button
               type="submit"
@@ -289,7 +266,6 @@ export default function RegisterPage() {
                 </div>
               )}
             </button>
-
             {/* رابط تسجيل الدخول */}
             <div className="text-center pt-3 border-t dark:border-gray-700">
               <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -301,7 +277,6 @@ export default function RegisterPage() {
             </div>
           </form>
         </div>
-
         {/* الميزات - مخفية على الموبايل */}
         <div className="mt-6 text-center space-y-2 hidden md:block">
           <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-2">

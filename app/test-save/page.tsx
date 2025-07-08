@@ -1,9 +1,8 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Heart, Bookmark, Eye, User } from 'lucide-react';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
-
+'use client';
 interface Article {
   id: string;
   title: string;
@@ -14,29 +13,24 @@ interface Article {
   views_count: number;
   created_at: string;
 }
-
 export default function TestSavePage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [interactions, setInteractions] = useState<Record<string, { liked: boolean; saved: boolean }>>({});
-
   useEffect(() => {
     // جلب معرف المستخدم
     const storedUserId = localStorage.getItem('user_id');
     if (storedUserId && storedUserId !== 'anonymous') {
       setUserId(storedUserId);
     }
-    
     // جلب المقالات
     fetchArticles();
   }, []);
-
   const fetchArticles = async () => {
     try {
       const response = await fetch('/api/articles?status=published&limit=5');
       const data = await response.json();
-      
       if (data.success && data.articles) {
         setArticles(data.articles);
       }
@@ -46,13 +40,11 @@ export default function TestSavePage() {
       setLoading(false);
     }
   };
-
   const handleLike = async (articleId: string) => {
     if (!userId) {
       alert('يرجى تسجيل الدخول أولاً');
       return;
     }
-
     try {
       const currentState = interactions[articleId]?.liked || false;
       const response = await fetch('/api/interactions', {
@@ -65,7 +57,6 @@ export default function TestSavePage() {
           action: currentState ? 'remove' : 'add'
         })
       });
-
       if (response.ok) {
         setInteractions(prev => ({
           ...prev,
@@ -81,13 +72,11 @@ export default function TestSavePage() {
       alert('حدث خطأ أثناء الإعجاب');
     }
   };
-
   const handleSave = async (articleId: string) => {
     if (!userId) {
       alert('يرجى تسجيل الدخول أولاً');
       return;
     }
-
     try {
       const currentState = interactions[articleId]?.saved || false;
       const response = await fetch('/api/bookmarks', {
@@ -99,7 +88,6 @@ export default function TestSavePage() {
           itemType: 'article'
         })
       });
-
       if (response.ok) {
         const data = await response.json();
         setInteractions(prev => ({
@@ -116,10 +104,9 @@ export default function TestSavePage() {
       alert('حدث خطأ أثناء الحفظ');
     }
   };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">جاري التحميل...</p>
@@ -127,9 +114,8 @@ export default function TestSavePage() {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+  <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">اختبار نظام الحفظ والإعجاب</h1>
@@ -142,18 +128,13 @@ export default function TestSavePage() {
             <p className="text-sm text-red-600 mt-2">لم يتم تسجيل الدخول</p>
           )}
         </div>
-
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">المقالات المتاحة للاختبار</h2>
           <div className="space-y-4">
             {articles.map((article) => (
               <div key={article.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-start gap-4">
-                  <img
-                    src={getValidImageUrl(article.featured_image, article.title, 'article')}
-                    alt={article.title}
-                    className="w-20 h-20 rounded-lg object-cover"
-                    onError={(e) => {
+                  <Image src={undefined} alt="" width={100} height={100} /> {
                       e.currentTarget.src = generatePlaceholderImage(article.title, 'article');
                     }}
                   />
@@ -204,7 +185,6 @@ export default function TestSavePage() {
             ))}
           </div>
         </div>
-
         {/* روابط مفيدة */}
         <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">روابط مفيدة</h2>
@@ -235,7 +215,6 @@ export default function TestSavePage() {
             </button>
           </div>
         </div>
-
         {/* تعليمات */}
         <div className="mt-8 bg-blue-50 rounded-xl p-6">
           <h3 className="text-lg font-semibold text-blue-900 mb-3">كيفية الاختبار:</h3>

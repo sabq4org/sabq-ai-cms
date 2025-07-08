@@ -1,6 +1,6 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
+'use client';
 import {
   SabqCard,
   SabqCardHeader,
@@ -15,23 +15,19 @@ import {
   SabqCategoryBadge,
   SabqAlert
 } from '@/components/ui';
-
 export default function ComponentsShowcase() {
   const [inputValue, setInputValue] = useState('');
   const [selectValue, setSelectValue] = useState('option1');
   const [showAlert, setShowAlert] = useState(true);
-
   return (
-    <div className="min-h-screen bg-[hsl(var(--sabq-bg-primary))] p-8">
+  <div className="min-h-screen bg-[hsl(var(--sabq-bg-primary))] p-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-[hsl(var(--sabq-text-primary))] mb-8 text-center">
           🎨 مكونات UI لصحيفة سبق
         </h1>
-
         {/* قسم البطاقات */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-[hsl(var(--sabq-text-primary))] mb-6">البطاقات</h2>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <SabqCard>
               <SabqCardHeader>
@@ -46,7 +42,6 @@ export default function ComponentsShowcase() {
                 <SabqButton size="sm">إجراء</SabqButton>
               </SabqCardFooter>
             </SabqCard>
-
             <SabqCard statCard>
               <div className="flex items-center justify-between">
                 <div>
@@ -61,7 +56,6 @@ export default function ComponentsShowcase() {
                 </div>
               </div>
             </SabqCard>
-
             <SabqCard glow hover={false}>
               <SabqCardContent className="py-6">
                 <h3 className="text-lg font-semibold mb-2">بطاقة متوهجة</h3>
@@ -72,11 +66,9 @@ export default function ComponentsShowcase() {
             </SabqCard>
           </div>
         </section>
-
         {/* قسم الأزرار */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-[hsl(var(--sabq-text-primary))] mb-6">الأزرار</h2>
-          
           <div className="space-y-4">
             <SabqButtonGroup>
               <SabqButton variant="primary">زر أساسي</SabqButton>
@@ -84,13 +76,11 @@ export default function ComponentsShowcase() {
               <SabqButton variant="ghost">زر شفاف</SabqButton>
               <SabqButton variant="danger">زر خطر</SabqButton>
             </SabqButtonGroup>
-
             <SabqButtonGroup>
               <SabqButton size="sm">صغير</SabqButton>
               <SabqButton size="md">متوسط</SabqButton>
               <SabqButton size="lg">كبير</SabqButton>
             </SabqButtonGroup>
-
             <SabqButtonGroup>
               <SabqButton loading>جاري التحميل...</SabqButton>
               <SabqButton disabled>معطل</SabqButton>
@@ -106,11 +96,9 @@ export default function ComponentsShowcase() {
             </SabqButtonGroup>
           </div>
         </section>
-
         {/* قسم الإدخالات */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-[hsl(var(--sabq-text-primary))] mb-6">النماذج</h2>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <SabqInput
               label="البريد الإلكتروني"
@@ -125,14 +113,12 @@ export default function ComponentsShowcase() {
                 </svg>
               }
             />
-
             <SabqInput
               label="كلمة المرور"
               type="password"
               placeholder="أدخل كلمة المرور"
               error="كلمة المرور يجب أن تكون 8 أحرف على الأقل"
             />
-
             <SabqSelect
               label="التصنيف"
               value={selectValue}
@@ -144,7 +130,6 @@ export default function ComponentsShowcase() {
                 { value: 'culture', label: 'ثقافة' }
               ]}
             />
-
             <SabqTextarea
               label="الوصف"
               placeholder="اكتب وصفاً مفصلاً..."
@@ -153,11 +138,9 @@ export default function ComponentsShowcase() {
             />
           </div>
         </section>
-
         {/* قسم الشارات */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-[hsl(var(--sabq-text-primary))] mb-6">الشارات</h2>
-          
           <div className="space-y-4">
             <div className="flex flex-wrap gap-3">
               <SabqBadge>افتراضي</SabqBadge>
@@ -166,7 +149,6 @@ export default function ComponentsShowcase() {
               <SabqBadge variant="error">خطأ</SabqBadge>
               <SabqBadge variant="info">معلومة</SabqBadge>
             </div>
-
             <div className="flex flex-wrap gap-3">
               <SabqCategoryBadge category="politics" />
               <SabqCategoryBadge category="economy" />
@@ -177,7 +159,6 @@ export default function ComponentsShowcase() {
               <SabqCategoryBadge category="society" />
               <SabqCategoryBadge category="education" />
             </div>
-
             <div className="flex flex-wrap gap-3">
               <SabqCategoryBadge category="tech" size="sm" />
               <SabqCategoryBadge category="tech" size="md" />
@@ -185,24 +166,19 @@ export default function ComponentsShowcase() {
             </div>
           </div>
         </section>
-
         {/* قسم التنبيهات */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-[hsl(var(--sabq-text-primary))] mb-6">التنبيهات</h2>
-          
           <div className="space-y-4">
             <SabqAlert variant="info" title="معلومة مهمة">
               هذا تنبيه معلوماتي يحتوي على معلومات مفيدة للمستخدم
             </SabqAlert>
-
             <SabqAlert variant="success" title="تمت العملية بنجاح">
               تم حفظ المقال بنجاح وسيتم نشره في الوقت المحدد
             </SabqAlert>
-
             <SabqAlert variant="warning" title="تحذير">
               يرجى مراجعة البيانات المدخلة قبل المتابعة
             </SabqAlert>
-
             {showAlert && (
               <SabqAlert 
                 variant="error" 
@@ -215,11 +191,9 @@ export default function ComponentsShowcase() {
             )}
           </div>
         </section>
-
         {/* قسم الجدول */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-[hsl(var(--sabq-text-primary))] mb-6">الجداول</h2>
-          
           <div className="sabq-table">
             <table className="w-full">
               <thead className="sabq-table-header">
@@ -255,11 +229,9 @@ export default function ComponentsShowcase() {
             </table>
           </div>
         </section>
-
         {/* تأثيرات خاصة */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-[hsl(var(--sabq-text-primary))] mb-6">التأثيرات الخاصة</h2>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="sabq-card sabq-wave-bg p-6">
               <h3 className="text-lg font-semibold mb-2">خلفية موجية</h3>
@@ -267,14 +239,12 @@ export default function ComponentsShowcase() {
                 تأثير الموجة الزرقاء الخفيفة
               </p>
             </div>
-
             <div className="sabq-card sabq-shadow-blue p-6">
               <h3 className="text-lg font-semibold mb-2">ظل أزرق</h3>
               <p className="text-[hsl(var(--sabq-text-secondary))]">
                 ظلال زرقاء خفيفة مخصصة
               </p>
             </div>
-
             <div className="sabq-card sabq-glow sabq-animate-pulse p-6">
               <h3 className="text-lg font-semibold mb-2">نبض متوهج</h3>
               <p className="text-[hsl(var(--sabq-text-secondary))]">

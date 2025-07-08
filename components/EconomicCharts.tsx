@@ -1,7 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import { BarChart3, TrendingUp, PieChart, LineChart } from 'lucide-react';
+
+'use client';
+
+
+
+
+
 
 interface ChartData {
   type: 'bar' | 'line' | 'pie';

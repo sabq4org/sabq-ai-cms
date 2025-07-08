@@ -1,6 +1,9 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { toast } from 'react-hot-toast';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+'use client';
 import { 
   Plus, 
   Edit2, 
@@ -16,10 +19,6 @@ import {
   ChevronUp,
   ChevronDown
 } from 'lucide-react';
-import Link from 'next/link';
-import { toast } from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
 interface OpinionAuthor {
   id: string;
   name: string;
@@ -37,18 +36,15 @@ interface OpinionAuthor {
   createdAt: string;
   updatedAt: string;
 }
-
 export default function OpinionAuthorsPage() {
   const { darkMode } = useDarkModeContext();
   const [authors, setAuthors] = useState<OpinionAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showInactive, setShowInactive] = useState(false);
-
   useEffect(() => {
     fetchAuthors();
   }, []);
-
   const fetchAuthors = async () => {
     try {
       const response = await fetch('/api/opinion-authors');
@@ -63,7 +59,6 @@ export default function OpinionAuthorsPage() {
       setLoading(false);
     }
   };
-
   const toggleAuthorStatus = async (authorId: string, currentStatus: boolean) => {
     try {
       const response = await fetch(`/api/opinion-authors/${authorId}`, {
@@ -71,7 +66,6 @@ export default function OpinionAuthorsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !currentStatus })
       });
-
       if (response.ok) {
         toast.success(currentStatus ? 'تم إلغاء تفعيل الكاتب' : 'تم تفعيل الكاتب');
         fetchAuthors();
@@ -80,15 +74,12 @@ export default function OpinionAuthorsPage() {
       toast.error('حدث خطأ في تحديث حالة الكاتب');
     }
   };
-
   const deleteAuthor = async (authorId: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا الكاتب؟')) return;
-
     try {
       const response = await fetch(`/api/opinion-authors/${authorId}`, {
         method: 'DELETE'
       });
-
       if (response.ok) {
         toast.success('تم حذف الكاتب بنجاح');
         fetchAuthors();
@@ -97,7 +88,6 @@ export default function OpinionAuthorsPage() {
       toast.error('حدث خطأ في حذف الكاتب');
     }
   };
-
   const updateDisplayOrder = async (authorId: string, direction: 'up' | 'down') => {
     try {
       const response = await fetch(`/api/opinion-authors/${authorId}/order`, {
@@ -105,7 +95,6 @@ export default function OpinionAuthorsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ direction })
       });
-
       if (response.ok) {
         fetchAuthors();
       }
@@ -113,16 +102,14 @@ export default function OpinionAuthorsPage() {
       toast.error('حدث خطأ في تحديث الترتيب');
     }
   };
-
   const filteredAuthors = authors.filter(author => {
     const matchesSearch = author.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          author.title?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = showInactive || author.isActive;
     return matchesSearch && matchesStatus;
   });
-
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -133,7 +120,6 @@ export default function OpinionAuthorsPage() {
             إدارة كتّاب مقالات الرأي والمحللين
           </p>
         </div>
-
         {/* Actions Bar */}
         <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md p-4 mb-6`}>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -154,7 +140,6 @@ export default function OpinionAuthorsPage() {
                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
               />
             </div>
-
             {/* Filters & Actions */}
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-2">
@@ -168,7 +153,6 @@ export default function OpinionAuthorsPage() {
                   عرض غير المفعلين
                 </span>
               </label>
-
               <Link
                 href="/dashboard/opinion-authors/create"
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -179,7 +163,6 @@ export default function OpinionAuthorsPage() {
             </div>
           </div>
         </div>
-
         {/* Authors Grid */}
         {loading ? (
           <div className="text-center py-12">
@@ -201,11 +184,7 @@ export default function OpinionAuthorsPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
                       {author.avatar ? (
-                        <img
-                          src={author.avatar}
-                          alt={author.name}
-                          className="w-16 h-16 rounded-full object-cover"
-                        />
+                        <Image src={undefined} alt="" width={100} height={100} />
                       ) : (
                         <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
                           darkMode ? 'bg-gray-700' : 'bg-gray-200'
@@ -224,7 +203,6 @@ export default function OpinionAuthorsPage() {
                         )}
                       </div>
                     </div>
-                    
                     {/* Order Controls */}
                     <div className="flex flex-col gap-1">
                       <button
@@ -251,7 +229,6 @@ export default function OpinionAuthorsPage() {
                       </button>
                     </div>
                   </div>
-
                   {/* Bio */}
                   {author.bio && (
                     <p className={`text-sm mb-4 line-clamp-3 ${
@@ -260,7 +237,6 @@ export default function OpinionAuthorsPage() {
                       {author.bio}
                     </p>
                   )}
-
                   {/* Stats & Social */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
@@ -271,7 +247,6 @@ export default function OpinionAuthorsPage() {
                         </span>
                       </div>
                     </div>
-
                     <div className="flex items-center gap-2">
                       {author.email && (
                         <a
@@ -309,7 +284,6 @@ export default function OpinionAuthorsPage() {
                       )}
                     </div>
                   </div>
-
                   {/* Status Badge */}
                   <div className="mb-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -320,7 +294,6 @@ export default function OpinionAuthorsPage() {
                       {author.isActive ? 'مفعّل' : 'غير مفعّل'}
                     </span>
                   </div>
-
                   {/* Actions */}
                   <div className="flex items-center gap-2">
                     <Link
@@ -334,7 +307,6 @@ export default function OpinionAuthorsPage() {
                       <Edit2 className="w-4 h-4" />
                       تعديل
                     </Link>
-                    
                     <button
                       onClick={() => toggleAuthorStatus(author.id, author.isActive)}
                       className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
@@ -345,7 +317,6 @@ export default function OpinionAuthorsPage() {
                     >
                       {author.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
-                    
                     <button
                       onClick={() => deleteAuthor(author.id)}
                       className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"

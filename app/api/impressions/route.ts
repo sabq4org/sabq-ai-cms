@@ -1,7 +1,20 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { handleOptions, corsResponse } from '@/lib/cors';
+
+
+
+
+
+
+
+
+
+
+
+
 
 // معالجة طلبات OPTIONS للـ CORS
 export async function OPTIONS() {

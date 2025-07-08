@@ -1,8 +1,15 @@
-'use client';
-
+import React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+
+'use client';
+
+
+
+
+
+
 import { 
   Clock, Eye, Share2, MessageSquare, 
   BookmarkPlus, Sparkles, User, Calendar,

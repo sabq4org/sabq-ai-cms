@@ -1,5 +1,5 @@
-"use client";
-
+import React from 'react';
+import Image from 'next/image';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import { useTheme } from "@/contexts/ThemeContext";
+'use client';
+"use client";
 import "./forum.css";
-
 // تعريف أنواع البيانات
 interface Topic {
   id: string;
@@ -38,7 +39,6 @@ interface Topic {
   likes: number;
   lastReply: string;
 }
-
 export default function SabqForum() {
   const [searchQuery, setSearchQuery] = useState("");
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -46,7 +46,6 @@ export default function SabqForum() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const { theme } = useTheme();
   const darkMode = theme === 'dark';
-
   // جلب المواضيع من API
   useEffect(() => {
     const fetchTopics = async () => {
@@ -54,10 +53,8 @@ export default function SabqForum() {
         setLoading(true);
         const params = new URLSearchParams();
         if (selectedCategory !== 'all') params.append('category', selectedCategory);
-        
         const response = await fetch(`/api/forum/topics?${params}`);
         const data = await response.json();
-        
         if (data.topics) {
           setTopics(data.topics);
         }
@@ -67,10 +64,8 @@ export default function SabqForum() {
         setLoading(false);
       }
     };
-
     fetchTopics();
   }, [selectedCategory]);
-
   // تعريف الفئات
   const categories = [
     { id: 'all', name: 'جميع المواضيع', icon: Hash, color: 'bg-gray-500' },
@@ -78,12 +73,10 @@ export default function SabqForum() {
     { id: 'help', name: 'مساعدة ودعم', icon: HelpCircle, color: 'bg-green-500' },
     { id: 'requests', name: 'اقتراحات', icon: Lightbulb, color: 'bg-purple-500' }
   ];
-
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} dir="rtl">
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} dir="rtl">
       {/* الهيدر الرسمي للصحيفة */}
       <Header />
-
       {/* رأس صفحة المنتدى */}
       <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm border-b`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -102,7 +95,6 @@ export default function SabqForum() {
                 </div>
               </div>
             </div>
-
             {/* أدوات البحث والإجراءات */}
             <div className="flex items-center gap-3 w-full md:w-auto">
               <div className="relative flex-1 md:w-80">
@@ -118,13 +110,11 @@ export default function SabqForum() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              
               <Button variant="ghost" size="icon" className={`shrink-0 ${
                 darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
               }`}>
                 <Bell className="w-5 h-5" />
               </Button>
-              
               <Link href="/forum/new-topic">
                 <Button className="shrink-0 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md">
                   <Plus className="w-5 h-5 ml-2" />
@@ -135,7 +125,6 @@ export default function SabqForum() {
           </div>
         </div>
       </div>
-
       {/* المحتوى الرئيسي */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -178,7 +167,6 @@ export default function SabqForum() {
                 })}
               </CardContent>
             </Card>
-
             {/* إحصائيات المنتدى */}
             <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
               <CardHeader className="pb-4">
@@ -203,7 +191,6 @@ export default function SabqForum() {
                 </div>
               </CardContent>
             </Card>
-
             {/* أفضل الأعضاء */}
             <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
               <CardHeader className="pb-4">
@@ -238,7 +225,6 @@ export default function SabqForum() {
               </CardContent>
             </Card>
           </div>
-
           {/* قائمة المواضيع */}
           <div className="lg:col-span-3">
             <div className="flex items-center justify-between mb-6">
@@ -250,7 +236,6 @@ export default function SabqForum() {
                 <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>محدث منذ دقيقة</span>
               </div>
             </div>
-
             {loading ? (
               // عرض التحميل
               <div className="space-y-4">
@@ -284,7 +269,6 @@ export default function SabqForum() {
                             {topic.author.name[0]}
                           </AvatarFallback>
                         </Avatar>
-                        
                         {/* محتوى الموضوع */}
                         <div className="flex-1 min-w-0">
                           {/* العنوان والفئة */}
@@ -305,7 +289,6 @@ export default function SabqForum() {
                               </Badge>
                             </div>
                           </div>
-
                           {/* معلومات المؤلف والوقت */}
                           <div className={`flex items-center gap-2 text-sm mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                             <span className="font-medium">{topic.author.name}</span>
@@ -313,7 +296,6 @@ export default function SabqForum() {
                             <Clock className="w-3 h-3" />
                             <span>{topic.lastReply}</span>
                           </div>
-
                           {/* الإحصائيات */}
                           <div className="flex items-center gap-6 text-sm">
                             <div className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>

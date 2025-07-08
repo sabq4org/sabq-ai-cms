@@ -1,18 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Target, Plus, Calendar, Users, TrendingUp, Play, Pause, Edit } from 'lucide-react';
-
+'use client';
 export default function CampaignsPage() {
   const [darkMode, setDarkMode] = useState(false);
-
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   const campaigns = [
     {
       id: 'C001',
@@ -50,7 +47,6 @@ export default function CampaignsPage() {
       totalPoints: 0
     }
   ];
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'نشط': return 'bg-green-100 text-green-700';
@@ -59,7 +55,6 @@ export default function CampaignsPage() {
       default: return 'bg-gray-100 text-gray-700';
     }
   };
-
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'bonus': return TrendingUp;
@@ -68,9 +63,8 @@ export default function CampaignsPage() {
       default: return Target;
     }
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       <div className="mb-8 flex items-center justify-between">
@@ -82,18 +76,16 @@ export default function CampaignsPage() {
             darkMode ? 'text-gray-300' : 'text-gray-600'
           }`}>إنشاء وإدارة الحملات الترويجية وتحديات الولاء</p>
         </div>
-        
         <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300">
           <Plus className="w-4 h-4" />
           حملة جديدة
         </button>
       </div>
-
       <div className="space-y-6">
         {campaigns.map((campaign) => {
           const Icon = getTypeIcon(campaign.type);
           return (
-            <div key={campaign.id} className={`rounded-2xl p-6 border transition-colors duration-300 ${
+  <div key={campaign.id} className={`rounded-2xl p-6 border transition-colors duration-300 ${
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             }`}>
               <div className="flex items-start justify-between">
@@ -107,7 +99,6 @@ export default function CampaignsPage() {
                       campaign.type === 'challenge' ? 'text-blue-600' : 'text-purple-600'
                     }`} />
                   </div>
-                  
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className={`text-xl font-bold transition-colors duration-300 ${
@@ -117,11 +108,9 @@ export default function CampaignsPage() {
                         {campaign.status}
                       </span>
                     </div>
-                    
                     <p className={`text-sm mb-4 transition-colors duration-300 ${
                       darkMode ? 'text-gray-400' : 'text-gray-600'
                     }`}>{campaign.description}</p>
-
                     <div className="grid grid-cols-4 gap-4">
                       <div>
                         <p className={`text-xs mb-1 transition-colors duration-300 ${
@@ -131,7 +120,6 @@ export default function CampaignsPage() {
                           darkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}>{new Date(campaign.startDate).toLocaleDateString('ar-SA')}</p>
                       </div>
-                      
                       <div>
                         <p className={`text-xs mb-1 transition-colors duration-300 ${
                           darkMode ? 'text-gray-500' : 'text-gray-400'
@@ -140,7 +128,6 @@ export default function CampaignsPage() {
                           darkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}>{new Date(campaign.endDate).toLocaleDateString('ar-SA')}</p>
                       </div>
-                      
                       <div>
                         <p className={`text-xs mb-1 transition-colors duration-300 ${
                           darkMode ? 'text-gray-500' : 'text-gray-400'
@@ -152,7 +139,6 @@ export default function CampaignsPage() {
                           }`}>{campaign.participants.toLocaleString()}</p>
                         </div>
                       </div>
-                      
                       <div>
                         <p className={`text-xs mb-1 transition-colors duration-300 ${
                           darkMode ? 'text-gray-500' : 'text-gray-400'
@@ -164,7 +150,6 @@ export default function CampaignsPage() {
                     </div>
                   </div>
                 </div>
-
                 <div className="flex items-center gap-2">
                   {campaign.status === 'نشط' && (
                     <button className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300">
@@ -172,14 +157,12 @@ export default function CampaignsPage() {
                       إيقاف
                     </button>
                   )}
-                  
                   {campaign.status === 'مجدول' && (
                     <button className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300">
                       <Play className="w-4 h-4" />
                       تفعيل
                     </button>
                   )}
-                  
                   <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300">
                     <Edit className="w-4 h-4" />
                     تعديل

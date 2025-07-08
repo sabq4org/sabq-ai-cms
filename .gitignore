@@ -243,3 +243,4 @@ coverage/
 
 # Local development
 .local/
+.env.local

@@ -1,3 +1,8 @@
+import Image from 'next/image';
+
+
+
+
 import { NextRequest, NextResponse } from 'next/server'
 import { requirePermission } from '@/app/lib/auth'
 import { templateService } from '@/lib/services/templateService'

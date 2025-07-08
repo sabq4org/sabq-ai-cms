@@ -1,5 +1,7 @@
+import React from 'react';
+import Image from 'next/image';
+'use client';
 'use client'
-
 import { useState, useEffect } from 'react'
 import { 
   Activity, 
@@ -18,7 +20,6 @@ import {
 } from 'lucide-react'
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced'
 import { useDarkModeContext } from '@/contexts/DarkModeContext'
-
 interface ActivityItem {
   id: string;
   user: string;
@@ -31,21 +32,18 @@ interface ActivityItem {
   severity?: 'info' | 'warning' | 'critical';
   created_at: string;
 }
-
 interface ActivityStats {
   total: number;
   published: number;
   activeUsers: number;
   edits: number;
 }
-
 interface CategoriesStats {
   articles: number;
   users: number;
   media: number;
   settings: number;
 }
-
 export default function ActivitiesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const { darkMode } = useDarkModeContext()
@@ -65,14 +63,12 @@ export default function ActivitiesPage() {
     media: 0,
     settings: 0
   })
-  
   // جلب البيانات من API
   const fetchActivities = async () => {
     try {
       setLoading(true)
       const response = await fetch('/api/dashboard/activities')
       const data = await response.json()
-      
       if (data.success) {
         const responseData = data.data || data;
         setActivities(responseData.activities || [])
@@ -95,30 +91,23 @@ export default function ActivitiesPage() {
       setLoading(false)
     }
   }
-
   useEffect(() => {
     fetchActivities()
-    
     // تحديث تلقائي كل دقيقة
     const interval = setInterval(fetchActivities, 60000)
     return () => clearInterval(interval)
   }, [])
-  
   const filteredActivities = activities.filter(activity => {
     const matchesSearch = activity.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
       activity.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
       activity.target.toLowerCase().includes(searchTerm.toLowerCase())
-    
     const matchesType = filterType === '' || activity.type === filterType
-    
     const matchesTab = activeTab === 'all' || 
       (activeTab === 'articles' && activity.category === 'مقالات') ||
       (activeTab === 'users' && activity.category === 'مستخدمين') ||
       (activeTab === 'media' && activity.category === 'وسائط')
-    
     return matchesSearch && matchesType && matchesTab
   })
-
   const getActionIcon = (type: string) => {
     switch (type) {
       case 'publish': return <FileText className='w-4 h-4' />
@@ -136,7 +125,6 @@ export default function ActivitiesPage() {
       default: return <Activity className='w-4 h-4' />
     }
   }
-
   const getSeverityBadge = (severity: string = 'info') => {
     const styles = {
       info: 'bg-blue-100 text-blue-700',
@@ -145,7 +133,6 @@ export default function ActivitiesPage() {
     };
     return styles[severity as keyof typeof styles] || styles.info;
   }
-
   // مكون بطاقة الإحصائية
   const StatsCard = ({ 
     title, 
@@ -187,7 +174,6 @@ export default function ActivitiesPage() {
       </div>
     </div>
   )
-
   const exportToCSV = () => {
     const headers = ['المستخدم', 'البريد الإلكتروني', 'النشاط', 'الهدف', 'الفئة', 'الخطورة', 'الوقت']
     const csvContent = [
@@ -202,7 +188,6 @@ export default function ActivitiesPage() {
         activity.time
       ].join(','))
     ].join('\n')
-
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     const url = URL.createObjectURL(blob)
@@ -213,9 +198,8 @@ export default function ActivitiesPage() {
     link.click()
     document.body.removeChild(link)
   }
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`} dir='rtl'>
       {/* عنوان وتعريف الصفحة */}
@@ -227,7 +211,6 @@ export default function ActivitiesPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>مراقبة وتتبع جميع أنشطة النظام والمستخدمين</p>
       </div>
-
       {/* قسم نظام المراقبة */}
       <div className="mb-8">
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -262,7 +245,6 @@ export default function ActivitiesPage() {
           </div>
         </div>
       </div>
-
       {/* بطاقات الإحصائيات */}
       <div className="grid grid-cols-4 gap-6 mb-8">
         <StatsCard
@@ -298,7 +280,6 @@ export default function ActivitiesPage() {
           iconColor="text-orange-600"
         />
       </div>
-
       {/* أزرار التنقل */}
       <TabsEnhanced
         tabs={[
@@ -310,7 +291,6 @@ export default function ActivitiesPage() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-
       {/* أدوات الفلترة والتصدير */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -332,7 +312,6 @@ export default function ActivitiesPage() {
               }`}
             />
           </div>
-
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
@@ -354,7 +333,6 @@ export default function ActivitiesPage() {
             <option value="login">تسجيل دخول</option>
             <option value="logout">تسجيل خروج</option>
           </select>
-
           <button
             onClick={exportToCSV}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
@@ -364,7 +342,6 @@ export default function ActivitiesPage() {
           </button>
         </div>
       </div>
-
       {/* جدول النشاطات */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-100'} overflow-hidden transition-colors duration-300`}>
         <div className="px-6 py-4" style={{ borderBottom: darkMode ? '1px solid #374151' : '1px solid #f4f8fe' }}>
@@ -373,7 +350,6 @@ export default function ActivitiesPage() {
             سجل النشاطات الأخيرة ({filteredActivities.length})
           </h3>
         </div>
-        
         {/* رأس الجدول */}
         <div 
           style={{ 
@@ -390,7 +366,6 @@ export default function ActivitiesPage() {
             <div className={`text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>الوقت</div>
           </div>
         </div>
-
         {/* بيانات الجدول */}
         <div style={{ borderColor: darkMode ? '#374151' : '#f4f8fe' }} className="divide-y">
           {loading ? (
@@ -425,16 +400,13 @@ export default function ActivitiesPage() {
                     <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{activity.email}</p>
                   </div>
                 </div>
-                
                 <div className="flex items-center gap-2">
                   {getActionIcon(activity.type)}
                   <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{activity.action}</span>
                 </div>
-                
                 <div>
                   <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{activity.target}</span>
                 </div>
-                
                 <div className="text-center">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     activity.category === 'مقالات' ? 'bg-blue-100 text-blue-700' :
@@ -446,13 +418,11 @@ export default function ActivitiesPage() {
                     {activity.category}
                   </span>
                 </div>
-                
                 <div className="text-center">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSeverityBadge(activity.severity)}`}>
                     {activity.severity === 'info' ? 'معلومات' : activity.severity === 'warning' ? 'تحذير' : 'حرج'}
                   </span>
                 </div>
-                
                 <div className="flex items-center gap-1">
                   <Calendar className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                   <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{activity.time}</span>

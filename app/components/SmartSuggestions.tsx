@@ -1,7 +1,22 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Brain, Zap, TrendingUp, Clock, Star, Search } from 'lucide-react';
+
+'use client';
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 interface SmartSuggestionsProps {
   onSuggestionClick: (suggestion: string) => void;

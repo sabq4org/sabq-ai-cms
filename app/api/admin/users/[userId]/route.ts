@@ -1,3 +1,8 @@
+import Image from 'next/image';
+
+
+
+
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@/lib/generated/prisma'
 import { requirePermission } from '@/lib/auth/permissions'

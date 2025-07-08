@@ -1,15 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Save, Mail, Phone, Shield, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
+'use client';
 export default function CreateUserPage() {
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -26,9 +24,7 @@ export default function CreateUserPage() {
     isActive: true,
     sendWelcomeEmail: true
   });
-
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
   const availableRoles = [
     'رئيس التحرير',
     'محرر أول', 
@@ -40,7 +36,6 @@ export default function CreateUserPage() {
     'مشرف تعليقات',
     'مراجع وسائط'
   ];
-
   const availableDepartments = [
     'إدارة المحتوى',
     'التقنية',
@@ -50,7 +45,6 @@ export default function CreateUserPage() {
     'إدارة الوسائط',
     'الأمان والحماية'
   ];
-
   const availablePermissions = [
     { id: 'create_articles', name: 'إنشاء المقالات', category: 'المحتوى' },
     { id: 'edit_articles', name: 'تعديل المقالات', category: 'المحتوى' },
@@ -64,17 +58,14 @@ export default function CreateUserPage() {
     { id: 'moderate_comments', name: 'إدارة التعليقات', category: 'التفاعل' },
     { id: 'manage_media', name: 'إدارة الوسائط', category: 'الوسائط' }
   ];
-
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-
     if (!formData.firstName.trim()) newErrors.firstName = 'الاسم الأول مطلوب';
     if (!formData.lastName.trim()) newErrors.lastName = 'الاسم الأخير مطلوب';
     if (!formData.email.trim()) newErrors.email = 'البريد الإلكتروني مطلوب';
@@ -86,24 +77,18 @@ export default function CreateUserPage() {
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'كلمات المرور غير متطابقة';
     if (!formData.role) newErrors.role = 'الدور مطلوب';
     if (!formData.department) newErrors.department = 'القسم مطلوب';
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) {
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       // محاكاة إرسال البيانات
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
       // حفظ في localStorage كمثال
       const userData = {
         id: Date.now(),
@@ -119,29 +104,23 @@ export default function CreateUserPage() {
         createdAt: new Date().toISOString(),
         avatar: '/api/placeholder/40/40'
       };
-
       const existingUsers = JSON.parse(localStorage.getItem('sabq_users') || '[]');
       existingUsers.push(userData);
       localStorage.setItem('sabq_users', JSON.stringify(existingUsers));
-
       setShowSuccessMessage(true);
-      
       // إرسال بريد ترحيب إذا كان مطلوباً
       if (formData.sendWelcomeEmail) {
         console.log('إرسال بريد ترحيب إلى:', formData.email);
       }
-
       setTimeout(() => {
         router.push('/dashboard/team');
       }, 2000);
-
     } catch (error) {
       console.error('خطأ في إنشاء المستخدم:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
-
   const togglePermission = (permissionId: string) => {
     setFormData(prev => ({
       ...prev,
@@ -150,34 +129,28 @@ export default function CreateUserPage() {
         : [...prev.permissions, permissionId]
     }));
   };
-
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     // التحقق من نوع الملف
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
     if (!allowedTypes.includes(file.type)) {
       alert('يرجى اختيار ملف صورة صالح (PNG أو JPG)');
       return;
     }
-
     // التحقق من حجم الملف (2MB max)
     if (file.size > 2 * 1024 * 1024) {
       alert('حجم الصورة يجب أن يكون أقل من 2 ميجابايت');
       return;
     }
-
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'avatar');
-
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
-
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -195,9 +168,8 @@ export default function CreateUserPage() {
       alert('حدث خطأ في رفع الصورة');
     }
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
+  <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
       {/* رسالة النجاح */}
       {showSuccessMessage && (
         <div className="fixed top-4 right-4 bg-green-500 text-white p-4 rounded-xl shadow-xl z-50 flex items-center gap-2 animate-pulse">
@@ -205,7 +177,6 @@ export default function CreateUserPage() {
           تم إنشاء المستخدم بنجاح! جاري التوجيه...
         </div>
       )}
-
       {/* العنوان والتنقل */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
@@ -219,12 +190,10 @@ export default function CreateUserPage() {
         </div>
         <p className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>إضافة عضو جديد إلى فريق صحيفة سبق</p>
       </div>
-
       {/* النموذج */}
       <div className={`rounded-2xl shadow-sm border transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            
             {/* المعلومات الشخصية */}
             <div>
               <div className="flex items-center gap-3 mb-6">
@@ -236,7 +205,6 @@ export default function CreateUserPage() {
                   <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>البيانات الأساسية للمستخدم</p>
                 </div>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -262,7 +230,6 @@ export default function CreateUserPage() {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     الاسم الأخير *
@@ -287,7 +254,6 @@ export default function CreateUserPage() {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     البريد الإلكتروني *
@@ -315,7 +281,6 @@ export default function CreateUserPage() {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     رقم الهاتف
@@ -337,7 +302,6 @@ export default function CreateUserPage() {
                 </div>
               </div>
             </div>
-
             {/* معلومات الحساب */}
             <div className="pt-6 border-t border-gray-200 dark:border-gray-600">
               <div className="flex items-center gap-3 mb-6">
@@ -349,7 +313,6 @@ export default function CreateUserPage() {
                   <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>بيانات تسجيل الدخول والأمان</p>
                 </div>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -375,7 +338,6 @@ export default function CreateUserPage() {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     كلمة المرور *
@@ -400,7 +362,6 @@ export default function CreateUserPage() {
                     </div>
                   )}
                 </div>
-
                 <div className="md:col-span-2">
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     تأكيد كلمة المرور *
@@ -427,7 +388,6 @@ export default function CreateUserPage() {
                 </div>
               </div>
             </div>
-
             {/* الدور والقسم */}
             <div className="pt-6 border-t border-gray-200 dark:border-gray-600">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -458,7 +418,6 @@ export default function CreateUserPage() {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     القسم *
@@ -488,7 +447,6 @@ export default function CreateUserPage() {
                 </div>
               </div>
             </div>
-
             {/* الصلاحيات */}
             <div className="pt-6 border-t border-gray-200 dark:border-gray-600">
               <h3 className={`text-lg font-semibold mb-4 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>الصلاحيات</h3>
@@ -513,7 +471,6 @@ export default function CreateUserPage() {
                 ))}
               </div>
             </div>
-
             {/* إعدادات إضافية */}
             <div className="pt-6 border-t border-gray-200 dark:border-gray-600">
               <div className="space-y-4">
@@ -526,7 +483,6 @@ export default function CreateUserPage() {
                   />
                   <span className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>تفعيل الحساب فوراً</span>
                 </label>
-
                 <label className="flex items-center">
                   <input
                     type="checkbox"
@@ -538,7 +494,6 @@ export default function CreateUserPage() {
                 </label>
               </div>
             </div>
-
             {/* أزرار التحكم */}
             <div className="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-600">
               <button 

@@ -1,13 +1,12 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
+'use client';
 import { 
   ArrowRight, Edit3, Trash2, Copy, Eye, Calendar, User, Clock, Activity, FileText, BarChart3, Brain
 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-
 interface Article {
   id: string;
   title: string;
@@ -29,7 +28,6 @@ interface Article {
   published_at?: string;
   is_deleted: boolean;
 }
-
 // بيانات التصنيفات
 const categories: { [key: number]: { name: string; color: string } } = {
   1: { name: 'محليات', color: '#EF4444' },
@@ -43,7 +41,6 @@ const categories: { [key: number]: { name: string; color: string } } = {
   9: { name: 'ثقافة', color: '#14B8A6' },
   10: { name: 'دولي', color: '#F97316' }
 };
-
 export default function ArticleViewPage() {
   const params = useParams();
   const router = useRouter();
@@ -53,7 +50,6 @@ export default function ArticleViewPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
-
   // استرجاع حالة الوضع الليلي من localStorage
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
@@ -61,7 +57,6 @@ export default function ArticleViewPage() {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   // جلب بيانات المقال
   useEffect(() => {
     const fetchArticle = async () => {
@@ -80,12 +75,10 @@ export default function ArticleViewPage() {
         setLoading(false);
       }
     };
-
     if (articleId) {
       fetchArticle();
     }
   }, [articleId]);
-
   // حساب عدد الكلمات الحقيقي
   const calculateWordCount = (text: string): number => {
     // إزالة المسافات الزائدة والأسطر الفارغة
@@ -94,14 +87,12 @@ export default function ArticleViewPage() {
     const words = cleanText.split(/\s+/).filter(word => word.length > 0);
     return words.length;
   };
-
   // حساب وقت القراءة الحقيقي (200 كلمة في الدقيقة)
   const calculateReadingTime = (text: string): number => {
     const wordCount = calculateWordCount(text);
     const readingTime = Math.ceil(wordCount / 200);
     return readingTime || 1; // على الأقل دقيقة واحدة
   };
-
   // إنشاء ملخص تلقائي إذا لم يكن موجوداً
   const generateSummary = (content: string): string => {
     const paragraphs = content.split('\n').filter(p => p.trim().length > 0);
@@ -111,7 +102,6 @@ export default function ArticleViewPage() {
       ? firstParagraph.substring(0, 200) + '...' 
       : firstParagraph;
   };
-
   // وظائف التنسيق
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -125,7 +115,6 @@ export default function ArticleViewPage() {
       timeZone: 'Asia/Riyadh'
     });
   };
-
   const formatFullDate = (dateString: string) => {
     const date = new Date(dateString);
     const formatter = new Intl.DateTimeFormat('ar-SA', {
@@ -140,42 +129,34 @@ export default function ArticleViewPage() {
     });
     return formatter.format(date);
   };
-
   const formatRelativeTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInMs = now.getTime() - date.getTime();
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    
     if (diffInHours < 1) return 'منذ دقائق';
     if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
     return `منذ ${Math.floor(diffInHours / 24)} يوم`;
   };
-
   const handleCopyLink = () => {
     const link = `https://sabq.org/news/${article?.slug || article?.id}`;
     navigator.clipboard.writeText(link);
     toast.success('تم نسخ الرابط! 📎');
   };
-
   const handleEdit = () => {
     router.push(`/dashboard/article/edit/${article?.id}`);
   };
-
   const handleDelete = async () => {
     if (!article) return;
-    
     try {
       const response = await fetch('/api/articles', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: [article.id] })
       });
-
       if (!response.ok) {
         throw new Error('فشل في حذف المقال');
       }
-
       toast.success('تم نقل المقال إلى المحذوفات');
       setShowDeleteModal(false);
       router.push('/dashboard/news');
@@ -184,7 +165,6 @@ export default function ArticleViewPage() {
       toast.error('خطأ في حذف المقال');
     }
   };
-
   // مكون بطاقة الإحصائية الدائرية
   const CircularStatsCard = ({ 
     title, 
@@ -226,18 +206,16 @@ export default function ArticleViewPage() {
       </div>
     </div>
   );
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+  <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
-
   if (!article) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+  <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">المقال غير موجود</h2>
           <Link href="/dashboard/news" className="text-blue-600 hover:text-blue-700">
@@ -247,15 +225,13 @@ export default function ArticleViewPage() {
       </div>
     );
   }
-
   const categoryData = categories[article.category_id] || { name: 'غير مصنف', color: '#6B7280' };
   // حساب الإحصائيات الحقيقية
   const realWordCount = calculateWordCount(article.content);
   const realReadingTime = calculateReadingTime(article.content);
   const articleSummary = article.summary || generateSummary(article.content);
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -305,12 +281,10 @@ export default function ArticleViewPage() {
             </div>
           </div>
         </div>
-        
         <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
           darkMode ? 'text-white' : 'text-gray-800'
         }`}>{article.title}</h1>
       </div>
-
       {/* شريط الأدوات */}
       <div className={`rounded-2xl p-4 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -361,7 +335,6 @@ export default function ArticleViewPage() {
           </button>
         </div>
       </div>
-
       {/* التبويبات */}
       <div className={`rounded-2xl p-2 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -393,7 +366,6 @@ export default function ArticleViewPage() {
           })}
         </div>
       </div>
-
       <div className="grid grid-cols-12 gap-8">
         {/* العمود الأيمن - محتوى المقال */}
         <div className="col-span-12 lg:col-span-8 space-y-6">
@@ -420,7 +392,6 @@ export default function ArticleViewPage() {
                   </p>
                 </div>
               </div>
-              
               {/* المحتوى */}
               <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
                 darkMode 
@@ -440,7 +411,6 @@ export default function ArticleViewPage() {
               </div>
             </div>
           )}
-
           {activeTab === 'timeline' && (
             <div className="space-y-6">
               {/* الخريطة الزمنية */}
@@ -476,7 +446,6 @@ export default function ArticleViewPage() {
                       </div>
                     </div>
                   </div>
-                  
                   {article.updated_at !== article.created_at && (
                     <div className="relative">
                       <div className="flex items-start gap-4">
@@ -505,7 +474,6 @@ export default function ArticleViewPage() {
             </div>
           )}
         </div>
-
         {/* العمود الأيسر - معلومات المقال */}
         <div className="col-span-12 lg:col-span-4 space-y-6">
           {/* معلومات أساسية */}
@@ -517,7 +485,6 @@ export default function ArticleViewPage() {
             <h2 className={`text-xl font-bold mb-6 transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800'
             }`}>📄 معلومات المقال</h2>
-            
             {/* معلومات الكاتب */}
             <div className={`flex items-center gap-3 mb-4 p-3 rounded-xl transition-colors duration-300 ${
               darkMode ? 'bg-gray-700' : 'bg-gray-50'
@@ -534,7 +501,6 @@ export default function ArticleViewPage() {
                 }`}>كاتب المقال</p>
               </div>
             </div>
-
             {/* التصنيف */}
             <div className="mb-4">
               <label className={`text-sm font-medium mb-1 block transition-colors duration-300 ${
@@ -550,7 +516,6 @@ export default function ArticleViewPage() {
                 {categoryData.name}
               </span>
             </div>
-
             {/* التواريخ */}
             <div className="space-y-3 mb-4">
               <div className="flex items-center gap-2 text-sm">
@@ -574,7 +539,6 @@ export default function ArticleViewPage() {
                 }`}>{formatFullDate(article.updated_at)}</span>
               </div>
             </div>
-
             {/* إحصائيات سريعة */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className={`p-3 rounded-xl text-center transition-colors duration-300 ${
@@ -600,7 +564,6 @@ export default function ArticleViewPage() {
                 }`}>كلمة</div>
               </div>
             </div>
-
             {/* معرف المقال */}
             <div className="mb-6">
               <label className={`text-sm font-medium mb-2 block transition-colors duration-300 ${
@@ -613,7 +576,6 @@ export default function ArticleViewPage() {
               </code>
             </div>
           </div>
-
           {/* إحصائيات التفاعل */}
           <div className="grid grid-cols-2 gap-4">
             <CircularStatsCard
@@ -635,7 +597,6 @@ export default function ArticleViewPage() {
           </div>
         </div>
       </div>
-
       {/* نافذة حذف المقال */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

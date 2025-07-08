@@ -1,7 +1,16 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ReaderProfile } from '@/types/reader-profile';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
+
+'use client';
+
+
+
+
+
 import { 
   BookOpen, 
   Brain, 
@@ -19,9 +28,9 @@ import {
   MessageSquare,
   Compass
 } from 'lucide-react';
-import { ReaderProfile } from '@/types/reader-profile';
-import { cn } from '@/lib/utils';
-import Link from 'next/link';
+
+
+
 
 interface ReaderProfileCardProps {
   profile: ReaderProfile | null;

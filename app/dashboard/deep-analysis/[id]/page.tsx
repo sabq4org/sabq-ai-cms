@@ -1,10 +1,11 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+'use client';
 import { 
   ArrowLeft, 
   Eye, 
@@ -33,7 +34,6 @@ import {
   FileText,
   Layers
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,7 +41,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
 interface DeepAnalysis {
   id: string;
   title: string;
@@ -68,11 +67,9 @@ interface DeepAnalysis {
   keyTakeaways?: string[];
   aiQualityScore?: number;
 }
-
 interface PageProps {
   params: Promise<{ id: string }>;
 }
-
 export default function DeepAnalysisDetailPage({ params }: PageProps) {
   const router = useRouter();
   const [analysis, setAnalysis] = useState<DeepAnalysis | null>(null);
@@ -82,27 +79,23 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
   const [rating, setRating] = useState(0);
   const [copied, setCopied] = useState(false);
   const [analysisId, setAnalysisId] = useState<string>('');
-  
   // معلومات المستخدم الحالي
   const currentUser = {
     name: 'علي الحازمي',
     role: 'محرر رئيسي',
     isAdmin: true
   };
-
   useEffect(() => {
     // استخراج id من params
     params.then((resolvedParams) => {
       setAnalysisId(resolvedParams.id);
     });
   }, [params]);
-
   useEffect(() => {
     if (analysisId) {
       fetchAnalysis();
     }
   }, [analysisId]);
-
   const fetchAnalysis = async () => {
     try {
       // محاكاة بيانات التحليل
@@ -113,7 +106,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
         content: `
           <h2>المقدمة</h2>
           <p>يشهد العالم ثورة تقنية غير مسبوقة في مجال الذكاء الاصطناعي، والمملكة العربية السعودية ليست بمعزل عن هذا التحول. في إطار رؤية 2030، تسعى المملكة لتكون رائدة في مجال التقنيات الناشئة.</p>
-          
           <h2>التحديات الحالية</h2>
           <ul>
             <li>نقص الكوادر المتخصصة في الذكاء الاصطناعي</li>
@@ -121,7 +113,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
             <li>التحديات التنظيمية والقانونية</li>
             <li>مقاومة التغيير في بعض القطاعات</li>
           </ul>
-          
           <h2>الفرص المستقبلية</h2>
           <p>تتمتع المملكة بفرص هائلة لتطبيق الذكاء الاصطناعي في قطاعات متعددة:</p>
           <ul>
@@ -130,7 +121,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
             <li><strong>المدن الذكية:</strong> نيوم كنموذج للمدن المستقبلية</li>
             <li><strong>التعليم:</strong> التعلم التكيفي والتعليم عن بعد</li>
           </ul>
-          
           <h2>التوصيات الاستراتيجية</h2>
           <ol>
             <li>إنشاء مراكز تميز وطنية للذكاء الاصطناعي</li>
@@ -169,7 +159,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
         ],
         aiQualityScore: 92
       };
-      
       setAnalysis(mockAnalysis);
     } catch (error) {
       console.error('خطأ في جلب التحليل:', error);
@@ -177,7 +166,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
       setLoading(false);
     }
   };
-
   const handleLike = () => {
     setLiked(!liked);
     if (analysis) {
@@ -187,7 +175,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
       });
     }
   };
-
   const handleSave = () => {
     setSaved(!saved);
     if (analysis) {
@@ -197,7 +184,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
       });
     }
   };
-
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -217,20 +203,17 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
       }
     }
   };
-
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
   const handleDelete = async () => {
     if (window.confirm('هل أنت متأكد من حذف هذا التحليل؟')) {
       // منطق الحذف
       router.push('/dashboard/deep-analysis');
     }
   };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('ar-SA', {
@@ -241,7 +224,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
       minute: '2-digit'
     }).format(date);
   };
-
   const getAngleLabel = (angle: string) => {
     const angles: Record<string, { label: string; icon: string }> = {
       economic: { label: 'اقتصادي', icon: '💰' },
@@ -253,7 +235,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
     };
     return angles[angle] || { label: angle, icon: '📊' };
   };
-
   const getSourceBadge = (source: string) => {
     const badges = {
       manual: { label: 'يدوي', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
@@ -262,18 +243,16 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
     };
     return badges[source as keyof typeof badges] || badges.manual;
   };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+  <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
-
   if (!analysis) {
     return (
-      <div className="container mx-auto p-6">
+  <div className="container mx-auto p-6">
         <Card>
           <CardContent className="text-center py-12">
             <AlertCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
@@ -286,9 +265,8 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
       </div>
     );
   }
-
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+  <div className="container mx-auto p-6 max-w-7xl">
       {/* شريط الأدوات العلوي */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -300,14 +278,12 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
             <ArrowLeft className="w-4 h-4" />
             رجوع
           </Button>
-          
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>التحليلات العميقة</span>
             <ChevronRight className="w-4 h-4" />
             <span className="text-gray-900 dark:text-white">{analysis.title}</span>
           </div>
         </div>
-
         {/* الخيارات الإدارية */}
         <div className="flex items-center gap-2">
           <Button
@@ -318,7 +294,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
             <Edit className="w-4 h-4 ml-1" />
             تحرير
           </Button>
-          
           <Button
             variant="outline"
             size="sm"
@@ -327,7 +302,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
             <ExternalLink className="w-4 h-4 ml-1" />
             عرض في الموقع
           </Button>
-          
           <Button
             variant="outline"
             size="sm"
@@ -345,7 +319,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
               </>
             )}
           </Button>
-
           {currentUser.isAdmin && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -378,7 +351,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
           )}
         </div>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* المحتوى الرئيسي */}
         <div className="lg:col-span-2 space-y-6">
@@ -388,11 +360,9 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
               <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
                 {analysis.title}
               </h1>
-              
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
                 {analysis.summary}
               </p>
-
               {/* التصنيفات والوسوم */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -403,7 +373,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                     </Badge>
                   ))}
                 </div>
-                
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-400">الوسوم:</span>
                   {analysis.tags.map((tag) => (
@@ -414,7 +383,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                   ))}
                 </div>
               </div>
-
               {/* معلومات النشر */}
               <div className="flex items-center gap-4 mt-6 pt-6 border-t text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-1">
@@ -432,7 +400,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
               </div>
             </CardContent>
           </Card>
-
           {/* محتوى التحليل */}
           <Card>
             <CardContent className="pt-6">
@@ -442,7 +409,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
               />
             </CardContent>
           </Card>
-
           {/* النقاط المميزة */}
           {analysis.keyTakeaways && analysis.keyTakeaways.length > 0 && (
             <Card>
@@ -464,7 +430,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
               </CardContent>
             </Card>
           )}
-
           {/* المصادر */}
           {analysis.sources && analysis.sources.length > 0 && (
             <Card>
@@ -497,7 +462,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
               </CardContent>
             </Card>
           )}
-
           {/* نظام التفاعل */}
           <Card>
             <CardContent className="pt-6">
@@ -512,7 +476,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                     <Heart className={cn("w-4 h-4", liked && "fill-current")} />
                     <span>{analysis.likes}</span>
                   </Button>
-                  
                   <Button
                     variant="outline"
                     size="sm"
@@ -522,7 +485,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                     <Share2 className="w-4 h-4" />
                     <span>{analysis.shares}</span>
                   </Button>
-                  
                   <Button
                     variant={saved ? "default" : "outline"}
                     size="sm"
@@ -532,7 +494,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                     <Bookmark className={cn("w-4 h-4", saved && "fill-current")} />
                     <span>{analysis.saves}</span>
                   </Button>
-                  
                   <Button
                     variant="outline"
                     size="sm"
@@ -542,7 +503,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                     <span>{analysis.comments}</span>
                   </Button>
                 </div>
-
                 {/* تقييم التحليل */}
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600 dark:text-gray-400">قيم التحليل:</span>
@@ -569,7 +529,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
             </CardContent>
           </Card>
         </div>
-
         {/* الشريط الجانبي */}
         <div className="space-y-6">
           {/* إحصائيات سريعة */}
@@ -588,7 +547,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                 </div>
                 <span className="font-semibold text-lg">{analysis.views.toLocaleString()}</span>
               </div>
-              
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <Heart className="w-4 h-4" />
@@ -596,7 +554,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                 </div>
                 <span className="font-semibold text-lg">{analysis.likes}</span>
               </div>
-              
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <MessageCircle className="w-4 h-4" />
@@ -604,7 +561,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                 </div>
                 <span className="font-semibold text-lg">{analysis.comments}</span>
               </div>
-              
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <Share2 className="w-4 h-4" />
@@ -612,7 +568,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                 </div>
                 <span className="font-semibold text-lg">{analysis.shares}</span>
               </div>
-              
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <Bookmark className="w-4 h-4" />
@@ -620,7 +575,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                 </div>
                 <span className="font-semibold text-lg">{analysis.saves}</span>
               </div>
-              
               <div className="pt-4 border-t">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-600 dark:text-gray-400">معدل التفاعل</span>
@@ -637,7 +591,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
               </div>
             </CardContent>
           </Card>
-
           {/* معلومات الذكاء الاصطناعي */}
           {(analysis.source === 'gpt' || analysis.source === 'hybrid') && (
             <Card>
@@ -654,7 +607,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                     {getSourceBadge(analysis.source).label}
                   </Badge>
                 </div>
-                
                 {analysis.analysisAngle && (
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 dark:text-gray-400">زاوية الرؤية</span>
@@ -664,7 +616,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                 )}
-                
                 {analysis.depthLevel && (
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 dark:text-gray-400">مستوى العمق</span>
@@ -683,7 +634,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                 )}
-                
                 {analysis.aiQualityScore && (
                   <div>
                     <div className="flex items-center justify-between mb-2">
@@ -700,7 +650,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                 )}
-                
                 <div className="pt-3 border-t">
                   <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
@@ -710,7 +659,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
               </CardContent>
             </Card>
           )}
-
           {/* معلومات إضافية */}
           <Card>
             <CardHeader>
@@ -724,12 +672,10 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                 <span className="text-sm text-gray-600 dark:text-gray-400">عدد الكلمات</span>
                 <span className="font-semibold">{analysis.wordCount.toLocaleString()}</span>
               </div>
-              
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600 dark:text-gray-400">وقت القراءة</span>
                 <span className="font-semibold">{analysis.readingTime} دقيقة</span>
               </div>
-              
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600 dark:text-gray-400">الحالة</span>
                 <Badge variant={analysis.status === 'published' ? 'default' : 'secondary'}>
@@ -738,7 +684,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                    analysis.status === 'editing' ? 'قيد التحرير' : 'مؤرشف'}
                 </Badge>
               </div>
-              
               {analysis.articleId && (
                 <div className="pt-3 border-t">
                   <Button
@@ -754,7 +699,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
               )}
             </CardContent>
           </Card>
-
           {/* إضافات مستقبلية */}
           <Card>
             <CardHeader>
@@ -777,7 +721,6 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
                   الاستثمار في التقنيات الناشئة
                 </Button>
               </div>
-              
               <div className="mt-4 pt-4 border-t">
                 <Button className="w-full" size="sm">
                   <Sparkles className="w-4 h-4 ml-1" />

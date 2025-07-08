@@ -1,8 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import { Calendar, Eye, User, TrendingUp, Clock } from 'lucide-react';
+
+'use client';
+
+
+
+
+
+
 
 interface Article {
   id: string;
@@ -60,12 +67,7 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
               <article className="relative h-full rounded-2xl overflow-hidden">
                 <div className="aspect-w-16 aspect-h-9 lg:aspect-h-10">
                   {mainArticle.imageUrl ? (
-                    <img
-                      src={mainArticle.imageUrl}
-                      alt={mainArticle.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="eager"
-                    />
+                    <Image src={undefined} alt="" width={100} height={100} />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
                       <TrendingUp className="w-16 h-16 text-gray-400" />
@@ -136,11 +138,7 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
               <article className="article-card">
                 <div className="article-card-image h-48">
                   {article.imageUrl ? (
-                    <img
-                      src={article.imageUrl}
-                      alt={article.title}
-                      loading="lazy"
-                    />
+                    <Image src={undefined} alt="" width={100} height={100} />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <TrendingUp className="w-10 h-10 text-gray-300" />

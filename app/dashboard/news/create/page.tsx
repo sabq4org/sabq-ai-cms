@@ -1,5 +1,5 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -13,22 +13,19 @@ import dynamic from 'next/dynamic';
 import { toast } from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
-
+'use client';
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
-
 interface Category {
   id: string;
   name: string;
   slug: string;
 }
-
 interface Author {
   id: string;
   name: string;
   email: string;
 }
-
 interface UploadedImage {
   id: string;
   url: string;
@@ -37,7 +34,6 @@ interface UploadedImage {
   height: number;
   format: string;
 }
-
 export default function CreateArticlePage() {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
@@ -48,10 +44,8 @@ export default function CreateArticlePage() {
   const [aiSuggestions, setAiSuggestions] = useState<any>({});
   const [uploadingImage, setUploadingImage] = useState(false);
   const [activeTab, setActiveTab] = useState('content');
-  
   // مرجع للمحرر
   const editorRef = useRef<any>(null);
-
   // حالة النموذج
   const [formData, setFormData] = useState({
     title: '',
@@ -73,13 +67,11 @@ export default function CreateArticlePage() {
     seoDescription: '',
     status: 'draft' as 'draft' | 'pending_review' | 'published'
   });
-
   // تحميل البيانات الأساسية
   useEffect(() => {
     fetchCategories();
     fetchAuthors();
   }, []);
-
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/categories');
@@ -91,13 +83,11 @@ export default function CreateArticlePage() {
       setCategories([]); // تعيين مصفوفة فارغة في حالة الخطأ
     }
   };
-
   const fetchAuthors = async () => {
     try {
       console.log('🔄 جلب المراسلين...');
       const response = await fetch('/api/authors?role=correspondent,editor,author');
       const data = await response.json();
-      
       if (data.success) {
         const authorsData = Array.isArray(data.data) ? data.data : [];
         console.log(`✅ تم جلب ${authorsData.length} مراسل:`, authorsData.map((a: any) => `${a.name} (${a.role})`));
@@ -111,23 +101,19 @@ export default function CreateArticlePage() {
       setAuthors([]);
     }
   };
-
   // رفع الصورة البارزة
   const handleFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', 'featured');
-
     try {
       setUploadingImage(true);
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
-
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -150,28 +136,23 @@ export default function CreateArticlePage() {
       setUploadingImage(false);
     }
   };
-
   // رفع صور الألبوم
   const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-
     setUploadingImage(true);
     const uploadedImages: UploadedImage[] = [];
     let successCount = 0;
     let errorCount = 0;
-
     for (const file of Array.from(files)) {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'gallery');
-
       try {
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
-
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
@@ -191,13 +172,11 @@ export default function CreateArticlePage() {
         console.error('خطأ في رفع الصورة:', error);
       }
     }
-
     setFormData(prev => ({ 
       ...prev, 
       gallery: [...prev.gallery, ...uploadedImages] 
     }));
     setUploadingImage(false);
-
     // إظهار رسائل النتيجة
     if (successCount > 0) {
       toast.success(`تم رفع ${successCount} صورة بنجاح!`);
@@ -206,7 +185,6 @@ export default function CreateArticlePage() {
       toast.error(`فشل في رفع ${errorCount} صورة`);
     }
   };
-
   // استدعاء الذكاء الاصطناعي
   const callAI = async (type: string, content: string, context?: any) => {
     setIsAILoading(true);
@@ -216,7 +194,6 @@ export default function CreateArticlePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, content, context })
       });
-      
       const data = await response.json();
       return data.result;
     } catch (error) {
@@ -227,40 +204,34 @@ export default function CreateArticlePage() {
       setIsAILoading(false);
     }
   };
-
   // توليد فقرة تمهيدية
   const generateIntro = async () => {
     if (!formData.title) {
       toast.error('يرجى كتابة العنوان أولاً');
       return;
     }
-    
     const result = await callAI('generate_paragraph', formData.title);
     if (result && editorRef.current) {
       editorRef.current.setContent(result);
       toast.success('تم توليد المقدمة بنجاح');
     }
   };
-
   // اقتراح عناوين
   const suggestTitles = async () => {
     if (!formData.excerpt) {
       toast.error('يرجى كتابة الموجز أولاً');
       return;
     }
-    
     const result = await callAI('title', formData.excerpt);
     if (result) {
       setAiSuggestions({ ...aiSuggestions, titles: result.split('\n') });
       toast.success('تم اقتراح عناوين جديدة');
     }
   };
-
   // اقتراح كلمات مفتاحية
   const suggestKeywords = async () => {
     // الحصول على النص من المحرر أو استخدام الموجز
     let textContent = formData.excerpt;
-    
     if (editorRef.current) {
       const editorContent = editorRef.current.getHTML();
       if (editorContent && editorContent.length > 50) {
@@ -268,12 +239,10 @@ export default function CreateArticlePage() {
         textContent = editorContent.replace(/<[^>]*>/g, '');
       }
     }
-    
     if (!textContent || textContent.length < 20) {
       toast.error('يرجى كتابة محتوى أولاً');
       return;
     }
-    
     const result = await callAI('keywords', textContent);
     if (result) {
       // تحويل النتيجة إلى مصفوفة من الكلمات المفتاحية
@@ -282,30 +251,25 @@ export default function CreateArticlePage() {
       toast.success('تم اقتراح الكلمات المفتاحية');
     }
   };
-
   // كتابة مقال كامل
   const generateFullArticle = async () => {
     if (!formData.title) {
       toast.error('يرجى كتابة العنوان أولاً');
       return;
     }
-    
     const confirmed = confirm('هل تريد توليد مقال كامل بالذكاء الاصطناعي؟ سيستبدل المحتوى الحالي.');
     if (!confirmed) return;
-    
     const result = await callAI('full_article', formData.title, { excerpt: formData.excerpt });
     if (result && editorRef.current) {
       editorRef.current.setContent(result);
       toast.success('تم توليد المقال بنجاح');
     }
   };
-
   // تحليل جودة الموجز
   const analyzeExcerpt = (excerpt: string) => {
     const minLength = 50;
     const maxLength = 160;
     const idealLength = 120;
-    
     if (excerpt.length < minLength) {
       return { 
         quality: 'poor', 
@@ -332,43 +296,33 @@ export default function CreateArticlePage() {
       };
     }
   };
-
   // التحقق من البيانات قبل الحفظ
   const validateForm = () => {
     const errors = [];
-    
     if (!formData.title.trim()) {
       errors.push('العنوان الرئيسي مطلوب');
     }
-    
     if (!formData.excerpt.trim()) {
       errors.push('الموجز مطلوب');
     }
-    
     // التحقق من المحتوى من المحرر
     const editorContent = editorRef.current ? editorRef.current.getHTML() : '';
     const plainText = editorContent.replace(/<[^>]*>/g, '').trim();
-    
     if (!plainText || plainText.length < 10) {
       errors.push('محتوى المقال مطلوب');
     }
-    
     if (!formData.authorId) {
       errors.push('يجب اختيار المراسل/الكاتب');
     }
-    
     if (!formData.categoryId) {
       errors.push('يجب اختيار التصنيف');
     }
-    
     const excerptAnalysis = analyzeExcerpt(formData.excerpt);
     if (excerptAnalysis.quality === 'poor') {
       errors.push(excerptAnalysis.message);
     }
-    
     return errors;
   };
-
   // حفظ المقال
   const handleSubmit = async (status: 'draft' | 'pending_review' | 'published') => {
     // التحقق من البيانات
@@ -378,11 +332,9 @@ export default function CreateArticlePage() {
       return;
     }
     setSaving(true);
-
     try {
       // الحصول على اسم المؤلف من القائمة
       const selectedAuthor = authors.find(a => a.id === formData.authorId);
-      
       // إعداد البيانات للحفظ (مطابقة لأسماء الحقول فى الـ API)
       const articleData: any = {
         title: formData.title.trim(),
@@ -402,18 +354,15 @@ export default function CreateArticlePage() {
           gallery: formData.gallery
         }
       };
-
       // التعامل مع النشر المجدول
       if (formData.publishType === 'scheduled' && formData.scheduledDate) {
         articleData.publish_at = formData.scheduledDate;
       }
-
       const response = await fetch('/api/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(articleData),
       });
-
       if (response.ok) {
         const successMessage = status === 'draft'
           ? 'تم حفظ المسودة بنجاح'
@@ -433,7 +382,6 @@ export default function CreateArticlePage() {
       setSaving(false);
     }
   };
-
   // إضافة كلمة مفتاحية
   const addKeyword = (keyword: string) => {
     if (!formData.keywords.includes(keyword)) {
@@ -443,7 +391,6 @@ export default function CreateArticlePage() {
       }));
     }
   };
-
   // حذف كلمة مفتاحية
   const removeKeyword = (keyword: string) => {
     setFormData(prev => ({
@@ -451,7 +398,6 @@ export default function CreateArticlePage() {
       keywords: prev.keywords.filter(k => k !== keyword)
     }));
   };
-
   // إضافة دالة generateSlug للاستخدام في معاينة SEO
   const generateSlug = (title: string): string => {
     return title
@@ -461,9 +407,8 @@ export default function CreateArticlePage() {
       .replace(/-+/g, '-')
       .trim();
   };
-
   return (
-    <div className={`min-h-screen p-8 transition-colors duration-300 ${
+  <div className={`min-h-screen p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : 'bg-gray-50'
     }`} dir="rtl">
       {/* عنوان وتعريف الصفحة */}
@@ -475,7 +420,6 @@ export default function CreateArticlePage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>أنشئ محتوى جذاب بمساعدة الذكاء الاصطناعي</p>
       </div>
-
       {/* قسم نظام المحرر الذكي */}
       <div className="mb-8">
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -525,7 +469,6 @@ export default function CreateArticlePage() {
           </div>
         </div>
       </div>
-
       {/* أزرار التنقل */}
       <TabsEnhanced
         tabs={[
@@ -537,7 +480,6 @@ export default function CreateArticlePage() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* العمود الرئيسي */}
         <div className="lg:col-span-2 space-y-6">
@@ -578,7 +520,6 @@ export default function CreateArticlePage() {
                         <span className="mr-1">اقتراح</span>
                       </Button>
                     </div>
-                    
                     {/* عرض العناوين المقترحة */}
                     {aiSuggestions.titles && aiSuggestions.titles.length > 0 && (
                       <div className="mt-2 p-3 bg-secondary/20 rounded-lg">
@@ -598,7 +539,6 @@ export default function CreateArticlePage() {
                       </div>
                     )}
                   </div>
-
                   <div>
                     <Label htmlFor="subtitle">العنوان الفرعي</Label>
                     <Input
@@ -608,7 +548,6 @@ export default function CreateArticlePage() {
                       placeholder="عنوان فرعي اختياري"
                     />
                   </div>
-
                   <div>
                     <Label htmlFor="excerpt">الموجز / Lead *</Label>
                     <Textarea
@@ -632,7 +571,6 @@ export default function CreateArticlePage() {
                   </div>
                 </CardContent>
               </Card>
-
               {/* المحتوى */}
               <Card>
                 <CardHeader>
@@ -705,7 +643,6 @@ export default function CreateArticlePage() {
               </Card>
             </div>
           )}
-
           {/* تاب الوسائط */}
           {activeTab === 'media' && (
             <Card>
@@ -719,11 +656,7 @@ export default function CreateArticlePage() {
                     <div className="mt-2">
                       {formData.featuredImage ? (
                         <div className="relative">
-                          <img
-                            src={formData.featuredImage}
-                            alt="الصورة البارزة"
-                            className="w-full h-64 object-cover rounded-lg"
-                          />
+                          <Image src={undefined} alt="الصورة البارزة" width={100} height={100} />
                           <Button
                             variant="destructive"
                             size="icon"
@@ -755,7 +688,6 @@ export default function CreateArticlePage() {
                       )}
                     </div>
                   </div>
-
                   {/* ألبوم الصور */}
                   <div>
                     <Label>ألبوم الصور</Label>
@@ -772,11 +704,7 @@ export default function CreateArticlePage() {
                         <div className="grid grid-cols-3 gap-2">
                           {formData.gallery.map((image, index) => (
                             <div key={image.id} className="relative">
-                              <img
-                                src={image.url}
-                                alt={`صورة ${index + 1}`}
-                                className="w-full h-32 object-cover rounded"
-                              />
+                              <Image src={undefined} alt="" width={100} height={100} />
                               <Button
                                 variant="destructive"
                                 size="icon"
@@ -811,7 +739,6 @@ export default function CreateArticlePage() {
                       </div>
                     </div>
                   </div>
-
                   {/* رابط خارجي */}
                   <div>
                     <Label htmlFor="external-link">رابط خارجي (اختياري)</Label>
@@ -827,7 +754,6 @@ export default function CreateArticlePage() {
                 </CardContent>
               </Card>
             )}
-
           {/* تاب SEO */}
           {activeTab === 'seo' && (
             <Card>
@@ -858,7 +784,6 @@ export default function CreateArticlePage() {
                     </p>
                   </div>
                 </div>
-
                 {/* نصائح SEO */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
@@ -920,7 +845,6 @@ export default function CreateArticlePage() {
                     </div>
                   ))}
                 </div>
-
                 {/* عنوان SEO */}
                 <div>
                   <Label htmlFor="seo-title">عنوان SEO</Label>
@@ -934,7 +858,6 @@ export default function CreateArticlePage() {
                     {formData.seoTitle.length} / 60 حرف (الموصى به)
                   </p>
                 </div>
-
                 {/* وصف SEO */}
                 <div>
                   <Label htmlFor="seo-description">وصف SEO</Label>
@@ -949,7 +872,6 @@ export default function CreateArticlePage() {
                     {formData.seoDescription.length} / 160 حرف (الموصى به)
                   </p>
                 </div>
-
                 {/* الكلمات المفتاحية المحسنة */}
                 <div className="border-2 border-gray-100 rounded-2xl p-6">
                   <div className="flex items-center justify-between mb-4">
@@ -978,7 +900,6 @@ export default function CreateArticlePage() {
                       اقتراح بالذكاء الاصطناعي
                     </Button>
                   </div>
-                  
                   {/* عرض الكلمات المفتاحية الحالية */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {formData.keywords.map((keyword, index) => (
@@ -994,7 +915,6 @@ export default function CreateArticlePage() {
                         </button>
                       </span>
                     ))}
-                    
                     {/* حقل إدخال جديد */}
                     <input
                       type="text"
@@ -1012,7 +932,6 @@ export default function CreateArticlePage() {
                       }}
                     />
                   </div>
-                  
                   {/* اقتراحات سريعة */}
                   <div className="bg-gray-50 rounded-xl p-4">
                     <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
@@ -1036,7 +955,6 @@ export default function CreateArticlePage() {
                       ))}
                     </div>
                   </div>
-                  
                   {/* نصائح للكلمات المفتاحية */}
                   <Alert className="mt-4 bg-blue-50 border-blue-200">
                     <Info className="h-4 w-4 text-blue-600" />
@@ -1048,7 +966,6 @@ export default function CreateArticlePage() {
               </CardContent>
             </Card>
           )}
-
           {/* تاب مساعد الذكاء */}
           {activeTab === 'ai' && (
             <Card>
@@ -1073,7 +990,6 @@ export default function CreateArticlePage() {
                       <p className="text-xs text-muted-foreground">بناءً على العنوان</p>
                     </div>
                   </Button>
-
                   <Button
                     variant="outline"
                     onClick={generateFullArticle}
@@ -1086,7 +1002,6 @@ export default function CreateArticlePage() {
                       <p className="text-xs text-muted-foreground">محتوى شامل</p>
                     </div>
                   </Button>
-
                   <Button
                     variant="outline"
                     onClick={suggestTitles}
@@ -1099,7 +1014,6 @@ export default function CreateArticlePage() {
                       <p className="text-xs text-muted-foreground">عناوين جذابة</p>
                     </div>
                   </Button>
-
                   <Button
                     variant="outline"
                     onClick={suggestKeywords}
@@ -1113,14 +1027,12 @@ export default function CreateArticlePage() {
                     </div>
                   </Button>
                 </div>
-
                 {/* نصائح الذكاء الاصطناعي */}
                 <div className="space-y-3">
                   <h4 className="font-medium flex items-center gap-2">
                     <Zap className="w-4 h-4 text-yellow-500" />
                     نصائح ذكية
                   </h4>
-                  
                   {!formData.title && (
                     <Alert className="bg-amber-50 border-amber-200">
                       <AlertCircle className="h-4 w-4 text-amber-600" />
@@ -1129,7 +1041,6 @@ export default function CreateArticlePage() {
                       </AlertDescription>
                     </Alert>
                   )}
-                  
                   {formData.title && !formData.excerpt && (
                     <Alert className="bg-blue-50 border-blue-200">
                       <Sparkles className="h-4 w-4 text-blue-600" />
@@ -1138,7 +1049,6 @@ export default function CreateArticlePage() {
                       </AlertDescription>
                     </Alert>
                   )}
-                  
                   {formData.excerpt && analyzeExcerpt(formData.excerpt).quality !== 'excellent' && (
                     <Alert className="bg-yellow-50 border-yellow-200">
                       <AlertCircle className="h-4 w-4 text-yellow-600" />
@@ -1148,7 +1058,6 @@ export default function CreateArticlePage() {
                     </Alert>
                   )}
                 </div>
-
                 {/* إحصائيات AI */}
                 {editorRef.current && (
                   <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg">
@@ -1180,7 +1089,6 @@ export default function CreateArticlePage() {
             </Card>
           )}
         </div>
-
         {/* العمود الجانبي */}
         <div className="space-y-6">
           {/* بطاقة الجودة المحسنة */}
@@ -1243,7 +1151,6 @@ export default function CreateArticlePage() {
               </div>
             </div>
           </div>
-
           {/* بطاقة إعدادات المقال */}
           <div className="bg-white rounded-3xl shadow-xl p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -1269,7 +1176,6 @@ export default function CreateArticlePage() {
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   التصنيف <span className="text-red-500">*</span>
@@ -1288,7 +1194,6 @@ export default function CreateArticlePage() {
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">نوع المقال</label>
                 <div className="grid grid-cols-2 gap-2">
@@ -1318,7 +1223,6 @@ export default function CreateArticlePage() {
               </div>
             </div>
           </div>
-
           {/* بطاقة خيارات العرض */}
           <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-6 border border-purple-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -1341,7 +1245,6 @@ export default function CreateArticlePage() {
                   <div className="text-2xl">🚨</div>
                 </label>
               </div>
-
               <div>
                 <label className="flex items-center gap-3 p-3 rounded-xl border-2 border-transparent hover:border-blue-200 hover:bg-blue-50 transition-all cursor-pointer">
                   <input
@@ -1359,7 +1262,6 @@ export default function CreateArticlePage() {
               </div>
             </div>
           </div>
-
           {/* بطاقة توقيت النشر */}
           <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl p-6 border border-orange-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -1382,7 +1284,6 @@ export default function CreateArticlePage() {
                   </div>
                   <div className="text-2xl">🚀</div>
                 </label>
-
                 <label className="flex items-center gap-3 p-3 rounded-xl border-2 border-transparent hover:border-blue-200 hover:bg-blue-50 transition-all cursor-pointer">
                   <input
                     type="radio"
@@ -1398,7 +1299,6 @@ export default function CreateArticlePage() {
                   <div className="text-2xl">⏰</div>
                 </label>
               </div>
-
               {formData.publishType === 'scheduled' && (
                 <div className="bg-white rounded-2xl p-4 border border-gray-200">
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1415,7 +1315,6 @@ export default function CreateArticlePage() {
               )}
             </div>
           </div>
-
           {/* بطاقة الصورة البارزة */}
           <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-6 border border-indigo-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -1425,11 +1324,7 @@ export default function CreateArticlePage() {
             <div className="space-y-4">
               {formData.featuredImage ? (
                 <div className="relative">
-                  <img 
-                    src={formData.featuredImage} 
-                    alt="الصورة البارزة"
-                    className="w-full h-32 object-cover rounded-2xl"
-                  />
+                  <Image src={undefined} alt="الصورة البارزة" width={100} height={100} />
                   <button
                     onClick={() => setFormData(prev => ({ ...prev, featuredImage: '' }))}
                     className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
@@ -1443,7 +1338,6 @@ export default function CreateArticlePage() {
                   <p className="text-sm text-gray-600">لا توجد صورة بارزة</p>
                 </div>
               )}
-              
               <label className="block">
                 <input
                   type="file"

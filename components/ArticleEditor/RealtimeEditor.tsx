@@ -1,11 +1,21 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useLocalStorageSync } from '@/hooks/useLocalStorageSync';
 import { useDebounce } from '@/hooks/useDebounce';
 import toast from 'react-hot-toast';
+
+'use client';
+
+
+
+
+
+
+
+
+
 
 interface RealtimeEditorProps {
   articleId: string;

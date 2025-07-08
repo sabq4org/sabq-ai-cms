@@ -1,7 +1,10 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+'use client';
 import { 
   ChevronDown, 
   Search,
@@ -23,10 +26,6 @@ import {
   BarChart3,
   Sparkles
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
 type NewsStatus = 'published' | 'draft' | 'pending' | 'deleted' | 'scheduled';
 type NewsItem = {
   id: string;
@@ -47,23 +46,17 @@ type NewsItem = {
   rating: number;
   slug?: string;
 };
-
-
-
 // دالة لتحديد لون النص بناءً على لون الخلفية
 function getContrastColor(hexColor: string): string {
   // تحويل HEX إلى RGB
   const r = parseInt(hexColor.slice(1, 3), 16);
   const g = parseInt(hexColor.slice(3, 5), 16);
   const b = parseInt(hexColor.slice(5, 7), 16);
-  
   // حساب اللمعان
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  
   // إرجاع أسود أو أبيض حسب اللمعان
   return luminance > 0.5 ? '#000000' : '#FFFFFF';
 }
-
 export default function NewsManagementPage() {
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +68,6 @@ export default function NewsManagementPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const { darkMode } = useDarkModeContext();
   const router = useRouter();
-
   // جلب التصنيفات
   useEffect(() => {
     const fetchCategories = async () => {
@@ -91,30 +83,24 @@ export default function NewsManagementPage() {
     };
     fetchCategories();
   }, []);
-
   // استرجاع البيانات الحقيقية من API
   useEffect(() => {
     const fetchNewsData = async () => {
       try {
         setLoading(true);
         setError(null);
-        
         console.log('🔄 بدء جلب البيانات...');
         const startTime = Date.now();
-        
         const response = await fetch('/api/articles?limit=50');
         if (!response.ok) {
           throw new Error('فشل في تحميل البيانات');
         }
-        
         const data = await response.json();
         console.log(`✅ تم جلب البيانات في ${Date.now() - startTime}ms`);
-        
         const mapped: NewsItem[] = (data.articles || []).map((a: any) => {
           // تحديد الحالة بناءً على التاريخ
           let status = a.status as NewsStatus;
           const publishAt = a.publish_at || a.published_at;
-          
           if (status === 'published' && publishAt) {
             const publishDate = new Date(publishAt);
             const now = new Date();
@@ -122,7 +108,6 @@ export default function NewsManagementPage() {
               status = 'scheduled';
             }
           }
-          
           return {
             id: a.id,
             title: a.title,
@@ -155,10 +140,8 @@ export default function NewsManagementPage() {
             slug: a.slug
           };
         });
-        
         console.log(`📊 تم تحويل ${mapped.length} مقال`);
         setNewsData(mapped);
-        
       } catch (err) {
         console.error('❌ خطأ في جلب البيانات:', err);
         setError(err instanceof Error ? err.message : 'حدث خطأ في تحميل البيانات');
@@ -166,10 +149,8 @@ export default function NewsManagementPage() {
         setLoading(false);
       }
     };
-
     fetchNewsData();
   }, []);
-
   // دوال المساعدة للأزرار
   const handleDelete = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف المقال؟')) return;
@@ -186,13 +167,11 @@ export default function NewsManagementPage() {
       console.error(e);
     }
   };
-
   const handleCopy = (slugOrId: string) => {
     navigator.clipboard.writeText(`https://sabq.org/articles/${slugOrId}`)
       .then(() => toast.success('تم نسخ الرابط'))
       .catch(() => toast.error('لم يتم نسخ الرابط'));
   };
-
   const handleRestore = async (id: string) => {
     try {
       await fetch(`/api/articles/${id}`, {
@@ -207,7 +186,6 @@ export default function NewsManagementPage() {
       console.error(e);
     }
   };
-
   const statusTabs = [
     { 
       id: 'all', 
@@ -252,7 +230,6 @@ export default function NewsManagementPage() {
       icon: <Trash2 className="w-5 h-5" />
     }
   ];
-
   const getStatusBadge = (status: NewsStatus) => {
     const statusConfig = {
       published: { color: 'bg-green-100 text-green-700', text: 'منشور' },
@@ -261,10 +238,8 @@ export default function NewsManagementPage() {
       deleted: { color: 'bg-gray-100 text-gray-700', text: 'محذوف' },
       scheduled: { color: 'bg-purple-100 text-purple-700', text: 'مجدول' }
     };
-    
     return statusConfig[status] || statusConfig.draft;
   };
-
   // مكون بطاقة الإحصائية المحسّنة
   const EnhancedStatsCard = ({ 
     title, 
@@ -318,9 +293,8 @@ export default function NewsManagementPage() {
       </div>
     </div>
   );
-
   return (
-    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+  <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -332,7 +306,6 @@ export default function NewsManagementPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>منصة متكاملة لإدارة ونشر المحتوى الإخباري مع أدوات تحليل الأداء وتتبع التفاعل</p>
       </div>
-
       {/* قسم النظام التحريري */}
       <div className="mb-6 sm:mb-8">
         <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
@@ -354,7 +327,6 @@ export default function NewsManagementPage() {
                 }`}>أدوات متقدمة لإنشاء ونشر ومتابعة المحتوى الإخباري بكفاءة عالية</p>
               </div>
             </div>
-            
             <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <Link 
                 href="/dashboard/news/insights"
@@ -364,7 +336,6 @@ export default function NewsManagementPage() {
                 <span className="hidden sm:inline">تحليلات متقدمة</span>
                 <span className="sm:hidden">تحليلات</span>
               </Link>
-              
               <Link 
                 href="/dashboard/news/create"
                 className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
@@ -376,7 +347,6 @@ export default function NewsManagementPage() {
           </div>
         </div>
       </div>
-
       {/* بطاقات الإحصائيات المحسّنة */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
         <EnhancedStatsCard
@@ -424,7 +394,6 @@ export default function NewsManagementPage() {
           iconColor="text-white"
         />
       </div>
-
       {/* أزرار التنقل المحسّنة */}
       <div className={`rounded-2xl p-2 shadow-sm border mb-6 sm:mb-8 w-full transition-colors duration-300 ${
         darkMode 
@@ -450,7 +419,6 @@ export default function NewsManagementPage() {
                 {isActive && (
                   <div className="absolute bottom-0 left-4 right-4 h-1 bg-white/30 rounded-full" />
                 )}
-                
                 <div className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>
                   {React.cloneElement(tab.icon, { 
                     className: `w-4 h-4 sm:w-5 sm:h-5 ${isActive ? 'text-white' : ''}` 
@@ -477,7 +445,6 @@ export default function NewsManagementPage() {
           })}
         </div>
       </div>
-
       {/* شريط البحث والفلاتر - خارج الجدول */}
       <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border mb-6 sm:mb-8 transition-colors duration-300 ${
         darkMode 
@@ -503,7 +470,6 @@ export default function NewsManagementPage() {
               />
             </div>
           </div>
-          
           <div className="flex items-center gap-2 w-full lg:w-auto">
             <select 
               value={selectedCategory}
@@ -521,7 +487,6 @@ export default function NewsManagementPage() {
                 </option>
               ))}
             </select>
-            
             <select 
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
@@ -537,7 +502,6 @@ export default function NewsManagementPage() {
               <option value="scheduled">مجدول</option>
               <option value="pending">في الانتظار</option>
             </select>
-            
             <button className={`p-2.5 rounded-lg border transition-all duration-300 hover:shadow-md ${
               darkMode 
                 ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
@@ -548,7 +512,6 @@ export default function NewsManagementPage() {
           </div>
         </div>
       </div>
-
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center py-12">
@@ -561,7 +524,6 @@ export default function NewsManagementPage() {
           </span>
         </div>
       )}
-
       {/* Error State */}
       {error && (
         <div className={`rounded-2xl p-6 mb-8 border-2 ${
@@ -582,7 +544,6 @@ export default function NewsManagementPage() {
           </div>
         </div>
       )}
-
       {/* جدول البيانات المحسّن */}
       {!loading && !error && (
         <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-100'} overflow-hidden transition-colors duration-300`}>
@@ -591,7 +552,6 @@ export default function NewsManagementPage() {
               <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'} transition-colors duration-300`}>
                 قائمة المحتوى الإخباري
               </h3>
-              
               <div className="flex items-center gap-2">
                 <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   {newsData.filter(item => {
@@ -606,7 +566,6 @@ export default function NewsManagementPage() {
               </div>
             </div>
           </div>
-          
           {/* رأس الجدول المحسّن */}
           <div 
             style={{ 
@@ -624,14 +583,12 @@ export default function NewsManagementPage() {
               <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>الإجراءات</div>
             </div>
           </div>
-
           {/* بيانات الجدول */}
           <div style={{ borderColor: darkMode ? '#374151' : '#f4f8fe' }} className="divide-y">
             {newsData
               .filter(item => {
                 if (activeTab === 'deleted') return item.status === 'deleted';
                 if (item.status === 'deleted') return false;
-                
                 if (activeTab === 'all') return true;
                 if (activeTab === 'breaking') return item.isBreaking;
                 if (activeTab === 'scheduled') return item.status === 'scheduled';
@@ -664,7 +621,6 @@ export default function NewsManagementPage() {
                       </div>
                     </div>
                   </div>
-
                   {/* التصنيف */}
                   <div className="col-span-1">
                     <span 
@@ -677,7 +633,6 @@ export default function NewsManagementPage() {
                       {news.category_name || 'غير مصنف'}
                     </span>
                   </div>
-
                   {/* تاريخ النشر */}
                   <div className="col-span-2">
                     <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -707,7 +662,6 @@ export default function NewsManagementPage() {
                       )}
                     </div>
                   </div>
-
                   {/* المشاهدات */}
                   <div className="col-span-1">
                     <div className="flex items-center gap-1">
@@ -717,7 +671,6 @@ export default function NewsManagementPage() {
                       </span>
                     </div>
                   </div>
-
                   {/* آخر تعديل */}
                   <div className={`col-span-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     <div>{news.lastModified}</div>
@@ -726,14 +679,12 @@ export default function NewsManagementPage() {
                       {news.lastModifiedBy}
                     </div>
                   </div>
-
                   {/* الحالة */}
                   <div className="col-span-1">
                     <span className={`px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-1 shadow-sm ${getStatusBadge(news.status).color}`}>
                       {getStatusBadge(news.status).text}
                     </span>
                   </div>
-
                   {/* الإجراءات */}
                   <div className="col-span-1">
                     <div className="flex items-center gap-1">
@@ -780,7 +731,6 @@ export default function NewsManagementPage() {
                   </div>
                 </div>
               ))}
-            
             {newsData.filter(item => {
               if (activeTab === 'deleted') return item.status === 'deleted';
               if (item.status === 'deleted') return false;
@@ -797,7 +747,6 @@ export default function NewsManagementPage() {
               </div>
             )}
           </div>
-            
           {/* تذييل الجدول */}
           <div className={`border-t px-6 py-4 transition-colors duration-300 ${
             darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-100 bg-gray-50'
@@ -818,7 +767,6 @@ export default function NewsManagementPage() {
                   }).length} من {newsData.length} مقال
                 </span>
               </div>
-              
               <div className="flex items-center gap-2">
                 <button 
                   disabled
@@ -831,7 +779,6 @@ export default function NewsManagementPage() {
                   <ChevronDown className="w-4 h-4 rotate-90" />
                   السابق
                 </button>
-                
                 <div className="flex items-center gap-1">
                   <button className="px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium shadow-md">
                     1
@@ -852,7 +799,6 @@ export default function NewsManagementPage() {
                   </button>
                   <span className={`px-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>...</span>
                 </div>
-                
                 <button className={`px-4 py-2 text-sm rounded-lg transition-all duration-300 flex items-center gap-1 hover:shadow-md ${
                   darkMode 
                     ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 

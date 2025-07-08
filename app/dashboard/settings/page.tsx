@@ -1,14 +1,5 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-import { 
-  Save, Shield, Brain, Database, Search, CheckCircle, 
-  Upload, Download, AlertCircle, Loader, Eye, EyeOff, Share2,
-  Building, Mail, Phone, Twitter, Instagram, Facebook,
-  Youtube, Smartphone, Lock, Bell, RefreshCw, FileText, 
-  Type, Bot, Languages, ShieldAlert, Key, HardDrive, History, Info, Image as ImageIcon,
-  MessageCircle
-} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -21,7 +12,15 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-
+'use client';
+import { 
+  Save, Shield, Brain, Database, Search, CheckCircle, 
+  Upload, Download, AlertCircle, Loader, Eye, EyeOff, Share2,
+  Building, Mail, Phone, Twitter, Instagram, Facebook,
+  Youtube, Smartphone, Lock, Bell, RefreshCw, FileText, 
+  Type, Bot, Languages, ShieldAlert, Key, HardDrive, History, Info, Image as ImageIcon,
+  MessageCircle
+} from 'lucide-react';
 interface SettingsData {
   openai: {
     apiKey: string;
@@ -54,7 +53,6 @@ interface SettingsData {
     commentsEnabled?: boolean;
   };
 }
-
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('identity');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -99,7 +97,6 @@ export default function SettingsPage() {
       commentsEnabled: true
     }
   });
-
   // 🏷️ إعدادات الهوية
   const [identitySettings, setIdentitySettings] = useState({
     siteName: 'صحيفة سبق الإلكترونية',
@@ -112,7 +109,6 @@ export default function SettingsPage() {
     timezone: 'Asia/Riyadh',
     dateFormat: 'DD MMMM YYYY - h:mm A'
   });
-
   // 🌐 إعدادات SEO
   const [seoSettings, setSeoSettings] = useState({
     metaTitle: 'صحيفة سبق الإلكترونية - آخر الأخبار السعودية والعالمية',
@@ -128,7 +124,6 @@ export default function SettingsPage() {
       contact: { title: 'تواصل معنا', description: 'تواصل مع فريق صحيفة سبق' }
     }
   });
-
   // 📲 إعدادات المشاركة والتواصل
   const [socialSettings, setSocialSettings] = useState({
     twitter: 'https://twitter.com/sabqorg',
@@ -140,7 +135,6 @@ export default function SettingsPage() {
     officialEmail: 'info@sabq.org',
     supportPhone: '9200XXXXX'
   });
-
   // 🧠 إعدادات الذكاء الاصطناعي
   const [aiSettings, setAiSettings] = useState({
     openaiKey: '',
@@ -151,7 +145,6 @@ export default function SettingsPage() {
     aiOutputLanguage: 'auto',
     enableDeepAnalysis: false
   });
-
   // 🔐 إعدادات الأمان والإدارة
   const [securitySettings, setSecuritySettings] = useState({
     enable2FA: true,
@@ -159,7 +152,6 @@ export default function SettingsPage() {
     allowedIPs: [] as string[],
     notifyOnSettingsChange: true
   });
-
   // 🧩 إعدادات النسخ الاحتياطي
   const [backupSettings, setBackupSettings] = useState({
     autoBackup: 'daily',
@@ -167,7 +159,6 @@ export default function SettingsPage() {
     notifyOnUpdate: true,
     keepChangeLog: true
   });
-
   // Load settings from localStorage
   useEffect(() => {
     const loadSettings = async () => {
@@ -200,7 +191,6 @@ export default function SettingsPage() {
         loadFromLocalStorage();
       }
     };
-
     const loadFromLocalStorage = () => {
       const savedIdentity = localStorage.getItem('settings_identity');
       const savedSeo = localStorage.getItem('settings_seo');
@@ -209,7 +199,6 @@ export default function SettingsPage() {
       const savedSecurity = localStorage.getItem('settings_security');
       const savedBackup = localStorage.getItem('settings_backup');
       const savedSettings = localStorage.getItem('sabq-settings');
-      
       if (savedIdentity) setIdentitySettings(JSON.parse(savedIdentity));
       if (savedSeo) setSeoSettings(JSON.parse(savedSeo));
       if (savedSocial) setSocialSettings(JSON.parse(savedSocial));
@@ -218,10 +207,8 @@ export default function SettingsPage() {
       if (savedBackup) setBackupSettings(JSON.parse(savedBackup));
       if (savedSettings) setSettings(JSON.parse(savedSettings));
     };
-    
     loadSettings();
   }, []);
-
   useEffect(() => {
     // جلب الإعدادات المحفوظة
     const savedSettings = localStorage.getItem('siteSettings');
@@ -233,30 +220,24 @@ export default function SettingsPage() {
       setPreviewLogo(settings.logoUrl || '');
     }
   }, []);
-
   const showSuccess = () => {
     setShowSuccessMessage(true);
     setTimeout(() => setShowSuccessMessage(false), 3000);
   };
-
   const testOpenAIConnection = async () => {
     if (!settings.openai.apiKey) {
       setTestResult({ success: false, message: 'يرجى إدخال مفتاح OpenAI أولاً' });
       return;
     }
-
     setIsTestingConnection(true);
     setTestResult(null);
-
     try {
       const response = await fetch('/api/ai/test-connection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apiKey: settings.openai.apiKey })
       });
-      
       const data = await response.json();
-      
       if (response.ok) {
         setTestResult({ 
           success: true, 
@@ -274,19 +255,16 @@ export default function SettingsPage() {
       setIsTestingConnection(false);
     }
   };
-
   const saveSettings = async () => {
     setIsLoading(true);
     try {
       // حفظ في localStorage (في التطبيق الحقيقي سيتم حفظ في قاعدة البيانات)
       localStorage.setItem('sabq-settings', JSON.stringify(settings));
-      
       // تحديث متغيرات البيئة (في التطبيق الحقيقي سيتم إرسال إلى API)
       if (settings.openai.apiKey) {
         // يمكن إرسال إلى API لتحديث متغيرات البيئة
         console.log('تم حفظ مفتاح OpenAI');
       }
-      
       toast.success('تم حفظ الإعدادات بنجاح');
     } catch (error) {
       toast.error('خطأ في حفظ الإعدادات');
@@ -295,7 +273,6 @@ export default function SettingsPage() {
       setIsLoading(false);
     }
   };
-
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -304,13 +281,11 @@ export default function SettingsPage() {
         toast.error('يرجى اختيار ملف صورة صالح');
         return;
       }
-
       // التحقق من حجم الملف (5MB max)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('حجم الملف يجب أن يكون أقل من 5 ميجابايت');
         return;
       }
-
       // عرض معاينة الصورة
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -321,12 +296,10 @@ export default function SettingsPage() {
       reader.readAsDataURL(file);
     }
   };
-
   const removeLogo = () => {
     setLogoUrl('');
     setPreviewLogo('');
   };
-
   const handleSave = async () => {
     setIsLoading(true);
     try {
@@ -337,12 +310,9 @@ export default function SettingsPage() {
         logoUrl,
         updatedAt: new Date().toISOString()
       };
-      
       localStorage.setItem('siteSettings', JSON.stringify(settings));
-      
       // تحديث الصفحة لتطبيق التغييرات
       toast.success('تم حفظ الإعدادات بنجاح');
-      
       // إعادة تحميل الصفحة بعد ثانية
       setTimeout(() => {
         window.location.reload();
@@ -353,7 +323,6 @@ export default function SettingsPage() {
       setIsLoading(false);
     }
   };
-
   const tabs: TabItem[] = [
     { id: 'identity', name: 'الهوية', icon: Building },
     { id: 'seo', name: 'SEO', icon: Search },
@@ -362,7 +331,6 @@ export default function SettingsPage() {
     { id: 'security', name: 'الأمان', icon: Shield },
     { id: 'backup', name: 'النسخ الاحتياطي', icon: Database }
   ];
-
   const updateSetting = (section: keyof SettingsData, key: string, value: any) => {
     setSettings(prev => ({
       ...prev,
@@ -372,32 +340,27 @@ export default function SettingsPage() {
       }
     }));
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
+  <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
       {showSuccessMessage && (
         <div className="fixed top-4 right-4 bg-green-500 text-white p-4 rounded-xl shadow-xl z-50 flex items-center gap-2 animate-pulse">
           <CheckCircle className="w-5 h-5" />
           تم حفظ الإعدادات بنجاح!
         </div>
       )}
-
       <div className="mb-8">
         <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>إعدادات الصحيفة</h1>
         <p className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>إدارة الإعدادات العامة لصحيفة سبق الإلكترونية</p>
       </div>
-
       {/* Navigation Tabs */}
       <TabsEnhanced
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-
       {/* محتوى التبويبات */}
       <div className={`rounded-2xl shadow-sm border transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
         <div className="p-6">
-          
           {/* 🏷️ تبويب الهوية */}
           {activeTab === 'identity' && (
             <div className="space-y-6">
@@ -410,7 +373,6 @@ export default function SettingsPage() {
                   <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>الهوية البصرية والمعلومات الأساسية للصحيفة</p>
                 </div>
               </div>
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>اسم الصحيفة</label>
@@ -421,7 +383,6 @@ export default function SettingsPage() {
                     className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                   />
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الرابط الأساسي</label>
                   <input
@@ -431,7 +392,6 @@ export default function SettingsPage() {
                     className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                   />
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الشعار الرئيسي</label>
                   <div className="flex gap-2">
@@ -447,7 +407,6 @@ export default function SettingsPage() {
                     </button>
                   </div>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الشعار المصغر</label>
                   <div className="flex gap-2">
@@ -463,7 +422,6 @@ export default function SettingsPage() {
                     </button>
                   </div>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>لغة الموقع الافتراضية</label>
                   <select
@@ -475,7 +433,6 @@ export default function SettingsPage() {
                     <option value="en">English</option>
                   </select>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الدولة الافتراضية</label>
                   <select
@@ -489,7 +446,6 @@ export default function SettingsPage() {
                     <option value="BH">البحرين</option>
                   </select>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>المنطقة الزمنية</label>
                   <select
@@ -502,7 +458,6 @@ export default function SettingsPage() {
                     <option value="Asia/Kuwait">Asia/Kuwait</option>
                   </select>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>تنسيق التاريخ والوقت</label>
                   <select
@@ -516,7 +471,6 @@ export default function SettingsPage() {
                   </select>
                 </div>
               </div>
-
               <div>
                 <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الوصف التعريفي</label>
                 <textarea
@@ -526,7 +480,6 @@ export default function SettingsPage() {
                   className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
-
               <button 
                 onClick={() => saveSettings()}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center gap-2 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -537,7 +490,6 @@ export default function SettingsPage() {
               </button>
             </div>
           )}
-
           {/* 🌐 تبويب SEO */}
           {activeTab === 'seo' && (
             <div className="space-y-6">
@@ -550,7 +502,6 @@ export default function SettingsPage() {
                   <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>تحسين محركات البحث والتسويق الرقمي</p>
                 </div>
               </div>
-              
               <div className="space-y-4">
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Meta Title</label>
@@ -562,7 +513,6 @@ export default function SettingsPage() {
                   />
                   <p className="text-xs text-gray-500 mt-1">العنوان الذي يظهر في Google</p>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Meta Description</label>
                   <textarea
@@ -573,7 +523,6 @@ export default function SettingsPage() {
                   />
                   <p className="text-xs text-gray-500 mt-1">وصف قصير يعكس محتوى الموقع</p>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Keywords</label>
                   <input
@@ -585,7 +534,6 @@ export default function SettingsPage() {
                   />
                   <p className="text-xs text-gray-500 mt-1">كلمات مفتاحية مفصولة بفواصل</p>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>OG Image</label>
@@ -603,7 +551,6 @@ export default function SettingsPage() {
                     </div>
                     <p className="text-xs text-gray-500 mt-1">صورة OpenGraph لروابط السوشيال ميديا</p>
                   </div>
-
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>OG Type</label>
                     <select
@@ -616,7 +563,6 @@ export default function SettingsPage() {
                     </select>
                   </div>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Canonical URL</label>
                   <input
@@ -627,7 +573,6 @@ export default function SettingsPage() {
                   />
                   <p className="text-xs text-gray-500 mt-1">رابط مرجعي للموقع لمنع التكرار</p>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Robots.txt</label>
                   <textarea
@@ -638,7 +583,6 @@ export default function SettingsPage() {
                   />
                   <p className="text-xs text-gray-500 mt-1">تعديل سياسة الفهرسة</p>
                 </div>
-
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
@@ -651,7 +595,6 @@ export default function SettingsPage() {
                     Sitemap Auto-generation - توليد sitemap.xml تلقائياً
                   </label>
                 </div>
-
                 <div className={`p-4 rounded-xl border ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
                   <h4 className={`font-medium mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>SEO للصفحات الداخلية</h4>
                   <div className="space-y-3">
@@ -716,7 +659,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-
               <button 
                 onClick={() => saveSettings()}
                 className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center gap-2 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -727,7 +669,6 @@ export default function SettingsPage() {
               </button>
             </div>
           )}
-
           {/* 📲 تبويب المشاركة والتواصل */}
           {activeTab === 'social' && (
             <div className="space-y-6">
@@ -740,7 +681,6 @@ export default function SettingsPage() {
                   <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>روابط التواصل الاجتماعي والتطبيقات</p>
                 </div>
               </div>
-              
               <div className="space-y-6">
                 <div>
                   <h4 className={`font-medium mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>روابط السوشيال ميديا</h4>
@@ -755,7 +695,6 @@ export default function SettingsPage() {
                         className={`flex-1 px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                       />
                     </div>
-                    
                     <div className="flex items-center gap-3">
                       <Instagram className="w-5 h-5 text-pink-500" />
                       <input
@@ -766,7 +705,6 @@ export default function SettingsPage() {
                         className={`flex-1 px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                       />
                     </div>
-                    
                     <div className="flex items-center gap-3">
                       <Facebook className="w-5 h-5 text-blue-600" />
                       <input
@@ -777,7 +715,6 @@ export default function SettingsPage() {
                         className={`flex-1 px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
                       />
                     </div>
-                    
                     <div className="flex items-center gap-3">
                       <Youtube className="w-5 h-5 text-red-600" />
                       <input
@@ -790,7 +727,6 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 </div>
-
                 <div>
                   <h4 className={`font-medium mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>روابط التطبيقات</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -807,7 +743,6 @@ export default function SettingsPage() {
                         />
                       </div>
                     </div>
-                    
                     <div>
                       <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>رابط تطبيق Android</label>
                       <div className="flex items-center gap-3">
@@ -823,7 +758,6 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 </div>
-
                 <div>
                   <h4 className={`font-medium mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>معلومات التواصل</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -839,7 +773,6 @@ export default function SettingsPage() {
                         />
                       </div>
                     </div>
-                    
                     <div>
                       <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>رقم الدعم الفني</label>
                       <div className="flex items-center gap-3">
@@ -855,7 +788,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-
               <button 
                 onClick={() => saveSettings()}
                 className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl flex items-center gap-2 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -866,7 +798,6 @@ export default function SettingsPage() {
               </button>
             </div>
           )}
-
           {/* 🧠 تبويب الذكاء الاصطناعي */}
           {activeTab === 'ai' && (
             <div className="space-y-6">
@@ -879,10 +810,8 @@ export default function SettingsPage() {
                   <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>إدارة مفاتيح API والميزات الذكية</p>
                 </div>
               </div>
-              
               <div className={`p-6 rounded-xl border transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
                 <h4 className={`text-lg font-semibold mb-4 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>مفتاح OpenAI API</h4>
-                
                 <div className="space-y-4">
                   <div>
                     <div className="flex gap-3">
@@ -918,7 +847,6 @@ export default function SettingsPage() {
                         اختبار
                       </button>
                     </div>
-                    
                     {testResult && (
                       <div className={`mt-3 p-3 rounded-lg flex items-center gap-2 ${testResult.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {testResult.success ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
@@ -928,10 +856,8 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-
               <div className={`p-6 rounded-xl border transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
                 <h4 className={`text-lg font-semibold mb-4 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>الميزات النشطة</h4>
-                
                 <div className="space-y-3">
                   <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                     <div className="flex items-center gap-3">
@@ -945,7 +871,6 @@ export default function SettingsPage() {
                       className="w-4 h-4"
                     />
                   </label>
-
                   <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                     <div className="flex items-center gap-3">
                       <FileText className="w-5 h-5 text-gray-600" />
@@ -958,7 +883,6 @@ export default function SettingsPage() {
                       className="w-4 h-4"
                     />
                   </label>
-
                   <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                     <div className="flex items-center gap-3">
                       <Info className="w-5 h-5 text-gray-600" />
@@ -971,7 +895,6 @@ export default function SettingsPage() {
                       className="w-4 h-4"
                     />
                   </label>
-
                   <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                     <div className="flex items-center gap-3">
                       <Bot className="w-5 h-5 text-gray-600" />
@@ -984,7 +907,6 @@ export default function SettingsPage() {
                       className="w-4 h-4"
                     />
                   </label>
-
                   <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                     <div className="flex items-center gap-3">
                       <Brain className="w-5 h-5 text-purple-600" />
@@ -1001,9 +923,7 @@ export default function SettingsPage() {
                       className="w-4 h-4"
                     />
                   </label>
-
                   <Separator className="my-4" />
-
                   <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                     <div className="flex items-center gap-3">
                       <MessageCircle className="w-5 h-5 text-amber-600" />
@@ -1020,7 +940,6 @@ export default function SettingsPage() {
                       className="w-4 h-4"
                     />
                   </label>
-
                   <div className="p-3">
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       <Languages className="inline w-4 h-4 ml-2" />
@@ -1038,7 +957,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-
               <button 
                 onClick={() => saveSettings()}
                 className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl flex items-center gap-2 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -1049,7 +967,6 @@ export default function SettingsPage() {
               </button>
             </div>
           )}
-
           {/* 🔐 تبويب الأمان والإدارة */}
           {activeTab === 'security' && (
             <div className="space-y-6">
@@ -1062,11 +979,9 @@ export default function SettingsPage() {
                   <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>حماية النظام وإدارة الصلاحيات</p>
                 </div>
               </div>
-              
               <div className="space-y-6">
                 <div className={`p-6 rounded-xl border transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
                   <h4 className={`text-lg font-semibold mb-4 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>إعدادات الأمان</h4>
-                  
                   <div className="space-y-4">
                     <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                       <div className="flex items-center gap-3">
@@ -1080,7 +995,6 @@ export default function SettingsPage() {
                         className="w-4 h-4"
                       />
                     </label>
-
                     <div className="p-3">
                       <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                         <Lock className="inline w-4 h-4 ml-2" />
@@ -1096,7 +1010,6 @@ export default function SettingsPage() {
                       />
                       <span className="mr-2 text-sm text-gray-500">محاولات</span>
                     </div>
-
                     <div className="p-3">
                       <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                         <ShieldAlert className="inline w-4 h-4 ml-2" />
@@ -1111,7 +1024,6 @@ export default function SettingsPage() {
                       />
                       <p className="text-xs text-gray-500 mt-1">IP واحد في كل سطر (اتركه فارغاً للسماح للجميع)</p>
                     </div>
-
                     <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                       <div className="flex items-center gap-3">
                         <Bell className="w-5 h-5 text-gray-600" />
@@ -1127,7 +1039,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-
               <button 
                 onClick={() => saveSettings()}
                 className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl flex items-center gap-2 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -1138,7 +1049,6 @@ export default function SettingsPage() {
               </button>
             </div>
           )}
-
           {/* 🧩 تبويب النسخ الاحتياطي */}
           {activeTab === 'backup' && (
             <div className="space-y-6">
@@ -1151,11 +1061,9 @@ export default function SettingsPage() {
                   <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>إدارة النسخ الاحتياطي وتحديثات النظام</p>
                 </div>
               </div>
-              
               <div className="space-y-6">
                 <div className={`p-6 rounded-xl border transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
                   <h4 className={`text-lg font-semibold mb-4 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>النسخ الاحتياطي</h4>
-                  
                   <div className="space-y-4">
                     <div>
                       <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -1171,7 +1079,6 @@ export default function SettingsPage() {
                         <option value="4000">4000</option>
                       </select>
                     </div>
-
                     <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                       <div className="flex items-center gap-3">
                         <Bell className="w-5 h-5 text-gray-600" />
@@ -1184,7 +1091,6 @@ export default function SettingsPage() {
                         className="w-4 h-4"
                       />
                     </label>
-
                     <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                       <div className="flex items-center gap-3">
                         <RefreshCw className="w-5 h-5 text-gray-600" />
@@ -1197,7 +1103,6 @@ export default function SettingsPage() {
                         className="w-4 h-4"
                       />
                     </label>
-
                     <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                       <div className="flex items-center gap-3">
                         <History className="w-5 h-5 text-gray-600" />
@@ -1212,7 +1117,6 @@ export default function SettingsPage() {
                     </label>
                   </div>
                 </div>
-
                 <div className="flex gap-3">
                   <button className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-xl flex items-center gap-2 font-medium transition-all duration-300">
                     <Download className="w-5 h-5" />
@@ -1224,7 +1128,6 @@ export default function SettingsPage() {
                   </button>
                 </div>
               </div>
-
               <button 
                 onClick={() => saveSettings()}
                 className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl flex items-center gap-2 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -1237,17 +1140,12 @@ export default function SettingsPage() {
           )}
         </div>
       </div>
-
       {/* معاينة مباشرة */}
       <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">معاينة الشعار</h2>
         <div className="bg-gray-100 rounded-lg p-6 flex items-center justify-center">
           {previewLogo ? (
-            <img
-              src={previewLogo}
-              alt="معاينة الشعار"
-              className="max-h-16"
-            />
+            <Image src={undefined} alt="معاينة الشعار" width={100} height={100} />
           ) : (
             <div className="text-gray-400 flex flex-col items-center">
               <ImageIcon className="w-12 h-12 mb-2" />
@@ -1256,7 +1154,6 @@ export default function SettingsPage() {
           )}
         </div>
       </div>
-
       {/* أزرار الإجراءات */}
       <div className="mt-8 flex justify-end gap-3 pt-4 border-t">
         <button

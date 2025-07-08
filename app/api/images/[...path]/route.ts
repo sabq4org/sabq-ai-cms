@@ -1,6 +1,17 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import path from 'path';
+
+
+
+
+
+
+
+
+
+
 
 export const runtime = 'nodejs';
 

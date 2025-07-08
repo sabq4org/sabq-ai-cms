@@ -1,20 +1,18 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, CheckCircle, Clock, RefreshCw, ArrowRight, Star, Shield } from 'lucide-react';
 import Link from 'next/link';
-
+'use client';
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams?.get('email') || '';
-  
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
-
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -23,22 +21,17 @@ function VerifyEmailContent() {
       setCanResend(true);
     }
   }, [countdown]);
-
   const handleResendEmail = async () => {
     if (!canResend || isResending) return;
-
     setIsResending(true);
     setResendSuccess(false);
-
     try {
       const response = await fetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
-
       const data = await response.json();
-
       if (data.success) {
         setResendSuccess(true);
         setCountdown(60);
@@ -50,9 +43,8 @@ function VerifyEmailContent() {
       setIsResending(false);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center py-12 px-4" dir="rtl">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center py-12 px-4" dir="rtl">
       <div className="max-w-md w-full">
         {/* الكارت الرئيسي */}
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
@@ -60,20 +52,16 @@ function VerifyEmailContent() {
           <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Mail className="w-10 h-10 text-blue-600" />
           </div>
-
           {/* العنوان والوصف */}
           <h1 className="text-2xl font-bold text-gray-900 mb-3">
             تحقق من بريدك الإلكتروني
           </h1>
-          
           <p className="text-gray-600 mb-6 leading-relaxed">
             لقد أرسلنا رابط التفعيل إلى
           </p>
-          
           <div className="bg-gray-50 rounded-lg p-3 mb-6">
             <p className="font-medium text-gray-900 break-all">{email}</p>
           </div>
-
           {/* التعليمات */}
           <div className="text-right mb-8">
             <h3 className="font-semibold text-gray-900 mb-3">الخطوات التالية:</h3>
@@ -84,14 +72,12 @@ function VerifyEmailContent() {
                 </div>
                 <p className="text-sm text-gray-600">افتح بريدك الإلكتروني</p>
               </div>
-              
               <div className="flex items-start">
                 <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center ml-3 mt-0.5">
                   <span className="text-sm font-medium text-blue-600">2</span>
                 </div>
                 <p className="text-sm text-gray-600">ابحث عن رسالة من صحيفة سبق</p>
               </div>
-              
               <div className="flex items-start">
                 <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center ml-3 mt-0.5">
                   <span className="text-sm font-medium text-blue-600">3</span>
@@ -100,7 +86,6 @@ function VerifyEmailContent() {
               </div>
             </div>
           </div>
-
           {/* مكافأة التفعيل */}
           <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-center mb-2">
@@ -111,7 +96,6 @@ function VerifyEmailContent() {
               ستحصل على 50 نقطة ولاء إضافية عند تفعيل حسابك!
             </p>
           </div>
-
           {/* زر إعادة الإرسال */}
           <div className="mb-6">
             {resendSuccess && (
@@ -122,7 +106,6 @@ function VerifyEmailContent() {
                 </div>
               </div>
             )}
-
             <button
               onClick={handleResendEmail}
               disabled={!canResend || isResending}
@@ -147,7 +130,6 @@ function VerifyEmailContent() {
               )}
             </button>
           </div>
-
           {/* رابط العودة */}
           <div className="text-center">
             <Link
@@ -159,7 +141,6 @@ function VerifyEmailContent() {
             </Link>
           </div>
         </div>
-
         {/* نصائح إضافية */}
         <div className="mt-6 bg-white rounded-lg p-4 shadow">
           <h4 className="font-medium text-gray-900 mb-2 flex items-center">
@@ -173,7 +154,6 @@ function VerifyEmailContent() {
             <li>• تأكد من وجود مساحة كافية في صندوق البريد</li>
           </ul>
         </div>
-
         {/* معلومات الدعم */}
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-500">
@@ -187,7 +167,6 @@ function VerifyEmailContent() {
     </div>
   );
 }
-
 export default function VerifyEmailPage() {
   return (
     <Suspense fallback={

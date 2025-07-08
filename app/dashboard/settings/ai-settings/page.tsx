@@ -1,5 +1,5 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+'use client';
 import { 
   Brain, 
   Key, 
@@ -22,8 +24,6 @@ import {
   BarChart3,
   Bell
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-
 interface AISettings {
   openai: {
     apiKey: string;
@@ -37,7 +37,6 @@ interface AISettings {
     notifications: boolean;
   };
 }
-
 export default function AISettingsPage() {
   const { toast } = useToast();
   const [settings, setSettings] = useState<AISettings>({
@@ -53,16 +52,13 @@ export default function AISettingsPage() {
       notifications: true
     }
   });
-
   const [showApiKey, setShowApiKey] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-
   // تحميل الإعدادات
   useEffect(() => {
     loadSettings();
   }, []);
-
   const loadSettings = async () => {
     try {
       const savedSettings = localStorage.getItem('sabq-ai-settings');
@@ -73,19 +69,16 @@ export default function AISettingsPage() {
       console.error('خطأ في تحميل الإعدادات:', error);
     }
   };
-
   const saveSettings = async () => {
     setIsLoading(true);
     try {
       localStorage.setItem('sabq-ai-settings', JSON.stringify(settings));
-      
       // إرسال إلى API لتحديث متغيرات البيئة
       const response = await fetch('/api/settings/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
       });
-
       if (response.ok) {
         toast({
           title: "نجح",
@@ -110,7 +103,6 @@ export default function AISettingsPage() {
       setIsLoading(false);
     }
   };
-
   const testOpenAI = async () => {
     setIsTesting(true);
     try {
@@ -122,9 +114,7 @@ export default function AISettingsPage() {
           content: 'اختبار الاتصال بـ OpenAI'
         })
       });
-
       const data = await response.json();
-      
       if (data.result && !data.mock) {
         toast({
           title: "نجح",
@@ -155,7 +145,6 @@ export default function AISettingsPage() {
       setIsTesting(false);
     }
   };
-
   const updateSetting = (section: keyof AISettings, key: string, value: any) => {
     setSettings(prev => ({
       ...prev,
@@ -165,9 +154,8 @@ export default function AISettingsPage() {
       }
     }));
   };
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* العنوان الرئيسي */}
         <div className="flex items-center justify-between">
@@ -194,7 +182,6 @@ export default function AISettingsPage() {
             )}
           </Button>
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* إعدادات OpenAI */}
           <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
@@ -246,7 +233,6 @@ export default function AISettingsPage() {
                   </Button>
                 </div>
               </div>
-
               {/* اختبار الاتصال */}
               <Button 
                 onClick={testOpenAI} 
@@ -266,7 +252,6 @@ export default function AISettingsPage() {
               </Button>
             </CardContent>
           </Card>
-
           {/* إعدادات المميزات */}
           <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <CardHeader>
@@ -305,9 +290,7 @@ export default function AISettingsPage() {
                   />
                 </div>
               </div>
-
               <Separator />
-
               {/* التحليلات */}
               <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                 <div className="space-y-0.5 flex items-center gap-3">
@@ -332,9 +315,7 @@ export default function AISettingsPage() {
                   />
                 </div>
               </div>
-
               <Separator />
-
               {/* الإشعارات */}
               <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                 <div className="space-y-0.5 flex items-center gap-3">
@@ -362,7 +343,6 @@ export default function AISettingsPage() {
             </CardContent>
           </Card>
         </div>
-
         {/* حالة النظام */}
         <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <CardHeader>
@@ -385,7 +365,6 @@ export default function AISettingsPage() {
                   <p className="text-sm text-green-600 dark:text-green-400">يعمل بشكل طبيعي</p>
                 </div>
               </div>
-              
               <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <Brain className="w-5 h-5 text-blue-600" />
                 <div>
@@ -395,7 +374,6 @@ export default function AISettingsPage() {
                   </p>
                 </div>
               </div>
-              
               <div className="flex items-center gap-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                 <Settings className="w-5 h-5 text-purple-600" />
                 <div>

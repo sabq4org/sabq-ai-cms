@@ -1,13 +1,21 @@
+import Image from 'next/image';
+import React, { useState, useRef, useEffect } from 'react';
+import { BlockType } from './types';
+import { getBlockTitle } from './utils';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+
+
+
 import {
   Type, Heading, Image, Video, Quote, List, Code,
   Minus, Twitter, Link, Table, Plus
 } from 'lucide-react';
-import { BlockType } from './types';
-import { getBlockTitle } from './utils';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
+
+
 
 interface BlockMenuProps {
   onSelect: (type: BlockType) => void;

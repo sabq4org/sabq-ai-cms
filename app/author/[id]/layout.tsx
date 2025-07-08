@@ -1,6 +1,17 @@
+import Image from 'next/image';
 import { Metadata } from 'next';
 import fs from 'fs/promises';
 import path from 'path';
+
+
+
+
+
+
+
+
+
+
 
 interface PageParams {
   params: Promise<{ id: string }>;

@@ -1,5 +1,5 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadixSel
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+'use client';
 import { 
   Mail, 
   UserPlus, 
@@ -23,7 +24,6 @@ import {
   XCircle,
   AlertCircle
 } from 'lucide-react';
-
 interface Subscriber {
   id: string;
   email: string;
@@ -35,7 +35,6 @@ interface Subscriber {
     emailLogs: number;
   };
 }
-
 export default function SubscribersPage() {
   const { toast } = useToast();
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
@@ -47,7 +46,6 @@ export default function SubscribersPage() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   // جلب المشتركين
   const fetchSubscribers = async () => {
     try {
@@ -58,10 +56,8 @@ export default function SubscribersPage() {
         ...(searchTerm && { search: searchTerm }),
         ...(statusFilter && { status: statusFilter })
       });
-
       const response = await fetch(`/api/email/subscribers?${params}`);
       const data = await response.json();
-
       if (data.success) {
         setSubscribers(data.data);
         setTotalPages(data.pagination.pages);
@@ -76,16 +72,13 @@ export default function SubscribersPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchSubscribers();
   }, [page, searchTerm, statusFilter]);
-
   // إضافة مشترك جديد
   const handleAddSubscriber = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
     try {
       const response = await fetch('/api/email/subscribers', {
         method: 'POST',
@@ -95,9 +88,7 @@ export default function SubscribersPage() {
           name: formData.get('name') || undefined
         })
       });
-
       const data = await response.json();
-      
       if (data.success) {
         toast({
           title: 'تم',
@@ -120,23 +111,18 @@ export default function SubscribersPage() {
       });
     }
   };
-
   // استيراد من CSV
   const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append('file', file);
-
     try {
       const response = await fetch('/api/email/subscribers', {
         method: 'PUT',
         body: formData
       });
-
       const data = await response.json();
-      
       if (data.success) {
         toast({
           title: 'تم الاستيراد',
@@ -159,7 +145,6 @@ export default function SubscribersPage() {
       });
     }
   };
-
   // تحديث حالة المشترك
   const updateSubscriberStatus = async (id: string, status: string) => {
     try {
@@ -168,9 +153,7 @@ export default function SubscribersPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
-
       const data = await response.json();
-      
       if (data.success) {
         toast({
           title: 'تم',
@@ -186,18 +169,14 @@ export default function SubscribersPage() {
       });
     }
   };
-
   // حذف مشترك
   const deleteSubscriber = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا المشترك؟')) return;
-
     try {
       const response = await fetch(`/api/email/subscribers/${id}`, {
         method: 'DELETE'
       });
-
       const data = await response.json();
-      
       if (data.success) {
         toast({
           title: 'تم',
@@ -213,7 +192,6 @@ export default function SubscribersPage() {
       });
     }
   };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
@@ -226,14 +204,12 @@ export default function SubscribersPage() {
         return null;
     }
   };
-
   return (
-    <div className="container mx-auto p-6">
+  <div className="container mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">إدارة المشتركين</h1>
         <p className="text-gray-600">إدارة قائمة المشتركين في النشرة البريدية</p>
       </div>
-
       {/* شريط الأدوات */}
       <Card className="mb-6">
         <CardContent className="p-4">
@@ -247,7 +223,6 @@ export default function SubscribersPage() {
                 className="pr-10"
               />
             </div>
-            
             <RadixSelect value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="كل الحالات" />
@@ -259,7 +234,6 @@ export default function SubscribersPage() {
                 <SelectItem value="unsubscribed">ألغى الاشتراك</SelectItem>
               </SelectContent>
             </RadixSelect>
-
             <div className="flex gap-2">
               <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
                 <DialogTrigger asChild>
@@ -297,7 +271,6 @@ export default function SubscribersPage() {
                   </form>
                 </DialogContent>
               </Dialog>
-
               <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
                 <DialogTrigger asChild>
                   <Button variant="outline">
@@ -343,7 +316,6 @@ export default function SubscribersPage() {
           </div>
         </CardContent>
       </Card>
-
       {/* جدول المشتركين */}
       <Card>
         <CardHeader>
@@ -414,7 +386,6 @@ export default function SubscribersPage() {
               </table>
             </div>
           )}
-          
           {/* التنقل بين الصفحات */}
           {totalPages > 1 && (
             <div className="flex justify-center gap-2 mt-6">

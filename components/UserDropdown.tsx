@@ -1,14 +1,22 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Link from 'next/link';
+import { getMembershipLevel } from '@/lib/loyalty';
+
+'use client';
+
+
+
+
+
+
 import { 
   User, Trophy, RefreshCw, 
   Heart, Settings, Bell, LogOut, Loader2,
   Crown, Star, Award, Gem, X
 } from 'lucide-react';
-import { getMembershipLevel } from '@/lib/loyalty';
+
 
 interface UserData {
   id: string;

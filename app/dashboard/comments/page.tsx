@@ -1,6 +1,11 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
+import { useAuth } from '@/hooks/useAuth';
+import { formatDistanceToNow } from 'date-fns';
+import { ar } from 'date-fns/locale';
+'use client';
 import { 
   MessageCircle, 
   Check, 
@@ -25,12 +30,6 @@ import {
   TrendingUp,
   Brain
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
-import { useAuth } from '@/hooks/useAuth';
-import { formatDistanceToNow } from 'date-fns';
-import { ar } from 'date-fns/locale';
-
 interface Comment {
   id: string;
   content: string;
@@ -68,7 +67,6 @@ interface Comment {
     };
   };
 }
-
 export default function CommentsManagementPage() {
   const { darkMode } = useDarkModeContext();
   const { user } = useAuth();
@@ -92,17 +90,14 @@ export default function CommentsManagementPage() {
     totalPages: 0
   });
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'ai-flagged'>('all');
-
   useEffect(() => {
     fetchComments();
     fetchStats();
   }, [filter]);
-
   const fetchComments = async () => {
     try {
       setLoading(true);
       let url = '/api/comments?include=user,article,aiAnalysis';
-      
       if (filter === 'ai-flagged') {
         url += '&aiScore[lt]=50';
       } else if (filter === 'all') {
@@ -110,10 +105,8 @@ export default function CommentsManagementPage() {
       } else {
         url += `&status=${filter}`;
       }
-      
       console.log('Fetching comments with URL:', url);
       console.log('Current filter:', filter);
-      
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
@@ -127,7 +120,6 @@ export default function CommentsManagementPage() {
       setLoading(false);
     }
   };
-
   const fetchStats = async () => {
     try {
       const response = await fetch('/api/comments/stats');
@@ -139,7 +131,6 @@ export default function CommentsManagementPage() {
       console.error('Error fetching stats:', error);
     }
   };
-
   const handleStatusChange = async (commentId: string, newStatus: string, reason?: string) => {
     try {
       const response = await fetch(`/api/admin/comments/${commentId}/status`, {
@@ -147,9 +138,7 @@ export default function CommentsManagementPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus, reason })
       });
-
       const data = await response.json();
-      
       if (data.success) {
         fetchComments();
       } else {
@@ -160,15 +149,12 @@ export default function CommentsManagementPage() {
       alert('حدث خطأ في تحديث حالة التعليق');
     }
   };
-
   const handleDelete = async (commentId: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا التعليق؟')) return;
-
     try {
       const response = await fetch(`/api/comments/${commentId}`, {
         method: 'DELETE'
       });
-
       if (response.ok) {
         fetchComments();
       }
@@ -176,14 +162,12 @@ export default function CommentsManagementPage() {
       console.error('Error deleting comment:', error);
     }
   };
-
   const filteredComments = comments.filter(comment => {
     const searchLower = searchTerm.toLowerCase();
     return comment.content.toLowerCase().includes(searchLower) ||
       comment.article.title.toLowerCase().includes(searchLower) ||
       (comment.user?.name || comment.guestName || comment.metadata?.guestName || '').toLowerCase().includes(searchLower);
   });
-
   const formatDate = (date: string) => {
     try {
       return formatDistanceToNow(new Date(date), { 
@@ -194,7 +178,6 @@ export default function CommentsManagementPage() {
       return date;
     }
   };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved': return <Check className="w-4 h-4 text-green-600" />;
@@ -205,11 +188,9 @@ export default function CommentsManagementPage() {
       default: return <MessageCircle className="w-4 h-4" />;
     }
   };
-
   const getStatusBadge = (comment: Comment) => {
     const status = comment.status;
     const aiScore = comment.aiScore;
-    
     if (status === 'approved') {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -240,19 +221,15 @@ export default function CommentsManagementPage() {
       );
     }
   };
-
   const getAIBadge = (classification?: string) => {
     if (!classification) return null;
-    
     const badges: Record<string, { color: string; label: string }> = {
       safe: { color: 'bg-green-100 text-green-800', label: 'آمن' },
       toxic: { color: 'bg-red-100 text-red-800', label: 'مسيء' },
       spam: { color: 'bg-purple-100 text-purple-800', label: 'بريد عشوائي' },
       suspicious: { color: 'bg-yellow-100 text-yellow-800', label: 'مشكوك فيه' }
     };
-    
     const badge = badges[classification] || { color: 'bg-gray-100 text-gray-800', label: classification };
-    
     return (
       <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${badge.color}`}>
         <Brain className="w-3 h-3" />
@@ -260,9 +237,8 @@ export default function CommentsManagementPage() {
       </span>
     );
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
+  <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
       {/* عنوان الصفحة */}
       <div className="mb-8">
         <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
@@ -272,7 +248,6 @@ export default function CommentsManagementPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>مراجعة وإدارة التعليقات بمساعدة الذكاء الاصطناعي</p>
       </div>
-
       {/* بطاقة نظام إدارة التعليقات */}
       <div className="mb-8">
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -307,7 +282,6 @@ export default function CommentsManagementPage() {
           </div>
         </div>
       </div>
-
       {/* التابات للفلترة */}
       <TabsEnhanced
                   tabs={[
@@ -325,7 +299,6 @@ export default function CommentsManagementPage() {
           setPagination(prev => ({ ...prev, page: 1 }));
         }}
       />
-
       {/* شريط البحث */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -347,7 +320,6 @@ export default function CommentsManagementPage() {
           />
         </div>
       </div>
-
       {/* إحصائيات */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow`}>
@@ -359,7 +331,6 @@ export default function CommentsManagementPage() {
             <MessageCircle className="w-8 h-8 text-blue-500" />
           </div>
         </div>
-
         <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow`}>
           <div className="flex items-center justify-between">
             <div>
@@ -369,7 +340,6 @@ export default function CommentsManagementPage() {
             <AlertTriangle className="w-8 h-8 text-yellow-500" />
           </div>
         </div>
-
         <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow`}>
           <div className="flex items-center justify-between">
             <div>
@@ -379,7 +349,6 @@ export default function CommentsManagementPage() {
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
         </div>
-
         <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow`}>
           <div className="flex items-center justify-between">
             <div>
@@ -389,7 +358,6 @@ export default function CommentsManagementPage() {
             <XCircle className="w-8 h-8 text-red-500" />
           </div>
         </div>
-
         <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow`}>
           <div className="flex items-center justify-between">
             <div>
@@ -400,7 +368,6 @@ export default function CommentsManagementPage() {
           </div>
         </div>
       </div>
-
              {/* فلاتر */}
        <div className="flex gap-2 mb-6 flex-wrap">
          {[
@@ -426,12 +393,10 @@ export default function CommentsManagementPage() {
           </button>
         ))}
       </div>
-
       {/* قائمة التعليقات */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-sm border ${
         darkMode ? 'border-gray-700' : 'border-gray-100'
       } overflow-hidden transition-colors duration-300`}>
-        
         {/* رأس الجدول */}
         <div 
           style={{ 
@@ -472,7 +437,6 @@ export default function CommentsManagementPage() {
             </div>
           </div>
         </div>
-
         {/* محتوى الجدول */}
         {loading ? (
           <div className="text-center py-12">
@@ -517,7 +481,6 @@ export default function CommentsManagementPage() {
                     )}
                   </div>
                 </div>
-
                 {/* المستخدم */}
                 <div className="col-span-2 flex items-center gap-2">
                   <User className="w-4 h-4 text-gray-400" />
@@ -530,7 +493,6 @@ export default function CommentsManagementPage() {
                     )}
                   </div>
                 </div>
-
                 {/* المقال */}
                 <div className="col-span-3">
                   <a
@@ -543,19 +505,16 @@ export default function CommentsManagementPage() {
                     {comment.article.title}
                   </a>
                 </div>
-
                 {/* الحالة */}
                 <div className="col-span-1 text-center">
                   {getStatusBadge(comment)}
                 </div>
-
                 {/* التاريخ */}
                 <div className="col-span-1">
                   <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {formatDate(comment.createdAt)}
                   </span>
                 </div>
-
                 {/* الإجراءات */}
                 <div className="col-span-1 flex items-center justify-center gap-1">
                   {comment.status === 'pending' && (
@@ -579,7 +538,6 @@ export default function CommentsManagementPage() {
                       </button>
                     </>
                   )}
-                  
                   {comment.status === 'approved' && (
                     <button
                       onClick={() => handleStatusChange(comment.id, 'archived')}
@@ -589,7 +547,6 @@ export default function CommentsManagementPage() {
                       <Archive className="w-4 h-4" />
                     </button>
                   )}
-                  
                   {comment.status === 'reported' && (
                     <>
                       <button
@@ -608,7 +565,6 @@ export default function CommentsManagementPage() {
                       </button>
                     </>
                   )}
-                  
                   {comment.status === 'rejected' && (
                     <button
                       onClick={() => handleStatusChange(comment.id, 'approved')}
@@ -618,7 +574,6 @@ export default function CommentsManagementPage() {
                       <Check className="w-4 h-4" />
                     </button>
                   )}
-                  
                   {comment.status === 'archived' && (
                     <button
                       onClick={() => handleStatusChange(comment.id, 'approved')}
@@ -628,7 +583,6 @@ export default function CommentsManagementPage() {
                       <RefreshCw className="w-4 h-4" />
                     </button>
                   )}
-                  
                   {/* زر الحذف - متاح دائماً */}
                   <button
                     onClick={() => handleDelete(comment.id)}
@@ -642,7 +596,6 @@ export default function CommentsManagementPage() {
             ))}
           </div>
         )}
-
         {/* التصفح */}
         {pagination.totalPages > 1 && (
           <div className="px-6 py-4 border-t" style={{ borderColor: darkMode ? '#374151' : '#f4f8fe' }}>

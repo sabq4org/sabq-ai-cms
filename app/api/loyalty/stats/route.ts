@@ -1,7 +1,20 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { getMembershipLevel } from '@/lib/loyalty';
+
+
+
+
+
+
+
+
+
+
+
+
 
 export async function GET(request: NextRequest) {
   try {

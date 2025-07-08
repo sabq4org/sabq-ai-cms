@@ -1,19 +1,16 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { getCookie } from '@/lib/cookies';
-
+'use client';
 export default function TestLoginPage() {
   const [diagnostics, setDiagnostics] = useState<any>({});
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     runDiagnostics();
   }, []);
-
   const runDiagnostics = async () => {
     const results: any = {};
-
     // 1. فحص الكوكيز
     try {
       const userCookie = getCookie('user');
@@ -27,7 +24,6 @@ export default function TestLoginPage() {
     } catch (e) {
       results.cookies = { error: e instanceof Error ? e.message : 'خطأ غير معروف' };
     }
-
     // 2. فحص localStorage
     try {
       const userStorage = localStorage.getItem('user');
@@ -38,7 +34,6 @@ export default function TestLoginPage() {
     } catch (e) {
       results.localStorage = { error: e instanceof Error ? e.message : 'خطأ غير معروف' };
     }
-
     // 3. فحص API
     try {
       const response = await fetch('/api/auth/me', {
@@ -53,7 +48,6 @@ export default function TestLoginPage() {
     } catch (e) {
       results.api = { error: e instanceof Error ? e.message : 'خطأ غير معروف' };
     }
-
     // 4. فحص البيئة
     results.environment = {
       nodeEnv: process.env.NODE_ENV,
@@ -61,38 +55,30 @@ export default function TestLoginPage() {
       url: window.location.href,
       protocol: window.location.protocol
     };
-
     setDiagnostics(results);
     setLoading(false);
   };
-
   const clearAllData = () => {
     // مسح localStorage
     localStorage.clear();
-    
     // مسح sessionStorage
     sessionStorage.clear();
-    
     // مسح الكوكيز
     document.cookie.split(";").forEach((c) => {
       document.cookie = c
         .replace(/^ +/, "")
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
-    
     alert('تم مسح جميع البيانات! سيتم إعادة تحميل الصفحة...');
     window.location.reload();
   };
-
   if (loading) {
     return <div className="p-8">جارٍ التشخيص...</div>;
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+  <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">تشخيص نظام تسجيل الدخول</h1>
-        
         <div className="space-y-6">
           {/* الكوكيز */}
           <div className="bg-white p-6 rounded-lg shadow">
@@ -101,7 +87,6 @@ export default function TestLoginPage() {
               {JSON.stringify(diagnostics.cookies, null, 2)}
             </pre>
           </div>
-
           {/* localStorage */}
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4">💾 localStorage</h2>
@@ -109,7 +94,6 @@ export default function TestLoginPage() {
               {JSON.stringify(diagnostics.localStorage, null, 2)}
             </pre>
           </div>
-
           {/* API */}
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4">🌐 API Response</h2>
@@ -117,7 +101,6 @@ export default function TestLoginPage() {
               {JSON.stringify(diagnostics.api, null, 2)}
             </pre>
           </div>
-
           {/* البيئة */}
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4">⚙️ البيئة</h2>
@@ -125,7 +108,6 @@ export default function TestLoginPage() {
               {JSON.stringify(diagnostics.environment, null, 2)}
             </pre>
           </div>
-
           {/* الأزرار */}
           <div className="flex gap-4">
             <button

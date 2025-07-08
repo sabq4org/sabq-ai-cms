@@ -1,3 +1,6 @@
+import Image from 'next/image';
+
+
 'use client'
 
 import { createContext, useContext, ReactNode } from 'react'

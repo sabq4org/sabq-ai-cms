@@ -1,14 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+'use client';
 import { 
   Mail, Lock, Eye, EyeOff, 
   LogIn, AlertCircle, Sparkles 
 } from 'lucide-react';
-import toast from 'react-hot-toast';
-
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -20,33 +19,26 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>({});
-
   // الحصول على رابط الإرجاع من URL parameters
   const callbackUrl = searchParams?.get('callbackUrl') || 
                      searchParams?.get('redirectTo') || 
                      searchParams?.get('returnTo');
-
   const validateForm = () => {
     const newErrors: any = {};
-
     if (!formData.email.trim()) {
       newErrors.email = 'البريد الإلكتروني مطلوب';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'البريد الإلكتروني غير صحيح';
     }
-
     if (!formData.password) {
       newErrors.password = 'كلمة المرور مطلوبة';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -59,9 +51,7 @@ function LoginForm() {
         }),
         credentials: 'include',
       });
-
       const data = await response.json();
-
       if (response.ok && data.success) {
         // حفظ بيانات المستخدم في localStorage و sessionStorage
         if (data.user) {
@@ -69,25 +59,19 @@ function LoginForm() {
             // حفظ في localStorage
             localStorage.setItem('user', JSON.stringify(data.user));
             localStorage.setItem('user_id', data.user.id);
-            
             // حفظ في sessionStorage كـ backup
             sessionStorage.setItem('user', JSON.stringify(data.user));
-            
             // حفظ الكوكيز يدوياً لدعم Safari
             const userCookie = encodeURIComponent(JSON.stringify(data.user));
             document.cookie = `user=${userCookie}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-            
             console.log('[Safari Debug] User data saved successfully');
           } catch (e) {
             console.error('[Safari Debug] Error saving user data:', e);
           }
         }
-
         toast.success(data.message || 'تم تسجيل الدخول بنجاح');
-        
         // تحديد مسار إعادة التوجيه
         const redirectPath = data.user?.is_admin ? '/dashboard' : '/';
-        
         // استخدام window.location لضمان إعادة تحميل كاملة (مهم لـ Safari)
         setTimeout(() => {
           window.location.href = redirectPath;
@@ -102,16 +86,14 @@ function LoginForm() {
       setLoading(false);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
       {/* خلفية ديناميكية */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 rounded-full blur-3xl opacity-30 animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-300 rounded-full blur-3xl opacity-20"></div>
       </div>
-
       <div className="relative z-10 w-full max-w-md">
         {/* الشعار والعنوان */}
         <div className="text-center mb-6 sm:mb-8">
@@ -121,7 +103,6 @@ function LoginForm() {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">مرحباً بعودتك</h1>
           <p className="text-sm sm:text-base text-gray-600">سجل دخولك للاستمتاع بمحتوى مخصص لك</p>
         </div>
-
         {/* نموذج تسجيل الدخول */}
         <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-6 sm:p-8 border border-white/50">
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
@@ -150,7 +131,6 @@ function LoginForm() {
                 </p>
               )}
             </div>
-
             {/* كلمة المرور */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
@@ -183,7 +163,6 @@ function LoginForm() {
                 </p>
               )}
             </div>
-
             {/* تذكرني ونسيت كلمة المرور */}
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -199,7 +178,6 @@ function LoginForm() {
                 نسيت كلمة المرور؟
               </Link>
             </div>
-
             {/* زر تسجيل الدخول */}
             <button
               type="submit"
@@ -218,7 +196,6 @@ function LoginForm() {
                 </div>
               )}
             </button>
-
             {/* رابط إنشاء حساب */}
             <div className="text-center pt-3 sm:pt-4 border-t">
               <p className="text-sm text-gray-600">
@@ -230,7 +207,6 @@ function LoginForm() {
             </div>
           </form>
         </div>
-
         {/* روابط سريعة */}
         <div className="mt-6 sm:mt-8 text-center">
           <Link href="/" className="text-sm text-gray-600 hover:text-gray-800 transition-colors">
@@ -241,7 +217,6 @@ function LoginForm() {
     </div>
   );
 }
-
 export default function LoginPage() {
   return (
     <Suspense fallback={

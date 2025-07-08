@@ -1,6 +1,17 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import prisma from '@/lib/prisma';
+
+
+
+
+
+
+
+
+
+
 
 // GET: جلب قائمة المواضيع
 export async function GET(request: NextRequest) {

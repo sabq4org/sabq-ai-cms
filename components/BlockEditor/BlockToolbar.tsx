@@ -1,12 +1,19 @@
+import Image from 'next/image';
+import React, { useState } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { AIAction } from './types';
+
 'use client';
 
-import React, { useState } from 'react';
+
+
+
 import {
   GripVertical, ArrowUp, ArrowDown, Trash2, Plus,
   Sparkles, Copy, MoreVertical, Wand2, RefreshCw, Languages, Hash
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { AIAction } from './types';
+
+
 
 interface BlockToolbarProps {
   blockId: string;

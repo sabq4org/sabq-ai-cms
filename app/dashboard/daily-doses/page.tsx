@@ -1,5 +1,4 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { toast } from 'react-hot-toast';
+import { useDarkMode } from '@/hooks/useDarkMode';
+'use client';
 import {
   Select,
   SelectContent,
@@ -30,9 +32,6 @@ import {
   Save, RefreshCw, CheckCircle, AlertCircle,
   ArrowUp, ArrowDown, Wand2
 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { useDarkMode } from '@/hooks/useDarkMode';
-
 interface DoseContent {
   id?: string;
   articleId?: string;
@@ -49,7 +48,6 @@ interface DoseContent {
     };
   };
 }
-
 interface DailyDose {
   id: string;
   period: 'morning' | 'afternoon' | 'evening' | 'night';
@@ -61,14 +59,12 @@ interface DailyDose {
   views: number;
   contents: DoseContent[];
 }
-
 const periodOptions = [
   { value: 'morning', label: 'الصباح', icon: Sunrise, color: 'text-blue-500' },
   { value: 'afternoon', label: 'الظهيرة', icon: Sun, color: 'text-orange-500' },
   { value: 'evening', label: 'المساء', icon: Sunset, color: 'text-purple-500' },
   { value: 'night', label: 'الليل', icon: Moon, color: 'text-indigo-500' }
 ];
-
 const contentTypeOptions = [
   { value: 'article', label: 'مقال', icon: BookOpen },
   { value: 'weather', label: 'طقس', icon: Cloud },
@@ -77,7 +73,6 @@ const contentTypeOptions = [
   { value: 'audio', label: 'صوتي', icon: Headphones },
   { value: 'analysis', label: 'تحليل', icon: TrendingUp }
 ];
-
 export default function DailyDosesManagementPage() {
   const { darkMode } = useDarkMode();
   const [doses, setDoses] = useState<DailyDose[]>([]);
@@ -89,14 +84,12 @@ export default function DailyDosesManagementPage() {
   const [editingContent, setEditingContent] = useState<DoseContent | null>(null);
   const [articles, setArticles] = useState<any[]>([]);
   const [generatingAI, setGeneratingAI] = useState(false);
-
   // جلب الجرعات
   const fetchDoses = async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/daily-doses?date=${selectedDate}`);
       const data = await response.json();
-      
       // تنظيم الجرعات حسب الفترة
       const dosesArray = periodOptions.map(period => {
         // إذا كان data كائن واحد وليس مصفوفة
@@ -115,7 +108,6 @@ export default function DailyDosesManagementPage() {
             contents: []
           };
         }
-        
         // إذا كان data مصفوفة
         const existingDose = data.find((d: DailyDose) => d.period === period.value);
         return existingDose || {
@@ -129,7 +121,6 @@ export default function DailyDosesManagementPage() {
           contents: []
         };
       });
-      
       setDoses(dosesArray);
     } catch (error) {
       console.error('Error fetching doses:', error);
@@ -138,7 +129,6 @@ export default function DailyDosesManagementPage() {
       setLoading(false);
     }
   };
-
   // جلب المقالات المتاحة
   const fetchArticles = async () => {
     try {
@@ -149,12 +139,10 @@ export default function DailyDosesManagementPage() {
       console.error('Error fetching articles:', error);
     }
   };
-
   useEffect(() => {
     fetchDoses();
     fetchArticles();
   }, [selectedDate]);
-
   // توليد جرعة بالذكاء الاصطناعي
   const generateAIDose = async (period: string) => {
     try {
@@ -164,16 +152,12 @@ export default function DailyDosesManagementPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date: selectedDate, period })
       });
-
       if (!response.ok) throw new Error('Failed to generate');
-
       const generatedDose = await response.json();
-      
       // تحديث الجرعة المحلية
       setDoses(prev => prev.map(dose => 
         dose.period === period ? { ...dose, ...generatedDose } : dose
       ));
-
       toast.success('تم توليد الجرعة بنجاح');
     } catch (error) {
       console.error('Error generating dose:', error);
@@ -182,22 +166,18 @@ export default function DailyDosesManagementPage() {
       setGeneratingAI(false);
     }
   };
-
   // حفظ الجرعة
   const saveDose = async (dose: DailyDose) => {
     try {
       const isNew = dose.id.startsWith('new-');
       const url = isNew ? '/api/daily-doses' : `/api/daily-doses/${dose.id}`;
       const method = isNew ? 'POST' : 'PUT';
-
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dose)
       });
-
       if (!response.ok) throw new Error('Failed to save');
-
       toast.success('تم حفظ الجرعة بنجاح');
       fetchDoses();
     } catch (error) {
@@ -205,16 +185,13 @@ export default function DailyDosesManagementPage() {
       toast.error('حدث خطأ في حفظ الجرعة');
     }
   };
-
   // نشر الجرعة
   const publishDose = async (dose: DailyDose) => {
     try {
       const response = await fetch(`/api/daily-doses/${dose.id}/publish`, {
         method: 'POST'
       });
-
       if (!response.ok) throw new Error('Failed to publish');
-
       toast.success('تم نشر الجرعة بنجاح');
       fetchDoses();
     } catch (error) {
@@ -222,69 +199,55 @@ export default function DailyDosesManagementPage() {
       toast.error('حدث خطأ في نشر الجرعة');
     }
   };
-
   // إضافة/تعديل محتوى
   const saveContent = () => {
     if (!editingDose || !editingContent) return;
-
     const updatedContents = editingContent.id
       ? editingDose.contents.map(c => c.id === editingContent.id ? editingContent : c)
       : [...editingDose.contents, { ...editingContent, id: Date.now().toString() }];
-
     const updatedDose = { ...editingDose, contents: updatedContents };
     setDoses(prev => prev.map(d => d.id === updatedDose.id ? updatedDose : d));
     setEditingDose(updatedDose);
     setShowContentDialog(false);
     setEditingContent(null);
   };
-
   // حذف محتوى
   const deleteContent = (contentId: string) => {
     if (!editingDose) return;
-
     const updatedContents = editingDose.contents.filter(c => c.id !== contentId);
     const updatedDose = { ...editingDose, contents: updatedContents };
     setDoses(prev => prev.map(d => d.id === updatedDose.id ? updatedDose : d));
     setEditingDose(updatedDose);
   };
-
   // تحريك المحتوى
   const moveContent = (contentId: string, direction: 'up' | 'down') => {
     if (!editingDose) return;
-
     const index = editingDose.contents.findIndex(c => c.id === contentId);
     if (index === -1) return;
-
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= editingDose.contents.length) return;
-
     const newContents = [...editingDose.contents];
     [newContents[index], newContents[newIndex]] = [newContents[newIndex], newContents[index]];
-    
     // تحديث displayOrder
     newContents.forEach((content, i) => {
       content.displayOrder = i;
     });
-
     const updatedDose = { ...editingDose, contents: newContents };
     setDoses(prev => prev.map(d => d.id === updatedDose.id ? updatedDose : d));
     setEditingDose(updatedDose);
   };
-
   // الحصول على أيقونة الفترة
   const getPeriodIcon = (period: string) => {
     const option = periodOptions.find(p => p.value === period);
     return option ? <option.icon className={`w-5 h-5 ${option.color}`} /> : null;
   };
-
   // الحصول على أيقونة نوع المحتوى
   const getContentIcon = (type: string) => {
     const option = contentTypeOptions.find(t => t.value === type);
     return option ? <option.icon className="w-4 h-4" /> : null;
   };
-
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+  <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">إدارة الجرعات اليومية</h1>
@@ -292,7 +255,6 @@ export default function DailyDosesManagementPage() {
           إنشاء وإدارة الجرعات المعرفية للقراء حسب فترات اليوم
         </p>
       </div>
-
       {/* Date Selector */}
       <Card className="mb-8">
         <CardHeader>
@@ -322,7 +284,6 @@ export default function DailyDosesManagementPage() {
           </div>
         </CardContent>
       </Card>
-
       {/* Doses Grid */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -345,7 +306,6 @@ export default function DailyDosesManagementPage() {
           {doses.map(dose => {
             const periodOption = periodOptions.find(p => p.value === dose.period);
             const isPublished = dose.status === 'published';
-            
             return (
               <Card key={dose.id} className={`border-2 ${
                 isPublished ? 'border-green-500' : 'border-gray-200 dark:border-gray-700'
@@ -389,7 +349,6 @@ export default function DailyDosesManagementPage() {
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg">{dose.title}</h3>
                       <p className="text-gray-600 dark:text-gray-400">{dose.subtitle}</p>
-                      
                       {/* عرض المحتويات */}
                       <div className="mt-4 space-y-2">
                         {dose.contents.slice(0, 3).map((content, index) => (
@@ -417,7 +376,6 @@ export default function DailyDosesManagementPage() {
           })}
         </div>
       )}
-
       {/* Edit Dose Dialog */}
       {editingDose && (
         <Dialog open={!!editingDose} onOpenChange={() => setEditingDose(null)}>
@@ -431,7 +389,6 @@ export default function DailyDosesManagementPage() {
                 {new Date(editingDose.date).toLocaleDateString('ar-SA')}
               </DialogDescription>
             </DialogHeader>
-
             <div className="space-y-6 py-4">
               {/* Basic Info */}
               <div className="space-y-4">
@@ -453,7 +410,6 @@ export default function DailyDosesManagementPage() {
                   />
                 </div>
               </div>
-
               {/* Contents */}
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -474,7 +430,6 @@ export default function DailyDosesManagementPage() {
                     إضافة محتوى
                   </Button>
                 </div>
-
                 <div className="space-y-3">
                   {editingDose.contents.length === 0 ? (
                     <div className="text-center py-8 border-2 border-dashed rounded-lg">
@@ -538,7 +493,6 @@ export default function DailyDosesManagementPage() {
                 </div>
               </div>
             </div>
-
             <DialogFooter>
               <Button variant="outline" onClick={() => setEditingDose(null)}>
                 إلغاء
@@ -561,7 +515,6 @@ export default function DailyDosesManagementPage() {
           </DialogContent>
         </Dialog>
       )}
-
       {/* Add/Edit Content Dialog */}
       {showContentDialog && editingContent && (
         <Dialog open={showContentDialog} onOpenChange={setShowContentDialog}>
@@ -571,7 +524,6 @@ export default function DailyDosesManagementPage() {
                 {editingContent.id ? 'تعديل المحتوى' : 'إضافة محتوى جديد'}
               </DialogTitle>
             </DialogHeader>
-
             <div className="space-y-4 py-4">
               <div>
                 <Label>نوع المحتوى</Label>
@@ -590,7 +542,6 @@ export default function DailyDosesManagementPage() {
                     ))}
                   </select>
               </div>
-
               {editingContent.contentType === 'article' && (
                 <div>
                   <Label>اختر مقال</Label>
@@ -620,7 +571,6 @@ export default function DailyDosesManagementPage() {
                     </select>
                 </div>
               )}
-
               <div>
                 <Label>العنوان</Label>
                 <Input
@@ -629,7 +579,6 @@ export default function DailyDosesManagementPage() {
                   placeholder="عنوان المحتوى"
                 />
               </div>
-
               <div>
                 <Label>الملخص</Label>
                 <Textarea
@@ -639,7 +588,6 @@ export default function DailyDosesManagementPage() {
                   rows={3}
                 />
               </div>
-
               {editingContent.contentType !== 'article' && (
                 <>
                   <div>
@@ -650,7 +598,6 @@ export default function DailyDosesManagementPage() {
                       placeholder="https://example.com/image.jpg"
                     />
                   </div>
-
                   {editingContent.contentType === 'audio' && (
                     <div>
                       <Label>رابط الملف الصوتي</Label>
@@ -664,7 +611,6 @@ export default function DailyDosesManagementPage() {
                 </>
               )}
             </div>
-
             <DialogFooter>
               <Button variant="outline" onClick={() => {
                 setShowContentDialog(false);

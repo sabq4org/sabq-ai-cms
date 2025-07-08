@@ -1,9 +1,22 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
-
-const prisma = new PrismaClient();
 import { z } from 'zod';
 import crypto from 'crypto';
+
+
+
+
+
+
+
+
+
+
+
+const prisma = new PrismaClient();
+
+
 
 // مخطط التحقق من بيانات القالب
 const templateSchema = z.object({

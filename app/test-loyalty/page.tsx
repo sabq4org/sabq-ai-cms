@@ -1,17 +1,14 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { getMembershipLevel, getProgressToNextLevel, getPointsToNextLevel } from '@/lib/loyalty';
-
+'use client';
 export default function TestLoyaltyPage() {
   const [points, setPoints] = useState(0);
-  
   const testPoints = [0, 50, 100, 101, 250, 500, 501, 1000, 2000, 2001, 5000];
-  
   return (
-    <div className="max-w-4xl mx-auto p-8">
+  <div className="max-w-4xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8">اختبار نظام الولاء الموحد</h1>
-      
       {/* اختبار يدوي */}
       <div className="mb-8 p-6 bg-gray-50 rounded-lg">
         <h2 className="text-xl font-semibold mb-4">اختبار يدوي</h2>
@@ -25,14 +22,12 @@ export default function TestLoyaltyPage() {
           />
           <span className="text-lg">نقطة</span>
         </div>
-        
         {(() => {
           const level = getMembershipLevel(points);
           const progress = getProgressToNextLevel(points);
           const pointsToNext = getPointsToNextLevel(points);
-          
           return (
-            <div className="space-y-2">
+  <div className="space-y-2">
               <p>المستوى: <strong className="text-xl" style={{ color: level.color }}>{level.icon} {level.name}</strong></p>
               <p>التقدم نحو المستوى التالي: <strong>{progress}%</strong></p>
               {pointsToNext && (
@@ -51,7 +46,6 @@ export default function TestLoyaltyPage() {
           );
         })()}
       </div>
-      
       {/* جدول اختبار تلقائي */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <h2 className="text-xl font-semibold p-4 bg-gray-50">اختبار تلقائي</h2>
@@ -69,7 +63,6 @@ export default function TestLoyaltyPage() {
               const level = getMembershipLevel(p);
               const progress = getProgressToNextLevel(p);
               const pointsToNext = getPointsToNextLevel(p);
-              
               return (
                 <tr key={p} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3">{p}</td>
@@ -88,7 +81,6 @@ export default function TestLoyaltyPage() {
           </tbody>
         </table>
       </div>
-      
       {/* ملخص المستويات */}
       <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-orange-50 p-4 rounded-lg text-center">

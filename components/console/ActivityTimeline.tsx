@@ -1,14 +1,22 @@
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+import { SabqBadge } from '@/components/ui/SabqBadge';
+import { formatDistanceToNow } from 'date-fns';
+import { ar } from 'date-fns/locale';
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+
+
+
 import { 
   FileText, User, Shield, Settings, AlertCircle, 
   Edit3, Trash2, Eye, UserPlus, Lock, CheckCircle,
   XCircle, Clock, Zap
 } from 'lucide-react';
-import { SabqBadge } from '@/components/ui/SabqBadge';
-import { formatDistanceToNow } from 'date-fns';
-import { ar } from 'date-fns/locale';
+
+
+
 
 interface Activity {
   id: string;

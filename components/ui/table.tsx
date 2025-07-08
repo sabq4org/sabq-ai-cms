@@ -1,5 +1,10 @@
+import Image from 'next/image';
 import React from 'react';
 import { cn } from '../../lib/utils';
+
+
+
+
 
 interface TableProps {
   className?: string;

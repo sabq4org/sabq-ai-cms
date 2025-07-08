@@ -1,24 +1,21 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+'use client';
 import { 
   ArrowRight, Mail, Phone, MapPin, Calendar, Eye, MessageSquare, 
   Heart, Award, Edit, Ban, UserCheck, Monitor, 
   Smartphone
 } from 'lucide-react';
-
 export default function UserDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [darkMode, setDarkMode] = useState(false);
-
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   const user = {
     id: id,
     name: 'أحمد محمد الأحمد',
@@ -36,9 +33,8 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
     likesCount: 156,
     loyaltyPoints: 2850
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       <div className="mb-8">
@@ -52,7 +48,6 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
           العودة إلى قائمة المستخدمين
         </Link>
       </div>
-
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
       }`}>
@@ -61,7 +56,6 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
             <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
               <span className="text-gray-600 font-bold text-xl">أح</span>
             </div>
-
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
                 <h1 className={`text-2xl font-bold transition-colors duration-300 ${
@@ -71,7 +65,6 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
                 <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">نشط</span>
                 <span className="px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-700">VIP</span>
               </div>
-
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-gray-400" />
@@ -79,21 +72,18 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
                     darkMode ? 'text-gray-300' : 'text-gray-600'
                   }`}>{user.email}</span>
                 </div>
-                
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-gray-400" />
                   <span className={`transition-colors duration-300 ${
                     darkMode ? 'text-gray-300' : 'text-gray-600'
                   }`}>{user.phone}</span>
                 </div>
-
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-gray-400" />
                   <span className={`transition-colors duration-300 ${
                     darkMode ? 'text-gray-300' : 'text-gray-600'
                   }`}>{user.city}, {user.country}</span>
                 </div>
-
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-gray-400" />
                   <span className={`transition-colors duration-300 ${
@@ -103,13 +93,11 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
               </div>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
             <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300">
               <Edit className="w-4 h-4" />
               تعديل
             </button>
-            
             <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300">
               <Ban className="w-4 h-4" />
               حظر
@@ -117,7 +105,6 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
       </div>
-
       <div className="grid grid-cols-4 gap-4 mb-8">
         <div className={`rounded-xl p-4 border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -136,7 +123,6 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
         </div>
-
         <div className={`rounded-xl p-4 border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         }`}>
@@ -154,7 +140,6 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
         </div>
-
         <div className={`rounded-xl p-4 border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         }`}>
@@ -172,7 +157,6 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
         </div>
-
         <div className={`rounded-xl p-4 border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         }`}>
@@ -191,7 +175,6 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
       </div>
-
       <div className="grid grid-cols-2 gap-6">
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -206,7 +189,6 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
             <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">السفر</span>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         }`}>

@@ -1,7 +1,20 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { sendVerificationEmail, generateVerificationCode } from '@/lib/email';
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const runtime = 'nodejs';
 

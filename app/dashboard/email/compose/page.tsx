@@ -1,5 +1,5 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadixSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+'use client';
 import { 
   Send, 
   Save, 
@@ -22,7 +23,6 @@ import {
   Palette,
   Variable
 } from 'lucide-react';
-
 interface EmailTemplate {
   id: string;
   name: string;
@@ -31,7 +31,6 @@ interface EmailTemplate {
   textContent?: string;
   metadata?: any;
 }
-
 export default function EmailComposePage() {
   const { toast } = useToast();
   const [subject, setSubject] = useState('');
@@ -50,12 +49,10 @@ export default function EmailComposePage() {
   const [activeTab, setActiveTab] = useState('visual');
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
-
   // جلب القوالب
   useEffect(() => {
     fetchTemplates();
   }, []);
-
   const fetchTemplates = async () => {
     try {
       const response = await fetch('/api/email/templates');
@@ -67,7 +64,6 @@ export default function EmailComposePage() {
       console.error('خطأ في جلب القوالب:', error);
     }
   };
-
   // تحميل قالب
   const loadTemplate = async (templateId: string) => {
     const template = templates.find(t => t.id === templateId);
@@ -81,12 +77,10 @@ export default function EmailComposePage() {
       });
     }
   };
-
   // حفظ كقالب
   const saveAsTemplate = async () => {
     const name = prompt('أدخل اسم القالب:');
     if (!name) return;
-
     setSaving(true);
     try {
       const response = await fetch('/api/email/templates', {
@@ -102,9 +96,7 @@ export default function EmailComposePage() {
           }
         })
       });
-
       const data = await response.json();
-      
       if (data.success) {
         toast({
           title: 'تم',
@@ -128,14 +120,12 @@ export default function EmailComposePage() {
       setSaving(false);
     }
   };
-
   // استخراج المتغيرات من المحتوى
   const extractVariables = (content: string) => {
     const regex = /\{\{([^}]+)\}\}/g;
     const matches = content.match(regex) || [];
     return [...new Set(matches.map(m => m.replace(/[{}]/g, '').trim()))];
   };
-
   // إرسال الرسالة
   const sendEmail = async (scheduled = false) => {
     if (!subject || !htmlContent) {
@@ -146,7 +136,6 @@ export default function EmailComposePage() {
       });
       return;
     }
-
     setSending(true);
     try {
       const jobData: any = {
@@ -156,25 +145,20 @@ export default function EmailComposePage() {
         targetFilter,
         status: scheduled ? 'queued' : 'sending'
       };
-
       if (scheduled && scheduleDate && scheduleTime) {
         jobData.scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`);
       }
-
       const response = await fetch('/api/email/jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(jobData)
       });
-
       const data = await response.json();
-      
       if (data.success) {
         toast({
           title: 'تم',
           description: scheduled ? 'تم جدولة الرسالة بنجاح' : 'تم إرسال الرسالة بنجاح'
         });
-        
         // إعادة تعيين النموذج
         setSubject('');
         setHtmlContent('');
@@ -198,7 +182,6 @@ export default function EmailComposePage() {
       setShowSchedule(false);
     }
   };
-
   // معاينة الرسالة
   const previewContent = () => {
     const previewHtml = `
@@ -228,19 +211,16 @@ export default function EmailComposePage() {
       </body>
       </html>
     `;
-    
     const blob = new Blob([previewHtml], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   };
-
   return (
-    <div className="container mx-auto p-6">
+  <div className="container mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">محرر الرسائل البريدية</h1>
         <p className="text-gray-600">إنشاء وإرسال رسائل بريدية مخصصة</p>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* المحرر الرئيسي */}
         <div className="lg:col-span-2">
@@ -269,7 +249,6 @@ export default function EmailComposePage() {
                   </SelectContent>
                 </RadixSelect>
               </div>
-
               {/* عنوان الرسالة */}
               <div>
                 <Label htmlFor="subject">عنوان الرسالة</Label>
@@ -280,7 +259,6 @@ export default function EmailComposePage() {
                   placeholder="أدخل عنوان الرسالة..."
                 />
               </div>
-
               {/* محرر المحتوى */}
               <div>
                 <Label>محتوى الرسالة</Label>
@@ -295,7 +273,6 @@ export default function EmailComposePage() {
                       محرر HTML
                     </TabsTrigger>
                   </TabsList>
-                  
                   <TabsContent value="visual" className="mt-4">
                     <div className="border rounded-md p-4">
                       <Textarea
@@ -309,7 +286,6 @@ export default function EmailComposePage() {
                       </div>
                     </div>
                   </TabsContent>
-                  
                   <TabsContent value="html" className="mt-4">
                     <Textarea
                       value={htmlContent}
@@ -320,7 +296,6 @@ export default function EmailComposePage() {
                   </TabsContent>
                 </Tabs>
               </div>
-
               {/* نص بديل */}
               <div>
                 <Label htmlFor="textContent">النص البديل (للبريد النصي)</Label>
@@ -332,7 +307,6 @@ export default function EmailComposePage() {
                   rows={4}
                 />
               </div>
-
               {/* المتغيرات المتاحة */}
               <div className="bg-blue-50 p-4 rounded-md">
                 <h4 className="font-semibold mb-2 flex items-center">
@@ -350,7 +324,6 @@ export default function EmailComposePage() {
             </CardContent>
           </Card>
         </div>
-
         {/* الشريط الجانبي */}
         <div className="space-y-6">
           {/* استهداف المستقبلين */}
@@ -378,13 +351,11 @@ export default function EmailComposePage() {
                   </SelectContent>
                 </RadixSelect>
               </div>
-              
               <div className="text-sm text-gray-600">
                 سيتم إرسال الرسالة إلى حوالي <strong>0</strong> مشترك
               </div>
             </CardContent>
           </Card>
-
           {/* الإجراءات */}
           <Card>
             <CardHeader>
@@ -399,7 +370,6 @@ export default function EmailComposePage() {
                 <Send className="w-4 h-4 ml-2" />
                 إرسال الآن
               </Button>
-              
               <Button
                 variant="outline"
                 className="w-full"
@@ -409,7 +379,6 @@ export default function EmailComposePage() {
                 <Clock className="w-4 h-4 ml-2" />
                 جدولة الإرسال
               </Button>
-              
               <Button
                 variant="outline"
                 className="w-full"
@@ -419,7 +388,6 @@ export default function EmailComposePage() {
                 <Save className="w-4 h-4 ml-2" />
                 حفظ كقالب
               </Button>
-              
               <Button
                 variant="ghost"
                 className="w-full"
@@ -433,7 +401,6 @@ export default function EmailComposePage() {
           </Card>
         </div>
       </div>
-
       {/* نافذة الجدولة */}
       <Dialog open={showSchedule} onOpenChange={setShowSchedule}>
         <DialogContent>

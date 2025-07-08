@@ -1,5 +1,4 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,8 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import toast from 'react-hot-toast';
+'use client';
 import { 
   Settings, 
   Save, 
@@ -20,8 +21,6 @@ import {
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
-import toast from 'react-hot-toast';
-
 interface DigestSettings {
   enabled: boolean;
   autoRefresh: boolean;
@@ -43,7 +42,6 @@ interface DigestSettings {
     minEngagementScore: number;
   };
 }
-
 export default function SmartDigestSettingsPage() {
   const [settings, setSettings] = useState<DigestSettings>({
     enabled: true,
@@ -66,15 +64,12 @@ export default function SmartDigestSettingsPage() {
       minEngagementScore: 5
     }
   });
-  
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState<'morning' | 'afternoon' | 'evening'>('morning');
-
   // جلب الإعدادات الحالية
   useEffect(() => {
     fetchSettings();
   }, []);
-
   const fetchSettings = async () => {
     try {
       // محاكاة جلب الإعدادات من localStorage أو API
@@ -86,16 +81,13 @@ export default function SmartDigestSettingsPage() {
       console.error('Error fetching settings:', error);
     }
   };
-
   const saveSettings = async () => {
     setSaving(true);
     try {
       // حفظ في localStorage (يمكن تغييرها لـ API)
       localStorage.setItem('smartDigestSettings', JSON.stringify(settings));
-      
       // محاكاة تأخير الحفظ
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       toast.success('تم حفظ الإعدادات بنجاح');
     } catch (error) {
       console.error('Error saving settings:', error);
@@ -104,7 +96,6 @@ export default function SmartDigestSettingsPage() {
       setSaving(false);
     }
   };
-
   const resetToDefaults = () => {
     const defaultSettings: DigestSettings = {
       enabled: true,
@@ -127,11 +118,9 @@ export default function SmartDigestSettingsPage() {
         minEngagementScore: 5
       }
     };
-    
     setSettings(defaultSettings);
     toast.success('تم استعادة الإعدادات الافتراضية');
   };
-
   const getPreviewIcon = () => {
     switch (previewMode) {
       case 'morning': return <Sun className="w-5 h-5 text-yellow-500" />;
@@ -139,15 +128,13 @@ export default function SmartDigestSettingsPage() {
       case 'evening': return <Moon className="w-5 h-5 text-indigo-500" />;
     }
   };
-
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+  <div className="container mx-auto px-4 py-8 max-w-6xl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">إعدادات بلوك الجرعات الذكي</h1>
         <p className="text-gray-600">تحكم في كيفية عرض الجرعات المعرفية للزوار حسب وقت اليوم</p>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* الإعدادات الأساسية */}
         <div className="space-y-6">
@@ -171,7 +158,6 @@ export default function SmartDigestSettingsPage() {
                   onCheckedChange={(checked) => setSettings({...settings, enabled: checked})}
                 />
               </div>
-
               {/* التحديث التلقائي */}
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
@@ -184,7 +170,6 @@ export default function SmartDigestSettingsPage() {
                   onCheckedChange={(checked) => setSettings({...settings, autoRefresh: checked})}
                 />
               </div>
-
               {/* فترة التحديث */}
               {settings.autoRefresh && (
                 <div className="space-y-2">
@@ -201,7 +186,6 @@ export default function SmartDigestSettingsPage() {
               )}
             </CardContent>
           </Card>
-
           {/* فلاتر المحتوى */}
           <Card>
             <CardHeader>
@@ -223,7 +207,6 @@ export default function SmartDigestSettingsPage() {
                   })}
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="minImportanceScore">الحد الأدنى لنقاط الأهمية (الصباح)</Label>
                 <Input
@@ -238,7 +221,6 @@ export default function SmartDigestSettingsPage() {
                   })}
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="minRelevanceScore">الحد الأدنى لنقاط الصلة (الظهيرة)</Label>
                 <Input
@@ -253,7 +235,6 @@ export default function SmartDigestSettingsPage() {
                   })}
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="minEngagementScore">الحد الأدنى لنقاط التفاعل (المساء)</Label>
                 <Input
@@ -271,7 +252,6 @@ export default function SmartDigestSettingsPage() {
             </CardContent>
           </Card>
         </div>
-
         {/* تخصيص النصوص */}
         <div className="space-y-6">
           <Card>
@@ -307,7 +287,6 @@ export default function SmartDigestSettingsPage() {
                   مساء
                 </Button>
               </div>
-
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>العنوان الرئيسي</Label>
@@ -319,7 +298,6 @@ export default function SmartDigestSettingsPage() {
                     })}
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label>النص الفرعي</Label>
                   <Textarea
@@ -334,7 +312,6 @@ export default function SmartDigestSettingsPage() {
               </div>
             </CardContent>
           </Card>
-
           {/* معاينة مباشرة */}
           <Card>
             <CardHeader>
@@ -356,7 +333,6 @@ export default function SmartDigestSettingsPage() {
                   </div>
                   <p className="text-gray-600">{settings.subtitles[previewMode]}</p>
                 </div>
-                
                 {/* معاينة البطاقات */}
                 <div className="grid grid-cols-3 gap-3 mt-6">
                   {[1, 2, 3].map(i => (
@@ -368,7 +344,6 @@ export default function SmartDigestSettingsPage() {
                   ))}
                 </div>
               </div>
-
               {/* رسائل الحالة */}
               <div className="mt-4 space-y-2">
                 {settings.enabled ? (
@@ -382,7 +357,6 @@ export default function SmartDigestSettingsPage() {
                     البلوك معطل ولن يظهر في الصفحة الرئيسية
                   </div>
                 )}
-                
                 {settings.autoRefresh && (
                   <div className="flex items-center gap-2 text-blue-600 text-sm">
                     <RefreshCw className="w-4 h-4" />
@@ -394,13 +368,11 @@ export default function SmartDigestSettingsPage() {
           </Card>
         </div>
       </div>
-
       {/* أزرار الإجراءات */}
       <div className="flex items-center justify-between mt-8 pt-8 border-t">
         <Button variant="outline" onClick={resetToDefaults}>
           استعادة الإعدادات الافتراضية
         </Button>
-        
         <div className="flex items-center gap-3">
           <Button variant="outline">
             إلغاء

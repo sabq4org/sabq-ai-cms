@@ -1,14 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-import { Filter, TrendingUp, Clock, Eye, 
-  Heart, Sparkles, Brain, ChevronDown, Target, RefreshCw
-} from 'lucide-react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import CategoryBadge from '@/app/components/CategoryBadge';
 import { generatePlaceholderImage } from '@/lib/cloudinary';
-
+'use client';
+import { Filter, TrendingUp, Clock, Eye, 
+  Heart, Sparkles, Brain, ChevronDown, Target, RefreshCw
+} from 'lucide-react';
 interface Article {
   id: string;
   title: string;
@@ -30,7 +29,6 @@ interface Article {
   confidence?: number;
   is_personalized?: boolean;
 }
-
 export default function ForYouPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,18 +39,15 @@ export default function ForYouPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-
   useEffect(() => {
     // التحقق من الوضع المظلم
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
-
     // التحقق من تسجيل الدخول
     const storedUserId = localStorage.getItem('user_id');
     const userData = localStorage.getItem('user');
-    
     if (storedUserId && storedUserId !== 'anonymous' && userData) {
       setIsLoggedIn(true);
       setUserId(storedUserId);
@@ -60,17 +55,14 @@ export default function ForYouPage() {
       // إعادة التوجيه لتسجيل الدخول إذا لم يكن مسجل
       window.location.href = '/login?redirect=/for-you';
     }
-
     // جلب التصنيفات
     fetchCategories();
   }, []);
-
   useEffect(() => {
     if (isLoggedIn && userId) {
       fetchPersonalizedContent();
     }
   }, [isLoggedIn, userId, selectedCategory, sortBy]);
-
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/categories');
@@ -80,18 +72,14 @@ export default function ForYouPage() {
       console.error('Error fetching categories:', error);
     }
   };
-
   const fetchPersonalizedContent = async () => {
     try {
       setLoading(true);
-      
       let url = `/api/content/personalized?user_id=${userId}&limit=20`;
-      
       // إضافة فلتر التصنيف
       if (selectedCategory) {
         url += `&category_id=${selectedCategory}`;
       }
-      
       // إضافة طريقة الترتيب
       if (sortBy === 'newest') {
         url += '&sort=published_at&order=desc';
@@ -100,9 +88,7 @@ export default function ForYouPage() {
       } else {
         url += '&sort=relevance&order=desc';
       }
-      
       const response = await fetch(url);
-      
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.data) {
@@ -121,13 +107,9 @@ export default function ForYouPage() {
       setLoading(false);
     }
   };
-
   const handleRefresh = () => {
     fetchPersonalizedContent();
   };
-
-
-
   // تنسيق الأرقام
   const formatNumber = (num: number) => {
     if (num >= 1000) {
@@ -135,11 +117,9 @@ export default function ForYouPage() {
     }
     return num.toString();
   };
-
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <Header />
-      
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="mb-8">
@@ -159,7 +139,6 @@ export default function ForYouPage() {
                 مقالات وتحليلات مختارة بعناية بناءً على اهتماماتك
               </p>
             </div>
-            
             <button
               onClick={handleRefresh}
               className={`p-3 rounded-xl transition-all hover:scale-105 ${
@@ -169,7 +148,6 @@ export default function ForYouPage() {
               <RefreshCw className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`} />
             </button>
           </div>
-
           {/* Filters Section */}
           <div className={`rounded-xl p-4 ${
             darkMode ? 'bg-gray-800' : 'bg-white'
@@ -235,7 +213,6 @@ export default function ForYouPage() {
                     </button>
                   </div>
                 </div>
-
                 {/* Category Filter */}
                 <div className="relative">
                   <button
@@ -253,7 +230,6 @@ export default function ForYouPage() {
                     }
                     <ChevronDown className="w-3 h-3" />
                   </button>
-
                   {showFilter && (
                     <div className={`absolute top-full mt-2 right-0 w-48 rounded-lg shadow-lg z-10 ${
                       darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
@@ -299,7 +275,6 @@ export default function ForYouPage() {
                   )}
                 </div>
               </div>
-
               {/* Stats */}
               <div className={`flex items-center gap-2 px-3 py-1 rounded-lg ${
                 darkMode ? 'bg-gray-700' : 'bg-gray-100'
@@ -312,7 +287,6 @@ export default function ForYouPage() {
             </div>
           </div>
         </div>
-
         {/* Content Grid */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
@@ -332,12 +306,7 @@ export default function ForYouPage() {
                 } shadow-sm`}>
                   {/* الصورة مع نسبة عرض ثابتة */}
                   <div className="relative aspect-[16/9] overflow-hidden">
-                    <img 
-                      src={article.featured_image || generatePlaceholderImage(article.title, 'article')} 
-                      alt={article.title}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    
+                    <Image src={undefined} alt="" width={100} height={100} />
                     {/* شارة التصنيف - أعلى اليسار */}
                     <div className="absolute top-3 left-3">
                       {(() => {
@@ -361,7 +330,6 @@ export default function ForYouPage() {
                         );
                       })()}
                     </div>
-                    
                     {/* نسبة المطابقة - أعلى اليمين (إذا كانت عالية) */}
                     {article.confidence && article.confidence > 70 && (
                       <div className="absolute top-3 right-3">
@@ -372,7 +340,6 @@ export default function ForYouPage() {
                       </div>
                     )}
                   </div>
-                  
                   {/* محتوى البطاقة */}
                   <div className="flex-1 flex flex-col p-5">
                     {/* العنوان */}
@@ -381,14 +348,12 @@ export default function ForYouPage() {
                     }`}>
                       {article.title}
                     </h3>
-                    
                     {/* الوصف المختصر */}
                     <p className={`text-sm mb-4 line-clamp-2 flex-1 ${
                       darkMode ? 'text-gray-400' : 'text-gray-600'
                     }`}>
                       {article.summary}
                     </p>
-                    
                     {/* المعلومات السفلية */}
                     <div className="mt-auto">
                       <div className="flex items-center justify-between text-xs">
@@ -408,7 +373,6 @@ export default function ForYouPage() {
                             {article.reading_time || 5} د
                           </span>
                         </div>
-                        
                         {/* التفاعلات */}
                         <div className="flex items-center gap-3">
                           {article.views_count && article.views_count > 0 && (

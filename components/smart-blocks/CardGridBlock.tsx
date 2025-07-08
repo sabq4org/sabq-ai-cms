@@ -1,8 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import { Clock, Eye, Coffee } from 'lucide-react';
+
+'use client';
+
+
+
+
+
+
 
 interface CardGridBlockProps {
   block: any;

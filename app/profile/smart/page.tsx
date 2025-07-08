@@ -1,8 +1,13 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import Header from '@/components/Header';
+import { useReaderProfile } from '@/hooks/useReaderProfile';
+import { cn } from '@/lib/utils';
+import { useTheme } from '@/contexts/ThemeContext';
+'use client';
 import { 
   Brain, 
   TrendingUp, 
@@ -25,11 +30,6 @@ import {
   MessageSquare,
   Compass
 } from 'lucide-react';
-import Header from '@/components/Header';
-import { useReaderProfile } from '@/hooks/useReaderProfile';
-import { cn } from '@/lib/utils';
-import { useTheme } from '@/contexts/ThemeContext';
-
 const personalityConfig: Record<string, {
   gradient: string;
   icon: React.ElementType;
@@ -73,17 +73,15 @@ const personalityConfig: Record<string, {
     textColor: 'text-gray-900'
   }
 };
-
 export default function SmartProfilePage() {
   const router = useRouter();
   const { theme } = useTheme();
   const darkMode = theme === 'dark';
   const { profile, isLoading, error } = useReaderProfile();
   const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'achievements'>('overview');
-
   if (isLoading) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} style={{ direction: 'rtl' }}>
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} style={{ direction: 'rtl' }}>
         <Header />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
@@ -94,10 +92,9 @@ export default function SmartProfilePage() {
       </div>
     );
   }
-
   if (error || !profile) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} style={{ direction: 'rtl' }}>
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} style={{ direction: 'rtl' }}>
         <Header />
         <div className="max-w-4xl mx-auto px-6 py-12">
           <div className={`text-center p-12 rounded-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
@@ -119,10 +116,8 @@ export default function SmartProfilePage() {
       </div>
     );
   }
-
   const config = personalityConfig[profile.personality.type] || personalityConfig['balanced_reader'];
   const PersonalityIcon = config.icon;
-
   // نصائح افتراضية لكل شخصية
   const personalityTips: Record<string, string[]> = {
     'news_hunter': [
@@ -156,16 +151,13 @@ export default function SmartProfilePage() {
       'جرب قراءة مواضيع جديدة بانتظام'
     ]
   };
-
   const tips = personalityTips[profile.personality.type] || personalityTips['balanced_reader'];
-
   return (
-    <div 
+  <div 
       className={`smart-profile-page min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
       style={{ direction: 'rtl' }}
     >
       <Header />
-      
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className={cn(
@@ -186,7 +178,6 @@ export default function SmartProfilePage() {
             <ChevronLeft className="w-5 h-5" />
             <span>رجوع</span>
           </button>
-
           {/* Profile Header */}
           <div className="flex flex-col sm:flex-row items-start gap-6 mb-8">
             <div className={cn(
@@ -195,7 +186,6 @@ export default function SmartProfilePage() {
             )}>
               <PersonalityIcon className="w-12 h-12 text-white" />
             </div>
-            
             <div className="flex-1">
               <h1 className={`text-2xl sm:text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                 {profile.personality.type === 'balanced_reader' 
@@ -225,7 +215,6 @@ export default function SmartProfilePage() {
                   : 'تركب موجة الترندات وتتابع كل جديد'
                 }
               </p>
-              
               {/* Quick Stats */}
               <div className="flex flex-wrap gap-4 sm:gap-6">
                 <div>
@@ -267,7 +256,6 @@ export default function SmartProfilePage() {
               </div>
             </div>
           </div>
-
           {/* Tabs */}
           <div className="flex gap-2 sm:gap-4 mb-8 overflow-x-auto">
             <button
@@ -336,7 +324,6 @@ export default function SmartProfilePage() {
           </div>
         </div>
       </div>
-
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         {activeTab === 'overview' && (
@@ -386,7 +373,6 @@ export default function SmartProfilePage() {
                 </div>
               )}
             </div>
-
             {/* Traits */}
             <div className={cn(
               "p-6 rounded-2xl shadow-lg",
@@ -431,7 +417,6 @@ export default function SmartProfilePage() {
                 </div>
               )}
             </div>
-
             {/* Tips */}
             <div className={cn(
               "p-6 rounded-2xl shadow-lg",
@@ -458,7 +443,6 @@ export default function SmartProfilePage() {
             </div>
           </div>
         )}
-
         {activeTab === 'stats' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Reading Stats */}
@@ -472,7 +456,6 @@ export default function SmartProfilePage() {
                   إحصائيات القراءة
                 </h3>
               </div>
-              
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
@@ -508,7 +491,6 @@ export default function SmartProfilePage() {
                 </div>
               </div>
             </div>
-
             {/* Engagement Stats */}
             <div className={cn(
               "p-6 rounded-2xl shadow-lg",
@@ -520,7 +502,6 @@ export default function SmartProfilePage() {
                   التفاعل
                 </h3>
               </div>
-              
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
@@ -567,7 +548,6 @@ export default function SmartProfilePage() {
                   </span>
                 </div>
               </div>
-              
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center mb-2">
                   <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
@@ -587,7 +567,6 @@ export default function SmartProfilePage() {
             </div>
           </div>
         )}
-
         {activeTab === 'achievements' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Achievement Cards */}
@@ -605,7 +584,6 @@ export default function SmartProfilePage() {
                 قرأت أكثر من {profile.stats.totalArticlesRead} مقال
               </p>
             </div>
-
             <div className={cn(
               "p-6 rounded-2xl shadow-lg text-center",
               darkMode ? "bg-gray-800" : "bg-white"
@@ -620,7 +598,6 @@ export default function SmartProfilePage() {
                 {profile.stats.streakDays} يوم متتالي من القراءة
               </p>
             </div>
-
             <div className={cn(
               "p-6 rounded-2xl shadow-lg text-center",
               darkMode ? "bg-gray-800" : "bg-white"

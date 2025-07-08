@@ -1,7 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+
+'use client';
+
+
+
+
+
 import { 
   Play, 
   Heart, 
@@ -317,13 +323,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                 {/* معلومات الكاتب الحالي */}
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <img 
-                      src={featuredWriters[currentWriterIndex]?.author_avatar} 
-                      alt={featuredWriters[currentWriterIndex]?.author_name}
-                      className={`w-16 h-16 rounded-full object-cover border-4 ${
-                        writerClubBorders[featuredWriters[currentWriterIndex]?.author_club || 'default']
-                      }`}
-                    />
+                    <Image src={undefined} alt="" width={100} height={100} />
                     <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-r ${
                       writerClubColors[featuredWriters[currentWriterIndex]?.author_club || 'default']
                     } flex items-center justify-center border-2 border-white dark:border-gray-800`}>
@@ -457,13 +457,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                 <div className="flex items-center gap-3 mb-4">
                   <Link href={`/author/${article.author_slug || 'dr-mohammed-ahmad'}`} className="flex items-center gap-3 group/author flex-1">
                     <div className="relative flex-shrink-0">
-                      <img 
-                        src={article.author_avatar} 
-                        alt={article.author_name}
-                        className={`w-10 h-10 rounded-full object-cover border-2 ${
-                          writerClubBorders[article.author_club || 'default']
-                        } group-hover/author:scale-110 transition-transform`}
-                      />
+                      <Image src={undefined} alt="" width={100} height={100} />
                       <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-r ${
                         writerClubColors[article.author_club || 'default']
                       } flex items-center justify-center border-2 border-white dark:border-gray-800`}>

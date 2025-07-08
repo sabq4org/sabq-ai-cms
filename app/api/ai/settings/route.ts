@@ -1,1 +1,8 @@
-import { NextResponse } from "next/server"; export async function GET() { return NextResponse.json({ success: true, message: "AI Settings API ready" }); }
+import Image from 'next/image';
+import { NextResponse } from "next/server";
+
+
+
+
+
+ export async function GET() { return NextResponse.json({ success: true, message: "AI Settings API ready" }); }

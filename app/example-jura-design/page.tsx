@@ -1,12 +1,11 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
-
+'use client';
 export default function JuraDesignExample() {
   return (
-    <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 mb-8">
+      <div className="bg-white shadow-sm border-b border-gray-200 mb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -25,8 +24,7 @@ export default function JuraDesignExample() {
             </button>
           </div>
         </div>
-      </header>
-
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* بطاقات الإحصائيات */}
         <section className="mb-8">
@@ -46,7 +44,6 @@ export default function JuraDesignExample() {
                 </div>
               </div>
             </div>
-
             {/* بطاقة 2 */}
             <div className="stat-card">
               <div className="stat-content">
@@ -61,7 +58,6 @@ export default function JuraDesignExample() {
                 </div>
               </div>
             </div>
-
             {/* بطاقة 3 */}
             <div className="stat-card">
               <div className="stat-content">
@@ -76,7 +72,6 @@ export default function JuraDesignExample() {
                 </div>
               </div>
             </div>
-
             {/* بطاقة 4 */}
             <div className="stat-card">
               <div className="stat-content">
@@ -93,7 +88,6 @@ export default function JuraDesignExample() {
             </div>
           </div>
         </section>
-
         {/* جدول البيانات */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -105,7 +99,6 @@ export default function JuraDesignExample() {
               فلترة
             </button>
           </div>
-          
           <div className="data-table-container">
             <table className="data-table">
               <thead>
@@ -159,7 +152,6 @@ export default function JuraDesignExample() {
             </table>
           </div>
         </section>
-
         {/* أمثلة الأزرار */}
         <section className="mb-8">
           <h2 className="text-xl font-bold mb-6">أنماط الأزرار</h2>
@@ -177,7 +169,6 @@ export default function JuraDesignExample() {
             </button>
           </div>
         </section>
-
         {/* بطاقات المحتوى */}
         <section className="mb-8">
           <h2 className="text-xl font-bold mb-6">بطاقات المحتوى</h2>
@@ -192,7 +183,6 @@ export default function JuraDesignExample() {
                 <span className="badge badge-success">مميز</span>
               </div>
             </div>
-            
             <div className="section-container">
               <h3 className="text-lg font-bold mb-2">حاوية القسم</h3>
               <p className="text-gray-600 mb-4">
@@ -200,7 +190,6 @@ export default function JuraDesignExample() {
               </p>
               <button className="btn-primary text-sm">اكتشف المزيد</button>
             </div>
-            
             <div className="stat-card animate-float">
               <div className="p-6">
                 <h3 className="text-lg font-bold mb-2">بطاقة متحركة</h3>

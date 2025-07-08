@@ -1,7 +1,20 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { DeepAnalysis } from '@/types/deep-analysis';
+
+
+
+
+
+
+
+
+
+
+
+
 
 // مسار ملف البيانات
 const DATA_PATH = join(process.cwd(), 'data', 'deep_analyses.json');

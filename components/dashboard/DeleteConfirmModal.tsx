@@ -1,8 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import { X, AlertTriangle } from 'lucide-react';
 import { SabqButton, SabqCard } from '@/components/ui';
+
+'use client';
+
+
+
+
+
+
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;

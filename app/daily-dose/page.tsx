@@ -1,17 +1,16 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useTheme } from '@/contexts/ThemeContext';
+import Header from '@/components/Header';
+import { toast } from 'react-hot-toast';
+'use client';
 import { 
   Calendar, Eye, Clock, ArrowLeft, BookOpen, 
   Sun, Cloud, Moon, Sparkles, Volume2, Headphones, 
   Sunrise, Sunset, Share2, Bookmark, ThumbsUp,
   Play, Pause, Download, ChevronLeft, ChevronRight
 } from 'lucide-react';
-import Link from 'next/link';
-import { useTheme } from '@/contexts/ThemeContext';
-import Header from '@/components/Header';
-import { toast } from 'react-hot-toast';
-
 interface DoseContent {
   id: string;
   contentType: 'article' | 'weather' | 'quote' | 'tip' | 'audio' | 'analysis';
@@ -35,7 +34,6 @@ interface DoseContent {
     readingTime?: number;
   };
 }
-
 interface DailyDose {
   id: string;
   period: 'morning' | 'afternoon' | 'evening' | 'night';
@@ -47,7 +45,6 @@ interface DailyDose {
   contents: DoseContent[];
   mock?: boolean;
 }
-
 export default function DailyDosePage() {
   const { theme } = useTheme();
   const darkMode = theme === 'dark';
@@ -56,14 +53,12 @@ export default function DailyDosePage() {
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
-
   // جلب الجرعة الحالية
   const fetchDailyDose = async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/daily-doses');
       if (!response.ok) throw new Error('Failed to fetch dose');
-      
       const data = await response.json();
       setDose(data);
     } catch (error) {
@@ -73,15 +68,12 @@ export default function DailyDosePage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchDailyDose();
   }, []);
-
   // الحصول على الأيقونة حسب الفترة
   const getPeriodIcon = () => {
     if (!dose) return <Sun className="w-12 h-12" />;
-    
     switch (dose.period) {
       case 'morning': return <Sunrise className="w-12 h-12" />;
       case 'afternoon': return <Sun className="w-12 h-12" />;
@@ -90,11 +82,9 @@ export default function DailyDosePage() {
       default: return <Sun className="w-12 h-12" />;
     }
   };
-
   // الحصول على الألوان حسب الفترة
   const getPeriodColors = () => {
     if (!dose) return { bg: 'from-blue-600 to-purple-600', accent: 'blue' };
-    
     switch (dose.period) {
       case 'morning': 
         return { 
@@ -138,7 +128,6 @@ export default function DailyDosePage() {
         };
     }
   };
-
   // الحصول على أيقونة نوع المحتوى
   const getContentIcon = (type: string) => {
     switch (type) {
@@ -150,7 +139,6 @@ export default function DailyDosePage() {
       default: return <BookOpen className="w-6 h-6" />;
     }
   };
-
   const handleShare = async (content: DoseContent) => {
     try {
       if (navigator.share) {
@@ -167,7 +155,6 @@ export default function DailyDosePage() {
       console.error('Error sharing:', error);
     }
   };
-
   const handleSave = (contentId: string) => {
     setSavedItems(prev => {
       const newSet = new Set(prev);
@@ -181,7 +168,6 @@ export default function DailyDosePage() {
       return newSet;
     });
   };
-
   const handleLike = (contentId: string) => {
     setLikedItems(prev => {
       const newSet = new Set(prev);
@@ -194,11 +180,9 @@ export default function DailyDosePage() {
       return newSet;
     });
   };
-
   const colors = getPeriodColors();
-
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-100'} py-8`}>
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-100'} py-8`}>
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8 mb-8">
           <div className="text-center">
@@ -208,7 +192,6 @@ export default function DailyDosePage() {
                 {getPeriodIcon()}
               </div>
             </div>
-
             {/* العنوان */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-white leading-tight">
               {loading ? (
@@ -217,7 +200,6 @@ export default function DailyDosePage() {
                 dose?.title || 'جرعتك اليومية'
               )}
             </h1>
-
             {/* العنوان الفرعي */}
             <p className="text-xl sm:text-2xl mb-8 text-gray-700 dark:text-white/95">
               {loading ? (
@@ -226,7 +208,6 @@ export default function DailyDosePage() {
                 dose?.subtitle || 'محتوى مختار بعناية'
               )}
             </p>
-
             {/* معلومات إضافية */}
             {dose && !loading && (
               <div className="flex items-center justify-center gap-8 text-gray-600 dark:text-white/80">
@@ -252,7 +233,6 @@ export default function DailyDosePage() {
               </div>
             )}
           </div>
-
           {/* محتوى الجرعة */}
           <div className="mt-10">
             {loading ? (
@@ -282,15 +262,10 @@ export default function DailyDosePage() {
                         {/* Image */}
                         {content.imageUrl && (
                           <div className="lg:w-2/5 h-64 lg:h-auto relative overflow-hidden">
-                            <img 
-                              src={content.imageUrl}
-                              alt={content.title}
-                              className="w-full h-full object-cover"
-                            />
+                            <Image src={undefined} alt="" width={100} height={100} />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:bg-gradient-to-r"></div>
                           </div>
                         )}
-
                         {/* Content */}
                         <div className="flex-1 p-8">
                           {/* Category & Type */}
@@ -305,17 +280,14 @@ export default function DailyDosePage() {
                               #{index + 1} في الجرعة
                             </span>
                           </div>
-
                           {/* Title */}
                           <h2 className={`text-2xl lg:text-3xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                             {content.title}
                           </h2>
-
                           {/* Summary */}
                           <p className={`text-lg leading-relaxed mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                             {content.summary}
                           </p>
-
                           {/* Meta Info */}
                           <div className="flex items-center gap-6 mb-6 text-sm">
                             {content.article.author && (
@@ -334,7 +306,6 @@ export default function DailyDosePage() {
                               </span>
                             )}
                           </div>
-
                           {/* Actions */}
                           <div className="flex items-center gap-4">
                             <Link
@@ -348,7 +319,6 @@ export default function DailyDosePage() {
                               <BookOpen className="w-5 h-5" />
                               اقرأ المقال كاملاً
                             </Link>
-
                             <button
                               onClick={() => handleLike(content.id)}
                               className={`p-3 rounded-full transition-colors ${
@@ -359,7 +329,6 @@ export default function DailyDosePage() {
                             >
                               <ThumbsUp className={`w-5 h-5 ${likedItems.has(content.id) ? 'fill-current' : ''}`} />
                             </button>
-
                             <button
                               onClick={() => handleSave(content.id)}
                               className={`p-3 rounded-full transition-colors ${
@@ -370,7 +339,6 @@ export default function DailyDosePage() {
                             >
                               <Bookmark className={`w-5 h-5 ${savedItems.has(content.id) ? 'fill-current' : ''}`} />
                             </button>
-
                             <button
                               onClick={() => handleShare(content)}
                               className={`p-3 rounded-full transition-colors ${
@@ -389,19 +357,16 @@ export default function DailyDosePage() {
                         <div className={`flex justify-center mb-6 ${colors.icon}`}>
                           {getContentIcon(content.contentType)}
                         </div>
-
                         {/* Title */}
                         <h3 className={`text-3xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                           {content.title}
                         </h3>
-
                         {/* Content */}
                         <p className={`text-xl leading-relaxed max-w-3xl mx-auto mb-8 ${
                           darkMode ? 'text-gray-200' : 'text-gray-700'
                         }`}>
                           {content.summary}
                         </p>
-
                         {/* Audio Player */}
                         {content.audioUrl && (
                           <div className="flex justify-center">
@@ -427,7 +392,6 @@ export default function DailyDosePage() {
                             </button>
                           </div>
                         )}
-
                         {/* Actions */}
                         <div className="flex items-center justify-center gap-4 mt-8">
                           <button
@@ -440,7 +404,6 @@ export default function DailyDosePage() {
                           >
                             <ThumbsUp className={`w-5 h-5 ${likedItems.has(content.id) ? 'fill-current' : ''}`} />
                           </button>
-
                           <button
                             onClick={() => handleShare(content)}
                             className="p-3 rounded-full transition-colors hover:bg-white/10"
@@ -465,7 +428,6 @@ export default function DailyDosePage() {
                 </p>
               </div>
             )}
-
             {/* Navigation Between Periods */}
             {dose && !loading && (
               <div className="mt-12 flex items-center justify-center gap-4">

@@ -1,17 +1,34 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
+import { generateDeepAnalysis, initializeOpenAI } from '@/lib/services/deepAnalysisService';
+import { PrismaClient } from '@/lib/generated/prisma';
+import { getCurrentUser } from '@/app/lib/auth';
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { 
   DeepAnalysis, 
   CreateAnalysisRequest,
   AnalysisStatus,
   SourceType
 } from '@/types/deep-analysis';
-import { generateDeepAnalysis, initializeOpenAI } from '@/lib/services/deepAnalysisService';
-import { PrismaClient } from '@/lib/generated/prisma';
+
+
 
 const prisma = new PrismaClient();
-import { getCurrentUser } from '@/app/lib/auth';
+
 
 export const runtime = 'nodejs';
 

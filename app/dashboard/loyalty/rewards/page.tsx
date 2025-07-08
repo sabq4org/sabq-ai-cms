@@ -1,18 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Gift, Plus, Edit, Trash2, Star, Crown } from 'lucide-react';
-
+'use client';
 export default function RewardsPage() {
   const [darkMode, setDarkMode] = useState(false);
-
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   const rewards = [
     {
       id: 'R001',
@@ -42,9 +39,8 @@ export default function RewardsPage() {
       usedCount: 12
     }
   ];
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       <div className="mb-8 flex items-center justify-between">
@@ -56,13 +52,11 @@ export default function RewardsPage() {
             darkMode ? 'text-gray-300' : 'text-gray-600'
           }`}>إدارة نظام المكافآت والجوائز لبرنامج الولاء</p>
         </div>
-        
         <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300">
           <Plus className="w-4 h-4" />
           إضافة مكافأة
         </button>
       </div>
-
       <div className="grid grid-cols-3 gap-6">
         {rewards.map((reward) => (
           <div key={reward.id} className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -90,15 +84,12 @@ export default function RewardsPage() {
                 {reward.status}
               </span>
             </div>
-
             <h3 className={`text-lg font-bold mb-2 transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800'
             }`}>{reward.name}</h3>
-            
             <p className={`text-sm mb-4 transition-colors duration-300 ${
               darkMode ? 'text-gray-400' : 'text-gray-600'
             }`}>{reward.description}</p>
-
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-yellow-500" />
@@ -110,7 +101,6 @@ export default function RewardsPage() {
                 darkMode ? 'text-gray-400' : 'text-gray-500'
               }`}>استُخدم {reward.usedCount} مرة</span>
             </div>
-
             <div className="flex items-center gap-2">
               <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors duration-300">
                 <Edit className="w-4 h-4" />

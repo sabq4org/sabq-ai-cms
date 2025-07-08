@@ -1,17 +1,16 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
+import { getArticleLink } from '@/lib/utils';
+'use client';
 import { 
   Tag, ArrowRight, Calendar, Clock, Eye, Heart, 
   BookOpen, TrendingUp, Loader2, ChevronLeft,
   Trophy, Laptop, Building2, Leaf, Activity, Globe,
   Grid, List, SortDesc, Sparkles
 } from 'lucide-react';
-import { getArticleLink } from '@/lib/utils';
-
 interface Category {
   id: number;
   name: string;
@@ -26,7 +25,6 @@ interface Category {
   created_at: string;
   updated_at: string;
 }
-
 interface Article {
   id: string;
   title: string;
@@ -44,7 +42,6 @@ interface Article {
   is_featured?: boolean;
   is_breaking?: boolean;
 }
-
 // أيقونات التصنيفات
 const categoryIcons: { [key: string]: any } = {
   'تقنية': Laptop,
@@ -59,7 +56,6 @@ const categoryIcons: { [key: string]: any } = {
   'منوعات': Activity,
   'default': Tag
 };
-
 // ألوان التصنيفات
 const categoryColors: { [key: string]: string } = {
   'تقنية': 'from-purple-500 to-purple-600',
@@ -74,11 +70,9 @@ const categoryColors: { [key: string]: string } = {
   'بيئة': 'from-teal-500 to-teal-600',
   'default': 'from-gray-500 to-gray-600'
 };
-
 interface PageProps {
   params: Promise<{ slug: string }>
 }
-
 export default function CategoryDetailPage({ params }: PageProps) {
   const router = useRouter();
   const [category, setCategory] = useState<Category | null>(null);
@@ -89,7 +83,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [categorySlug, setCategorySlug] = useState<string>('');
-
   useEffect(() => {
     async function loadCategory() {
       const resolvedParams = await params;
@@ -100,14 +93,12 @@ export default function CategoryDetailPage({ params }: PageProps) {
     }
     loadCategory();
   }, []);
-
   useEffect(() => {
     // فلترة المقالات حسب البحث
     const filtered = articles.filter(article =>
       article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (article.excerpt && article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-
     // ترتيب المقالات
     const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
@@ -120,14 +111,11 @@ export default function CategoryDetailPage({ params }: PageProps) {
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
     });
-
     setFilteredArticles(sorted);
   }, [articles, sortBy, searchTerm]);
-
   const fetchCategoryData = async (slug: string) => {
     try {
       setLoading(true);
-      
       // جلب بيانات التصنيف
       const categoriesResponse = await fetch('/api/categories');
       if (categoriesResponse.ok) {
@@ -136,15 +124,12 @@ export default function CategoryDetailPage({ params }: PageProps) {
         const foundCategory = categories.find((cat: Category) => 
           cat.slug === slug || cat.name_ar.toLowerCase().replace(/\s+/g, '-') === slug
         );
-        
         if (!foundCategory) {
           console.error('التصنيف غير موجود');
           router.push('/categories');
           return;
         }
-        
         setCategory(foundCategory);
-        
         // جلب المقالات الخاصة بالتصنيف
         const articlesResponse = await fetch(`/api/articles?category_id=${foundCategory.id}`);
         if (articlesResponse.ok) {
@@ -158,16 +143,13 @@ export default function CategoryDetailPage({ params }: PageProps) {
       setLoading(false);
     }
   };
-
   const getIcon = (categoryName: string) => {
     const IconComponent = categoryIcons[categoryName] || categoryIcons['default'];
     return IconComponent;
   };
-
   const getColor = (categoryName: string) => {
     return categoryColors[categoryName] || categoryColors['default'];
   };
-
   const getCategoryImage = (category: Category) => {
     if (category.cover_image) {
       return category.cover_image;
@@ -185,7 +167,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
     };
     return defaultImages[category.name_ar] || defaultImages['default'];
   };
-
   const generatePlaceholderImage = (title: string) => {
     const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#EF4444', '#F59E0B'];
     const colorIndex = title.charCodeAt(0) % colors.length;
@@ -204,7 +185,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
       </svg>
     `)}`;
   };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ar-SA', {
@@ -213,7 +193,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
       day: 'numeric'
     });
   };
-
   if (loading) {
     return (
       <>
@@ -227,7 +206,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
       </>
     );
   }
-
   if (!category) {
     return (
       <>
@@ -249,14 +227,11 @@ export default function CategoryDetailPage({ params }: PageProps) {
       </>
     );
   }
-
   const Icon = getIcon(category.name_ar);
   const colorGradient = getColor(category.name_ar);
-
   return (
-    <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen bg-gray-50">
       <Header />
-      
       {/* Breadcrumb */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -273,16 +248,10 @@ export default function CategoryDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
-
       {/* Hero Section with Cover Image */}
       <section className="relative h-96 overflow-hidden">
-        <img
-          src={getCategoryImage(category)}
-          alt={category.name_ar}
-          className="w-full h-full object-cover"
-        />
+        <Image src={undefined} alt="" width={100} height={100} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        
         {/* Content Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-8">
           <div className="max-w-7xl mx-auto">
@@ -305,7 +274,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
                 )}
               </div>
             </div>
-            
             {/* Stats */}
             <div className="flex items-center gap-8 text-white/80">
               <div className="flex items-center gap-2">
@@ -331,7 +299,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
           </div>
         </div>
       </section>
-
       {/* Controls Section */}
       <section className="sticky top-16 z-10 bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -346,7 +313,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
                 className="w-full pr-4 pl-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-
             {/* Controls */}
             <div className="flex items-center gap-4">
               {/* Sort */}
@@ -362,7 +328,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
                   <option value="likes">الأعلى تفاعلاً</option>
                 </select>
               </div>
-
               {/* View Mode */}
               <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                 <button
@@ -392,7 +357,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
           </div>
         </div>
       </section>
-
       {/* Articles Section */}
       <section className="max-w-7xl mx-auto px-6 py-12">
         {filteredArticles.length === 0 ? (
@@ -411,11 +375,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
                     <article className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden h-full">
                       {/* Image */}
                       <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={article.featured_image || generatePlaceholderImage(article.title)}
-                          alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
+                        <Image src={undefined} alt="" width={100} height={100} />
                         {article.is_breaking && (
                           <div className="absolute top-3 right-3 px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
                             عاجل
@@ -428,19 +388,16 @@ export default function CategoryDetailPage({ params }: PageProps) {
                           </div>
                         )}
                       </div>
-
                       {/* Content */}
                       <div className="p-5">
                         <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
                           {article.title}
                         </h3>
-                        
                         {article.excerpt && (
                           <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                             {article.excerpt}
                           </p>
                         )}
-
                         <div className="flex items-center justify-between text-xs text-gray-500">
                           <div className="flex items-center gap-3">
                             <span className="flex items-center gap-1">
@@ -454,7 +411,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
                               </span>
                             )}
                           </div>
-                          
                           <div className="flex items-center gap-2">
                             <span className="flex items-center gap-1">
                               <Eye className="w-3 h-3" />
@@ -480,18 +436,13 @@ export default function CategoryDetailPage({ params }: PageProps) {
                     <article className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 p-6 flex gap-6">
                       {/* Image */}
                       <div className="relative w-48 h-32 rounded-xl overflow-hidden flex-shrink-0">
-                        <img
-                          src={article.featured_image || generatePlaceholderImage(article.title)}
-                          alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
+                        <Image src={undefined} alt="" width={100} height={100} />
                         {article.is_breaking && (
                           <div className="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
                             عاجل
                           </div>
                         )}
                       </div>
-
                       {/* Content */}
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
@@ -505,13 +456,11 @@ export default function CategoryDetailPage({ params }: PageProps) {
                             </div>
                           )}
                         </div>
-                        
                         {article.excerpt && (
                           <p className="text-gray-600 mb-3 line-clamp-2">
                             {article.excerpt}
                           </p>
                         )}
-
                         <div className="flex items-center justify-between text-sm text-gray-500">
                           <div className="flex items-center gap-4">
                             {article.author_name && (
@@ -522,7 +471,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
                               <span>{article.reading_time} دقائق قراءة</span>
                             )}
                           </div>
-                          
                           <div className="flex items-center gap-3">
                             <span className="flex items-center gap-1">
                               <Eye className="w-4 h-4" />

@@ -1,6 +1,11 @@
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+
+
+
 import { 
   Zap, TrendingUp, Users, BookOpen, Timer, Flame, 
   Award, Target, Activity, BarChart3, Crown, Sparkles

@@ -1,12 +1,12 @@
-"use client";
-
+import Image from 'next/image';
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, Loader2, AlertTriangle, Hash, Calendar, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
+'use client';
+"use client";
 interface Article {
   id: string;
   title: string;
@@ -19,14 +19,12 @@ interface Article {
   author_name?: string;
   reading_time?: number;
 }
-
 function SearchContent() {
   const params = useSearchParams();
   const query = params?.get("q") ?? "";
   const [loading, setLoading] = useState(false);
   const [articles, setArticles] = useState<Article[]>([]);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchResults = async () => {
       if (!query) return;
@@ -46,10 +44,8 @@ function SearchContent() {
         setLoading(false);
       }
     };
-
     fetchResults();
   }, [query]);
-
   return (
     <>
       <Header />
@@ -69,21 +65,18 @@ function SearchContent() {
             العودة للرئيسية
           </Link>
         </div>
-
         {loading && (
           <div className="text-center py-20">
             <Loader2 className="w-8 h-8 mx-auto animate-spin text-blue-500" />
             <p className="mt-4 text-gray-600">جارٍ جلب المقالات...</p>
           </div>
         )}
-
         {error && (
           <div className="text-center py-20 bg-red-50 p-6 rounded-xl">
             <AlertTriangle className="w-8 h-8 mx-auto text-red-500" />
             <p className="mt-4 text-red-700 font-semibold">{error}</p>
           </div>
         )}
-
         {!loading && !error && articles.length === 0 && (
           <div className="text-center py-20 bg-gray-50 p-6 rounded-xl">
             <Search className="w-8 h-8 mx-auto text-gray-400" />
@@ -92,7 +85,6 @@ function SearchContent() {
             </p>
           </div>
         )}
-
         {!loading && articles.length > 0 && (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {articles.map((article) => (
@@ -102,11 +94,7 @@ function SearchContent() {
                 className="group block bg-white border rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="relative">
-                  <img
-                    src={article.featured_image || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80'}
-                    alt={article.title}
-                    className="w-full h-48 object-cover"
-                  />
+                  <Image src={undefined} alt="" width={100} height={100} />
                   <div className="absolute top-3 right-3 px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
                     {article.category_name || 'أخبار'}
                   </div>
@@ -137,7 +125,6 @@ function SearchContent() {
     </>
   );
 }
-
 export default function SearchPage() {
   return (
     <Suspense fallback={

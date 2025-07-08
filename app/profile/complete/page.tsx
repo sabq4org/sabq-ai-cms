@@ -1,13 +1,13 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+'use client';
 import { 
   User, Calendar, Briefcase, GraduationCap, Camera, CheckCircle, Gift,
   ArrowRight, ArrowLeft
 } from 'lucide-react';
-import Link from 'next/link';
-
 interface ProfileData {
   avatar: string;
   bio: string;
@@ -30,14 +30,12 @@ interface ProfileData {
     showActivity: boolean;
   };
 }
-
 interface InterestOption {
   id: string;
   name: string;
   icon: string;
   color: string;
 }
-
 export default function CompleteProfilePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +62,6 @@ export default function CompleteProfilePage() {
       showActivity: true
     }
   });
-
   const [availableInterests] = useState<InterestOption[]>([
     { id: 'politics', name: 'السياسة', icon: '🏛️', color: 'bg-red-100 text-red-800' },
     { id: 'economy', name: 'الاقتصاد', icon: '💰', color: 'bg-green-100 text-green-800' },
@@ -75,7 +72,6 @@ export default function CompleteProfilePage() {
     { id: 'entertainment', name: 'الترفيه', icon: '🎬', color: 'bg-indigo-100 text-indigo-800' },
     { id: 'travel', name: 'السفر', icon: '✈️', color: 'bg-cyan-100 text-cyan-800' }
   ]);
-
   const updateProfileData = (field: string, value: any) => {
     setProfileData(prev => {
       if (field.includes('.')) {
@@ -91,7 +87,6 @@ export default function CompleteProfilePage() {
       return { ...prev, [field]: value };
     });
   };
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -102,26 +97,21 @@ export default function CompleteProfilePage() {
       reader.readAsDataURL(file);
     }
   };
-
   const toggleInterest = (interestId: string) => {
     const interests = profileData.interests.includes(interestId)
       ? profileData.interests.filter(id => id !== interestId)
       : [...profileData.interests, interestId];
     updateProfileData('interests', interests);
   };
-
   const handleSubmit = async () => {
     setIsLoading(true);
-    
     try {
       const response = await fetch('/api/profile/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profileData)
       });
-
       const data = await response.json();
-
       if (data.success) {
         router.push('/dashboard?welcome=true');
       }
@@ -131,17 +121,14 @@ export default function CompleteProfilePage() {
       setIsLoading(false);
     }
   };
-
   const nextStep = () => {
     if (step < 4) setStep(step + 1);
   };
-
   const prevStep = () => {
     if (step > 1) setStep(step - 1);
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 py-12 px-4" dir="rtl">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 py-12 px-4" dir="rtl">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
@@ -151,7 +138,6 @@ export default function CompleteProfilePage() {
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">أكمل ملفك الشخصي</h1>
           <p className="mt-2 text-gray-600">هذا سيساعدنا في تخصيص تجربتك الإخبارية</p>
-          
           <div className="flex justify-center mt-6 space-x-2 space-x-reverse">
             {[1, 2, 3, 4].map((stepNum) => (
               <div
@@ -163,18 +149,15 @@ export default function CompleteProfilePage() {
             ))}
           </div>
         </div>
-
         <div className="bg-white rounded-xl shadow-lg p-8">
-          
           {step === 1 && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">المعلومات الشخصية</h2>
-              
               <div className="text-center">
                 <div className="relative inline-block">
                   <div className="w-24 h-24 bg-gray-200 rounded-full overflow-hidden">
                     {profileData.avatar ? (
-                      <img src={profileData.avatar} alt="الصورة الشخصية" className="w-full h-full object-cover" />
+                      <Image src={undefined} alt="الصورة الشخصية" width={100} height={100} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <User className="w-12 h-12 text-gray-400" />
@@ -193,7 +176,6 @@ export default function CompleteProfilePage() {
                 </div>
                 <p className="text-sm text-gray-500 mt-2">اضغط على الكاميرا لتحديث صورتك</p>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   نبذة شخصية (اختياري)
@@ -206,7 +188,6 @@ export default function CompleteProfilePage() {
                   placeholder="اكتب نبذة مختصرة عنك..."
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   تاريخ الميلاد (اختياري)
@@ -221,7 +202,6 @@ export default function CompleteProfilePage() {
                   />
                 </div>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   المهنة (اختياري)
@@ -237,7 +217,6 @@ export default function CompleteProfilePage() {
                   />
                 </div>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   المؤهل التعليمي (اختياري)
@@ -260,12 +239,10 @@ export default function CompleteProfilePage() {
               </div>
             </div>
           )}
-
           {step === 2 && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">اهتماماتك</h2>
               <p className="text-gray-600 mb-6">اختر المواضيع التي تهمك لنقدم لك محتوى مخصص</p>
-              
               <div className="grid grid-cols-2 gap-4">
                 {availableInterests.map(interest => (
                   <button
@@ -291,11 +268,9 @@ export default function CompleteProfilePage() {
               </div>
             </div>
           )}
-
           {step === 3 && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">تفضيلات القراءة</h2>
-              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   متى تفضل قراءة الأخبار؟
@@ -320,7 +295,6 @@ export default function CompleteProfilePage() {
                   ))}
                 </div>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   أي نوع من المحتوى تفضل؟
@@ -347,11 +321,9 @@ export default function CompleteProfilePage() {
               </div>
             </div>
           )}
-
           {step === 4 && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">الإعدادات الأخيرة</h2>
-              
               <div>
                 <h3 className="font-medium text-gray-900 mb-3">الإشعارات</h3>
                 <div className="space-y-3">
@@ -364,7 +336,6 @@ export default function CompleteProfilePage() {
                       className="text-blue-600 focus:ring-blue-500"
                     />
                   </label>
-                  
                   <label className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                     <span className="text-gray-900">الإشعارات الفورية</span>
                     <input
@@ -376,7 +347,6 @@ export default function CompleteProfilePage() {
                   </label>
                 </div>
               </div>
-
               <div>
                 <h3 className="font-medium text-gray-900 mb-3">الخصوصية</h3>
                 <div className="space-y-3">
@@ -391,7 +361,6 @@ export default function CompleteProfilePage() {
                       <option value="private">خاص - مخفي عن الآخرين</option>
                     </select>
                   </div>
-                  
                   <label className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                     <span className="text-gray-900">إظهار نشاط القراءة</span>
                     <input
@@ -403,7 +372,6 @@ export default function CompleteProfilePage() {
                   </label>
                 </div>
               </div>
-
               <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4">
                 <div className="flex items-center justify-center mb-2">
                   <Gift className="w-6 h-6 text-green-600 ml-2" />
@@ -415,7 +383,6 @@ export default function CompleteProfilePage() {
               </div>
             </div>
           )}
-
           <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
             {step > 1 && (
               <button
@@ -426,7 +393,6 @@ export default function CompleteProfilePage() {
                 السابق
               </button>
             )}
-            
             {step < 4 ? (
               <button
                 onClick={nextStep}
@@ -452,7 +418,6 @@ export default function CompleteProfilePage() {
               </button>
             )}
           </div>
-
           {step < 4 && (
             <div className="text-center mt-4">
               <button

@@ -1,9 +1,14 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Play, Pause, Clock, Eye, Image as ImageIcon } from 'lucide-react';
+
+'use client';
+
+
+
+
+
 
 interface CarouselBlockProps {
   block: any;

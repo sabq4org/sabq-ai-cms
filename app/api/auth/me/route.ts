@@ -1,7 +1,20 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import prisma from '@/lib/prisma';
 import { handleOptions, corsResponse, addCorsHeaders } from '@/lib/cors';
+
+
+
+
+
+
+
+
+
+
+
+
 
 // معالجة طلبات OPTIONS للـ CORS
 export async function OPTIONS() {

@@ -1,5 +1,4 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided, DroppableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd';
 import { Block, BlockEditorProps, AIAction, BlockType } from './types';
@@ -8,6 +7,19 @@ import BlockItem from './BlockItem';
 import BlockMenu from './BlockMenu';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Plus } from 'lucide-react';
+
+'use client';
+
+
+
+
+
+
+
+
+
+
+
 
 export default function BlockEditor({
   blocks,

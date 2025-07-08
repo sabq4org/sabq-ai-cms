@@ -1,25 +1,22 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { getMembershipLevel } from '@/lib/loyalty';
-
+'use client';
 export default function DebugLoyaltyPage() {
   const [localStorageData, setLocalStorageData] = useState<any>(null);
   const [loyaltyAPIData, setLoyaltyAPIData] = useState<any>(null);
   const [usersAPIData, setUsersAPIData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     fetchAllData();
   }, []);
-
   const fetchAllData = async () => {
     // 1. بيانات localStorage
     const userData = localStorage.getItem('user');
     if (userData) {
       setLocalStorageData(JSON.parse(userData));
     }
-
     // 2. بيانات API نقاط الولاء
     if (userData) {
       const user = JSON.parse(userData);
@@ -33,7 +30,6 @@ export default function DebugLoyaltyPage() {
         console.error('Error fetching loyalty data:', error);
       }
     }
-
     // 3. بيانات API المستخدمين
     try {
       const usersResponse = await fetch('/api/users');
@@ -46,27 +42,22 @@ export default function DebugLoyaltyPage() {
     } catch (error) {
       console.error('Error fetching users data:', error);
     }
-
     setLoading(false);
   };
-
   const clearAndRefresh = () => {
     localStorage.clear();
     window.location.href = '/login';
   };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+  <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
-
   return (
-    <div className="max-w-6xl mx-auto p-8">
+  <div className="max-w-6xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8">🔍 تشخيص نظام الولاء</h1>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* localStorage */}
         <div className="bg-white p-6 rounded-lg shadow">
@@ -87,7 +78,6 @@ export default function DebugLoyaltyPage() {
             <p className="text-gray-500">لا توجد بيانات</p>
           )}
         </div>
-
         {/* API نقاط الولاء */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4 text-green-600">2️⃣ API نقاط الولاء</h2>
@@ -113,7 +103,6 @@ export default function DebugLoyaltyPage() {
             <p className="text-gray-500">لا توجد بيانات</p>
           )}
         </div>
-
         {/* API المستخدمين */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4 text-purple-600">3️⃣ API المستخدمين</h2>
@@ -134,11 +123,9 @@ export default function DebugLoyaltyPage() {
           )}
         </div>
       </div>
-
       {/* الملخص */}
       <div className="mt-8 bg-yellow-50 p-6 rounded-lg">
         <h3 className="text-xl font-semibold mb-4">📊 الملخص</h3>
-        
         <div className="space-y-3">
           {/* التحقق من التطابق */}
           {(() => {
@@ -146,9 +133,7 @@ export default function DebugLoyaltyPage() {
             const loyaltyData = loyaltyAPIData?.data || loyaltyAPIData;
             const loyaltyPoints = loyaltyData?.total_points || 0;
             const usersPoints = usersAPIData?.loyaltyPoints || 0;
-            
             const allMatch = localPoints === loyaltyPoints && loyaltyPoints === usersPoints;
-            
             return (
               <>
                 <div className={`p-3 rounded ${allMatch ? 'bg-green-100' : 'bg-red-100'}`}>
@@ -161,7 +146,6 @@ export default function DebugLoyaltyPage() {
                     <li>API المستخدمين: {usersPoints} نقطة → {getMembershipLevel(usersPoints).name}</li>
                   </ul>
                 </div>
-                
                 {!allMatch && (
                   <div className="mt-4">
                     <button
@@ -177,7 +161,6 @@ export default function DebugLoyaltyPage() {
           })()}
         </div>
       </div>
-
       {/* معلومات إضافية */}
       <div className="mt-8 bg-gray-50 p-6 rounded-lg">
         <h3 className="text-lg font-semibold mb-4">💡 معلومات مفيدة</h3>

@@ -1,13 +1,20 @@
+import Image from 'next/image';
+import React from 'react';
+import { SabqCard } from '@/components/ui/SabqCard';
+import { SabqBadge } from '@/components/ui/SabqBadge';
+
 'use client';
 
-import React from 'react';
+
+
+
 import { 
   FileText, TrendingUp, TrendingDown, Edit3, 
   AlertCircle, Clock, Eye,
   MessageSquare, BarChart3
 } from 'lucide-react';
-import { SabqCard } from '@/components/ui/SabqCard';
-import { SabqBadge } from '@/components/ui/SabqBadge';
+
+
 
 interface ContentStat {
   id: string;

@@ -1,6 +1,8 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { AlHilalWorldCupBlock } from '@/components/smart-blocks/AlHilalWorldCupBlock';
+'use client';
 import { 
   Clock, 
   Heart, 
@@ -14,9 +16,6 @@ import {
   AlertCircle,
   Settings
 } from 'lucide-react';
-import Link from 'next/link';
-import { AlHilalWorldCupBlock } from '@/components/smart-blocks/AlHilalWorldCupBlock';
-
 interface Article {
   id: string;
   title: string;
@@ -36,7 +35,6 @@ interface Article {
   shares?: number;
   score?: number;
 }
-
 interface PersonalizedContent {
   success: boolean;
   user_id: string;
@@ -49,7 +47,6 @@ interface PersonalizedContent {
     personalization_active: boolean;
   };
 }
-
 export default function HomePage() {
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -65,27 +62,22 @@ export default function HomePage() {
     }
     return '';
   });
-
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
-    
     // حفظ معرف المستخدم
     if (userId) {
       localStorage.setItem('user_id', userId);
     }
   }, [userId]);
-
   // جلب المحتوى المخصص
   useEffect(() => {
     const fetchPersonalizedContent = async () => {
       if (!userId) return;
-      
       try {
         setLoading(true);
-        
         // جلب جميع المقالات المخصصة
         const [allContent, breaking, later, recommended] = await Promise.all([
           fetch(`/api/content/personalized?user_id=${userId}&limit=20&type=all`).then(res => res.json()),
@@ -93,22 +85,18 @@ export default function HomePage() {
           fetch(`/api/content/personalized?user_id=${userId}&limit=5&type=read-later`).then(res => res.json()),
           fetch(`/api/content/personalized?user_id=${userId}&limit=10&type=recommended`).then(res => res.json())
         ]);
-
         setPersonalizedContent(allContent);
         setBreakingNews(breaking.articles || []);
         setReadLater(later.articles || []);
         setRecommendedArticles(recommended.articles || []);
-        
       } catch (error) {
         console.error('Error fetching personalized content:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchPersonalizedContent();
   }, [userId]);
-
   // تتبع التفاعل
   const trackInteraction = async (articleId: string, action: string, duration?: number) => {
     try {
@@ -127,32 +115,27 @@ export default function HomePage() {
       console.error('Error tracking interaction:', error);
     }
   };
-
   // مكون بطاقة المقال
   const ArticleCard = ({ article, variant = 'default' }: { article: Article; variant?: 'default' | 'compact' | 'featured' }) => {
     const [readTime, setReadTime] = useState(0);
     const [startTime] = useState(Date.now());
-
     const handleClick = () => {
       const duration = Math.floor((Date.now() - startTime) / 1000);
       trackInteraction(article.id, 'read', duration);
     };
-
     const handleLike = async (e: React.MouseEvent) => {
       e.stopPropagation();
       await trackInteraction(article.id, 'like');
       // تحديث واجهة المستخدم
     };
-
     const handleShare = async (e: React.MouseEvent) => {
       e.stopPropagation();
       await trackInteraction(article.id, 'share');
       // فتح نافذة المشاركة
     };
-
     if (variant === 'featured') {
       return (
-        <div className={`rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl ${
+  <div className={`rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl ${
           darkMode ? 'bg-gray-800' : 'bg-white'
         }`}>
           <div className="p-6">
@@ -162,22 +145,18 @@ export default function HomePage() {
                 <span className="text-red-500 font-bold text-sm">عاجل</span>
               </div>
             )}
-            
             <div className="flex items-center gap-2 mb-3">
               <span className="text-2xl">{article.category_icon}</span>
               <span className={`text-sm font-medium ${
                 darkMode ? 'text-gray-400' : 'text-gray-600'
               }`}>{article.category_name}</span>
             </div>
-
             <h2 className={`text-2xl font-bold mb-3 transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-900'
             }`}>{article.title}</h2>
-            
             <p className={`text-base mb-4 line-clamp-3 transition-colors duration-300 ${
               darkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>{article.summary}</p>
-
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 text-sm">
                 <span className={`flex items-center gap-1 ${
@@ -199,7 +178,6 @@ export default function HomePage() {
                   {article.shares || 0}
                 </button>
               </div>
-
               <Link 
                 href={`/article/${article.id}`}
                 onClick={handleClick}
@@ -212,10 +190,9 @@ export default function HomePage() {
         </div>
       );
     }
-
     if (variant === 'compact') {
       return (
-        <div className={`rounded-lg p-4 transition-all duration-300 hover:shadow-md ${
+  <div className={`rounded-lg p-4 transition-all duration-300 hover:shadow-md ${
           darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'
         }`}>
           <div className="flex items-start gap-3">
@@ -240,9 +217,8 @@ export default function HomePage() {
         </div>
       );
     }
-
     return (
-      <div className={`rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-lg ${
+  <div className={`rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-lg ${
         darkMode ? 'bg-gray-800' : 'bg-white'
       }`}>
         <div className="p-5">
@@ -252,15 +228,12 @@ export default function HomePage() {
               darkMode ? 'text-gray-400' : 'text-gray-600'
             }`}>{article.category_name}</span>
           </div>
-
           <h3 className={`text-lg font-bold mb-2 line-clamp-2 transition-colors duration-300 ${
             darkMode ? 'text-white' : 'text-gray-900'
           }`}>{article.title}</h3>
-          
           <p className={`text-sm mb-3 line-clamp-2 transition-colors duration-300 ${
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>{article.summary}</p>
-
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-sm">
               <span className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -273,7 +246,6 @@ export default function HomePage() {
                 {new Date(article.created_at).toLocaleDateString('ar-SA')}
               </span>
             </div>
-
             <Link 
               href={`/article/${article.id}`}
               onClick={handleClick}
@@ -286,12 +258,10 @@ export default function HomePage() {
       </div>
     );
   };
-
   // رسالة الترحيب المخصصة
   const WelcomeSection = () => {
     const getDoseMessage = () => {
       if (!personalizedContent) return '';
-      
       switch (personalizedContent.dose) {
         case 'morning':
           return 'صباح الخير! إليك جرعتك الصباحية من الأخبار المختارة خصيصاً لك ☀️';
@@ -303,9 +273,8 @@ export default function HomePage() {
           return 'مرحباً بك! إليك آخر الأخبار المختارة خصيصاً لك';
       }
     };
-
     return (
-      <div className={`rounded-2xl p-6 mb-8 ${
+  <div className={`rounded-2xl p-6 mb-8 ${
         darkMode 
           ? 'bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-700' 
           : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100'
@@ -323,7 +292,6 @@ export default function HomePage() {
                 : 'تفاعل مع المقالات لنتعرف على اهتماماتك ونقدم لك محتوى مخصص'}
             </p>
           </div>
-          
           <div className="flex items-center gap-4">
             <div className={`px-4 py-2 rounded-xl ${
               darkMode ? 'bg-gray-800' : 'bg-white'
@@ -335,7 +303,6 @@ export default function HomePage() {
                 }`}>ID: {userId.slice(-8)}</span>
               </div>
             </div>
-            
             <Link href="/dashboard/preferences" className="p-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-colors">
               <Settings className="w-5 h-5" />
             </Link>
@@ -344,10 +311,9 @@ export default function HomePage() {
       </div>
     );
   };
-
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${
+  <div className={`min-h-screen flex items-center justify-center ${
         darkMode ? 'bg-gray-900' : 'bg-gray-50'
       }`}>
         <div className="text-center">
@@ -359,14 +325,12 @@ export default function HomePage() {
       </div>
     );
   }
-
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
+  <div className={`min-h-screen transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : 'bg-gray-50'
     }`}>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <WelcomeSection />
-
         {/* الأخبار العاجلة المخصصة */}
         {breakingNews.length > 0 && (
           <section className="mb-12">
@@ -376,7 +340,6 @@ export default function HomePage() {
                 darkMode ? 'text-white' : 'text-gray-900'
               }`}>عاجل من اهتماماتك</h2>
             </div>
-            
             <div className="grid md:grid-cols-2 gap-6">
               {breakingNews.slice(0, 2).map((article) => (
                 <ArticleCard key={article.id} article={article} variant="featured" />
@@ -384,7 +347,6 @@ export default function HomePage() {
             </div>
           </section>
         )}
-
         {/* الأخبار المخصصة لك */}
         {personalizedContent && personalizedContent.articles.length > 0 && (
           <section className="mb-12">
@@ -394,7 +356,6 @@ export default function HomePage() {
                 darkMode ? 'text-white' : 'text-gray-900'
               }`}>مختارة خصيصاً لك</h2>
             </div>
-            
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {personalizedContent.articles.slice(0, 6).map((article) => (
                 <ArticleCard key={article.id} article={article} />
@@ -402,7 +363,6 @@ export default function HomePage() {
             </div>
           </section>
         )}
-
         {/* اقرأ لاحقاً */}
         {readLater.length > 0 && (
           <section className="mb-12">
@@ -417,7 +377,6 @@ export default function HomePage() {
                 {readLater.length} مقالات
               </span>
             </div>
-            
             <div className="space-y-4">
               {readLater.map((article) => (
                 <ArticleCard key={article.id} article={article} variant="compact" />
@@ -425,7 +384,6 @@ export default function HomePage() {
             </div>
           </section>
         )}
-
         {/* توصيات مبنية على اهتماماتك */}
         {recommendedArticles.length > 0 && (
           <section className="mb-12">
@@ -435,7 +393,6 @@ export default function HomePage() {
                 darkMode ? 'text-white' : 'text-gray-900'
               }`}>قد يعجبك أيضاً</h2>
             </div>
-            
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {recommendedArticles.slice(0, 8).map((article) => (
                 <ArticleCard key={article.id} article={article} variant="compact" />
@@ -443,7 +400,6 @@ export default function HomePage() {
             </div>
           </section>
         )}
-
         {/* إذا لم يكن هناك محتوى مخصص بعد */}
         {(!personalizedContent || personalizedContent.articles.length === 0) && (
           <div className={`text-center py-16 rounded-2xl ${
@@ -463,7 +419,6 @@ export default function HomePage() {
             </Link>
           </div>
         )}
-
         {/* بلوك الهلال في بطولة العالم */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <AlHilalWorldCupBlock />

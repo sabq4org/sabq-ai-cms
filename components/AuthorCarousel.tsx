@@ -1,13 +1,20 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { generatePlaceholderImage } from '@/lib/cloudinary';
+
+'use client';
+
+
+
+
+
 import { 
   ChevronLeft, ChevronRight, Award, Flame, Volume2, 
   Eye, Heart, MessageCircle, TrendingUp, TrendingDown,
   Mic, Calendar, User, ExternalLink, X, Check
 } from 'lucide-react';
-import { generatePlaceholderImage } from '@/lib/cloudinary';
+
 
 interface Author {
   id: string;
@@ -156,11 +163,7 @@ export default function AuthorCarousel({ authors, onAuthorSelect }: AuthorCarous
                     <div className="group relative">
                       {/* صورة الكاتب */}
                       <div className="relative">
-                        <img
-                          src={author.avatar || generatePlaceholderImage(author.name)}
-                          alt={author.name}
-                          className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg group-hover:scale-110 transition-transform author-avatar"
-                        />
+                        <Image src={undefined} alt="" width={100} height={100} />
                         
                         {/* شارة الحالة */}
                         <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white dark:border-gray-700 ${
@@ -262,11 +265,7 @@ export default function AuthorCarousel({ authors, onAuthorSelect }: AuthorCarous
               
               {/* صورة الكاتب */}
               <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
-                <img
-                  src={selectedAuthor.avatar || generatePlaceholderImage(selectedAuthor.name)}
-                  alt={selectedAuthor.name}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg"
-                />
+                <Image src={undefined} alt="" width={100} height={100} />
                 {selectedAuthor.is_verified && (
                   <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
                     <Check className="w-4 h-4 text-white" />

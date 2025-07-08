@@ -1,9 +1,14 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectOption } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { DeepAnalysis, AnalysisStatus, SourceType } from '@/types/deep-analysis';
+'use client';
 import { 
   Brain, 
   Plus, 
@@ -43,13 +48,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Badge } from '@/components/ui/badge';
 // import { useDarkMode } from '@/hooks/useDarkMode';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
-import { DeepAnalysis, AnalysisStatus, SourceType } from '@/types/deep-analysis';
-
 export default function DeepAnalysisPage() {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
@@ -62,7 +61,6 @@ export default function DeepAnalysisPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
   // جلب التحليلات
   const fetchAnalyses = async () => {
     try {
@@ -76,10 +74,8 @@ export default function DeepAnalysisPage() {
         ...(statusFilter !== 'all' && { status: statusFilter }),
         ...(sourceTypeFilter !== 'all' && { sourceType: sourceTypeFilter })
       });
-
       const response = await fetch(`/api/deep-analyses?${params}`);
       const data = await response.json();
-      
       if (response.ok) {
         setAnalyses(data.analyses || []);
         setTotalPages(data.totalPages || 1);
@@ -93,20 +89,16 @@ export default function DeepAnalysisPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchAnalyses();
   }, [page, sortBy, sortOrder, statusFilter, sourceTypeFilter]);
-
   // حذف تحليل
   const handleDelete = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا التحليل؟')) return;
-
     try {
       const response = await fetch(`/api/deep-analyses/${id}`, {
         method: 'DELETE'
       });
-
       if (response.ok) {
         toast.success('تم حذف التحليل بنجاح');
         fetchAnalyses();
@@ -118,7 +110,6 @@ export default function DeepAnalysisPage() {
       toast.error('حدث خطأ في حذف التحليل');
     }
   };
-
   // تحديث حالة التحليل
   const handleStatusUpdate = async (id: string, status: AnalysisStatus) => {
     try {
@@ -127,7 +118,6 @@ export default function DeepAnalysisPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
-
       if (response.ok) {
         toast.success('تم تحديث حالة التحليل');
         fetchAnalyses();
@@ -139,7 +129,6 @@ export default function DeepAnalysisPage() {
       toast.error('حدث خطأ في تحديث الحالة');
     }
   };
-
   // ألوان الحالة
   const getStatusColor = (status: AnalysisStatus) => {
     switch (status) {
@@ -149,7 +138,6 @@ export default function DeepAnalysisPage() {
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
-
   // أيقونة نوع المصدر
   const getSourceIcon = (sourceType: SourceType) => {
     switch (sourceType) {
@@ -158,7 +146,6 @@ export default function DeepAnalysisPage() {
       case 'hybrid': return <Layers className="h-4 w-4 text-green-500" />;
     }
   };
-
   // مكون بطاقة الإحصائية
   const StatsCard = ({ 
     title, 
@@ -200,7 +187,6 @@ export default function DeepAnalysisPage() {
       </div>
     </div>
   );
-
   // حساب الإحصائيات
   const stats = {
     total: analyses.length,
@@ -212,9 +198,8 @@ export default function DeepAnalysisPage() {
     totalViews: analyses.reduce((acc, a) => acc + a.views, 0),
     gptAnalyses: analyses.filter(a => a.sourceType === 'gpt').length
   };
-
   return (
-    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+  <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -226,7 +211,6 @@ export default function DeepAnalysisPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>إنشاء وإدارة التحليلات العميقة للمحتوى باستخدام الذكاء الاصطناعي</p>
       </div>
-
       {/* قسم النظام الذكي */}
       <div className="mb-6 sm:mb-8">
         <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
@@ -256,7 +240,6 @@ export default function DeepAnalysisPage() {
               إنشاء تحليل جديد
             </Button>
           </div>
-          
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div className={`rounded-xl p-3 sm:p-4 border transition-colors duration-300 ${
               darkMode 
@@ -275,7 +258,6 @@ export default function DeepAnalysisPage() {
                 </div>
               </div>
             </div>
-            
             <div className={`rounded-xl p-3 sm:p-4 border transition-colors duration-300 ${
               darkMode 
                 ? 'bg-gray-800 border-purple-600' 
@@ -295,7 +277,6 @@ export default function DeepAnalysisPage() {
                 </div>
               </div>
             </div>
-            
             <div className={`rounded-xl p-3 sm:p-4 border transition-colors duration-300 ${
               darkMode 
                 ? 'bg-gray-800 border-purple-600' 
@@ -315,7 +296,6 @@ export default function DeepAnalysisPage() {
                 </div>
               </div>
             </div>
-            
             <div className={`rounded-xl p-3 sm:p-4 border transition-colors duration-300 ${
               darkMode 
                 ? 'bg-gray-800 border-purple-600' 
@@ -336,7 +316,6 @@ export default function DeepAnalysisPage() {
           </div>
         </div>
       </div>
-
       {/* بطاقات الإحصائيات */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
         <StatsCard
@@ -388,7 +367,6 @@ export default function DeepAnalysisPage() {
           iconColor="text-indigo-600"
         />
       </div>
-
       {/* الفلاتر والبحث */}
       <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border mb-6 transition-colors duration-300 ${
         darkMode 
@@ -408,7 +386,6 @@ export default function DeepAnalysisPage() {
               />
             </div>
           </div>
-
           <div className="flex flex-wrap gap-2">
             <Select 
               value={statusFilter} 
@@ -420,7 +397,6 @@ export default function DeepAnalysisPage() {
               <SelectOption value="draft">مسودة</SelectOption>
               <SelectOption value="archived">مؤرشف</SelectOption>
             </Select>
-
             <Select 
               value={sourceTypeFilter} 
               onChange={(e) => setSourceTypeFilter(e.target.value as SourceType | 'all')}
@@ -431,7 +407,6 @@ export default function DeepAnalysisPage() {
               <SelectOption value="gpt">GPT</SelectOption>
               <SelectOption value="hybrid">مختلط</SelectOption>
             </Select>
-
             <Select 
               value={sortBy} 
               onChange={(e) => setSortBy(e.target.value)}
@@ -442,7 +417,6 @@ export default function DeepAnalysisPage() {
               <SelectOption value="views">المشاهدات</SelectOption>
               <SelectOption value="qualityScore">الجودة</SelectOption>
             </Select>
-
             <Button
               variant="outline"
               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
@@ -453,7 +427,6 @@ export default function DeepAnalysisPage() {
           </div>
         </div>
       </div>
-
       {/* جدول التحليلات */}
       <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
         darkMode 
@@ -583,7 +556,6 @@ export default function DeepAnalysisPage() {
                               <p>تحرير التحليل</p>
                             </TooltipContent>
                           </Tooltip>
-
                           {/* زر العرض */}
                           {analysis.status === 'published' && (
                             <Tooltip>
@@ -604,7 +576,6 @@ export default function DeepAnalysisPage() {
                               </TooltipContent>
                             </Tooltip>
                           )}
-
                           {/* زر النشر */}
                           {analysis.status === 'draft' && (
                             <Tooltip>
@@ -625,7 +596,6 @@ export default function DeepAnalysisPage() {
                               </TooltipContent>
                             </Tooltip>
                           )}
-
                           {/* قائمة الإجراءات الإضافية */}
                           <DropdownMenu>
                             <Tooltip>
@@ -662,7 +632,6 @@ export default function DeepAnalysisPage() {
                                   <span className="text-gray-700 dark:text-gray-400">حفظ كمؤرشف</span>
                                 </DropdownMenuItem>
                               )}
-                              
                               {/* إعادة توليد بالذكاء الاصطناعي */}
                               {(analysis.sourceType === 'gpt' || analysis.status === 'draft') && (
                                 <DropdownMenuItem
@@ -675,9 +644,7 @@ export default function DeepAnalysisPage() {
                                   <span className="text-orange-700 dark:text-orange-400">إعادة توليد بالذكاء الاصطناعي</span>
                                 </DropdownMenuItem>
                               )}
-                              
                               <DropdownMenuSeparator className={darkMode ? 'bg-gray-700' : ''} />
-                              
                               {/* نسخ الرابط */}
                               <DropdownMenuItem
                                 onClick={() => {
@@ -691,9 +658,7 @@ export default function DeepAnalysisPage() {
                                 <Copy className="h-4 w-4 ml-2 text-gray-600" />
                                 <span>نسخ الرابط</span>
                               </DropdownMenuItem>
-                              
                               <DropdownMenuSeparator className={darkMode ? 'bg-gray-700' : ''} />
-                              
                               {/* حذف التحليل */}
                               <DropdownMenuItem
                                 onClick={() => handleDelete(analysis.id)}
@@ -713,7 +678,6 @@ export default function DeepAnalysisPage() {
             </tbody>
           </table>
         </div>
-
         {/* التصفح */}
         {totalPages > 1 && (
           <div className={`flex justify-between items-center px-6 py-4 border-t ${

@@ -1,8 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { Smartphone, Wifi, WifiOff, Battery, Signal } from 'lucide-react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+
+'use client';
+
+
+
+
+
+
 
 interface MobileOptimizerProps {
   children: React.ReactNode;
@@ -438,18 +445,7 @@ export function MobileImage({
 
   return (
     <div className={`relative overflow-hidden rounded-xl ${className}`}>
-      <img
-        src={src}
-        alt={alt}
-        className={`
-          w-full
-          ${isMobile ? 'h-32' : height}
-          object-cover
-          transition-transform duration-300
-          hover:scale-105
-        `}
-        loading="lazy"
-      />
+      <Image src={undefined} alt="" width={100} height={100} />
     </div>
   )
 } 

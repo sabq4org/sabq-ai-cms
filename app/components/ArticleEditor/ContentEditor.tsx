@@ -1,7 +1,16 @@
-// @ts-nocheck
+import Image from 'next/image';
+import React, { useState } from 'react';
+
 'use client';
 
-import React, { useState } from 'react';
+
+
+
+
+// @ts-nocheck
+
+
+
 import { 
   Type, Quote, Image, Video, List, Link, Palette, Plus,
   ArrowUp, ArrowDown, Trash2, MessageSquare, Hash, Sparkles,
@@ -557,11 +566,7 @@ function BlockContentEditor({ block, onUpdate, isEditing, setIsEditing }) {
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
             {block.content.url ? (
               <div className="space-y-3">
-                <img 
-                  src={block.content.url} 
-                  alt={block.content.alt || ''}
-                  className="max-w-full h-auto rounded-lg mx-auto"
-                />
+                <Image src={undefined} alt="" width={100} height={100} />
                 <button
                   onClick={() => handleUpdate({ ...block.content, url: '' })}
                   className="text-red-600 hover:text-red-700 text-sm"

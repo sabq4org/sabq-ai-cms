@@ -1,10 +1,17 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
+'use client';
+
+
+
+
+
 import { Image as ImageIcon, Sparkles
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
 
 // Dynamic import for the Editor to avoid SSR issues
 const Editor = dynamic(() => import('./Editor/Editor'), { 
@@ -75,7 +82,7 @@ export default function ContentEditorWithTiptap({
           html += `<ul>${items.map((item: string) => `<li>${item}</li>`).join('')}</ul>`;
           break;
         case 'image':
-          html += `<img src="${block.content.url}" alt="${block.content.alt || ''}" />`;
+          html += `<Image src={"${block.content.url}"} alt="${block.content.alt || " width={100} height={100} />`;
           break;
         default:
           // للأنواع الأخرى، نضيف كفقرة

@@ -1,14 +1,23 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { useTheme } from 'next-themes';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+
+'use client';
+
+
+
+
+
 import { 
   Menu, X, Search, User, Sun, Moon, Bell, Activity, 
   Home, Newspaper, Bookmark, Settings, LogOut 
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { useTheme } from 'next-themes';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
+
+
+
 
 interface MobileHeaderProps {
   showSearch?: boolean;
@@ -94,7 +103,7 @@ export default function MobileHeader({
 
   return (
     <>
-      <header className={`mobile-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      <div className={`mobile-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg' 
           : 'bg-white dark:bg-gray-900'
@@ -208,7 +217,7 @@ export default function MobileHeader({
 
         {/* شريط التقدم للتحميل */}
         <div className="h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 transform origin-left scale-x-0 transition-transform duration-300" />
-      </header>
+      </div>
 
       {/* القائمة الجانبية */}
       {mobileMenuOpen && (
@@ -328,7 +337,7 @@ export function SimpleMobileHeader() {
 
   return (
     <>
-      <header className={`simple-mobile-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      <div className={`simple-mobile-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg' 
           : 'bg-white dark:bg-gray-900'
@@ -358,7 +367,7 @@ export function SimpleMobileHeader() {
             </Link>
           </div>
         </div>
-      </header>
+      </div>
       <div className="h-16" />
     </>
   );

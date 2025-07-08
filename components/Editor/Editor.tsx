@@ -1,5 +1,4 @@
-'use client';
-
+import React from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -23,6 +22,34 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Button } from '@/components/ui/button';
 import { Undo2, Redo2, Save, RotateCcw, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+'use client';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 interface EditorProps {
   content?: any;

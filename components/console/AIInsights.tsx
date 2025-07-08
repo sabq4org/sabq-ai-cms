@@ -1,12 +1,19 @@
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+import { SabqCard } from '@/components/ui/SabqCard';
+import { SabqButton } from '@/components/ui/SabqButton';
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+
+
+
 import { 
   Brain, AlertTriangle, Lightbulb, 
   Target, Award, Sparkles, ChevronRight
 } from 'lucide-react';
-import { SabqCard } from '@/components/ui/SabqCard';
-import { SabqButton } from '@/components/ui/SabqButton';
+
+
 
 interface AIInsight {
   id: string;

@@ -1,6 +1,17 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
 import { getCurrentUser } from '@/app/lib/auth';
+
+
+
+
+
+
+
+
+
+
 
 const prisma = new PrismaClient();
 

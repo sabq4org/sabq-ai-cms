@@ -1,6 +1,17 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
 import { corsResponse } from '@/lib/cors';
+
+
+
+
+
+
+
+
+
+
 
 const prisma = new PrismaClient();
 

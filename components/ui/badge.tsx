@@ -1,5 +1,10 @@
+import Image from 'next/image';
 import React from 'react';
 import { cva } from 'class-variance-authority';
+
+
+
+
 
 interface BadgeProps {
   className?: string;

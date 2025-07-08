@@ -1,8 +1,19 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
+import jwt from 'jsonwebtoken';
+
+
+
+
+
+
+
+
+
 
 const prisma = new PrismaClient();
-import jwt from 'jsonwebtoken';
+
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 

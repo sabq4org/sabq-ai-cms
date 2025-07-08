@@ -1,9 +1,22 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
-
-const prisma = new PrismaClient();
 import { handleOptions, corsResponse } from '@/lib/cors';
 import OpenAI from 'openai';
+
+
+
+
+
+
+
+
+
+
+
+const prisma = new PrismaClient();
+
+
 
 // معالجة طلبات OPTIONS للـ CORS
 export async function OPTIONS() {

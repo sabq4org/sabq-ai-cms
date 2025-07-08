@@ -1,8 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useRef, useEffect, useState } from 'react';
 import { Quote } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
+'use client';
+
+
+
+
+
+
 
 interface QuoteBlockProps {
   data: { text: string; author?: string; alignment?: 'left' | 'center' | 'right' };

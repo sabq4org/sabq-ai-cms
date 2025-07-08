@@ -1,15 +1,5 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  Search, Filter, ChevronLeft, ChevronRight, Sparkles, 
-  TrendingUp, Calendar, User, Eye, Heart, MessageCircle, 
-  Share2, Volume2, Zap, Podcast, Flame, Star, Award,
-  Mic, BookOpen, Timer, BarChart3, Crown, Headphones,
-  PlayCircle, PauseCircle, ChevronDown, Brain, Quote,
-  ThumbsUp, ThumbsDown, X, Plus, HeartHandshake,
-  CheckCircle, Radio, Activity
-} from 'lucide-react';
 import Link from 'next/link';
 import { getArticleLink } from '@/lib/utils';
 import { formatDateOnly } from '@/lib/date-utils';
@@ -19,7 +9,16 @@ import EnhancedArticleCard from '@/components/EnhancedArticleCard';
 import InstantSearch from '@/components/InstantSearch';
 import PowerBar from '@/components/PowerBar';
 import AskAuthorWidget from '@/components/AskAuthorWidget';
-
+'use client';
+import { 
+  Search, Filter, ChevronLeft, ChevronRight, Sparkles, 
+  TrendingUp, Calendar, User, Eye, Heart, MessageCircle, 
+  Share2, Volume2, Zap, Podcast, Flame, Star, Award,
+  Mic, BookOpen, Timer, BarChart3, Crown, Headphones,
+  PlayCircle, PauseCircle, ChevronDown, Brain, Quote,
+  ThumbsUp, ThumbsDown, X, Plus, HeartHandshake,
+  CheckCircle, Radio, Activity
+} from 'lucide-react';
 interface OpinionArticle {
   id: string;
   title: string;
@@ -54,7 +53,6 @@ interface OpinionArticle {
   agree_count?: number;
   disagree_count?: number;
 }
-
 interface OpinionAuthor {
   id: string;
   name: string;
@@ -74,7 +72,6 @@ interface OpinionAuthor {
   is_featured?: boolean;
   latest_article?: OpinionArticle;
 }
-
 interface FilterOptions {
   author: string;
   mood: 'all' | 'optimistic' | 'critical' | 'analytical' | 'controversial';
@@ -83,14 +80,12 @@ interface FilterOptions {
   format: 'all' | 'article' | 'podcast' | 'video';
   sortBy: 'latest' | 'popular' | 'trending' | 'controversial';
 }
-
 export default function OpinionPage() {
   // الحالات الأساسية
   const [articles, setArticles] = useState<OpinionArticle[]>([]);
   const [authors, setAuthors] = useState<OpinionAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  
   // إعدادات العرض والفلترة
   const [filters, setFilters] = useState<FilterOptions>({
     author: 'all',
@@ -101,29 +96,24 @@ export default function OpinionPage() {
     sortBy: 'latest'
   });
   const [showFilters, setShowFilters] = useState(false);
-  
   // ميزات AI والتفاعل
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [aiRecommendations, setAiRecommendations] = useState<OpinionArticle[]>([]);
   const [topTrends, setTopTrends] = useState<string[]>([]);
   const [userMood, setUserMood] = useState<string>('neutral');
-  
   // المراجع
   const authorsCarouselRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
-
   // جلب البيانات الأولية
   useEffect(() => {
     fetchInitialData();
   }, []);
-
   // جلب المقالات عند تغيير الفلاتر
   useEffect(() => {
     fetchArticles();
   }, [filters, searchQuery]);
-
   // تحديث أسهم التنقل للكاروسيل
   useEffect(() => {
     const checkScrollButtons = () => {
@@ -133,20 +123,16 @@ export default function OpinionPage() {
         setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
       }
     };
-
     const carousel = authorsCarouselRef.current;
     carousel?.addEventListener('scroll', checkScrollButtons);
     checkScrollButtons();
-
     return () => {
       carousel?.removeEventListener('scroll', checkScrollButtons);
     };
   }, [authors]);
-
   const fetchInitialData = async () => {
     try {
       setLoading(true);
-      
       // جلب البيانات بالتوازي
       const [articlesRes, authorsRes, trendsRes, recommendationsRes] = await Promise.all([
         fetch('/api/articles?type=OPINION&status=published&limit=20'),
@@ -154,48 +140,39 @@ export default function OpinionPage() {
         fetch('/api/analytics/trending-topics?type=opinion').catch(() => null),
         fetch('/api/ai/recommendations?type=opinion').catch(() => null)
       ]);
-
       // معالجة المقالات
       const articlesData = await articlesRes.json();
       const articlesList = Array.isArray(articlesData) ? articlesData : articlesData.articles || [];
       setArticles(articlesList);
-
       // معالجة الكتاب
       if (authorsRes.ok) {
         const authorsData = await authorsRes.json();
         setAuthors(Array.isArray(authorsData) ? authorsData : authorsData.authors || []);
       }
-
       // معالجة المواضيع الرائجة
       if (trendsRes?.ok) {
         const trendsData = await trendsRes.json();
         setTopTrends(trendsData.topics || []);
       }
-
       // معالجة التوصيات
       if (recommendationsRes?.ok) {
         const recommendationsData = await recommendationsRes.json();
         setAiRecommendations(recommendationsData.articles || []);
       }
-
     } catch (error) {
       console.error('خطأ في جلب البيانات:', error);
     } finally {
       setLoading(false);
     }
   };
-
   const fetchArticles = async () => {
     try {
       setLoading(true);
-
       // بناء URL مع الفلاتر
       let url = `/api/articles?type=OPINION&status=published&limit=20`;
-      
       if (filters.author !== 'all') url += `&author_id=${filters.author}`;
       if (filters.topic !== 'all') url += `&tag=${filters.topic}`;
       if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
-      
       // ترتيب النتائج
       switch (filters.sortBy) {
         case 'popular':
@@ -210,12 +187,10 @@ export default function OpinionPage() {
         default:
           url += '&sortBy=published_at&order=desc';
       }
-
       // فلترة التاريخ
       if (filters.dateRange !== 'all') {
         const now = new Date();
         let startDate = new Date();
-        
         switch (filters.dateRange) {
           case 'today':
             startDate.setHours(0, 0, 0, 0);
@@ -227,22 +202,18 @@ export default function OpinionPage() {
             startDate.setMonth(now.getMonth() - 1);
             break;
         }
-        
         url += `&from_date=${startDate.toISOString()}`;
       }
-
       const response = await fetch(url);
       const data = await response.json();
       const newArticles = Array.isArray(data) ? data : data.articles || [];
       setArticles(newArticles);
-
     } catch (error) {
       console.error('خطأ في جلب المقالات:', error);
     } finally {
       setLoading(false);
     }
   };
-
   // التنقل في كاروسيل الكتاب
   const scrollAuthors = (direction: 'left' | 'right') => {
     if (authorsCarouselRef.current) {
@@ -253,7 +224,6 @@ export default function OpinionPage() {
       });
     }
   };
-
   // تشغيل الملخص الصوتي
   const handleAudioPlay = async (articleId: string, audioUrl?: string, text?: string) => {
     if (currentPlayingId === articleId) {
@@ -262,10 +232,8 @@ export default function OpinionPage() {
       if (!audioUrl) speechSynthesis.cancel();
       return;
     }
-
     setIsPlaying(true);
     setCurrentPlayingId(articleId);
-    
     if (audioUrl) {
       // تشغيل ملف صوتي إذا كان متوفراً
       const audio = new Audio(audioUrl);
@@ -281,12 +249,10 @@ export default function OpinionPage() {
         utterance.lang = 'ar-SA';
         utterance.rate = 0.9;
         utterance.pitch = 1;
-        
         utterance.onend = () => {
           setIsPlaying(false);
           setCurrentPlayingId(null);
         };
-        
         speechSynthesis.speak(utterance);
       } catch (error) {
         console.error('خطأ في تشغيل الصوت:', error);
@@ -295,30 +261,26 @@ export default function OpinionPage() {
       }
     }
   };
-
   // تحديث الفلتر
   const updateFilter = (key: keyof FilterOptions, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
-
   // حساب نسبة التوافق مع اهتمامات المستخدم
   const getRelevanceScore = (article: OpinionArticle): number => {
     // نسبة وهمية للعرض - يمكن استبدالها بخوارزمية حقيقية
     return Math.floor(Math.random() * 30) + 70;
   };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+  <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* الهيدر الرئيسي */}
-      <header className="bg-gradient-to-r from-purple-900 via-blue-900 to-indigo-900 text-white">
+      <div className="bg-gradient-to-r from-purple-900 via-blue-900 to-indigo-900 text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="text-center max-w-4xl mx-auto">
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -329,7 +291,6 @@ export default function OpinionPage() {
             <p className="text-xl text-blue-100 mb-8">
               من هنا يبدأ النقاش... آراء الكتّاب وصنّاع الفكر في منصة واحدة تفاعلية مدعومة بالذكاء الاصطناعي
             </p>
-            
             {/* أزرار الإجراءات الرئيسية */}
             <div className="flex flex-wrap items-center justify-center gap-4">
               <button className="px-6 py-3 bg-white text-purple-900 font-bold rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 flex items-center gap-2">
@@ -347,7 +308,6 @@ export default function OpinionPage() {
             </div>
           </div>
         </div>
-
         {/* شريط المواضيع الساخنة */}
         <div className="bg-black/20 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-3">
@@ -368,7 +328,6 @@ export default function OpinionPage() {
             </div>
           </div>
         </div>
-        
         {/* شريط الطاقة */}
         <div className="bg-black/10 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-4">
@@ -392,8 +351,7 @@ export default function OpinionPage() {
             />
           </div>
         </div>
-      </header>
-
+      </div>
       {/* شريط الكتّاب المميزين */}
       <AuthorCarousel 
         authors={authors.map(author => ({
@@ -408,7 +366,6 @@ export default function OpinionPage() {
         }))}
         onAuthorSelect={(authorId) => updateFilter('author', authorId)}
       />
-
       {/* البحث والفلترة المتقدمة */}
       <div className="container mx-auto px-4 py-6">
         <InstantSearch 
@@ -419,7 +376,6 @@ export default function OpinionPage() {
           popularTopics={topTrends}
         />
       </div>
-
       {/* المحتوى الرئيسي */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -447,7 +403,6 @@ export default function OpinionPage() {
                 </div>
               </div>
             )}
-
             {/* قائمة المقالات */}
             <div className="space-y-6">
               {articles.map((article) => (
@@ -459,7 +414,6 @@ export default function OpinionPage() {
                 />
               ))}
             </div>
-
             {articles.length === 0 && (
               <div className="text-center py-12">
                 <Quote className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -467,7 +421,6 @@ export default function OpinionPage() {
               </div>
             )}
           </div>
-
           {/* الشريط الجانبي */}
           <div className="space-y-6">
             {/* أفضل 5 كتّاب الأسبوع */}
@@ -482,7 +435,6 @@ export default function OpinionPage() {
                   const trendChange = Math.floor(Math.random() * 3) + 1;
                   const isOnline = Math.random() > 0.5;
                   const engagementScore = Math.floor(Math.random() * 50) + 50;
-                  
                   return (
                     <Link
                       key={author.id}
@@ -498,7 +450,6 @@ export default function OpinionPage() {
                         }`}>
                           {index + 1}
                         </span>
-                        
                         {/* مؤشر الاتجاه */}
                         <div className="flex flex-col items-center">
                           {trend === 'up' && (
@@ -518,14 +469,8 @@ export default function OpinionPage() {
                           )}
                         </div>
                       </div>
-                      
                       <div className="relative">
-                        <img
-                          src={author.avatar || generatePlaceholderImage(author.name)}
-                          alt={author.name}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600 group-hover:scale-110 transition-transform"
-                        />
-                        
+                        <Image src={undefined} alt="" width={100} height={100} />
                         {/* مؤشر الحالة */}
                         <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-gray-800 ${
                           isOnline ? 'bg-green-500' : 'bg-gray-400'
@@ -535,7 +480,6 @@ export default function OpinionPage() {
                           )}
                         </div>
                       </div>
-                      
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <p className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
@@ -554,7 +498,6 @@ export default function OpinionPage() {
                           </div>
                         </div>
                       </div>
-                      
                       {/* أيقونة الراديو للبودكاست */}
                       {Math.random() > 0.6 && (
                         <div className="flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full text-xs">
@@ -567,7 +510,6 @@ export default function OpinionPage() {
                 })}
               </div>
             </div>
-
             {/* ركن بودكاست الرأي */}
             <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl p-6 text-white shadow-lg">
               <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -582,7 +524,6 @@ export default function OpinionPage() {
                 استمع الآن
               </button>
             </div>
-
             {/* إحصائيات القسم */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
@@ -608,7 +549,6 @@ export default function OpinionPage() {
                 </div>
               </div>
             </div>
-
             {/* ميزة "اسأل الكاتب" */}
             <AskAuthorWidget 
               authors={authors.map(author => ({
@@ -641,7 +581,6 @@ export default function OpinionPage() {
     </div>
   );
 }
-
 // مكون بطاقة مقال الرأي
 function OpinionArticleCard({ 
   article, 
@@ -656,19 +595,14 @@ function OpinionArticleCard({
 }) {
   const isPlaying = currentPlayingId === article.id;
   const relevanceScore = Math.floor(Math.random() * 30) + 70;
-
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 ${
+  <div className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 ${
       isRecommended ? 'ring-2 ring-purple-500' : ''
     }`}>
       <div className="flex flex-col md:flex-row">
         {/* صورة المقال */}
         <div className="md:w-64 h-48 md:h-auto relative overflow-hidden">
-          <img
-            src={getValidImageUrl(article.featured_image) || generatePlaceholderImage(article.title)}
-            alt={article.title}
-            className="w-full h-full object-cover"
-          />
+          <Image src={undefined} alt="" width={100} height={100} />
           {article.audio_url || article.podcast_duration ? (
             <div className="absolute top-4 left-4 px-3 py-1 bg-purple-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
               <Podcast className="w-3 h-3" />
@@ -676,17 +610,12 @@ function OpinionArticleCard({
             </div>
           ) : null}
         </div>
-
         {/* محتوى البطاقة */}
         <div className="flex-1 p-6">
           {/* معلومات الكاتب */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
-              <img
-                src={article.author_avatar || generatePlaceholderImage(article.author_name || '')}
-                alt={article.author_name}
-                className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
               <div>
                 <Link href={`/author/${article.author_id}`} className="font-bold text-gray-900 dark:text-white hover:text-blue-600 transition-colors">
                   {article.author_name}
@@ -705,21 +634,18 @@ function OpinionArticleCard({
               </div>
             )}
           </div>
-
           {/* عنوان المقال */}
           <Link href={getArticleLink(article)}>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 hover:text-blue-600 transition-colors line-clamp-2">
               {article.title}
             </h3>
           </Link>
-
           {/* الملخص الذكي */}
           {article.ai_summary && (
             <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
               {article.ai_summary}
             </p>
           )}
-
           {/* الوسوم والمواضيع */}
           {article.topic_tags && article.topic_tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
@@ -733,7 +659,6 @@ function OpinionArticleCard({
               ))}
             </div>
           )}
-
           {/* التفاعلات والأزرار */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -755,7 +680,6 @@ function OpinionArticleCard({
                   {article.podcast_duration ? `${article.podcast_duration} د` : 'استمع'}
                 </span>
               </button>
-
               {/* أزرار التفاعل */}
               <div className="flex items-center gap-3">
                 <button className="flex items-center gap-1 text-gray-500 hover:text-green-600 transition-colors">
@@ -775,7 +699,6 @@ function OpinionArticleCard({
                 </button>
               </div>
             </div>
-
             {/* الإحصائيات */}
             <div className="flex items-center gap-3 text-xs text-gray-500">
               <span className="flex items-center gap-1">
@@ -793,7 +716,6 @@ function OpinionArticleCard({
     </div>
   );
 }
-
 // مكون جائزة الكاتب
 function Trophy({ className }: { className?: string }) {
   return (

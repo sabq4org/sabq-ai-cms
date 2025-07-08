@@ -1,7 +1,18 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import { Play, Quote } from 'lucide-react';
+
+'use client';
+
+
+
+
+
+
+
+
+
+
 
 interface Block {
   id?: string;
@@ -134,12 +145,7 @@ export default function RichContentRenderer({ content, className = '' }: RichCon
         return (
           <figure key={block.id || index} className="my-10">
             <div className="relative rounded-2xl overflow-hidden shadow-xl group">
-              <img
-                src={imageUrl}
-                alt={blockData.alt || block.alt || ''}
-                className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
-                loading="lazy"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
               {/* تأثير التكبير عند الهوفر */}
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
             </div>

@@ -1,9 +1,22 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
-
-const prisma = new PrismaClient();
 import { checkImageExists, getDefaultImageUrl, extractPublicIdFromUrl } from '@/lib/cloudinary';
 import { deleteFromCloudinary } from '@/lib/cloudinary-server';
+
+
+
+
+
+
+
+
+
+
+
+const prisma = new PrismaClient();
+
+
 
 export async function GET(request: NextRequest) {
   try {

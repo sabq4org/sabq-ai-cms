@@ -1,5 +1,14 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { sendWelcomeEmail } from '@/lib/services/emailService';
+
+
+
+
+
+
+
+
 
 export async function POST(request: NextRequest) {
   try {

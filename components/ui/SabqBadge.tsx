@@ -1,6 +1,11 @@
-// مكون الشارات والتنبيهات المخصص لصحيفة سبق
+import Image from 'next/image';
 import React from 'react';
 import { cn } from '@/lib/utils';
+
+
+// مكون الشارات والتنبيهات المخصص لصحيفة سبق
+
+
 
 // أنواع الشارات
 type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info';

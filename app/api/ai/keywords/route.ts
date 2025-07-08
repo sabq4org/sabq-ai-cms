@@ -1,4 +1,11 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
+
+
+
+
+
+
 
 // دالة لاستخراج الكلمات المفتاحية من النص
 function extractKeywords(text: string): string[] {

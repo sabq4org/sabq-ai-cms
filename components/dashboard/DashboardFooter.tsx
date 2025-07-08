@@ -1,6 +1,13 @@
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+import useSWR from 'swr';
+import { useAuth } from '@/hooks/useAuth';
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+
+
+
 import { 
   TrendingUp, 
   Clock, 
@@ -13,8 +20,8 @@ import {
   Brain,
   Calendar
 } from 'lucide-react';
-import useSWR from 'swr';
-import { useAuth } from '@/hooks/useAuth';
+
+
 
 interface DashboardFooterProps {
   userId?: string;

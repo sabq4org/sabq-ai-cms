@@ -1,12 +1,10 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Shield, Plus, Users, Lock, X, Save, Trash2, Edit3, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Role, SYSTEM_PERMISSIONS, PERMISSION_CATEGORIES } from '@/types/roles';
-
+'use client';
 export default function RolesPage() {
   console.log('RolesPage component loaded');
-
   const [darkMode, setDarkMode] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,14 +14,12 @@ export default function RolesPage() {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [successMessageText, setSuccessMessageText] = useState('');
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
-  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     permissions: [] as string[],
     color: '#4B82F2'
   });
-
   const colors = [
     { name: 'أحمر', value: '#DC2626' },
     { name: 'أزرق', value: '#4B82F2' },
@@ -34,22 +30,18 @@ export default function RolesPage() {
     { name: 'سماوي', value: '#06B6D4' },
     { name: 'رمادي', value: '#6B7280' }
   ];
-
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
-    
     // جلب الأدوار
     fetchRoles();
   }, []);
-  
   const fetchRoles = async () => {
     try {
       const response = await fetch('/api/roles');
       const data = await response.json();
-      
       if (data.success && data.data) {
         setRoles(data.data);
       }
@@ -60,19 +52,16 @@ export default function RolesPage() {
       setLoading(false);
     }
   };
-
   const showSuccess = (message: string, type: 'success' | 'error' = 'success') => {
     setSuccessMessageText(message);
     setShowSuccessMessage(true);
     setTimeout(() => setShowSuccessMessage(false), 3000);
   };
-
   const handleCreateRole = async () => {
     if (!formData.name || !formData.description) {
       showSuccess('يرجى ملء جميع الحقول المطلوبة', 'error');
       return;
     }
-    
     try {
       const response = await fetch('/api/roles', {
         method: 'POST',
@@ -84,9 +73,7 @@ export default function RolesPage() {
           color: formData.color
         })
       });
-      
       const data = await response.json();
-      
       if (data.success) {
         fetchRoles(); // إعادة جلب البيانات
         setFormData({ name: '', description: '', permissions: [], color: '#4B82F2' });
@@ -100,10 +87,8 @@ export default function RolesPage() {
       showSuccess('حدث خطأ في إنشاء الدور', 'error');
     }
   };
-
   const handleEditRole = async () => {
     if (!selectedRole) return;
-    
     try {
       const response = await fetch(`/api/roles/${selectedRole.id}`, {
         method: 'PATCH',
@@ -115,9 +100,7 @@ export default function RolesPage() {
           color: formData.color
         })
       });
-      
       const data = await response.json();
-      
       if (data.success) {
         fetchRoles();
         setShowEditModal(false);
@@ -130,23 +113,18 @@ export default function RolesPage() {
       showSuccess('حدث خطأ في تحديث الدور', 'error');
     }
   };
-
   const handleDeleteRole = async (roleId: string) => {
     const role = roles.find(r => r.id === roleId);
     if (role?.isSystem) {
       showSuccess('لا يمكن حذف أدوار النظام الأساسية', 'error');
       return;
     }
-    
     if (!confirm('هل أنت متأكد من حذف هذا الدور؟')) return;
-    
     try {
       const response = await fetch(`/api/roles/${roleId}`, {
         method: 'DELETE'
       });
-      
       const data = await response.json();
-      
       if (data.success) {
         fetchRoles();
         showSuccess('تم حذف الدور بنجاح');
@@ -158,7 +136,6 @@ export default function RolesPage() {
       showSuccess('حدث خطأ في حذف الدور', 'error');
     }
   };
-
   const togglePermission = (permissionId: string) => {
     setFormData(prev => ({
       ...prev,
@@ -167,7 +144,6 @@ export default function RolesPage() {
         : [...prev.permissions, permissionId]
     }));
   };
-
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev =>
       prev.includes(category)
@@ -175,7 +151,6 @@ export default function RolesPage() {
         : [...prev, category]
     );
   };
-
   const openEditModal = (role: Role) => {
     setSelectedRole(role);
     setFormData({
@@ -186,24 +161,20 @@ export default function RolesPage() {
     });
     setShowEditModal(true);
   };
-
   const getPermissionName = (permissionId: string) => {
     const permission = SYSTEM_PERMISSIONS.find(p => p.id === permissionId);
     return permission?.name || permissionId;
   };
-
   const totalUsers = roles.reduce((sum, role) => sum + (role.users || 0), 0);
-  
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+  <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`} dir="rtl">
+  <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`} dir="rtl">
       {/* رسالة النجاح */}
       {showSuccessMessage && (
         <div className={`fixed top-4 right-4 ${successMessageText.includes('خطأ') ? 'bg-red-500' : 'bg-green-500'} text-white p-4 rounded-xl shadow-xl z-50 flex items-center gap-2 animate-pulse`}>
@@ -211,13 +182,11 @@ export default function RolesPage() {
           {successMessageText}
         </div>
       )}
-
       {/* العنوان والوصف */}
       <div className="mb-8">
         <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>إدارة الأدوار والصلاحيات</h1>
         <p className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>إدارة أدوار المستخدمين وصلاحياتهم في النظام</p>
       </div>
-
       {/* قسم الإحصائيات */}
       <div className="grid grid-cols-3 gap-6 mb-8">
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
@@ -234,7 +203,6 @@ export default function RolesPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -249,7 +217,6 @@ export default function RolesPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
@@ -265,7 +232,6 @@ export default function RolesPage() {
           </div>
         </div>
       </div>
-
       {/* زر إضافة دور جديد */}
       <div className="mb-6 flex justify-between items-center">
         <h2 className={`text-xl font-semibold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>الأدوار المتاحة</h2>
@@ -280,12 +246,11 @@ export default function RolesPage() {
           إضافة دور جديد
         </button>
       </div>
-
       {/* شبكة الأدوار */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {roles.map((role) => {
           return (
-            <div key={role.id} className={`rounded-2xl p-6 shadow-sm border transition-all duration-300 hover:shadow-lg ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+  <div key={role.id} className={`rounded-2xl p-6 shadow-sm border transition-all duration-300 hover:shadow-lg ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div 
@@ -304,7 +269,6 @@ export default function RolesPage() {
                     <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{role.description}</p>
                   </div>
                 </div>
-                
                 <div className="flex gap-1">
                   <button 
                     onClick={() => openEditModal(role)}
@@ -324,18 +288,15 @@ export default function RolesPage() {
                   )}
                 </div>
               </div>
-
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>المستخدمين</span>
                   <span className={`text-lg font-semibold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{role.users || 0}</span>
                 </div>
-                
                 <div className="flex justify-between items-center">
                   <span className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>الصلاحيات</span>
                   <span className={`text-lg font-semibold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{role.permissions.length}</span>
                 </div>
-
                 <div className="pt-3 border-t border-gray-200 dark:border-gray-600">
                   <div className="flex flex-wrap gap-1">
                     {role.permissions.slice(0, 3).map((permission, index) => (
@@ -359,7 +320,6 @@ export default function RolesPage() {
           );
         })}
       </div>
-
       {/* نوافذ منبثقة للإنشاء والتعديل */}
       {(showCreateModal || showEditModal) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -380,7 +340,6 @@ export default function RolesPage() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-
               <div className="space-y-4">
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>اسم الدور</label>
@@ -392,7 +351,6 @@ export default function RolesPage() {
                     placeholder="مثال: محرر أول"
                   />
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>وصف الدور</label>
                   <textarea
@@ -403,7 +361,6 @@ export default function RolesPage() {
                     placeholder="وصف مختصر لمهام ومسؤوليات هذا الدور"
                   />
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>اللون</label>
                   <div className="flex gap-2">
@@ -420,16 +377,14 @@ export default function RolesPage() {
                     ))}
                   </div>
                 </div>
-
                 <div>
                   <label className={`block text-sm font-medium mb-3 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الصلاحيات</label>
                   <div className="space-y-3">
                     {Object.entries(PERMISSION_CATEGORIES).map(([categoryKey, category]) => {
                       const categoryPermissions = SYSTEM_PERMISSIONS.filter(p => p.category === categoryKey);
                       const isExpanded = expandedCategories.includes(categoryKey);
-                      
                       return (
-                        <div key={categoryKey} className={`border rounded-xl overflow-hidden ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+  <div key={categoryKey} className={`border rounded-xl overflow-hidden ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                           <button
                             type="button"
                             onClick={() => toggleCategory(categoryKey)}
@@ -448,7 +403,6 @@ export default function RolesPage() {
                             </div>
                             {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                           </button>
-                          
                           {isExpanded && (
                             <div className={`p-4 space-y-2 ${darkMode ? 'bg-gray-750' : 'bg-white'}`}>
                               {/* تحديد الكل للفئة */}
@@ -477,7 +431,6 @@ export default function RolesPage() {
                                   تحديد الكل
                                 </span>
                               </label>
-                              
                               {categoryPermissions.map((permission) => (
                                 <label key={permission.id} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors">
                                   <input
@@ -504,7 +457,6 @@ export default function RolesPage() {
                   </div>
                 </div>
               </div>
-
               <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
                 <button 
                   onClick={showCreateModal ? handleCreateRole : handleEditRole}

@@ -1,21 +1,19 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+'use client';
 import { 
   BarChart3, Users, Settings, Award, TrendingUp, 
   Download, Plus, Filter, Search, ChevronRight,
   Loader2, Check
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
 export default function EnhancedDashboardExample() {
   const { darkMode } = useDarkModeContext();
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(false);
-
   const handleExport = async () => {
     setLoading(true);
     // محاكاة عملية التصدير
@@ -23,9 +21,8 @@ export default function EnhancedDashboardExample() {
       setLoading(false);
     }, 2000);
   };
-
   return (
-    <div className="p-6 space-y-8">
+  <div className="p-6 space-y-8">
       {/* العنوان الرئيسي */}
       <div className="flex items-center justify-between">
         <div>
@@ -36,7 +33,6 @@ export default function EnhancedDashboardExample() {
             مثال على التنسيقات الجديدة الموحدة
           </p>
         </div>
-        
         {/* أزرار الإجراءات */}
         <div className="flex items-center gap-3">
           <Button
@@ -57,7 +53,6 @@ export default function EnhancedDashboardExample() {
               </>
             )}
           </Button>
-          
           <Button
             variant="primary"
             className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg"
@@ -67,10 +62,8 @@ export default function EnhancedDashboardExample() {
           </Button>
         </div>
       </div>
-
       {/* فاصل */}
       <div className="h-px bg-gray-200 dark:bg-gray-700" />
-
       {/* التابات المحسّنة */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className={`grid w-full grid-cols-4 rounded-xl p-1 ${
@@ -83,7 +76,6 @@ export default function EnhancedDashboardExample() {
             <BarChart3 className="mr-2 h-4 w-4" />
             نظرة عامة
           </TabsTrigger>
-          
           <TabsTrigger 
             value="users"
             className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
@@ -91,7 +83,6 @@ export default function EnhancedDashboardExample() {
             <Users className="mr-2 h-4 w-4" />
             المستخدمون
           </TabsTrigger>
-          
           <TabsTrigger 
             value="rewards"
             className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
@@ -99,7 +90,6 @@ export default function EnhancedDashboardExample() {
             <Award className="mr-2 h-4 w-4" />
             المكافآت
           </TabsTrigger>
-          
           <TabsTrigger 
             value="settings"
             className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
@@ -108,7 +98,6 @@ export default function EnhancedDashboardExample() {
             الإعدادات
           </TabsTrigger>
         </TabsList>
-
         {/* محتوى التابات */}
         <TabsContent value="overview" className="mt-6 space-y-6">
           {/* بطاقات الإحصائيات */}
@@ -126,7 +115,6 @@ export default function EnhancedDashboardExample() {
                 </p>
               </CardContent>
             </Card>
-
             <Card className={`rounded-2xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">النقاط الممنوحة</CardTitle>
@@ -140,7 +128,6 @@ export default function EnhancedDashboardExample() {
                 </p>
               </CardContent>
             </Card>
-
             <Card className={`rounded-2xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">معدل التفاعل</CardTitle>
@@ -155,7 +142,6 @@ export default function EnhancedDashboardExample() {
               </CardContent>
             </Card>
           </div>
-
           {/* جدول أو محتوى إضافي */}
           <Card className={`rounded-2xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
             <CardHeader>
@@ -199,7 +185,6 @@ export default function EnhancedDashboardExample() {
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="users" className="mt-6">
           <Card className={`rounded-2xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
             <CardHeader>
@@ -213,7 +198,6 @@ export default function EnhancedDashboardExample() {
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="rewards" className="mt-6">
           <Card className={`rounded-2xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
             <CardHeader>
@@ -227,7 +211,6 @@ export default function EnhancedDashboardExample() {
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="settings" className="mt-6">
           <Card className={`rounded-2xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
             <CardHeader>
@@ -242,7 +225,6 @@ export default function EnhancedDashboardExample() {
           </Card>
         </TabsContent>
       </Tabs>
-
       {/* أمثلة على الأزرار */}
       <Card className={`rounded-2xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         <CardHeader>
@@ -266,7 +248,6 @@ export default function EnhancedDashboardExample() {
               زر حذف
             </Button>
           </div>
-
           <div className="flex flex-wrap gap-3">
             <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
               زر صغير
@@ -278,7 +259,6 @@ export default function EnhancedDashboardExample() {
               زر كبير
             </Button>
           </div>
-
           <div className="flex flex-wrap gap-3">
             <Button disabled className="rounded-xl">
               زر معطل

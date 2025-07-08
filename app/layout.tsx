@@ -1,3 +1,8 @@
+import Image from 'next/image';
+
+
+
+
 import { Metadata } from 'next'
 import './globals.css'
 import '../styles/mobile-first-optimizations.css'

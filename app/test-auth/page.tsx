@@ -1,12 +1,11 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
-
+'use client';
 export default function TestAuthPage() {
   const { user, isLoggedIn, isLoading } = useAuth();
   const [debugInfo, setDebugInfo] = useState<any>({});
-
   useEffect(() => {
     // جمع معلومات التشخيص
     const info: any = {
@@ -15,7 +14,6 @@ export default function TestAuthPage() {
       user: user ? { id: user.id, email: user.email, name: user.name, role: user.role } : null,
       timestamp: new Date().toISOString()
     };
-
     // فحص الكوكيز
     if (typeof document !== 'undefined') {
       info.cookies = {
@@ -24,7 +22,6 @@ export default function TestAuthPage() {
         token: document.cookie.includes('token=')
       };
     }
-
     // فحص localStorage
     if (typeof window !== 'undefined') {
       info.localStorage = {
@@ -32,13 +29,11 @@ export default function TestAuthPage() {
         userId: !!localStorage.getItem('user_id')
       };
     }
-
     setDebugInfo(info);
   }, [user, isLoggedIn, isLoading]);
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-300">جاري التحقق من حالة تسجيل الدخول...</p>
@@ -46,14 +41,12 @@ export default function TestAuthPage() {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
           اختبار حالة المصادقة
         </h1>
-
         {/* حالة تسجيل الدخول */}
         <div className={`p-6 rounded-lg mb-6 ${
           isLoggedIn 
@@ -63,7 +56,6 @@ export default function TestAuthPage() {
           <h2 className="text-xl font-semibold mb-4">
             {isLoggedIn ? '✅ مسجل دخول' : '❌ غير مسجل دخول'}
           </h2>
-          
           {isLoggedIn && user ? (
             <div className="space-y-2">
               <p><strong>الاسم:</strong> {user.name}</p>
@@ -75,7 +67,6 @@ export default function TestAuthPage() {
             <p>لا توجد معلومات مستخدم متاحة</p>
           )}
         </div>
-
         {/* معلومات التشخيص */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
           <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
@@ -85,7 +76,6 @@ export default function TestAuthPage() {
             {JSON.stringify(debugInfo, null, 2)}
           </pre>
         </div>
-
         {/* أزرار الاختبار */}
         <div className="mt-6 space-x-4 rtl:space-x-reverse">
           {!isLoggedIn ? (
@@ -112,7 +102,6 @@ export default function TestAuthPage() {
             </button>
           )}
         </div>
-
         {/* رابط العودة */}
         <div className="mt-8">
           <a 

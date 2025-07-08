@@ -1,12 +1,11 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+'use client';
 import { 
   BarChart3, TrendingUp, Users, Eye, Heart, Share2, 
   MessageSquare, Calendar, Clock, Lightbulb, Sparkles,
   Target, Award, Zap, BookOpen, Star, ArrowUp, ArrowDown
 } from 'lucide-react';
-
 interface ArticlePerformance {
   id: string;
   title: string;
@@ -20,7 +19,6 @@ interface ArticlePerformance {
   performance_score: number;
   trending_score: number;
 }
-
 interface AIRecommendation {
   id: string;
   type: 'topic' | 'timing' | 'style' | 'collaboration';
@@ -32,7 +30,6 @@ interface AIRecommendation {
   suggested_keywords: string[];
   estimated_engagement: number;
 }
-
 interface WriterStats {
   total_articles: number;
   total_views: number;
@@ -44,25 +41,20 @@ interface WriterStats {
   best_posting_time: string;
   current_streak: number;
 }
-
 export default function WritersAnalyticsPage() {
   const [stats, setStats] = useState<WriterStats | null>(null);
   const [articles, setArticles] = useState<ArticlePerformance[]>([]);
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'articles' | 'ai-suggestions'>('overview');
-
   useEffect(() => {
     fetchAnalyticsData();
   }, []);
-
   const fetchAnalyticsData = async () => {
     setLoading(true);
-    
     try {
       // محاكاة جلب البيانات
       await new Promise(resolve => setTimeout(resolve, 2000));
-
       // إحصائيات وهمية
       const mockStats: WriterStats = {
         total_articles: 47,
@@ -75,7 +67,6 @@ export default function WritersAnalyticsPage() {
         best_posting_time: '9:00 ص',
         current_streak: 12
       };
-
       // أداء المقالات الوهمي
       const mockArticles: ArticlePerformance[] = [
         {
@@ -118,7 +109,6 @@ export default function WritersAnalyticsPage() {
           trending_score: 58
         }
       ];
-
       // توصيات AI وهمية
       const mockRecommendations: AIRecommendation[] = [
         {
@@ -182,18 +172,15 @@ export default function WritersAnalyticsPage() {
           estimated_engagement: 15600
         }
       ];
-
       setStats(mockStats);
       setArticles(mockArticles);
       setRecommendations(mockRecommendations);
-
     } catch (error) {
       console.error('خطأ في جلب البيانات:', error);
     } finally {
       setLoading(false);
     }
   };
-
   const getImpactColor = (impact: string) => {
     switch (impact) {
       case 'high': return 'text-green-600 bg-green-100';
@@ -202,7 +189,6 @@ export default function WritersAnalyticsPage() {
       default: return 'text-gray-600 bg-gray-100';
     }
   };
-
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'topic': return <Lightbulb className="w-5 h-5" />;
@@ -212,10 +198,9 @@ export default function WritersAnalyticsPage() {
       default: return <Sparkles className="w-5 h-5" />;
     }
   };
-
   if (loading) {
     return (
-      <div className="p-8">
+  <div className="p-8">
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-300 rounded w-64 mb-8"></div>
@@ -230,9 +215,8 @@ export default function WritersAnalyticsPage() {
       </div>
     );
   }
-
   return (
-    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -249,7 +233,6 @@ export default function WritersAnalyticsPage() {
               </p>
             </div>
           </div>
-
           {/* Tabs */}
           <div className="flex gap-2 bg-white dark:bg-gray-800 p-2 rounded-xl w-fit">
             <button
@@ -284,7 +267,6 @@ export default function WritersAnalyticsPage() {
             </button>
           </div>
         </div>
-
         {/* Overview Tab */}
         {activeTab === 'overview' && stats && (
           <>
@@ -302,7 +284,6 @@ export default function WritersAnalyticsPage() {
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">مقال منشور</div>
               </div>
-
               <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
@@ -318,7 +299,6 @@ export default function WritersAnalyticsPage() {
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">مشاهدة</div>
               </div>
-
               <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
@@ -334,7 +314,6 @@ export default function WritersAnalyticsPage() {
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">تفاعل</div>
               </div>
-
               <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
@@ -348,7 +327,6 @@ export default function WritersAnalyticsPage() {
                 <div className="text-sm text-gray-600 dark:text-gray-300">متابع</div>
               </div>
             </div>
-
             {/* Insights Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
@@ -363,7 +341,6 @@ export default function WritersAnalyticsPage() {
                   تحصل مقالاتك في هذا المجال على أعلى تفاعل
                 </p>
               </div>
-
               <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                   <Clock className="w-5 h-5 text-green-500" />
@@ -376,7 +353,6 @@ export default function WritersAnalyticsPage() {
                   أعلى نشاط لجمهورك في هذا التوقيت
                 </p>
               </div>
-
               <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                   <Award className="w-5 h-5 text-yellow-500" />
@@ -392,7 +368,6 @@ export default function WritersAnalyticsPage() {
             </div>
           </>
         )}
-
         {/* Articles Performance Tab */}
         {activeTab === 'articles' && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -404,7 +379,6 @@ export default function WritersAnalyticsPage() {
                 تحليل تفصيلي لأداء مقالاتك الأخيرة
               </p>
             </div>
-            
             <div className="p-6">
               <div className="space-y-4">
                 {articles.map((article) => (
@@ -433,7 +407,6 @@ export default function WritersAnalyticsPage() {
                         </span>
                       </div>
                     </div>
-
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 text-blue-600 mb-1">
@@ -442,7 +415,6 @@ export default function WritersAnalyticsPage() {
                         </div>
                         <div className="text-xs text-gray-500">مشاهدة</div>
                       </div>
-
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 text-red-600 mb-1">
                           <Heart className="w-4 h-4" />
@@ -450,7 +422,6 @@ export default function WritersAnalyticsPage() {
                         </div>
                         <div className="text-xs text-gray-500">إعجاب</div>
                       </div>
-
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 text-green-600 mb-1">
                           <Share2 className="w-4 h-4" />
@@ -458,7 +429,6 @@ export default function WritersAnalyticsPage() {
                         </div>
                         <div className="text-xs text-gray-500">مشاركة</div>
                       </div>
-
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 text-purple-600 mb-1">
                           <MessageSquare className="w-4 h-4" />
@@ -466,7 +436,6 @@ export default function WritersAnalyticsPage() {
                         </div>
                         <div className="text-xs text-gray-500">تعليق</div>
                       </div>
-
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 text-orange-600 mb-1">
                           <Zap className="w-4 h-4" />
@@ -481,7 +450,6 @@ export default function WritersAnalyticsPage() {
             </div>
           </div>
         )}
-
         {/* AI Suggestions Tab */}
         {activeTab === 'ai-suggestions' && (
           <div className="space-y-6">
@@ -514,7 +482,6 @@ export default function WritersAnalyticsPage() {
                     </span>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* الأسباب */}
                   <div>
@@ -531,7 +498,6 @@ export default function WritersAnalyticsPage() {
                       ))}
                     </ul>
                   </div>
-
                   {/* التوقعات والكلمات المفتاحية */}
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
@@ -547,7 +513,6 @@ export default function WritersAnalyticsPage() {
                           {rec.estimated_engagement.toLocaleString()}
                         </span>
                       </div>
-                      
                       {rec.suggested_keywords.length > 0 && (
                         <div>
                           <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -568,7 +533,6 @@ export default function WritersAnalyticsPage() {
                     </div>
                   </div>
                 </div>
-
                 {/* زر العمل */}
                 <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
                   <button className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">

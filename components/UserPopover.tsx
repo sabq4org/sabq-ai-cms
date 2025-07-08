@@ -1,8 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Link from 'next/link';
+
+'use client';
+
+
+
+
+
+
 import { 
   User, Settings, Bell, LogOut, 
   Crown, Star, Award, Gem, X, Heart
@@ -90,11 +97,7 @@ export default function UserPopover({ user, onClose, onLogout, anchorElement }: 
         <div className="p-4 border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             {user.avatar ? (
-              <img 
-                src={user.avatar} 
-                alt={user.name}
-                className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
             ) : (
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-gray-200 dark:border-gray-600">
                 {user.name.charAt(0).toUpperCase()}

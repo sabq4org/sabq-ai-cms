@@ -1,6 +1,9 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import Header from '@/components/Header';
+'use client';
 import { 
   Clock, 
   Calendar, 
@@ -30,11 +33,7 @@ import {
   ChevronRight,
   Plus
 } from 'lucide-react';
-import Link from 'next/link';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import Header from '@/components/Header';
 import '@/styles/moment-by-moment.css';
-
 interface TimelineEvent {
   id: string;
   type: string;
@@ -59,7 +58,6 @@ interface TimelineEvent {
     shares: number;
   };
 }
-
 export default function MomentByMomentPage() {
   const { darkMode } = useDarkModeContext();
   const [events, setEvents] = useState<TimelineEvent[]>([]);
@@ -72,7 +70,6 @@ export default function MomentByMomentPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [stats, setStats] = useState<any>({});
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
-
   // أنواع المحتوى وألوانها
   const eventTypes = {
     all: { icon: '📍', color: 'blue', label: 'الكل', bgColor: '#3B82F6' },
@@ -82,7 +79,6 @@ export default function MomentByMomentPage() {
     system: { icon: '🛠️', color: 'gray', label: 'نظام', bgColor: '#6B7280' },
     community: { icon: '🏆', color: 'pink', label: 'مجتمع', bgColor: '#EC4899' }
   };
-
   // تحديث الوقت الحالي
   useEffect(() => {
     const timer = setInterval(() => {
@@ -90,33 +86,26 @@ export default function MomentByMomentPage() {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-
   useEffect(() => {
     fetchTimelineEvents();
-    
     // طلب إذن الإشعارات
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
-    
     // تحديث تلقائي كل 60 ثانية للأحداث الحية
     if (autoRefresh) {
       const interval = setInterval(() => {
         checkForNewEvents();
       }, 60000);
-      
       return () => clearInterval(interval);
     }
   }, [autoRefresh, filter]);
-
   const fetchTimelineEvents = async (append = false) => {
     try {
       if (!append) setLoading(true);
-      
       const currentCount = append ? events.length : 0;
       const response = await fetch(`/api/timeline?limit=20&offset=${currentCount}&filter=${filter}&realtime=${autoRefresh}`);
       const data = await response.json();
-      
       if (data.success && data.events) {
         if (append) {
           setEvents([...events, ...data.events]);
@@ -127,7 +116,6 @@ export default function MomentByMomentPage() {
         setNewEventsCount(data.stats?.newEvents || 0);
         setHasMore(data.pagination?.hasMore || false);
       }
-      
     } catch (error) {
       console.error('Error fetching timeline events:', error);
     } finally {
@@ -135,22 +123,17 @@ export default function MomentByMomentPage() {
       setIsLoadingMore(false);
     }
   };
-
   const checkForNewEvents = async () => {
     try {
       const response = await fetch('/api/timeline?limit=10&realtime=true');
       const data = await response.json();
-      
       if (data.success && data.events) {
         const newEvents = data.events.filter((event: any) => event.isNew);
-        
         if (newEvents.length > 0) {
           setNewEventsCount(prev => prev + newEvents.length);
-          
           // إشعار صوتي
           const audio = new Audio('/notification.mp3');
           audio.play().catch(() => {});
-          
           // إشعار مرئي
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('📍 أحداث جديدة في اللحظة بلحظة!', {
@@ -164,19 +147,16 @@ export default function MomentByMomentPage() {
       console.error('Error checking for new events:', error);
     }
   };
-
   const loadMore = () => {
     setIsLoadingMore(true);
     fetchTimelineEvents(true);
   };
-
   const formatNumber = (num: number) => {
     if (num >= 1000) {
       return (num / 1000).toFixed(1) + 'ك';
     }
     return num.toString();
   };
-
   // دالة للحصول على تحية الوقت
   const getTimeGreeting = () => {
     const hour = currentTime.getHours();
@@ -184,19 +164,16 @@ export default function MomentByMomentPage() {
     if (hour >= 12 && hour < 17) return { text: 'مساء الخير', icon: Sun, color: 'text-orange-500' };
     return { text: 'مساء الخير', icon: Moon, color: 'text-indigo-500' };
   };
-
   // دالة للتحقق من تغيير اليوم
   const isDifferentDay = (date1: string, date2: string) => {
     return date1 !== date2;
   };
-
   // دالة للحصول على اسم اليوم
   const getDayName = (dateStr: string) => {
     const date = new Date(dateStr);
     const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     return days[date.getDay()];
   };
-
   // دالة للحصول على أيقونة النوع
   const getEventIcon = (event: TimelineEvent) => {
     switch (event.displayType) {
@@ -214,13 +191,11 @@ export default function MomentByMomentPage() {
         return <Clock className="w-4 h-4" />;
     }
   };
-
   if (loading) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-b from-gray-50 to-white'}`}>
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-b from-gray-50 to-white'}`}>
         {/* Header */}
         <Header />
-        
         <div className="max-w-4xl mx-auto px-6 py-12">
           <div className="text-center">
             <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
@@ -232,25 +207,20 @@ export default function MomentByMomentPage() {
       </div>
     );
   }
-
   const greeting = getTimeGreeting();
-
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-b from-gray-50 to-white'}`}>
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-b from-gray-50 to-white'}`}>
       {/* Header الرسمي */}
       <Header />
-
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 py-16">
         <div className="absolute inset-0 bg-black/20" />
-        
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000" />
         </div>
-        
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <div className="inline-flex items-center justify-center p-8 mb-8 relative">
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full blur-xl opacity-70 animate-pulse" />
@@ -264,7 +234,6 @@ export default function MomentByMomentPage() {
           <p className="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
             تابع آخر الأحداث والتحديثات الفورية من جميع أقسام الموقع
           </p>
-          
           {/* الإحصائيات السريعة */}
           <div className="mb-6 flex justify-center">
             <div className="inline-flex flex-col sm:flex-row items-center gap-4 sm:gap-8 bg-black bg-opacity-20 backdrop-blur-md rounded-2xl px-6 sm:px-8 py-4 shadow-xl border border-white border-opacity-20">
@@ -301,7 +270,6 @@ export default function MomentByMomentPage() {
           </div>
         </div>
       </section>
-
       {/* Filter Bar - Sticky */}
       <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10 shadow-md">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -336,7 +304,6 @@ export default function MomentByMomentPage() {
                   </button>
                 ))}
             </div>
-
             {/* Sort and Load More */}
             <div className="flex items-center gap-3">
               <select
@@ -347,7 +314,6 @@ export default function MomentByMomentPage() {
                 <option value="newest">الأحدث أولاً</option>
                 <option value="oldest">الأقدم أولاً</option>
               </select>
-
               {hasMore && (
                                   <button
                     onClick={loadMore}
@@ -371,7 +337,6 @@ export default function MomentByMomentPage() {
           </div>
         </div>
       </section>
-
       {/* Main Content */}
       <section className="max-w-7xl mx-auto px-6 py-8">
         {events.length === 0 ? (
@@ -386,11 +351,9 @@ export default function MomentByMomentPage() {
             <div className={`absolute right-8 top-0 bottom-0 w-0.5 ${
               darkMode ? 'bg-gray-700' : 'bg-gray-300'
             }`}></div>
-
             {/* الأحداث */}
             {events.map((event, index) => {
               const showDayDivider = index === 0 || isDifferentDay(event.date, events[index - 1].date);
-              
               return (
                 <React.Fragment key={event.id}>
                   {/* فاصل اليوم على الخط الزمني */}
@@ -404,7 +367,6 @@ export default function MomentByMomentPage() {
                       } flex items-center justify-center`}>
                         <Calendar className={`w-3 h-3 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
                       </div>
-                      
                       {/* تاريخ اليوم */}
                       <div className="pr-16">
                         <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
@@ -418,7 +380,6 @@ export default function MomentByMomentPage() {
                       </div>
                     </div>
                   )}
-
                   <div className="relative mb-6 pr-16">
                     {/* النقطة على الخط الزمني */}
                     <div 
@@ -430,7 +391,6 @@ export default function MomentByMomentPage() {
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                       )}
                     </div>
-
                     {/* محتوى الحدث - تصميم مبسط وأنيق */}
                     <div className={`group relative overflow-hidden ${
                       darkMode ? 'bg-gray-800/50' : 'bg-white'
@@ -443,7 +403,6 @@ export default function MomentByMomentPage() {
                           ? 'bg-gradient-to-br from-gray-800/50 to-transparent' 
                           : 'bg-gradient-to-br from-gray-50/50 to-transparent'
                       }`}></div>
-
                       {/* المحتوى الرئيسي */}
                       <div className="relative z-10">
                         {/* رأس البطاقة - مبسط */}
@@ -455,7 +414,6 @@ export default function MomentByMomentPage() {
                             }`}>
                               <span className="text-lg">{event.icon}</span>
                             </div>
-                            
                             {/* المعلومات الأساسية */}
                             <div className="flex-1">
                               {/* العنوان */}
@@ -473,7 +431,6 @@ export default function MomentByMomentPage() {
                                   event.title
                                 )}
                               </h3>
-                              
                               {/* الوقت والتصنيف */}
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className={`text-xs ${
@@ -481,7 +438,6 @@ export default function MomentByMomentPage() {
                                 }`}>
                                   {event.timeAgo}
                                 </span>
-                                
                                 {/* عرض تصنيف واحد فقط */}
                                 {event.category && (
                                   <span 
@@ -494,7 +450,6 @@ export default function MomentByMomentPage() {
                                     {event.category}
                                   </span>
                                 )}
-                                
                                 {/* عاجل فقط إذا كان موجوداً */}
                                 {event.metadata?.breaking && (
                                   <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/90 text-white animate-pulse">
@@ -504,7 +459,6 @@ export default function MomentByMomentPage() {
                               </div>
                             </div>
                           </div>
-                          
                           {/* شارة جديد */}
                           {event.isNew && (
                             <div className="relative">
@@ -515,7 +469,6 @@ export default function MomentByMomentPage() {
                             </div>
                           )}
                         </div>
-
                         {/* الوصف - مختصر */}
                         {event.description && (
                           <p className={`text-sm line-clamp-2 mb-3 ${
@@ -524,7 +477,6 @@ export default function MomentByMomentPage() {
                             {event.description}
                           </p>
                         )}
-
                         {/* شريط المعلومات السفلي - مبسط */}
                         <div className={`flex items-center justify-between pt-3 border-t ${
                           darkMode ? 'border-gray-700/50' : 'border-gray-100'
@@ -560,7 +512,6 @@ export default function MomentByMomentPage() {
                               )}
                             </div>
                           )}
-                          
                           {/* المؤلف - مبسط */}
                           {event.author && (
                             <span className={`text-xs ${
@@ -576,7 +527,6 @@ export default function MomentByMomentPage() {
                 </React.Fragment>
               );
             })}
-
             {/* زر تحميل المزيد */}
             {hasMore && !isLoadingMore && (
               <div className="text-center mt-8">
@@ -593,7 +543,6 @@ export default function MomentByMomentPage() {
                 </button>
               </div>
             )}
-
             {isLoadingMore && (
               <div className="text-center mt-8">
                 <Loader2 className="w-6 h-6 animate-spin text-blue-500 mx-auto" />
@@ -602,46 +551,37 @@ export default function MomentByMomentPage() {
           </div>
         )}
       </section>
-
       <style jsx>{`
         /* تأثيرات backdrop blur للمتصفحات المختلفة */
         .backdrop-blur-md {
           -webkit-backdrop-filter: blur(12px);
           backdrop-filter: blur(12px);
         }
-        
         /* خلفية سوداء شفافة */
         .bg-black {
           background-color: rgb(0, 0, 0);
         }
-        
         .bg-opacity-20 {
           --tw-bg-opacity: 0.2;
         }
-        
         .bg-opacity-50 {
           --tw-bg-opacity: 0.5;
         }
-        
         /* حدود بيضاء شفافة */
         .border-white {
           border-color: rgb(255, 255, 255);
         }
-        
         .border-opacity-20 {
           --tw-border-opacity: 0.2;
         }
-        
         /* ضمان ظهور النصوص البيضاء */
         .text-white {
           color: rgb(255, 255, 255);
         }
-        
         /* تأثير الظل للنصوص */
         .drop-shadow-lg {
           filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.04)) drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1));
         }
-        
         .shadow-xl {
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }

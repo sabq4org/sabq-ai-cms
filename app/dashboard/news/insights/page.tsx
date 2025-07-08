@@ -1,6 +1,8 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
+'use client';
 import { 
   TrendingUp, 
   Users, 
@@ -20,9 +22,6 @@ import {
   CheckCircle,
   Target
 } from 'lucide-react';
-import Link from 'next/link';
-import toast from 'react-hot-toast';
-
 // أنواع البيانات
 interface KPIData {
   publishedThisWeek: number;
@@ -32,7 +31,6 @@ interface KPIData {
   dailyPublishingRate: number;
   editRateBeforePublish: number;
 }
-
 interface EditorActivity {
   id: string;
   name: string;
@@ -41,7 +39,6 @@ interface EditorActivity {
   weeklyRate: number;
   avatar?: string;
 }
-
 interface CategoryStats {
   id: number;
   name: string;
@@ -51,7 +48,6 @@ interface CategoryStats {
   likesCount: number;
   sharesCount: number;
 }
-
 interface TimeSeriesData {
   date: string;
   published: number;
@@ -59,7 +55,6 @@ interface TimeSeriesData {
   deleted: number;
   interactions: number;
 }
-
 interface ActivityLog {
   id: string;
   user: string;
@@ -68,7 +63,6 @@ interface ActivityLog {
   articleTitle?: string;
   timestamp: string;
 }
-
 export default function NewsInsightsPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -78,7 +72,6 @@ export default function NewsInsightsPage() {
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState('week'); // week, month, year
-
   // استرجاع حالة الوضع الليلي
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
@@ -86,13 +79,11 @@ export default function NewsInsightsPage() {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   // تحميل البيانات
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
         // جلب جميع البيانات بشكل متوازي
         const [kpiRes, editorsRes, categoriesRes, timeSeriesRes, logsRes] = await Promise.all([
           fetch('/api/analytics/kpi'),
@@ -101,33 +92,27 @@ export default function NewsInsightsPage() {
           fetch(`/api/analytics/timeseries?period=${selectedPeriod}`),
           fetch('/api/analytics/activity-logs')
         ]);
-
         // معالجة الاستجابات
         if (kpiRes.ok) {
           const kpiData = await kpiRes.json();
           setKpiData(kpiData);
         }
-
         if (editorsRes.ok) {
           const editorsData = await editorsRes.json();
           setEditorsActivity(editorsData);
         }
-
         if (categoriesRes.ok) {
           const categoriesData = await categoriesRes.json();
           setCategoryStats(categoriesData);
         }
-
         if (timeSeriesRes.ok) {
           const timeData = await timeSeriesRes.json();
           setTimeSeriesData(timeData);
         }
-
         if (logsRes.ok) {
           const logsData = await logsRes.json();
           setActivityLogs(logsData);
         }
-
       } catch (error) {
         console.error('خطأ في تحميل البيانات:', error);
         toast.error('فشل تحميل بعض البيانات');
@@ -135,10 +120,8 @@ export default function NewsInsightsPage() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [selectedPeriod]);
-
   // مكون KPI Card
   const KPICard = ({ 
     title, 
@@ -184,28 +167,22 @@ export default function NewsInsightsPage() {
       </div>
     </div>
   );
-
   // رسم بياني بسيط للتوزيع
   const SimplePieChart = ({ data }: { data: CategoryStats[] }) => {
     const total = data.reduce((sum, item) => sum + item.articleCount, 0);
     let currentAngle = 0;
-    
     return (
-      <div className="relative w-64 h-64 mx-auto">
+  <div className="relative w-64 h-64 mx-auto">
         <svg viewBox="0 0 100 100" className="transform -rotate-90">
           {data.map((item, index) => {
             const percentage = (item.articleCount / total) * 100;
             const angle = (percentage / 100) * 360;
             const largeArc = angle > 180 ? 1 : 0;
-            
             const x1 = 50 + 40 * Math.cos((currentAngle * Math.PI) / 180);
             const y1 = 50 + 40 * Math.sin((currentAngle * Math.PI) / 180);
-            
             currentAngle += angle;
-            
             const x2 = 50 + 40 * Math.cos((currentAngle * Math.PI) / 180);
             const y2 = 50 + 40 * Math.sin((currentAngle * Math.PI) / 180);
-            
             return (
               <path
                 key={index}
@@ -231,11 +208,10 @@ export default function NewsInsightsPage() {
       </div>
     );
   };
-
   // عرض حالة التحميل
   if (loading) {
     return (
-      <div className={`p-8 ${darkMode ? 'bg-gray-900' : ''}`}>
+  <div className={`p-8 ${darkMode ? 'bg-gray-900' : ''}`}>
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -247,9 +223,8 @@ export default function NewsInsightsPage() {
       </div>
     );
   }
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
+  <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
       {/* الرأس */}
       <div className="mb-8 flex items-center justify-between">
         <div>
@@ -264,7 +239,6 @@ export default function NewsInsightsPage() {
             نظرة شاملة على أداء المحتوى التحريري ونشاط المحررين
           </p>
         </div>
-        
         <div className="flex items-center gap-3">
           {/* اختيار الفترة الزمنية */}
           <select
@@ -280,7 +254,6 @@ export default function NewsInsightsPage() {
             <option value="month">آخر شهر</option>
             <option value="year">آخر سنة</option>
           </select>
-          
           <Link
             href="/dashboard/news"
             className={`px-4 py-2 rounded-lg border transition-colors duration-300 ${
@@ -293,7 +266,6 @@ export default function NewsInsightsPage() {
           </Link>
         </div>
       </div>
-
       {/* مؤشرات الأداء الرئيسية KPIs */}
       <div className="grid grid-cols-6 gap-6 mb-8">
         <KPICard
@@ -305,7 +277,6 @@ export default function NewsInsightsPage() {
           bgColor="bg-blue-100"
           iconColor="text-blue-600"
         />
-        
         <KPICard
           title="المسودات الحالية"
           value={kpiData?.currentDrafts || 0}
@@ -314,7 +285,6 @@ export default function NewsInsightsPage() {
           bgColor="bg-yellow-100"
           iconColor="text-yellow-600"
         />
-        
         <KPICard
           title="أكثر تصنيف نشاطاً"
           value={kpiData?.mostActiveCategory?.name || '-'}
@@ -323,7 +293,6 @@ export default function NewsInsightsPage() {
           bgColor="bg-purple-100"
           iconColor="text-purple-600"
         />
-        
         <KPICard
           title="أكثر محرر نشاطاً"
           value={kpiData?.mostActiveEditor?.name || '-'}
@@ -332,7 +301,6 @@ export default function NewsInsightsPage() {
           bgColor="bg-green-100"
           iconColor="text-green-600"
         />
-        
         <KPICard
           title="معدل النشر اليومي"
           value={kpiData?.dailyPublishingRate?.toFixed(1) || '0'}
@@ -342,7 +310,6 @@ export default function NewsInsightsPage() {
           bgColor="bg-orange-100"
           iconColor="text-orange-600"
         />
-        
         <KPICard
           title="معدل التعديل قبل النشر"
           value={`${kpiData?.editRateBeforePublish?.toFixed(0) || 0}%`}
@@ -352,7 +319,6 @@ export default function NewsInsightsPage() {
           iconColor="text-teal-600"
         />
       </div>
-
       {/* القسم الأول: المحررون الأكثر نشاطاً */}
       <div className={`rounded-2xl shadow-sm border p-6 mb-8 transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
@@ -365,7 +331,6 @@ export default function NewsInsightsPage() {
             المحررون الأكثر نشاطاً
           </h2>
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -421,7 +386,6 @@ export default function NewsInsightsPage() {
           </table>
         </div>
       </div>
-
       {/* القسم الثاني: التوزيع حسب التصنيف */}
       <div className="grid grid-cols-2 gap-8 mb-8">
         {/* الرسم البياني الدائري */}
@@ -434,9 +398,7 @@ export default function NewsInsightsPage() {
             <BarChart3 className="w-6 h-6 text-purple-600" />
             توزيع المقالات حسب التصنيف
           </h3>
-          
           <SimplePieChart data={categoryStats} />
-          
           {/* قائمة التصنيفات */}
           <div className="grid grid-cols-2 gap-3 mt-6">
             {categoryStats.slice(0, 6).map((category) => (
@@ -452,7 +414,6 @@ export default function NewsInsightsPage() {
             ))}
           </div>
         </div>
-
         {/* جدول التفاعل حسب التصنيف */}
         <div className={`rounded-2xl shadow-sm border p-6 transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
@@ -463,7 +424,6 @@ export default function NewsInsightsPage() {
             <Activity className="w-6 h-6 text-green-600" />
             التفاعل حسب التصنيف
           </h3>
-          
           <div className="space-y-3">
             {categoryStats.map((category) => (
               <div key={category.id} className={`p-4 rounded-lg border ${
@@ -483,7 +443,6 @@ export default function NewsInsightsPage() {
                     {category.articleCount} مقال
                   </span>
                 </div>
-                
                 <div className="grid grid-cols-3 gap-3 text-center">
                   <div className={`p-2 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <Eye className="w-4 h-4 mx-auto mb-1 text-blue-500" />
@@ -494,7 +453,6 @@ export default function NewsInsightsPage() {
                       مشاهدة
                     </div>
                   </div>
-                  
                   <div className={`p-2 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <Heart className="w-4 h-4 mx-auto mb-1 text-red-500" />
                     <div className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -504,7 +462,6 @@ export default function NewsInsightsPage() {
                       إعجاب
                     </div>
                   </div>
-                  
                   <div className={`p-2 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <Share2 className="w-4 h-4 mx-auto mb-1 text-green-500" />
                     <div className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -520,7 +477,6 @@ export default function NewsInsightsPage() {
           </div>
         </div>
       </div>
-
       {/* القسم الثالث: حركة الأخبار بمرور الوقت */}
       <div className={`rounded-2xl shadow-sm border p-6 mb-8 transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
@@ -531,7 +487,6 @@ export default function NewsInsightsPage() {
           <TrendingUp className="w-6 h-6 text-orange-600" />
           حركة الأخبار بمرور الوقت
         </h3>
-        
         {/* رسم بياني بسيط للخط الزمني */}
         <div className="h-64 relative">
           <div className="absolute inset-0 flex items-end justify-between px-4">
@@ -561,7 +516,6 @@ export default function NewsInsightsPage() {
             ))}
           </div>
         </div>
-        
         {/* مفتاح الألوان */}
         <div className="flex items-center justify-center gap-6 mt-4">
           <div className="flex items-center gap-2">
@@ -578,7 +532,6 @@ export default function NewsInsightsPage() {
           </div>
         </div>
       </div>
-
       {/* القسم الرابع: سجل النشاط التحريري */}
       <div className={`rounded-2xl shadow-sm border p-6 transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
@@ -589,7 +542,6 @@ export default function NewsInsightsPage() {
           <Clock className="w-6 h-6 text-teal-600" />
           سجل النشاط التحريري
         </h3>
-        
         <div className="space-y-3">
           {activityLogs.map((log) => (
             <div key={log.id} className={`flex items-center justify-between p-4 rounded-lg border ${
@@ -607,7 +559,6 @@ export default function NewsInsightsPage() {
                   {log.action === 'حذف' && <Trash2 className="w-5 h-5 text-red-600" />}
                   {log.action === 'مشاركة' && <Share2 className="w-5 h-5 text-blue-600" />}
                 </div>
-                
                 <div>
                   <div className={`font-medium ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                     {log.user} - {log.action}
@@ -619,7 +570,6 @@ export default function NewsInsightsPage() {
                   )}
                 </div>
               </div>
-              
               <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 {new Date(log.timestamp).toLocaleString('ar-SA', {
                   hour: '2-digit',

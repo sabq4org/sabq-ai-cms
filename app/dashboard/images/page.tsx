@@ -1,6 +1,7 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+'use client';
 import { 
   Image, 
   RefreshCw, 
@@ -13,8 +14,6 @@ import {
   Settings,
   FileImage
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
 interface ImageIssue {
   id: string;
   title: string;
@@ -31,14 +30,12 @@ interface ImageIssue {
     newUrl: string | null;
   };
 }
-
 interface FixSummary {
   totalArticles: number;
   articlesWithMissingImages: number;
   fixedImages: number;
   results: ImageIssue[];
 }
-
 export default function ImagesManagementPage() {
   const { darkMode } = useDarkModeContext();
   const [issues, setIssues] = useState<ImageIssue[]>([]);
@@ -47,14 +44,12 @@ export default function ImagesManagementPage() {
   const [scanning, setScanning] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState<string | null>(null);
-
   // فحص الصور المفقودة
   const scanForMissingImages = async () => {
     try {
       setScanning(true);
       const response = await fetch('/api/articles/fix-images');
       const data = await response.json();
-      
       if (data.success) {
         setIssues(data.data);
         setSummary(data.summary);
@@ -67,7 +62,6 @@ export default function ImagesManagementPage() {
       setScanning(false);
     }
   };
-
   // تحديث صورة مقال
   const updateArticleImage = async (articleId: string, imageType: 'featured' | 'social', newUrl: string) => {
     try {
@@ -83,9 +77,7 @@ export default function ImagesManagementPage() {
           newImageUrl: newUrl
         }),
       });
-      
       const data = await response.json();
-      
       if (data.success) {
         // تحديث القائمة المحلية
         setIssues(prev => prev.map(issue => 
@@ -102,7 +94,6 @@ export default function ImagesManagementPage() {
               }
             : issue
         ));
-        
         // إعادة فحص الصور
         await scanForMissingImages();
       } else {
@@ -114,25 +105,21 @@ export default function ImagesManagementPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     scanForMissingImages();
   }, []);
-
   const getStatusIcon = (exists: boolean, fixed: boolean) => {
     if (fixed) return <CheckCircle className="w-5 h-5 text-green-500" />;
     if (exists) return <CheckCircle className="w-5 h-5 text-blue-500" />;
     return <AlertTriangle className="w-5 h-5 text-red-500" />;
   };
-
   const getStatusText = (exists: boolean, fixed: boolean) => {
     if (fixed) return 'تم الإصلاح';
     if (exists) return 'موجودة';
     return 'مفقودة';
   };
-
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -146,7 +133,6 @@ export default function ImagesManagementPage() {
                 فحص وإصلاح الصور المفقودة في المقالات
               </p>
             </div>
-            
             <button
               onClick={scanForMissingImages}
               disabled={scanning}
@@ -161,7 +147,6 @@ export default function ImagesManagementPage() {
             </button>
           </div>
         </div>
-
         {/* Summary Cards */}
         {summary && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -178,7 +163,6 @@ export default function ImagesManagementPage() {
                 <FileImage className="w-8 h-8 text-blue-500" />
               </div>
             </div>
-
             <div className={`p-6 rounded-lg border ${
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             }`}>
@@ -192,7 +176,6 @@ export default function ImagesManagementPage() {
                 <AlertTriangle className="w-8 h-8 text-red-500" />
               </div>
             </div>
-
             <div className={`p-6 rounded-lg border ${
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             }`}>
@@ -208,7 +191,6 @@ export default function ImagesManagementPage() {
             </div>
           </div>
         )}
-
         {/* Articles List */}
         <div className={`rounded-lg border ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -216,14 +198,12 @@ export default function ImagesManagementPage() {
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-semibold">المقالات مع مشاكل الصور</h2>
           </div>
-
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {issues.map((issue) => (
               <div key={issue.id} className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold mb-2">{issue.title}</h3>
-                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Featured Image */}
                       <div className={`p-4 rounded-lg border ${
@@ -233,7 +213,6 @@ export default function ImagesManagementPage() {
                           <h4 className="font-medium">صورة المقال الرئيسية</h4>
                           {getStatusIcon(issue.featuredImage.exists, issue.featuredImage.fixed)}
                         </div>
-                        
                         <div className="flex items-center gap-2 mb-3">
                           <span className={`text-sm px-2 py-1 rounded ${
                             issue.featuredImage.exists 
@@ -243,7 +222,6 @@ export default function ImagesManagementPage() {
                             {getStatusText(issue.featuredImage.exists, issue.featuredImage.fixed)}
                           </span>
                         </div>
-
                         {issue.featuredImage.original && (
                           <div className="flex items-center gap-2">
                             <button
@@ -255,7 +233,6 @@ export default function ImagesManagementPage() {
                             </button>
                           </div>
                         )}
-
                         {!issue.featuredImage.exists && (
                           <button
                             onClick={() => updateArticleImage(issue.id, 'featured', 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80')}
@@ -267,7 +244,6 @@ export default function ImagesManagementPage() {
                           </button>
                         )}
                       </div>
-
                       {/* Social Image */}
                       <div className={`p-4 rounded-lg border ${
                         darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'
@@ -276,7 +252,6 @@ export default function ImagesManagementPage() {
                           <h4 className="font-medium">صورة التواصل الاجتماعي</h4>
                           {getStatusIcon(issue.socialImage.exists, issue.socialImage.fixed)}
                         </div>
-                        
                         <div className="flex items-center gap-2 mb-3">
                           <span className={`text-sm px-2 py-1 rounded ${
                             issue.socialImage.exists 
@@ -286,7 +261,6 @@ export default function ImagesManagementPage() {
                             {getStatusText(issue.socialImage.exists, issue.socialImage.fixed)}
                           </span>
                         </div>
-
                         {issue.socialImage.original && (
                           <div className="flex items-center gap-2">
                             <button
@@ -298,7 +272,6 @@ export default function ImagesManagementPage() {
                             </button>
                           </div>
                         )}
-
                         {!issue.socialImage.exists && (
                           <button
                             onClick={() => updateArticleImage(issue.id, 'social', 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80')}
@@ -316,7 +289,6 @@ export default function ImagesManagementPage() {
               </div>
             ))}
           </div>
-
           {issues.length === 0 && (
             <div className="p-12 text-center">
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />

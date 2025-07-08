@@ -1,7 +1,24 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { getCurrentUser, logActions } from '@/lib/log-activity';
+import { useTheme } from '@/contexts/ThemeContext';
+import { DashboardMobileLayout } from '@/components/mobile/MobileLayout';
+
+'use client';
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { 
   Bell,
   User,
@@ -29,9 +46,9 @@ import {
   Image,
   MessageCircle
 } from 'lucide-react';
-import { getCurrentUser, logActions } from '@/lib/log-activity';
-import { useTheme } from '@/contexts/ThemeContext';
-import { DashboardMobileLayout } from '@/components/mobile/MobileLayout';
+
+
+
 
 export default function DashboardLayout({
   children,
@@ -128,7 +145,7 @@ export default function DashboardLayout({
       )}
       
       {/* Header الموحد للوحة التحكم - محسّن للموبايل */}
-      <header className={`shadow-sm border-b px-3 sm:px-6 py-3 sm:py-6 transition-colors duration-300 sticky top-0 z-30 ${
+      <div className={`shadow-sm border-b px-3 sm:px-6 py-3 sm:py-6 transition-colors duration-300 sticky top-0 z-30 ${
         mounted && darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-200'
@@ -263,7 +280,7 @@ export default function DashboardLayout({
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Overlay للموبايل */}
       {mounted && sidebarOpen && (

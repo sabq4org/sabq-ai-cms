@@ -1,3 +1,13 @@
+import React from 'react';
+import Image from 'next/image';
+
+'use client';
+
+
+
+
+
+
 'use client'
 
 import { useEffect, useState } from 'react'

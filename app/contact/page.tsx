@@ -1,9 +1,10 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+'use client';
 import { 
   Send, 
   Mail, 
@@ -28,7 +29,6 @@ import {
   Star,
   Zap
 } from 'lucide-react';
-
 // أنواع الرسائل مع ألوان محسنة ولمسات ناعمة
 const messageTypes = [
   { 
@@ -92,7 +92,6 @@ const messageTypes = [
     shadowColor: 'shadow-gray-200/50 dark:shadow-gray-900/50'
   }
 ];
-
 // معلومات التواصل
 const contactInfo = [
   { icon: Phone, label: 'الهاتف', value: '+966 11 123 4567', color: 'text-green-500' },
@@ -100,16 +99,13 @@ const contactInfo = [
   { icon: MapPin, label: 'العنوان', value: 'الرياض، المملكة العربية السعودية', color: 'text-red-500' },
   { icon: Clock, label: 'ساعات العمل', value: 'الأحد - الخميس: 9 ص - 5 م', color: 'text-purple-500' }
 ];
-
 // أنواع الملفات المسموح بها
 const allowedFileTypes = {
   image: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
   document: ['application/pdf'],
   video: ['video/mp4', 'video/webm', 'video/ogg']
 };
-
 const maxFileSize = 10 * 1024 * 1024; // 10MB
-
 export default function ContactPage() {
   const { darkMode } = useDarkMode();
   const [formData, setFormData] = useState({
@@ -123,13 +119,11 @@ export default function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
   // التحقق من صحة البريد الإلكتروني
   const validateEmail = (email: string) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   };
-
   // التحقق من الملف
   const validateFile = (file: File) => {
     const allAllowedTypes = [
@@ -137,18 +131,14 @@ export default function ContactPage() {
       ...allowedFileTypes.document,
       ...allowedFileTypes.video
     ];
-
     if (!allAllowedTypes.includes(file.type)) {
       return 'نوع الملف غير مسموح. يُسمح فقط بالصور، PDF، والفيديوهات القصيرة';
     }
-
     if (file.size > maxFileSize) {
       return 'حجم الملف كبير جداً. الحد الأقصى 10MB';
     }
-
     return null;
   };
-
   // معالج رفع الملف
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -162,13 +152,11 @@ export default function ContactPage() {
       setErrors({ ...errors, attachment: null });
     }
   };
-
   // إزالة الملف
   const removeFile = () => {
     setFormData({ ...formData, attachment: null });
     setErrors({ ...errors, attachment: null });
   };
-
   // الحصول على أيقونة الملف
   const getFileIcon = (file: File) => {
     if (allowedFileTypes.image.includes(file.type)) return ImageIcon;
@@ -176,74 +164,58 @@ export default function ContactPage() {
     if (allowedFileTypes.video.includes(file.type)) return FileVideo;
     return FileText;
   };
-
   // التحقق من صحة النموذج
   const validateForm = () => {
     const newErrors: any = {};
-
     if (!formData.type) {
       newErrors.type = 'يرجى اختيار نوع الرسالة';
     }
-
     if (!formData.subject || formData.subject.length < 5) {
       newErrors.subject = 'يرجى كتابة عنوان واضح (5 أحرف على الأقل)';
     }
-
     if (formData.subject.length > 100) {
       newErrors.subject = 'العنوان طويل جداً (100 حرف كحد أقصى)';
     }
-
     if (!formData.message || formData.message.length < 20) {
       newErrors.message = 'يرجى كتابة رسالة واضحة (20 حرف على الأقل)';
     }
-
     if (!formData.email) {
       newErrors.email = 'يرجى إدخال البريد الإلكتروني';
     } else if (!validateEmail(formData.email)) {
       newErrors.email = 'يرجى إدخال بريد إلكتروني صحيح';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   // إرسال النموذج
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) {
       return;
     }
-
     setLoading(true);
     setUploadProgress(0);
-
     try {
       // رفع الملف إذا وجد
       let fileUrl = null;
       if (formData.attachment) {
         const uploadFormData = new FormData();
         uploadFormData.append('file', formData.attachment);
-        
         // محاكاة تقدم الرفع
         const progressInterval = setInterval(() => {
           setUploadProgress(prev => Math.min(prev + 10, 90));
         }, 200);
-
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: uploadFormData
         });
-
         clearInterval(progressInterval);
         setUploadProgress(100);
-
         if (uploadResponse.ok) {
           const uploadData = await uploadResponse.json();
           fileUrl = uploadData.url;
         }
       }
-
       // إرسال الرسالة
       const response = await fetch('/api/messages', {
         method: 'POST',
@@ -260,7 +232,6 @@ export default function ContactPage() {
           created_at: new Date().toISOString()
         })
       });
-
       if (response.ok) {
         setSuccess(true);
         setFormData({
@@ -271,7 +242,6 @@ export default function ContactPage() {
           attachment: null
         });
         setUploadProgress(0);
-        
         // إخفاء رسالة النجاح بعد 5 ثواني
         setTimeout(() => {
           setSuccess(false);
@@ -286,24 +256,20 @@ export default function ContactPage() {
       setLoading(false);
     }
   };
-
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
+  <div className={`min-h-screen transition-colors duration-300 ${
       darkMode ? 'bg-black' : 'bg-gray-50'
     }`}>
       <Header />
-
       {/* Hero Section - تصميم موحد مع الصفحات الأخرى */}
       <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 py-16">
         <div className="absolute inset-0 bg-black/20" />
-        
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000" />
         </div>
-        
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <div className="inline-flex items-center justify-center p-8 mb-8 relative">
             <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-blue-500 rounded-full blur-xl opacity-70 animate-pulse" />
@@ -317,14 +283,12 @@ export default function ContactPage() {
           <p className="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
             نسعد بسماع آرائكم واقتراحاتكم. رسالتك تهمنا وستصل إلى الفريق المختص
           </p>
-          
           {/* Stats with Glass Effect */}
           <div className="relative inline-flex flex-col sm:flex-row items-center gap-4 sm:gap-8 rounded-2xl px-6 sm:px-8 py-4 shadow-xl">
             {/* خلفية سوداء أكثر كثافة */}
             <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-md rounded-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-black/40 rounded-2xl" />
             <div className="absolute inset-0 rounded-2xl border border-white border-opacity-20" />
-            
             <div className="relative text-center">
               <div className="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-lg">24h</div>
               <div className="text-xs sm:text-sm text-white">متوسط وقت الرد</div>
@@ -342,7 +306,6 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-
       {/* معلومات التواصل السريعة */}
       <section className="max-w-7xl mx-auto px-6 -mt-10 mb-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -360,7 +323,6 @@ export default function ContactPage() {
           ))}
         </div>
       </section>
-
       {/* Contact Form Section - تصميم محسن */}
       <section className="max-w-3xl mx-auto px-6 pb-20">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800">
@@ -382,7 +344,6 @@ export default function ContactPage() {
               </div>
             </div>
           )}
-
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
             {/* نوع الرسالة - لمسات ناعمة */}
             <div className="space-y-4">
@@ -392,7 +353,6 @@ export default function ContactPage() {
                 </label>
                 <span className="text-xs text-gray-500 dark:text-gray-400">اختر النوع المناسب لرسالتك</span>
               </div>
-              
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {messageTypes.map((type, index) => {
                   const Icon = type.icon;
@@ -419,7 +379,6 @@ export default function ContactPage() {
                           <div className={`absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr ${type.color} rounded-full blur-3xl animate-pulse animation-delay-2000`} />
                         </div>
                       )}
-                      
                       {/* شارة الاختيار */}
                       <div className={`absolute -top-2 -right-2 transition-all duration-300 ${
                         isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
@@ -431,7 +390,6 @@ export default function ContactPage() {
                           </div>
                         </div>
                       </div>
-                      
                       {/* الأيقونة */}
                       <div className="mb-3 relative">
                         <div className={`inline-flex p-3 rounded-2xl transition-all duration-300 group-hover:scale-110 ${
@@ -450,7 +408,6 @@ export default function ContactPage() {
                           <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${type.color} opacity-20 blur-xl`} />
                         )}
                       </div>
-                      
                       {/* النص */}
                       <span className={`relative z-10 text-sm font-medium block transition-all duration-300 ${
                         isSelected 
@@ -459,7 +416,6 @@ export default function ContactPage() {
                       }`}>
                         {type.label}
                       </span>
-                      
                       {/* خط سفلي متحرك */}
                       <div className={`absolute bottom-0 left-4 right-4 h-0.5 bg-gradient-to-r ${type.color} transition-all duration-300 ${
                         isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-30'
@@ -468,7 +424,6 @@ export default function ContactPage() {
                   );
                 })}
               </div>
-              
               {/* رسالة الخطأ بتصميم ناعم */}
               {errors.type && (
                 <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-xl animate-shake">
@@ -479,7 +434,6 @@ export default function ContactPage() {
                 </div>
               )}
             </div>
-
             {/* عنوان الرسالة - محسن */}
             <div>
               <label className="block text-sm font-bold mb-3 text-gray-700 dark:text-gray-200">
@@ -516,7 +470,6 @@ export default function ContactPage() {
                 </span>
               </div>
             </div>
-
             {/* نص الرسالة - محسن */}
             <div>
               <label className="block text-sm font-bold mb-3 text-gray-700 dark:text-gray-200">
@@ -540,7 +493,6 @@ export default function ContactPage() {
                 </p>
               )}
             </div>
-
             {/* البريد الإلكتروني - محسن */}
             <div>
               <label className="block text-sm font-bold mb-3 text-gray-700 dark:text-gray-200">
@@ -574,13 +526,11 @@ export default function ContactPage() {
                 سنستخدم بريدك الإلكتروني للرد على رسالتك فقط
               </p>
             </div>
-
             {/* المرفقات - محسن */}
             <div>
               <label className="block text-sm font-bold mb-3 text-gray-700 dark:text-gray-200">
                 المرفقات <span className="text-gray-500 dark:text-gray-400">(اختياري)</span>
               </label>
-              
               {!formData.attachment ? (
                 <label className="flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 group">
                   <input
@@ -628,7 +578,6 @@ export default function ContactPage() {
                       <X className="w-5 h-5 text-red-500" />
                     </button>
                   </div>
-                  
                   {/* Progress Bar - محسن */}
                   {loading && uploadProgress > 0 && (
                     <div className="mt-4">
@@ -645,7 +594,6 @@ export default function ContactPage() {
                   )}
                 </div>
               )}
-              
               {errors.attachment && (
                 <p className="text-red-500 text-sm mt-3 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4" />
@@ -653,7 +601,6 @@ export default function ContactPage() {
                 </p>
               )}
             </div>
-
             {/* Error Message - محسن */}
             {errors.submit && (
               <div className="p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl">
@@ -665,7 +612,6 @@ export default function ContactPage() {
                 </div>
               </div>
             )}
-
             {/* Submit Button - محسن */}
             <div className="pt-4">
               <button
@@ -689,7 +635,6 @@ export default function ContactPage() {
             </div>
           </form>
         </div>
-
         {/* Additional Info - محسن */}
         <div className="mt-12 text-center">
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-full">
@@ -703,9 +648,7 @@ export default function ContactPage() {
           </p>
         </div>
       </section>
-
       <Footer />
-      
       <style jsx>{`
         @keyframes blob {
           0% {
@@ -721,7 +664,6 @@ export default function ContactPage() {
             transform: translate(0px, 0px) scale(1);
           }
         }
-        
         @keyframes fadeInUp {
           0% {
             opacity: 0;
@@ -732,7 +674,6 @@ export default function ContactPage() {
             transform: translateY(0);
           }
         }
-        
         @keyframes shake {
           0%, 100% {
             transform: translateX(0);
@@ -744,34 +685,27 @@ export default function ContactPage() {
             transform: translateX(5px);
           }
         }
-        
         .animate-blob {
           animation: blob 7s infinite;
         }
-        
         .animate-shake {
           animation: shake 0.5s ease-in-out;
         }
-        
         .animation-delay-2000 {
           animation-delay: 2s;
         }
-        
         .animation-delay-4000 {
           animation-delay: 4s;
         }
-        
         /* تأثيرات backdrop blur للمتصفحات المختلفة */
         .backdrop-blur-sm {
           -webkit-backdrop-filter: blur(4px);
           backdrop-filter: blur(4px);
         }
-        
         /* ظلال ناعمة */
         .shadow-inner {
           box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
         }
-        
         /* تأثير drop-shadow للنصوص */
         .drop-shadow {
           filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));

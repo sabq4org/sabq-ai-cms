@@ -1,6 +1,7 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
+'use client';
 import { 
   Users, Award, BookOpen, 
   Eye, Heart, Share2, MessageSquare, 
@@ -9,7 +10,6 @@ import {
   RefreshCw, Download,
   Database, Search
 } from 'lucide-react';
-
 interface BehaviorInsights {
   overview: {
     total_interactions: number;
@@ -47,7 +47,6 @@ interface BehaviorInsights {
     days: number;
   };
 }
-
 export default function BehaviorInsightsPage() {
   const [insights, setInsights] = useState<BehaviorInsights | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,7 +56,6 @@ export default function BehaviorInsightsPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [filterUser, setFilterUser] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
-
   // استرجاع حالة الوضع الليلي من localStorage
   useEffect(() => {
     // التحقق من أن الكود يعمل في المتصفح فقط
@@ -68,19 +66,15 @@ export default function BehaviorInsightsPage() {
       }
     }
   }, []);
-
   // جلب البيانات
   const fetchInsights = async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/dashboard/insights/behavior');
-      
       if (!response.ok) {
         throw new Error('فشل في جلب البيانات');
       }
-      
       const data = await response.json();
-      
       if (data.success && data.data) {
         setInsights(data.data);
         setError(null);
@@ -95,21 +89,17 @@ export default function BehaviorInsightsPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchInsights();
-    
     // تحديث تلقائي كل 5 دقائق
     const interval = setInterval(fetchInsights, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-
   // حساب النسب المئوية
   const getPercentage = (value: number, total: number) => {
     if (total === 0) return 0;
     return Math.round((value / total) * 100);
   };
-
   // الحصول على الأيقونة حسب نوع التفاعل
   const getInteractionIcon = (type: string) => {
     switch (type) {
@@ -121,7 +111,6 @@ export default function BehaviorInsightsPage() {
       default: return <Activity className="w-4 h-4" />;
     }
   };
-
   // الحصول على لون المستوى
   const getLevelColor = (level: string) => {
     switch (level.toLowerCase()) {
@@ -132,7 +121,6 @@ export default function BehaviorInsightsPage() {
       default: return 'bg-blue-500';
     }
   };
-
   // مكون بطاقة الإحصائية
   const StatsCard = ({ 
     title, 
@@ -174,7 +162,6 @@ export default function BehaviorInsightsPage() {
       </div>
     </div>
   );
-
   // مكون أزرار التنقل
   const NavigationTabs = () => {
     const tabs = [
@@ -183,9 +170,8 @@ export default function BehaviorInsightsPage() {
       { id: 'categories', name: 'التصنيفات', icon: BarChart3, count: insights?.top_categories.length || 0 },
       { id: 'points', name: 'نقاط الولاء', icon: Award, count: insights?.overview.total_points_awarded || 0 }
     ];
-
     return (
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
+  <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
@@ -210,7 +196,6 @@ export default function BehaviorInsightsPage() {
                 {isActive && (
                   <div className="absolute bottom-0 left-6 right-6 h-1 bg-white/30 rounded-full" />
                 )}
-                
                 <Icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
                 <span className={isActive ? 'font-semibold' : ''}>{tab.name}</span>
                 {tab.count > 0 && (
@@ -231,16 +216,13 @@ export default function BehaviorInsightsPage() {
       </div>
     );
   };
-
   const exportToCSV = () => {
     if (!insights) return;
-    
     // التحقق من أن الكود يعمل في المتصفح فقط
     if (typeof window === "undefined" || typeof document === "undefined") {
       console.warn("Export CSV is only available in browser environment");
       return;
     }
-    
     const headers = ['المستخدم', 'البريد الإلكتروني', 'التفاعلات', 'النقاط', 'المستوى', 'التصنيف المفضل', 'آخر نشاط'];
     const csvContent = [
       headers.join(','),
@@ -254,7 +236,6 @@ export default function BehaviorInsightsPage() {
         new Date(user.last_activity).toLocaleString('ar-SA')
       ].join(','))
     ].join('\n');
-
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -265,10 +246,9 @@ export default function BehaviorInsightsPage() {
     link.click();
     document.body.removeChild(link);
   };
-
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
+  <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
         darkMode ? 'bg-gray-900' : 'bg-gray-50'
       }`}>
         <div className="text-center">
@@ -282,10 +262,9 @@ export default function BehaviorInsightsPage() {
       </div>
     );
   }
-
   if (error || !insights) {
     return (
-      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
+  <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
         darkMode ? 'bg-gray-900' : 'bg-gray-50'
       }`}>
         <div className="text-center">
@@ -309,15 +288,13 @@ export default function BehaviorInsightsPage() {
       </div>
     );
   }
-
   const totalInteractions = insights.interaction_summary.total_reads +
     insights.interaction_summary.total_likes +
     insights.interaction_summary.total_shares +
     insights.interaction_summary.total_comments +
     insights.interaction_summary.total_bookmarks;
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -329,7 +306,6 @@ export default function BehaviorInsightsPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>رصد التفاعل وتحديث التفضيلات تلقائيًا لتعزيز تجربة التوصيات</p>
       </div>
-
       {/* قسم نظام التحليل الذكي */}
       <div className="mb-8">
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -367,7 +343,6 @@ export default function BehaviorInsightsPage() {
           </div>
         </div>
       </div>
-
       {/* بطاقات الإحصائيات */}
       <div className="grid grid-cols-5 gap-6 mb-8">
         <StatsCard
@@ -411,10 +386,8 @@ export default function BehaviorInsightsPage() {
           iconColor="text-pink-600"
         />
       </div>
-
       {/* أزرار التنقل */}
       <NavigationTabs />
-
       {/* أدوات الفلترة والتصدير */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -436,7 +409,6 @@ export default function BehaviorInsightsPage() {
               }`}
             />
           </div>
-
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
@@ -451,7 +423,6 @@ export default function BehaviorInsightsPage() {
               <option key={cat.id} value={cat.name}>{cat.name}</option>
             ))}
           </select>
-
           <button
             onClick={exportToCSV}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
@@ -461,7 +432,6 @@ export default function BehaviorInsightsPage() {
           </button>
         </div>
       </div>
-
       {/* المحتوى الرئيسي حسب التبويب النشط */}
       {activeTab === 'all' && (
         <div className="grid grid-cols-2 gap-6 mb-8">
@@ -473,7 +443,6 @@ export default function BehaviorInsightsPage() {
                 تفصيل التفاعلات
               </h3>
             </div>
-            
             <div className="p-6 space-y-4">
               {Object.entries({
                 reads: insights.interaction_summary.total_reads,
@@ -510,7 +479,6 @@ export default function BehaviorInsightsPage() {
               ))}
             </div>
           </div>
-
           {/* التصنيفات النشطة */}
           <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-100'} overflow-hidden transition-colors duration-300`}>
             <div className="px-6 py-4" style={{ borderBottom: darkMode ? '1px solid #374151' : '1px solid #f4f8fe' }}>
@@ -519,7 +487,6 @@ export default function BehaviorInsightsPage() {
                 التصنيفات النشطة
               </h3>
             </div>
-            
             <div className="p-6 space-y-4">
               {insights.top_categories.map((category, index) => (
                 <div
@@ -545,7 +512,6 @@ export default function BehaviorInsightsPage() {
           </div>
         </div>
       )}
-
       {/* جدول المستخدمين النشطين */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-100'} overflow-hidden transition-colors duration-300`}>
         <div className="px-6 py-4" style={{ borderBottom: darkMode ? '1px solid #374151' : '1px solid #f4f8fe' }}>
@@ -554,7 +520,6 @@ export default function BehaviorInsightsPage() {
             المستخدمون الأكثر تفاعلاً
           </h3>
         </div>
-        
         {/* رأس الجدول */}
         <div 
           style={{ 
@@ -571,7 +536,6 @@ export default function BehaviorInsightsPage() {
             <div className={`text-sm font-medium text-center ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>آخر نشاط</div>
           </div>
         </div>
-
         {/* بيانات الجدول */}
         <div style={{ borderColor: darkMode ? '#374151' : '#f4f8fe' }} className="divide-y">
           {insights.top_users.length === 0 ? (
@@ -593,7 +557,7 @@ export default function BehaviorInsightsPage() {
                 >
                   <div className="flex items-center gap-3">
                     {user.avatar ? (
-                      <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
+                      <Image src={undefined} alt="" width={100} height={100} />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
                         {user.name.charAt(0)}
@@ -631,7 +595,6 @@ export default function BehaviorInsightsPage() {
           )}
         </div>
       </div>
-
       {/* معلومات الفترة الزمنية */}
       <div className={`mt-8 rounded-xl p-4 flex items-center gap-3 ${
         darkMode ? 'bg-blue-900/20' : 'bg-blue-50'

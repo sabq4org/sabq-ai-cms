@@ -1,15 +1,26 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { 
-  Menu, ChevronDown, LogIn, User, Sun, Moon, Activity, Clock, MessageCircle
-} from 'lucide-react';
 import toast from 'react-hot-toast';
 import UserDropdown from './UserDropdown';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { getCookie } from '@/lib/cookies';
+
+'use client';
+
+
+
+
+
+
+import { 
+  Menu, ChevronDown, LogIn, User, Sun, Moon, Activity, Clock, MessageCircle
+} from 'lucide-react';
+
+
+
+
 
 interface UserData {
   id: string;
@@ -227,7 +238,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-lg dark:shadow-black/50 sticky top-0 z-50 transition-colors duration-300 h-16 safe-area-top">
+    <div className="bg-white dark:bg-gray-900 shadow-lg dark:shadow-black/50 sticky top-0 z-50 transition-colors duration-300 h-16 safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
           {/* Mobile Layout */}
@@ -270,11 +281,7 @@ export default function Header() {
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <img 
-                        src={user.avatar} 
-                        alt={user.name}
-                        className="w-8 h-8 rounded-full object-cover shadow-sm border border-gray-200 dark:border-gray-700"
-                        onError={(e) => {
+                      <Image src={undefined} alt="" width={100} height={100} /> {
                           e.currentTarget.style.display = 'none';
                           e.currentTarget.nextElementSibling?.classList.remove('hidden');
                         }}
@@ -363,11 +370,7 @@ export default function Header() {
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <img 
-                        src={user.avatar} 
-                        alt={user.name}
-                        className="w-9 h-9 rounded-full object-cover shadow-sm border border-gray-200 dark:border-gray-700"
-                        onError={(e) => {
+                      <Image src={undefined} alt="" width={100} height={100} /> {
                           e.currentTarget.style.display = 'none';
                           e.currentTarget.nextElementSibling?.classList.remove('hidden');
                         }}
@@ -448,6 +451,6 @@ export default function Header() {
           </div>
         )}
       </div>
-    </header>
+    </div>
   );
 }

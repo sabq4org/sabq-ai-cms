@@ -1,13 +1,12 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
+'use client';
 import { 
   Brain, Users, TrendingUp, Eye, BarChart3, Settings, Target, 
   Heart, Share2, MessageSquare, Clock, Zap, Filter, TrendingDown, Activity
 } from 'lucide-react';
-
 export default function PreferencesPage() {
   const { darkMode } = useDarkMode();
   const [activeTab, setActiveTab] = useState('overview');
@@ -26,13 +25,11 @@ export default function PreferencesPage() {
     dailyShares: 0,
     dailyComments: 0
   });
-
   // جلب البيانات الحقيقية
   useEffect(() => {
     const fetchRealData = async () => {
       try {
         setLoading(true);
-
         // جلب بيانات التصنيفات النشطة
         const categoriesRes = await fetch('/api/categories');
         const categoriesData = await categoriesRes.json();
@@ -48,7 +45,6 @@ export default function PreferencesPage() {
           iconColor: 'text-gray-600'
         }));
         setCategoryData(activeCategories);
-
         // جلب تفضيلات المستخدمين الحقيقية (إن وجدت)
         try {
           const prefsRes = await fetch('/api/user-preferences');
@@ -59,7 +55,6 @@ export default function PreferencesPage() {
         } catch (error) {
           // في حالة عدم وجود API
         }
-
         // تحديث الإحصائيات بالقيم الصفرية أو الحقيقية
         let totalUsers = 0;
         try {
@@ -71,7 +66,6 @@ export default function PreferencesPage() {
         } catch (error) {
           console.error('خطأ في جلب بيانات المستخدمين:', error);
         }
-        
         setStats({
           totalUsers,
           activeInteractions: 0,
@@ -84,17 +78,14 @@ export default function PreferencesPage() {
           dailyShares: 0,
           dailyComments: 0
         });
-
       } catch (error) {
         console.error('خطأ في جلب البيانات:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchRealData();
   }, []);
-
   const CircularStatsCard = ({ title, value, subtitle, icon: Icon, bgColor, iconColor }: {
     title: string;
     value: string | number;
@@ -126,14 +117,12 @@ export default function PreferencesPage() {
       </div>
     </div>
   );
-
   const tabs: TabItem[] = [
     { id: 'overview', name: 'نظرة عامة', icon: Brain },
     { id: 'categories', name: 'تحليل الاهتمامات', icon: BarChart3 },
     { id: 'behavior', name: 'تتبع السلوك', icon: Activity },
     { id: 'settings', name: 'الإعدادات', icon: Settings }
   ];
-
   const CategoryCard = ({ category }: { category: any }) => (
     <div className={`rounded-2xl p-6 border transition-colors duration-300 hover:shadow-md ${
       darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -165,7 +154,6 @@ export default function PreferencesPage() {
           </span>
         </div>
       </div>
-
       <div className="space-y-3">
         <div>
           <div className="flex justify-between text-sm mb-1">
@@ -186,11 +174,10 @@ export default function PreferencesPage() {
       </div>
     </div>
   );
-
   const renderTabContent = () => {
     if (loading) {
       return (
-        <div className="flex items-center justify-center py-16">
+  <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -200,11 +187,10 @@ export default function PreferencesPage() {
         </div>
       );
     }
-
     switch (activeTab) {
       case 'overview':
         return (
-          <div className="space-y-6">
+  <div className="space-y-6">
             <div className="grid grid-cols-6 gap-6 mb-8">
               <CircularStatsCard
                 title="إجمالي المستخدمين"
@@ -255,7 +241,6 @@ export default function PreferencesPage() {
                 iconColor="text-indigo-600"
               />
             </div>
-
             <div className="grid grid-cols-3 gap-6">
               <div className={`col-span-2 rounded-2xl p-6 border transition-colors duration-300 ${
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -295,7 +280,6 @@ export default function PreferencesPage() {
                   </div>
                 )}
               </div>
-
               <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
               }`}>
@@ -332,10 +316,9 @@ export default function PreferencesPage() {
             </div>
           </div>
         );
-
       case 'categories':
         return (
-          <div className="space-y-6">
+  <div className="space-y-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className={`text-xl font-bold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
@@ -358,10 +341,9 @@ export default function PreferencesPage() {
             )}
           </div>
         );
-
       case 'behavior':
         return (
-          <div className="space-y-6">
+  <div className="space-y-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className={`text-xl font-bold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
@@ -376,10 +358,9 @@ export default function PreferencesPage() {
             </div>
           </div>
         );
-
       default:
         return (
-          <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
+  <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
           }`}>
             <h3 className={`text-lg font-bold mb-4 transition-colors duration-300 ${
@@ -394,9 +375,8 @@ export default function PreferencesPage() {
         );
     }
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       <div className="mb-8 flex items-center justify-between">
@@ -408,7 +388,6 @@ export default function PreferencesPage() {
             darkMode ? 'text-gray-300' : 'text-gray-600'
           }`}>تحليل اهتمامات القراء وتتبع سلوكهم لتقديم تجربة قراءة مخصصة</p>
         </div>
-        
         <div className="flex items-center gap-3">
           <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-300">
             <Brain className="w-4 h-4" />
@@ -420,7 +399,6 @@ export default function PreferencesPage() {
           </button>
         </div>
       </div>
-
       <TabsEnhanced
         tabs={tabs}
         activeTab={activeTab}

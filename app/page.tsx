@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -7,6 +5,23 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
 import FooterDashboard from '@/components/FooterDashboard';
+import { useTheme } from '@/contexts/ThemeContext';
+import { getCookie, setCookie } from '@/lib/cookies';
+import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
+import { getArticleLink } from '@/lib/utils';
+import CategoryBadge from './components/CategoryBadge';
+import Header from '../components/Header';
+import { SmartSlot } from '@/components/home/SmartSlot';
+import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
+import { useReaderProfile } from '@/hooks/useReaderProfile';
+import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
+import SmartContextWidget from '@/components/home/SmartContextWidget';
+import InteractiveArticle from '@/components/InteractiveArticle';
+import TodayOpinionsSection from '@/components/TodayOpinionsSection';
+import MobileLayout from '@/components/mobile/MobileLayout';
+import MobileArticleCard from '@/components/mobile/MobileArticleCard';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+'use client';
 import { 
   Share2, 
   Eye, 
@@ -84,35 +99,14 @@ import {
   MessageSquare,
   MonitorSmartphone
 } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { getCookie, setCookie } from '@/lib/cookies';
-import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
-import { getArticleLink } from '@/lib/utils';
-
-import CategoryBadge from './components/CategoryBadge';
-import Header from '../components/Header';
-import { SmartSlot } from '@/components/home/SmartSlot';
-
-import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
-import { useReaderProfile } from '@/hooks/useReaderProfile';
-import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
-import SmartContextWidget from '@/components/home/SmartContextWidget';
-import InteractiveArticle from '@/components/InteractiveArticle';
-import TodayOpinionsSection from '@/components/TodayOpinionsSection';
-
 // 🚀 إضافة المكونات المحسنة للموبايل
-import MobileLayout from '@/components/mobile/MobileLayout';
-import MobileArticleCard from '@/components/mobile/MobileArticleCard';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Suspense } from 'react'
 // import { MobileOptimizer, MobileStats } from '@/components/mobile/MobileOptimizer'
 // import { MobileArticlesList } from '@/components/mobile/MobileArticleCard'
 // import { MobileHeader } from '@/components/mobile/MobileHeader'
-
 // دالة تشخيص المصادقة
 function DebugAuth() {
   const { isLoggedIn, userId, user } = useAuth();
-
   useEffect(() => {
     console.log("====[تشخيص المصادقة]====");
     console.log("isLoggedIn:", isLoggedIn);
@@ -121,7 +115,6 @@ function DebugAuth() {
     console.log("localStorage.user_id:", localStorage.getItem("user_id"));
     console.log("localStorage.user:", localStorage.getItem("user"));
     console.log("كوكيز:", document.cookie);
-
     fetch("/api/auth/me", {
       method: "GET",
       credentials: "include",
@@ -135,10 +128,8 @@ function DebugAuth() {
         console.error("خطأ في /api/auth/me:", err);
       });
   }, [isLoggedIn, userId]);
-
   return null; // لا يعرض شيء في الواجهة
 }
-
 // أيقونات التصنيفات
 const categoryIcons: { [key: string]: any } = {
   'تقنية': Laptop,
@@ -160,11 +151,9 @@ const categoryIcons: { [key: string]: any } = {
   'طقس': CloudRain,
   'default': Tag
 };
-
 // ===============================
 // نظام ذكاء المستخدم والتخصيص
 // ===============================
-
 interface UserInteraction {
   user_id: string;
   article_id: string;
@@ -177,24 +166,20 @@ interface UserInteraction {
   session_id?: string;
   timestamp: number;
 }
-
 interface UserPreferences {
   [category: string]: number;
 }
-
 // نظام تتبع ذكاء المستخدم
 class UserIntelligenceTracker {
   private interactions: UserInteraction[] = [];
   private preferences: { [userId: string]: UserPreferences } = {};
   private sessionId: string;
   private userId: string;
-
   constructor(userId: string) {
     this.userId = userId;
     this.sessionId = this.generateSessionId();
     this.loadFromStorage();
   }
-
   // تسجيل تفاعل جديد
   trackInteraction(articleId: string, type: UserInteraction['interaction_type'], category: string, additionalData: any = {}) {
     const interaction: UserInteraction = {
@@ -207,26 +192,20 @@ class UserIntelligenceTracker {
       timestamp: Date.now(),
       ...additionalData
     };
-
     this.interactions.push(interaction);
     this.updatePreferences(interaction);
     this.saveToStorage();
-    
     // إرسال التفاعل إلى الخادم
     this.sendToServer(interaction);
   }
-
   // تحديث تفضيلات المستخدم
   private updatePreferences(interaction: UserInteraction) {
     if (!this.preferences[this.userId]) {
       this.preferences[this.userId] = {};
     }
-
     const points = this.calculatePoints(interaction);
     const currentPoints = this.preferences[this.userId][interaction.category] || 0;
-    
     this.preferences[this.userId][interaction.category] = currentPoints + points;
-    
     // تطبيق تدهور زمني للتفضيلات القديمة
     const decayFactor = 0.99;
     Object.keys(this.preferences[this.userId]).forEach(category => {
@@ -235,7 +214,6 @@ class UserIntelligenceTracker {
       }
     });
   }
-
   // حساب النقاط للتفاعل
   private calculatePoints(interaction: UserInteraction): number {
     const basePoints = {
@@ -244,34 +222,27 @@ class UserIntelligenceTracker {
       'share': 5,
       'comment': 7
     };
-
     let points = basePoints[interaction.interaction_type] || 1;
-    
     // إضافة نقاط للوقت المقضي في القراءة
     if (interaction.read_duration_seconds) {
       points += Math.min(interaction.read_duration_seconds / 30, 5);
     }
-
     return points;
   }
-
   // الحصول على تفضيلات المستخدم
   getPreferences(): UserPreferences {
     return this.preferences[this.userId] || {};
   }
-
   // حساب الثقة في التصنيف
   calculateConfidence(category: string): number {
     const preferences = this.getPreferences();
     const totalPoints = Object.values(preferences).reduce((sum, points) => sum + points, 0);
     return totalPoints > 0 ? (preferences[category] || 0) / totalPoints : 0;
   }
-
   // توليد معرف الجلسة
   private generateSessionId(): string {
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
-
   // تحديد نوع الجهاز
   getDeviceType(): string {
     const userAgent = navigator.userAgent;
@@ -280,7 +251,6 @@ class UserIntelligenceTracker {
     }
     return 'desktop';
   }
-
   // حفظ في التخزين المحلي
   private saveToStorage() {
     localStorage.setItem('user_intelligence_tracker', JSON.stringify({
@@ -288,7 +258,6 @@ class UserIntelligenceTracker {
       preferences: this.preferences
     }));
   }
-
   // تحميل من التخزين المحلي
   private loadFromStorage() {
     const stored = localStorage.getItem('user_intelligence_tracker');
@@ -298,7 +267,6 @@ class UserIntelligenceTracker {
       this.preferences = data.preferences || {};
     }
   }
-
   // إرسال التفاعل إلى الخادم
   private async sendToServer(interaction: UserInteraction) {
     try {
@@ -312,13 +280,11 @@ class UserIntelligenceTracker {
     }
   }
 }
-
 // 🎯 مكون الصفحة الرئيسية المحسن للموبايل
 function NewspaperHomePage(): React.ReactElement {
   const { isLoggedIn, userId, user } = useAuth();
   const { darkMode } = useDarkModeContext();
   const [isMobile, setIsMobile] = useState(false);
-
   // فحص نوع الجهاز
   useEffect(() => {
     const checkDevice = () => {
@@ -327,34 +293,28 @@ function NewspaperHomePage(): React.ReactElement {
       const isSmallScreen = window.innerWidth <= 768;
       setIsMobile(isMobileDevice || isSmallScreen);
     };
-
     checkDevice();
     window.addEventListener('resize', checkDevice);
     return () => window.removeEventListener('resize', checkDevice);
   }, []);
-
   // =============================
   // المتغيرات المساعدة لمنع الأخطاء أثناء التشغيل (قابلة للتحديث مستقبلاً)
   // =============================
   // إعدادات البلوكات الديناميكية
   const blocksConfig: Record<string, { enabled: boolean }> = {};
-
   // إرجاع قائمة البلوكات المرتبة (حاليًا لا يوجد بلوكات مفعّلة)
   const getOrderedBlocks = () => {
     return [] as Array<{ key: string; component: React.ReactNode }>;
   };
-
   // التحليلات العميقة
   const [deepInsights, setDeepInsights] = useState<any[]>([]);
   const [deepInsightsLoading, setDeepInsightsLoading] = useState<boolean>(false);
-
   // التصنيفات
   const [categories, setCategories] = useState<any[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string | number | null>(null);
   const [categoryArticles, setCategoryArticles] = useState<any[]>([]);
   const [categoryArticlesLoading, setCategoryArticlesLoading] = useState<boolean>(false);
-
   // متغيرات إضافية مطلوبة
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(false);
   const [articlesLoading, setArticlesLoading] = useState<boolean>(false);
@@ -363,7 +323,6 @@ function NewspaperHomePage(): React.ReactElement {
   const [showPersonalized, setShowPersonalized] = useState<boolean>(false);
   const [articles, setArticles] = useState<any[]>([]);
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
-
   // دوال مؤقتة
   const handleInterestClick = (interestId: string) => {
     /* TODO: تنفيذ فعل عند اختيار الاهتمام */
@@ -371,7 +330,6 @@ function NewspaperHomePage(): React.ReactElement {
   const handleTogglePersonalized = () => {
     setShowPersonalized(prev => !prev);
   };
-
   // مكون بطاقة الأخبار
   const NewsCard = ({ news }: { news: any }) => (
     <Link href={getArticleLink(news)} className="group block">
@@ -379,20 +337,14 @@ function NewspaperHomePage(): React.ReactElement {
         {/* صورة المقال */}
         <div className="relative h-40 sm:h-48 overflow-hidden">
           {news.featured_image ? (
-            <img
-              src={news.featured_image}
-              alt={news.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
+            <Image src={undefined} alt="" width={100} height={100} />
           ) : (
             <div className={`w-full h-full flex items-center justify-center ${darkMode ? 'bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'}`}>
               <BookOpen className={`w-12 h-12 sm:w-16 sm:h-16 ${darkMode ? 'text-gray-600 dark:text-gray-400 dark:text-gray-500' : 'text-gray-300'}`} />
             </div>
           )}
-          
           {/* تأثير التدرج على الصورة */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          
           {/* Category Badge */}
           {news.category_name && (
             <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
@@ -403,21 +355,18 @@ function NewspaperHomePage(): React.ReactElement {
             </div>
           )}
         </div>
-
         {/* محتوى البطاقة */}
         <div className="p-4 sm:p-5">
           {/* العنوان */}
           <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors ${darkMode ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
             {news.title}
           </h4>
-
           {/* الملخص */}
           {news.summary && (
             <p className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400 dark:text-gray-500`}>
               {news.summary}
             </p>
           )}
-
           {/* التفاصيل السفلية */}
           <div className={`flex items-center justify-between pt-3 sm:pt-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
             {/* المعلومات */}
@@ -439,7 +388,6 @@ function NewspaperHomePage(): React.ReactElement {
                   </span>
                 )}
               </div>
-              
               {/* الكاتب والمشاهدات */}
               <div className="flex items-center gap-2 sm:gap-3 text-xs">
                 {news.author_name && (
@@ -454,7 +402,6 @@ function NewspaperHomePage(): React.ReactElement {
                 </span>
               </div>
             </div>
-
             {/* زر القراءة */}
             <div className={`p-2 rounded-xl transition-all ${darkMode ? 'bg-blue-900/20 group-hover:bg-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100'}`}>
               <ArrowLeft className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
@@ -464,7 +411,6 @@ function NewspaperHomePage(): React.ReactElement {
       </article>
     </Link>
   );
-
   // جلب التحليلات العميقة عند التحميل
   useEffect(() => {
     const fetchDeepInsights = async () => {
@@ -488,7 +434,6 @@ function NewspaperHomePage(): React.ReactElement {
     };
     fetchDeepInsights();
   }, []);
-
   // =============================
   // جلب التصنيفات عند التحميل
   useEffect(() => {
@@ -507,7 +452,6 @@ function NewspaperHomePage(): React.ReactElement {
     };
     fetchCategories();
   }, []);
-
   // =============================
   // جلب المقالات الأحدث (للاستخدام في البلوكات لاحقاً)
   useEffect(() => {
@@ -527,7 +471,6 @@ function NewspaperHomePage(): React.ReactElement {
     };
     fetchArticles();
   }, []);
-
   // دالة اختيار التصنيف
   const handleCategoryClick = async (categoryId: number | string) => {
     setSelectedCategory(categoryId);
@@ -543,9 +486,8 @@ function NewspaperHomePage(): React.ReactElement {
       setCategoryArticlesLoading(false);
     }
   };
-
   return (
-    <div 
+  <div 
       className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
       style={{
         direction: 'rtl'
@@ -553,10 +495,8 @@ function NewspaperHomePage(): React.ReactElement {
     >
       {/* دالة تشخيص المصادقة - تظهر معلومات في Console فقط */}
       <DebugAuth />
-      
       {/* Header */}
       <Header />
-
       {/* عرض جميع البلوكات الذكية */}
       {getOrderedBlocks().some(block => blocksConfig[block.key]?.enabled) && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
@@ -567,38 +507,30 @@ function NewspaperHomePage(): React.ReactElement {
           ))}
         </div>
       )}
-
       {/* Smart Blocks - Below Header - أول بلوك أسفل الهيدر مباشرة */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="below_header" />
       </div>
-
       {/* Smart Blocks - Top Banner (للتوافق مع النظام القديم) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="topBanner" />
       </div>
-
       {/* بلوك الجرعات الذكي - ثاني بلوك */}
       <SmartDigestBlock />
-      
       {/* Deep Analysis Widget - ثالث بلوك */}
       {!deepInsightsLoading && deepInsights.length > 0 && (
         <DeepAnalysisWidget insights={deepInsights.slice(0, 3)} />
       )}
-
       {/* Smart Blocks - قبل المحتوى المخصص (محتوى مخصص لك) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="beforePersonalization" />
       </div>
-
       {/* Smart Blocks - Below Deep Analysis */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="below_deep_analysis" />
       </div>
-
       {/* Smart Blocks - After Highlights - مخفي للنسخة المطورة */}
       {/* <SmartSlot position="afterHighlights" /> */}
-
       {/* Elegant Separator */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-6 mt-6">
         <div className="flex items-center justify-center">
@@ -613,7 +545,6 @@ function NewspaperHomePage(): React.ReactElement {
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
         </div>
       </div>
-
       {/* شريط التنقل بالتصنيفات */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
         <div className={`rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${darkMode ? 'bg-blue-900/10 border border-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50'}`} style={{ 
@@ -633,14 +564,12 @@ function NewspaperHomePage(): React.ReactElement {
                 <Tag className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
             </div>
-            
             {/* العنوان */}
             <h2 className={`text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'
             }`}>
               {isLoggedIn ? 'استكشف بحسب اهتماماتك' : 'استكشف بحسب التصنيفات'}
             </h2>
-            
             {/* الوصف */}
             <p className={`text-sm transition-colors duration-300 ${
               darkMode ? 'text-gray-400' : 'text-gray-600'
@@ -663,7 +592,6 @@ function NewspaperHomePage(): React.ReactElement {
               )}
             </div>
           </div>
-
           {categoriesLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -681,7 +609,6 @@ function NewspaperHomePage(): React.ReactElement {
                     {isLoggedIn && category.is_personalized && (
                       <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse"></div>
                     )}
-                    
                     <div className="flex items-center gap-1 sm:gap-2">
                       {(() => {
                         const IconComponent = categoryIcons[category.name_ar] || categoryIcons['default'];
@@ -699,7 +626,6 @@ function NewspaperHomePage(): React.ReactElement {
                   </button>
                 ))}
               </div>
-
               {/* عرض المقالات المرتبطة بالتصنيف المختار */}
               {selectedCategory && (
                 <div className={`mt-8 p-6 rounded-3xl shadow-lg dark:shadow-gray-900/50 ${darkMode ? 'bg-gray-800/50' : 'bg-white dark:bg-gray-800/70'} backdrop-blur-sm border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}`}>
@@ -717,7 +643,6 @@ function NewspaperHomePage(): React.ReactElement {
                       <X className={`w-5 h-5 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`} />
                     </button>
                   </div>
-
                   {categoryArticlesLoading ? (
                     <div className="flex items-center justify-center py-8">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
@@ -732,20 +657,14 @@ function NewspaperHomePage(): React.ReactElement {
                               {/* صورة المقال */}
                               <div className="relative h-40 sm:h-48 overflow-hidden">
                                 {article.featured_image ? (
-                                  <img
-                                    src={article.featured_image}
-                                    alt={article.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                  />
+                                  <Image src={undefined} alt="" width={100} height={100} />
                                 ) : (
                                   <div className={`w-full h-full flex items-center justify-center ${darkMode ? 'bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'}`}>
                                     <BookOpen className={`w-12 h-12 sm:w-16 sm:h-16 ${darkMode ? 'text-gray-600 dark:text-gray-400 dark:text-gray-500' : 'text-gray-300'}`} />
                                   </div>
                                 )}
-                                
                                 {/* تأثير التدرج على الصورة */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                
                                 {/* Category Badge */}
                                 <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
                                   <span className={`inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${darkMode ? 'bg-blue-900/80 text-blue-200 backdrop-blur-sm' : 'bg-blue-500/90 text-white backdrop-blur-sm'}`}>
@@ -754,21 +673,18 @@ function NewspaperHomePage(): React.ReactElement {
                                   </span>
                                 </div>
                               </div>
-
                               {/* محتوى البطاقة */}
                               <div className="p-4 sm:p-5">
                                 {/* العنوان */}
                                 <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors ${darkMode ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
                                   {article.title}
                                 </h4>
-
                                 {/* الملخص */}
                                 {article.summary && (
                                   <p className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400 dark:text-gray-500`}>
                                     {article.summary}
                                   </p>
                                 )}
-
                                 {/* التفاصيل السفلية */}
                                 <div className={`flex items-center justify-between pt-3 sm:pt-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
                                   {/* المعلومات */}
@@ -790,7 +706,6 @@ function NewspaperHomePage(): React.ReactElement {
                                         </span>
                                       )}
                                     </div>
-                                    
                                     {/* الكاتب والمشاهدات */}
                                     <div className="flex items-center gap-2 sm:gap-3 text-xs">
                                       {article.author_name && (
@@ -805,7 +720,6 @@ function NewspaperHomePage(): React.ReactElement {
                                       </span>
                                     </div>
                                   </div>
-
                                   {/* زر القراءة */}
                                   <div className={`p-2 rounded-xl transition-all ${darkMode ? 'bg-blue-900/20 group-hover:bg-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100'}`}>
                                     <ArrowLeft className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
@@ -816,7 +730,6 @@ function NewspaperHomePage(): React.ReactElement {
                           </Link>
                         ))}
                       </div>
-                      
                       {/* زر عرض جميع المقالات */}
                       <div className="text-center mt-8">
                         <Link 
@@ -827,7 +740,6 @@ function NewspaperHomePage(): React.ReactElement {
                         </Link>
                       </div>
                     </>
-                    
                   ) : (
                     <div className={`text-center py-8 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
                       <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
@@ -844,7 +756,6 @@ function NewspaperHomePage(): React.ReactElement {
           )}
         </div>
       </section>
-      
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* Enhanced News Section */}
@@ -903,7 +814,6 @@ function NewspaperHomePage(): React.ReactElement {
               </>
             )}
           </div>
-
           {/* Enhanced Show All Link */}
           <div className="flex items-center justify-end mb-8">
             <Link 
@@ -913,7 +823,6 @@ function NewspaperHomePage(): React.ReactElement {
               <ArrowLeft className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-
           {/* Enhanced News Grid - مع دعم المحتوى المخصص */}
           {articlesLoading || personalizedLoading ? (
             <div className="flex items-center justify-center py-20">
@@ -954,7 +863,6 @@ function NewspaperHomePage(): React.ReactElement {
                   </Link>
                 </div>
               )}
-              
               {/* رسالة للمستخدمين غير المسجلين */}
               {!isLoggedIn && (
                 <div className={`mb-6 p-4 rounded-xl text-center ${
@@ -985,7 +893,6 @@ function NewspaperHomePage(): React.ReactElement {
                   </div>
                 </div>
               )}
-              
               {/* عرض المقالات */}
               {(showPersonalized && personalizedArticles.length > 0) ? (
                 // عرض المقالات المخصصة للمستخدمين المسجلين
@@ -1025,18 +932,14 @@ function NewspaperHomePage(): React.ReactElement {
             </>
           )}
         </section>
-
         {/* Smart Blocks - After Cards - مخفي للنسخة المطورة */}
         {/* <SmartSlot position="afterCards" /> */}
-
         {/* السياق الذكي */}
         <section className="mb-16">
           <SmartContextWidget />
         </section>
-
         {/* قسم رأي اليوم */}
         <TodayOpinionsSection darkMode={darkMode} />
-
         {/* المقالات التفاعلية - التصميم الجديد */}
         <section className="mb-16">
           <div className="max-w-7xl mx-auto px-6">
@@ -1055,10 +958,8 @@ function NewspaperHomePage(): React.ReactElement {
                 مقالات مميزة تتيح لك التصويت والمشاركة في استطلاعات الرأي والنقاش المباشر مع القراء
               </p>
             </div>
-
             {/* التصميم الجديد - Mix */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              
               {/* بطاقة التصويت السريع */}
               <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 hover:shadow-3xl transition-all duration-500 transform hover:scale-105 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 {/* شارة النوع */}
@@ -1067,16 +968,10 @@ function NewspaperHomePage(): React.ReactElement {
                     تصويت سريع
                   </span>
                 </div>
-                
                 {/* الصورة */}
                 <div className="relative h-56 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80" 
-                    alt="الذكاء الاصطناعي في التعليم"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
+                  <Image src={"https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80"} alt="الذكاء الاصطناعي في التعليم" width={100} height={100} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                  
                   {/* عداد المشاركين */}
                   <div className="absolute bottom-4 left-4">
                     <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
@@ -1085,7 +980,6 @@ function NewspaperHomePage(): React.ReactElement {
                     </div>
                   </div>
                 </div>
-                
                 {/* المحتوى */}
                 <div className="p-6">
                   <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
@@ -1094,7 +988,6 @@ function NewspaperHomePage(): React.ReactElement {
                   <p className={`text-sm mb-6 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     شارك برأيك في أهمية إدخال مناهج الذكاء الاصطناعي في التعليم الأساسي
                   </p>
-                  
                   {/* أزرار التصويت */}
                   <div className="space-y-3 mb-6">
                     <button className={`w-full p-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
@@ -1112,7 +1005,6 @@ function NewspaperHomePage(): React.ReactElement {
                         </div>
                       </div>
                     </button>
-                    
                     <button className={`w-full p-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
                       darkMode 
                         ? 'border-gray-600 hover:border-red-500 bg-gray-800 hover:bg-red-900/20' 
@@ -1129,14 +1021,12 @@ function NewspaperHomePage(): React.ReactElement {
                       </div>
                     </button>
                   </div>
-                  
                   {/* زر المشاركة */}
                   <button className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
                     صوت الآن
                   </button>
                 </div>
               </div>
-
               {/* بطاقة الاستطلاع المتعدد */}
               <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 hover:shadow-3xl transition-all duration-500 transform hover:scale-105 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 {/* شارة النوع */}
@@ -1145,16 +1035,10 @@ function NewspaperHomePage(): React.ReactElement {
                     استطلاع متعدد
                   </span>
                 </div>
-                
                 {/* الصورة */}
                 <div className="relative h-56 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=800&q=80" 
-                    alt="كأس آسيا"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
+                  <Image src={"https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=800&q=80"} alt="كأس آسيا" width={100} height={100} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                  
                   {/* مؤقت */}
                   <div className="absolute bottom-4 left-4">
                     <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
@@ -1163,7 +1047,6 @@ function NewspaperHomePage(): React.ReactElement {
                     </div>
                   </div>
                 </div>
-                
                 {/* المحتوى */}
                 <div className="p-6">
                   <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
@@ -1172,7 +1055,6 @@ function NewspaperHomePage(): React.ReactElement {
                   <p className={`text-sm mb-6 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     توقع الفريق الفائز وشارك في النقاش مع المشجعين
                   </p>
-                  
                   {/* خيارات الاستطلاع */}
                   <div className="space-y-3 mb-6">
                     {[
@@ -1191,14 +1073,12 @@ function NewspaperHomePage(): React.ReactElement {
                       </div>
                     ))}
                   </div>
-                  
                   {/* زر المشاركة */}
                   <button className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
                     شارك توقعك
                   </button>
                 </div>
               </div>
-
               {/* بطاقة النقاش المفتوح */}
               <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 hover:shadow-3xl transition-all duration-500 transform hover:scale-105 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 {/* شارة النوع */}
@@ -1207,16 +1087,10 @@ function NewspaperHomePage(): React.ReactElement {
                     نقاش مفتوح
                   </span>
                 </div>
-                
                 {/* الصورة */}
                 <div className="relative h-56 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80" 
-                    alt="رؤية 2030"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
+                  <Image src={"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80"} alt="رؤية 2030" width={100} height={100} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                  
                   {/* عدد التعليقات */}
                   <div className="absolute bottom-4 left-4">
                     <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
@@ -1225,7 +1099,6 @@ function NewspaperHomePage(): React.ReactElement {
                     </div>
                   </div>
                 </div>
-                
                 {/* المحتوى */}
                 <div className="p-6">
                   <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
@@ -1234,7 +1107,6 @@ function NewspaperHomePage(): React.ReactElement {
                   <p className={`text-sm mb-6 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     ناقش التحولات الاقتصادية وشارك تجربتك الشخصية مع القراء
                   </p>
-                  
                   {/* آخر التعليقات */}
                   <div className="space-y-3 mb-6">
                     <div className={`p-3 rounded-xl ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
@@ -1248,7 +1120,6 @@ function NewspaperHomePage(): React.ReactElement {
                         </div>
                       </div>
                     </div>
-                    
                     <div className={`p-3 rounded-xl ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">س</div>
@@ -1261,7 +1132,6 @@ function NewspaperHomePage(): React.ReactElement {
                       </div>
                     </div>
                   </div>
-                  
                   {/* زر المشاركة */}
                   <Link href="/article/interactive/vision-2030-impact" className="block">
                     <button className="w-full py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl font-medium hover:from-green-600 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
@@ -1271,7 +1141,6 @@ function NewspaperHomePage(): React.ReactElement {
                 </div>
               </div>
             </div>
-
             {/* شريط الإحصائيات */}
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
               <div className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
@@ -1294,17 +1163,14 @@ function NewspaperHomePage(): React.ReactElement {
           </div>
         </section>
       </main>
-
       {/* Smart Blocks - Below Personalized Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <SmartSlot position="below_personalized" />
       </div>
-
       {/* Smart Blocks - Above Footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="above_footer" />
       </div>
-
       {/* Footer Section */}
       <footer className={`mt-20 py-12 border-t ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -1324,7 +1190,6 @@ function NewspaperHomePage(): React.ReactElement {
               </div>
             </div>
           </div>
-
           {/* Stats */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-8">
             <div className={`text-center px-4 py-3 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'} border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}`}>
@@ -1340,7 +1205,6 @@ function NewspaperHomePage(): React.ReactElement {
               <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>ذكاء اصطناعي</div>
             </div>
           </div>
-
           {/* Links */}
           <div className="flex items-center justify-center gap-6 mb-8">
             <a href="#" className={`text-sm hover:text-blue-500 transition-colors ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
@@ -1356,7 +1220,6 @@ function NewspaperHomePage(): React.ReactElement {
               عن سبق
             </a>
           </div>
-
           {/* Copyright */}
           <div className="flex items-center justify-center gap-2">
             <p className={`text-sm ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
@@ -1374,7 +1237,6 @@ function NewspaperHomePage(): React.ReactElement {
     </div>
   );
 }
-
 // Export with client-side wrapper to ensure ThemeProvider is available
 export default function Page() {
   return (

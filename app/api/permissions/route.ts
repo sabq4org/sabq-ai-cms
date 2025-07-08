@@ -1,1 +1,8 @@
-import { NextResponse } from 'next/server'; export async function GET() { return NextResponse.json({ permissions: [], message: 'قائمة الصلاحيات' }) }
+import Image from 'next/image';
+import { NextResponse } from 'next/server';
+
+
+
+
+
+ export async function GET() { return NextResponse.json({ permissions: [], message: 'قائمة الصلاحيات' }) }

@@ -1,3 +1,6 @@
+import Image from 'next/image';
+
+
 export { default as ParagraphBlock } from './ParagraphBlock';
 export { default as HeadingBlock } from './HeadingBlock';
 export { default as ImageBlock } from './ImageBlock';

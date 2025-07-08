@@ -1,6 +1,12 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+'use client';
 import { 
   Brain, 
   TrendingUp, 
@@ -24,13 +30,6 @@ import {
   Lightbulb,
   ChartLine
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
 interface AIMetric {
   id: string;
   name: string;
@@ -43,7 +42,6 @@ interface AIMetric {
   icon: React.ReactNode;
   color: string;
 }
-
 interface AIModel {
   id: string;
   name: string;
@@ -57,7 +55,6 @@ interface AIModel {
   throughput: number;
   description: string;
 }
-
 interface AIInsight {
   id: string;
   type: 'recommendation' | 'warning' | 'opportunity' | 'trend';
@@ -69,7 +66,6 @@ interface AIInsight {
   actionable: boolean;
   impact: string;
 }
-
 interface PerformanceData {
   timestamp: string;
   accuracy: number;
@@ -77,7 +73,6 @@ interface PerformanceData {
   latency: number;
   errors: number;
 }
-
 export default function AIAnalyticsPage() {
   const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(true);
@@ -85,12 +80,10 @@ export default function AIAnalyticsPage() {
   const [timeRange, setTimeRange] = useState('7d');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('overview');
-  
   const [metrics, setMetrics] = useState<AIMetric[]>([]);
   const [models, setModels] = useState<AIModel[]>([]);
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [performanceData, setPerformanceData] = useState<PerformanceData[]>([]);
-
   // بيانات تجريبية محسنة للعرض
   const mockMetrics: AIMetric[] = [
     {
@@ -190,7 +183,6 @@ export default function AIAnalyticsPage() {
       color: 'from-orange-500 to-red-500'
     }
   ];
-
   const mockModels: AIModel[] = [
     {
       id: '1',
@@ -258,7 +250,6 @@ export default function AIAnalyticsPage() {
       description: 'تحليل الاتجاهات والتوقعات في المحتوى'
     }
   ];
-
   const mockInsights: AIInsight[] = [
     {
       id: '1',
@@ -316,29 +307,23 @@ export default function AIAnalyticsPage() {
       impact: 'تحسن في سرعة التحميل بـ 40%'
     }
   ];
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      
       // محاكاة تحميل البيانات
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
       setMetrics(mockMetrics);
       setModels(mockModels);
       setInsights(mockInsights);
       setLoading(false);
     };
-
     fetchData();
   }, [timeRange, selectedCategory]);
-
   const handleRefresh = async () => {
     setRefreshing(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     setRefreshing(false);
   };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'healthy': return 'text-green-600 bg-green-100 border-green-200';
@@ -347,7 +332,6 @@ export default function AIAnalyticsPage() {
       default: return 'text-gray-600 bg-gray-100 border-gray-200';
     }
   };
-
   const getModelTypeIcon = (type: string) => {
     switch (type) {
       case 'content_generation': return <FileText className="w-5 h-5" />;
@@ -357,7 +341,6 @@ export default function AIAnalyticsPage() {
       default: return <Cpu className="w-5 h-5" />;
     }
   };
-
   const getInsightIcon = (type: string) => {
     switch (type) {
       case 'recommendation': return <Target className="w-6 h-6 text-blue-500" />;
@@ -367,10 +350,9 @@ export default function AIAnalyticsPage() {
       default: return <Brain className="w-6 h-6 text-gray-500" />;
     }
   };
-
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
+  <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
         darkMode ? 'bg-gray-900' : 'bg-gray-50'
       }`}>
         <div className="text-center">
@@ -395,9 +377,8 @@ export default function AIAnalyticsPage() {
       </div>
     );
   }
-
   return (
-    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+  <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900 min-h-screen' : 'bg-gray-50 min-h-screen'
     }`} dir="rtl">
       {/* الرأس المحسن مع تصميم متطور */}
@@ -412,7 +393,6 @@ export default function AIAnalyticsPage() {
               <Brain className="w-10 h-10 text-white" />
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse border-2 border-white"></div>
             </div>
-            
             <div>
               <h1 className={`text-4xl font-bold mb-1 transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-800'
@@ -438,7 +418,6 @@ export default function AIAnalyticsPage() {
               </p>
             </div>
           </div>
-          
           <div className="flex items-center gap-3">
             <Button
               onClick={handleRefresh}
@@ -454,7 +433,6 @@ export default function AIAnalyticsPage() {
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               تحديث
             </Button>
-            
             <Button
               variant="outline"
               size="sm"
@@ -467,7 +445,6 @@ export default function AIAnalyticsPage() {
               <Download className="w-4 h-4" />
               تصدير
             </Button>
-            
             <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
@@ -486,7 +463,6 @@ export default function AIAnalyticsPage() {
           </div>
         </div>
       </div>
-
       {/* المقاييس الرئيسية المحسنة */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {metrics.map((metric) => (
@@ -505,13 +481,11 @@ export default function AIAnalyticsPage() {
                    metric.status === 'warning' ? '⚠️ تحذير' : '🚨 حرج'}
                 </div>
               </div>
-              
               <h3 className={`text-sm font-semibold mb-2 transition-colors duration-300 ${
                 darkMode ? 'text-gray-300' : 'text-gray-600'
               }`}>
                 {metric.name}
               </h3>
-              
               <div className="flex items-baseline justify-between">
                 <div>
                   <span className={`text-3xl font-bold transition-colors duration-300 ${
@@ -523,7 +497,6 @@ export default function AIAnalyticsPage() {
                     {metric.unit}
                   </span>
                 </div>
-                
                 <div className="flex items-center gap-1">
                   {metric.trend === 'up' ? (
                     <ArrowUp className="w-4 h-4 text-green-500" />
@@ -544,7 +517,6 @@ export default function AIAnalyticsPage() {
           </Card>
         ))}
       </div>
-
       {/* التابات المحسنة */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className={`h-auto p-1.5 rounded-2xl shadow-sm w-full transition-all duration-300 ${
@@ -588,7 +560,6 @@ export default function AIAnalyticsPage() {
             </TabsTrigger>
           </div>
         </TabsList>
-
         <TabsContent value="overview" className="space-y-6">
           {/* إحصائيات شاملة */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -606,13 +577,11 @@ export default function AIAnalyticsPage() {
                     <span className="font-bold text-green-600">94.2%</span>
                   </div>
                   <Progress value={94.2} className="h-2" />
-                  
                   <div className="flex justify-between items-center">
                     <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>سرعة المعالجة</span>
                     <span className="font-bold text-blue-600">1.8s</span>
                   </div>
                   <Progress value={82} className="h-2" />
-                  
                   <div className="flex justify-between items-center">
                     <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>معدل النجاح</span>
                     <span className="font-bold text-purple-600">98.5%</span>
@@ -621,7 +590,6 @@ export default function AIAnalyticsPage() {
                 </div>
               </CardContent>
             </Card>
-
             <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
               <CardHeader>
                 <CardTitle className={`flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
@@ -638,7 +606,6 @@ export default function AIAnalyticsPage() {
                     </div>
                     <span className="text-green-600 font-bold">12 مهمة</span>
                   </div>
-                  
                   <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 border border-blue-200">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -646,7 +613,6 @@ export default function AIAnalyticsPage() {
                     </div>
                     <span className="text-blue-600 font-bold">8 مهمة</span>
                   </div>
-                  
                   <div className="flex items-center justify-between p-3 rounded-lg bg-purple-50 border border-purple-200">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
@@ -659,7 +625,6 @@ export default function AIAnalyticsPage() {
             </Card>
           </div>
         </TabsContent>
-
         <TabsContent value="models" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {models.map((model) => (
@@ -715,7 +680,6 @@ export default function AIAnalyticsPage() {
             ))}
           </div>
         </TabsContent>
-
         <TabsContent value="insights" className="space-y-6">
           <div className="space-y-4">
             {insights.map((insight) => (

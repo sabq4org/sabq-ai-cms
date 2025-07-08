@@ -1,3 +1,8 @@
+import Image from 'next/image';
+
+
+
+
 export function ThemeScript() {
   const themeScript = `
     (function() {

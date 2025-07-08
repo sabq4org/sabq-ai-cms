@@ -1,17 +1,16 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect, use } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { formatDateOnly, formatRelativeDate } from '@/lib/date-utils';
+'use client';
 import { 
   Star, Calendar, Eye, Heart, Share2, MessageSquare, Clock, 
   TrendingUp, BarChart3, Brain, Headphones, Quote, Copy,
   Sparkles, Activity, BookOpen, Users, Zap, Award,
   ChevronLeft, ChevronRight, Volume2, PieChart
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { formatDateOnly, formatRelativeDate } from '@/lib/date-utils';
-
 // Types
 interface Author {
   id: string;
@@ -30,7 +29,6 @@ interface Author {
   backgroundImage?: string;
   coverImage?: string;
 }
-
 interface Article {
   id: string;
   title: string;
@@ -45,14 +43,12 @@ interface Article {
   category_name: string;
   is_trending?: boolean;
 }
-
 interface ActivityData {
   mostActiveHours: { hour: number; count: number }[];
   topicsDistribution: { topic: string; count: number; color: string }[];
   engagementTrend: { month: string; engagement: number }[];
   averageEngagement: number;
 }
-
 interface Quote {
   id: string;
   text: string;
@@ -61,13 +57,10 @@ interface Quote {
   timestamp: string;
   likes: number;
 }
-
 const AuthorProfilePage = () => {
   const params = useParams();
   const { darkMode } = useDarkModeContext();
-  
   const id = params?.id;
-  
   const [author, setAuthor] = useState<Author | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [activityData, setActivityData] = useState<ActivityData | null>(null);
@@ -77,7 +70,6 @@ const AuthorProfilePage = () => {
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-
   // نوادي الكتاب والألوان
   const writerClubColors = {
     platinum: 'from-gray-400 to-gray-600',
@@ -86,7 +78,6 @@ const AuthorProfilePage = () => {
     bronze: 'from-amber-600 to-amber-800',
     default: 'from-blue-400 to-blue-600'
   };
-
   const writerClubBorders = {
     platinum: 'border-gray-400',
     gold: 'border-yellow-400',
@@ -94,7 +85,6 @@ const AuthorProfilePage = () => {
     bronze: 'border-amber-600',
     default: 'border-blue-400'
   };
-
   const writerClubNames = {
     platinum: 'بلاتينيوم',
     gold: 'ذهبي',
@@ -102,28 +92,22 @@ const AuthorProfilePage = () => {
     bronze: 'برونزي',
     default: 'عضو'
   };
-
   // جلب بيانات الكاتب
   useEffect(() => {
     const fetchAuthorData = async () => {
       try {
         const authorId = typeof id === 'string' ? id : 'dr-mohammed-ahmad';
-        
         // جلب بيانات الكاتب من API
         const response = await fetch(`/api/authors/${authorId}`);
-        
         if (!response.ok) {
           throw new Error('فشل في جلب بيانات الكاتب');
         }
-        
         const data = await response.json();
-        
         if (data.success) {
           setAuthor(data.author);
           setArticles(data.articles || []);
           setActivityData(data.activityData);
           setQuotes(data.quotes || []);
-          
           // رسائل chat افتراضية
           setChatMessages([
             {
@@ -136,33 +120,27 @@ const AuthorProfilePage = () => {
         } else {
           throw new Error(data.error || 'حدث خطأ غير معروف');
         }
-
       } catch (error) {
         console.error('خطأ في جلب بيانات الكاتب:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchAuthorData();
   }, [id]);
-
   // معالج Chat AI
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
-
     const userMessage = {
       id: Date.now().toString(),
       type: 'user',
       message: chatInput,
       timestamp: new Date().toISOString()
     };
-
     setChatMessages(prev => [...prev, userMessage]);
     setChatInput('');
     setIsTyping(true);
-
     // محاكاة استجابة AI
     setTimeout(() => {
       const responses = [
@@ -171,19 +149,16 @@ const AuthorProfilePage = () => {
         'يرى د. محمد أن أمن البيانات في التعليم الرقمي أولوية قصوى لحماية خصوصية الطلاب.',
         'بحسب آراء د. محمد، الواقع المعزز سيجعل التعلم أكثر تفاعلية وإثارة للاهتمام.'
       ];
-      
       const botMessage = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
         message: responses[Math.floor(Math.random() * responses.length)],
         timestamp: new Date().toISOString()
       };
-
       setChatMessages(prev => [...prev, botMessage]);
       setIsTyping(false);
     }, 2000);
   };
-
   // دالة مشاركة الاقتباس
   const shareQuote = (quote: Quote) => {
     if (navigator.share) {
@@ -196,18 +171,16 @@ const AuthorProfilePage = () => {
       navigator.clipboard.writeText(`"${quote.text}" - ${author?.name}`);
     }
   };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+  <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
-
   if (!author) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+  <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">الكاتب غير موجود</h2>
           <Link href="/" className="text-blue-600 hover:text-blue-700">
@@ -217,33 +190,23 @@ const AuthorProfilePage = () => {
       </div>
     );
   }
-
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+  <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header شخصي مع خلفية ذكية */}
       <section className="relative h-96 overflow-hidden">
         {/* خلفية متدرجة مع صورة */}
         <div className="absolute inset-0">
-          <img 
-            src={author.backgroundImage || author.coverImage}
-            alt="خلفية الكاتب"
-            className="w-full h-full object-cover"
-          />
+          <Image src={undefined} alt="خلفية الكاتب" width={100} height={100} />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30"></div>
         </div>
-
         {/* محتوى Header */}
         <div className="relative h-full flex items-end">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
             <div className="flex items-end gap-6">
               {/* صورة الكاتب */}
               <div className="relative">
-                <img 
-                  src={author.avatar}
-                  alt={author.name}
-                  className={`w-32 h-32 rounded-full object-cover border-4 ${writerClubBorders[author.club]} shadow-xl`}
-                />
+                <Image src={undefined} alt="" width={100} height={100} />
                 <div className={`absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-r ${writerClubColors[author.club]} flex items-center justify-center border-4 border-white`}>
                   <Star className="w-5 h-5 text-white" />
                 </div>
@@ -253,7 +216,6 @@ const AuthorProfilePage = () => {
                   </div>
                 )}
               </div>
-
               {/* معلومات الكاتب */}
               <div className="flex-1 text-white">
                 <div className="flex items-center gap-3 mb-2">
@@ -262,9 +224,7 @@ const AuthorProfilePage = () => {
                     نادي {writerClubNames[author.club]}
                   </span>
                 </div>
-                
                 <p className="text-xl mb-3 text-gray-200">{author.specialization}</p>
-                
                 <div className="flex items-center gap-6 text-sm">
                   <div className="flex items-center gap-2">
                     <BookOpen className="w-4 h-4" />
@@ -288,14 +248,11 @@ const AuthorProfilePage = () => {
           </div>
         </div>
       </section>
-
       {/* المحتوى الرئيسي */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
           {/* العمود الأيسر - Bio والإنجازات */}
           <div className="lg:col-span-1 space-y-6">
-            
             {/* Bio ذكي */}
             <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
               <div className="flex items-center gap-2 mb-4">
@@ -307,7 +264,6 @@ const AuthorProfilePage = () => {
                 {author.bio}
               </p>
             </div>
-
             {/* الإنجازات */}
             <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
               <div className="flex items-center gap-2 mb-4">
@@ -325,7 +281,6 @@ const AuthorProfilePage = () => {
                 ))}
               </div>
             </div>
-
             {/* مساعد الكاتب AI */}
             <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
               <div className="flex items-center gap-2 mb-4">
@@ -333,7 +288,6 @@ const AuthorProfilePage = () => {
                 <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>مساعد الكاتب</h3>
                 <span className="text-xs bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-1 rounded-full">AI</span>
               </div>
-              
               {/* منطقة Chat */}
               <div className="space-y-4">
                 <div className="h-48 overflow-y-auto space-y-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -360,7 +314,6 @@ const AuthorProfilePage = () => {
                     </div>
                   )}
                 </div>
-                
                 <form onSubmit={handleChatSubmit} className="flex gap-2">
                   <input
                     type="text"
@@ -381,10 +334,8 @@ const AuthorProfilePage = () => {
               </div>
             </div>
           </div>
-
           {/* العمود الأوسط - خريطة النشاط والمقالات */}
           <div className="lg:col-span-2 space-y-8">
-            
             {/* خريطة النشاط */}
             {activityData && (
               <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
@@ -393,9 +344,7 @@ const AuthorProfilePage = () => {
                   <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>خريطة النشاط</h3>
                   <span className="text-xs bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-1 rounded-full">AI Analytics</span>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
                   {/* أنشط الفترات */}
                   <div>
                     <h4 className={`text-sm font-medium mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>أنشط فترات الكتابة</h4>
@@ -418,7 +367,6 @@ const AuthorProfilePage = () => {
                       ))}
                     </div>
                   </div>
-
                   {/* توزيع المواضيع */}
                   <div>
                     <h4 className={`text-sm font-medium mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>المواضيع الأكثر تناولاً</h4>
@@ -440,7 +388,6 @@ const AuthorProfilePage = () => {
                     </div>
                   </div>
                 </div>
-
                 {/* مستوى التفاعل الإجمالي */}
                 <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
                   <div className="flex items-center justify-between">
@@ -453,7 +400,6 @@ const AuthorProfilePage = () => {
                 </div>
               </div>
             )}
-
             {/* أحدث المقالات - كاروسيل */}
             <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
               <div className="flex items-center justify-between mb-6">
@@ -476,7 +422,6 @@ const AuthorProfilePage = () => {
                   </button>
                 </div>
               </div>
-
               {articles.length > 0 && (
                 <div className="relative overflow-hidden">
                   <div 
@@ -487,11 +432,7 @@ const AuthorProfilePage = () => {
                       <div key={article.id} className="w-full flex-shrink-0">
                         <Link href={`/opinion/${article.id}`} className="block group">
                           <div className="flex gap-4">
-                            <img 
-                              src={article.featured_image}
-                              alt={article.title}
-                              className="w-24 h-24 object-cover rounded-lg group-hover:scale-105 transition-transform"
-                            />
+                            <Image src={undefined} alt="" width={100} height={100} />
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
                                 <span className={`text-xs px-2 py-1 rounded ${darkMode ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-700'}`}>
@@ -509,7 +450,6 @@ const AuthorProfilePage = () => {
                               <p className={`text-sm mb-3 line-clamp-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                                 {article.excerpt}
                               </p>
-                              
                               {/* إحصائيات التفاعل */}
                               <div className="flex items-center gap-4 text-xs">
                                 <div className="flex items-center gap-1">
@@ -541,7 +481,6 @@ const AuthorProfilePage = () => {
                   </div>
                 </div>
               )}
-
               {/* مؤشرات الكاروسيل */}
               <div className="flex justify-center mt-4 gap-2">
                 {articles.map((_, index) => (
@@ -557,7 +496,6 @@ const AuthorProfilePage = () => {
                 ))}
               </div>
             </div>
-
             {/* جدارية الاقتباسات */}
             <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
               <div className="flex items-center gap-2 mb-6">
@@ -565,7 +503,6 @@ const AuthorProfilePage = () => {
                 <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>اقتباسات مختارة</h3>
                 <span className="text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full">AI Extracted</span>
               </div>
-
               <div className="grid gap-4">
                 {quotes.map((quote, index) => (
                   <div key={quote.id} className={`p-4 rounded-lg border-l-4 border-amber-500 ${darkMode ? 'bg-gray-700/50' : 'bg-amber-50'} group hover:shadow-lg transition-all`}>
@@ -607,5 +544,4 @@ const AuthorProfilePage = () => {
     </div>
   );
 };
-
 export default AuthorProfilePage;

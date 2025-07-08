@@ -1,5 +1,5 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -18,10 +18,9 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
 import { useTheme } from '@/contexts/ThemeContext';
 import Link from 'next/link';
-
+'use client';
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
-
 interface Category {
   id: string;
   name: string;
@@ -36,7 +35,6 @@ interface Category {
   display_order?: number;
   is_active?: boolean;
 }
-
 interface Author {
   id: string;
   name: string;
@@ -44,7 +42,6 @@ interface Author {
   avatar?: string;
   role?: string;
 }
-
 interface UploadedImage {
   id: string;
   url: string;
@@ -53,13 +50,11 @@ interface UploadedImage {
   height: number;
   format: string;
 }
-
 export default function EditArticlePage() {
   const router = useRouter();
   const params = useParams();
   const { darkMode } = useDarkModeContext();
   const articleId = params?.id as string;
-  
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [saving, setSaving] = useState(false);
@@ -69,10 +64,8 @@ export default function EditArticlePage() {
   const [activeTab, setActiveTab] = useState('content');
   const [articleLoading, setArticleLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  
   // مرجع للمحرر
   const editorRef = useRef<any>(null);
-
   // حالة النموذج
   const [formData, setFormData] = useState({
     title: '',
@@ -94,7 +87,6 @@ export default function EditArticlePage() {
     seoDescription: '',
     status: 'draft' as 'draft' | 'pending_review' | 'published'
   });
-
   // تحميل بيانات المقال
   useEffect(() => {
     const fetchArticle = async () => {
@@ -104,9 +96,7 @@ export default function EditArticlePage() {
         if (!res.ok) {
           throw new Error('فشل في جلب المقال');
         }
-        
         const articleData = await res.json();
-        
         // تحويل البيانات إلى تنسيق النموذج
         setFormData({
           title: articleData.title || '',
@@ -136,7 +126,6 @@ export default function EditArticlePage() {
           seoDescription: articleData.seo_description || '',
           status: articleData.status || 'draft'
         });
-        
         // تحميل المحتوى في المحرر
         if (editorRef.current && articleData.content) {
           editorRef.current.setContent(articleData.content);
@@ -148,18 +137,15 @@ export default function EditArticlePage() {
         setArticleLoading(false);
       }
     };
-
     if (articleId) {
       fetchArticle();
     }
   }, [articleId]);
-
   // تحميل البيانات الأساسية
   useEffect(() => {
     fetchCategories();
     fetchAuthors();
   }, []);
-
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/categories?active_only=true');
@@ -171,7 +157,6 @@ export default function EditArticlePage() {
       setCategories([]);
     }
   };
-
   const fetchAuthors = async () => {
     try {
       const response = await fetch('/api/authors?role=correspondent,editor,author');
@@ -183,41 +168,33 @@ export default function EditArticlePage() {
       setAuthors([]); // تعيين مصفوفة فارغة في حالة الخطأ
     }
   };
-
   // رفع الصورة البارزة
   const handleFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     // التحقق من نوع الملف
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
     if (!allowedTypes.includes(file.type)) {
       toast.error('نوع الملف غير مسموح. يسمح فقط بملفات الصور (JPEG, PNG, GIF, WebP)');
       return;
     }
-
     // التحقق من حجم الملف (10MB max)
     const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       toast.error('حجم الملف كبير جداً. الحد الأقصى 10 ميجابايت');
       return;
     }
-
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', 'featured');
-
     try {
       setUploadingImage(true);
       toast.loading('جاري رفع الصورة...', { id: 'upload' });
-      
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
-
       const data = await response.json();
-
       if (response.ok && data.success) {
         setFormData(prev => ({ ...prev, featuredImage: data.url }));
         toast.success('تم رفع الصورة بنجاح', { id: 'upload' });
@@ -233,15 +210,12 @@ export default function EditArticlePage() {
       setUploadingImage(false);
     }
   };
-
   // رفع صور الألبوم
   const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
     const maxSize = 10 * 1024 * 1024; // 10MB
-
     // التحقق من الملفات
     for (const file of Array.from(files)) {
       if (!allowedTypes.includes(file.type)) {
@@ -253,27 +227,21 @@ export default function EditArticlePage() {
         return;
       }
     }
-
     setUploadingImage(true);
     const uploadedImages: UploadedImage[] = [];
     let successCount = 0;
     let errorCount = 0;
-
     toast.loading(`جاري رفع ${files.length} صورة...`, { id: 'gallery-upload' });
-
     for (const file of Array.from(files)) {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'gallery');
-
       try {
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
-
         const data = await response.json();
-
         if (response.ok && data.success) {
           uploadedImages.push(data);
           successCount++;
@@ -287,13 +255,11 @@ export default function EditArticlePage() {
         console.error(`❌ خطأ في رفع الصورة ${file.name}:`, error);
       }
     }
-
     setFormData(prev => ({ 
       ...prev, 
       gallery: [...prev.gallery, ...uploadedImages] 
     }));
     setUploadingImage(false);
-
     // عرض رسالة النتيجة
     if (successCount > 0 && errorCount === 0) {
       toast.success(`تم رفع جميع الصور بنجاح (${successCount})`, { id: 'gallery-upload' });
@@ -303,7 +269,6 @@ export default function EditArticlePage() {
       toast.error('فشل في رفع جميع الصور', { id: 'gallery-upload' });
     }
   };
-
   // استدعاء الذكاء الاصطناعي
   const callAI = async (type: string, content: string, context?: any) => {
     setIsAILoading(true);
@@ -313,7 +278,6 @@ export default function EditArticlePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, content, context })
       });
-      
       const data = await response.json();
       return data.result;
     } catch (error) {
@@ -324,51 +288,43 @@ export default function EditArticlePage() {
       setIsAILoading(false);
     }
   };
-
   // توليد فقرة تمهيدية
   const generateIntro = async () => {
     if (!formData.title) {
       toast.error('يرجى كتابة العنوان أولاً');
       return;
     }
-    
     const result = await callAI('generate_paragraph', formData.title);
     if (result && editorRef.current) {
       editorRef.current.setContent(result);
       toast.success('تم توليد المقدمة بنجاح');
     }
   };
-
   // اقتراح عناوين
   const suggestTitles = async () => {
     if (!formData.excerpt) {
       toast.error('يرجى كتابة الموجز أولاً');
       return;
     }
-    
     const result = await callAI('title', formData.excerpt);
     if (result) {
       setAiSuggestions({ ...aiSuggestions, titles: result.split('\n') });
       toast.success('تم اقتراح عناوين جديدة');
     }
   };
-
   // اقتراح كلمات مفتاحية
   const suggestKeywords = async () => {
     let textContent = formData.excerpt;
-    
     if (editorRef.current) {
       const editorContent = editorRef.current.getHTML();
       if (editorContent && editorContent.length > 50) {
         textContent = editorContent.replace(/<[^>]*>/g, '');
       }
     }
-    
     if (!textContent || textContent.length < 20) {
       toast.error('يرجى كتابة محتوى أولاً');
       return;
     }
-    
     const result = await callAI('keywords', textContent);
     if (result) {
       const keywords = result.split(',').map((k: string) => k.trim()).filter((k: string) => k);
@@ -376,30 +332,25 @@ export default function EditArticlePage() {
       toast.success('تم اقتراح الكلمات المفتاحية');
     }
   };
-
   // كتابة مقال كامل
   const generateFullArticle = async () => {
     if (!formData.title) {
       toast.error('يرجى كتابة العنوان أولاً');
       return;
     }
-    
     const confirmed = confirm('هل تريد توليد مقال كامل بالذكاء الاصطناعي؟ سيستبدل المحتوى الحالي.');
     if (!confirmed) return;
-    
     const result = await callAI('full_article', formData.title, { excerpt: formData.excerpt });
     if (result && editorRef.current) {
       editorRef.current.setContent(result);
       toast.success('تم توليد المقال بنجاح');
     }
   };
-
   // تحليل جودة الموجز
   const analyzeExcerpt = (excerpt: string) => {
     const minLength = 50;
     const maxLength = 160;
     const idealLength = 120;
-    
     if (excerpt.length < minLength) {
       return { 
         quality: 'poor', 
@@ -426,42 +377,32 @@ export default function EditArticlePage() {
       };
     }
   };
-
   // التحقق من البيانات قبل الحفظ
   const validateForm = () => {
     const errors = [];
-    
     if (!formData.title.trim()) {
       errors.push('العنوان الرئيسي مطلوب');
     }
-    
     if (!formData.excerpt.trim()) {
       errors.push('الموجز مطلوب');
     }
-    
     const editorContent = editorRef.current ? editorRef.current.getHTML() : '';
     const plainText = editorContent.replace(/<[^>]*>/g, '').trim();
-    
     if (!plainText || plainText.length < 10) {
       errors.push('محتوى المقال مطلوب');
     }
-    
     if (!formData.authorId) {
       errors.push('يجب اختيار المراسل/الكاتب');
     }
-    
     if (!formData.categoryId) {
       errors.push('يجب اختيار التصنيف');
     }
-    
     const excerptAnalysis = analyzeExcerpt(formData.excerpt);
     if (excerptAnalysis.quality === 'poor') {
       errors.push(excerptAnalysis.message);
     }
-    
     return errors;
   };
-
   // تحديث المقال
   const handleSubmit = async (status: 'draft' | 'pending_review' | 'published') => {
     const errors = validateForm();
@@ -470,10 +411,8 @@ export default function EditArticlePage() {
       return;
     }
     setSaving(true);
-
     try {
       toast.loading(`جاري ${status === 'draft' ? 'حفظ' : status === 'pending_review' ? 'إرسال' : 'نشر'} المقال...`, { id: 'save' });
-      
       const articleData: any = {
         title: formData.title.trim(),
         content: editorRef.current ? editorRef.current.getHTML() : formData.content,
@@ -488,19 +427,15 @@ export default function EditArticlePage() {
         seo_description: formData.seoDescription,
         status,
       };
-
       if (formData.publishType === 'scheduled' && formData.scheduledDate) {
         articleData.scheduled_for = formData.scheduledDate;
       }
-
       const response = await fetch(`/api/articles/${articleId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(articleData),
       });
-
       const result = await response.json();
-
       if (response.ok) {
         const successMessage = status === 'draft'
           ? 'تم حفظ التعديلات بنجاح'
@@ -509,7 +444,6 @@ export default function EditArticlePage() {
           : 'تم نشر المقال بنجاح';
         toast.success(successMessage, { id: 'save' });
         console.log('✅ تم حفظ المقال:', result);
-        
         // تأخير قصير قبل الانتقال
         setTimeout(() => {
           router.push('/dashboard/news');
@@ -525,7 +459,6 @@ export default function EditArticlePage() {
       setSaving(false);
     }
   };
-
   // إضافة كلمة مفتاحية
   const addKeyword = (keyword: string) => {
     if (!formData.keywords.includes(keyword)) {
@@ -535,7 +468,6 @@ export default function EditArticlePage() {
       }));
     }
   };
-
   // حذف كلمة مفتاحية
   const removeKeyword = (keyword: string) => {
     setFormData(prev => ({
@@ -543,7 +475,6 @@ export default function EditArticlePage() {
       keywords: prev.keywords.filter(k => k !== keyword)
     }));
   };
-
   // إضافة دالة generateSlug للاستخدام في معاينة SEO
   const generateSlug = (title: string): string => {
     return title
@@ -553,11 +484,10 @@ export default function EditArticlePage() {
       .replace(/-+/g, '-')
       .trim();
   };
-
   // عرض حالة التحميل
   if (articleLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center">
           <div className="relative">
             <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
@@ -578,11 +508,10 @@ export default function EditArticlePage() {
       </div>
     );
   }
-
   // عرض رسالة الخطأ
   if (loadError) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-red-50 to-pink-50">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-red-50 to-pink-50">
         <div className="text-center max-w-md">
           <div className="w-24 h-24 bg-gradient-to-r from-red-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <AlertCircle className="w-12 h-12 text-white" />
@@ -600,9 +529,8 @@ export default function EditArticlePage() {
       </div>
     );
   }
-
   return (
-    <div className={`min-h-screen p-8 transition-colors duration-300 ${
+  <div className={`min-h-screen p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : 'bg-gray-50'
     }`} dir="rtl">
       {/* عنوان وتعريف الصفحة */}
@@ -622,7 +550,6 @@ export default function EditArticlePage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>قم بتحديث المحتوى وتحسينه بمساعدة الذكاء الاصطناعي</p>
       </div>
-
       {/* قسم نظام المحرر الذكي */}
       <div className="mb-8">
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -672,7 +599,6 @@ export default function EditArticlePage() {
           </div>
         </div>
       </div>
-
       {/* أزرار التنقل */}
       <TabsEnhanced
         tabs={[
@@ -684,7 +610,6 @@ export default function EditArticlePage() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         {/* العمود الرئيسي */}
         <div className="xl:col-span-3 space-y-6">
@@ -725,7 +650,6 @@ export default function EditArticlePage() {
                         <span className="mr-1">اقتراح</span>
                       </Button>
                     </div>
-                    
                     {/* عرض العناوين المقترحة */}
                     {aiSuggestions.titles && aiSuggestions.titles.length > 0 && (
                       <div className="mt-2 p-3 bg-secondary/20 rounded-lg">
@@ -745,7 +669,6 @@ export default function EditArticlePage() {
                       </div>
                     )}
                   </div>
-
                   <div>
                     <Label htmlFor="subtitle">العنوان الفرعي</Label>
                     <Input
@@ -755,7 +678,6 @@ export default function EditArticlePage() {
                       placeholder="عنوان فرعي اختياري"
                     />
                   </div>
-
                   <div>
                     <Label htmlFor="excerpt">الموجز / Lead *</Label>
                     <Textarea
@@ -779,7 +701,6 @@ export default function EditArticlePage() {
                   </div>
                 </CardContent>
               </Card>
-
               {/* المحتوى */}
               <Card>
                 <CardHeader>
@@ -848,7 +769,6 @@ export default function EditArticlePage() {
               </Card>
             </div>
           )}
-
           {/* تاب الوسائط */}
           {activeTab === 'media' && (
             <Card>
@@ -862,11 +782,7 @@ export default function EditArticlePage() {
                   <div className="mt-2">
                     {formData.featuredImage ? (
                       <div className="relative">
-                        <img
-                          src={formData.featuredImage}
-                          alt="الصورة البارزة"
-                          className="w-full h-64 object-cover rounded-lg"
-                        />
+                        <Image src={undefined} alt="الصورة البارزة" width={100} height={100} />
                         <div className="absolute top-2 right-2 flex gap-2">
                           <Button
                             variant="secondary"
@@ -917,7 +833,6 @@ export default function EditArticlePage() {
                     )}
                   </div>
                 </div>
-
                 {/* ألبوم الصور */}
                 <div>
                   <Label>ألبوم الصور</Label>
@@ -934,11 +849,7 @@ export default function EditArticlePage() {
                         <div className="grid grid-cols-3 gap-2">
                           {formData.gallery.map((image, index) => (
                             <div key={image.id} className="relative group">
-                              <img
-                                src={image.url}
-                                alt={`صورة ${index + 1}`}
-                                className="w-full h-32 object-cover rounded"
-                              />
+                              <Image src={undefined} alt="" width={100} height={100} />
                               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                                 <div className="flex gap-1">
                                   <Button
@@ -1000,7 +911,6 @@ export default function EditArticlePage() {
                       </div>
                     </div>
                 </div>
-
                 {/* رابط خارجي */}
                 <div>
                   <Label htmlFor="external-link">رابط خارجي (اختياري)</Label>
@@ -1016,7 +926,6 @@ export default function EditArticlePage() {
               </CardContent>
             </Card>
           )}
-
           {/* تاب SEO */}
           {activeTab === 'seo' && (
             <Card>
@@ -1047,7 +956,6 @@ export default function EditArticlePage() {
                     </p>
                   </div>
                 </div>
-
                 {/* نصائح SEO */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
@@ -1108,7 +1016,6 @@ export default function EditArticlePage() {
                     </div>
                   ))}
                 </div>
-
                 {/* حقول SEO */}
                 <div className="space-y-4">
                   <div>
@@ -1120,7 +1027,6 @@ export default function EditArticlePage() {
                       placeholder="اتركه فارغاً لاستخدام العنوان الرئيسي"
                     />
                   </div>
-
                   <div>
                     <Label htmlFor="seo-description">وصف SEO (اختياري)</Label>
                     <Textarea
@@ -1131,7 +1037,6 @@ export default function EditArticlePage() {
                       rows={3}
                     />
                   </div>
-
                   <div>
                     <Label htmlFor="keywords">الكلمات المفتاحية</Label>
                     <div className="flex gap-2 mb-2">
@@ -1187,7 +1092,6 @@ export default function EditArticlePage() {
               </CardContent>
             </Card>
           )}
-
           {/* تاب مساعد الذكاء */}
           {activeTab === 'ai' && (
             <Card>
@@ -1221,7 +1125,6 @@ export default function EditArticlePage() {
                       </div>
                     </div>
                   </Button>
-
                   <Button
                     variant="outline"
                     size="lg"
@@ -1239,7 +1142,6 @@ export default function EditArticlePage() {
                       </div>
                     </div>
                   </Button>
-
                   <Button
                     variant="outline"
                     size="lg"
@@ -1257,7 +1159,6 @@ export default function EditArticlePage() {
                       </div>
                     </div>
                   </Button>
-
                   <Button
                     variant="outline"
                     size="lg"
@@ -1280,7 +1181,6 @@ export default function EditArticlePage() {
             </Card>
           )}
         </div>
-
         {/* الشريط الجانبي */}
         <div className="space-y-4 w-full">
           {/* ملخص سريع */}
@@ -1356,7 +1256,6 @@ export default function EditArticlePage() {
                   <p className="text-xs text-muted-foreground">لا توجد تصنيفات متاحة</p>
                 )}
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="author" className="text-sm font-medium">المراسل/الكاتب *</Label>
                 <select
@@ -1381,7 +1280,6 @@ export default function EditArticlePage() {
                   <p className="text-xs text-muted-foreground">لا يوجد مراسلين متاحين</p>
                 )}
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="type" className="text-sm font-medium">نوع المقال</Label>
                 <select
@@ -1396,7 +1294,6 @@ export default function EditArticlePage() {
               </div>
             </CardContent>
           </Card>
-
           {/* خيارات العرض */}
           <Card className="w-full border-l-4 border-l-purple-500">
             <CardHeader className="pb-3">
@@ -1419,7 +1316,6 @@ export default function EditArticlePage() {
                   <span>خبر عاجل</span>
                 </label>
               </div>
-
               <div className="flex items-center space-x-3 space-x-reverse">
                 <input
                   type="checkbox"
@@ -1435,7 +1331,6 @@ export default function EditArticlePage() {
               </div>
             </CardContent>
           </Card>
-
           {/* توقيت النشر */}
           <Card className="w-full border-l-4 border-l-orange-500">
             <CardHeader className="pb-3">
@@ -1474,7 +1369,6 @@ export default function EditArticlePage() {
                   </div>
                 </div>
               </div>
-
               {formData.publishType === 'scheduled' && (
                 <div className="space-y-2">
                   <Label htmlFor="scheduled-date" className="text-sm font-medium">تاريخ ووقت النشر</Label>

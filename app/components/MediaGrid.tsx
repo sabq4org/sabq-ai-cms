@@ -1,6 +1,19 @@
+import React from 'react';
+import Image from 'next/image';
+import { useState } from 'react';
+
 'use client';
 
-import { useState } from 'react';
+
+
+
+
+
+
+
+
+
+
 import { 
   Image as ImageIcon, Play, FileText, Download, 
   Trash2, Eye, Tag,
@@ -108,11 +121,7 @@ export default function MediaGrid({
   const getFilePreview = (file: MediaFile) => {
     if (file.media_type === 'image') {
       return (
-        <img
-          src={file.file_url}
-          alt={file.alt_text || file.title || file.original_name}
-          className="w-full h-full object-cover"
-        />
+        <Image src={undefined} alt="" width={100} height={100} />
       );
     } else if (file.media_type === 'video') {
       return (
@@ -439,11 +448,7 @@ export default function MediaGrid({
             
             <div className="p-4">
               {previewFile.media_type === 'image' ? (
-                <img
-                  src={previewFile.file_url}
-                  alt={previewFile.alt_text || previewFile.title}
-                  className="max-w-full max-h-96 mx-auto"
-                />
+                <Image src={undefined} alt="" width={100} height={100} />
               ) : previewFile.media_type === 'video' ? (
                 <video
                   src={previewFile.file_url}

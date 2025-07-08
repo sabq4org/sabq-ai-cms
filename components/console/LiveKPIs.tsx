@@ -1,11 +1,17 @@
+import Image from 'next/image';
+import React from 'react';
+import { SabqCard } from '@/components/ui/SabqCard';
+
 'use client';
 
-import React from 'react';
+
+
+
 import { 
   Users, FileText, Eye, Clock, MessageSquare,
   Zap, BarChart3, Activity, Globe
 } from 'lucide-react';
-import { SabqCard } from '@/components/ui/SabqCard';
+
 
 interface KPICardProps {
   title: string;

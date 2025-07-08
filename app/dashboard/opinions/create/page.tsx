@@ -1,6 +1,11 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { toast } from 'react-hot-toast';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import dynamic from 'next/dynamic';
+'use client';
 import { 
   PenTool,
   Save,
@@ -18,32 +23,23 @@ import {
   Clock,
   Zap
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { toast } from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import dynamic from 'next/dynamic';
-
 // استيراد محرر TipTap بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), {
   ssr: false,
   loading: () => <div className="h-96 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg"></div>
 });
-
 interface OpinionAuthor {
   id: string;
   name: string;
   title?: string;
   avatar?: string;
 }
-
 export default function CreateOpinionPage() {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(false);
   const [authors, setAuthors] = useState<OpinionAuthor[]>([]);
   const [previewMode, setPreviewMode] = useState(false);
-  
   // حقول المقال
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -54,11 +50,9 @@ export default function CreateOpinionPage() {
   const [opinionType, setOpinionType] = useState<'short' | 'extended'>('short');
   const [publishNow, setPublishNow] = useState(true);
   const [scheduledDate, setScheduledDate] = useState('');
-
   useEffect(() => {
     fetchOpinionAuthors();
   }, []);
-
   const fetchOpinionAuthors = async () => {
     try {
       const response = await fetch('/api/opinion-authors?active=true');
@@ -71,18 +65,15 @@ export default function CreateOpinionPage() {
       toast.error('فشل في جلب قائمة الكتّاب');
     }
   };
-
   const handleAddTag = () => {
     if (currentTag.trim() && !tags.includes(currentTag.trim())) {
       setTags([...tags, currentTag.trim()]);
       setCurrentTag('');
     }
   };
-
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
-
   const validateForm = () => {
     if (!title.trim()) {
       toast.error('يرجى إدخال عنوان المقال');
@@ -102,10 +93,8 @@ export default function CreateOpinionPage() {
     }
     return true;
   };
-
   const handleSubmit = async (status: 'draft' | 'published') => {
     if (!validateForm()) return;
-
     setLoading(true);
     try {
       const articleData = {
@@ -123,13 +112,11 @@ export default function CreateOpinionPage() {
           })
         }
       };
-
       const response = await fetch('/api/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(articleData)
       });
-
       if (response.ok) {
         const data = await response.json();
         toast.success(
@@ -148,9 +135,7 @@ export default function CreateOpinionPage() {
       setLoading(false);
     }
   };
-
   const selectedAuthorData = authors.find(a => a.id === selectedAuthor);
-
   // مكون بطاقة الإحصائية
   const StatsCard = ({ 
     title, 
@@ -192,9 +177,8 @@ export default function CreateOpinionPage() {
       </div>
     </div>
   );
-
   return (
-    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+  <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -206,7 +190,6 @@ export default function CreateOpinionPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>اكتب مقال رأي أو تحليل من وجهة نظر أحد كتّاب الرأي المميزين</p>
       </div>
-
       {/* قسم النظام التحريري */}
       <div className="mb-6 sm:mb-8">
         <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
@@ -228,7 +211,6 @@ export default function CreateOpinionPage() {
                 }`}>أدوات متقدمة لكتابة وتحرير مقالات الرأي والتحليلات الصحفية</p>
               </div>
             </div>
-            
             <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <Link 
                 href="/dashboard/opinions"
@@ -241,7 +223,6 @@ export default function CreateOpinionPage() {
           </div>
         </div>
       </div>
-
       {/* بطاقات الإحصائيات */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
         <StatsCard
@@ -277,7 +258,6 @@ export default function CreateOpinionPage() {
           iconColor="text-white"
         />
       </div>
-
       {/* Form */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Main Content */}
@@ -305,7 +285,6 @@ export default function CreateOpinionPage() {
               } focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-lg`}
             />
           </div>
-
           {/* Content Editor */}
           <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
             darkMode 
@@ -330,7 +309,6 @@ export default function CreateOpinionPage() {
                 {previewMode ? 'تحرير' : 'معاينة'}
               </button>
             </div>
-            
             {previewMode ? (
               <div 
                 className={`prose prose-lg max-w-none min-h-[400px] ${
@@ -346,7 +324,6 @@ export default function CreateOpinionPage() {
               />
             )}
           </div>
-
           {/* Excerpt */}
           <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
             darkMode 
@@ -371,7 +348,6 @@ export default function CreateOpinionPage() {
             />
           </div>
         </div>
-
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Author Selection */}
@@ -402,18 +378,13 @@ export default function CreateOpinionPage() {
                 </option>
               ))}
             </select>
-            
             {selectedAuthorData && (
               <div className={`mt-4 p-4 rounded-xl transition-colors duration-300 ${
                 darkMode ? 'bg-gray-700/50' : 'bg-gray-50'
               }`}>
                 <div className="flex items-center gap-3">
                   {selectedAuthorData.avatar ? (
-                    <img
-                      src={selectedAuthorData.avatar}
-                      alt={selectedAuthorData.name}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"
-                    />
+                    <Image src={undefined} alt="" width={100} height={100} />
                   ) : (
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                       darkMode ? 'bg-gray-600' : 'bg-gray-300'
@@ -439,7 +410,6 @@ export default function CreateOpinionPage() {
               </div>
             )}
           </div>
-
           {/* Opinion Type */}
           <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
             darkMode 
@@ -495,7 +465,6 @@ export default function CreateOpinionPage() {
               </label>
             </div>
           </div>
-
           {/* Tags */}
           <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
             darkMode 
@@ -549,7 +518,6 @@ export default function CreateOpinionPage() {
               ))}
             </div>
           </div>
-
           {/* Publishing Options */}
           <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
             darkMode 
@@ -615,7 +583,6 @@ export default function CreateOpinionPage() {
               )}
             </div>
           </div>
-
           {/* Actions */}
           <div className="space-y-3">
             <button
@@ -639,7 +606,6 @@ export default function CreateOpinionPage() {
                 </>
               )}
             </button>
-            
             <button
               onClick={() => handleSubmit('draft')}
               disabled={loading}

@@ -1,24 +1,22 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import ContentEditorWithBlocks from '../../../../../components/ContentEditorWithBlocks';
+import FeaturedImageUpload from '../../../../../components/FeaturedImageUpload';
+import { logActions, getCurrentUser } from '../../../../../lib/log-activity';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { Block } from '../../../../../components/BlockEditor/types';
+'use client';
 import { 
   Save, Eye, Send, AlertTriangle, Image, Video,
   Sparkles, Brain, Globe, Settings, Hash, FileText, CheckCircle,
   XCircle, Lightbulb, Target, RefreshCw,
   Wand2, PenTool, BarChart3, Rocket, ArrowLeft, Loader2
 } from 'lucide-react';
-
 // استيراد المكونات
-import ContentEditorWithBlocks from '../../../../../components/ContentEditorWithBlocks';
-import FeaturedImageUpload from '../../../../../components/FeaturedImageUpload';
-import { logActions, getCurrentUser } from '../../../../../lib/log-activity';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
 // ===============================
 // أنواع البيانات
 // ===============================
-
 interface ArticleFormData {
   id?: string;
   title: string;
@@ -47,13 +45,9 @@ interface ArticleFormData {
   featured_image?: string;
   featured_image_alt?: string;
 }
-
 // استخدام أنواع Block من محرر البلوكات
-import { Block } from '../../../../../components/BlockEditor/types';
-
 // ContentBlock سيكون مرادف لـ Block
 type ContentBlock = Block;
-
 interface Category {
   id: number;
   name_ar: string;
@@ -64,13 +58,11 @@ interface Category {
   position?: number;
   is_active?: boolean;
 }
-
 export default function EditArticlePage() {
   const { darkMode } = useDarkModeContext();
   const params = useParams();
   const router = useRouter();
   const articleId = params?.id as string;
-
   const [formData, setFormData] = useState<ArticleFormData>({
     id: articleId,
     title: '',
@@ -87,7 +79,6 @@ export default function EditArticlePage() {
     status: 'draft',
     content_blocks: []
   });
-
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -102,20 +93,16 @@ export default function EditArticlePage() {
   const [readingTime, setReadingTime] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [authors, setAuthors] = useState<{ id: string; name: string; role?: string }[]>([]);
-
   // تحميل بيانات المقال الحالية
   useEffect(() => {
     const fetchArticle = async () => {
       try {
         setArticleLoading(true);
         const res = await fetch(`/api/articles/${articleId}`);
-        
         if (!res.ok) {
           throw new Error('فشل في جلب المقال');
         }
-        
         const articleData = await res.json();
-        
         // تحويل البيانات إلى تنسيق النموذج
         setFormData({
           id: articleData.id,
@@ -148,12 +135,10 @@ export default function EditArticlePage() {
         setArticleLoading(false);
       }
     };
-
     if (articleId) {
       fetchArticle();
     }
   }, [articleId]);
-
   // تحميل التصنيفات الحقيقية من API
   useEffect(() => {
     const fetchCategories = async () => {
@@ -162,12 +147,10 @@ export default function EditArticlePage() {
         const res = await fetch('/api/categories?active_only=true');
         const result = await res.json();
         if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل التصنيفات');
-
         const categoriesData = result.categories || result.data || [];
         const sorted = (categoriesData as Category[])
           .filter(cat => cat.is_active)
           .sort((a, b) => (a.position || 0) - (b.position || 0));
-
         setCategories(sorted);
       } catch (err) {
         console.error('خطأ في تحميل التصنيفات:', err);
@@ -176,13 +159,11 @@ export default function EditArticlePage() {
         setLoading(false);
       }
     };
-
     const fetchAuthors = async () => {
       try {
         console.log('🔄 جلب المراسلين...');
         const response = await fetch('/api/authors?role=correspondent,editor,author');
         const data = await response.json();
-        
         if (data.success) {
           const authorsData = Array.isArray(data.data) ? data.data : [];
           console.log(`✅ تم جلب ${authorsData.length} مراسل:`, authorsData.map((a: any) => `${a.name} (${a.role})`));
@@ -196,11 +177,9 @@ export default function EditArticlePage() {
         setAuthors([]);
       }
     };
-
     fetchCategories();
     fetchAuthors();
   }, []);
-
   // حساب عدد الكلمات ووقت القراءة
   useEffect(() => {
     const text = formData.content_blocks
@@ -210,12 +189,10 @@ export default function EditArticlePage() {
         return (blockData && typeof blockData === 'object' && 'text' in blockData) ? blockData.text : '';
       })
       .join(' ');
-    
     const words = text.trim().split(/\s+/).length;
     setWordCount(words);
     setReadingTime(Math.ceil(words / 200)); // متوسط 200 كلمة في الدقيقة
   }, [formData.content_blocks]);
-
   // حفظ تلقائي كل 30 ثانية
   useEffect(() => {
     const interval = setInterval(() => {
@@ -225,12 +202,10 @@ export default function EditArticlePage() {
     }, 30000);
     return () => clearInterval(interval);
   }, [formData]);
-
   // تحليل جودة المقال
   useEffect(() => {
     calculateQualityScore();
   }, [formData.title, formData.description, formData.content_blocks, formData.keywords]);
-
   const autoSave = useCallback(async () => {
     setAutoSaveStatus('saving');
     try {
@@ -240,50 +215,38 @@ export default function EditArticlePage() {
       setAutoSaveStatus('error');
     }
   }, [formData]);
-
   const calculateQualityScore = () => {
     let score = 0;
-    
     // العنوان (20 نقطة)
     if (formData.title.length > 10 && formData.title.length < 80) score += 20;
     else if (formData.title.length > 0) score += 10;
-    
     // الوصف (15 نقطة)
     if (formData.description.length > 50 && formData.description.length < 160) score += 15;
     else if (formData.description.length > 0) score += 8;
-    
     // المحتوى (30 نقطة)
     const textBlocks = formData.content_blocks.filter(b => b.type === 'paragraph');
     if (textBlocks.length >= 3) score += 30;
     else if (textBlocks.length > 0) score += 15;
-    
     // الصور (15 نقطة)
     const imageBlocks = formData.content_blocks.filter(b => b.type === 'image');
     if (imageBlocks.length >= 1) score += 15;
-    
     // التصنيف (10 نقطة)
     if (formData.category_id > 0) score += 10;
-    
     // الكلمات المفتاحية (10 نقطة)
     if (formData.keywords.length >= 3) score += 10;
     else if (formData.keywords.length > 0) score += 5;
-    
     setQualityScore(score);
   };
-
   const validateForm = (): string[] => {
     const errors: string[] = [];
-    
     if (!formData.title.trim()) errors.push('العنوان الرئيسي مطلوب');
     if (formData.title.length > 100) errors.push('العنوان طويل جداً (أكثر من 100 حرف)');
     if (!formData.category_id) errors.push('يجب اختيار تصنيف');
     if (formData.content_blocks.length === 0) errors.push('المحتوى فارغ - أضف بعض الفقرات');
     if (formData.description.length > 160) errors.push('الوصف طويل جداً (أكثر من 160 حرف)');
-    
     setValidationErrors(errors);
     return errors;
   };
-
   // دوال الذكاء الاصطناعي
   const generateTitle = async () => {
     setAiLoading({ ...aiLoading, title: true });
@@ -302,7 +265,6 @@ export default function EditArticlePage() {
       setAiLoading({ ...aiLoading, title: false });
     }
   };
-
   const generateDescription = async () => {
     setAiLoading({ ...aiLoading, description: true });
     try {
@@ -313,7 +275,6 @@ export default function EditArticlePage() {
       setAiLoading({ ...aiLoading, description: false });
     }
   };
-
   const generateKeywords = async () => {
     setAiLoading({ ...aiLoading, keywords: true });
     try {
@@ -324,18 +285,15 @@ export default function EditArticlePage() {
       setAiLoading({ ...aiLoading, keywords: false });
     }
   };
-
   const handleSave = async (status: 'draft' | 'review' | 'published') => {
     const errors = validateForm();
     if (errors.length > 0) return;
-
     setSaving(true);
     try {
       // إنشاء محتوى نصي بسيط كـ fallback
       const textContent = formData.content_blocks
         .map((b) => {
           const blockData = b.data?.[b.type] || b.data || {};
-          
           switch (b.type) {
             case 'paragraph':
               return (blockData as any).text || '';
@@ -356,10 +314,8 @@ export default function EditArticlePage() {
         })
         .filter((text: string) => text.trim())
         .join('\n\n');
-
       // الحصول على اسم المؤلف من القائمة
       const selectedAuthor = authors.find(a => a.id === formData.author_id);
-      
       const articleData = {
         title: formData.title,
         content_blocks: formData.content_blocks,
@@ -378,7 +334,6 @@ export default function EditArticlePage() {
         seo_keywords: formData.keywords,
         publish_at: formData.publish_time
       };
-
       // استخدام PUT للتحديث
       const res = await fetch(`/api/articles/${articleId}`, {
         method: 'PUT',
@@ -386,17 +341,13 @@ export default function EditArticlePage() {
         body: JSON.stringify(articleData)
       });
       const result = await res.json();
-      
       if (!res.ok || !result.success) throw new Error(result.error || 'فشل التحديث');
-
       // تسجيل الحدث في سجلات النظام
       const userInfo = getCurrentUser();
       await logActions.updateArticle(userInfo, articleId, formData.title);
-      
       if (status === 'published') {
         await logActions.publishArticle(userInfo, articleId, formData.title);
       }
-
       alert(status === 'published' ? 'تم تحديث ونشر المقال بنجاح' : 'تم حفظ التعديلات بنجاح');
       router.push('/dashboard/news');
     } catch (err) {
@@ -406,11 +357,10 @@ export default function EditArticlePage() {
       setSaving(false);
     }
   };
-
   // عرض حالة التحميل
   if (articleLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center">
           <div className="relative">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl mx-auto mb-6">
@@ -426,11 +376,10 @@ export default function EditArticlePage() {
       </div>
     );
   }
-
   // عرض رسالة الخطأ
   if (loadError) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center">
           <div className="relative">
             <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-2xl mx-auto mb-6">
@@ -450,23 +399,20 @@ export default function EditArticlePage() {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 lg:p-8">
+  <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 lg:p-8">
       <div className="max-w-[1600px] mx-auto">
         {/* Header الإبداعي الجديد */}
         <div className="relative mb-8">
           {/* خلفية متحركة */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl opacity-90"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
-          
           {/* نمط الخلفية */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-0 right-0 w-60 h-60 bg-yellow-300 rounded-full blur-3xl animate-pulse delay-1000"></div>
             <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-pink-300 rounded-full blur-3xl animate-pulse delay-2000"></div>
           </div>
-          
           <div className="relative z-10 p-8 lg:p-12">
             {/* العنوان الرئيسي */}
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
@@ -479,7 +425,6 @@ export default function EditArticlePage() {
                     <Sparkles className="w-4 h-4 text-white" />
                   </div>
                 </div>
-                
                 <div>
                   <h1 className="text-4xl lg:text-5xl font-bold text-white mb-2 flex items-center gap-3">
                     تعديل المقال
@@ -491,7 +436,6 @@ export default function EditArticlePage() {
                   </p>
                 </div>
               </div>
-
               {/* معلومات المقال */}
               <div className="flex items-center gap-4 bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/30">
                 <div className="text-center px-4 border-r border-white/30">
@@ -508,7 +452,6 @@ export default function EditArticlePage() {
                 </div>
               </div>
             </div>
-
             {/* شريط التقدم والحالة */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
               {/* حالة الحفظ */}
@@ -535,7 +478,6 @@ export default function EditArticlePage() {
                   <div className="text-xs opacity-80">آخر حفظ منذ دقيقتين</div>
                 </div>
               </div>
-
               {/* مؤشر الجودة */}
               <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-2">
@@ -557,7 +499,6 @@ export default function EditArticlePage() {
                   <span className="text-xs text-white/70">ممتاز</span>
                 </div>
               </div>
-
               {/* إحصائيات سريعة */}
               <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-4">
                 <div className="grid grid-cols-3 gap-2">
@@ -589,7 +530,6 @@ export default function EditArticlePage() {
                 </div>
               </div>
             </div>
-
             {/* أزرار التنقل */}
             <div className="flex flex-wrap gap-4 mb-8">
               <button
@@ -599,7 +539,6 @@ export default function EditArticlePage() {
                 <ArrowLeft className="w-5 h-5" />
                 <span className="font-medium">العودة للقائمة</span>
               </button>
-
               <button
                 onClick={() => handleSave('draft')}
                 disabled={saving}
@@ -608,7 +547,6 @@ export default function EditArticlePage() {
                 <Save className="w-5 h-5" />
                 <span className="font-medium">حفظ كمسودة</span>
               </button>
-              
               <button
                 onClick={() => handleSave('review')}
                 disabled={saving}
@@ -617,7 +555,6 @@ export default function EditArticlePage() {
                 <Send className="w-5 h-5" />
                 <span className="font-medium">إرسال للمراجعة</span>
               </button>
-              
               <button
                 onClick={() => handleSave('published')}
                 disabled={saving || validationErrors.length > 0}
@@ -631,7 +568,6 @@ export default function EditArticlePage() {
                 <span className="font-medium">تحديث ونشر</span>
               </button>
         </div>
-
             {/* التبويبات المحسنة */}
             <div className="flex flex-wrap gap-2">
               {[
@@ -666,7 +602,6 @@ export default function EditArticlePage() {
           </div>
         </div>
         </div>
-
         {/* تنبيهات الأخطاء المحسنة */}
         {validationErrors.length > 0 && (
           <div className="mb-8 bg-gradient-to-r from-red-500 to-pink-600 rounded-2xl p-1">
@@ -692,7 +627,6 @@ export default function EditArticlePage() {
             </div>
           </div>
         )}
-
         {/* المحتوى الرئيسي */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* منطقة المحتوى الرئيسية */}
@@ -708,7 +642,6 @@ export default function EditArticlePage() {
                     <p className="text-gray-600">تحديث محتوى احترافي بأدوات متقدمة</p>
                   </div>
                 </div>
-
                 <div className="space-y-6">
                   {/* العنوان الرئيسي */}
                   <div>
@@ -741,7 +674,6 @@ export default function EditArticlePage() {
                       </span>
                     </div>
                   </div>
-
                   {/* العنوان الفرعي */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -755,7 +687,6 @@ export default function EditArticlePage() {
                       className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-
                   {/* المراسل/الكاتب */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -778,7 +709,6 @@ export default function EditArticlePage() {
                       <p className="text-xs text-gray-500 mt-1">لا يوجد مراسلين متاحين</p>
                     )}
                   </div>
-
                   {/* التصنيف والنطاق */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -798,7 +728,6 @@ export default function EditArticlePage() {
                       ))}
                     </select>
                   </div>
-
                     <div>
                       <label className="text-sm font-medium text-gray-700 mb-2 block">
                         النطاق
@@ -813,7 +742,6 @@ export default function EditArticlePage() {
                       </select>
                     </div>
                   </div>
-
                   {/* الوصف الموجز */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -845,7 +773,6 @@ export default function EditArticlePage() {
                       </span>
                     </div>
                   </div>
-
                   {/* محرر المحتوى */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -863,7 +790,6 @@ export default function EditArticlePage() {
                 </div>
               </div>
             )}
-            
             {activeTab === 'ai' && (
               <div className="bg-white rounded-3xl shadow-xl p-8">
                 <div className="flex items-center gap-4 mb-8">
@@ -875,7 +801,6 @@ export default function EditArticlePage() {
                     <p className="text-gray-600">استخدم قوة AI لتحسين المحتوى</p>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
                     { icon: Wand2, title: 'تحسين العنوان', desc: 'اقتراحات عناوين مُحسّنة', color: 'from-blue-500 to-indigo-600', action: generateTitle },
@@ -916,11 +841,9 @@ export default function EditArticlePage() {
                 </div>
               </div>
             )}
-            
             {/* باقي التبويبات تبقى كما هي مع نفس التصميم من صفحة الإنشاء */}
             {/* يمكن إضافتها لاحقاً حسب الحاجة */}
             </div>
-
             {/* الشريط الجانبي */}
           <div className="xl:col-span-1 space-y-6">
             {/* بطاقة الجودة المحسنة */}
@@ -953,7 +876,6 @@ export default function EditArticlePage() {
                 </div>
                 </div>
               </div>
-
             {/* بطاقة النشر */}
             <div className="bg-white rounded-3xl shadow-xl p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -969,7 +891,6 @@ export default function EditArticlePage() {
                   <Save className="w-5 h-5" />
                   حفظ كمسودة
                 </button>
-                
                 <button
                   onClick={() => handleSave('review')}
                   disabled={saving}
@@ -978,7 +899,6 @@ export default function EditArticlePage() {
                   <Eye className="w-5 h-5" />
                   إرسال للمراجعة
                 </button>
-                
                 <button
                   onClick={() => handleSave('published')}
                   disabled={saving || validationErrors.length > 0}
@@ -993,7 +913,6 @@ export default function EditArticlePage() {
                 </button>
               </div>
             </div>
-
             {/* بطاقة الوسائط */}
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-6 border border-purple-200">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -1009,14 +928,12 @@ export default function EditArticlePage() {
                     darkMode={darkMode}
                   />
                 </div>
-                
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">الصور في المقال</span>
                   <span className="font-semibold text-purple-600">
                     {formData.content_blocks.filter(b => b.type === 'image').length}
                   </span>
                 </div>
-                
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">مقاطع الفيديو</span>
                   <span className="font-semibold text-purple-600">
@@ -1025,7 +942,6 @@ export default function EditArticlePage() {
                 </div>
               </div>
             </div>
-
             {/* نصائح التحديث */}
             <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-6 border border-yellow-200">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">

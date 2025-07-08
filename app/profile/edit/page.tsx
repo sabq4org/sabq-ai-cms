@@ -1,14 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import Header from '@/components/Header';
+'use client';
 import { 
   User, Mail, MapPin, Users, Save, X,
   ArrowRight, AlertCircle
 } from 'lucide-react';
-import toast from 'react-hot-toast';
-import Header from '@/components/Header';
-
 interface UserData {
   id: string;
   name: string;
@@ -17,7 +16,6 @@ interface UserData {
   city?: string;
   avatar?: string;
 }
-
 export default function EditProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
@@ -29,11 +27,9 @@ export default function EditProfilePage() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
   useEffect(() => {
     checkAuth();
   }, []);
-
   const checkAuth = () => {
     const userData = localStorage.getItem('user');
     if (!userData) {
@@ -50,17 +46,13 @@ export default function EditProfilePage() {
     });
     setLoading(false);
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!formData.name || !formData.email) {
       toast.error('الاسم والبريد الإلكتروني مطلوبان');
       return;
     }
-
     setSaving(true);
-
     try {
       // تحديث البيانات في API
       const response = await fetch('/api/user/update-profile', {
@@ -73,16 +65,12 @@ export default function EditProfilePage() {
           ...formData
         })
       });
-
       if (response.ok) {
         const data = await response.json();
-        
         // تحديث localStorage
         const updatedUser = { ...user, ...formData };
         localStorage.setItem('user', JSON.stringify(updatedUser));
-        
         toast.success('تم تحديث الملف الشخصي بنجاح');
-        
         // العودة إلى صفحة الملف الشخصي
         router.push('/profile');
       } else {
@@ -96,7 +84,6 @@ export default function EditProfilePage() {
       setSaving(false);
     }
   };
-
   if (loading) {
     return (
       <>
@@ -107,7 +94,6 @@ export default function EditProfilePage() {
       </>
     );
   }
-
   return (
     <>
       <Header />
@@ -125,7 +111,6 @@ export default function EditProfilePage() {
             <h1 className="text-3xl font-bold text-gray-800">تعديل الملف الشخصي</h1>
             <p className="text-gray-600 mt-2">قم بتحديث معلوماتك الشخصية</p>
           </div>
-
           {/* النموذج */}
           <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 space-y-6">
             {/* الاسم */}
@@ -143,7 +128,6 @@ export default function EditProfilePage() {
                 required
               />
             </div>
-
             {/* البريد الإلكتروني */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -160,7 +144,6 @@ export default function EditProfilePage() {
                 dir="ltr"
               />
             </div>
-
             {/* الجنس */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -177,7 +160,6 @@ export default function EditProfilePage() {
                 <option value="female">أنثى</option>
               </select>
             </div>
-
             {/* المدينة */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -192,7 +174,6 @@ export default function EditProfilePage() {
                 placeholder="أدخل مدينتك"
               />
             </div>
-
             {/* ملاحظة */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-start gap-3">
@@ -203,7 +184,6 @@ export default function EditProfilePage() {
                 </div>
               </div>
             </div>
-
             {/* أزرار الإجراءات */}
             <div className="flex gap-3 pt-4">
               <button

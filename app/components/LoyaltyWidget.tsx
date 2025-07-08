@@ -1,6 +1,15 @@
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+
+
+
+
+
+
+
 
 interface LoyaltyData {
   user_id: number;

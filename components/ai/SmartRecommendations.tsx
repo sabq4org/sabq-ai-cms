@@ -1,13 +1,21 @@
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { getArticleLink } from '@/lib/utils';
+import { formatDateOnly } from '@/lib/date-utils';
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+
+
+
 import { 
   Sparkles, Brain, TrendingUp, User, Heart, BookOpen, 
   ChevronRight, Star, Eye, Share2, Clock 
 } from 'lucide-react';
-import Link from 'next/link';
-import { getArticleLink } from '@/lib/utils';
-import { formatDateOnly } from '@/lib/date-utils';
+
+
+
 
 interface RecommendedArticle {
   id: string;
@@ -251,11 +259,7 @@ export default function SmartRecommendations({
               >
                 {/* صورة المقال */}
                 <div className="flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden">
-                  <img
-                    src={article.featured_image}
-                    alt={article.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
+                  <Image src={undefined} alt="" width={100} height={100} />
                 </div>
 
                 {/* محتوى المقال */}
@@ -321,11 +325,7 @@ export default function SmartRecommendations({
               >
                 {/* صورة الكاتب */}
                 <div className="flex-shrink-0">
-                  <img
-                    src={author.avatar}
-                    alt={author.name}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
-                  />
+                  <Image src={undefined} alt="" width={100} height={100} />
                 </div>
 
                 {/* معلومات الكاتب */}

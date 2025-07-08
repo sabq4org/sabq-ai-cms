@@ -1,5 +1,4 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { SelectContent, SelectItem, SelectTrigger, SelectValue, RadixSelect } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { toast } from 'react-hot-toast';
+'use client';
 import { 
   Plus, 
   Edit3, 
@@ -34,8 +36,6 @@ import {
   X,
   ExternalLink
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { toast } from 'react-hot-toast';
 import { 
   Dialog,
   DialogContent,
@@ -54,7 +54,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
 interface SmartBlock {
   id: string;
   name: string;
@@ -80,7 +79,6 @@ interface SmartBlock {
   createdAt: string;
   updatedAt: string;
 }
-
 const POSITIONS = [
   { value: 'topBanner', label: 'أعلى الصفحة (أسفل الهيدر)', description: 'يظهر في أعلى الصفحة مباشرة', icon: '🔝' },
   { value: 'afterHighlights', label: 'بعد الأخبار المميزة', description: 'بين الأخبار المميزة والبطاقات', icon: '⭐' },
@@ -88,7 +86,6 @@ const POSITIONS = [
   { value: 'beforePersonalization', label: 'قبل المحتوى المخصص', description: 'قبل قسم "محتوى مخصص لك"', icon: '🎯' },
   { value: 'beforeFooter', label: 'قبل التذييل', description: 'في أسفل الصفحة قبل الفوتر', icon: '🔚' }
 ];
-
 const displayTypes = [
   { value: 'cards', label: 'بطاقات شبكية', icon: '🎴', color: 'text-purple-500', description: 'شبكة من البطاقات بمقاس موحد' },
   { value: 'carousel', label: 'كاروسيل', icon: '🎠', color: 'text-green-500', description: 'تمرير أفقي للمحتوى' },
@@ -101,13 +98,11 @@ const displayTypes = [
   { value: 'horizontal', label: 'أفقي', icon: '↔️', color: 'text-green-500', description: 'شريط أفقي قابل للتمرير' },
   { value: 'gallery', label: 'معرض', icon: '🖼️', color: 'text-orange-500', description: 'معرض صور بدون نصوص' }
 ];
-
 const BLOCK_TYPES = [
   { value: 'smart', label: 'بلوك ذكي', description: 'يعرض المحتوى بناءً على كلمات مفتاحية', icon: Sparkles, color: 'text-purple-500' },
   { value: 'custom', label: 'بلوك مخصص', description: 'اختيار يدوي للمقالات', icon: Target, color: 'text-blue-500' },
   { value: 'html', label: 'بلوك HTML', description: 'كود HTML مخصص', icon: Code, color: 'text-green-500' }
 ];
-
 const EnhancedStatsCard = ({ 
   title, 
   value, 
@@ -132,7 +127,7 @@ const EnhancedStatsCard = ({
   loading: boolean;
 }) => {
   return (
-    <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+  <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
       darkMode 
         ? 'bg-gray-800 border-gray-700' 
         : 'bg-white border-gray-100'
@@ -166,7 +161,6 @@ const EnhancedStatsCard = ({
     </div>
   );
 };
-
 export default function SmartBlocksPage() {
   const { darkMode } = useDarkModeContext();
   const [blocks, setBlocks] = useState<SmartBlock[]>([]);
@@ -181,7 +175,6 @@ export default function SmartBlocksPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showStatusConfirm, setShowStatusConfirm] = useState(false);
   const [statusChangeBlock, setStatusChangeBlock] = useState<SmartBlock | null>(null);
-
   // نموذج البلوك الجديد
   const [newBlock, setNewBlock] = useState<Partial<SmartBlock>>({
     name: '',
@@ -204,11 +197,9 @@ export default function SmartBlocksPage() {
       isAlwaysActive: false
     }
   });
-
   useEffect(() => {
     fetchBlocks();
   }, []);
-
   const fetchBlocks = async () => {
     try {
       setLoading(true);
@@ -224,22 +215,17 @@ export default function SmartBlocksPage() {
       setLoading(false);
     }
   };
-
   const moveBlockUp = async (blockId: string) => {
     const blockIndex = blocks.findIndex(b => b.id === blockId);
     if (blockIndex === 0) return;
-
     const newBlocks = [...blocks];
     [newBlocks[blockIndex], newBlocks[blockIndex - 1]] = [newBlocks[blockIndex - 1], newBlocks[blockIndex]];
-    
     // تحديث ترتيب البلوكات
     const updatedBlocks = newBlocks.map((block, index) => ({
       ...block,
       order: index + 1
     }));
-
     setBlocks(updatedBlocks);
-
     try {
       await fetch('/api/smart-blocks/reorder', {
         method: 'POST',
@@ -251,22 +237,17 @@ export default function SmartBlocksPage() {
       toast.error('فشل في حفظ الترتيب الجديد');
     }
   };
-
   const moveBlockDown = async (blockId: string) => {
     const blockIndex = blocks.findIndex(b => b.id === blockId);
     if (blockIndex === blocks.length - 1) return;
-
     const newBlocks = [...blocks];
     [newBlocks[blockIndex], newBlocks[blockIndex + 1]] = [newBlocks[blockIndex + 1], newBlocks[blockIndex]];
-    
     // تحديث ترتيب البلوكات
     const updatedBlocks = newBlocks.map((block, index) => ({
       ...block,
       order: index + 1
     }));
-
     setBlocks(updatedBlocks);
-
     try {
       await fetch('/api/smart-blocks/reorder', {
         method: 'POST',
@@ -278,22 +259,17 @@ export default function SmartBlocksPage() {
       toast.error('فشل في حفظ الترتيب الجديد');
     }
   };
-
   const toggleBlockStatus = async (blockId: string) => {
     const block = blocks.find(b => b.id === blockId);
     if (!block) return;
-    
     setStatusChangeBlock(block);
     setShowStatusConfirm(true);
   };
-
   const confirmStatusChange = async () => {
     if (!statusChangeBlock) return;
-    
     try {
       const newStatus = statusChangeBlock.status === 'active' ? 'inactive' : 'active';
       console.log(`[SmartBlocks Dashboard] تغيير حالة البلوك ${statusChangeBlock.id} إلى ${newStatus}`);
-      
       const response = await fetch(`/api/smart-blocks/${statusChangeBlock.id}`, {
         method: 'PATCH',
         headers: {
@@ -301,17 +277,14 @@ export default function SmartBlocksPage() {
         },
         body: JSON.stringify({ status: newStatus }),
       });
-      
       if (response.ok) {
         const updatedBlock = await response.json();
         console.log('[SmartBlocks Dashboard] تم تحديث حالة البلوك:', updatedBlock);
-        
         setBlocks(prevBlocks => 
           prevBlocks.map(block => 
             block.id === updatedBlock.id ? updatedBlock : block
           )
         );
-        
         toast.success(newStatus === 'active' ? 'تم تفعيل البلوك بنجاح!' : 'تم إيقاف البلوك بنجاح!');
       } else {
         const errorData = await response.json();
@@ -326,7 +299,6 @@ export default function SmartBlocksPage() {
       setStatusChangeBlock(null);
     }
   };
-
   const saveBlock = async () => {
     try {
       // التحقق من صحة البيانات
@@ -334,7 +306,6 @@ export default function SmartBlocksPage() {
         toast.error('يرجى إدخال عنوان البلوك');
         return;
       }
-
       const blockData = {
         ...newBlock,
         id: isEditing ? selectedBlock?.id : `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -342,7 +313,6 @@ export default function SmartBlocksPage() {
         createdAt: isEditing ? selectedBlock?.createdAt : new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
-
       console.log('[SmartBlocks Dashboard] حفظ البلوك:', {
         isEditing,
         blockId: blockData.id,
@@ -350,20 +320,16 @@ export default function SmartBlocksPage() {
         oldPosition: selectedBlock?.position,
         fullData: blockData
       });
-
       const url = isEditing ? `/api/smart-blocks/${selectedBlock?.id}` : '/api/smart-blocks';
       const method = isEditing ? 'PUT' : 'POST';
-
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(blockData)
       });
-
       if (response.ok) {
         const savedBlock = await response.json();
         console.log('[SmartBlocks Dashboard] البلوك المحفوظ:', savedBlock);
-        
         if (isEditing) {
           setBlocks(blocks.map(b => b.id === savedBlock.id ? savedBlock : b));
           toast.success(
@@ -385,12 +351,10 @@ export default function SmartBlocksPage() {
             { duration: 5000 }
           );
         }
-
         // إعادة جلب البيانات للتأكد من التحديث
         setTimeout(() => {
           fetchBlocks();
         }, 500);
-
         resetForm();
         setShowCreateForm(false);
       } else {
@@ -407,15 +371,12 @@ export default function SmartBlocksPage() {
       );
     }
   };
-
   const deleteBlock = async (blockId: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا البلوك؟')) return;
-
     try {
       const response = await fetch(`/api/smart-blocks/${blockId}`, {
         method: 'DELETE'
       });
-
       if (response.ok) {
         setBlocks(blocks.filter(b => b.id !== blockId));
         toast.success('تم حذف البلوك بنجاح');
@@ -424,20 +385,17 @@ export default function SmartBlocksPage() {
       toast.error('فشل في حذف البلوك');
     }
   };
-
   const editBlock = (block: SmartBlock) => {
     console.log('[SmartBlocks Dashboard] تحرير البلوك:', block);
     setEditingBlock(block);
     setShowEditModal(true);
   };
-
   const editBlockInline = (block: SmartBlock) => {
     console.log('[SmartBlocks Dashboard] تحرير البلوك في النموذج الكامل:', block);
     setSelectedBlock(block);
     setNewBlock(block);
     setIsEditing(true);
     setShowCreateForm(true);
-    
     // التمرير إلى النموذج بعد فتحه
     setTimeout(() => {
       const formElement = document.getElementById('smart-block-form');
@@ -446,13 +404,10 @@ export default function SmartBlocksPage() {
       }
     }, 100);
   };
-
   const saveQuickEdit = async () => {
     if (!editingBlock) return;
-
     try {
       console.log('[SmartBlocks Dashboard] حفظ التعديلات السريعة:', editingBlock);
-      
       const response = await fetch(`/api/smart-blocks/${editingBlock.id}`, {
         method: 'PUT',
         headers: {
@@ -460,17 +415,14 @@ export default function SmartBlocksPage() {
         },
         body: JSON.stringify(editingBlock),
       });
-      
       if (response.ok) {
         const updatedBlock = await response.json();
         console.log('[SmartBlocks Dashboard] تم حفظ البلوك:', updatedBlock);
-        
         setBlocks(prevBlocks => 
           prevBlocks.map(block => 
             block.id === updatedBlock.id ? updatedBlock : block
           )
         );
-        
         toast.success('تم حفظ التعديلات بنجاح!');
         setShowEditModal(false);
         setEditingBlock(null);
@@ -484,7 +436,6 @@ export default function SmartBlocksPage() {
       toast.error('حدث خطأ في حفظ التعديلات');
     }
   };
-
   const resetForm = () => {
     setNewBlock({
       name: '',
@@ -512,17 +463,14 @@ export default function SmartBlocksPage() {
     setShowPreview(false);
     setCurrentKeyword('');
   };
-
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       active: { label: 'مفعل', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle },
       inactive: { label: 'معطل', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400', icon: XCircle },
       scheduled: { label: 'مجدول', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400', icon: Clock }
     };
-    
     const config = statusConfig[status as keyof typeof statusConfig];
     const Icon = config.icon;
-    
     return (
       <Badge className={`${config.color} flex items-center gap-1`}>
         <Icon className="w-3 h-3" />
@@ -530,15 +478,13 @@ export default function SmartBlocksPage() {
       </Badge>
     );
   };
-
   const getPositionLabel = (position: string) => {
     const pos = POSITIONS.find(p => p.value === position);
     return pos ? `${pos.icon} ${pos.label}` : position;
   };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+  <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p>جاري تحميل البلوكات...</p>
@@ -546,7 +492,6 @@ export default function SmartBlocksPage() {
       </div>
     );
   }
-
   // التبويبات
   const statusTabs = [
     { 
@@ -580,7 +525,6 @@ export default function SmartBlocksPage() {
       icon: <Code className="w-5 h-5" />
     }
   ];
-
   // فلترة البلوكات حسب التبويب المحدد
   const filteredBlocks = blocks.filter(block => {
     if (activeTab === 'all') return true;
@@ -590,7 +534,6 @@ export default function SmartBlocksPage() {
     if (activeTab === 'html') return block.type === 'html';
     return true;
   });
-
   // ترتيب البلوكات: الأحدث أولاً (حسب تاريخ الإنشاء أو الترتيب اليدوي)
   const sortedBlocks = filteredBlocks.sort((a, b) => {
     if (a.order && b.order) {
@@ -598,9 +541,8 @@ export default function SmartBlocksPage() {
     }
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
-
   return (
-    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+  <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : 'bg-gray-50'
     }`} dir="rtl">
       {/* عنوان وتعريف الصفحة */}
@@ -612,7 +554,6 @@ export default function SmartBlocksPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>منصة متكاملة لإنشاء وإدارة البلوكات التفاعلية والمحتوى الديناميكي في الصفحة الرئيسية</p>
       </div>
-
       {/* قسم النظام الذكي */}
       <div className="mb-6 sm:mb-8">
         <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
@@ -635,7 +576,6 @@ export default function SmartBlocksPage() {
           </div>
         </div>
       </div>
-
       {/* بطاقات الإحصائيات المحسّنة */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
         <EnhancedStatsCard
@@ -693,7 +633,6 @@ export default function SmartBlocksPage() {
           loading={loading}
         />
       </div>
-
       {/* أزرار التنقل المحسّنة */}
       <div className={`rounded-2xl p-2 shadow-sm border mb-6 sm:mb-8 w-full transition-colors duration-300 ${
         darkMode 
@@ -736,7 +675,6 @@ export default function SmartBlocksPage() {
           })}
         </div>
       </div>
-
       {/* جدول البلوكات المحسن */}
       <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
         darkMode 
@@ -786,7 +724,6 @@ export default function SmartBlocksPage() {
             </div>
           </div>
         </div>
-
         <div className="space-y-0">
           {sortedBlocks.length === 0 ? (
             <div className="p-12 text-center">
@@ -840,7 +777,6 @@ export default function SmartBlocksPage() {
                           <ArrowDown className="h-5 w-5" />
                         </Button>
                       </div>
-                      
                       {/* معلومات البلوك */}
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -865,7 +801,6 @@ export default function SmartBlocksPage() {
                             {BLOCK_TYPES.find(t => t.value === block.type)?.label}
                           </Badge>
                         </div>
-                        
                         <div className={`flex flex-wrap items-center gap-4 text-sm transition-colors duration-300 ${
                           darkMode ? 'text-gray-400' : 'text-gray-600'
                         }`}>
@@ -914,7 +849,6 @@ export default function SmartBlocksPage() {
                         </div>
                       </div>
                     </div>
-
                     {/* الإجراءات */}
                     <div className="flex items-center gap-2">
                       <Button
@@ -970,7 +904,6 @@ export default function SmartBlocksPage() {
           )}
         </div>
       </div>
-
       {/* نموذج إنشاء البلوك مع المعاينة في جدول واحد */}
       {showCreateForm && (
         <div className="mt-8 relative z-10 transition-all duration-300 transform animate-in fade-in slide-in-from-bottom-4" id="smart-block-form">
@@ -1006,7 +939,6 @@ export default function SmartBlocksPage() {
                 </Button>
               </div>
             </div>
-
             {/* محتوى الجدول: النموذج والمعاينة جنباً إلى جنب */}
             <div className="grid grid-cols-1 lg:grid-cols-2">
               {/* القسم الأيسر: النموذج */}
@@ -1021,7 +953,6 @@ export default function SmartBlocksPage() {
                     <FileText className="w-5 h-5" />
                     المعلومات الأساسية
                   </h3>
-                  
                   <div>
                     <Label htmlFor="block-name" className="mb-2">عنوان البلوك</Label>
                     <Input
@@ -1038,7 +969,6 @@ export default function SmartBlocksPage() {
                       {newBlock.name?.length || 0}/50 حرف
                     </p>
                   </div>
-
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label htmlFor="block-position" className="mb-2">موقع العرض</Label>
@@ -1066,7 +996,6 @@ export default function SmartBlocksPage() {
                         </SelectContent>
                       </RadixSelect>
                     </div>
-
                     <div>
                       <Label htmlFor="block-type" className="mb-2">نوع البلوك</Label>
                       <RadixSelect
@@ -1097,7 +1026,6 @@ export default function SmartBlocksPage() {
                       </RadixSelect>
                     </div>
                   </div>
-
                   {newBlock.type === 'smart' && (
                     <div>
                       <Label htmlFor="block-keyword" className="mb-2">الكلمات المفتاحية</Label>
@@ -1166,7 +1094,6 @@ export default function SmartBlocksPage() {
                       </div>
                     </div>
                   )}
-
                   {newBlock.type === 'html' && (
                     <div>
                       <Label htmlFor="block-html" className="mb-2">كود HTML</Label>
@@ -1180,7 +1107,6 @@ export default function SmartBlocksPage() {
                       />
                     </div>
                   )}
-
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="block-count" className="mb-2">عدد المقالات</Label>
@@ -1194,7 +1120,6 @@ export default function SmartBlocksPage() {
                         className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
                       />
                     </div>
-
                     <div>
                       <Label htmlFor="block-display" className="mb-2">نوع العرض</Label>
                       <RadixSelect
@@ -1220,7 +1145,6 @@ export default function SmartBlocksPage() {
                     </div>
                   </div>
                 </div>
-
                 {/* إعدادات الألوان */}
                 <div className={`space-y-4 p-4 rounded-lg border ${
                   darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
@@ -1231,7 +1155,6 @@ export default function SmartBlocksPage() {
                     <Palette className="w-5 h-5" />
                     إعدادات الألوان
                   </h3>
-                  
                   <div className="grid grid-cols-1 gap-3">
                     <div className="flex items-center gap-2">
                       <Input
@@ -1245,7 +1168,6 @@ export default function SmartBlocksPage() {
                       />
                       <Label className="flex-1">اللون الأساسي</Label>
                     </div>
-
                     <div className="flex items-center gap-2">
                       <Input
                         type="color"
@@ -1258,7 +1180,6 @@ export default function SmartBlocksPage() {
                       />
                       <Label className="flex-1">لون الخلفية</Label>
                     </div>
-
                     <div className="flex items-center gap-2">
                       <Input
                         type="color"
@@ -1273,7 +1194,6 @@ export default function SmartBlocksPage() {
                     </div>
                   </div>
                 </div>
-
                 {/* إعدادات التوقيت */}
                 <div className={`space-y-4 p-4 rounded-lg border ${
                   darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'
@@ -1284,7 +1204,6 @@ export default function SmartBlocksPage() {
                     <Clock className="w-5 h-5" />
                     إعدادات التوقيت
                   </h3>
-                  
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="always-active" className="cursor-pointer">
@@ -1304,7 +1223,6 @@ export default function SmartBlocksPage() {
                         })}
                       />
                     </div>
-
                     {!newBlock.schedule?.isAlwaysActive && (
                       <div className="grid grid-cols-1 gap-3">
                         <div>
@@ -1323,7 +1241,6 @@ export default function SmartBlocksPage() {
                             className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
                           />
                         </div>
-
                         <div>
                           <Label htmlFor="end-date" className="mb-2">تاريخ النهاية</Label>
                           <Input
@@ -1346,7 +1263,6 @@ export default function SmartBlocksPage() {
                   </div>
                 </div>
               </div>
-
               {/* القسم الأيمن: المعاينة */}
               <div className="p-6">
                 <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
@@ -1355,7 +1271,6 @@ export default function SmartBlocksPage() {
                   <Eye className="w-5 h-5" />
                   معاينة مباشرة
                 </h3>
-
                 {/* معاينة البلوك */}
                 <div 
                   className="rounded-lg p-4 transition-all duration-300 shadow-sm"
@@ -1372,7 +1287,6 @@ export default function SmartBlocksPage() {
                   >
                     {newBlock.name || 'عنوان البلوك'}
                   </h4>
-
                   {/* معاينة حسب نوع العرض */}
                   {newBlock.displayType === 'grid' && (
                     <div className="grid grid-cols-2 gap-2">
@@ -1391,7 +1305,6 @@ export default function SmartBlocksPage() {
                       ))}
                     </div>
                   )}
-
                   {newBlock.displayType === 'list' && (
                     <div className="space-y-2">
                       {[1, 2, 3].slice(0, Math.min(3, newBlock.articlesCount || 6)).map(i => (
@@ -1411,7 +1324,6 @@ export default function SmartBlocksPage() {
                       ))}
                     </div>
                   )}
-
                   {newBlock.displayType === 'cards' && (
                     <div className="space-y-2">
                       {[1].map(i => (
@@ -1431,7 +1343,6 @@ export default function SmartBlocksPage() {
                       ))}
                     </div>
                   )}
-
                   {newBlock.displayType === 'horizontal' && (
                     <div className="flex gap-2 overflow-x-auto">
                       {[1, 2, 3].slice(0, Math.min(3, newBlock.articlesCount || 6)).map(i => (
@@ -1448,7 +1359,6 @@ export default function SmartBlocksPage() {
                       ))}
                     </div>
                   )}
-
                   {newBlock.displayType === 'gallery' && (
                     <div className="grid grid-cols-3 gap-1">
                       {[1, 2, 3, 4, 5, 6].slice(0, Math.min(6, newBlock.articlesCount || 6)).map(i => (
@@ -1458,7 +1368,6 @@ export default function SmartBlocksPage() {
                       ))}
                     </div>
                   )}
-
                   {newBlock.displayType === 'hero-slider' && (
                     <div className="relative h-48 rounded-lg overflow-hidden">
                       <div className="absolute inset-0 bg-gray-300 animate-pulse"></div>
@@ -1476,7 +1385,6 @@ export default function SmartBlocksPage() {
                       </div>
                     </div>
                   )}
-
                   {newBlock.displayType === 'magazine' && (
                     <div className="grid grid-cols-3 gap-2">
                       <div className="col-span-2">
@@ -1488,7 +1396,6 @@ export default function SmartBlocksPage() {
                       </div>
                     </div>
                   )}
-
                   {newBlock.type === 'html' && (
                     <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded">
                       <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
@@ -1497,7 +1404,6 @@ export default function SmartBlocksPage() {
                     </div>
                   )}
                 </div>
-
                 {/* معلومات البلوك */}
                 <div className={`mt-4 p-3 rounded-lg text-xs ${
                   darkMode ? 'bg-gray-900/50' : 'bg-gray-50'
@@ -1527,7 +1433,6 @@ export default function SmartBlocksPage() {
                 </div>
               </div>
             </div>
-
             {/* أزرار الحفظ في أسفل الجدول */}
             <div className={`p-6 border-t ${darkMode ? 'border-gray-700 bg-gray-900/50' : 'border-gray-200 bg-gray-50'}`}>
               <div className="flex items-center justify-between">
@@ -1542,7 +1447,6 @@ export default function SmartBlocksPage() {
                   <X className="h-4 w-4" />
                   إلغاء
                 </Button>
-                
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -1552,7 +1456,6 @@ export default function SmartBlocksPage() {
                     <RotateCcw className="h-4 w-4" />
                     إعادة تعيين
                   </Button>
-                  
                   <Button 
                     onClick={saveBlock} 
                     className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white"
@@ -1567,7 +1470,6 @@ export default function SmartBlocksPage() {
           </div>
         </div>
       )}
-
       {/* Modal تعديل البلوك */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -1577,7 +1479,6 @@ export default function SmartBlocksPage() {
               قم بتحديث إعدادات البلوك الذكي
             </DialogDescription>
           </DialogHeader>
-
           <div className="space-y-4 py-4">
             <div>
               <Label htmlFor="edit-block-name" className="text-right block mb-2">عنوان البلوك</Label>
@@ -1593,7 +1494,6 @@ export default function SmartBlocksPage() {
                 {editingBlock?.name?.length || 0}/50 حرف
               </p>
             </div>
-
             <div>
               <Label htmlFor="edit-block-position" className="text-right block mb-2">موقع العرض</Label>
               <RadixSelect
@@ -1620,7 +1520,6 @@ export default function SmartBlocksPage() {
                 </SelectContent>
               </RadixSelect>
             </div>
-
             <div>
               <Label htmlFor="edit-block-type" className="text-right block mb-2">نوع البلوك</Label>
               <RadixSelect
@@ -1650,7 +1549,6 @@ export default function SmartBlocksPage() {
                 </SelectContent>
               </RadixSelect>
             </div>
-
             <div>
               <Label htmlFor="edit-block-display" className="text-right block mb-2">نوع العرض</Label>
               <RadixSelect
@@ -1674,7 +1572,6 @@ export default function SmartBlocksPage() {
                 </SelectContent>
               </RadixSelect>
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="edit-block-count" className="text-right block mb-2">عدد المقالات</Label>
@@ -1688,7 +1585,6 @@ export default function SmartBlocksPage() {
                   className={darkMode ? 'bg-gray-800 border-gray-700' : ''}
                 />
               </div>
-
               <div>
                 <Label htmlFor="edit-block-status" className="text-right block mb-2">حالة البلوك</Label>
                 <RadixSelect
@@ -1721,7 +1617,6 @@ export default function SmartBlocksPage() {
                 </RadixSelect>
               </div>
             </div>
-
             {/* معاينة الألوان */}
             <div className={`p-4 rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
               <h4 className={`font-medium mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>الألوان المستخدمة</h4>
@@ -1752,7 +1647,6 @@ export default function SmartBlocksPage() {
               </div>
             </div>
           </div>
-
           <DialogFooter>
             <div className="flex items-center justify-between w-full">
               <Button
@@ -1763,7 +1657,6 @@ export default function SmartBlocksPage() {
                 <Edit3 className="h-4 w-4" />
                 تعديل متقدم
               </Button>
-              
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
@@ -1774,7 +1667,6 @@ export default function SmartBlocksPage() {
                 >
                   إلغاء
                 </Button>
-                
                 <Button 
                   onClick={saveQuickEdit} 
                   className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white"
@@ -1788,7 +1680,6 @@ export default function SmartBlocksPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
       {/* Alert Dialog تأكيد تغيير الحالة */}
       <AlertDialog open={showStatusConfirm} onOpenChange={setShowStatusConfirm}>
         <AlertDialogContent>

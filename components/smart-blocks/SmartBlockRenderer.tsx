@@ -1,5 +1,4 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import { SmartBlock } from '@/types/smart-block';
 import { CardGridBlock } from './CardGridBlock';
@@ -7,6 +6,18 @@ import { CarouselBlock } from './CarouselBlock';
 import { AlHilalWorldCupBlock } from './AlHilalWorldCupBlock';
 import { HeroSliderBlock } from './HeroSliderBlock';
 import { Activity, TrendingUp, Lightbulb, Target, Compass, Volume2, Star } from 'lucide-react';
+
+'use client';
+
+
+
+
+
+
+
+
+
+
 
 interface SmartBlockRendererProps {
   block: SmartBlock;

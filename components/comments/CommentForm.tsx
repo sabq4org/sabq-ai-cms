@@ -1,8 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { Send, X } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
+'use client';
+
+
+
+
+
+
 
 interface CommentFormProps {
   onSubmit: (content: string) => void;

@@ -1,4 +1,11 @@
+import Image from 'next/image';
 import { MetadataRoute } from 'next';
+
+
+
+
+
+
 
 export default function robots(): MetadataRoute.Robots {
   return {

@@ -1,8 +1,9 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useDarkMode } from '@/hooks/useDarkMode';
+'use client';
 import { 
   Mail,
   Archive,
@@ -27,7 +28,6 @@ import {
   Database,
   HelpCircle
 } from 'lucide-react';
-
 interface Message {
   id: string;
   type: 'suggestion' | 'complaint' | 'feedback' | 'appreciation' | 'inquiry' | 'other';
@@ -42,7 +42,6 @@ interface Message {
   responded_at?: string;
   responded_by?: string;
 }
-
 // أيقونات وألوان أنواع الرسائل
 const messageTypeConfig = {
   suggestion: { icon: Lightbulb, color: 'blue', label: 'اقتراح', bgLight: 'bg-blue-100', bgDark: 'bg-blue-900/30', textLight: 'text-blue-700', textDark: 'text-blue-400' },
@@ -52,7 +51,6 @@ const messageTypeConfig = {
   appreciation: { icon: Heart, color: 'pink', label: 'شكر وتقدير', bgLight: 'bg-pink-100', bgDark: 'bg-pink-900/30', textLight: 'text-pink-700', textDark: 'text-pink-400' },
   other: { icon: MessageSquare, color: 'gray', label: 'أخرى', bgLight: 'bg-gray-100', bgDark: 'bg-gray-900/30', textLight: 'text-gray-700', textDark: 'text-gray-400' }
 };
-
 // حالات الرسائل
 const statusConfig = {
   new: { label: 'جديد', color: 'blue', icon: AlertCircle },
@@ -60,7 +58,6 @@ const statusConfig = {
   processed: { label: 'تمت المعالجة', color: 'green', icon: CheckCircle },
   archived: { label: 'مؤرشف', color: 'yellow', icon: Archive }
 };
-
 function MessagesContent() {
   const { darkMode } = useDarkMode();
   const searchParams = useSearchParams();
@@ -87,7 +84,6 @@ function MessagesContent() {
     total: 0,
     totalPages: 0
   });
-
   // جلب الرسائل
   const fetchMessages = async () => {
     try {
@@ -97,14 +93,11 @@ function MessagesContent() {
       if (activeTab !== 'all') params.append('type', activeTab);
       params.append('page', pagination.page.toString());
       params.append('limit', pagination.limit.toString());
-
       const response = await fetch(`/api/messages?${params}`);
       const data = await response.json();
-
       if (data.success) {
         setMessages(data.data);
         setPagination(data.pagination);
-        
         // حساب الإحصائيات
         calculateStats(data.data);
       }
@@ -114,23 +107,19 @@ function MessagesContent() {
       setLoading(false);
     }
   };
-
   // حساب الإحصائيات
   const calculateStats = (messagesData: Message[]) => {
     const allMessages = messagesData;
     const newMessages = allMessages.filter(m => m.status === 'new');
     const processedMessages = allMessages.filter(m => m.status === 'processed');
-    
     // حساب النوع الأكثر تكراراً
     const typeCounts: Record<string, number> = {};
     allMessages.forEach(msg => {
       typeCounts[msg.type] = (typeCounts[msg.type] || 0) + 1;
     });
-    
     const mostFrequent = Object.entries(typeCounts).reduce((a, b) => 
       typeCounts[a[0]] > typeCounts[b[0]] ? a : b, ['', 0]
     )[0];
-
     setStats({
       total: pagination.total || allMessages.length,
       new: newMessages.length,
@@ -138,11 +127,9 @@ function MessagesContent() {
       mostFrequentType: mostFrequent
     });
   };
-
   useEffect(() => {
     fetchMessages();
   }, [filters, pagination.page, activeTab]);
-
   // تحديث URL عند تغيير التبويب
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -155,7 +142,6 @@ function MessagesContent() {
     router.push(`?${params.toString()}`);
     setPagination({ ...pagination, page: 1 });
   };
-
   // تحديث حالة الرسالة
   const updateMessageStatus = async (messageId: string, status: string) => {
     try {
@@ -164,7 +150,6 @@ function MessagesContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: messageId, status })
       });
-
       if (response.ok) {
         fetchMessages();
         if (selectedMessage?.id === messageId) {
@@ -175,11 +160,9 @@ function MessagesContent() {
       console.error('Error updating message:', error);
     }
   };
-
   // إرسال رد
   const sendReply = async () => {
     if (!selectedMessage || !replyText) return;
-
     try {
       const response = await fetch('/api/messages', {
         method: 'PUT',
@@ -191,7 +174,6 @@ function MessagesContent() {
           responded_by: 'Admin'
         })
       });
-
       if (response.ok) {
         setShowReplyModal(false);
         setReplyText('');
@@ -202,16 +184,13 @@ function MessagesContent() {
       console.error('Error sending reply:', error);
     }
   };
-
   // حذف رسالة
   const deleteMessage = async (messageId: string) => {
     if (!confirm('هل أنت متأكد من حذف هذه الرسالة؟')) return;
-
     try {
       const response = await fetch(`/api/messages?id=${messageId}`, {
         method: 'DELETE'
       });
-
       if (response.ok) {
         fetchMessages();
         if (selectedMessage?.id === messageId) {
@@ -222,7 +201,6 @@ function MessagesContent() {
       console.error('Error deleting message:', error);
     }
   };
-
   // تصفية الرسائل محلياً بحسب البحث
   const filteredMessages = messages.filter(msg => 
     !filters.search || 
@@ -230,13 +208,11 @@ function MessagesContent() {
     msg.email.toLowerCase().includes(filters.search.toLowerCase()) ||
     msg.message.toLowerCase().includes(filters.search.toLowerCase())
   );
-
   // تنسيق التاريخ
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-
     if (diffInHours < 1) {
       return 'منذ أقل من ساعة';
     } else if (diffInHours < 24) {
@@ -247,7 +223,6 @@ function MessagesContent() {
       return date.toLocaleDateString('ar-SA');
     }
   };
-
   // تصدير CSV
   const exportToCSV = () => {
     // التحقق من أن الكود يعمل في المتصفح فقط
@@ -255,7 +230,6 @@ function MessagesContent() {
       console.warn("Export CSV is only available in browser environment");
       return;
     }
-
     const headers = ['التاريخ', 'البريد الإلكتروني', 'النوع', 'الموضوع', 'الرسالة', 'الحالة'];
     const csvContent = [
       headers.join(','),
@@ -268,7 +242,6 @@ function MessagesContent() {
         statusConfig[msg.status].label
       ].join(','))
     ].join('\n');
-
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -279,7 +252,6 @@ function MessagesContent() {
     link.click();
     document.body.removeChild(link);
   };
-
   // مكون بطاقة الإحصائية
   const StatsCard = ({ 
     title, 
@@ -323,7 +295,6 @@ function MessagesContent() {
       </div>
     </div>
   );
-
   // مكون أزرار التنقل (التبويبات)
   const NavigationTabs = () => {
     const tabs = [
@@ -334,15 +305,13 @@ function MessagesContent() {
       { id: 'appreciation', name: 'شكر وتقدير', icon: Heart, count: 0 },
       { id: 'other', name: 'أخرى', icon: MessageSquare, count: 0 }
     ];
-
     // حساب عدد الرسائل لكل نوع
     messages.forEach(msg => {
       const tab = tabs.find(t => t.id === msg.type);
       if (tab) tab.count++;
     });
-
     return (
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
+  <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
@@ -352,7 +321,6 @@ function MessagesContent() {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             const config = tab.id !== 'all' ? messageTypeConfig[tab.id as keyof typeof messageTypeConfig] : null;
-            
             return (
               <button
                 key={tab.id}
@@ -369,7 +337,6 @@ function MessagesContent() {
                 {isActive && (
                   <div className="absolute bottom-0 left-6 right-6 h-1 bg-white/30 rounded-full" />
                 )}
-                
                 <Icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
                 <span className={isActive ? 'font-semibold' : ''}>{tab.name}</span>
                 {tab.count > 0 && (
@@ -390,9 +357,8 @@ function MessagesContent() {
       </div>
     );
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -404,7 +370,6 @@ function MessagesContent() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>إدارة وتتبع جميع رسائل واستفسارات المستخدمين</p>
       </div>
-
       {/* قسم نظام الرسائل */}
       <div className="mb-8">
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -427,7 +392,6 @@ function MessagesContent() {
           </div>
         </div>
       </div>
-
       {/* بطاقات الإحصائيات */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatsCard
@@ -462,10 +426,8 @@ function MessagesContent() {
           iconColor="text-orange-600"
         />
       </div>
-
       {/* أزرار التنقل (التبويبات) */}
       <NavigationTabs />
-
       {/* أدوات الفلترة والتصدير */}
       <div className={`rounded-2xl p-6 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode 
@@ -487,7 +449,6 @@ function MessagesContent() {
               }`}
             />
           </div>
-
           <select
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
@@ -502,7 +463,6 @@ function MessagesContent() {
               <option key={key} value={key}>{config.label}</option>
             ))}
           </select>
-
           <button
             onClick={exportToCSV}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
@@ -510,7 +470,6 @@ function MessagesContent() {
             <Download className="w-4 h-4" />
             تصدير CSV
           </button>
-
           <button
             onClick={() => setFilters({ status: '', search: '' })}
             className={`px-4 py-2 rounded-lg transition-colors ${
@@ -523,7 +482,6 @@ function MessagesContent() {
           </button>
         </div>
       </div>
-
       {/* Split View: قائمة الرسائل وتفاصيل الرسالة */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Messages List */}
@@ -535,7 +493,6 @@ function MessagesContent() {
               قائمة الرسائل ({filteredMessages.length})
             </h3>
           </div>
-
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
@@ -547,9 +504,8 @@ function MessagesContent() {
                 const TypeIcon = typeConfig.icon;
                 const statusConf = statusConfig[message.status];
                 const StatusIcon = statusConf.icon;
-
                 return (
-                  <div
+  <div
                     key={message.id}
                     onClick={() => setSelectedMessage(message)}
                     className={`p-4 cursor-pointer transition-colors ${
@@ -602,7 +558,6 @@ function MessagesContent() {
               </p>
             </div>
           )}
-
           {/* Pagination */}
           {pagination.totalPages > 1 && (
             <div className={`p-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
@@ -636,7 +591,6 @@ function MessagesContent() {
             </div>
           )}
         </div>
-
         {/* Message Details */}
         <div className={`lg:col-span-2 rounded-2xl shadow-sm ${
           darkMode ? 'bg-gray-800' : 'bg-white'
@@ -675,7 +629,6 @@ function MessagesContent() {
                         </span>
                       );
                     })()}
-
                     {/* Status Badge */}
                     {(() => {
                       const statusConf = statusConfig[selectedMessage.status];
@@ -689,7 +642,6 @@ function MessagesContent() {
                     })()}
                   </div>
                 </div>
-
                 {/* Actions */}
                 <div className="flex items-center gap-2">
                   {selectedMessage.status === 'new' && (
@@ -701,7 +653,6 @@ function MessagesContent() {
                       تعيين كمقروء
                     </button>
                   )}
-                  
                   {selectedMessage.status !== 'processed' && (
                     <button
                       onClick={() => setShowReplyModal(true)}
@@ -711,7 +662,6 @@ function MessagesContent() {
                       رد
                     </button>
                   )}
-
                   {selectedMessage.status !== 'archived' && (
                     <button
                       onClick={() => updateMessageStatus(selectedMessage.id, 'archived')}
@@ -721,7 +671,6 @@ function MessagesContent() {
                       أرشفة
                     </button>
                   )}
-
                   <button
                     onClick={() => deleteMessage(selectedMessage.id)}
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
@@ -731,7 +680,6 @@ function MessagesContent() {
                   </button>
                 </div>
               </div>
-
               {/* Message Content */}
               <div className="p-6">
                 <div className={`mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -742,7 +690,6 @@ function MessagesContent() {
                     {selectedMessage.message}
                   </p>
                 </div>
-
                 {/* Attachment */}
                 {selectedMessage.file_url && (
                   <div className={`mb-6 p-4 rounded-lg ${
@@ -762,7 +709,6 @@ function MessagesContent() {
                     </a>
                   </div>
                 )}
-
                 {/* Response */}
                 {selectedMessage.response && (
                   <div className={`p-4 rounded-lg ${
@@ -802,7 +748,6 @@ function MessagesContent() {
           )}
         </div>
       </div>
-
       {/* Reply Modal */}
       {showReplyModal && selectedMessage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -872,7 +817,6 @@ function MessagesContent() {
     </div>
   );
 }
-
 export default function MessagesPage() {
   return (
     <Suspense fallback={

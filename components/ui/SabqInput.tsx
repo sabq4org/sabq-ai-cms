@@ -1,6 +1,11 @@
-// مكون الإدخالات المخصص لصحيفة سبق
+import Image from 'next/image';
 import React, { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
+
+
+// مكون الإدخالات المخصص لصحيفة سبق
+
+
 
 interface SabqInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;

@@ -1,14 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+'use client';
 import { 
   ArrowRight, Calendar, Clock, Eye, Heart, MessageCircle, TrendingUp, Filter, Grid, List,
   ChevronDown, Search, Loader2, Tag,
   Cpu, Trophy, Globe, BookOpen, MapPin, Sparkles, Award
 } from 'lucide-react';
-
 interface Category {
   id: number;
   name_ar: string;
@@ -20,7 +19,6 @@ interface Category {
   icon: string;
   color_hex: string;
 }
-
 interface Article {
   id: string;
   title: string;
@@ -41,11 +39,9 @@ interface Article {
   is_breaking?: boolean;
   is_featured?: boolean;
 }
-
 interface PageProps {
   params: Promise<{ slug: string }>
 }
-
 export default function CategoryPage({ params }: PageProps) {
   const router = useRouter();
   const [category, setCategory] = useState<Category | null>(null);
@@ -57,7 +53,6 @@ export default function CategoryPage({ params }: PageProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-
   // ألوان التصنيفات
   const categoryColors: { [key: string]: string } = {
     'تقنية': 'from-purple-500 to-purple-600',
@@ -71,7 +66,6 @@ export default function CategoryPage({ params }: PageProps) {
     'منوعات': 'from-orange-500 to-orange-600',
     'default': 'from-gray-500 to-gray-600'
   };
-
   // أيقونات التصنيفات
   const categoryIcons: { [key: string]: React.ReactNode } = {
     'تقنية': <Cpu className="w-6 h-6" />,
@@ -84,7 +78,6 @@ export default function CategoryPage({ params }: PageProps) {
     'دولي': <Globe className="w-6 h-6" />,
     'منوعات': <Sparkles className="w-6 h-6" />
   };
-
   useEffect(() => {
     async function loadData() {
       const resolvedParams = await params;
@@ -95,16 +88,13 @@ export default function CategoryPage({ params }: PageProps) {
     }
     loadData();
   }, []);
-
   const fetchCategory = async (slug: string) => {
     try {
       const response = await fetch(`/api/categories/${slug}`);
-      
       if (!response.ok) {
         router.push('/news');
         return;
       }
-      
       const data = await response.json();
       if (data.success) {
         setCategory(data.data);
@@ -114,33 +104,25 @@ export default function CategoryPage({ params }: PageProps) {
       router.push('/news');
     }
   };
-
   const fetchArticles = async (slug: string, loadMore = false) => {
     try {
       setLoadingArticles(true);
-      
       // جلب جميع المقالات أولاً
       const response = await fetch('/api/articles?status=published');
       if (!response.ok) throw new Error('Failed to fetch articles');
-      
       const data = await response.json();
       const allArticles = Array.isArray(data) ? data : data.articles || [];
-      
       // فلترة المقالات حسب التصنيف
       const categoryArticles = allArticles.filter((article: Article) => {
         // مطابقة بناءً على category_id
         if (category && article.category_id === category.id) return true;
-        
         // أو مطابقة بناءً على category_name
         const categoryNameMatch = article.category_name?.toLowerCase() === category?.name_ar.toLowerCase() ||
                                 article.category_name?.toLowerCase() === category?.name_en.toLowerCase();
-        
         return categoryNameMatch;
       });
-      
       // ترتيب المقالات
       const sortedArticles = sortArticles(categoryArticles, sortBy);
-      
       // فلترة البحث
       const filteredArticles = searchQuery 
         ? sortedArticles.filter(article => 
@@ -148,21 +130,17 @@ export default function CategoryPage({ params }: PageProps) {
             article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase())
           )
         : sortedArticles;
-      
       // تطبيق التصفح
       const itemsPerPage = 12;
       const startIndex = loadMore ? articles.length : 0;
       const endIndex = startIndex + itemsPerPage;
       const paginatedArticles = filteredArticles.slice(0, endIndex);
-      
       if (loadMore) {
         setArticles(paginatedArticles);
       } else {
         setArticles(paginatedArticles);
       }
-      
       setHasMore(paginatedArticles.length < filteredArticles.length);
-      
     } catch (error) {
       console.error('Error fetching articles:', error);
     } finally {
@@ -170,10 +148,8 @@ export default function CategoryPage({ params }: PageProps) {
       setLoading(false);
     }
   };
-
   const sortArticles = (articles: Article[], sortType: string) => {
     const sorted = [...articles];
-    
     switch (sortType) {
       case 'latest':
         return sorted.sort((a, b) => 
@@ -191,28 +167,23 @@ export default function CategoryPage({ params }: PageProps) {
         return sorted;
     }
   };
-
   const handleSortChange = (newSort: string) => {
     setSortBy(newSort);
     setPage(1);
   };
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
   };
-
   const loadMoreArticles = () => {
     if (category) {
       fetchArticles(category.slug, true);
     }
   };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-    
     if (diffInHours < 1) {
       return 'منذ دقائق';
     } else if (diffInHours < 24) {
@@ -227,7 +198,6 @@ export default function CategoryPage({ params }: PageProps) {
       });
     }
   };
-
   const generatePlaceholderImage = (title: string) => {
     const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#EF4444', '#F59E0B'];
     const colorIndex = title.charCodeAt(0) % colors.length;
@@ -240,14 +210,12 @@ export default function CategoryPage({ params }: PageProps) {
       </svg>
     `)}`;
   };
-
   const getCategoryColor = (categoryName: string | undefined) => {
     return categoryColors[categoryName || 'default'] || categoryColors['default'];
   };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
           <p className="text-gray-500">جاري تحميل التصنيف...</p>
@@ -255,10 +223,9 @@ export default function CategoryPage({ params }: PageProps) {
       </div>
     );
   }
-
   if (!category) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h3 className="text-xl font-bold text-gray-900 mb-2">التصنيف غير موجود</h3>
           <p className="text-gray-500 mb-6">عذراً، لم نتمكن من العثور على التصنيف المطلوب</p>
@@ -273,9 +240,8 @@ export default function CategoryPage({ params }: PageProps) {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen bg-gray-50">
       {/* Hero Section مع تحسينات */}
       <div className={`relative bg-gradient-to-br ${getCategoryColor(category?.name_ar)} text-white overflow-hidden`}>
         <div className="absolute inset-0 bg-black/20" />
@@ -283,7 +249,6 @@ export default function CategoryPage({ params }: PageProps) {
           <div className="absolute top-20 right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute bottom-20 left-20 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
         </div>
-        
         <div className="relative max-w-7xl mx-auto px-6 py-24">
           <div className="text-center">
             <div className="inline-flex items-center gap-3 mb-6 bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full">
@@ -294,7 +259,6 @@ export default function CategoryPage({ params }: PageProps) {
             <p className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
               {category?.description_ar || `تابع أحدث الأخبار والمقالات في قسم ${category?.name_ar}`}
             </p>
-            
             {/* إحصائيات التصنيف */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-12">
               <div className="text-center">
@@ -321,7 +285,6 @@ export default function CategoryPage({ params }: PageProps) {
           </div>
         </div>
       </div>
-
       {/* Controls Bar */}
       <div className="sticky top-0 z-40 bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -339,7 +302,6 @@ export default function CategoryPage({ params }: PageProps) {
                 />
               </div>
             </form>
-            
             {/* Controls */}
             <div className="flex items-center gap-4">
               {/* Sort */}
@@ -370,7 +332,6 @@ export default function CategoryPage({ params }: PageProps) {
                   </button>
                 </div>
               </div>
-              
               {/* View Mode */}
               <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
                 <button
@@ -392,7 +353,6 @@ export default function CategoryPage({ params }: PageProps) {
           </div>
         </div>
       </div>
-
       {/* Articles */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {loadingArticles && articles.length === 0 ? (
@@ -418,11 +378,7 @@ export default function CategoryPage({ params }: PageProps) {
                       <div className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-transparent transform hover:-translate-y-1">
                         <div className="relative h-64 overflow-hidden">
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
-                          <img
-                            src={article.featured_image || generatePlaceholderImage(article.title)}
-                            alt={article.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                          />
+                          <Image src={undefined} alt="" width={100} height={100} />
                           <div className="absolute top-4 right-4 z-20">
                             <div className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
                               <Award className="w-3 h-3" />
@@ -464,7 +420,6 @@ export default function CategoryPage({ params }: PageProps) {
                 </div>
               </div>
             )}
-
             {/* جميع المقالات */}
             <div className={viewMode === 'grid' 
               ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
@@ -479,18 +434,13 @@ export default function CategoryPage({ params }: PageProps) {
                     <div className={`relative overflow-hidden ${
                       viewMode === 'list' ? 'w-64 h-48' : 'h-48'
                     }`}>
-                      <img
-                        src={article.featured_image || article.image_url || generatePlaceholderImage(article.title)}
-                        alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
+                      <Image src={undefined} alt="" width={100} height={100} />
                       {article.is_breaking && (
                         <span className="absolute top-3 right-3 px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
                           عاجل
                         </span>
                       )}
                     </div>
-                    
                     {/* Content */}
                     <div className="flex-1 p-5">
                       {/* Meta */}
@@ -506,14 +456,12 @@ export default function CategoryPage({ params }: PageProps) {
                           </span>
                         )}
                       </div>
-                      
                       {/* Title */}
                       <h3 className={`font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-2 ${
                         viewMode === 'list' ? 'text-xl' : 'text-lg line-clamp-2'
                       }`}>
                         {article.title}
                       </h3>
-                      
                       {/* Excerpt */}
                       {article.excerpt && (
                         <p className={`text-gray-600 mb-3 ${
@@ -522,7 +470,6 @@ export default function CategoryPage({ params }: PageProps) {
                           {article.excerpt}
                         </p>
                       )}
-                      
                       {/* Stats */}
                       <div className="flex items-center gap-4 text-xs text-gray-500">
                         <span className="flex items-center gap-1">
@@ -547,7 +494,6 @@ export default function CategoryPage({ params }: PageProps) {
                 </Link>
               ))}
             </div>
-            
             {/* Load More */}
             {hasMore && (
               <div className="text-center mt-12">

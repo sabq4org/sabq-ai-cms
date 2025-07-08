@@ -1,5 +1,5 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+'use client';
 import { 
   FileText, 
   Plus, 
@@ -18,7 +19,6 @@ import {
   Eye,
   Mail
 } from 'lucide-react';
-
 interface EmailTemplate {
   id: string;
   name: string;
@@ -32,7 +32,6 @@ interface EmailTemplate {
     emailJobs: number;
   };
 }
-
 export default function EmailTemplatesPage() {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
@@ -47,7 +46,6 @@ export default function EmailTemplatesPage() {
     htmlContent: '',
     textContent: ''
   });
-
   // جلب القوالب
   const fetchTemplates = async () => {
     try {
@@ -55,7 +53,6 @@ export default function EmailTemplatesPage() {
       const params = searchTerm ? `?search=${searchTerm}` : '';
       const response = await fetch(`/api/email/templates${params}`);
       const data = await response.json();
-
       if (data.success) {
         setTemplates(data.data);
       }
@@ -69,11 +66,9 @@ export default function EmailTemplatesPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchTemplates();
   }, [searchTerm]);
-
   // فتح نافذة التعديل
   const openEditDialog = (template?: EmailTemplate) => {
     if (template) {
@@ -95,7 +90,6 @@ export default function EmailTemplatesPage() {
     }
     setShowEditDialog(true);
   };
-
   // حفظ القالب
   const saveTemplate = async () => {
     if (!editForm.name || !editForm.subject || !editForm.htmlContent) {
@@ -106,22 +100,17 @@ export default function EmailTemplatesPage() {
       });
       return;
     }
-
     try {
       const url = selectedTemplate 
         ? `/api/email/templates/${selectedTemplate.id}`
         : '/api/email/templates';
-      
       const method = selectedTemplate ? 'PATCH' : 'POST';
-      
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm)
       });
-
       const data = await response.json();
-      
       if (data.success) {
         toast({
           title: 'تم',
@@ -144,18 +133,14 @@ export default function EmailTemplatesPage() {
       });
     }
   };
-
   // حذف قالب
   const deleteTemplate = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا القالب؟')) return;
-
     try {
       const response = await fetch(`/api/email/templates/${id}`, {
         method: 'DELETE'
       });
-
       const data = await response.json();
-      
       if (data.success) {
         toast({
           title: 'تم',
@@ -177,7 +162,6 @@ export default function EmailTemplatesPage() {
       });
     }
   };
-
   // نسخ قالب
   const duplicateTemplate = (template: EmailTemplate) => {
     setEditForm({
@@ -189,20 +173,17 @@ export default function EmailTemplatesPage() {
     setSelectedTemplate(null);
     setShowEditDialog(true);
   };
-
   // معاينة القالب
   const previewTemplate = (template: EmailTemplate) => {
     setSelectedTemplate(template);
     setShowPreviewDialog(true);
   };
-
   return (
-    <div className="container mx-auto p-6">
+  <div className="container mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">قوالب البريد الإلكتروني</h1>
         <p className="text-gray-600">إدارة القوالب المحفوظة للرسائل البريدية</p>
       </div>
-
       {/* شريط الأدوات */}
       <Card className="mb-6">
         <CardContent className="p-4">
@@ -216,7 +197,6 @@ export default function EmailTemplatesPage() {
                 className="pr-10"
               />
             </div>
-            
             <Button onClick={() => openEditDialog()}>
               <Plus className="w-4 h-4 ml-2" />
               إنشاء قالب جديد
@@ -224,7 +204,6 @@ export default function EmailTemplatesPage() {
           </div>
         </CardContent>
       </Card>
-
       {/* قائمة القوالب */}
       {loading ? (
         <div className="text-center py-8">جاري التحميل...</div>
@@ -252,12 +231,10 @@ export default function EmailTemplatesPage() {
                     <p className="text-sm text-gray-500 mb-1">العنوان:</p>
                     <p className="font-medium truncate">{template.subject}</p>
                   </div>
-                  
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>استخدم {template._count.emailJobs} مرة</span>
                     <span>{new Date(template.updatedAt).toLocaleDateString('ar-SA')}</span>
                   </div>
-                  
                   <div className="flex gap-2 pt-3 border-t">
                     <Button
                       size="sm"
@@ -299,7 +276,6 @@ export default function EmailTemplatesPage() {
           ))}
         </div>
       )}
-
       {/* نافذة التعديل/الإنشاء */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -308,7 +284,6 @@ export default function EmailTemplatesPage() {
               {selectedTemplate ? 'تعديل القالب' : 'إنشاء قالب جديد'}
             </DialogTitle>
           </DialogHeader>
-          
           <div className="space-y-4">
             <div>
               <Label htmlFor="name">اسم القالب</Label>
@@ -319,7 +294,6 @@ export default function EmailTemplatesPage() {
                 placeholder="مثال: النشرة الأسبوعية"
               />
             </div>
-            
             <div>
               <Label htmlFor="subject">عنوان الرسالة</Label>
               <Input
@@ -329,7 +303,6 @@ export default function EmailTemplatesPage() {
                 placeholder="مثال: أهم أخبار الأسبوع من سبق"
               />
             </div>
-            
             <div>
               <Label htmlFor="htmlContent">محتوى HTML</Label>
               <Textarea
@@ -340,7 +313,6 @@ export default function EmailTemplatesPage() {
                 className="font-mono text-sm h-64"
               />
             </div>
-            
             <div>
               <Label htmlFor="textContent">النص البديل (اختياري)</Label>
               <Textarea
@@ -351,7 +323,6 @@ export default function EmailTemplatesPage() {
                 rows={4}
               />
             </div>
-            
             <div className="flex gap-2">
               <Button onClick={saveTemplate} className="flex-1">
                 <Mail className="w-4 h-4 ml-2" />
@@ -368,33 +339,28 @@ export default function EmailTemplatesPage() {
           </div>
         </DialogContent>
       </Dialog>
-
       {/* نافذة المعاينة */}
       <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>معاينة القالب</DialogTitle>
           </DialogHeader>
-          
           {selectedTemplate && (
             <div className="space-y-4">
               <div>
                 <Label>اسم القالب</Label>
                 <p className="font-medium">{selectedTemplate.name}</p>
               </div>
-              
               <div>
                 <Label>العنوان</Label>
                 <p className="font-medium">{selectedTemplate.subject}</p>
               </div>
-              
               <div>
                 <Label>المحتوى</Label>
                 <div className="border rounded-md p-4 bg-gray-50">
                   <div dangerouslySetInnerHTML={{ __html: selectedTemplate.htmlContent }} />
                 </div>
               </div>
-              
               {selectedTemplate.textContent && (
                 <div>
                   <Label>النص البديل</Label>
@@ -403,7 +369,6 @@ export default function EmailTemplatesPage() {
                   </div>
                 </div>
               )}
-              
               <Button
                 variant="outline"
                 onClick={() => setShowPreviewDialog(false)}

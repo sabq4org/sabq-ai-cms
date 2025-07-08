@@ -1,5 +1,14 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { handleOptions, corsResponse } from '@/lib/cors';
+
+
+
+
+
+
+
+
 
 // معالجة طلبات OPTIONS للـ CORS
 export async function OPTIONS() {

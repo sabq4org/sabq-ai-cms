@@ -1,19 +1,17 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Heart, CheckCircle, AlertCircle } from 'lucide-react';
-
+'use client';
 export default function TestInterestsPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [userInterests, setUserInterests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState('');
-
   useEffect(() => {
     // جلب التصنيفات
     fetchCategories();
-    
     // جلب معرف المستخدم من localStorage
     const userData = localStorage.getItem('user');
     if (userData) {
@@ -24,7 +22,6 @@ export default function TestInterestsPage() {
       setUserId('test-user-' + Date.now());
     }
   }, []);
-
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/categories?sortBy=displayOrder');
@@ -36,7 +33,6 @@ export default function TestInterestsPage() {
       console.error('خطأ في جلب التصنيفات:', error);
     }
   };
-
   const fetchUserInterests = async (uid: string) => {
     try {
       const response = await fetch(`/api/user/interests?userId=${uid}`);
@@ -49,7 +45,6 @@ export default function TestInterestsPage() {
       console.error('خطأ في جلب الاهتمامات:', error);
     }
   };
-
   const handleToggle = (categoryId: string) => {
     setSelectedIds(prev => 
       prev.includes(categoryId) 
@@ -57,13 +52,11 @@ export default function TestInterestsPage() {
         : [...prev, categoryId]
     );
   };
-
   const handleSave = async () => {
     if (selectedIds.length === 0) {
       alert('اختر تصنيفاً واحداً على الأقل');
       return;
     }
-
     setLoading(true);
     try {
       const response = await fetch('/api/user/preferences', {
@@ -75,11 +68,9 @@ export default function TestInterestsPage() {
           source: 'manual'
         })
       });
-
       const data = await response.json();
       if (data.success) {
         alert('تم حفظ الاهتمامات بنجاح! 🎉');
-        
         // تحديث localStorage
         const userData = localStorage.getItem('user');
         if (userData) {
@@ -96,7 +87,6 @@ export default function TestInterestsPage() {
             preferences: selectedIds
           }));
         }
-        
         // إعادة جلب الاهتمامات
         fetchUserInterests(userId);
       } else {
@@ -109,21 +99,18 @@ export default function TestInterestsPage() {
       setLoading(false);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+  <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
             <Heart className="w-6 h-6 text-red-500" />
             اختبار نظام الاهتمامات
           </h1>
-
           <div className="mb-6">
             <p className="text-gray-600 mb-2">معرف المستخدم: <code className="bg-gray-100 px-2 py-1 rounded">{userId}</code></p>
             <p className="text-gray-600">الاهتمامات المحفوظة: {userInterests.length}</p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {categories.map((category) => {
               const isSelected = selectedIds.includes(category.id);
@@ -153,7 +140,6 @@ export default function TestInterestsPage() {
               );
             })}
           </div>
-
           <div className="flex gap-4 justify-center">
             <button
               onClick={handleSave}
@@ -169,7 +155,6 @@ export default function TestInterestsPage() {
                 `حفظ الاهتمامات (${selectedIds.length})`
               )}
             </button>
-            
             <button
               onClick={() => window.location.href = '/profile'}
               className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -177,7 +162,6 @@ export default function TestInterestsPage() {
               الذهاب للملف الشخصي
             </button>
           </div>
-
           {userInterests.length > 0 && (
             <div className="mt-8 p-4 bg-gray-50 rounded-lg">
               <h3 className="font-semibold text-gray-800 mb-3">الاهتمامات المحفوظة:</h3>

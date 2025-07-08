@@ -1,8 +1,7 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Users, Target, Brain, BarChart3 } from 'lucide-react';
-
+'use client';
 export default function PersonalizationPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -14,20 +13,17 @@ export default function PersonalizationPage() {
   });
   const [personalizationRules, setPersonalizationRules] = useState<any[]>([]);
   const [aiModels, setAIModels] = useState<any[]>([]);
-
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   // جلب البيانات الحقيقية
   useEffect(() => {
     const fetchRealData = async () => {
       try {
         setLoading(true);
-
         // جلب تفضيلات المستخدمين النشطة (إن وجدت)
         try {
           const prefsRes = await fetch('/api/user-preferences');
@@ -39,7 +35,6 @@ export default function PersonalizationPage() {
         } catch (error) {
           // في حالة عدم وجود API
         }
-
         // جلب قواعد التخصيص (إن وجدت)
         try {
           const rulesRes = await fetch('/api/personalization-rules');
@@ -50,7 +45,6 @@ export default function PersonalizationPage() {
         } catch (error) {
           // في حالة عدم وجود API
         }
-
         // جلب نماذج الذكاء الاصطناعي (إن وجدت)
         try {
           const modelsRes = await fetch('/api/ai-models');
@@ -61,7 +55,6 @@ export default function PersonalizationPage() {
         } catch (error) {
           // في حالة عدم وجود API
         }
-
         // تصفير جميع الإحصائيات
         setStats({
           activeUsers: 0,
@@ -69,19 +62,16 @@ export default function PersonalizationPage() {
           aiModels: 0,
           improvementRate: 0
         });
-
       } catch (error) {
         console.error('خطأ في جلب البيانات:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchRealData();
   }, []);
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       <div className="mb-8">
@@ -92,7 +82,6 @@ export default function PersonalizationPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>إدارة أنظمة التخصيص وخوارزميات الذكاء الاصطناعي</p>
       </div>
-
       <div className="grid grid-cols-4 gap-6 mb-8">
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
@@ -111,7 +100,6 @@ export default function PersonalizationPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
         }`}>
@@ -129,7 +117,6 @@ export default function PersonalizationPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
         }`}>
@@ -147,7 +134,6 @@ export default function PersonalizationPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
         }`}>
@@ -166,7 +152,6 @@ export default function PersonalizationPage() {
           </div>
         </div>
       </div>
-
       {loading ? (
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
@@ -214,7 +199,6 @@ export default function PersonalizationPage() {
               </div>
             )}
           </div>
-
           <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
           }`}>

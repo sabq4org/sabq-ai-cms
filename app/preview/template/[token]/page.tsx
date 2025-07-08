@@ -1,11 +1,10 @@
+import Image from 'next/image';
 import { notFound } from 'next/navigation'
 import { templateService } from '@/lib/services/templateService'
 import { Template } from '@/types/template'
-
 interface PreviewPageProps {
   params: Promise<{ token: string }>
 }
-
 async function getTemplateByToken(token: string): Promise<Template | null> {
   try {
     return await templateService.validatePreviewToken(token)
@@ -14,41 +13,33 @@ async function getTemplateByToken(token: string): Promise<Template | null> {
     return null
   }
 }
-
 export default async function TemplatePreviewPage({ params }: PreviewPageProps) {
   const { token } = await params
   const template = await getTemplateByToken(token)
-  
   if (!template) {
     notFound()
   }
-  
   return (
-    <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen bg-gray-50">
       {/* شريط المعاينة */}
       <div className="bg-yellow-500 text-black px-4 py-2 text-center">
         <p className="text-sm font-medium">
           🎨 وضع المعاينة - {template.name}
         </p>
       </div>
-      
       {/* محتوى القالب */}
       <div className="template-preview">
         {template.type === 'header' && (
           <HeaderPreview template={template} />
         )}
-        
         {template.type === 'footer' && (
           <FooterPreview template={template} />
         )}
-        
         {template.type === 'sidebar' && (
           <SidebarPreview template={template} />
         )}
-        
         {/* يمكن إضافة المزيد من أنواع القوالب */}
       </div>
-      
       {/* معلومات القالب */}
       <div className="fixed bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-sm">
         <h3 className="font-bold text-sm mb-2">معلومات القالب</h3>
@@ -66,13 +57,11 @@ export default async function TemplatePreviewPage({ params }: PreviewPageProps) 
     </div>
   )
 }
-
 // مكونات المعاينة
 function HeaderPreview({ template }: { template: Template }) {
   const content = template.content
-  
   return (
-    <header 
+  <div 
       className="bg-white shadow-sm"
       style={{
         backgroundColor: template.primary_color || '#ffffff',
@@ -83,16 +72,9 @@ function HeaderPreview({ template }: { template: Template }) {
         {/* الشعار */}
         {template.logo_url && (
           <div className="py-4">
-            <img 
-              src={template.logo_url} 
-              alt={template.logo_alt || 'شعار الموقع'}
-              width={template.logo_width || 150}
-              height={template.logo_height || 50}
-              className="h-12 w-auto"
-            />
+            <Image src={undefined} alt="" width={100} height={100} />
           </div>
         )}
-        
         {/* التنقل */}
         {content.navigation?.items && (
           <nav className="py-4">
@@ -107,7 +89,6 @@ function HeaderPreview({ template }: { template: Template }) {
             </ul>
           </nav>
         )}
-        
         {/* روابط التواصل */}
         {template.social_links && template.social_links.length > 0 && (
           <div className="flex gap-4 py-2">
@@ -125,18 +106,15 @@ function HeaderPreview({ template }: { template: Template }) {
           </div>
         )}
       </div>
-      
       {/* الأنماط المخصصة */}
       {template.custom_styles && (
         <style dangerouslySetInnerHTML={{ __html: template.custom_styles }} />
       )}
-    </header>
+    </div>
   )
 }
-
 function FooterPreview({ template }: { template: Template }) {
   const content = template.content
-  
   return (
     <footer 
       className="bg-gray-900 text-white py-8 mt-auto"
@@ -165,7 +143,6 @@ function FooterPreview({ template }: { template: Template }) {
               </ul>
             </div>
           ))}
-          
           {/* النشرة البريدية */}
           {content.newsletter?.enabled && (
             <div>
@@ -191,7 +168,6 @@ function FooterPreview({ template }: { template: Template }) {
             </div>
           )}
         </div>
-        
         {/* حقوق النشر */}
         <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm opacity-60">
           {content.copyright || '© جميع الحقوق محفوظة'}
@@ -200,7 +176,6 @@ function FooterPreview({ template }: { template: Template }) {
     </footer>
   )
 }
-
 function SidebarPreview({ template }: { template: Template }) {
   return (
     <aside className="w-64 bg-gray-100 p-4 min-h-screen">

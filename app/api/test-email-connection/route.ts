@@ -1,5 +1,14 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { testSMTPConnection } from '@/lib/services/emailService';
+
+
+
+
+
+
+
+
 
 export async function POST(request: NextRequest) {
   try {

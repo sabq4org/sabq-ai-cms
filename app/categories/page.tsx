@@ -1,12 +1,11 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import './categories-fixes.css';
 import { Tag, BookOpen, Loader2, Search, TrendingUp, Trophy, Building2, Heart, Leaf, Globe, Activity, Code, Sparkles, Palette, Users } from 'lucide-react';
-
+'use client';
+import './categories-fixes.css';
 interface Category {
   id: number;
   name: string;
@@ -16,7 +15,6 @@ interface Category {
   articles_count?: number;
   is_active: boolean;
 }
-
 // بيانات التصنيفات مع الألوان والأيقونات
 const categoryData = {
   'تقنية': { 
@@ -110,21 +108,17 @@ const categoryData = {
     image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=60'
   }
 };
-
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-
   useEffect(() => {
     fetchCategories();
   }, []);
-
   const fetchCategories = async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/categories');
-      
       if (response.ok) {
         const data = await response.json();
         const categoriesData = data.categories || data.data || [];
@@ -138,11 +132,9 @@ export default function CategoriesPage() {
       setLoading(false);
     }
   };
-
   const filteredCategories = categories.filter(category =>
     category.name_ar.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const getCategoryData = (name: string) => {
     return categoryData[name as keyof typeof categoryData] || {
       icon: Tag,
@@ -154,10 +146,9 @@ export default function CategoriesPage() {
       image: 'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?auto=format&fit=crop&w=800&q=60'
     };
   };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <Header />
         <div className="flex-1 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
@@ -170,11 +161,9 @@ export default function CategoriesPage() {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+  <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Header />
-      
       <main className="flex-1">
         {/* Hero Section with Animated Gradient */}
         <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
@@ -183,7 +172,6 @@ export default function CategoriesPage() {
             <div className="absolute inset-0 bg-black opacity-20"></div>
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0di00aC0ydjRoLTR2Mmg0djRoMnYtNGg0di0yaC00em0wLTMwVjBoLTJ2NGgtNHYyaDR2NGgyVjZoNFY0aC00ek02IDM0di00SDR2NEgwdjJoNHY0aDJ2LTRoNHYtMkg2ek02IDRWMEG0NHY0SDB2Mmg0djRoMlY2aDRWNEg2eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
           </div>
-          
           <div className="relative max-w-7xl mx-auto px-6 py-20">
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-6 shadow-2xl">
@@ -195,7 +183,6 @@ export default function CategoriesPage() {
               <p className="text-xl md:text-2xl text-white text-opacity-90 max-w-3xl mx-auto mb-12 drop-shadow">
                 اكتشف عالماً من المعرفة المنظمة في تصنيفات متنوعة تناسب جميع اهتماماتك
               </p>
-              
               {/* Stats with Glass Effect */}
               <div className="inline-flex items-center gap-8 bg-black bg-opacity-20 backdrop-blur-md rounded-2xl px-8 py-4 shadow-xl border border-white border-opacity-20">
                 <div className="text-center">
@@ -213,7 +200,6 @@ export default function CategoriesPage() {
             </div>
           </div>
         </section>
-
         {/* Search Section */}
         <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10 shadow-md">
           <div className="max-w-7xl mx-auto px-6 py-6">
@@ -229,7 +215,6 @@ export default function CategoriesPage() {
             </div>
           </div>
         </section>
-
         {/* Categories Grid */}
         <section className="max-w-7xl mx-auto px-6 py-12">
           {filteredCategories.length === 0 ? (
@@ -246,7 +231,6 @@ export default function CategoriesPage() {
                 const categorySlug = category.slug || category.name_ar.toLowerCase().replace(/\s+/g, '-');
                 const data = getCategoryData(category.name_ar);
                 const Icon = data.icon;
-                
                 return (
                   <Link
                     key={category.id}
@@ -256,30 +240,22 @@ export default function CategoriesPage() {
                     <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700 h-full">
                       {/* Background Image with Overlay */}
                       <div className="absolute inset-0">
-                        <img 
-                          src={data.image} 
-                          alt="" 
-                          className="w-full h-full object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-300"
-                        />
+                        <Image src={undefined} alt="" width={100} height={100} />
                         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-gray-800 dark:via-gray-800/80"></div>
                       </div>
-                      
                       {/* Content */}
                       <div className="relative p-6">
                         <div className={`w-16 h-16 ${data.bgColor} ${data.hoverColor} rounded-2xl flex items-center justify-center mb-4 shadow-xl transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
                           <Icon className="w-8 h-8 text-white" />
                         </div>
-                        
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                           {category.name_ar}
                         </h3>
-                        
                         {category.description && (
                           <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
                             {category.description}
                           </p>
                         )}
-
                         <div className="flex items-center justify-between mt-auto">
                           <div className={`inline-flex items-center gap-2 text-sm ${data.lightBg} ${data.darkBg} px-3 py-1 rounded-full border border-gray-200 dark:border-gray-600`}>
                             <BookOpen className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -296,7 +272,6 @@ export default function CategoriesPage() {
           )}
         </section>
       </main>
-      
       <Footer />
     </div>
   );

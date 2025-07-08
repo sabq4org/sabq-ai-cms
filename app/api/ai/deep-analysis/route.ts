@@ -1,4 +1,11 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
+
+
+
+
+
+
 
 // البرومبت الاحترافي لتوليد التحليل العميق
 const DEEP_ANALYSIS_PROMPT = `أنت محلل استراتيجي خبير في وكالة سبق الإخبارية، متخصص في إعداد تحليلات عميقة ودقيقة للقراء في العالم العربي.

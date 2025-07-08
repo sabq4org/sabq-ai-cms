@@ -1,13 +1,12 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Shield, Moon, Sun, Globe, Save, ArrowLeft
-} from 'lucide-react';
 import toast from 'react-hot-toast';
 import Header from '@/components/Header';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
+'use client';
+import { Bell, Shield, Moon, Sun, Globe, Save, ArrowLeft
+} from 'lucide-react';
 interface UserSettings {
   notifications: {
     email: boolean;
@@ -21,7 +20,6 @@ interface UserSettings {
   language: string;
   theme: 'light' | 'dark' | 'system';
 }
-
 export default function SettingsPage() {
   const router = useRouter();
   const { darkMode, toggleDarkMode } = useDarkModeContext();
@@ -39,7 +37,6 @@ export default function SettingsPage() {
     language: 'ar',
     theme: darkMode ? 'dark' : 'light'
   });
-
   useEffect(() => {
     // تحميل الإعدادات المحفوظة
     const savedSettings = localStorage.getItem('userSettings');
@@ -47,20 +44,17 @@ export default function SettingsPage() {
       setSettings(JSON.parse(savedSettings));
     }
   }, []);
-
   const handleSave = async () => {
     setLoading(true);
     try {
       // حفظ الإعدادات في localStorage
       localStorage.setItem('userSettings', JSON.stringify(settings));
-      
       // تطبيق تغيير الثيم
       if (settings.theme === 'dark' && !darkMode) {
         toggleDarkMode();
       } else if (settings.theme === 'light' && darkMode) {
         toggleDarkMode();
       }
-      
       toast.success('تم حفظ الإعدادات بنجاح');
     } catch (error) {
       toast.error('حدث خطأ في حفظ الإعدادات');
@@ -68,7 +62,6 @@ export default function SettingsPage() {
       setLoading(false);
     }
   };
-
   return (
     <>
       <Header />
@@ -87,11 +80,9 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-
         {/* المحتوى */}
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="space-y-6">
-            
             {/* إعدادات المظهر */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 overflow-hidden">
               <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -129,7 +120,6 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-
             {/* إعدادات الإشعارات */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 overflow-hidden">
               <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -161,7 +151,6 @@ export default function SettingsPage() {
                       />
                     </button>
                   </label>
-
                   <label className="flex items-center justify-between cursor-pointer">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">الإشعارات الفورية</p>
@@ -186,7 +175,6 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-
             {/* إعدادات الخصوصية */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 overflow-hidden">
               <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -218,7 +206,6 @@ export default function SettingsPage() {
                       />
                     </button>
                   </label>
-
                   <label className="flex items-center justify-between cursor-pointer">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">عرض النشاط</p>
@@ -243,7 +230,6 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-
             {/* إعدادات اللغة */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/50 overflow-hidden">
               <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -263,7 +249,6 @@ export default function SettingsPage() {
                 </select>
               </div>
             </div>
-
             {/* زر الحفظ */}
             <div className="flex justify-end gap-4">
               <button

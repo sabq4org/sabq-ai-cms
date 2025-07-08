@@ -1,42 +1,34 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { Upload, Image as ImageIcon, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import FeaturedImageUpload from '@/components/FeaturedImageUpload';
-
+'use client';
 export default function TestImageUploadPage() {
   const [uploadedImage1, setUploadedImage1] = useState('');
   const [uploadedImage2, setUploadedImage2] = useState('');
   const [testResults, setTestResults] = useState<any[]>([]);
-
   const testDirectUpload = async () => {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
-    
     fileInput.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
-
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'featured');
-
       try {
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
-
         const result = await response.json();
-        
         setTestResults(prev => [...prev, {
           test: 'Direct API Upload',
           success: result.success,
           data: result,
           timestamp: new Date().toLocaleTimeString()
         }]);
-
         if (result.success) {
           setUploadedImage2(result.data.url);
         }
@@ -49,25 +41,21 @@ export default function TestImageUploadPage() {
         }]);
       }
     };
-
     fileInput.click();
   };
-
   const clearTests = () => {
     setTestResults([]);
     setUploadedImage1('');
     setUploadedImage2('');
   };
-
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+  <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
             <Upload className="w-8 h-8 text-blue-600" />
             اختبار رفع الصور
           </h1>
-
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* اختبار مكون FeaturedImageUpload */}
             <div className="space-y-4">
@@ -88,7 +76,6 @@ export default function TestImageUploadPage() {
                 </div>
               )}
             </div>
-
             {/* اختبار مباشر لـ API */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
@@ -104,11 +91,7 @@ export default function TestImageUploadPage() {
               </button>
               {uploadedImage2 && (
                 <div className="space-y-2">
-                  <img 
-                    src={uploadedImage2} 
-                    alt="صورة مرفوعة" 
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
+                  <Image src={undefined} alt="صورة مرفوعة" width={100} height={100} />
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                     <p className="text-sm text-green-700">
                       <strong>رابط الصورة:</strong> {uploadedImage2}
@@ -118,7 +101,6 @@ export default function TestImageUploadPage() {
               )}
             </div>
           </div>
-
           {/* نتائج الاختبارات */}
           <div className="mt-8">
             <div className="flex items-center justify-between mb-4">
@@ -130,7 +112,6 @@ export default function TestImageUploadPage() {
                 مسح النتائج
               </button>
             </div>
-            
             <div className="space-y-3">
               {testResults.length === 0 ? (
                 <div className="p-6 bg-gray-50 rounded-lg text-center text-gray-500">
@@ -156,7 +137,6 @@ export default function TestImageUploadPage() {
                         {result.test} - {result.timestamp}
                       </span>
                     </div>
-                    
                     <pre className="text-sm bg-white p-3 rounded border overflow-x-auto">
                       {JSON.stringify(result.success ? result.data : result.error, null, 2)}
                     </pre>
@@ -165,7 +145,6 @@ export default function TestImageUploadPage() {
               )}
             </div>
           </div>
-
           {/* معلومات إضافية */}
           <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
             <div className="flex items-start gap-3">

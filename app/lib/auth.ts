@@ -1,6 +1,17 @@
+import Image from 'next/image';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+
+
+
+
+
+
+
+
+
+
 
 export interface User {
   id: string;

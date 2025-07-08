@@ -1,7 +1,14 @@
+import Image from 'next/image';
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { TrendingUp, TrendingDown, Activity, Eye, Clock, Users } from 'lucide-react';
 import { Category } from '@/types/category';
+
+
+
+
+
+
 
 interface CategoriesAnalyticsProps {
   categories: Category[];

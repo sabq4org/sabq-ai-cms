@@ -1,8 +1,10 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import toast from 'react-hot-toast';
+'use client';
 import { 
   Brain, 
   Eye, 
@@ -23,9 +25,6 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import toast from 'react-hot-toast';
-
 interface DeepAnalysisPageProps {
   id: string;
   title: string;
@@ -49,7 +48,6 @@ interface DeepAnalysisPageProps {
   relatedArticles?: RelatedArticle[];
   featuredImage?: string;
 }
-
 interface RelatedArticle {
   id: string;
   title: string;
@@ -57,14 +55,12 @@ interface RelatedArticle {
   readTime: number;
   category: string;
 }
-
 interface TableOfContentsItem {
   id: string;
   title: string;
   level: number;
   wordCount?: number;
 }
-
 // دالة debounce محلية
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
   let timeout: NodeJS.Timeout;
@@ -73,7 +69,6 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
     timeout = setTimeout(() => func(...args), wait);
   }) as T;
 }
-
 export default function DeepAnalysisPage() {
   const params = useParams();
   const { darkMode: contextDarkMode } = useDarkModeContext();
@@ -89,41 +84,33 @@ export default function DeepAnalysisPage() {
   const [readingProgress, setReadingProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const tocRef = useRef<HTMLDivElement>(null);
-
   // تحديث dark mode بعد التحميل لتجنب مشكلة Hydration
   useEffect(() => {
     setDarkMode(contextDarkMode);
   }, [contextDarkMode]);
-
   useEffect(() => {
     fetchAnalysisDetails();
   }, [params?.id]);
-
   useEffect(() => {
     if (analysis?.contentHtml) {
       generateTableOfContents();
     }
   }, [analysis?.contentHtml]);
-
   useEffect(() => {
     const handleScroll = () => {
       // تحديث زر العودة للأعلى
       setShowScrollTop(window.pageYOffset > 300);
-      
       // حساب نسبة التقدم في القراءة
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight - windowHeight;
       const scrollTop = window.pageYOffset;
       const progress = (scrollTop / documentHeight) * 100;
       setReadingProgress(Math.min(100, Math.max(0, progress)));
-      
       // تحديث القسم النشط في الفهرس
       if (tableOfContents.length > 0) {
         const scrollPosition = window.scrollY + 150; // إضافة offset للدقة
-        
         // البحث عن القسم الحالي
         let currentSection = '';
-        
         for (let i = tableOfContents.length - 1; i >= 0; i--) {
           const section = document.getElementById(tableOfContents[i].id);
           if (section && section.offsetTop <= scrollPosition) {
@@ -131,18 +118,15 @@ export default function DeepAnalysisPage() {
             break;
           }
         }
-        
         // تحديث القسم النشط فقط إذا تغير
         if (currentSection && currentSection !== activeSection) {
           setActiveSection(currentSection);
         }
       }
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
   // حفظ واستعادة موضع القراءة
   useEffect(() => {
     if (analysis?.id) {
@@ -156,7 +140,6 @@ export default function DeepAnalysisPage() {
             position: 'bottom-center',
             icon: '📖'
           });
-          
           // العودة لموضع القراءة بعد تحميل الصفحة
           setTimeout(() => {
             window.scrollTo({ top: position, behavior: 'smooth' });
@@ -165,7 +148,6 @@ export default function DeepAnalysisPage() {
       }
     }
   }, [analysis?.id]);
-
   // حفظ موضع القراءة عند التمرير
   useEffect(() => {
     const savePosition = () => {
@@ -173,27 +155,21 @@ export default function DeepAnalysisPage() {
         localStorage.setItem(`reading-position-${analysis.id}`, window.scrollY.toString());
       }
     };
-
     const debouncedSave = debounce(savePosition, 1000);
     window.addEventListener('scroll', debouncedSave);
-
     return () => {
       window.removeEventListener('scroll', debouncedSave);
       savePosition(); // حفظ الموضع عند مغادرة الصفحة
     };
   }, [analysis?.id]);
-
   const fetchAnalysisDetails = async () => {
     try {
       const response = await fetch(`/api/deep-analyses/${params?.id}`);
-      
       if (!response.ok) {
         throw new Error('Failed to fetch analysis');
       }
-      
       const data = await response.json();
       console.log('Fetched data:', data); // للتحقق من البيانات
-      
       // تحويل البيانات للعرض
       const analysisData: DeepAnalysisPageProps = {
         id: data.id,
@@ -218,7 +194,6 @@ export default function DeepAnalysisPage() {
         relatedArticles: data.relatedArticles || [],
         featuredImage: data.featuredImage || '/images/deep-analysis-default.svg'
       };
-      
       console.log('Transformed analysis:', analysisData); // للتحقق من البيانات المحولة
       setAnalysis(analysisData);
       setLoading(false);
@@ -228,13 +203,10 @@ export default function DeepAnalysisPage() {
       setLoading(false);
     }
   };
-
   const formatContentToHtml = (content: any): string => {
     if (typeof content === 'string') return content;
     if (!content) return '';
-    
     let html = '';
-    
     // إضافة الأقسام
     if (content.sections) {
       content.sections.forEach((section: any) => {
@@ -251,24 +223,18 @@ export default function DeepAnalysisPage() {
         }
       });
     }
-    
     return html;
   };
-
   const generateTableOfContents = () => {
     if (!contentRef.current) return;
-    
     const headings = contentRef.current.querySelectorAll('h2, h3');
     const toc: TableOfContentsItem[] = [];
-    
     headings.forEach((heading, index) => {
       // إنشاء ID فريد لكل عنوان
       const id = `section-${index}`;
       heading.id = id;
-      
       // إضافة class للتمييز البصري
       heading.classList.add('scroll-mt-20'); // لترك مساحة عند التمرير
-      
       // حساب عدد الكلمات في القسم
       let wordCount = 0;
       let nextElement = heading.nextElementSibling;
@@ -277,7 +243,6 @@ export default function DeepAnalysisPage() {
         wordCount += text.trim().split(/\s+/).filter(word => word.length > 0).length;
         nextElement = nextElement.nextElementSibling;
       }
-      
       toc.push({
         id,
         title: heading.textContent || '',
@@ -285,10 +250,8 @@ export default function DeepAnalysisPage() {
         wordCount
       });
     });
-    
     setTableOfContents(toc);
   };
-
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -296,16 +259,13 @@ export default function DeepAnalysisPage() {
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
       setShowMobileToc(false);
-      
       // تحديث القسم النشط مباشرة
       setActiveSection(id);
     }
   };
-
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
   const handleShare = async () => {
     try {
       if (navigator.share) {
@@ -326,12 +286,10 @@ export default function DeepAnalysisPage() {
       console.error('Error sharing:', err);
     }
   };
-
   const handleSave = () => {
     setSaved(!saved);
     toast.success(saved ? 'تم إزالة من المحفوظات' : 'تم الحفظ في المحفوظات');
   };
-
   const handleLike = () => {
     setLiked(!liked);
     if (analysis) {
@@ -341,15 +299,12 @@ export default function DeepAnalysisPage() {
       });
     }
   };
-
   const handlePrint = () => {
     window.print();
   };
-
   const handleDownloadPDF = async () => {
     try {
       toast.loading('جاري تحضير ملف PDF...', { id: 'pdf-download' });
-      
       // محاكاة تحضير PDF (يمكن استبدالها بـ API حقيقي لاحقاً)
       setTimeout(() => {
         // إنشاء محتوى PDF
@@ -388,10 +343,9 @@ export default function DeepAnalysisPage() {
       toast.error('حدث خطأ في تحضير ملف PDF', { id: 'pdf-download' });
     }
   };
-
   if (loading) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -403,10 +357,9 @@ export default function DeepAnalysisPage() {
       </div>
     );
   }
-
   if (!analysis) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
             <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -423,9 +376,8 @@ export default function DeepAnalysisPage() {
       </div>
     );
   }
-
   return (
-    <div dir="rtl" className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+  <div dir="rtl" className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
       {/* شريط التقدم في القراءة */}
       <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-gray-200 dark:bg-gray-800">
         <div 
@@ -433,7 +385,6 @@ export default function DeepAnalysisPage() {
           style={{ width: `${readingProgress}%` }}
         />
       </div>
-
       {/* Header Section */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-gray-50'} border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -452,29 +403,20 @@ export default function DeepAnalysisPage() {
               تحليل عميق
             </span>
           </div>
-
           {/* Title */}
           <h1 className={`text-3xl md:text-5xl font-bold leading-tight mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             {analysis.title}
           </h1>
-
           {/* Lead */}
           <p className={`text-lg md:text-xl leading-relaxed mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
             {analysis.lead}
           </p>
-
           {/* Featured Image */}
           {analysis.featuredImage && (
             <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
-              <img 
-                src={analysis.featuredImage} 
-                alt={analysis.title}
-                className="w-full h-auto object-cover"
-                style={{ maxHeight: '500px' }}
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
             </div>
           )}
-
           {/* Meta Info */}
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
@@ -506,7 +448,6 @@ export default function DeepAnalysisPage() {
           </div>
         </div>
       </div>
-
       {/* Main Content Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -554,7 +495,6 @@ export default function DeepAnalysisPage() {
                   </nav>
                 </div>
               )}
-
               {/* الإحصائيات */}
               <div className={`rounded-lg p-6 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'} border`}>
                 <h3 className="font-bold text-lg mb-4">الإحصائيات</h3>
@@ -614,7 +554,6 @@ export default function DeepAnalysisPage() {
                   </div>
                 </div>
               </div>
-
               {/* زاوية التحليل */}
               <div className={`rounded-lg p-6 ${darkMode ? 'bg-purple-900/20 border-purple-800' : 'bg-purple-50 border-purple-200'} border`}>
                 <h3 className="font-bold text-lg mb-2">زاوية التحليل</h3>
@@ -624,11 +563,7 @@ export default function DeepAnalysisPage() {
                 {analysis.author && (
                   <div className="mt-4 flex items-center gap-3">
                     {analysis.authorAvatar ? (
-                      <img 
-                        src={analysis.authorAvatar} 
-                        alt={analysis.author}
-                        className="w-10 h-10 rounded-full"
-                      />
+                      <Image src={undefined} alt="" width={100} height={100} />
                     ) : (
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${darkMode ? 'bg-purple-800' : 'bg-purple-200'}`}>
                         <User className="w-5 h-5" />
@@ -646,7 +581,6 @@ export default function DeepAnalysisPage() {
                 )}
               </div>
             </div>
-
             {/* Mobile TOC Button */}
             <button
               onClick={() => setShowMobileToc(!showMobileToc)}
@@ -656,7 +590,6 @@ export default function DeepAnalysisPage() {
             >
               {showMobileToc ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
-
             {/* Mobile TOC Modal */}
             {showMobileToc && (
               <div className="lg:hidden fixed inset-0 z-50 overflow-y-auto">
@@ -693,7 +626,6 @@ export default function DeepAnalysisPage() {
               </div>
             )}
           </aside>
-
           {/* Main Article Content */}
           <main className="lg:col-span-9">
             <article 
@@ -703,7 +635,6 @@ export default function DeepAnalysisPage() {
               } prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:leading-relaxed prose-p:mb-4 prose-blockquote:border-r-4 prose-blockquote:border-blue-500 prose-blockquote:pr-4 prose-blockquote:italic prose-ul:list-disc prose-ul:mr-6 prose-li:mb-2`}
               dangerouslySetInnerHTML={{ __html: analysis.contentHtml }}
             />
-
             {/* AI Section */}
             {(analysis.aiSummary || analysis.aiQuestions) && (
               <div className={`mt-12 p-6 rounded-lg ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'} border`}>
@@ -711,7 +642,6 @@ export default function DeepAnalysisPage() {
                   <Sparkles className="w-6 h-6 text-purple-500" />
                   زاوية الذكاء الاصطناعي
                 </h2>
-                
                 {analysis.aiSummary && (
                   <div className="mb-6">
                     <h3 className="text-lg font-bold mb-3">ملخص آلي للمقال</h3>
@@ -720,7 +650,6 @@ export default function DeepAnalysisPage() {
                     </p>
                   </div>
                 )}
-
                 {analysis.aiQuestions && analysis.aiQuestions.length > 0 && (
                   <div>
                     <h3 className="text-lg font-bold mb-3">أسئلة مثارة من الخوارزميات</h3>
@@ -736,7 +665,6 @@ export default function DeepAnalysisPage() {
                 )}
               </div>
             )}
-
             {/* Tags */}
             {analysis.tags && analysis.tags.length > 0 && (
               <div className="mt-8 pt-8 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}">
@@ -757,7 +685,6 @@ export default function DeepAnalysisPage() {
                 </div>
               </div>
             )}
-
             {/* Action Buttons */}
             <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
               <button
@@ -773,7 +700,6 @@ export default function DeepAnalysisPage() {
                 <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
                 {liked ? 'تم الإعجاب' : 'أعجبني'} ({analysis.likes})
               </button>
-
               <button
                 onClick={handleShare}
                 className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
@@ -785,7 +711,6 @@ export default function DeepAnalysisPage() {
                 <Share2 className="w-5 h-5" />
                 مشاركة
               </button>
-
               <button
                 onClick={handleSave}
                 className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
@@ -799,7 +724,6 @@ export default function DeepAnalysisPage() {
                 <Bookmark className={`w-5 h-5 ${saved ? 'fill-current' : ''}`} />
                 {saved ? 'تم الحفظ' : 'حفظ'}
               </button>
-
               <button
                 onClick={handleDownloadPDF}
                 className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
@@ -807,7 +731,6 @@ export default function DeepAnalysisPage() {
                 <Download className="w-5 h-5" />
                 تحميل PDF
               </button>
-
               <button
                 onClick={handlePrint}
                 className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
@@ -820,7 +743,6 @@ export default function DeepAnalysisPage() {
                 طباعة
               </button>
             </div>
-
             {/* Related Articles */}
             {analysis.relatedArticles && analysis.relatedArticles.length > 0 && (
               <div className="mt-16">
@@ -860,7 +782,6 @@ export default function DeepAnalysisPage() {
           </main>
         </div>
       </div>
-
       {/* Scroll to Top Button */}
       {showScrollTop && (
         <button
@@ -874,7 +795,6 @@ export default function DeepAnalysisPage() {
           <ChevronUp className="w-6 h-6" />
         </button>
       )}
-
       {/* Print Styles */}
       <style jsx global>{`
         @media print {

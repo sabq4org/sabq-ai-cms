@@ -1,3 +1,6 @@
+import Image from 'next/image';
+
+
 export { CardGridBlock } from './CardGridBlock';
 export { CarouselBlock } from './CarouselBlock';
 export { HeadlineListBlock } from './HeadlineListBlock';

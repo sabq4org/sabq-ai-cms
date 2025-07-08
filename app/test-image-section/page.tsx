@@ -1,14 +1,12 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { Upload, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-
+'use client';
 export default function TestImageSection() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [featuredImage, setFeaturedImage] = useState<string | null>('/uploads/test-new-image.jpg');
-
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -16,12 +14,10 @@ export default function TestImageSection() {
         toast.error('حجم الملف يجب أن يكون أقل من 5 ميجابايت');
         return;
       }
-      
       if (!file.type.startsWith('image/')) {
         toast.error('الرجاء اختيار ملف صورة صالح');
         return;
       }
-
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -30,11 +26,9 @@ export default function TestImageSection() {
       reader.readAsDataURL(file);
     }
   };
-
   return (
-    <div className="p-8">
+  <div className="p-8">
       <h1 className="text-2xl font-bold mb-8">اختبار قسم رفع الصورة</h1>
-      
       <div className="max-w-2xl">
         <label className="block text-sm font-medium mb-2">
           الصورة المميزة
@@ -42,11 +36,7 @@ export default function TestImageSection() {
         <div className="space-y-4">
           {(imagePreview || featuredImage) ? (
             <div className="relative">
-              <img
-                src={imagePreview || featuredImage || ''}
-                alt="معاينة الصورة"
-                className="w-full h-48 object-cover rounded-lg"
-              />
+              <Image src={undefined} alt="معاينة الصورة" width={100} height={100} />
               <button
                 type="button"
                 onClick={() => {
@@ -87,7 +77,6 @@ export default function TestImageSection() {
             </div>
           )}
         </div>
-        
         <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
           <h3 className="font-bold mb-2">معلومات التشخيص:</h3>
           <ul className="space-y-1 text-sm">

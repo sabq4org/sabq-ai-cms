@@ -1,8 +1,7 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Database, Brain, TrendingUp, Target, Clock, Cpu } from 'lucide-react';
-
+'use client';
 export default function AnalyticsPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -16,20 +15,17 @@ export default function AnalyticsPage() {
   });
   const [insights, setInsights] = useState<any[]>([]);
   const [modelPerformance, setModelPerformance] = useState<any[]>([]);
-
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   // جلب البيانات الحقيقية
   useEffect(() => {
     const fetchRealData = async () => {
       try {
         setLoading(true);
-
         // جلب إحصائيات التحليلات (إن وجدت)
         try {
           const statsRes = await fetch('/api/analytics-stats');
@@ -47,7 +43,6 @@ export default function AnalyticsPage() {
         } catch (error) {
           // في حالة عدم وجود API
         }
-
         // جلب الاكتشافات (إن وجدت)
         try {
           const insightsRes = await fetch('/api/ai-insights');
@@ -58,7 +53,6 @@ export default function AnalyticsPage() {
         } catch (error) {
           // في حالة عدم وجود API
         }
-
         // جلب أداء النماذج (إن وجدت)
         try {
           const modelsRes = await fetch('/api/model-performance');
@@ -69,7 +63,6 @@ export default function AnalyticsPage() {
         } catch (error) {
           // في حالة عدم وجود API
         }
-
         // تصفير جميع الإحصائيات إذا لم يكن هناك بيانات
         setStats({
           dataPoints: 0,
@@ -79,19 +72,16 @@ export default function AnalyticsPage() {
           processingTime: 0,
           activeModels: 0
         });
-
       } catch (error) {
         console.error('خطأ في جلب البيانات:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchRealData();
   }, []);
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       <div className="mb-8">
@@ -102,7 +92,6 @@ export default function AnalyticsPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>رؤى متقدمة حول سلوك المستخدمين وتفضيلاتهم باستخدام الذكاء الاصطناعي</p>
       </div>
-
       <div className="grid grid-cols-6 gap-6 mb-8">
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
@@ -121,7 +110,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
         }`}>
@@ -139,7 +127,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
         }`}>
@@ -157,7 +144,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
         }`}>
@@ -175,7 +161,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
         }`}>
@@ -193,7 +178,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </div>
-
         <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
         }`}>
@@ -212,7 +196,6 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </div>
-
       {loading ? (
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
@@ -259,7 +242,6 @@ export default function AnalyticsPage() {
               </div>
             )}
           </div>
-
           <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
           }`}>

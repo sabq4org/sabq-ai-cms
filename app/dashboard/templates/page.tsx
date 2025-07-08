@@ -1,6 +1,6 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+'use client';
 import { 
   Plus, 
   Search, 
@@ -21,27 +21,23 @@ import {
 // import { TemplatesList } from './components/TemplatesList';
 // import { TemplateEditor } from './components/TemplateEditor';
 // import { Template, TemplateType } from '@/types/template';
-
 type TemplateType = 'header' | 'footer' | 'sidebar' | 'article' | 'category' | 'special';
-
 export default function TemplatesPage() {
   const [activeTab, setActiveTab] = useState<TemplateType>('header');
   const [showEditor, setShowEditor] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [mounted, setMounted] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  
   useEffect(() => {
     setMounted(true);
     // التحقق من الوضع الليلي من localStorage
     const isDark = document.documentElement.classList.contains('dark');
     setDarkMode(isDark);
   }, []);
-  
   // إذا لم تكن الصفحة محملة بعد، نعرض شاشة تحميل
   if (!mounted) {
     return (
-      <div className="p-8 flex items-center justify-center min-h-screen">
+  <div className="p-8 flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-500">جاري التحميل...</p>
@@ -49,7 +45,6 @@ export default function TemplatesPage() {
       </div>
     );
   }
-
   const tabs = [
     { 
       id: 'header', 
@@ -88,7 +83,6 @@ export default function TemplatesPage() {
       icon: Calendar
     }
   ];
-
   // مكون بطاقة الإحصائيات
   const StatsCard = ({ 
     title, 
@@ -117,9 +111,8 @@ export default function TemplatesPage() {
           return 'bg-blue-100 text-blue-700 border-blue-200';
       }
     };
-
     return (
-      <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${
+  <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
@@ -145,13 +138,11 @@ export default function TemplatesPage() {
       </div>
     );
   };
-
   const handleCreate = () => {
     alert('ميزة إنشاء القالب قيد التطوير');
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : 'bg-gray-50'
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -163,7 +154,6 @@ export default function TemplatesPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>إدارة وتخصيص قوالب الموقع للمناسبات والفعاليات المختلفة</p>
       </div>
-
       {/* قسم النظام الذكي للقوالب */}
       <div className="mb-8">
         <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -184,7 +174,6 @@ export default function TemplatesPage() {
               }`}>تخصيص تلقائي للقوالب حسب المناسبات والأحداث</p>
             </div>
           </div>
-          
           <div className="grid grid-cols-4 gap-4">
             <div className={`rounded-xl p-4 border transition-colors duration-300 ${
               darkMode 
@@ -205,7 +194,6 @@ export default function TemplatesPage() {
                 </div>
               </div>
             </div>
-            
             <div className={`rounded-xl p-4 border transition-colors duration-300 ${
               darkMode 
                 ? 'bg-gray-800 border-indigo-600' 
@@ -225,7 +213,6 @@ export default function TemplatesPage() {
                 </div>
               </div>
             </div>
-            
             <div className={`rounded-xl p-4 border transition-colors duration-300 ${
               darkMode 
                 ? 'bg-gray-800 border-indigo-600' 
@@ -245,7 +232,6 @@ export default function TemplatesPage() {
                 </div>
               </div>
             </div>
-            
             <div className={`rounded-xl p-4 border transition-colors duration-300 ${
               darkMode 
                 ? 'bg-gray-800 border-indigo-600' 
@@ -268,7 +254,6 @@ export default function TemplatesPage() {
           </div>
         </div>
       </div>
-
       {/* بطاقات الإحصائيات */}
       <div className="grid grid-cols-6 gap-6 mb-8">
         <StatsCard
@@ -314,7 +299,6 @@ export default function TemplatesPage() {
           color="blue"
         />
       </div>
-
       {/* شريط الأدوات */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
@@ -341,7 +325,6 @@ export default function TemplatesPage() {
             فلترة
           </button>
         </div>
-        
         <div className="flex items-center gap-3">
           <button className={`px-4 py-3 border rounded-xl flex items-center gap-2 transition-colors duration-300 ${
             darkMode 
@@ -368,7 +351,6 @@ export default function TemplatesPage() {
           </button>
         </div>
       </div>
-
       {/* تبويبات أنواع القوالب - مبسطة */}
       <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
         darkMode 
@@ -395,7 +377,6 @@ export default function TemplatesPage() {
                 {isActive && (
                   <div className="absolute bottom-0 left-6 right-6 h-1 bg-white/30 rounded-full" />
                 )}
-                
                 <Icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
                 <span className={isActive ? 'font-semibold' : ''}>{tab.name}</span>
                 {tab.count !== undefined && tab.count > 0 && (
@@ -414,7 +395,6 @@ export default function TemplatesPage() {
           })}
         </div>
       </div>
-
       {/* قائمة القوالب - مؤقتاً */}
       <div className={`mt-8 p-8 rounded-2xl border text-center ${
         darkMode 

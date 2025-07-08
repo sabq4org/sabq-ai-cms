@@ -1,8 +1,9 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+'use client';
 import { 
   Mail, 
   Users,
@@ -13,7 +14,6 @@ import {
   TrendingDown,
   BarChart3
 } from 'lucide-react';
-
 interface EmailStats {
   subscribers: {
     total: number;
@@ -46,19 +46,16 @@ interface EmailStats {
     sentAt: string;
   }>;
 }
-
 export default function EmailAnalyticsPage() {
   const { toast } = useToast();
   const [stats, setStats] = useState<EmailStats | null>(null);
   const [loading, setLoading] = useState(true);
-
   // جلب الإحصائيات
   const fetchStats = async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/email/analytics');
       const data = await response.json();
-
       if (data.success) {
         setStats(data.data);
       }
@@ -72,19 +69,15 @@ export default function EmailAnalyticsPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchStats();
   }, []);
-
   if (loading) {
     return <div className="text-center py-8">جاري تحميل الإحصائيات...</div>;
   }
-
   if (!stats) {
     return <div className="text-center py-8">لا توجد بيانات</div>;
   }
-
   // حساب لون معدل الأداء
   const getPerformanceColor = (rate: number, type: 'open' | 'click' | 'unsubscribe') => {
     if (type === 'unsubscribe') {
@@ -97,14 +90,12 @@ export default function EmailAnalyticsPage() {
       return 'text-red-600';
     }
   };
-
   return (
-    <div className="container mx-auto p-6">
+  <div className="container mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">إحصائيات البريد الإلكتروني</h1>
         <p className="text-gray-600">نظرة عامة على أداء حملات البريد الإلكتروني</p>
       </div>
-
       {/* بطاقات الإحصائيات الرئيسية */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* إجمالي المشتركين */}
@@ -131,7 +122,6 @@ export default function EmailAnalyticsPage() {
             </div>
           </CardContent>
         </Card>
-
         {/* المشتركون النشطون */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -145,7 +135,6 @@ export default function EmailAnalyticsPage() {
             </p>
           </CardContent>
         </Card>
-
         {/* إجمالي الحملات */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -159,7 +148,6 @@ export default function EmailAnalyticsPage() {
             </p>
           </CardContent>
         </Card>
-
         {/* متوسط معدل الفتح */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -176,7 +164,6 @@ export default function EmailAnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-
       {/* معدلات الأداء */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>
@@ -197,7 +184,6 @@ export default function EmailAnalyticsPage() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <CardTitle className="text-base">معدل إلغاء الاشتراك</CardTitle>
@@ -216,7 +202,6 @@ export default function EmailAnalyticsPage() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <CardTitle className="text-base">إجمالي الرسائل المرسلة</CardTitle>
@@ -236,7 +221,6 @@ export default function EmailAnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-
       {/* أفضل الحملات */}
       <Card>
         <CardHeader>
@@ -262,7 +246,6 @@ export default function EmailAnalyticsPage() {
                       أرسلت إلى {campaign.sentCount} مشترك • {new Date(campaign.sentAt).toLocaleDateString('ar-SA')}
                     </p>
                   </div>
-                  
                   <div className="flex gap-6 items-center">
                     <div className="text-center">
                       <div className="flex items-center gap-1">
@@ -273,7 +256,6 @@ export default function EmailAnalyticsPage() {
                       </div>
                       <p className="text-xs text-gray-500">فتح</p>
                     </div>
-                    
                     <div className="text-center">
                       <div className="flex items-center gap-1">
                         <MousePointer className="h-4 w-4 text-green-500" />

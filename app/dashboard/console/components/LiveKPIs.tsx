@@ -1,3 +1,11 @@
+import React from 'react';
+import Image from 'next/image';
+
+'use client';
+
+
+
+
 'use client'
 
 import { useQuery } from '@tanstack/react-query'

@@ -1,12 +1,11 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { getMembershipLevel } from '@/lib/loyalty';
+'use client';
 import { Trophy, Gift, Users, TrendingUp, Crown, Award, Eye, 
          Settings, Target, Share2, Heart, 
          RefreshCw, BookOpen, Bookmark } from 'lucide-react';
-import { getMembershipLevel } from '@/lib/loyalty';
-
 interface LoyaltyUser {
   user_id: string;
   name: string;
@@ -24,7 +23,6 @@ interface LoyaltyUser {
   profile_created_at: string;
   loyalty_created_at?: string;
 }
-
 interface LoyaltyStats {
   overview: {
     totalUsers: number;
@@ -90,7 +88,6 @@ interface LoyaltyStats {
     orphanedLoyaltyAccounts?: number;
   };
 }
-
 export default function LoyaltyPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -99,30 +96,24 @@ export default function LoyaltyPage() {
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
-
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
   }, []);
-
   // جلب إحصائيات الولاء من API
   useEffect(() => {
     fetchLoyaltyStats();
-    
     // تحديث تلقائي كل 30 ثانية
     const interval = setInterval(() => {
       fetchLoyaltyStats(true); // تحديث صامت
     }, 30000);
-    
     return () => clearInterval(interval);
   }, [refreshKey]);
-
   const fetchLoyaltyStats = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
-      
       // إضافة timestamp لتجنب الكاش
       const response = await fetch(`/api/loyalty/stats?t=${Date.now()}`, {
         cache: 'no-store',
@@ -131,13 +122,10 @@ export default function LoyaltyPage() {
           'Pragma': 'no-cache'
         }
       });
-      
       const result = await response.json();
-      
       if (result.success) {
         setLoyaltyStats(result.data);
         setError(null);
-        
         // عرض رسالة نجاح إذا كان التحديث يدوي
         if (!silent && loading === false) {
           setShowSuccess(true);
@@ -153,20 +141,17 @@ export default function LoyaltyPage() {
       if (!silent) setLoading(false);
     }
   };
-
   // دالة تحديث قوية
   const forceRefresh = () => {
     setRefreshKey(prev => prev + 1);
     fetchLoyaltyStats();
   };
-
   const formatUserName = (userId: string) => {
     if (userId.startsWith('user-')) {
       return `مستخدم ${userId.slice(-8)}`;
     }
     return userId === 'test-user' ? 'مستخدم تجريبي' : userId;
   };
-
   const getTierColor = (tier: string) => {
     switch (tier) {
       case 'bronze': return 'text-orange-600 bg-orange-100';
@@ -176,14 +161,12 @@ export default function LoyaltyPage() {
       default: return 'text-gray-600 bg-gray-100';
     }
   };
-
   const getTierName = (tier: string) => {
     // إذا كان tier رقمًا (نقاط) نحسب المستوى
     if (!isNaN(Number(tier))) {
       const level = getMembershipLevel(Number(tier));
       return level.name;
     }
-    
     // للتوافق مع البيانات القديمة
     switch (tier) {
       case 'bronze': return 'برونزي';
@@ -193,7 +176,6 @@ export default function LoyaltyPage() {
       default: return 'غير محدد';
     }
   };
-
   const CircularStatsCard = ({ title, value, subtitle, icon: Icon, bgColor, iconColor }: {
     title: string;
     value: string | number;
@@ -225,7 +207,6 @@ export default function LoyaltyPage() {
       </div>
     </div>
   );
-
   const NavigationTabs = () => {
     const tabs = [
       { id: 'overview', name: 'نظرة عامة', icon: Trophy },
@@ -234,15 +215,13 @@ export default function LoyaltyPage() {
       { id: 'campaigns', name: 'الحملات', icon: Target, href: '/dashboard/loyalty/campaigns' },
       { id: 'settings', name: 'الإعدادات', icon: Settings }
     ];
-
     return (
-      <div className={`tabs-container rounded-2xl p-2 shadow-sm border mb-8 transition-colors duration-300 ${
+  <div className={`tabs-container rounded-2xl p-2 shadow-sm border mb-8 transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
       }`}>
         <div className="flex gap-2 justify-start">
           {tabs.map((tab) => {
             const Icon = tab.icon;
-            
             if (tab.href) {
               return (
                 <Link
@@ -259,7 +238,6 @@ export default function LoyaltyPage() {
                 </Link>
               );
             }
-            
             return (
               <button
                 key={tab.id}
@@ -281,11 +259,10 @@ export default function LoyaltyPage() {
       </div>
     );
   };
-
   const renderTabContent = () => {
     if (loading) {
       return (
-        <div className={`rounded-2xl p-12 border transition-colors duration-300 ${
+  <div className={`rounded-2xl p-12 border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         }`}>
           <div className="flex flex-col items-center justify-center">
@@ -300,10 +277,9 @@ export default function LoyaltyPage() {
         </div>
       );
     }
-
     if (error) {
       return (
-        <div className={`rounded-2xl p-12 border transition-colors duration-300 ${
+  <div className={`rounded-2xl p-12 border transition-colors duration-300 ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         }`}>
           <div className="flex flex-col items-center justify-center">
@@ -327,13 +303,11 @@ export default function LoyaltyPage() {
         </div>
       );
     }
-
     if (!loyaltyStats) return null;
-
     switch (activeTab) {
       case 'overview':
         return (
-          <div className="space-y-6">
+  <div className="space-y-6">
             <div className="grid grid-cols-6 gap-6 mb-8">
               <CircularStatsCard
                 title="إجمالي الأعضاء"
@@ -384,7 +358,6 @@ export default function LoyaltyPage() {
                 iconColor="text-red-600"
               />
             </div>
-
             <div className="grid grid-cols-3 gap-6">
               <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -445,7 +418,6 @@ export default function LoyaltyPage() {
                   )}
                 </div>
               </div>
-
               <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
               }`}>
@@ -462,7 +434,7 @@ export default function LoyaltyPage() {
                   ].map((interaction) => {
                     const Icon = interaction.icon;
                     return (
-                      <div key={interaction.key} className="flex justify-between items-center">
+  <div key={interaction.key} className="flex justify-between items-center">
                         <span className={`text-sm flex items-center gap-2 transition-colors duration-300 ${
                           darkMode ? 'text-gray-300' : 'text-gray-700'
                         }`}>
@@ -475,7 +447,6 @@ export default function LoyaltyPage() {
                   })}
                 </div>
               </div>
-
               <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
               }`}>
@@ -504,10 +475,9 @@ export default function LoyaltyPage() {
             </div>
           </div>
         );
-
       case 'users':
         return (
-          <div className="space-y-6">
+  <div className="space-y-6">
             {/* إحصائيات سريعة للمستخدمين */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
@@ -527,7 +497,6 @@ export default function LoyaltyPage() {
                   </div>
                 </div>
               </div>
-
               <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
               }`}>
@@ -545,7 +514,6 @@ export default function LoyaltyPage() {
                   </div>
                 </div>
               </div>
-
               <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
               }`}>
@@ -563,7 +531,6 @@ export default function LoyaltyPage() {
                   </div>
                 </div>
               </div>
-
               <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
               }`}>
@@ -582,7 +549,6 @@ export default function LoyaltyPage() {
                 </div>
               </div>
             </div>
-
             {/* قائمة المستخدمين المحسنة */}
           <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -610,7 +576,6 @@ export default function LoyaltyPage() {
                 </button>
               </div>
             </div>
-            
             <div className="space-y-4">
                 {loyaltyStats.allUsers && loyaltyStats.allUsers.length > 0 ? (
                   <div className="overflow-x-auto">
@@ -631,11 +596,7 @@ export default function LoyaltyPage() {
                               <div className="flex items-center gap-3">
                                 <div className="relative">
                                   {user.avatar ? (
-                                    <img 
-                                      src={user.avatar} 
-                                      alt={user.name}
-                                      className="w-10 h-10 rounded-full object-cover"
-                                    />
+                                    <Image src={undefined} alt="" width={100} height={100} />
                                   ) : (
                                     <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                                       <span className="text-white font-semibold text-sm">
@@ -713,11 +674,7 @@ export default function LoyaltyPage() {
                             <td className="py-3 px-4">
                               <div className="flex items-center gap-3">
                                 {user.avatar ? (
-                                  <img 
-                                    src={user.avatar} 
-                                    alt={user.name || formatUserName(user.user_id)}
-                                    className="w-10 h-10 rounded-full object-cover"
-                                  />
+                                  <Image src={undefined} alt="" width={100} height={100} />
                                 ) : (
                                   <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                                     <span className="text-white font-semibold text-sm">
@@ -776,10 +733,9 @@ export default function LoyaltyPage() {
             </div>
           </div>
         );
-
       default:
         return (
-          <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
+  <div className={`rounded-2xl p-6 border transition-colors duration-300 ${
             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
           }`}>
             <h3 className={`text-lg font-bold mb-4 transition-colors duration-300 ${
@@ -794,9 +750,8 @@ export default function LoyaltyPage() {
         );
     }
   };
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* رسالة النجاح */}
@@ -810,7 +765,6 @@ export default function LoyaltyPage() {
           </div>
         </div>
       )}
-
       <style jsx>{`
         @keyframes slide-in-right {
           from {
@@ -822,12 +776,10 @@ export default function LoyaltyPage() {
             opacity: 1;
           }
         }
-        
         .animate-slide-in-right {
           animation: slide-in-right 0.3s ease-out;
         }
       `}</style>
-
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
@@ -849,7 +801,6 @@ export default function LoyaltyPage() {
             </div>
           )}
         </div>
-        
         <div className="flex items-center gap-3">
           <button 
             onClick={forceRefresh}
@@ -869,7 +820,6 @@ export default function LoyaltyPage() {
           </button>
         </div>
       </div>
-
       <NavigationTabs />
       {renderTabContent()}
     </div>

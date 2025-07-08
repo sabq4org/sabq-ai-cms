@@ -1,6 +1,13 @@
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import Link from 'next/link';
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+
+
+
 import { 
   Brain, 
   TrendingUp, 
@@ -21,8 +28,8 @@ import {
   Moon,
   Sunrise
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import Link from 'next/link';
+
+
 
 interface UserInsights {
   todayRecommendation?: {

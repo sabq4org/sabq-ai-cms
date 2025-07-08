@@ -1,8 +1,7 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import { AlHilalWorldCupBlock } from '@/components/smart-blocks/AlHilalWorldCupBlock';
-
+'use client';
 export default function AlHilalBlockDemo() {
   const sampleArticles = [
     {
@@ -33,14 +32,12 @@ export default function AlHilalBlockDemo() {
       category: 'الهلال'
     }
   ];
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-center mb-12 text-gray-800 dark:text-gray-100">
           مكون بلوك الهلال في بطولة العالم - نماذج مختلفة
         </h1>
-
         {/* النموذج الافتراضي */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-300">
@@ -48,7 +45,6 @@ export default function AlHilalBlockDemo() {
           </h2>
           <AlHilalWorldCupBlock articles={sampleArticles} />
         </div>
-
         {/* نموذج بألوان الهلال الرسمية */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-300">
@@ -61,7 +57,6 @@ export default function AlHilalBlockDemo() {
             textColor="#ffffff"
           />
         </div>
-
         {/* نموذج فاتح مع لون أزرق سماوي */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-300">
@@ -74,7 +69,6 @@ export default function AlHilalBlockDemo() {
             textColor="#0c4a6e"
           />
         </div>
-
         {/* نموذج محايد */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-300">
@@ -87,7 +81,6 @@ export default function AlHilalBlockDemo() {
             textColor="#1e293b"
           />
         </div>
-
         {/* نموذج بدون مقالات */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-300">
@@ -95,7 +88,6 @@ export default function AlHilalBlockDemo() {
           </h2>
           <AlHilalWorldCupBlock />
         </div>
-
         {/* معلومات الاستخدام */}
         <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">
@@ -103,10 +95,8 @@ export default function AlHilalBlockDemo() {
           </h3>
           <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm">
             <code className="language-tsx">{`import { AlHilalWorldCupBlock } from '@/components/smart-blocks/AlHilalWorldCupBlock';
-
 // استخدام أساسي
 <AlHilalWorldCupBlock articles={articles} />
-
 // مع تخصيص الألوان
 <AlHilalWorldCupBlock 
   articles={articles}

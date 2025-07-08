@@ -1,5 +1,14 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+
+
+
+
+
+
+
+
 
 // لا ننشئ OpenAI client مباشرة، بل نؤجله حتى وقت الاستخدام
 let openai: OpenAI | null = null;

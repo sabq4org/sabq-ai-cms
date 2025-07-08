@@ -1,8 +1,23 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
 import { getCurrentUser } from '@/app/lib/auth';
 import { quickLocalAnalysis } from '@/lib/comment-moderation';
 import { classifyCommentWithAI } from '@/lib/services/ai-comment-classifier';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const prisma = new PrismaClient();
 

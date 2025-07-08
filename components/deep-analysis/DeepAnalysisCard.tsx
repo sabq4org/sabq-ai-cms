@@ -1,7 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import AnalysisTypeIcon from './AnalysisTypeIcon';
+
+'use client';
+
+
+
+
+
 import {
   Brain,
   Clock,
@@ -15,8 +23,8 @@ import {
   ArrowLeft,
   ExternalLink
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import AnalysisTypeIcon from './AnalysisTypeIcon';
+
+
 
 interface DeepAnalysisCardProps {
   analysis: {
@@ -105,11 +113,7 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
       {/* صورة مميزة */}
       <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-72 flex-shrink-0' : 'h-48'}`}>
         <Link href={analysisUrl}>
-          <img 
-            src={analysis.featuredImage || generatePlaceholderImage(analysis.title)} 
-            alt={analysis.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 cursor-pointer"
-          />
+          <Image src={undefined} alt="" width={100} height={100} />
         </Link>
         
         {/* شارة التحليل العميق */}

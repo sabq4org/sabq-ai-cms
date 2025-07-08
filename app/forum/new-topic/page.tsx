@@ -1,5 +1,5 @@
-"use client";
-
+import React from 'react';
+import Image from 'next/image';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadixSel
 import { Label } from "@/components/ui/label";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+'use client';
+"use client";
 import "../forum.css";
-
 export default function NewTopicPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -20,7 +21,6 @@ export default function NewTopicPage() {
     content: "",
     category_id: ""
   });
-
   const categories = [
     { id: "d0c88ff1-5900-11f0-a1ee-d21c6796aa46", name: "نقاش عام", slug: "general" },
     { id: "d0c890f7-5900-11f0-a1ee-d21c6796aa46", name: "اقتراحات", slug: "requests" },
@@ -28,17 +28,13 @@ export default function NewTopicPage() {
     { id: "d0c892db-5900-11f0-a1ee-d21c6796aa46", name: "مساعدة", slug: "help" },
     { id: "d0c89393-5900-11f0-a1ee-d21c6796aa46", name: "إعلانات", slug: "announcements" }
   ];
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!formData.title || !formData.content || !formData.category_id) {
       alert("جميع الحقول مطلوبة");
       return;
     }
-
     setLoading(true);
-
     try {
       const response = await fetch("/api/forum/topics", {
         method: "POST",
@@ -48,9 +44,7 @@ export default function NewTopicPage() {
         },
         body: JSON.stringify(formData)
       });
-
       const data = await response.json();
-
       if (response.ok) {
         router.push("/forum");
       } else {
@@ -63,9 +57,8 @@ export default function NewTopicPage() {
       setLoading(false);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir="rtl">
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir="rtl">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-6">
           <Link href="/forum" className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
@@ -73,7 +66,6 @@ export default function NewTopicPage() {
             <span>العودة للمنتدى</span>
           </Link>
         </div>
-
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">إنشاء موضوع جديد</CardTitle>
@@ -98,7 +90,6 @@ export default function NewTopicPage() {
                   </SelectContent>
                 </RadixSelect>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="title">عنوان الموضوع</Label>
                 <Input
@@ -110,7 +101,6 @@ export default function NewTopicPage() {
                   dir="rtl"
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="content">محتوى الموضوع</Label>
                 <Textarea
@@ -122,7 +112,6 @@ export default function NewTopicPage() {
                   dir="rtl"
                 />
               </div>
-
               <div className="flex justify-end gap-4">
                 <Button
                   type="button"

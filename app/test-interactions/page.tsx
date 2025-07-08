@@ -1,39 +1,32 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ThumbsUp, Bookmark, Share2, RefreshCw, Trash2 } from 'lucide-react';
-
+'use client';
 export default function TestInteractionsPage() {
   const [guestId, setGuestId] = useState<string>('');
   const [interactions, setInteractions] = useState<any>({});
   const [stats, setStats] = useState<any>({});
   const [history, setHistory] = useState<any[]>([]);
-
   // تحميل البيانات
   const loadData = () => {
     const storedGuestId = localStorage.getItem('guestId') || 'لا يوجد';
     setGuestId(storedGuestId);
-    
     const storedInteractions = localStorage.getItem('sabq_interactions');
     setInteractions(storedInteractions ? JSON.parse(storedInteractions) : {});
-    
     const storedStats = localStorage.getItem('sabq_user_stats');
     setStats(storedStats ? JSON.parse(storedStats) : {});
-    
     const storedHistory = localStorage.getItem('sabq_points_history');
     setHistory(storedHistory ? JSON.parse(storedHistory) : []);
   };
-
   useEffect(() => {
     loadData();
   }, []);
-
   // اختبار التفاعل
   const testInteraction = async (type: 'like' | 'save' | 'share') => {
     const { saveLocalInteraction } = await import('@/lib/interactions-localStorage');
-    
     const testArticleId = 'test-article-123';
     const result = saveLocalInteraction(
       guestId,
@@ -41,11 +34,9 @@ export default function TestInteractionsPage() {
       type,
       { source: 'test-page' }
     );
-    
     alert(`${type} نتيجة: ${result.message}`);
     loadData();
   };
-
   // مسح البيانات
   const clearData = () => {
     if (confirm('هل أنت متأكد من مسح جميع البيانات المحلية؟')) {
@@ -56,11 +47,9 @@ export default function TestInteractionsPage() {
       window.location.reload();
     }
   };
-
   return (
-    <div className="container mx-auto p-6 max-w-4xl" dir="rtl">
+  <div className="container mx-auto p-6 max-w-4xl" dir="rtl">
       <h1 className="text-3xl font-bold mb-8 text-center">🧪 اختبار نظام التفاعلات المحلي</h1>
-      
       {/* معلومات المستخدم */}
       <Card className="mb-6">
         <CardHeader>
@@ -75,7 +64,6 @@ export default function TestInteractionsPage() {
           </div>
         </CardContent>
       </Card>
-
       {/* أزرار الاختبار */}
       <Card className="mb-6">
         <CardHeader>
@@ -102,7 +90,6 @@ export default function TestInteractionsPage() {
           </div>
         </CardContent>
       </Card>
-
       {/* الإحصائيات */}
       <Card className="mb-6">
         <CardHeader>
@@ -127,7 +114,6 @@ export default function TestInteractionsPage() {
           )}
         </CardContent>
       </Card>
-
       {/* التفاعلات المحفوظة */}
       <Card className="mb-6">
         <CardHeader>
@@ -157,7 +143,6 @@ export default function TestInteractionsPage() {
           </div>
         </CardContent>
       </Card>
-
       {/* سجل النقاط */}
       <Card className="mb-6">
         <CardHeader>
@@ -177,7 +162,6 @@ export default function TestInteractionsPage() {
           </div>
         </CardContent>
       </Card>
-
       {/* البيانات الخام */}
       <Card className="mb-6">
         <CardHeader>
@@ -194,7 +178,6 @@ export default function TestInteractionsPage() {
           </pre>
         </CardContent>
       </Card>
-
       {/* زر مسح البيانات */}
       <div className="text-center">
         <Button onClick={clearData} variant="destructive" className="flex items-center gap-2 mx-auto">

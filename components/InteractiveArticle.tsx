@@ -1,14 +1,18 @@
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useTheme } from '@/contexts/ThemeContext';
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+
 import { 
   MessageSquare, ThumbsUp, Share2, Bookmark, 
   ChevronDown, ChevronUp, BarChart, Image as ImageIcon,
   FileText, Quote, List, Sparkles, Brain,
   PlayCircle, Volume2, Eye, Clock
 } from 'lucide-react';
-import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
+
+
 
 interface ArticleBlock {
   id: string;
@@ -155,11 +159,7 @@ export default function InteractiveArticle({
         return (
           <div className="mb-8 group relative">
             <div className={`relative rounded-2xl overflow-hidden shadow-lg ${isDark ? 'border border-gray-700' : ''}`}>
-              <img
-                src={block.metadata?.imageUrl || '/placeholder.jpg'}
-                alt={block.metadata?.imageAlt || 'صورة'}
-                className="w-full h-auto"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                 <p className="text-white text-sm">{block.metadata?.imageAlt}</p>
               </div>
@@ -352,7 +352,7 @@ export default function InteractiveArticle({
       </div>
 
       {/* Header */}
-      <header className="mb-8">
+      <div className="mb-8">
         <h1 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>{title}</h1>
         {subtitle && (
           <p className={`text-xl mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{subtitle}</p>
@@ -363,11 +363,7 @@ export default function InteractiveArticle({
         }`}>
           <div className="flex items-center gap-4">
             {author.avatar && (
-              <img 
-                src={author.avatar} 
-                alt={author.name}
-                className="w-12 h-12 rounded-full"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
             )}
             <div>
               <p className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{author.name}</p>
@@ -393,7 +389,7 @@ export default function InteractiveArticle({
             </button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Content Blocks */}
       <div className="prose prose-lg max-w-none">

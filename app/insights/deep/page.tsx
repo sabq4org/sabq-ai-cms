@@ -1,9 +1,11 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DeepAnalysisCard from '@/components/deep-analysis/DeepAnalysisCard';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import toast from 'react-hot-toast';
+'use client';
 import { 
   Brain,
   Search,
@@ -12,9 +14,6 @@ import {
   Loader2,
   SlidersHorizontal
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import toast from 'react-hot-toast';
-
 interface DeepAnalysis {
   id: string;
   title: string;
@@ -33,7 +32,6 @@ interface DeepAnalysis {
   publishedAt: string;
   featuredImage?: string;
 }
-
 export default function DeepAnalysesPage() {
   const { darkMode } = useDarkModeContext();
   const [mounted, setMounted] = useState(false);
@@ -48,16 +46,13 @@ export default function DeepAnalysesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-
   useEffect(() => {
     setMounted(true);
     fetchAnalyses();
   }, []);
-
   useEffect(() => {
     filterAndSortAnalyses();
   }, [analyses, searchTerm, selectedCategory, sortBy]);
-
   const fetchAnalyses = async () => {
     try {
       const response = await fetch('/api/deep-analyses');
@@ -65,12 +60,9 @@ export default function DeepAnalysesPage() {
         throw new Error('Failed to fetch analyses');
       }
       const data = await response.json();
-      
       const analysesArray = data.analyses || data;
-      
       const uniqueCategories = [...new Set(analysesArray.flatMap((a: DeepAnalysis) => a.categories || []))];
       setCategories(uniqueCategories as string[]);
-      
       setAnalyses(analysesArray);
       setLoading(false);
     } catch (error) {
@@ -79,10 +71,8 @@ export default function DeepAnalysesPage() {
       setLoading(false);
     }
   };
-
   const filterAndSortAnalyses = () => {
     let filtered = [...analyses];
-
     if (searchTerm) {
       filtered = filtered.filter(analysis => 
         analysis.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -90,13 +80,11 @@ export default function DeepAnalysesPage() {
         analysis.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
-
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(analysis => 
         analysis.categories.includes(selectedCategory)
       );
     }
-
     switch (sortBy) {
       case 'newest':
         filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -111,10 +99,8 @@ export default function DeepAnalysesPage() {
         filtered.sort((a, b) => b.qualityScore - a.qualityScore);
         break;
     }
-
     setFilteredAnalyses(filtered);
   };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ar-SA', {
@@ -123,13 +109,11 @@ export default function DeepAnalysesPage() {
       day: 'numeric'
     });
   };
-
   const getQualityColor = (score: number) => {
     if (score >= 80) return 'text-emerald-400 bg-emerald-500/20 border-emerald-400/30';
     if (score >= 60) return 'text-amber-400 bg-amber-500/20 border-amber-400/30';
     return 'text-red-400 bg-red-500/20 border-red-400/30';
   };
-
   const generatePlaceholderImage = (title: string) => {
     const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#EF4444', '#F59E0B'];
     const colorIndex = title.charCodeAt(0) % colors.length;
@@ -153,7 +137,6 @@ export default function DeepAnalysesPage() {
       </svg>
     `)}`;
   };
-
   if (!mounted || loading) {
     return (
       <>
@@ -172,7 +155,6 @@ export default function DeepAnalysesPage() {
       </>
     );
   }
-
   return (
     <>
       <Header />
@@ -180,14 +162,12 @@ export default function DeepAnalysesPage() {
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 py-16">
           <div className="absolute inset-0 bg-black/20" />
-          
           {/* Animated Background Elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
             <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000" />
           </div>
-          
           <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
             <div className="inline-flex items-center justify-center p-8 mb-8 relative">
               <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full blur-xl opacity-70 animate-pulse" />
@@ -201,7 +181,6 @@ export default function DeepAnalysesPage() {
             <p className="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
               اكتشف تحليلات معمقة ورؤى ثاقبة مدعومة بالذكاء الاصطناعي
             </p>
-              
               {/* Stats with Glass Effect */}
               <div className="inline-flex flex-col sm:flex-row items-center gap-4 sm:gap-8 bg-black bg-opacity-20 backdrop-blur-md rounded-2xl px-6 sm:px-8 py-4 shadow-xl border border-white border-opacity-20">
                 <div className="text-center">
@@ -225,7 +204,6 @@ export default function DeepAnalysesPage() {
               </div>
             </div>
         </section>
-
         {/* Search Section */}
         <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10 shadow-md">
           <div className="max-w-7xl mx-auto px-6 py-6">
@@ -241,7 +219,6 @@ export default function DeepAnalysesPage() {
             </div>
           </div>
         </section>
-
         {/* Categories Grid */}
         <section className="max-w-7xl mx-auto px-6 py-12">
           {filteredAnalyses.length === 0 ? (
@@ -286,7 +263,6 @@ export default function DeepAnalysesPage() {
         </section>
       </div>
       <Footer />
-
       <style jsx>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
@@ -295,49 +271,39 @@ export default function DeepAnalysesPage() {
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
-        
         /* تأثيرات backdrop blur للمتصفحات المختلفة */
         .backdrop-blur-md {
           -webkit-backdrop-filter: blur(12px);
           backdrop-filter: blur(12px);
         }
-        
         /* خلفية سوداء شفافة */
         .bg-black {
           background-color: rgb(0, 0, 0);
         }
-        
         .bg-opacity-20 {
           --tw-bg-opacity: 0.2;
         }
-        
         .bg-opacity-50 {
           --tw-bg-opacity: 0.5;
         }
-        
         /* حدود بيضاء شفافة */
         .border-white {
           border-color: rgb(255, 255, 255);
         }
-        
         .border-opacity-20 {
           --tw-border-opacity: 0.2;
         }
-        
         /* ضمان ظهور النصوص البيضاء */
         .text-white {
           color: rgb(255, 255, 255);
         }
-        
         /* تأثير الظل للنصوص */
         .drop-shadow-lg {
           filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.04)) drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1));
         }
-        
         .shadow-xl {
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        
         @keyframes blob {
           0% {
             transform: translate(0px, 0px) scale(1);
@@ -352,15 +318,12 @@ export default function DeepAnalysesPage() {
             transform: translate(0px, 0px) scale(1);
           }
         }
-        
         .animate-blob {
           animation: blob 7s infinite;
         }
-        
         .animation-delay-2000 {
           animation-delay: 2s;
         }
-        
         .animation-delay-4000 {
           animation-delay: 4s;
         }

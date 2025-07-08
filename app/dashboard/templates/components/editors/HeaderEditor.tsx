@@ -1,3 +1,13 @@
+import React from 'react';
+import Image from 'next/image';
+
+'use client';
+
+
+
+
+
+
 'use client'
 
 import { useState, useRef } from 'react'
@@ -250,11 +260,7 @@ export function HeaderEditor({ content, onChange }: HeaderEditorProps) {
           {content.logo?.url && (
             <div className="p-4 bg-white rounded-lg border border-gray-200">
               <p className="text-xs text-gray-500 mb-2">معاينة الشعار:</p>
-              <img 
-                src={content.logo.url} 
-                alt={content.logo.alt || 'معاينة الشعار'}
-                className="max-h-16 object-contain"
-                onError={(e) => {
+              <Image src={undefined} alt="" width={100} height={100} /> {
                   (e.target as HTMLImageElement).src = '/images/placeholder-logo.png'
                 }}
               />

@@ -1,7 +1,17 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { Editor } from '@tiptap/react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { useState } from 'react';
+
+'use client';
+
+
+
+
+
+
+
 import {
   Bold,
   Italic,
@@ -27,7 +37,7 @@ import {
   Hash,
   Lightbulb
 } from 'lucide-react';
-import { useState } from 'react';
+
 
 interface EditorToolbarProps {
   editor: Editor;

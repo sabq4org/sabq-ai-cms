@@ -1,14 +1,12 @@
-"use client";
-
+import Image from 'next/image';
 import React, { useEffect, useState } from "react";
 import { Search, Plus, Trash2, Edit3, Hash, BarChart3, RefreshCw } from "lucide-react";
-
+"use client";
 interface Keyword {
   id: string;
   name: string;
   usageCount: number;
 }
-
 export default function KeywordsPage() {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +14,6 @@ export default function KeywordsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Keyword | null>(null);
   const [nameInput, setNameInput] = useState("");
-
   const fetchKeywords = async () => {
     setLoading(true);
     const res = await fetch(`/api/keywords${search ? `?search=${encodeURIComponent(search)}` : ""}`);
@@ -24,27 +21,22 @@ export default function KeywordsPage() {
     if (data.success) setKeywords(data.data);
     setLoading(false);
   };
-
   useEffect(() => {
     fetchKeywords();
   }, [search]);
-
   const resetModal = () => {
     setEditing(null);
     setNameInput("");
   };
-
   const openAdd = () => {
     resetModal();
     setShowModal(true);
   };
-
   const openEdit = (kw: Keyword) => {
     setEditing(kw);
     setNameInput(kw.name);
     setShowModal(true);
   };
-
   const saveKeyword = async () => {
     if (!nameInput.trim()) return;
     if (editing) {
@@ -63,19 +55,16 @@ export default function KeywordsPage() {
     setShowModal(false);
     fetchKeywords();
   };
-
   const deleteKeyword = async (id: string) => {
     if (!confirm("حذف الكلمة المفتاحية؟")) return;
     await fetch(`/api/keywords?id=${id}`, { method: "DELETE" });
     fetchKeywords();
   };
-
   return (
-    <div className="p-8">
+  <div className="p-8">
       <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
         <Hash className="w-7 h-7 text-blue-600" /> إدارة الكلمات المفتاحية
       </h1>
-
       {/* إحصائيات سريعة */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-2xl shadow-md">
@@ -88,7 +77,6 @@ export default function KeywordsPage() {
           </div>
         </div>
       </div>
-
       {/* شريط البحث */}
       <div className="flex items-center gap-3 mb-4">
         <div className="relative w-full max-w-xs">
@@ -111,7 +99,6 @@ export default function KeywordsPage() {
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
-
       {/* جدول */}
       {loading ? (
         <p>جارٍ التحميل...</p>
@@ -150,7 +137,6 @@ export default function KeywordsPage() {
           </table>
         </div>
       )}
-
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

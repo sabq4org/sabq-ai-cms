@@ -1,16 +1,15 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import EconomicCharts from '@/components/EconomicCharts';
+'use client';
 import { 
   Heart, Share2, Volume2, Eye, Clock, Calendar, User, MessageSquare,
   ThumbsUp, ThumbsDown, Lightbulb, TrendingUp, BarChart3, 
   Headphones, Zap, Star, FileText, ChevronRight, PlayCircle,
   BookOpen, Target, Sparkles, Brain, ArrowRight, Quote
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import EconomicCharts from '@/components/EconomicCharts';
-
 interface OpinionArticleDetail {
   id: string;
   title: string;
@@ -34,7 +33,6 @@ interface OpinionArticleDetail {
   related_articles?: any[];
   charts?: any[];
 }
-
 export default function OpinionArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { darkMode } = useDarkModeContext();
@@ -44,26 +42,20 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
   const [userVote, setUserVote] = useState<'agree' | 'disagree' | null>(null);
   const [showKeyIdea, setShowKeyIdea] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
-
   useEffect(() => {
     const fetchArticle = async () => {
       try {
         setLoading(true);
-        
         // بيانات وهمية للمقال
         const mockArticle: OpinionArticleDetail = {
           id: id,
           title: 'مستقبل الذكاء الاصطناعي في التعليم السعودي',
           content: `
             <p>تشهد المملكة العربية السعودية تطوراً هائلاً في مجال التعليم، حيث تسعى رؤية 2030 إلى تحويل النظام التعليمي ليواكب متطلبات العصر الرقمي.</p>
-            
             <p>يُعد الذكاء الاصطناعي أحد أهم الأدوات التي يمكن أن تُحدث نقلة نوعية في التعليم، من خلال تخصيص المناهج لكل طالب حسب قدراته وميوله.</p>
-            
             <p>لقد شهدت السنوات الأخيرة استثمارات ضخمة في هذا المجال، حيث أطلقت الحكومة السعودية العديد من المبادرات الرائدة.</p>
-            
             <h3>التحديات والفرص</h3>
             <p>رغم الفرص الهائلة، هناك تحديات تتطلب معالجة دقيقة، منها تدريب المعلمين والبنية التحتية التقنية.</p>
-            
             <p>في النهاية، المستقبل مُشرق لقطاع التعليم في المملكة، وسنشهد تطورات مذهلة في السنوات القادمة.</p>
           `,
           author_name: 'د. محمد الأحمد',
@@ -120,35 +112,28 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
             }
           ]
         };
-
         setArticle(mockArticle);
-        
         // محاكاة اقتراحات الذكاء الاصطناعي للتعليقات
         setAiSuggestions([
           'ما رأيك في التحديات التي قد تواجه تطبيق هذه التقنيات؟',
           'هل جربت أي أدوات ذكاء اصطناعي في التعليم؟',
           'كيف يمكن تدريب المعلمين على استخدام هذه التقنيات؟'
         ]);
-        
       } catch (error) {
         console.error('خطأ في جلب تفاصيل المقال:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchArticle();
   }, [id]);
-
   const handleTTSPlay = () => {
     if (!article?.ai_summary) return;
-    
     if (isPlaying) {
       speechSynthesis.cancel();
       setIsPlaying(false);
       return;
     }
-
     setIsPlaying(true);
     const utterance = new SpeechSynthesisUtterance(article.ai_summary);
     utterance.lang = 'ar-SA';
@@ -156,27 +141,23 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
     utterance.onend = () => setIsPlaying(false);
     speechSynthesis.speak(utterance);
   };
-
   const handleVote = (vote: 'agree' | 'disagree') => {
     setUserVote(vote);
     // إرسال التصويت للخادم
   };
-
   const extractKeyIdea = () => {
     setShowKeyIdea(true);
   };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+  <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
-
   if (!article) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+  <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">المقال غير موجود</h1>
           <Link href="/opinion" className="text-blue-600 hover:underline">
@@ -186,18 +167,12 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
       </div>
     );
   }
-
   return (
     <article className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* صورة الغطاء والعنوان */}
       <div className="relative h-96 overflow-hidden">
-        <img 
-          src={article.featured_image} 
-          alt={article.title}
-          className="w-full h-full object-cover"
-        />
+        <Image src={undefined} alt="" width={100} height={100} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-        
         <div className="absolute bottom-0 left-0 right-0 p-8">
           <div className="max-w-4xl mx-auto">
             <div className="mb-4">
@@ -206,18 +181,12 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
                 {article.category_name}
               </span>
             </div>
-            
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
               {article.title}
             </h1>
-            
             {/* معلومات الكاتب */}
             <div className="flex items-center gap-4 mb-6">
-              <img 
-                src={article.author_avatar} 
-                alt={article.author_name}
-                className="w-16 h-16 rounded-full border-4 border-yellow-400"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
               <div>
                 <h3 className="text-xl font-bold text-white">{article.author_name}</h3>
                 <p className="text-gray-200">{article.author_specialization}</p>
@@ -240,7 +209,6 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
           </div>
         </div>
       </div>
-
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* ملخص AI */}
         <section className={`mb-12 p-6 rounded-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-blue-50 border border-blue-100'}`}>
@@ -257,7 +225,6 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
               </p>
             </div>
           </div>
-          
           <button 
             onClick={handleTTSPlay}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all hover:scale-105 ${
@@ -276,14 +243,12 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
             <span>{isPlaying ? 'جاري التشغيل...' : 'استمع للملخص'}</span>
           </button>
         </section>
-
         {/* النقاط الأساسية */}
         <section className="mb-12">
           <h2 className={`text-2xl font-bold mb-6 flex items-center gap-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
             <Target className={`w-6 h-6 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`} />
             النقاط الأساسية
           </h2>
-          
           <div className="space-y-4">
             {article.key_points?.map((point, index) => (
               <div 
@@ -305,7 +270,6 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
             ))}
           </div>
         </section>
-
         {/* محتوى المقال */}
         <section className="mb-12">
           <div 
@@ -313,24 +277,20 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
         </section>
-
         {/* الرسوم البيانية (للمقالات الاقتصادية) */}
         {article.charts && article.charts.length > 0 && (
           <EconomicCharts charts={article.charts} darkMode={darkMode} />
         )}
-
         {/* لوحة التفاعل */}
         <section className={`mb-12 p-8 rounded-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-xl`}>
           <h2 className={`text-2xl font-bold mb-6 text-center ${darkMode ? 'text-white' : 'text-gray-800'}`}>
             شارك رأيك حول هذا المقال
           </h2>
-          
           {/* التصويت */}
           <div className="mb-8">
             <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               {article.poll_question}
             </h3>
-            
             <div className="flex gap-4 justify-center">
               <button 
                 onClick={() => handleVote('agree')}
@@ -345,7 +305,6 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
                 <ThumbsUp className="w-5 h-5" />
                 <span>أوافق</span>
               </button>
-              
               <button 
                 onClick={() => handleVote('disagree')}
                 className={`flex items-center gap-3 px-6 py-4 rounded-xl font-medium transition-all hover:scale-105 ${
@@ -361,7 +320,6 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
               </button>
             </div>
           </div>
-
           {/* استخراج الفكرة الرئيسية */}
           <div className="text-center mb-8">
             <button 
@@ -371,7 +329,6 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
               <Lightbulb className="w-5 h-5" />
               <span>استخرج أهم فكرة</span>
             </button>
-            
             {showKeyIdea && (
               <div className={`mt-6 p-6 rounded-xl ${darkMode ? 'bg-purple-900/20 border border-purple-700' : 'bg-purple-50 border border-purple-200'}`}>
                 <Quote className={`w-8 h-8 mx-auto mb-4 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} />
@@ -382,14 +339,12 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
             )}
           </div>
         </section>
-
         {/* اقتراحات التعليقات الذكية */}
         <section className={`mb-12 p-6 rounded-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
           <h3 className={`text-xl font-bold mb-4 flex items-center gap-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
             <Sparkles className={`w-5 h-5 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`} />
             اقتراحات للنقاش
           </h3>
-          
           <div className="space-y-3">
             {aiSuggestions.map((suggestion, index) => (
               <button 
@@ -405,7 +360,6 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
             ))}
           </div>
         </section>
-
         {/* معلومات الكاتب والمقالات ذات الصلة */}
         <div className="grid md:grid-cols-2 gap-8">
           {/* ملف الكاتب */}
@@ -413,13 +367,8 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
             <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               عن الكاتب
             </h3>
-            
             <div className="flex items-start gap-4 mb-4">
-              <img 
-                src={article.author_avatar} 
-                alt={article.author_name}
-                className="w-16 h-16 rounded-full border-4 border-yellow-400"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
               <div>
                 <h4 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                   {article.author_name}
@@ -429,11 +378,9 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
                 </p>
               </div>
             </div>
-            
             <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               {article.author_bio}
             </p>
-            
             <Link 
               href={`/author/${article.id}`}
               className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
@@ -442,13 +389,11 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
               <ArrowRight className="w-4 h-4" />
             </Link>
           </section>
-
           {/* المقالات ذات الصلة */}
           <section className={`p-6 rounded-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
             <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               مقالات ذات صلة
             </h3>
-            
             <div className="space-y-4">
               {article.related_articles?.map((relatedArticle, index) => (
                 <Link 

@@ -1,6 +1,11 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useDarkMode } from '@/hooks/useDarkMode';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
+import { getMembershipLevel } from '@/lib/loyalty';
+import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
+'use client';
 import { 
   Users,
   UserCheck,
@@ -28,12 +33,6 @@ import {
   Crown,
   Database
 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
-import { format } from 'date-fns';
-import { ar } from 'date-fns/locale';
-import { getMembershipLevel } from '@/lib/loyalty';
-import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
-
 interface User {
   id: string;
   name: string;
@@ -53,7 +52,6 @@ interface User {
   created_at: string;
   updated_at: string;
 }
-
 interface EditUserData {
   name: string;
   status: string;
@@ -61,7 +59,6 @@ interface EditUserData {
   isVerified: boolean;
   newPassword?: string;
 }
-
 // خريطة أيقونات مستويات الولاء
 const loyaltyIconMap: Record<string, any> = {
   'برونزي': Medal,
@@ -69,14 +66,12 @@ const loyaltyIconMap: Record<string, any> = {
   'ذهبي': BadgeCheck,
   'سفير': Crown
 };
-
 export default function UsersPage() {
   const { darkMode } = useDarkMode();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedRole, setSelectedRole] = useState('all');
   const [activeTab, setActiveTab] = useState('all');
-
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -95,11 +90,9 @@ export default function UsersPage() {
     type: 'success' | 'error';
     message: string;
   } | null>(null);
-
   useEffect(() => {
     fetchUsers();
   }, []);
-
   const fetchUsers = async () => {
     try {
       const response = await fetch('/api/users');
@@ -127,12 +120,10 @@ export default function UsersPage() {
       setLoading(false);
     }
   };
-
   const showNotification = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 5000);
   };
-
   const handleEdit = (user: User) => {
     setSelectedUser(user);
     setEditFormData({
@@ -144,17 +135,14 @@ export default function UsersPage() {
     });
     setShowEditModal(true);
   };
-
   const handleSaveEdit = async () => {
     if (!selectedUser) return;
-
     try {
       const response = await fetch(`/api/users/${selectedUser.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editFormData)
       });
-
       if (response.ok) {
         showNotification('success', 'تم تحديث بيانات المستخدم بنجاح');
         setShowEditModal(false);
@@ -166,17 +154,14 @@ export default function UsersPage() {
       showNotification('error', 'حدث خطأ أثناء تحديث البيانات');
     }
   };
-
   const toggleUserStatus = async (user: User) => {
     const newStatus = user.status === 'active' ? 'suspended' : 'active';
-    
     try {
       const response = await fetch(`/api/users/${user.id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       });
-
       if (response.ok) {
         showNotification('success', `تم ${newStatus === 'active' ? 'تفعيل' : 'إيقاف'} الحساب`);
         fetchUsers();
@@ -185,15 +170,12 @@ export default function UsersPage() {
       showNotification('error', 'حدث خطأ أثناء تغيير حالة الحساب');
     }
   };
-
   const handleDelete = async () => {
     if (!selectedUser) return;
-
     try {
       const response = await fetch(`/api/users/${selectedUser.id}`, {
         method: 'DELETE'
       });
-
       if (response.ok) {
         showNotification('success', 'تم حذف المستخدم نهائياً');
         setShowDeleteConfirm(false);
@@ -203,7 +185,6 @@ export default function UsersPage() {
       showNotification('error', 'حدث خطأ أثناء حذف المستخدم');
     }
   };
-
   const stats = {
     total: Array.isArray(users) ? users.length : 0,
     active: Array.isArray(users) ? users.filter(u => u.status === 'active').length : 0,
@@ -227,9 +208,6 @@ export default function UsersPage() {
       ? Math.round((users.filter(u => u.status === 'suspended' || u.status === 'banned').length / users.length) * 100)
       : 0
   };
-
-
-
   const StatsCard = ({ 
     title, 
     value, 
@@ -266,16 +244,13 @@ export default function UsersPage() {
       </div>
     </div>
   );
-
   const getFilteredUsers = () => {
     if (!Array.isArray(users)) return [];
-    
     return users.filter(user => {
       const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            (user.phone && user.phone.includes(searchTerm)) ||
                            (user.role && user.role.toLowerCase().includes(searchTerm.toLowerCase()));
-      
       // فلترة بناءً على التاب النشط
       let matchesTab = true;
       switch(activeTab) {
@@ -297,20 +272,15 @@ export default function UsersPage() {
         default:
           matchesTab = true;
       }
-      
       const matchesStatus = selectedStatus === 'all' || user.status === selectedStatus;
       const matchesRole = selectedRole === 'all' || user.role === selectedRole;
-      
       return matchesSearch && matchesTab && matchesStatus && matchesRole;
     });
   };
-
   const filteredUsers = getFilteredUsers();
-
   const UserRow = ({ user }: { user: User }) => {
     const loyaltyLevel = getMembershipLevel(user.loyaltyPoints || 0);
     const LoyaltyIcon = loyaltyIconMap[loyaltyLevel.name] || Users;
-    
     const getStatusBadge = (status?: string) => {
       switch (status) {
         case 'active':
@@ -325,7 +295,6 @@ export default function UsersPage() {
           return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">غير محدد</span>;
       }
     };
-
     const getRoleBadge = (role?: string) => {
       const roles: Record<string, { label: string; color: string }> = {
         admin: { label: 'مسؤول', color: 'bg-red-100 text-red-700' },
@@ -335,21 +304,15 @@ export default function UsersPage() {
         trainee: { label: 'متدرب', color: 'bg-green-100 text-green-700' },
         regular: { label: 'عادي', color: 'bg-gray-100 text-gray-700' }
       };
-      
       const roleInfo = roles[role || 'regular'];
       return <span className={`px-2 py-1 text-xs font-medium rounded-full ${roleInfo.color}`}>{roleInfo.label}</span>;
     };
-
     return (
       <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200`}>
         <td className="px-6 py-4">
           <div className="flex items-center">
             {user.avatar ? (
-              <img 
-                src={user.avatar} 
-                alt={user.name} 
-                className="w-10 h-10 rounded-full object-cover"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium">
                 {user.name.charAt(0)}
@@ -370,15 +333,12 @@ export default function UsersPage() {
             </div>
           </div>
         </td>
-
         <td className="px-6 py-4">
           {getStatusBadge(user.status)}
         </td>
-
         <td className="px-6 py-4">
           {getRoleBadge(user.role)}
         </td>
-
         <td className="px-6 py-4">
           <div className="flex items-center gap-2">
             <div className={`p-1.5 rounded-lg ${loyaltyLevel.bgColor}`}>
@@ -389,13 +349,11 @@ export default function UsersPage() {
             </span>
           </div>
         </td>
-
         <td className="px-6 py-4">
           <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             {format(new Date(user.created_at), 'dd MMMM yyyy', { locale: ar })}
           </p>
         </td>
-
         <td className="px-6 py-4">
           <div className="flex items-center gap-2">
             <button
@@ -407,7 +365,6 @@ export default function UsersPage() {
             >
               <Edit className="w-4 h-4" />
             </button>
-
             <button
               onClick={() => toggleUserStatus(user)}
               className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
@@ -421,7 +378,6 @@ export default function UsersPage() {
                 <ToggleLeft className="w-4 h-4" />
               )}
             </button>
-
             <button
               onClick={() => {
                 setSelectedUser(user);
@@ -434,7 +390,6 @@ export default function UsersPage() {
             >
               <Eye className="w-4 h-4" />
             </button>
-
             <button
               onClick={() => {
                 setSelectedUser(user);
@@ -450,17 +405,15 @@ export default function UsersPage() {
       </tr>
     );
   };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+  <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
-
   return (
-    <div className={`p-8 transition-colors duration-300 ${
+  <div className={`p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       <div className="mb-8 flex items-center justify-between">
@@ -472,7 +425,6 @@ export default function UsersPage() {
             darkMode ? 'text-gray-300' : 'text-gray-600'
           }`}>إدارة شاملة للمستخدمين المسجلين في صحيفة سبق الإلكترونية</p>
         </div>
-        
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowAddModal(true)}
@@ -497,7 +449,6 @@ export default function UsersPage() {
           </button>
         </div>
       </div>
-
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         <StatsCard
           title="إجمالي المستخدمين"
@@ -548,7 +499,6 @@ export default function UsersPage() {
           iconColor="text-orange-600"
         />
       </div>
-
       {/* إضافة التابات المحسنة */}
       <TabsEnhanced
         tabs={[
@@ -582,7 +532,6 @@ export default function UsersPage() {
           }
         }}
       />
-
       <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
       }`}>
@@ -608,7 +557,6 @@ export default function UsersPage() {
                 />
               </div>
             </div>
-            
             <div className="flex items-center space-x-2">
               <select 
                 value={selectedStatus}
@@ -624,7 +572,6 @@ export default function UsersPage() {
                 <option value="suspended">موقوف</option>
                 <option value="deleted">محذوف</option>
               </select>
-              
               <select 
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
@@ -645,7 +592,6 @@ export default function UsersPage() {
             </div>
           </div>
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className={`transition-colors duration-300 ${
@@ -692,7 +638,6 @@ export default function UsersPage() {
           </table>
         </div>
       </div>
-
       {showEditModal && selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className={`w-full max-w-md p-6 rounded-2xl shadow-xl ${
@@ -709,7 +654,6 @@ export default function UsersPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-
             <div className="space-y-4">
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
@@ -726,7 +670,6 @@ export default function UsersPage() {
                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
-
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
@@ -742,7 +685,6 @@ export default function UsersPage() {
                   }`}
                 />
               </div>
-
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
@@ -764,7 +706,6 @@ export default function UsersPage() {
                   <option value="admin">مسؤول</option>
                 </select>
               </div>
-
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
@@ -783,7 +724,6 @@ export default function UsersPage() {
                   <option value="banned">محظور</option>
                 </select>
               </div>
-
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -796,7 +736,6 @@ export default function UsersPage() {
                   darkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}>حساب موثق</label>
               </div>
-
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
@@ -819,7 +758,6 @@ export default function UsersPage() {
                 </div>
               </div>
             </div>
-
             <div className="flex gap-3 mt-6">
               <button
                 onClick={handleSaveEdit}
@@ -842,7 +780,6 @@ export default function UsersPage() {
           </div>
         </div>
       )}
-
       {showDeleteConfirm && selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className={`w-full max-w-md p-6 rounded-2xl shadow-xl ${
@@ -852,17 +789,14 @@ export default function UsersPage() {
               <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
               </div>
-              
               <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 تأكيد حذف المستخدم
               </h3>
-              
               <p className={`text-sm mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 هل أنت متأكد من حذف العضوية نهائياً؟<br />
                 <strong>{selectedUser.name}</strong><br />
                 <span className="text-red-500">لا يمكن استعادة البيانات بعد الحذف!</span>
               </p>
-
               <div className="flex gap-3">
                 <button
                   onClick={handleDelete}
@@ -886,7 +820,6 @@ export default function UsersPage() {
           </div>
         </div>
       )}
-
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className={`w-full max-w-md p-6 rounded-2xl shadow-xl ${
@@ -903,11 +836,9 @@ export default function UsersPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-
             <form onSubmit={async (e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
-              
               try {
                 const newUser = {
                   id: Date.now().toString(),
@@ -920,7 +851,6 @@ export default function UsersPage() {
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString()
                 };
-                
                 setUsers([...users, newUser as User]);
                 setShowAddModal(false);
                 showNotification('success', 'تم إضافة المستخدم بنجاح');
@@ -944,7 +874,6 @@ export default function UsersPage() {
                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
-
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
@@ -960,7 +889,6 @@ export default function UsersPage() {
                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
-
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
@@ -977,7 +905,6 @@ export default function UsersPage() {
                   } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
-
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
@@ -998,7 +925,6 @@ export default function UsersPage() {
                   <option value="admin">مسؤول</option>
                 </select>
               </div>
-
               <div className="flex gap-3 mt-6">
                 <button
                   type="submit"
@@ -1023,7 +949,6 @@ export default function UsersPage() {
           </div>
         </div>
       )}
-
       {/* Modal عرض تفاصيل المستخدم */}
       {showDetailsModal && selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1041,17 +966,12 @@ export default function UsersPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-
             <div className="grid grid-cols-2 gap-6">
               {/* المعلومات الأساسية */}
               <div className="col-span-2">
                 <div className="flex items-center gap-4 mb-6">
                   {selectedUser.avatar ? (
-                    <img 
-                      src={selectedUser.avatar} 
-                      alt={selectedUser.name} 
-                      className="w-20 h-20 rounded-full object-cover"
-                    />
+                    <Image src={undefined} alt="" width={100} height={100} />
                   ) : (
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-2xl font-bold">
                       {selectedUser.name.charAt(0)}
@@ -1072,13 +992,11 @@ export default function UsersPage() {
                   </div>
                 </div>
               </div>
-
               {/* معلومات الحساب */}
               <div className="space-y-3">
                 <h5 className={`font-medium mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   معلومات الحساب
                 </h5>
-                
                 <div className="flex justify-between">
                   <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الحالة:</span>
                   {selectedUser.status === 'active' && (
@@ -1091,7 +1009,6 @@ export default function UsersPage() {
                     <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">🔴 محذوف</span>
                   )}
                 </div>
-
                 <div className="flex justify-between">
                   <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>نوع الحساب:</span>
                   <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -1103,7 +1020,6 @@ export default function UsersPage() {
                     {selectedUser.role === 'regular' && 'عادي'}
                   </span>
                 </div>
-
                 <div className="flex justify-between">
                   <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>تاريخ التسجيل:</span>
                   <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -1111,13 +1027,11 @@ export default function UsersPage() {
                   </span>
                 </div>
               </div>
-
               {/* معلومات الولاء */}
               <div className="space-y-3">
                 <h5 className={`font-medium mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   برنامج الولاء
                 </h5>
-                
                 <div className="flex justify-between items-center">
                   <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الفئة:</span>
                   <div className="flex items-center gap-2">
@@ -1137,14 +1051,12 @@ export default function UsersPage() {
                     })()}
                   </div>
                 </div>
-
                 <div className="flex justify-between">
                   <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>النقاط:</span>
                   <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {selectedUser.loyaltyPoints || 0} نقطة
                   </span>
                 </div>
-
                 {selectedUser.lastLogin && (
                   <div className="flex justify-between">
                     <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>آخر دخول:</span>
@@ -1154,14 +1066,12 @@ export default function UsersPage() {
                   </div>
                 )}
               </div>
-
               {/* معلومات الاتصال */}
               {(selectedUser.phone || selectedUser.country || selectedUser.city) && (
                 <div className="col-span-2 space-y-3">
                   <h5 className={`font-medium mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     معلومات الاتصال
                   </h5>
-                  
                   <div className="grid grid-cols-2 gap-4">
                     {selectedUser.phone && (
                       <div className="flex justify-between">
@@ -1171,7 +1081,6 @@ export default function UsersPage() {
                         </span>
                       </div>
                     )}
-                    
                     {selectedUser.country && (
                       <div className="flex justify-between">
                         <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الدولة:</span>
@@ -1180,7 +1089,6 @@ export default function UsersPage() {
                         </span>
                       </div>
                     )}
-                    
                     {selectedUser.city && (
                       <div className="flex justify-between">
                         <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>المدينة:</span>
@@ -1193,7 +1101,6 @@ export default function UsersPage() {
                 </div>
               )}
             </div>
-
             {/* أزرار الإجراءات */}
             <div className="flex gap-3 mt-6">
               <button
@@ -1220,7 +1127,6 @@ export default function UsersPage() {
           </div>
         </div>
       )}
-
       {/* الإشعارات */}
       {notification && (
         <div className={`fixed top-4 left-4 z-50 flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg ${

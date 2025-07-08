@@ -1,6 +1,15 @@
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import CommentItem from './CommentItem';
+import CommentForm from './CommentForm';
+import { useAuth } from '@/hooks/useAuth';
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+
+
+
 import { 
   MessageCircle, 
   Send, 
@@ -20,10 +29,10 @@ import {
   ChevronUp,
   User
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import CommentItem from './CommentItem';
-import CommentForm from './CommentForm';
-import { useAuth } from '@/hooks/useAuth';
+
+
+
+
 
 interface Comment {
   id: string;

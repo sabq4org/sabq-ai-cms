@@ -1,9 +1,17 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import { Clock, Eye, AlertCircle, ChevronLeft, ListOrdered } from 'lucide-react';
 import { getArticleLink } from '@/lib/utils';
+
+'use client';
+
+
+
+
+
+
+
 
 interface HeadlineListBlockProps {
   block: any;

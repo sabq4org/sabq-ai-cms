@@ -1,7 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useRef, useEffect, useState } from 'react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
+'use client';
+
+
+
+
+
 
 interface ParagraphBlockProps {
   data: { text: string; alignment?: 'left' | 'center' | 'right' | 'justify' };

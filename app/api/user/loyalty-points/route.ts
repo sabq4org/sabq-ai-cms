@@ -1,6 +1,17 @@
+import Image from 'next/image';
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+
+
+
+
+
+
+
+
+
+
 
 const loyaltyFilePath = path.join(process.cwd(), 'data', 'user_loyalty_points.json');
 

@@ -1,10 +1,13 @@
-"use client";
-
+import React from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+'use client';
+"use client";
 import { 
   MessageCircle, 
   Users, 
@@ -19,8 +22,6 @@ import {
   XCircle,
   AlertCircle
 } from "lucide-react";
-import { useState } from "react";
-
 // بيانات تجريبية للإحصائيات
 const stats = [
   {
@@ -56,7 +57,6 @@ const stats = [
     bgColor: "bg-purple-100"
   }
 ];
-
 // بيانات المواضيع المبلغ عنها
 const reportedContent = [
   {
@@ -80,7 +80,6 @@ const reportedContent = [
     status: "pending"
   }
 ];
-
 // أحدث المواضيع
 const recentTopics = [
   {
@@ -102,12 +101,10 @@ const recentTopics = [
     createdAt: "قبل ساعة"
   }
 ];
-
 export default function ForumDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
-
   return (
-    <div className="space-y-6" dir="rtl">
+  <div className="space-y-6" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -132,7 +129,6 @@ export default function ForumDashboard() {
           </Button>
         </div>
       </div>
-
       {/* إحصائيات */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => {
@@ -159,7 +155,6 @@ export default function ForumDashboard() {
           );
         })}
       </div>
-
       {/* التبويبات الرئيسية */}
       <Tabs defaultValue="reports" className="space-y-4">
         <TabsList>
@@ -168,7 +163,6 @@ export default function ForumDashboard() {
           <TabsTrigger value="users">إدارة المستخدمين</TabsTrigger>
           <TabsTrigger value="settings">الإعدادات</TabsTrigger>
         </TabsList>
-
         {/* تبويب التقارير */}
         <TabsContent value="reports">
           <Card>
@@ -197,7 +191,6 @@ export default function ForumDashboard() {
                           <p>السبب: <Badge variant="destructive" className="text-xs">{report.reason}</Badge></p>
                         </div>
                       </div>
-                      
                       <div className="flex gap-2">
                         <Button size="sm" variant="outline" className="text-green-600 hover:text-green-700">
                           <CheckCircle className="w-4 h-4 ml-1" />
@@ -218,7 +211,6 @@ export default function ForumDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-
         {/* تبويب المواضيع */}
         <TabsContent value="topics">
           <Card>
@@ -256,7 +248,6 @@ export default function ForumDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-
         {/* تبويب المستخدمين */}
         <TabsContent value="users">
           <Card>
@@ -268,7 +259,6 @@ export default function ForumDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-
         {/* تبويب الإعدادات */}
         <TabsContent value="settings">
           <Card>

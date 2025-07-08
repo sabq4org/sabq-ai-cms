@@ -1,8 +1,14 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
+
+'use client';
+
+
+
+
 import { 
   User, 
   Heart, 
@@ -18,8 +24,8 @@ import {
   AlertCircle,
   Bookmark
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
+
+
 
 interface Article {
   id: string;

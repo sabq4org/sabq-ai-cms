@@ -1,5 +1,4 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useDarkMode } from '@/hooks/useDarkMode';
+import toast from 'react-hot-toast';
+'use client';
 import { 
   Settings, 
   Save, 
@@ -19,9 +21,6 @@ import {
   RotateCcw,
   Zap
 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
-import toast from 'react-hot-toast';
-
 interface SettingsData {
   apiKey: string;
   model: string;
@@ -35,58 +34,46 @@ interface SettingsData {
   autoTranslate: boolean;
   language: 'ar' | 'en';
 }
-
 const defaultPrompt = `أنت محلل استراتيجي خبير في وكالة سبق الإخبارية. مهمتك هي إنشاء تحليل عميق وشامل باللغة العربية للموضوع المعطى.
-
 يجب أن يتضمن التحليل الأقسام التالية:
-
 1. **المقدمة** (150-200 كلمة):
    - نظرة عامة جذابة عن الموضوع
    - أهمية الموضوع في السياق الحالي
    - الأسئلة الرئيسية التي سيجيب عنها التحليل
-
 2. **الوضع الراهن والسياق** (300-400 كلمة):
    - الخلفية التاريخية والتطورات الحديثة
    - العوامل المؤثرة والأطراف المعنية
    - البيانات والإحصائيات الحالية
-
 3. **التحديات الرئيسية** (400-500 كلمة):
    - تحديد وتحليل 3-5 تحديات رئيسية
    - تأثير كل تحدي على المدى القصير والطويل
    - العقبات المحتملة وسيناريوهات المخاطر
-
 4. **الفرص المستقبلية والابتكارات** (400-500 كلمة):
    - الفرص الناشئة والاتجاهات المستقبلية
    - التقنيات والحلول المبتكرة
    - أفضل الممارسات العالمية القابلة للتطبيق
-
 5. **الأثر المتوقع** (300-400 كلمة):
    - التأثيرات الاقتصادية والاجتماعية
    - التغييرات المتوقعة في السلوك والممارسات
    - المؤشرات الرئيسية لقياس النجاح
-
 6. **دراسات الحالة والأمثلة** (200-300 كلمة):
    - أمثلة محلية أو عالمية ذات صلة
    - الدروس المستفادة
    - قابلية التطبيق في السياق المحلي
-
 7. **التوصيات الاستراتيجية** (400-500 كلمة):
    - 5-7 توصيات محددة وقابلة للتنفيذ
    - خطة العمل المقترحة مع الجدول الزمني
    - مؤشرات الأداء الرئيسية
-
 8. **الخلاصة والنظرة المستقبلية** (150-200 كلمة):
    - ملخص النقاط الرئيسية
    - الرسالة الختامية
    - دعوة للعمل
-
 متطلبات الأسلوب:
 - استخدم لغة عربية فصحى واضحة ومهنية
 - تجنب المصطلحات المعقدة غير الضرورية
 - استخدم العناوين الفرعية والتنسيق لتحسين القراءة
 - ادعم النقاط بالبيانات والمصادر عند الإمكان
 - حافظ على التوازن بين العمق التحليلي وسهولة الفهم`;
-
 export default function DeepAnalysisSettingsPage() {
   const { darkMode } = useDarkMode();
   const [settings, setSettings] = useState<SettingsData>({
@@ -102,11 +89,9 @@ export default function DeepAnalysisSettingsPage() {
     autoTranslate: false,
     language: 'ar'
   });
-  
   const [saving, setSaving] = useState(false);
   const [testingConnection, setTestingConnection] = useState(false);
   const [activeTab, setActiveTab] = useState('prompt');
-
   useEffect(() => {
     // تحميل الإعدادات المحفوظة
     const savedSettings = localStorage.getItem('deepAnalysisSettings');
@@ -131,17 +116,13 @@ export default function DeepAnalysisSettingsPage() {
       }
     }
   }, []);
-
   const handleSave = async () => {
     setSaving(true);
-    
     try {
       // حفظ الإعدادات في localStorage
       localStorage.setItem('deepAnalysisSettings', JSON.stringify(settings));
-      
       // في الإنتاج، سيتم إرسال الإعدادات إلى API
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       toast.success('تم حفظ الإعدادات بنجاح');
     } catch (error) {
       toast.error('حدث خطأ أثناء حفظ الإعدادات');
@@ -149,22 +130,18 @@ export default function DeepAnalysisSettingsPage() {
       setSaving(false);
     }
   };
-
   const testConnection = async () => {
     if (!settings.apiKey) {
       toast.error('الرجاء إدخال مفتاح API أولاً');
       return;
     }
-
     setTestingConnection(true);
-
     try {
       const response = await fetch('/api/ai/test-connection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apiKey: settings.apiKey })
       });
-
       if (response.ok) {
         toast.success('تم الاتصال بنجاح مع OpenAI');
       } else {
@@ -176,14 +153,12 @@ export default function DeepAnalysisSettingsPage() {
       setTestingConnection(false);
     }
   };
-
   const resetPrompt = () => {
     if (confirm('هل أنت متأكد من إعادة تعيين البرومبت إلى الإعدادات الافتراضية؟')) {
       setSettings({ ...settings, customPrompt: defaultPrompt });
       toast.success('تم إعادة تعيين البرومبت');
     }
   };
-
   const tabsConfig = [
     { 
       id: 'prompt', 
@@ -206,9 +181,8 @@ export default function DeepAnalysisSettingsPage() {
       icon: <Sparkles className="w-5 h-5" />
     }
   ];
-
   return (
-    <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+  <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -220,7 +194,6 @@ export default function DeepAnalysisSettingsPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>قم بتخصيص إعدادات الذكاء الاصطناعي والبرومبت المستخدم في توليد التحليلات</p>
       </div>
-
       {/* قسم المعلومات */}
       <div className="mb-6 sm:mb-8">
         <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
@@ -243,7 +216,6 @@ export default function DeepAnalysisSettingsPage() {
           </div>
         </div>
       </div>
-
       {/* التبويبات */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className={`h-auto p-1.5 rounded-2xl shadow-sm w-full transition-all duration-300 ${
@@ -264,7 +236,6 @@ export default function DeepAnalysisSettingsPage() {
               >
                 {/* خط سفلي للتاب النشط */}
                 <div className="absolute bottom-0 left-4 right-4 h-1 bg-white/30 rounded-full opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300" />
-                
                 <div className="transition-transform duration-300 group-data-[state=active]:scale-110">
                   {React.cloneElement(tab.icon, { 
                     className: `w-4 h-4 sm:w-5 sm:h-5` 
@@ -279,7 +250,6 @@ export default function DeepAnalysisSettingsPage() {
             ))}
           </div>
         </TabsList>
-
         {/* محتوى التبويبات */}
         <div className="space-y-6 mt-6">
           {/* تبويب البرومبت */}
@@ -330,7 +300,6 @@ export default function DeepAnalysisSettingsPage() {
             </div>
           </div>
           </TabsContent>
-
           {/* تبويب إعدادات AI */}
           <TabsContent value="ai" className="mt-0">
           <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
@@ -364,7 +333,6 @@ export default function DeepAnalysisSettingsPage() {
                     <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
                   </select>
                 </div>
-
                 <div>
                   <Label htmlFor="temperature" className="text-sm font-medium mb-2 block">
                     درجة الإبداع (Temperature): {settings.temperature}
@@ -388,7 +356,6 @@ export default function DeepAnalysisSettingsPage() {
                     قيمة أعلى = إبداع أكثر، قيمة أقل = دقة أكثر
                   </p>
                 </div>
-
                 <div>
                   <Label htmlFor="maxTokens" className="text-sm font-medium mb-2 block">
                     الحد الأقصى للرموز
@@ -403,7 +370,6 @@ export default function DeepAnalysisSettingsPage() {
                     max="8000"
                   />
                 </div>
-
                 <div>
                   <Label htmlFor="depth" className="text-sm font-medium mb-2 block">
                     عمق التحليل
@@ -427,7 +393,6 @@ export default function DeepAnalysisSettingsPage() {
             </div>
           </div>
           </TabsContent>
-
           {/* تبويب API */}
           <TabsContent value="api" className="mt-0">
           <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
@@ -475,14 +440,12 @@ export default function DeepAnalysisSettingsPage() {
                     </Button>
                   </div>
                 </div>
-
                 <Alert className={`${darkMode ? 'border-yellow-800 bg-yellow-900/20' : 'border-yellow-200 bg-yellow-50'}`}>
                   <AlertCircle className="h-4 w-4 text-yellow-600" />
                   <AlertDescription className={darkMode ? 'text-yellow-200' : 'text-yellow-800'}>
                     احتفظ بمفتاح API الخاص بك بسرية تامة. لا تشاركه مع أي شخص.
                   </AlertDescription>
                 </Alert>
-
                 <div className={`rounded-lg p-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                   <h4 className={`font-medium mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                     كيفية الحصول على مفتاح API:
@@ -499,7 +462,6 @@ export default function DeepAnalysisSettingsPage() {
             </div>
           </div>
           </TabsContent>
-
           {/* تبويب المميزات */}
           <TabsContent value="features" className="mt-0">
           <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
@@ -531,7 +493,6 @@ export default function DeepAnalysisSettingsPage() {
                     onCheckedChange={(checked) => setSettings({ ...settings, enableAutoAnalysis: checked })}
                   />
                 </div>
-
                 <div className={`flex items-center justify-between p-4 rounded-lg ${
                   darkMode ? 'bg-gray-700' : 'bg-gray-50'
                 }`}>
@@ -549,7 +510,6 @@ export default function DeepAnalysisSettingsPage() {
                     onCheckedChange={(checked) => setSettings({ ...settings, includeReferences: checked })}
                   />
                 </div>
-
                 <div className={`flex items-center justify-between p-4 rounded-lg ${
                   darkMode ? 'bg-gray-700' : 'bg-gray-50'
                 }`}>
@@ -567,7 +527,6 @@ export default function DeepAnalysisSettingsPage() {
                     onCheckedChange={(checked) => setSettings({ ...settings, includeStatistics: checked })}
                   />
                 </div>
-
                 <div className={`flex items-center justify-between p-4 rounded-lg ${
                   darkMode ? 'bg-gray-700' : 'bg-gray-50'
                 }`}>
@@ -585,7 +544,6 @@ export default function DeepAnalysisSettingsPage() {
                     onCheckedChange={(checked) => setSettings({ ...settings, autoTranslate: checked })}
                   />
                 </div>
-
                 {settings.autoTranslate && (
                   <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <Label htmlFor="language" className="text-sm font-medium mb-2 block">
@@ -612,7 +570,6 @@ export default function DeepAnalysisSettingsPage() {
           </TabsContent>
         </div>
       </Tabs>
-
       {/* أزرار الإجراءات */}
       <div className="flex justify-end gap-3 mt-8">
         <Button 

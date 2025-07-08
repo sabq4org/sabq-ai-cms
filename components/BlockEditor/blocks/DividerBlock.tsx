@@ -1,7 +1,13 @@
-'use client';
-
+import Image from 'next/image';
 import React from 'react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
+'use client';
+
+
+
+
+
 
 interface DividerBlockProps {
   data: { style?: 'solid' | 'dashed' | 'dotted' };

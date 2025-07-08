@@ -1,6 +1,16 @@
+import Image from 'next/image';
+import React, { useState } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { useAuth } from '@/hooks/useAuth';
+import CommentForm from './CommentForm';
+import { formatDistanceToNow } from 'date-fns';
+import { ar } from 'date-fns/locale';
+
 'use client';
 
-import React, { useState } from 'react';
+
+
+
 import { 
   ThumbsUp, 
   ThumbsDown, 
@@ -13,11 +23,11 @@ import {
   Clock,
   AlertCircle
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { useAuth } from '@/hooks/useAuth';
-import CommentForm from './CommentForm';
-import { formatDistanceToNow } from 'date-fns';
-import { ar } from 'date-fns/locale';
+
+
+
+
+
 
 interface CommentItemProps {
   comment: {
@@ -102,11 +112,7 @@ export default function CommentItem({
           <div className="flex items-center gap-3">
             {/* صورة المستخدم */}
             {comment.user.avatar ? (
-              <img
-                src={comment.user.avatar}
-                alt={comment.user.name}
-                className="w-10 h-10 rounded-full object-cover"
-              />
+              <Image src={undefined} alt="" width={100} height={100} />
             ) : (
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 darkMode ? 'bg-gray-600' : 'bg-gray-200'

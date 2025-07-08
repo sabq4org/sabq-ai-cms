@@ -1,11 +1,14 @@
-'use client';
-
+import React from 'react';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
+'use client';
 import { 
   Mail, 
   Search, 
@@ -17,9 +20,6 @@ import {
   RefreshCw,
   Copy
 } from 'lucide-react';
-import { format } from 'date-fns';
-import { ar } from 'date-fns/locale';
-
 interface EmailJob {
   id: string;
   templateId?: string;
@@ -47,7 +47,6 @@ interface EmailJob {
     clickRate: number;
   };
 }
-
 export default function EmailArchivePage() {
   const { toast } = useToast();
   const [jobs, setJobs] = useState<EmailJob[]>([]);
@@ -56,7 +55,6 @@ export default function EmailArchivePage() {
   const [selectedJob, setSelectedJob] = useState<EmailJob | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [loadingStats, setLoadingStats] = useState(false);
-
   // جلب المهام المرسلة
   const fetchJobs = async () => {
     try {
@@ -65,10 +63,8 @@ export default function EmailArchivePage() {
         status: 'completed',
         ...(searchTerm && { search: searchTerm })
       });
-      
       const response = await fetch(`/api/email/jobs?${params}`);
       const data = await response.json();
-
       if (data.success) {
         setJobs(data.data);
       }
@@ -82,18 +78,15 @@ export default function EmailArchivePage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchJobs();
   }, [searchTerm]);
-
   // جلب إحصائيات المهمة
   const fetchJobStats = async (jobId: string) => {
     try {
       setLoadingStats(true);
       const response = await fetch(`/api/email/jobs/${jobId}/stats`);
       const data = await response.json();
-
       if (data.success) {
         setJobs(prev => prev.map(job => 
           job.id === jobId ? { ...job, stats: data.data } : job
@@ -110,12 +103,10 @@ export default function EmailArchivePage() {
       setLoadingStats(false);
     }
   };
-
   // عرض تفاصيل المهمة
   const showJobDetails = async (job: EmailJob) => {
     setSelectedJob(job);
     setShowDetailsDialog(true);
-    
     if (!job.stats) {
       const stats = await fetchJobStats(job.id);
       if (stats) {
@@ -123,11 +114,9 @@ export default function EmailArchivePage() {
       }
     }
   };
-
   // إعادة إرسال المهمة
   const resendJob = async (job: EmailJob) => {
     if (!confirm('هل أنت متأكد من إعادة إرسال هذه الرسالة؟')) return;
-
     try {
       const response = await fetch('/api/email/jobs', {
         method: 'POST',
@@ -138,9 +127,7 @@ export default function EmailArchivePage() {
           targetFilter: job.metadata?.targetFilter
         })
       });
-
       const data = await response.json();
-      
       if (data.success) {
         toast({
           title: 'تم',
@@ -162,27 +149,23 @@ export default function EmailArchivePage() {
       });
     }
   };
-
   // نسخ المهمة كقالب جديد
   const duplicateAsTemplate = (job: EmailJob) => {
     // الانتقال إلى صفحة إنشاء الرسائل مع البيانات
     window.location.href = `/dashboard/email/compose?duplicate=${job.id}`;
   };
-
   // حساب لون معدل الفتح
   const getOpenRateColor = (rate: number) => {
     if (rate >= 30) return 'text-green-600';
     if (rate >= 20) return 'text-yellow-600';
     return 'text-red-600';
   };
-
   return (
-    <div className="container mx-auto p-6">
+  <div className="container mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">أرشيف الرسائل المرسلة</h1>
         <p className="text-gray-600">عرض الرسائل المرسلة سابقاً مع الإحصائيات</p>
       </div>
-
       {/* شريط البحث */}
       <Card className="mb-6">
         <CardContent className="p-4">
@@ -197,7 +180,6 @@ export default function EmailArchivePage() {
           </div>
         </CardContent>
       </Card>
-
       {/* قائمة الرسائل */}
       {loading ? (
         <div className="text-center py-8">جاري التحميل...</div>
@@ -220,7 +202,6 @@ export default function EmailArchivePage() {
                       {job.template.name}
                     </h3>
                     <p className="text-gray-600 mb-3">{job.template.subject}</p>
-                    
                     <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
@@ -234,7 +215,6 @@ export default function EmailArchivePage() {
                       </div>
                     </div>
                   </div>
-
                   {/* الإحصائيات السريعة */}
                   {job.stats && (
                     <div className="flex gap-6 items-center">
@@ -247,7 +227,6 @@ export default function EmailArchivePage() {
                         </div>
                         <p className="text-xs text-gray-500">معدل الفتح</p>
                       </div>
-                      
                       <div className="text-center">
                         <div className="flex items-center gap-1 mb-1">
                           <MousePointer className="w-4 h-4 text-green-500" />
@@ -257,7 +236,6 @@ export default function EmailArchivePage() {
                         </div>
                         <p className="text-xs text-gray-500">معدل النقر</p>
                       </div>
-                      
                       <div className="text-center">
                         <div className="flex items-center gap-1 mb-1">
                           <UserX className="w-4 h-4 text-red-500" />
@@ -269,7 +247,6 @@ export default function EmailArchivePage() {
                       </div>
                     </div>
                   )}
-
                   {/* الأزرار */}
                   <div className="flex gap-2">
                     <Button
@@ -303,14 +280,12 @@ export default function EmailArchivePage() {
           ))}
         </div>
       )}
-
       {/* نافذة التفاصيل */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>تفاصيل الرسالة</DialogTitle>
           </DialogHeader>
-          
           {selectedJob && (
             <div className="space-y-6">
               {/* معلومات عامة */}
@@ -325,7 +300,6 @@ export default function EmailArchivePage() {
                   )}
                 </div>
               </div>
-
               {/* الإحصائيات التفصيلية */}
               {loadingStats ? (
                 <div className="text-center py-4">جاري تحميل الإحصائيات...</div>
@@ -340,7 +314,6 @@ export default function EmailArchivePage() {
                         <p className="text-sm text-gray-500">إجمالي المستلمين</p>
                       </CardContent>
                     </Card>
-                    
                     <Card>
                       <CardContent className="p-4 text-center">
                         <div className="w-6 h-6 mx-auto mb-2 bg-green-500 rounded-full" />
@@ -348,7 +321,6 @@ export default function EmailArchivePage() {
                         <p className="text-sm text-gray-500">تم الإرسال</p>
                       </CardContent>
                     </Card>
-                    
                     <Card>
                       <CardContent className="p-4 text-center">
                         <div className="w-6 h-6 mx-auto mb-2 bg-red-500 rounded-full" />
@@ -356,7 +328,6 @@ export default function EmailArchivePage() {
                         <p className="text-sm text-gray-500">فشل الإرسال</p>
                       </CardContent>
                     </Card>
-                    
                     <Card>
                       <CardContent className="p-4 text-center">
                         <Eye className="w-6 h-6 mx-auto mb-2 text-blue-500" />
@@ -364,7 +335,6 @@ export default function EmailArchivePage() {
                         <p className="text-sm text-gray-500">تم الفتح ({selectedJob.stats.openRate.toFixed(1)}%)</p>
                       </CardContent>
                     </Card>
-                    
                     <Card>
                       <CardContent className="p-4 text-center">
                         <MousePointer className="w-6 h-6 mx-auto mb-2 text-green-500" />
@@ -372,7 +342,6 @@ export default function EmailArchivePage() {
                         <p className="text-sm text-gray-500">نقرات ({selectedJob.stats.clickRate.toFixed(1)}%)</p>
                       </CardContent>
                     </Card>
-                    
                     <Card>
                       <CardContent className="p-4 text-center">
                         <UserX className="w-6 h-6 mx-auto mb-2 text-red-500" />

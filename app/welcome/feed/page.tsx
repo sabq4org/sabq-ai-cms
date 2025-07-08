@@ -1,21 +1,19 @@
-'use client';
-
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+'use client';
 import { 
   Heart, Star, TrendingUp, Clock, User, Share2, 
   BookOpen, Zap, ArrowRight, Gift, Award, Target,
   Sparkles, Trophy, Calendar, Eye
 } from 'lucide-react';
-import toast from 'react-hot-toast';
-
 interface UserData {
   id: string;
   name: string;
   interests: string[];
 }
-
 interface Article {
   id: string;
   title: string;
@@ -30,7 +28,6 @@ interface Article {
   views: number;
   reading_time: number;
 }
-
 const interestMap: { [key: string]: { name: string; color: string; icon: any } } = {
   'tech': { name: 'تقنية', color: 'from-blue-500 to-cyan-500', icon: Zap },
   'business': { name: 'اقتصاد', color: 'from-green-500 to-emerald-500', icon: TrendingUp },
@@ -39,14 +36,12 @@ const interestMap: { [key: string]: { name: string; color: string; icon: any } }
   'health': { name: 'صحة', color: 'from-pink-500 to-rose-500', icon: Heart },
   'international': { name: 'دولي', color: 'from-indigo-500 to-blue-500', icon: Target }
 };
-
 export default function WelcomeFeedPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
   const [recommendedArticles, setRecommendedArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [loyaltyPoints, setLoyaltyPoints] = useState(5); // النقاط المكتسبة من الاهتمامات
-
   useEffect(() => {
     const loadUserData = () => {
       try {
@@ -54,7 +49,6 @@ export default function WelcomeFeedPage() {
         if (userData) {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
-          
           // جلب المقالات المقترحة بناءً على الاهتمامات
           fetchRecommendedArticles(parsedUser.interests);
         } else {
@@ -66,14 +60,11 @@ export default function WelcomeFeedPage() {
         router.push('/');
       }
     };
-
     loadUserData();
   }, [router]);
-
   const fetchRecommendedArticles = async (interests: string[]) => {
     try {
       setLoading(true);
-      
       // جلب المقالات من التصنيفات المختارة
       const promises = interests.slice(0, 3).map(async (interest) => {
         const categoryId = getCategoryId(interest);
@@ -84,18 +75,15 @@ export default function WelcomeFeedPage() {
         }
         return [];
       });
-
       const results = await Promise.all(promises);
       const allArticles = results.flat();
       setRecommendedArticles(allArticles);
-      
     } catch (error) {
       console.error('خطأ في جلب المقالات المقترحة:', error);
     } finally {
       setLoading(false);
     }
   };
-
   const getCategoryId = (interest: string) => {
     const mapping: { [key: string]: number } = {
       'tech': 1,
@@ -107,12 +95,10 @@ export default function WelcomeFeedPage() {
     };
     return mapping[interest] || 1;
   };
-
   const handleStartReading = () => {
     toast.success('مرحباً بك في صحيفة سبق! 🎉');
     router.push('/');
   };
-
   const handleArticleClick = async (articleId: string) => {
     // تسجيل التفاعل
     if (user?.id) {
@@ -136,13 +122,11 @@ export default function WelcomeFeedPage() {
         console.error('خطأ في تسجيل التفاعل:', error);
       }
     }
-    
     router.push(`/article/${articleId}`);
   };
-
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">جاري تحضير تجربتك المخصصة...</p>
@@ -150,15 +134,13 @@ export default function WelcomeFeedPage() {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* خلفية ديناميكية */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 dark:bg-blue-600 rounded-full blur-3xl opacity-30 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 dark:bg-purple-600 rounded-full blur-3xl opacity-30 animate-pulse delay-1000"></div>
       </div>
-
       <div className="relative z-10 max-w-6xl mx-auto p-4 pt-20">
         {/* ترحيب شخصي */}
         <div className="text-center mb-12">
@@ -171,7 +153,6 @@ export default function WelcomeFeedPage() {
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
             تهانينا! لقد أكملت إعداد ملفك الشخصي وحصلت على أول نقاط الولاء. إليك تجربة مخصصة بناءً على اهتماماتك.
           </p>
-
           {/* بطاقة نقاط الولاء */}
           <div className="inline-flex items-center gap-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 mb-8">
             <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
@@ -183,7 +164,6 @@ export default function WelcomeFeedPage() {
             </div>
           </div>
         </div>
-
         {/* اهتمامات المستخدم */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">اهتماماتك المختارة</h2>
@@ -191,10 +171,9 @@ export default function WelcomeFeedPage() {
             {user.interests.map((interest) => {
               const interestData = interestMap[interest];
               if (!interestData) return null;
-              
               const Icon = interestData.icon;
               return (
-                <div
+  <div
                   key={interest}
                   className={`flex items-center gap-3 px-6 py-3 bg-gradient-to-r ${interestData.color} text-white rounded-full shadow-lg transform hover:scale-105 transition-all duration-300`}
                 >
@@ -205,7 +184,6 @@ export default function WelcomeFeedPage() {
             })}
           </div>
         </div>
-
         {/* المقالات المقترحة */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">مقالات مخصصة لك</h2>
@@ -218,14 +196,9 @@ export default function WelcomeFeedPage() {
               >
                 {article.featured_image && (
                   <div className="aspect-video overflow-hidden">
-                    <img
-                      src={article.featured_image}
-                      alt={article.title}
-                      className="w-full h-full object-cover"
-                    />
+                    <Image src={undefined} alt="" width={100} height={100} />
                   </div>
                 )}
-                
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">
@@ -236,15 +209,12 @@ export default function WelcomeFeedPage() {
                       <span>{article.reading_time || 3} دقائق</span>
                     </div>
                   </div>
-                  
                   <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 line-clamp-2">
                     {article.title}
                   </h3>
-                  
                   <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
                     {article.excerpt}
                   </p>
-                  
                   <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <div className="flex items-center gap-1">
                       <User className="w-3 h-3" />
@@ -260,7 +230,6 @@ export default function WelcomeFeedPage() {
             ))}
           </div>
         </div>
-
         {/* إحصائيات وتحفيز */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
@@ -270,7 +239,6 @@ export default function WelcomeFeedPage() {
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">مستوى مبتدئ</h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm">ابدأ رحلتك في القراءة</p>
           </div>
-
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
             <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mx-auto mb-4">
               <Award className="w-6 h-6 text-white" />
@@ -278,7 +246,6 @@ export default function WelcomeFeedPage() {
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{loyaltyPoints} نقطة</h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm">نقاط الولاء الحالية</p>
           </div>
-
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
             <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mx-auto mb-4">
               <Calendar className="w-6 h-6 text-white" />
@@ -287,7 +254,6 @@ export default function WelcomeFeedPage() {
             <p className="text-gray-600 dark:text-gray-400 text-sm">من رحلتك معنا</p>
           </div>
         </div>
-
         {/* نصائح سريعة */}
         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-8 shadow-lg border border-white/50 dark:border-gray-700/50 mb-12">
           <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 text-center">نصائح لتحقيق أقصى استفادة</h3>
@@ -301,7 +267,6 @@ export default function WelcomeFeedPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">احصل على نقاط إضافية بقراءة مقال واحد يومياً</p>
               </div>
             </div>
-            
             <div className="flex items-start gap-4">
               <div className="flex items-center justify-center w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex-shrink-0">
                 <Share2 className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -311,7 +276,6 @@ export default function WelcomeFeedPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">احصل على 5 نقاط عند مشاركة مقال</p>
               </div>
             </div>
-            
             <div className="flex items-start gap-4">
               <div className="flex items-center justify-center w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex-shrink-0">
                 <Heart className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -321,7 +285,6 @@ export default function WelcomeFeedPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">أعجب واحفظ المقالات المفضلة</p>
               </div>
             </div>
-            
             <div className="flex items-start gap-4">
               <div className="flex items-center justify-center w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded-full flex-shrink-0">
                 <Target className="w-4 h-4 text-orange-600 dark:text-orange-400" />
@@ -333,7 +296,6 @@ export default function WelcomeFeedPage() {
             </div>
           </div>
         </div>
-
         {/* أزرار الإجراءات */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
@@ -343,7 +305,6 @@ export default function WelcomeFeedPage() {
             <span>ابدأ القراءة الآن</span>
             <ArrowRight className="w-5 h-5" />
           </button>
-          
           <Link
             href="/profile"
             className="px-8 py-4 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-center"
