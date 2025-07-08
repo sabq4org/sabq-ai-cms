@@ -323,7 +323,13 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                 {/* معلومات الكاتب الحالي */}
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <Image src={undefined} alt="" width={100} height={100} />
+                    <Image 
+                      src={featuredWriters[currentWriterIndex]?.author_avatar || '/default-avatar.png'} 
+                      alt={featuredWriters[currentWriterIndex]?.author_name || ''} 
+                      width={60} 
+                      height={60}
+                      className="rounded-full object-cover"
+                    />
                     <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-r ${
                       writerClubColors[featuredWriters[currentWriterIndex]?.author_club || 'default']
                     } flex items-center justify-center border-2 border-white dark:border-gray-800`}>
@@ -437,138 +443,147 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                   : 'bg-gradient-to-br from-white to-gray-50 border border-gray-200'
               }`}
             >
-              {/* شارات المقال - مُعاد تموضعها */}
-              <div className="absolute top-3 left-3 z-10 flex gap-1">
+              {/* شارات المقال - في الزاوية العلوية اليمنى بحجم أصغر */}
+              <div className="absolute top-2 right-2 z-10 flex gap-1">
                 {article.is_trending && (
-                  <span className="px-2 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
-                    🔥
+                  <span className="w-6 h-6 flex items-center justify-center bg-red-500/20 backdrop-blur-sm rounded-full">
+                    <span className="text-xs">🔥</span>
                   </span>
                 )}
                 {article.is_featured && (
-                  <span className="px-2 py-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
-                    ⭐
+                  <span className="w-6 h-6 flex items-center justify-center bg-yellow-500/20 backdrop-blur-sm rounded-full">
+                    <span className="text-xs">⭐</span>
                   </span>
                 )}
               </div>
 
               {/* المحتوى الرئيسي - بدون صورة كبيرة */}
-              <div className="p-5">
-                {/* معلومات الكاتب - في الأعلى */}
-                <div className="flex items-center gap-3 mb-4">
-                  <Link href={`/author/${article.author_slug || 'dr-mohammed-ahmad'}`} className="flex items-center gap-3 group/author flex-1">
-                    <div className="relative flex-shrink-0">
-                      <Image src={undefined} alt="" width={100} height={100} />
-                      <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-r ${
+              <div className="p-4">
+                {/* 1. صورة الكاتب (avatar دائرية صغيرة) */}
+                <div className="flex items-start gap-3 mb-3">
+                  <Link href={`/author/${article.author_slug || 'dr-mohammed-ahmad'}`} className="flex-shrink-0">
+                    <div className="relative">
+                      <Image 
+                        src={article.author_avatar || '/default-avatar.png'} 
+                        alt={article.author_name}
+                        width={40}
+                        height={40}
+                        className="rounded-full object-cover"
+                      />
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-gradient-to-r ${
                         writerClubColors[article.author_club || 'default']
-                      } flex items-center justify-center border-2 border-white dark:border-gray-800`}>
-                        <Star className="w-2 h-2 text-white" />
+                      } flex items-center justify-center border border-white dark:border-gray-800`}>
+                        <Star className="w-1.5 h-1.5 text-white" />
                       </div>
                     </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <h4 className={`font-bold text-sm group-hover/author:text-blue-600 transition-colors truncate ${
+                  </Link>
+                  
+                  <div className="flex-1 min-w-0">
+                    {/* 2. اسم الكاتب (سطر واحد فقط) */}
+                    <Link href={`/author/${article.author_slug || 'dr-mohammed-ahmad'}`}>
+                      <h4 className={`font-bold text-sm truncate hover:text-blue-600 transition-colors ${
                         darkMode ? 'text-white' : 'text-gray-800'
                       }`}>
                         {article.author_name}
                       </h4>
-                      <p className={`text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {article.author_specialization}
-                      </p>
-                    </div>
-                  </Link>
+                    </Link>
+                    {/* 3. صفة الكاتب */}
+                    <p className={`text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {article.author_specialization}
+                    </p>
+                  </div>
                 </div>
 
-                {/* عنوان المقال */}
+                {/* 4. عنوان المقال (2 سطر max) */}
                 <Link href={`/opinion/${article.id}`}>
-                  <h3 className={`font-bold text-base mb-3 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors ${
+                  <h3 className={`font-bold text-sm mb-2 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors ${
                     darkMode ? 'text-white' : 'text-gray-900'
                   }`}>
                     {article.title}
                   </h3>
                 </Link>
 
-                {/* الملخص المُختصر */}
-                <p className={`text-sm leading-relaxed line-clamp-2 mb-4 ${
+                {/* 5. الملخص */}
+                <p className={`text-xs leading-relaxed line-clamp-3 mb-3 ${
                   darkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}>
                   {article.ai_summary || article.excerpt}
                 </p>
 
-                {/* أزرار التفاعل المُضغوطة */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => handleTTSPlay(article.id, article.ai_summary || article.excerpt)}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all hover:scale-105 ${
-                        currentPlayingId === article.id
-                          ? 'bg-green-500 text-white'
-                          : darkMode 
-                            ? 'bg-gray-700 hover:bg-green-900/20 text-gray-300 hover:text-green-400' 
-                            : 'bg-gray-100 hover:bg-green-50 text-gray-600 hover:text-green-600'
-                      }`}
-                    >
-                      {currentPlayingId === article.id ? (
-                        <Volume2 className="w-3 h-3 animate-pulse" />
-                      ) : (
-                        <Headphones className="w-3 h-3" />
-                      )}
-                    </button>
-
-                    <button 
-                      onClick={() => handleLike(article.id)}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all hover:scale-105 ${
-                        darkMode 
-                          ? 'hover:bg-red-900/20 text-gray-400 hover:text-red-400' 
-                          : 'hover:bg-red-50 text-gray-500 hover:text-red-600'
-                      }`}
-                    >
-                      <Heart className="w-3 h-3" />
-                      <span>{article.likes_count}</span>
-                    </button>
-
-                    <button 
-                      onClick={() => handleShare(article)}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all hover:scale-105 ${
-                        darkMode 
-                          ? 'hover:bg-blue-900/20 text-gray-400 hover:text-blue-400' 
-                          : 'hover:bg-blue-50 text-gray-500 hover:text-blue-600'
-                      }`}
-                    >
-                      <Share2 className="w-3 h-3" />
-                    </button>
-                  </div>
-
-                  {/* زر التفاصيل */}
+                {/* 6. أزرار التفاعل والتفاصيل */}
+                <div className="space-y-3">
+                  {/* زر التفاصيل - كرابط نصي أنيق */}
                   <Link 
                     href={`/opinion/${article.id}`}
-                    className={`flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium transition-all hover:scale-105 ${
+                    className={`inline-flex items-center gap-1 text-xs font-medium transition-colors ${
                       darkMode 
-                        ? 'bg-blue-900/20 hover:bg-blue-800/30 text-blue-400' 
-                        : 'bg-blue-50 hover:bg-blue-100 text-blue-600'
+                        ? 'text-blue-400 hover:text-blue-300' 
+                        : 'text-blue-600 hover:text-blue-700'
                     }`}
                   >
-                    <span>التفاصيل</span>
+                    <span>قراءة المزيد</span>
                     <ArrowRight className="w-3 h-3" />
                   </Link>
-                </div>
 
-                {/* معلومات إضافية صغيرة */}
-                <div className={`flex items-center justify-between pt-3 mt-3 border-t ${
-                  darkMode ? 'border-gray-700' : 'border-gray-200'
-                }`}>
-                  <div className="flex items-center gap-3 text-xs">
-                    <span className={`flex items-center gap-1 ${
-                      darkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>
-                      <Clock className="w-3 h-3" />
-                      {article.reading_time}د
-                    </span>
-                    <span className={`flex items-center gap-1 ${
-                      darkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>
-                      <Eye className="w-3 h-3" />
-                      {article.views_count > 1000 ? `${(article.views_count / 1000).toFixed(1)}ك` : article.views_count}
-                    </span>
+                  {/* أزرار التفاعل */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <button 
+                        onClick={() => handleTTSPlay(article.id, article.ai_summary || article.excerpt)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all hover:scale-105 ${
+                          currentPlayingId === article.id
+                            ? 'bg-green-500 text-white'
+                            : darkMode 
+                              ? 'bg-gray-700/50 hover:bg-green-900/20 text-gray-300 hover:text-green-400' 
+                              : 'bg-gray-100 hover:bg-green-50 text-gray-600 hover:text-green-600'
+                        }`}
+                      >
+                        {currentPlayingId === article.id ? (
+                          <Volume2 className="w-3 h-3 animate-pulse" />
+                        ) : (
+                          <Headphones className="w-3 h-3" />
+                        )}
+                      </button>
+
+                      <button 
+                        onClick={() => handleLike(article.id)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all hover:scale-105 ${
+                          darkMode 
+                            ? 'hover:bg-red-900/20 text-gray-400 hover:text-red-400' 
+                            : 'hover:bg-red-50 text-gray-500 hover:text-red-600'
+                        }`}
+                      >
+                        <Heart className="w-3 h-3" />
+                        <span>{article.likes_count}</span>
+                      </button>
+
+                      <button 
+                        onClick={() => handleShare(article)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all hover:scale-105 ${
+                          darkMode 
+                            ? 'hover:bg-blue-900/20 text-gray-400 hover:text-blue-400' 
+                            : 'hover:bg-blue-50 text-gray-500 hover:text-blue-600'
+                        }`}
+                      >
+                        <Share2 className="w-3 h-3" />
+                      </button>
+                    </div>
+
+                    {/* معلومات إضافية */}
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className={`flex items-center gap-0.5 ${
+                        darkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        <Clock className="w-3 h-3" />
+                        {article.reading_time}د
+                      </span>
+                      <span className={`flex items-center gap-0.5 ${
+                        darkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        <Eye className="w-3 h-3" />
+                        {article.views_count > 1000 ? `${(article.views_count / 1000).toFixed(1)}ك` : article.views_count}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -580,10 +595,10 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
         <div className="text-center mt-12">
           <Link 
             href="/opinion"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-xl"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-semibold text-base transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
             <span>استكشف جميع آراء اليوم</span>
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </Link>
         </div>
       </div>
