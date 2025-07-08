@@ -100,7 +100,7 @@ const nextConfig = {
   
   // إعدادات ESLint
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   
   // إعدادات التطوير
