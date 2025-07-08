@@ -1,23 +1,12 @@
+'use client'
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useTheme } from 'next-themes';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-
-'use client';
-
-
-
-
-
-import { 
-  Menu, X, Search, User, Sun, Moon, Bell, Activity, 
-  Home, Newspaper, Bookmark, Settings, LogOut 
-} from 'lucide-react';
-
-
-
+import { Menu, Search, Bell, User, ChevronDown, Home, Newspaper, MessageSquare, Bookmark, Settings, LogOut, X, Sun, Moon, Activity } from 'lucide-react';
 
 interface MobileHeaderProps {
   showSearch?: boolean;
@@ -43,7 +32,7 @@ export default function MobileHeader({
     { 
       label: 'اللحظة بلحظة', 
       url: '/moment-by-moment', 
-      icon: Activity,
+              icon: Activity,
       highlight: true,
       badge: newEventsCount > 0 ? newEventsCount : null
     },

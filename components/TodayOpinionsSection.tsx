@@ -1,13 +1,8 @@
-import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+'use client'
 
-'use client';
-
-
-
-
-
+import Image from 'next/image'
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { 
   Play, 
   Heart, 

@@ -1,15 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-
-'use client';
-
-
-
-
-
-
 'use client'
 
+import React from 'react'
+import Image from 'next/image'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import { ThemeProvider } from '@/contexts/ThemeContext'

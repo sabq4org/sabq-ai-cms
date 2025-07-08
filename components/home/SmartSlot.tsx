@@ -1,14 +1,9 @@
+'use client'
+
 import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SmartBlockRenderer from '@/components/smart-blocks/SmartBlockRenderer';
 import { SmartBlock } from '@/types/smart-block';
-
-'use client';
-
-
-
-
-
 
 // import { useDarkModeContext } from '@/contexts/DarkModeContext'; // تم تعطيل الوضع الليلي
 

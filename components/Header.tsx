@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -6,21 +8,9 @@ import toast from 'react-hot-toast';
 import UserDropdown from './UserDropdown';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { getCookie } from '@/lib/cookies';
-
-'use client';
-
-
-
-
-
-
 import { 
   Menu, ChevronDown, LogIn, User, Sun, Moon, Activity, Clock, MessageCircle
 } from 'lucide-react';
-
-
-
-
 
 interface UserData {
   id: string;
@@ -281,12 +271,19 @@ export default function Header() {
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <Image src={undefined} alt="" width={100} height={100} /> {
+                      <Image 
+                        src={user.avatar} 
+                        alt={user.name} 
+                        width={32} 
+                        height={32} 
+                        className="w-8 h-8 rounded-full object-cover"
+                        onError={(e) => {
                           e.currentTarget.style.display = 'none';
                           e.currentTarget.nextElementSibling?.classList.remove('hidden');
                         }}
                       />
-                    ) : (
+                    ) : null}
+                    {(!user.avatar || true) && (
                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border border-gray-200 dark:border-gray-700">
                         {getInitials(user.name)}
                       </div>
@@ -370,7 +367,13 @@ export default function Header() {
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <Image src={undefined} alt="" width={100} height={100} /> {
+                      <Image 
+                        src={user.avatar} 
+                        alt={user.name} 
+                        width={36} 
+                        height={36} 
+                        className="w-9 h-9 rounded-full object-cover"
+                        onError={(e) => {
                           e.currentTarget.style.display = 'none';
                           e.currentTarget.nextElementSibling?.classList.remove('hidden');
                         }}

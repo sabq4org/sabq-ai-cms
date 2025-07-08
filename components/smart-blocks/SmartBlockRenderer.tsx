@@ -1,23 +1,15 @@
-import Image from 'next/image';
-import React from 'react';
-import { SmartBlock } from '@/types/smart-block';
-import { CardGridBlock } from './CardGridBlock';
-import { CarouselBlock } from './CarouselBlock';
-import { AlHilalWorldCupBlock } from './AlHilalWorldCupBlock';
-import { HeroSliderBlock } from './HeroSliderBlock';
-import { Activity, TrendingUp, Lightbulb, Target, Compass, Volume2, Star } from 'lucide-react';
+'use client'
 
-'use client';
-
-
-
-
-
-
-
-
-
-
+import React from 'react'
+import Image from 'next/image'
+import { SmartBlock } from '@/types/smart-block'
+import { CardGridBlock } from './CardGridBlock'
+import { HeadlineListBlock } from './HeadlineListBlock'
+import { ImageLeftBlock } from './ImageLeftBlock'
+import { CarouselBlock } from './CarouselBlock'
+import { AlHilalWorldCupBlock } from './AlHilalWorldCupBlock'
+import { HeroSliderBlock } from './HeroSliderBlock'
+import { Activity, TrendingUp, Lightbulb, Target, Compass, Volume2, Star } from 'lucide-react'
 
 interface SmartBlockRendererProps {
   block: SmartBlock;

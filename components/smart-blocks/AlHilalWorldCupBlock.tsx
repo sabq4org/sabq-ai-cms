@@ -1,14 +1,9 @@
-import React from 'react';
+'use client'
+
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link';
 import Image from 'next/image';
 import { Trophy, Clock, Eye, ChevronLeft, Sparkles } from 'lucide-react';
-
-'use client';
-
-
-
-
-
 
 interface AlHilalArticle {
   id: string;

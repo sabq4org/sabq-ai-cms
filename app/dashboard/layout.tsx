@@ -1,24 +1,11 @@
-import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { getCurrentUser, logActions } from '@/lib/log-activity';
-import { useTheme } from '@/contexts/ThemeContext';
-import { DashboardMobileLayout } from '@/components/mobile/MobileLayout';
+'use client'
 
-'use client';
-
-
-
-
-
-
-
-
-
-
-
-
-
+import Image from 'next/image'
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { getCurrentUser, logActions } from '@/lib/log-activity'
+import { useTheme } from '@/contexts/ThemeContext'
+import { DashboardMobileLayout } from '@/components/mobile/MobileLayout'
 import { 
   Bell,
   User,
@@ -43,9 +30,9 @@ import {
   ChevronRight,
   Sun,
   Moon,
-  Image,
+  Image as ImageIcon,
   MessageCircle
-} from 'lucide-react';
+} from 'lucide-react'
 
 
 
@@ -649,7 +636,7 @@ export default function DashboardLayout({
                         ? 'bg-orange-900/40 group-hover:bg-orange-500 group-hover:text-white' 
                         : 'bg-orange-100 group-hover:bg-orange-500 group-hover:text-white'
                     }`}>
-                      <Image className="w-4 h-4 lg:w-5 lg:h-5" />
+                      <ImageIcon className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <div className="flex-1">
                       <span className="text-sm lg:text-base font-medium">إدارة الصور</span>

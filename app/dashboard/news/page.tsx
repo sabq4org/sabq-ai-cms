@@ -1,10 +1,11 @@
-import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-'use client';
+'use client'
+
+import Image from 'next/image'
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
+import { useDarkModeContext } from '@/contexts/DarkModeContext'
 import { 
   ChevronDown, 
   Search,

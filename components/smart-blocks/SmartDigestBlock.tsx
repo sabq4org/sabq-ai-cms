@@ -1,19 +1,11 @@
-import Image from 'next/image';
+'use client'
+
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Clock, TrendingUp, ArrowLeft, BookOpen, Zap, Crown, Leaf, Sun, Cloud, Moon, Star, Sparkles, Volume2, Headphones, Coffee, Sunrise, Sunset, Pause, Play, ExternalLink, Heart, Share2, BookmarkPlus } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getArticleLink } from '@/lib/utils';
-
-'use client';
-
-
-
-
-
-
-
-
+import Image from 'next/image';
 
 interface DoseContent {
   id: string;
@@ -324,7 +316,13 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
                     {/* صورة مصغرة أو أيقونة محسّنة */}
                     {content.imageUrl ? (
                       <div className="relative w-24 h-24 overflow-hidden rounded-xl flex-shrink-0 group-hover:shadow-md transition-shadow">
-                        <Image src={undefined} alt="" width={100} height={100} />
+                        <Image 
+                          src={content.imageUrl} 
+                          alt={content.title} 
+                          width={96} 
+                          height={96}
+                          className="w-full h-full object-cover"
+                        />
                         {/* تأثير overlay عند hover */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       </div>

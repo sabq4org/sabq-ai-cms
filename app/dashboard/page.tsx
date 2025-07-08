@@ -1,10 +1,11 @@
-import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
-import Link from 'next/link';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-'use client';
+'use client'
+
+import Image from 'next/image'
+import React, { useState, useEffect } from 'react'
+import { useDarkModeContext } from '@/contexts/DarkModeContext'
+import { TabsEnhanced } from '@/components/ui/tabs-enhanced'
+import Link from 'next/link'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { 
   FileText, 
   Users, 

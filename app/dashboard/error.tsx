@@ -1,15 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-
-'use client';
-
-
-
-
-
-
 'use client'
 
+import React from 'react';
+import Image from 'next/image';
 import { useEffect } from 'react'
 import { AlertCircle, RefreshCw, Home } from 'lucide-react'
 import Link from 'next/link'

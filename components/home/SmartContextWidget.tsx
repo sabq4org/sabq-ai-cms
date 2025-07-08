@@ -1,17 +1,10 @@
-import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useTheme } from '@/contexts/ThemeContext'
 import { Calendar, MapPin, Clock, Sparkles, ChevronRight, Moon, Sun, CloudRain } from 'lucide-react';
-import Link from 'next/link';
-import { useTheme } from '@/contexts/ThemeContext';
-
-'use client';
-
-
-
-
-
-
-
 
 interface ContextData {
   location: {
