@@ -234,7 +234,13 @@ export default function EmailTemplatesPage() {
                   </div>
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>استخدم {template._count.emailJobs} مرة</span>
-                    <span>{new Date(template.updatedAt).toLocaleDateString('ar-SA')}</span>
+                    <span>{new Date(template.updatedAt).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    calendar: 'gregory',
+                    numberingSystem: 'latn'
+                  })}</span>
                   </div>
                   <div className="flex gap-2 pt-3 border-t">
                     <Button

@@ -110,7 +110,13 @@ export const ImageLeftBlock: React.FC<ImageLeftBlockProps> = ({ block, articles 
                     style={{ color: block.theme.textColor }}
                   >
                     <Calendar className="w-3 h-3" />
-                    <span>{new Date(article.publishedAt).toLocaleDateString('ar-SA')}</span>
+                    <span>{new Date(article.publishedAt).toLocaleDateString('ar-SA', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      calendar: 'gregory',
+                      numberingSystem: 'latn'
+                    })}</span>
                   </div>
 
                   {/* المشاهدات */}

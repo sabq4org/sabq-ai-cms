@@ -220,7 +220,13 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
               <div className="carousel-meta">
                 <span className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
-                  {new Date(currentArticle.published_at || currentArticle.created_at).toLocaleDateString('ar-SA')}
+                  {new Date(currentArticle.published_at || currentArticle.created_at).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    calendar: 'gregory',
+                    numberingSystem: 'latn'
+                  })}
                 </span>
                 <span className="flex items-center gap-1">
                   <Eye className="w-4 h-4" />

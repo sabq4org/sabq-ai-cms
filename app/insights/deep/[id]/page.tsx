@@ -181,8 +181,14 @@ export default function DeepAnalysisPage() {
         author: data.authorName || 'فريق التحرير',
         authorRole: data.sourceType === 'gpt' ? 'محلل بالذكاء الاصطناعي' : 'محرر',
         authorAvatar: data.authorAvatar,
-        publishedAt: new Date(data.createdAt).toLocaleDateString('ar-SA'),
-        publishedAtHijri: new Date(data.createdAt).toLocaleDateString('ar-SA-u-ca-islamic'),
+        publishedAt: new Date(data.createdAt).toLocaleDateString('ar-SA', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          calendar: 'gregory',
+          numberingSystem: 'latn'
+        }),
+
         readTime: data.readingTime || 5,
         views: data.views || 0,
         likes: data.likes || 0,

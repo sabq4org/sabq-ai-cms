@@ -47,10 +47,22 @@ export default async function TemplatePreviewPage({ params }: PreviewPageProps) 
           <p><strong>النوع:</strong> {template.type}</p>
           <p><strong>الحالة:</strong> {template.is_active ? 'نشط' : 'غير نشط'}</p>
           {template.starts_at && (
-            <p><strong>يبدأ في:</strong> {new Date(template.starts_at).toLocaleDateString('ar-SA')}</p>
+            <p><strong>يبدأ في:</strong> {new Date(template.starts_at).toLocaleDateString('ar-SA', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              calendar: 'gregory',
+              numberingSystem: 'latn'
+            })}</p>
           )}
           {template.ends_at && (
-            <p><strong>ينتهي في:</strong> {new Date(template.ends_at).toLocaleDateString('ar-SA')}</p>
+            <p><strong>ينتهي في:</strong> {new Date(template.ends_at).toLocaleDateString('ar-SA', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              calendar: 'gregory',
+              numberingSystem: 'latn'
+            })}</p>
           )}
         </div>
       </div>

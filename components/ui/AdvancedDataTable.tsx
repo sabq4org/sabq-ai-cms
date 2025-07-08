@@ -469,7 +469,13 @@ const AdvancedDataTable = ({ data, onRowClick, onEdit, onDelete }: AdvancedDataT
                     </TableCell>
                     <TableCell sx={styles.dataCell}>
                       <Typography variant="body2" color="text.secondary">
-                        {new Date(row.date).toLocaleDateString('ar-SA')}
+                        {new Date(row.date).toLocaleDateString('ar-SA', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          calendar: 'gregory',
+                          numberingSystem: 'latn'
+                        })}
                       </Typography>
                     </TableCell>
                     <TableCell sx={styles.dataCell} align="center">

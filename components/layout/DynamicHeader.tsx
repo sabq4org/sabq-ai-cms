@@ -57,7 +57,9 @@ export function DynamicHeader() {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
-                    day: 'numeric'
+                    day: 'numeric',
+                    calendar: 'gregory',
+                    numberingSystem: 'latn'
                   })}
                 </div>
               )}

@@ -187,11 +187,14 @@ export default function CategoryDetailPage({ params }: PageProps) {
     `)}`;
   };
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('ar-SA', {
       year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      month: 'short',
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
     });
   };
   if (loading) {

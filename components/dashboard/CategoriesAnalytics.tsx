@@ -269,7 +269,13 @@ export default function CategoriesAnalytics({ categories, darkMode = false }: Ca
                   <td className={`px-4 py-3 text-center text-sm ${
                     darkMode ? 'text-gray-400' : 'text-gray-500'
                   }`}>
-                    {new Date(category.updated_at || new Date()).toLocaleDateString('ar-SA')}
+                    {new Date(category.updated_at || new Date()).toLocaleDateString('ar-SA', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      calendar: 'gregory',
+                      numberingSystem: 'latn'
+                    })}
                   </td>
                 </tr>
               ))}

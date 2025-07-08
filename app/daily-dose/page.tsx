@@ -220,11 +220,13 @@ export default function DailyDosePage() {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
                   <span>
-                    {new Date(dose.date).toLocaleDateString('ar-SA', { 
+                    {new Date(dose.date).toLocaleDateString('ar-SA', {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
-                      day: 'numeric'
+                      day: 'numeric',
+                      calendar: 'gregory',
+                      numberingSystem: 'latn'
                     })}
                   </span>
                 </div>
@@ -303,7 +305,13 @@ export default function DailyDosePage() {
                             )}
                             {content.article.publishedAt && (
                               <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
-                                {new Date(content.article.publishedAt).toLocaleDateString('ar-SA')}
+                                {new Date(content.article.publishedAt).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    calendar: 'gregory',
+                    numberingSystem: 'latn'
+                  })}
                               </span>
                             )}
                             {content.article.readingTime && (

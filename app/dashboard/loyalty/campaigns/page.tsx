@@ -119,7 +119,13 @@ export default function CampaignsPage() {
                         }`}>تاريخ البداية</p>
                         <p className={`font-medium transition-colors duration-300 ${
                           darkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}>{new Date(campaign.startDate).toLocaleDateString('ar-SA')}</p>
+                        }`}>{new Date(campaign.startDate).toLocaleDateString('ar-SA', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          calendar: 'gregory',
+                          numberingSystem: 'latn'
+                        })}</p>
                       </div>
                       <div>
                         <p className={`text-xs mb-1 transition-colors duration-300 ${
@@ -127,7 +133,13 @@ export default function CampaignsPage() {
                         }`}>تاريخ النهاية</p>
                         <p className={`font-medium transition-colors duration-300 ${
                           darkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}>{new Date(campaign.endDate).toLocaleDateString('ar-SA')}</p>
+                        }`}>{new Date(campaign.endDate).toLocaleDateString('ar-SA', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  calendar: 'gregory',
+                  numberingSystem: 'latn'
+                })}</p>
                       </div>
                       <div>
                         <p className={`text-xs mb-1 transition-colors duration-300 ${

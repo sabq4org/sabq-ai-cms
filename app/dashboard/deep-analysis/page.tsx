@@ -532,7 +532,13 @@ export default function DeepAnalysisPage() {
                       <div className="flex items-center gap-1">
                         <Calendar className={`h-4 w-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                         <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {new Date(analysis.createdAt).toLocaleDateString('ar-SA')}
+                          {new Date(analysis.createdAt).toLocaleDateString('ar-SA', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            calendar: 'gregory',
+                            numberingSystem: 'latn'
+                          })}
                         </span>
                       </div>
                     </td>

@@ -271,7 +271,13 @@ export default function PersonalizedFeed({ userId, limit = 10 }: PersonalizedFee
                   {/* التاريخ */}
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
-                    <span>{new Date(article.published_at).toLocaleDateString('ar-SA')}</span>
+                    <span>{new Date(article.published_at).toLocaleDateString('ar-SA', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      calendar: 'gregory',
+                      numberingSystem: 'latn'
+                    })}</span>
                   </div>
 
                   {/* وقت القراءة */}

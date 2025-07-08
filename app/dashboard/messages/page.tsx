@@ -211,18 +211,15 @@ function MessagesContent() {
   );
   // تنسيق التاريخ
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-    if (diffInHours < 1) {
-      return 'منذ أقل من ساعة';
-    } else if (diffInHours < 24) {
-      return `منذ ${Math.floor(diffInHours)} ساعة`;
-    } else if (diffInHours < 48) {
-      return 'أمس';
-    } else {
-      return date.toLocaleDateString('ar-SA');
-    }
+    return date.toLocaleDateString('ar-SA', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
+    });
   };
   // تصدير CSV
   const exportToCSV = () => {

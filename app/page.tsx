@@ -410,14 +410,16 @@ function NewspaperHomePage(): React.ReactElement {
               <div className="flex flex-col gap-1">
                 {/* التاريخ والوقت */}
                 <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                  <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
-                    <Calendar className="w-3 h-3" />
+                  <div className="text-sm text-gray-500 flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
                     {new Date(news.published_at || news.created_at).toLocaleDateString('ar-SA', {
-                      year: 'numeric',
                       month: 'short',
-                      day: 'numeric'
+                      day: 'numeric',
+                      year: 'numeric',
+                      calendar: 'gregory',
+                      numberingSystem: 'latn'
                     })}
-                  </span>
+                  </div>
                   {news.reading_time && (
                     <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
                       <Clock className="w-3 h-3" />
@@ -739,14 +741,16 @@ function NewspaperHomePage(): React.ReactElement {
                                   <div className="flex flex-col gap-1">
                                     {/* التاريخ والوقت */}
                                     <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                                      <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
-                                        <Calendar className="w-3 h-3" />
+                                      <div className="text-sm text-gray-500 flex items-center gap-2">
+                                        <Clock className="w-4 h-4" />
                                         {new Date(article.published_at || article.created_at).toLocaleDateString('ar-SA', {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric'
-                                  })}
-                                      </span>
+                                          month: 'short',
+                                          day: 'numeric',
+                                          year: 'numeric',
+                                          calendar: 'gregory',
+                                          numberingSystem: 'latn'
+                                        })}
+                                      </div>
                                       {article.reading_time && (
                                         <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
                                           <Clock className="w-3 h-3" />

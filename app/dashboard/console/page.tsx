@@ -402,7 +402,13 @@ export default function ConsolePage() {
                             {topCategory ? topCategory[0] : 'لا يوجد'}
                           </td>
                           <td className={`px-6 py-4 whitespace-nowrap text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            {new Date(user.last_active).toLocaleDateString('ar-SA')}
+                            {new Date(user.last_active).toLocaleDateString('ar-SA', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              calendar: 'gregory',
+                              numberingSystem: 'latn'
+                            })}
                           </td>
                         </tr>
                       );

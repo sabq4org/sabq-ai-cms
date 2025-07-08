@@ -109,7 +109,13 @@ function SearchContent() {
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      {new Date(article.published_at || article.created_at || Date.now()).toLocaleDateString('ar-SA')}
+                      {new Date(article.published_at || article.created_at || Date.now()).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        calendar: 'gregory',
+                        numberingSystem: 'latn'
+                      })}
                     </span>
                     <span className="font-semibold text-blue-500">
                       اقرأ المزيد &larr;

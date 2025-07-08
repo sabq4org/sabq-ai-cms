@@ -254,7 +254,13 @@ export default function TestBookmarksPage() {
                       )}
                       <span className="flex items-center gap-1">
                         <Bookmark className="w-3 h-3" />
-                        {new Date(article.savedAt).toLocaleDateString('ar-SA')}
+                        {new Date(article.savedAt).toLocaleDateString('ar-SA', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          calendar: 'gregory',
+                          numberingSystem: 'latn'
+                        })}
                       </span>
                     </div>
                   </div>

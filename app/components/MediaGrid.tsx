@@ -86,10 +86,13 @@ export default function MediaGrid({
 
   // تنسيق التاريخ
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('ar-SA', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
     });
   };
 

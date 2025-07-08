@@ -14,33 +14,15 @@ export function CardGridBlock({ block, articles }: CardGridBlockProps) {
   const displayArticles = articles.slice(0, block.articlesCount || 1);
   
   // دالة لتنسيق التاريخ
-  const formatDate = (dateString: string) => {
-    if (!dateString) return 'تاريخ غير محدد';
-    
-    try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffMinutes = Math.floor(diffMs / 60000);
-      
-      if (diffMinutes < 60) {
-        return `منذ ${diffMinutes} دقيقة`;
-      } else if (diffMinutes < 1440) { // أقل من 24 ساعة
-        const hours = Math.floor(diffMinutes / 60);
-        return `منذ ${hours} ${hours === 1 ? 'ساعة' : hours < 11 ? 'ساعات' : 'ساعة'}`;
-      } else {
-        const days = Math.floor(diffMinutes / 1440);
-        if (days === 1) return 'منذ يوم';
-        if (days < 7) return `منذ ${days} أيام`;
-        return date.toLocaleDateString('ar-SA', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        });
-      }
-    } catch (error) {
-      return 'تاريخ غير صحيح';
-    }
+  const formatDate = (date: string) => {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('ar-SA', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
+    });
   };
 
   // إذا لم تكن هناك مقالات، لا نعرض البلوك

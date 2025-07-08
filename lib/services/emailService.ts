@@ -229,7 +229,13 @@ export class EmailService {
 
       // إضافة متغيرات افتراضية
       const defaultVars = {
-        date: new Date().toLocaleDateString('ar-SA'),
+        date: new Date().toLocaleDateString('ar-SA', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          calendar: 'gregory',
+          numberingSystem: 'latn'
+        }),
         year: new Date().getFullYear(),
         ...variables
       };

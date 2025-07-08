@@ -237,3 +237,14 @@ function getRelativeTime(date: Date): string {
   
   return date.toLocaleDateString('ar-SA');
 } 
+
+  const formatDate = (date: Date) => {
+    if (!date) return '';
+    return date.toLocaleDateString('ar-SA', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
+    });
+  }; 

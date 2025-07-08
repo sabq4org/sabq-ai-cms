@@ -199,7 +199,13 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
                   <div className="flex items-center gap-4 mt-2 text-sm text-gray-300">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      {new Date(article.published_at).toLocaleDateString('ar-SA')}
+                      {new Date(article.published_at).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        calendar: 'gregory',
+                        numberingSystem: 'latn'
+                      })}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />

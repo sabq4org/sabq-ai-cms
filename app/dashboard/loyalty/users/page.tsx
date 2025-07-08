@@ -122,10 +122,13 @@ export default function LoyaltyUsersPage() {
     return IconComponent;
   };
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar', {
+    if (!dateString) return 'غير متاح';
+    return new Date(dateString).toLocaleDateString('ar-SA', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
     });
   };
   const formatTimeSince = (dateString: string) => {

@@ -109,11 +109,14 @@ export default function DeepAnalysesPage() {
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('ar-SA', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
     });
   };
 

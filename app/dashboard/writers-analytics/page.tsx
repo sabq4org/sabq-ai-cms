@@ -393,7 +393,13 @@ export default function WritersAnalyticsPage() {
                           {article.title}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          نُشر في {new Date(article.published_date).toLocaleDateString('ar-SA')}
+                  نُشر في {new Date(article.published_date).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    calendar: 'gregory',
+                    numberingSystem: 'latn'
+                  })}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">

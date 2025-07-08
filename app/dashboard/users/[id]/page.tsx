@@ -89,7 +89,13 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
                   <Calendar className="w-4 h-4 text-gray-400" />
                   <span className={`transition-colors duration-300 ${
                     darkMode ? 'text-gray-300' : 'text-gray-600'
-                  }`}>انضم في {new Date(user.joinedAt).toLocaleDateString('ar-SA')}</span>
+                  }`}>انضم في {new Date(user.joinedAt).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    calendar: 'gregory',
+                    numberingSystem: 'latn'
+                  })}</span>
                 </div>
               </div>
             </div>

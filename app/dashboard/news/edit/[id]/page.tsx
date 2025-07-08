@@ -110,7 +110,7 @@ export default function EditArticlePage() {
     }
   };
   
-  // دالة لتحويل التاريخ إلى نص عربي
+  // دالة لتحويل التاريخ إلى نص عربي بالميلادي
   const formatDateArabic = (dateString: string) => {
     if (!dateString) return 'غير محدد';
     try {
@@ -122,7 +122,9 @@ export default function EditArticlePage() {
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        calendar: 'gregory', // التقويم الميلادي
+        numberingSystem: 'latn' // الأرقام اللاتينية
       });
     } catch (error) {
       console.error('خطأ في تنسيق التاريخ:', error);

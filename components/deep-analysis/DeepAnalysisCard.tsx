@@ -50,11 +50,14 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
   const [showAllTags, setShowAllTags] = useState(false);
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('ar-SA', {
       year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      month: 'short',
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
     });
   };
 
@@ -244,7 +247,13 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 opacity-60" />
-              <span>{new Date(analysis.publishedAt || analysis.createdAt).toLocaleDateString('ar-SA', { month: 'short', day: 'numeric' })}</span>
+                              <span>{new Date(analysis.publishedAt || analysis.createdAt).toLocaleDateString('ar-SA', { 
+                  month: 'short', 
+                  day: 'numeric',
+                  year: 'numeric',
+                  calendar: 'gregory',
+                  numberingSystem: 'latn'
+                })}</span>
             </span>
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 opacity-60" />

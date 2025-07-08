@@ -55,6 +55,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { formatDate, formatDateTime, formatRelativeDate } from '@/lib/date-utils';
 interface SmartBlock {
   id: string;
   name: string;
@@ -828,12 +829,12 @@ export default function SmartBlocksPage() {
                           </span>
                           <span className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
-                            {new Date(block.createdAt).toLocaleDateString('ar-SA')}
+                            {formatDate(block.createdAt, { format: 'short' })}
                           </span>
                           {block.updatedAt && block.updatedAt !== block.createdAt && (
                             <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
                               <Clock className="w-4 h-4" />
-                              محدث {new Date(block.updatedAt).toLocaleDateString('ar-SA')}
+                              محدث {formatDate(block.updatedAt, { format: 'short' })}
                             </span>
                           )}
                           {block.schedule && (
@@ -842,7 +843,7 @@ export default function SmartBlocksPage() {
                               {block.schedule.isAlwaysActive 
                                 ? 'دائم' 
                                 : block.schedule.startDate && block.schedule.endDate
-                                  ? `${new Date(block.schedule.startDate).toLocaleDateString('ar-SA')} - ${new Date(block.schedule.endDate).toLocaleDateString('ar-SA')}`
+                                  ? `${formatDate(block.schedule.startDate, { format: 'short' })} - ${formatDate(block.schedule.endDate, { format: 'short' })}`
                                   : 'غير محدد'
                               }
                             </span>

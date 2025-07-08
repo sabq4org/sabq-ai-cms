@@ -40,18 +40,15 @@ export default function MobileCard({
   onShare,
   onBookmark
 }: MobileCardProps) {
-  const formatDate = (dateString?: string) => {
+  const formatDate = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'منذ دقائق';
-    if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
-    if (diffInHours < 48) return 'أمس';
-    return date.toLocaleDateString('ar-SA', { 
-      day: 'numeric', 
-      month: 'short' 
+    return date.toLocaleDateString('ar-SA', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
     });
   };
 
@@ -101,7 +98,7 @@ export default function MobileCard({
               <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  {formatDate(article.published_at)}
+                  {formatDate(article.published_at || '')}
                 </span>
                 
                 {article.reading_time && (
@@ -158,7 +155,7 @@ export default function MobileCard({
               <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  {formatDate(article.published_at)}
+                  {formatDate(article.published_at || '')}
                 </span>
                 
                 {article.reading_time && (
@@ -274,7 +271,7 @@ export default function MobileCard({
             <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                {formatDate(article.published_at)}
+                {formatDate(article.published_at || '')}
               </span>
               
               {article.reading_time && (

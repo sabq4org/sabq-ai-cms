@@ -172,7 +172,13 @@ export default function TestInterestsPage() {
                     <CheckCircle className="w-4 h-4 text-green-500" />
                     <span>التصنيف: {interest.category_id}</span>
                     <span className="text-gray-500">• المصدر: {interest.source}</span>
-                    <span className="text-gray-500">• تاريخ الحفظ: {new Date(interest.created_at).toLocaleDateString('ar-SA')}</span>
+                    <span className="text-gray-500">• تاريخ الحفظ: {new Date(interest.created_at).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    calendar: 'gregory',
+                    numberingSystem: 'latn'
+                  })}</span>
                   </div>
                 ))}
               </div>

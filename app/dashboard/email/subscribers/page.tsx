@@ -355,7 +355,13 @@ export default function SubscribersPage() {
                       <td className="p-4">{getStatusBadge(subscriber.status)}</td>
                       <td className="p-4">{subscriber._count.emailLogs}</td>
                       <td className="p-4">
-                        {new Date(subscriber.createdAt).toLocaleDateString('ar-SA')}
+                        {new Date(subscriber.createdAt).toLocaleDateString('ar-SA', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          calendar: 'gregory',
+                          numberingSystem: 'latn'
+                        })}
                       </td>
                       <td className="p-4">
                         <div className="flex items-center gap-2">

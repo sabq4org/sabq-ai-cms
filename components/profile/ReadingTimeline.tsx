@@ -32,8 +32,14 @@ export default function ReadingTimeline({ timeline }: Props) {
   };
 
   const getDateEmoji = (date: string) => {
-    const today = new Date().toLocaleDateString('ar-SA');
-    const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('ar-SA');
+    const today = new Date().toLocaleDateString('ar-SA', {
+      calendar: 'gregory',
+      numberingSystem: 'latn'
+    });
+    const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('ar-SA', {
+      calendar: 'gregory',
+      numberingSystem: 'latn'
+    });
     
     if (date === today) return '📅';
     if (date === yesterday) return '📆';

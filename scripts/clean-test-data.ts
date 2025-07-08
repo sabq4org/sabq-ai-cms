@@ -72,7 +72,13 @@ async function analyzeData() {
     testArticles.forEach((article, index) => {
       console.log(`      ${index + 1}. "${article.title}" (${article.content?.length || 0} حرف)`);
       console.log(`         ID: ${article.id}`);
-      console.log(`         تاريخ الإنشاء: ${article.createdAt.toLocaleDateString('ar-SA')}`);
+      console.log(`         تاريخ الإنشاء: ${article.createdAt.toLocaleDateString('ar-SA', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          calendar: 'gregory',
+          numberingSystem: 'latn'
+        })}`);
     });
   }
 

@@ -106,6 +106,7 @@ export default function ArticleViewPage() {
   };
   // وظائف التنسيق
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('ar-SA', {
       year: 'numeric',
@@ -113,8 +114,8 @@ export default function ArticleViewPage() {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true,
-      timeZone: 'Asia/Riyadh'
+      calendar: 'gregory', // التقويم الميلادي
+      numberingSystem: 'latn' // الأرقام اللاتينية
     });
   };
   const formatFullDate = (dateString: string) => {

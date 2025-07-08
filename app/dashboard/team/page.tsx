@@ -262,7 +262,13 @@ export default function TeamPage() {
           member.phone || '',
           role?.name || '',
           member.department || '',
-          new Date(member.createdAt).toLocaleDateString('ar-SA'),
+          new Date(member.createdAt).toLocaleDateString('ar-SA', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            calendar: 'gregory',
+            numberingSystem: 'latn'
+          }),
           member.isActive ? 'نشط' : 'غير نشط',
           member.isVerified ? 'موثق' : 'غير موثق'
         ];

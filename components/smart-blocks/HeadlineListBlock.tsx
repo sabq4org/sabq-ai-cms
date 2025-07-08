@@ -174,7 +174,13 @@ export function HeadlineListBlock({ block, articles }: HeadlineListBlockProps) {
               <div className="headline-meta">
                 <span className="meta-item">
                   <Clock className="w-3 h-3" />
-                  {new Date(article.published_at || article.created_at).toLocaleDateString('ar-SA')}
+                  {new Date(article.published_at || article.created_at).toLocaleDateString('ar-SA', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  calendar: 'gregory',
+                  numberingSystem: 'latn'
+                })}
                 </span>
                 <span className="meta-item">
                   <Eye className="w-3 h-3" />

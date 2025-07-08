@@ -444,7 +444,13 @@ export default function MediaLibraryPage() {
                     <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {new Date(item.createdAt).toLocaleDateString("ar-SA")}
+                        {new Date(item.createdAt).toLocaleDateString("ar-SA", {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          calendar: 'gregory',
+                          numberingSystem: 'latn'
+                        })}
                       </span>
                       {item.usageCount > 0 && (
                         <span className="flex items-center gap-1">

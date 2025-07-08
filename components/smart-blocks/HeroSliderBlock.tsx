@@ -146,7 +146,13 @@ export const HeroSliderBlock: React.FC<HeroSliderBlockProps> = ({ block, article
                 
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  <span>{new Date(activeArticle.publishedAt).toLocaleDateString('ar-SA')}</span>
+                  <span>{new Date(activeArticle.publishedAt).toLocaleDateString('ar-SA', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  calendar: 'gregory',
+                  numberingSystem: 'latn'
+                })}</span>
                 </div>
 
                 {activeArticle.views && (

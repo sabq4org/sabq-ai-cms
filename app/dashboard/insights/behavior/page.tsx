@@ -588,7 +588,13 @@ export default function BehaviorInsightsPage() {
                   </div>
                   <div className="text-center">
                     <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {new Date(user.last_activity).toLocaleDateString('ar')}
+                      {new Date(user.last_activity).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        calendar: 'gregory',
+                        numberingSystem: 'latn'
+                      })}
                     </span>
                   </div>
                 </div>
@@ -602,8 +608,20 @@ export default function BehaviorInsightsPage() {
       }`}>
         <Calendar className={`w-5 h-5 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
         <p className={`text-sm ${darkMode ? 'text-blue-300' : 'text-blue-800'}`}>
-          هذه البيانات للفترة من {new Date(insights.time_period.start).toLocaleDateString('ar')} 
-          {' '}إلى {new Date(insights.time_period.end).toLocaleDateString('ar')} 
+                      هذه البيانات للفترة من {new Date(insights.time_period.start).toLocaleDateString('ar-SA', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              calendar: 'gregory',
+              numberingSystem: 'latn'
+            })}
+            {' '}إلى {new Date(insights.time_period.end).toLocaleDateString('ar-SA', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              calendar: 'gregory',
+              numberingSystem: 'latn'
+            })} 
           {' '}({insights.time_period.days} أيام)
         </p>
       </div>

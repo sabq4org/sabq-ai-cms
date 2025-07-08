@@ -244,7 +244,13 @@ export default function EmailAnalyticsPage() {
                     </div>
                     <p className="text-sm text-gray-600">{campaign.subject}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      أرسلت إلى {campaign.sentCount} مشترك • {new Date(campaign.sentAt).toLocaleDateString('ar-SA')}
+                      أرسلت إلى {campaign.sentCount} مشترك • {new Date(campaign.sentAt).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    calendar: 'gregory',
+                    numberingSystem: 'latn'
+                  })}
                     </p>
                   </div>
                   <div className="flex gap-6 items-center">

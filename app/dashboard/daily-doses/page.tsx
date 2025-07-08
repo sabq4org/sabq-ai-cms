@@ -387,7 +387,13 @@ export default function DailyDosesManagementPage() {
                 تحرير جرعة {periodOptions.find(p => p.value === editingDose.period)?.label}
               </DialogTitle>
               <DialogDescription>
-                {new Date(editingDose.date).toLocaleDateString('ar-SA')}
+                {new Date(editingDose.date).toLocaleDateString('ar-SA', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  calendar: 'gregory',
+                  numberingSystem: 'latn'
+                })}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-6 py-4">

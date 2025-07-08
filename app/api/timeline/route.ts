@@ -800,8 +800,10 @@ export async function GET(request: NextRequest) {
         }),
         date: date.toLocaleDateString('ar-SA', {
           year: 'numeric',
-          month: 'numeric',
-          day: 'numeric'
+          month: 'long',
+          day: 'numeric',
+          calendar: 'gregory',
+          numberingSystem: 'latn'
         }),
         timeAgo,
         // تحديد نوع العرض للواجهة

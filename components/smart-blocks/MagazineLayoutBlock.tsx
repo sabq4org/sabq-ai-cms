@@ -106,7 +106,13 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
                         
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
-                          <span>{new Date(mainArticle.publishedAt).toLocaleDateString('ar-SA')}</span>
+                          <span>{new Date(mainArticle.publishedAt).toLocaleDateString('ar-SA', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            calendar: 'gregory',
+                            numberingSystem: 'latn'
+                          })}</span>
                         </div>
                         
                         {mainArticle.views && (
@@ -157,7 +163,13 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
                   <div className="article-card-meta">
                     <div className="article-meta-item">
                       <Calendar />
-                      <span>{new Date(article.publishedAt).toLocaleDateString('ar-SA')}</span>
+                      <span>{new Date(article.publishedAt).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        calendar: 'gregory',
+                        numberingSystem: 'latn'
+                      })}</span>
                     </div>
                     
                     {article.readTime && (
@@ -205,7 +217,13 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
                         </span>
                       )}
                       
-                      <span>{new Date(article.publishedAt).toLocaleDateString('ar-SA')}</span>
+                      <span>{new Date(article.publishedAt).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        calendar: 'gregory',
+                        numberingSystem: 'latn'
+                      })}</span>
                     </div>
                   </div>
                 </article>

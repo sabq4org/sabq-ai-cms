@@ -274,7 +274,13 @@ export default function CategoryDetailsPage() {
                       </span>
                       <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         <Calendar className="w-4 h-4 inline ml-1" />
-                        {new Date(article.created_at).toLocaleDateString('ar-SA')}
+                        {new Date(article.created_at).toLocaleDateString('ar-SA', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          calendar: 'gregory',
+                          numberingSystem: 'latn'
+                        })}
                       </span>
                       <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         <Eye className="w-4 h-4 inline ml-1" />

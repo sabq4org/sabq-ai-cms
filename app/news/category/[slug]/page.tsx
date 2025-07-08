@@ -182,22 +182,15 @@ export default function CategoryPage({ params }: PageProps) {
     }
   };
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-    if (diffInHours < 1) {
-      return 'منذ دقائق';
-    } else if (diffInHours < 24) {
-      return `منذ ${Math.floor(diffInHours)} ساعة`;
-    } else if (diffInHours < 48) {
-      return 'أمس';
-    } else {
-      return date.toLocaleDateString('ar-SA', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    }
+    return date.toLocaleDateString('ar-SA', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
+    });
   };
   const generatePlaceholderImage = (title: string) => {
     const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#EF4444', '#F59E0B'];

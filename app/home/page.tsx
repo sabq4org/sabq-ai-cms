@@ -204,7 +204,13 @@ export default function HomePage() {
               }`}>{article.title}</h3>
               <div className="flex items-center gap-3 text-sm">
                 <span className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {new Date(article.created_at).toLocaleDateString('ar-SA')}
+                  {new Date(article.created_at).toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    calendar: 'gregory',
+                    numberingSystem: 'latn'
+                  })}
                 </span>
                 <span className={`flex items-center gap-1 ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
@@ -244,7 +250,13 @@ export default function HomePage() {
                 darkMode ? 'text-gray-400' : 'text-gray-500'
               }`}>
                 <Clock className="w-3 h-3" />
-                {new Date(article.created_at).toLocaleDateString('ar-SA')}
+                                      {new Date(article.created_at).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        calendar: 'gregory',
+                        numberingSystem: 'latn'
+                      })}
               </span>
             </div>
             <Link 

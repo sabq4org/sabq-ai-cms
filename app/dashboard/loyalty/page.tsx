@@ -650,7 +650,13 @@ export default function LoyaltyPage() {
                             </td>
                             <td className="py-4 px-4">
                               <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                {new Date(user.last_activity).toLocaleDateString('ar-SA')}
+                                {new Date(user.last_activity).toLocaleDateString('ar-SA', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric',
+                                  calendar: 'gregory',
+                                  numberingSystem: 'latn'
+                                })}
                               </span>
                             </td>
                           </tr>

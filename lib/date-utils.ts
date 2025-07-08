@@ -1,142 +1,184 @@
-/**
- * أدوات تنسيق التاريخ الميلادي
- */
+// دوال مساعدة للتاريخ - بالتقويم الميلادي فقط
+
+export interface DateFormatOptions {
+  includeTime?: boolean;
+  format?: 'short' | 'medium' | 'long' | 'full';
+  timeZone?: string;
+}
 
 /**
- * تنسيق التاريخ الميلادي الكامل مع الوقت
- * مثال: 20 يونيو 2025 - 02:45 ص
+ * تنسيق التاريخ بالتقويم الميلادي باللغة العربية
  */
-export function formatFullDate(dateString: string | Date): string {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+export function formatDate(date: Date | string, options: DateFormatOptions = {}): string {
+  const {
+    includeTime = false,
+    format = 'medium',
+    timeZone = 'Asia/Riyadh'
+  } = options;
+
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   
-  const options: Intl.DateTimeFormatOptions = {
+  if (!dateObj || isNaN(dateObj.getTime())) {
+    return 'تاريخ غير صحيح';
+  }
+
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    timeZone,
+    calendar: 'gregory', // التقويم الميلادي
+    numberingSystem: 'latn', // الأرقام اللاتينية
+  };
+
+  // إعداد تنسيق التاريخ
+  if (format === 'short') {
+    dateOptions.year = 'numeric';
+    dateOptions.month = 'numeric';
+    dateOptions.day = 'numeric';
+  } else if (format === 'medium') {
+    dateOptions.year = 'numeric';
+    dateOptions.month = 'short';
+    dateOptions.day = 'numeric';
+  } else if (format === 'long') {
+    dateOptions.year = 'numeric';
+    dateOptions.month = 'long';
+    dateOptions.day = 'numeric';
+    dateOptions.weekday = 'long';
+  } else if (format === 'full') {
+    dateOptions.year = 'numeric';
+    dateOptions.month = 'long';
+    dateOptions.day = 'numeric';
+    dateOptions.weekday = 'long';
+  }
+
+  // إضافة الوقت إذا كان مطلوباً
+  if (includeTime) {
+    dateOptions.hour = '2-digit';
+    dateOptions.minute = '2-digit';
+    dateOptions.hour12 = true;
+  }
+
+  return dateObj.toLocaleDateString('ar-SA', dateOptions);
+}
+
+/**
+ * تنسيق التاريخ والوقت معاً
+ */
+export function formatDateTime(date: Date | string, format: 'short' | 'medium' | 'long' = 'medium'): string {
+  return formatDate(date, { includeTime: true, format });
+}
+
+/**
+ * تنسيق التاريخ بشكل مختصر (رقمي)
+ */
+export function formatDateShort(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  if (!dateObj || isNaN(dateObj.getTime())) {
+    return 'تاريخ غير صحيح';
+  }
+
+  return dateObj.toLocaleDateString('ar-SA', {
     year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-    timeZone: 'Asia/Riyadh'
-  };
-  
-  // استخدام التقويم الميلادي مع الأرقام العربية
-  return date.toLocaleDateString('ar-SA-u-nu-latn', options);
+    month: '2-digit',
+    day: '2-digit',
+    calendar: 'gregory',
+    numberingSystem: 'latn'
+  });
 }
 
 /**
- * تنسيق التاريخ فقط بدون وقت
- * مثال: 20 يونيو 2025
+ * تنسيق التاريخ النسبي (منذ كم من الوقت)
  */
-export function formatDateOnly(dateString: string | Date): string {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-  
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'Asia/Riyadh'
-  };
-  
-  return date.toLocaleDateString('ar-SA-u-nu-latn', options);
-}
-
-/**
- * تنسيق الوقت فقط
- * مثال: 02:45 ص
- */
-export function formatTimeOnly(dateString: string | Date): string {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-  
-  const options: Intl.DateTimeFormatOptions = {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-    timeZone: 'Asia/Riyadh'
-  };
-  
-  return date.toLocaleTimeString('ar-SA-u-nu-latn', options);
-}
-
-/**
- * تنسيق التاريخ النسبي (منذ...)
- * مثال: منذ 5 دقائق، منذ ساعتين، أمس
- */
-export function formatRelativeDate(dateString: string | Date): string {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+export function formatRelativeDate(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
-  if (diffMins < 1) {
+  const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
+
+  if (diffInSeconds < 60) {
     return 'الآن';
-  } else if (diffMins < 60) {
-    return `منذ ${diffMins} ${diffMins === 1 ? 'دقيقة' : diffMins === 2 ? 'دقيقتين' : diffMins <= 10 ? 'دقائق' : 'دقيقة'}`;
-  } else if (diffHours < 24) {
-    return `منذ ${diffHours} ${diffHours === 1 ? 'ساعة' : diffHours === 2 ? 'ساعتين' : diffHours <= 10 ? 'ساعات' : 'ساعة'}`;
-  } else if (diffDays === 0) {
-    return 'اليوم';
-  } else if (diffDays === 1) {
-    return 'أمس';
-  } else if (diffDays === 2) {
-    return 'أول أمس';
-  } else if (diffDays < 7) {
-    return `منذ ${diffDays} أيام`;
-  } else if (diffDays < 30) {
-    const weeks = Math.floor(diffDays / 7);
-    return `منذ ${weeks} ${weeks === 1 ? 'أسبوع' : weeks === 2 ? 'أسبوعين' : 'أسابيع'}`;
-  } else if (diffDays < 365) {
-    const months = Math.floor(diffDays / 30);
-    return `منذ ${months} ${months === 1 ? 'شهر' : months === 2 ? 'شهرين' : months <= 10 ? 'أشهر' : 'شهر'}`;
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    return `منذ ${minutes} دقيقة`;
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `منذ ${hours} ساعة`;
+  } else if (diffInSeconds < 2592000) {
+    const days = Math.floor(diffInSeconds / 86400);
+    return `منذ ${days} يوم`;
   } else {
-    const years = Math.floor(diffDays / 365);
-    return `منذ ${years} ${years === 1 ? 'سنة' : years === 2 ? 'سنتين' : years <= 10 ? 'سنوات' : 'سنة'}`;
+    return formatDate(dateObj, { format: 'short' });
   }
 }
 
 /**
- * تنسيق التاريخ للجداول (مختصر)
- * مثال: 20/06/2025 - 02:45 ص
+ * تنسيق الوقت فقط
  */
-export function formatTableDate(dateString: string | Date): string {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+export function formatTime(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   
-  const dateOptions: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    timeZone: 'Asia/Riyadh'
-  };
-  
-  const timeOptions: Intl.DateTimeFormatOptions = {
+  if (!dateObj || isNaN(dateObj.getTime())) {
+    return 'وقت غير صحيح';
+  }
+
+  return dateObj.toLocaleTimeString('ar-SA', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
     timeZone: 'Asia/Riyadh'
-  };
-  
-  const dateStr = date.toLocaleDateString('ar-SA-u-nu-latn', dateOptions);
-  const timeStr = date.toLocaleTimeString('ar-SA-u-nu-latn', timeOptions);
-  
-  return `${dateStr} - ${timeStr}`;
+  });
 }
 
 /**
- * التحقق من صحة التاريخ
+ * تحويل التاريخ إلى نص قابل للقراءة
  */
-export function isValidDate(dateString: string | Date): boolean {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-  return date instanceof Date && !isNaN(date.getTime());
-}
-
-/**
- * الحصول على التاريخ الحالي بتوقيت السعودية
- */
-export function getSaudiNow(): Date {
+export function formatDateReadable(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   const now = new Date();
-  const saudiOffset = 3 * 60 * 60 * 1000; // +3 hours
-  return new Date(now.getTime() + saudiOffset);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+  const targetDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+
+  if (targetDate.getTime() === today.getTime()) {
+    return `اليوم، ${formatTime(dateObj)}`;
+  } else if (targetDate.getTime() === yesterday.getTime()) {
+    return `أمس، ${formatTime(dateObj)}`;
+  } else if (now.getTime() - targetDate.getTime() < 7 * 24 * 60 * 60 * 1000) {
+    return dateObj.toLocaleDateString('ar-SA', {
+      weekday: 'long',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      calendar: 'gregory',
+      numberingSystem: 'latn'
+    });
+  } else {
+    return formatDateTime(dateObj, 'medium');
+  }
 }
 
-// Force rebuild - 2025-01-04 
+/**
+ * الحصول على التاريخ الحالي بالميلادي
+ */
+export function getCurrentDate(): string {
+  return formatDate(new Date(), { format: 'long' });
+}
+
+/**
+ * الحصول على التاريخ والوقت الحالي
+ */
+export function getCurrentDateTime(): string {
+  return formatDateTime(new Date(), 'long');
+}
+
+/**
+ * دالة formatFullDate للتوافق مع الملفات القديمة
+ */
+export function formatFullDate(date: Date | string): string {
+  return formatDateTime(date, 'long');
+}
+
+/**
+ * دالة formatDateOnly للتوافق مع الملفات القديمة
+ */
+export function formatDateOnly(date: Date | string): string {
+  return formatDate(date, { format: 'long' });
+} 

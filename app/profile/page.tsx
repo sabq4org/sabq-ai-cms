@@ -299,10 +299,13 @@ export default function ProfilePage() {
     router.push('/'); // العودة للصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
   };
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('ar-SA', {
       year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      month: 'short',
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
     });
   };
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {

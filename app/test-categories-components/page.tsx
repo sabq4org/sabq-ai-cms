@@ -151,7 +151,13 @@ export default function TestCategoriesComponents() {
                           <div key={article.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                             <h4 className="font-bold text-sm mb-2 line-clamp-2">{article.title}</h4>
                             <p className="text-xs text-gray-500">
-                              {new Date(article.created_at).toLocaleDateString('ar-SA')}
+                              {new Date(article.created_at).toLocaleDateString('ar-SA', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                calendar: 'gregory',
+                                numberingSystem: 'latn'
+                              })}
                             </p>
                           </div>
                         ))}

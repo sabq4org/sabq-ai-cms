@@ -377,7 +377,11 @@ export async function analyzeUserBehavior(userId: string): Promise<any> {
       readingPatterns.by_hour[hour] = (readingPatterns.by_hour[hour] || 0) + 1;
 
       // حسب اليوم
-      const day = new Date(interaction.timestamp).toLocaleDateString('ar-SA', { weekday: 'long' });
+      const day = new Date(interaction.timestamp).toLocaleDateString('ar-SA', { 
+        weekday: 'long',
+        calendar: 'gregory',
+        numberingSystem: 'latn'
+      });
       readingPatterns.by_day[day] = (readingPatterns.by_day[day] || 0) + 1;
 
       // المدة والإكمال

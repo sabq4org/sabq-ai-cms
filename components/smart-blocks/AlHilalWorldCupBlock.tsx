@@ -83,7 +83,9 @@ export function AlHilalWorldCupBlock({
     return articleDate.toLocaleDateString('ar-SA', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
     });
   };
 
