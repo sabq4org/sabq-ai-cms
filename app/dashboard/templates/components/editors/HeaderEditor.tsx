@@ -253,7 +253,12 @@ export function HeaderEditor({ content, onChange }: HeaderEditorProps) {
           {content.logo?.url && (
             <div className="p-4 bg-white rounded-lg border border-gray-200">
               <p className="text-xs text-gray-500 mb-2">معاينة الشعار:</p>
-              <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
+              <Image 
+                src={content.logo.url || "/placeholder.jpg"} 
+                alt={content.logo.alt || ""} 
+                width={content.logo.width || 100} 
+                height={content.logo.height || 100}
+                onError={(e) => {
                   (e.target as HTMLImageElement).src = '/images/placeholder-logo.png'
                 }}
               />
