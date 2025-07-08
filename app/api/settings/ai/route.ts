@@ -1,31 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
+// محاولة تحميل الإعدادات من قاعدة البيانات عند التشغيل الأول
+let aiSettings: any = null;
 
-
-
-
-
-
-// في التطبيق الحقيقي، سيتم حفظ هذه الإعدادات في قاعدة البيانات
-let aiSettings = {
-  openai: {
-    apiKey: process.env.OPENAI_API_KEY || '',
-    model: 'gpt-4',
-    maxTokens: 2000,
-    temperature: 0.7
-  },
-  features: {
-    aiEditor: true,
-    analytics: true,
-    notifications: true
+async function loadSettingsFromDB() {
+  if (aiSettings) return aiSettings;
+  try {
+    const row = await prisma.site_settings.findUnique({
+      where: { section: 'ai' }
+    });
+    if (row) {
+      aiSettings = row.data as any;
+    }
+  } catch (err) {
+    console.error('DB load error for AI settings:', err);
   }
-};
+  if (!aiSettings) {
+    aiSettings = {
+      openai: {
+        apiKey: process.env.OPENAI_API_KEY || '',
+        model: 'gpt-4',
+        maxTokens: 2000,
+        temperature: 0.7
+      },
+      features: {
+        aiEditor: true,
+        analytics: true,
+        notifications: true
+      }
+    };
+  }
+  return aiSettings;
+}
 
 export async function GET() {
   try {
+    const current = await loadSettingsFromDB();
     return NextResponse.json({
       success: true,
-      data: aiSettings
+      data: current
     });
   } catch (error) {
     console.error('خطأ في جلب إعدادات الذكاء الاصطناعي:', error);
@@ -40,19 +54,26 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // تحديث الإعدادات
-    aiSettings = {
-      ...aiSettings,
-      ...body
-    };
+    const current = await loadSettingsFromDB();
+    // دمج القيم
+    aiSettings = { ...current, ...body };
 
-    // في التطبيق الحقيقي، سيتم حفظ في قاعدة البيانات
-    console.log('تم تحديث إعدادات الذكاء الاصطناعي:', aiSettings);
+    // حفظ في قاعدة البيانات
+    await prisma.site_settings.upsert({
+      where: { section: 'ai' },
+      update: { data: aiSettings, updated_at: new Date() },
+      create: {
+        id: `ai-${Date.now()}`,
+        section: 'ai',
+        data: aiSettings,
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+    });
 
-    // تحديث متغيرات البيئة (في التطبيق الحقيقي)
-    if (body.openai?.apiKey) {
-      process.env.OPENAI_API_KEY = body.openai.apiKey;
-      console.log('تم تحديث مفتاح OpenAI');
+    // تحديث env للمسار الحالي
+    if (aiSettings.openai?.apiKey) {
+      process.env.OPENAI_API_KEY = aiSettings.openai.apiKey;
     }
 
     return NextResponse.json({
