@@ -389,7 +389,7 @@ function NewspaperHomePage(): React.ReactElement {
                 <div className="flex items-center gap-2 sm:gap-3 text-xs">
                   <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
                     <Calendar className="w-3 h-3" />
-                    {new Date(news.created_at).toLocaleDateString('ar-SA', {
+                    {new Date(news.published_at || news.created_at).toLocaleDateString('ar-SA', {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric'
@@ -712,7 +712,7 @@ function NewspaperHomePage(): React.ReactElement {
                                     <div className="flex items-center gap-2 sm:gap-3 text-xs">
                                       <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
                                         <Calendar className="w-3 h-3" />
-                                        {new Date(article.created_at).toLocaleDateString('ar-SA', {
+                                        {new Date(article.published_at || article.created_at).toLocaleDateString('ar-SA', {
                                     year: 'numeric',
                                     month: 'short',
                                     day: 'numeric'
@@ -906,7 +906,7 @@ function NewspaperHomePage(): React.ReactElement {
               {/* عرض المقالات */}
               {(showPersonalized && personalizedArticles.length > 0) ? (
                 // عرض المقالات المخصصة للمستخدمين المسجلين
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                   {personalizedArticles.slice(0, 12).map((news) => (
                     <div key={news.id} className="relative">
                       {/* شارة "مخصص لك" */}
@@ -926,7 +926,7 @@ function NewspaperHomePage(): React.ReactElement {
                 </div>
               ) : articles.length > 0 ? (
                 // عرض آخر المقالات للزوار أو المستخدمين بدون تفضيلات
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                   {articles.slice(0, 12).map((news) => (
                     <NewsCard key={news.id} news={news} />
                   ))}
@@ -946,7 +946,7 @@ function NewspaperHomePage(): React.ReactElement {
                   <Link 
                     href="/for-you"
                     className="group inline-flex items-center gap-2 px-8 py-3 rounded-full text-base font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-                    <span>عرض جميع المقالات</span>
+                    <span>المزيد من الأخبار</span>
                     <ArrowLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </div>

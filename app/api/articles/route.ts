@@ -143,7 +143,11 @@ export async function GET(request: NextRequest) {
     
     let orderBy: any = {};
     if (sortBy === 'published_at') {
-      orderBy.published_at = order;
+      // استخدام created_at إذا كان published_at غير موجود
+      orderBy = [
+        { published_at: order },
+        { created_at: order }
+      ];
     } else if (sortBy === 'views_count') {
       orderBy.views_count = order;
     } else if (sortBy === 'engagement_score') {
@@ -151,7 +155,10 @@ export async function GET(request: NextRequest) {
     } else if (sortBy === 'created_at') {
       orderBy.created_at = order;
     } else {
-      orderBy.published_at = order;
+      orderBy = [
+        { published_at: order },
+        { created_at: order }
+      ];
     }
 
     // التقسيم (Pagination)
