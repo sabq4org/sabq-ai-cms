@@ -196,7 +196,6 @@ dist
 
 # Gatsby files
 .cache/
-public
 
 # Storybook build outputs
 .out
@@ -244,3 +243,8 @@ coverage/
 # Local development
 .local/
 .env.local
+
+# Public folder - exclude uploads only
+public/uploads/
+
+# Legacy patterns

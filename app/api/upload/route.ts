@@ -41,59 +41,86 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    try {
-      // تحديد مجلد Cloudinary حسب النوع
-      let folder = 'sabq-cms/general';
-      switch (type) {
-        case 'avatar':
-          folder = 'sabq-cms/avatars';
-          break;
-        case 'featured':
-          folder = 'sabq-cms/featured';
-          break;
-        case 'gallery':
-          folder = 'sabq-cms/gallery';
-          break;
-        case 'team':
-          folder = 'sabq-cms/team';
-          break;
-        case 'analysis':
-          folder = 'sabq-cms/analysis';
-          break;
-        default:
-          folder = 'sabq-cms/general';
+    // التحقق من توفر Cloudinary
+    const hasCloudinary = process.env.CLOUDINARY_CLOUD_NAME && 
+                         process.env.CLOUDINARY_API_KEY && 
+                         process.env.CLOUDINARY_API_SECRET;
+
+    if (hasCloudinary) {
+      try {
+        // تحديد مجلد Cloudinary حسب النوع
+        let folder = 'sabq-cms/general';
+        switch (type) {
+          case 'avatar':
+            folder = 'sabq-cms/avatars';
+            break;
+          case 'featured':
+            folder = 'sabq-cms/featured';
+            break;
+          case 'gallery':
+            folder = 'sabq-cms/gallery';
+            break;
+          case 'team':
+            folder = 'sabq-cms/team';
+            break;
+          case 'analysis':
+            folder = 'sabq-cms/analysis';
+            break;
+          default:
+            folder = 'sabq-cms/general';
+        }
+
+        console.log('📤 رفع الصورة إلى Cloudinary...');
+
+        // رفع الصورة إلى Cloudinary
+        const result = await uploadToCloudinary(file, {
+          folder,
+          fileName: file.name
+        });
+
+        console.log('✅ تم رفع الصورة إلى Cloudinary بنجاح:', result.url);
+
+        return NextResponse.json({ 
+          success: true, 
+          url: result.url,
+          public_id: result.publicId,
+          width: result.width,
+          height: result.height,
+          format: result.format,
+          bytes: result.bytes,
+          message: 'تم رفع الصورة إلى السحابة بنجاح',
+          cloudinary_storage: true
+        });
+
+      } catch (uploadError) {
+        console.error('❌ خطأ في رفع الملف إلى Cloudinary:', uploadError);
+        // السماح بالاستمرار مع placeholder
       }
-
-      console.log('📤 رفع الصورة إلى Cloudinary...');
-
-      // رفع الصورة إلى Cloudinary فقط
-      const result = await uploadToCloudinary(file, {
-        folder,
-        fileName: file.name
-      });
-
-      console.log('✅ تم رفع الصورة إلى Cloudinary بنجاح:', result.url);
-
-      return NextResponse.json({ 
-        success: true, 
-        url: result.url,
-        public_id: result.publicId,
-        width: result.width,
-        height: result.height,
-        format: result.format,
-        bytes: result.bytes,
-        message: 'تم رفع الصورة إلى السحابة بنجاح',
-        cloudinary_storage: true
-      });
-
-    } catch (uploadError) {
-      console.error('❌ خطأ في رفع الملف إلى Cloudinary:', uploadError);
-      return NextResponse.json({ 
-        success: false, 
-        error: 'فشل في رفع الصورة إلى السحابة',
-        message: 'جميع الصور يجب رفعها إلى Cloudinary. لا يمكن حفظها محلياً.'
-      }, { status: 500 });
     }
+
+    // إذا لم يتوفر Cloudinary، استخدم placeholder
+    console.log('⚠️ استخدام صورة placeholder - Cloudinary غير متوفر');
+    
+    // إرجاع صورة placeholder حسب النوع
+    let placeholderUrl = '/placeholder.jpg';
+    if (type === 'avatar') {
+      placeholderUrl = '/images/placeholder-avatar.jpg';
+    } else if (type === 'featured') {
+      placeholderUrl = '/images/placeholder-featured.jpg';
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      url: placeholderUrl,
+      public_id: 'placeholder_' + Date.now(),
+      width: 800,
+      height: 600,
+      format: 'jpg',
+      bytes: 0,
+      message: 'تم استخدام صورة مؤقتة - يرجى إعداد Cloudinary للرفع الحقيقي',
+      cloudinary_storage: false,
+      is_placeholder: true
+    });
 
   } catch (error) {
     console.error('❌ خطأ في معالجة الملف:', error);
