@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 
 
 import { 
-  Type, Quote, Image, Video, List, Link, Palette, Plus,
+  Type, Quote, Image as ImageIcon, Video, List, Link, Palette, Plus,
   ArrowUp, ArrowDown, Trash2, MessageSquare, Hash, Sparkles,
   Brain, RefreshCw, Upload, Play, ExternalLink, Table, Code
 } from 'lucide-react';
@@ -53,7 +53,7 @@ export default function ContentEditor({
     { type: 'paragraph', name: 'فقرة نصية', icon: Type, color: 'blue' },
     { type: 'heading', name: 'عنوان فرعي', icon: Hash, color: 'purple' },
     { type: 'quote', name: 'اقتباس', icon: Quote, color: 'gray' },
-    { type: 'image', name: 'صورة', icon: Image, color: 'green' },
+    { type: 'image', name: 'صورة', icon: ImageIcon, color: 'green' },
     { type: 'video', name: 'فيديو', icon: Video, color: 'red' },
     { type: 'table', name: 'جدول', icon: Table, color: 'indigo' },
     { type: 'tweet', name: 'تغريدة', icon: MessageSquare, color: 'cyan' },
@@ -386,7 +386,7 @@ function ContentBlockEditor({
     paragraph: Type,
     heading: Hash,
     quote: Quote,
-    image: Image,
+    image: ImageIcon,
     video: Video,
     tweet: MessageSquare,
     list: List,
