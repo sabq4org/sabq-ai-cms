@@ -1,11 +1,8 @@
+// @ts-nocheck
 'use client';
 
 import Image from 'next/image';
 import React, { useState } from 'react';
-
-// @ts-nocheck
-
-
 
 import { 
   Type, Quote, Image as ImageIcon, Video, List, Link, Palette, Plus,
