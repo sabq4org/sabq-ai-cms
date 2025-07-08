@@ -78,7 +78,7 @@ export default function ContentEditorWithTiptap({
           html += `<ul>${items.map((item: string) => `<li>${item}</li>`).join('')}</ul>`;
           break;
         case 'image':
-          html += `<Image src={"${block.content.url}"} alt="${block.content.alt || " width={100} height={100} />`;
+          html += `<Image src="${block.content.url || ''}" alt="${block.content.alt || ''}" width={100} height={100} />`;
           break;
         default:
           // للأنواع الأخرى، نضيف كفقرة
