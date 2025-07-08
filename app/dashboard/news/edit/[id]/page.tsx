@@ -112,7 +112,7 @@ export default function EditArticlePage() {
           description: articleData.excerpt || articleData.summary || articleData.seo_description || '',
           category_id: articleData.category_id || 1,
           subcategory_id: articleData.subcategory_id,
-          is_breaking: articleData.is_breaking === true || articleData.metadata?.is_breaking === true || false,
+          is_breaking: articleData.is_breaking === true || articleData.breaking === true || articleData.metadata?.is_breaking === true || false,
           is_featured: articleData.is_featured === true || articleData.metadata?.is_featured === true || false,
           is_smart_newsletter: articleData.is_smart_newsletter || false,
           keywords: Array.isArray(articleData.seo_keywords) 

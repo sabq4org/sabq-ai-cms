@@ -73,7 +73,7 @@ export default function DashboardPage() {
         const articlesArray = articlesData.articles || articlesData.data || articlesData || [];
         
         // جلب إجمالي عدد المقالات من البيانات الوصفية
-        const totalArticles = articlesData.total || articlesData.totalCount || articlesArray.length;
+        const totalArticles = articlesData.pagination?.total || articlesData.total || articlesData.totalCount || articlesArray.length;
         
         // حساب مقالات اليوم
         const today = new Date();
