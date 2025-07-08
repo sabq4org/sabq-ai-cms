@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 
 import { 
   Sparkles, Brain, RefreshCw, Type, ArrowUp, ArrowDown, 
-  Trash2, Image, Video, Quote, Hash, List, Link, Palette, FileText, Tag, AlignLeft, Layers,
+  Trash2, Image as ImageIcon, Video, Quote, Hash, List, Link, Palette, FileText, Tag, AlignLeft, Layers,
   PenTool, Wand2, BookOpen, Award, Zap, Target
 } from 'lucide-react';
 
@@ -384,7 +384,7 @@ export default function ContentEditor({
               <div className="group relative bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-2xl border border-pink-200 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
-                    <Image className="w-6 h-6 text-white" />
+                    <ImageIcon className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900">الصورة المميزة</h3>
@@ -417,7 +417,7 @@ export default function ContentEditor({
                   <div className="space-y-4">
                     <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-pink-400 transition-all duration-300">
                       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Image className="w-8 h-8 text-gray-400" />
+                        <ImageIcon className="w-8 h-8 text-gray-400" />
                       </div>
                       <p className="text-gray-600 mb-4">اسحب وأفلت الصورة هنا أو</p>
                       <label className="cursor-pointer">
@@ -635,7 +635,7 @@ export default function ContentEditor({
               { type: 'paragraph', name: 'فقرة نصية', icon: Type, color: 'from-blue-500 to-blue-600', desc: 'نص عادي' },
               { type: 'heading', name: 'عنوان فرعي', icon: Hash, color: 'from-purple-500 to-purple-600', desc: 'H1-H4' },
               { type: 'quote', name: 'اقتباس', icon: Quote, color: 'from-green-500 to-green-600', desc: 'نص مميز' },
-              { type: 'image', name: 'صورة', icon: Image, color: 'from-orange-500 to-orange-600', desc: 'JPG/PNG' },
+              { type: 'image', name: 'صورة', icon: ImageIcon, color: 'from-orange-500 to-orange-600', desc: 'JPG/PNG' },
               { type: 'video', name: 'فيديو', icon: Video, color: 'from-red-500 to-red-600', desc: 'YouTube' },
               { type: 'list', name: 'قائمة', icon: List, color: 'from-cyan-500 to-cyan-600', desc: 'نقاط/أرقام' },
               { type: 'link', name: 'رابط', icon: Link, color: 'from-indigo-500 to-indigo-600', desc: 'URL' },
@@ -736,7 +736,7 @@ function ContentBlockEditor({
       paragraph: { name: 'فقرة نصية', icon: Type },
       heading: { name: 'عنوان فرعي', icon: Hash },
       quote: { name: 'اقتباس', icon: Quote },
-      image: { name: 'صورة', icon: Image },
+      image: { name: 'صورة', icon: ImageIcon },
       video: { name: 'فيديو', icon: Video },
       list: { name: 'قائمة', icon: List },
       link: { name: 'رابط', icon: Link }
