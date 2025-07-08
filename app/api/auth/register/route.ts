@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
 import bcrypt from 'bcryptjs';
 import { sendVerificationEmail, generateVerificationCode } from '@/lib/email';
+import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
 export const runtime = 'nodejs';
 
-
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { name, email, password } = body;
@@ -96,6 +95,7 @@ export async function POST(request: NextRequest) {
     // إنشاء نقاط ولاء أولية (50 نقطة ترحيبية)
     await prisma.loyalty_points.create({
       data: {
+        id: `lp-${crypto.randomUUID()}`,
         user_id: newUser.id,
         points: 50,
         action: 'registration_bonus'
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const [totalUsers, verifiedUsers, totalPoints] = await Promise.all([
       prisma.users.count(),
