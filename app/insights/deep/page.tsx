@@ -287,7 +287,25 @@ export default function DeepAnalysesPage() {
                 {filteredAnalyses.map((analysis) => (
                   <DeepAnalysisCard 
                     key={analysis.id}
-                    analysis={analysis} 
+                    analysis={{
+                      id: analysis.id,
+                      title: analysis.title,
+                      slug: analysis.slug,
+                      summary: analysis.summary,
+                      categories: analysis.categories,
+                      tags: analysis.tags,
+                      authorName: analysis.authorName,
+                      sourceType: analysis.sourceType,
+                      analysisType: analysis.analysisType,
+                      readingTime: analysis.readingTime,
+                      views: analysis.views,
+                      likes: analysis.likes,
+                      qualityScore: analysis.qualityScore,
+                      status: analysis.status,
+                      createdAt: analysis.createdAt,
+                      publishedAt: analysis.publishedAt,
+                      featuredImage: analysis.featuredImage || undefined
+                    }} 
                     viewMode={viewMode}
                   />
                 ))}
