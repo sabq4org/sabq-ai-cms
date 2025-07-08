@@ -552,7 +552,6 @@ export default function DashboardLayout({
                       <Settings className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">إعدادات AI</span>
-                      </div>
                   </Link>
 
                   <Link href="/dashboard/images" 
@@ -570,7 +569,6 @@ export default function DashboardLayout({
                       <ImageIcon className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">إدارة الصور</span>
-                      </div>
                   </Link>
 
                   <Link href="/dashboard/comments" 
@@ -684,7 +682,6 @@ export default function DashboardLayout({
                       <FileText className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">القوالب</span>
-                      </div>
                   </Link>
 
                   <Link href="/dashboard/messages" 
@@ -789,7 +786,6 @@ export default function DashboardLayout({
                       <Trophy className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">مكافآت المستخدمين</span>
-                      </div>
                   </Link>
                 </div>
               </div>
@@ -846,7 +842,6 @@ export default function DashboardLayout({
                       <Shield className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">الأدوار</span>
-                      </div>
                   </Link>
 
                   <Link href="/dashboard/team" 
@@ -864,7 +859,6 @@ export default function DashboardLayout({
                       <Users className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">الفريق</span>
-                      </div>
                   </Link>
                 </div>
               </div>
@@ -897,7 +891,6 @@ export default function DashboardLayout({
                       <LayoutDashboard className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">لوحة التحكم</span>
-                      </div>
                   </Link>
 
                   <Link href="/dashboard/settings" 
@@ -915,7 +908,6 @@ export default function DashboardLayout({
                       <Settings className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">الإعدادات</span>
-                      </div>
                   </Link>
 
                   <Link href="/dashboard/system/logs" 
@@ -933,7 +925,6 @@ export default function DashboardLayout({
                       <Shield className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">سجلات النظام</span>
-                      </div>
                   </Link>
 
                   <Link href="/dashboard/activities" 
@@ -951,7 +942,6 @@ export default function DashboardLayout({
                       <Activity className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">الأنشطة</span>
-                      </div>
                   </Link>
                 </div>
               </div>
@@ -976,9 +966,7 @@ export default function DashboardLayout({
                 }`}>
                   <LogOut className="w-4 h-4 lg:w-5 lg:h-5" />
                 </div>
-                <div className="flex-1 text-right">
-                  <span className="text-sm lg:text-base font-medium">تسجيل الخروج</span>
-                  </div>
+                <span className="text-sm lg:text-base font-medium">تسجيل الخروج</span>
               </button>
             </div>
 
