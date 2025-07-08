@@ -1,16 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-
-'use client';
-
-
-
-
-
-
 'use client'
 
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
+import Image from 'next/image'
 
 export default function Error({
   error,

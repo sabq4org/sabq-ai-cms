@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -21,7 +23,6 @@ import TodayOpinionsSection from '@/components/TodayOpinionsSection';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import MobileArticleCard from '@/components/mobile/MobileArticleCard';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-'use client';
 import { 
   Share2, 
   Eye, 
@@ -337,7 +338,13 @@ function NewspaperHomePage(): React.ReactElement {
         {/* صورة المقال */}
         <div className="relative h-40 sm:h-48 overflow-hidden">
           {news.featured_image ? (
-            <Image src={undefined} alt="" width={100} height={100} />
+            <Image 
+              src={getValidImageUrl(news.featured_image) || '/placeholder-image.jpg'} 
+              alt={news.title || ''} 
+              width={400} 
+              height={300}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
           ) : (
             <div className={`w-full h-full flex items-center justify-center ${darkMode ? 'bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'}`}>
               <BookOpen className={`w-12 h-12 sm:w-16 sm:h-16 ${darkMode ? 'text-gray-600 dark:text-gray-400 dark:text-gray-500' : 'text-gray-300'}`} />
@@ -657,7 +664,13 @@ function NewspaperHomePage(): React.ReactElement {
                               {/* صورة المقال */}
                               <div className="relative h-40 sm:h-48 overflow-hidden">
                                 {article.featured_image ? (
-                                  <Image src={undefined} alt="" width={100} height={100} />
+                                  <Image 
+                                    src={getValidImageUrl(article.featured_image) || '/placeholder-image.jpg'} 
+                                    alt={article.title || ''} 
+                                    width={400} 
+                                    height={300}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                  />
                                 ) : (
                                   <div className={`w-full h-full flex items-center justify-center ${darkMode ? 'bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'}`}>
                                     <BookOpen className={`w-12 h-12 sm:w-16 sm:h-16 ${darkMode ? 'text-gray-600 dark:text-gray-400 dark:text-gray-500' : 'text-gray-300'}`} />
