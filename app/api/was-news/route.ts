@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import axios from 'axios';
 
 // متغيرات البيئة - مطابقة للبرومبت الرسمي
@@ -26,7 +26,7 @@ interface WasNewsItem {
   language?: string;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
     console.log('🔄 بدء جلب الأخبار من واس...');
     console.log('📍 استخدام endpoint:', ENDPOINTS.GET_NEXT_NEWS);
@@ -153,7 +153,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { 
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
 }
 
 // دالة لفحص حالة الاتصال
-export async function checkStatus() {
+async function checkStatus() {
   try {
     const response = await axios({
       method: 'GET',
@@ -249,7 +249,7 @@ export async function checkStatus() {
 }
 
 // دالة مساعدة لجلب التصنيفات (إذا كان هناك endpoint لها)
-export async function getClassifications() {
+async function getClassifications() {
   try {
     // يمكن إضافة endpoint للتصنيفات هنا إذا كان متوفراً
     console.log('📝 جلب التصنيفات غير متوفر حالياً');
