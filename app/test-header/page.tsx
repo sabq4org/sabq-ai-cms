@@ -119,7 +119,13 @@ export default function TestHeaderPage() {
             <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
               <h3 className="font-semibold text-blue-900 mb-4">معاينة الشعار المستخدم</h3>
               <div className="flex items-center gap-4">
-                <Image src="/placeholder.jpg" alt="معاينة الشعار" width={100} height={100} /> {
+                <Image 
+                  src={getLogoUrl() || "/placeholder.jpg"} 
+                  alt="معاينة الشعار" 
+                  width={100} 
+                  height={50}
+                  className="max-w-[100px] h-auto"
+                  onError={(e) => {
                     (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="50" viewBox="0 0 100 50"%3E%3Crect width="100" height="50" fill="%23ddd"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-family="sans-serif" font-size="12"%3EError%3C/text%3E%3C/svg%3E';
                   }}
                 />

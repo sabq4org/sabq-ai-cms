@@ -135,7 +135,13 @@ export default function TestSavePage() {
             {articles.map((article) => (
               <div key={article.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-start gap-4">
-                  <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
+                  <Image 
+                    src={article.featured_image || "/placeholder.jpg"} 
+                    alt={article.title} 
+                    width={100} 
+                    height={100}
+                    className="w-24 h-16 object-cover rounded-lg"
+                    onError={(e) => {
                       e.currentTarget.src = generatePlaceholderImage(article.title, 'article');
                     }}
                   />

@@ -7,7 +7,7 @@ import { getBlockTitle } from './utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 import {
-  Type, Heading, Image, Video, Quote, List, Code,
+  Type, Heading, Image as ImageIcon, Video, Quote, List, Code,
   Minus, Twitter, Link, Table, Plus
 } from 'lucide-react';
 
@@ -22,7 +22,7 @@ interface BlockMenuProps {
 const blockItems: { type: BlockType; icon: any; description: string; isEnabled?: boolean }[] = [
   { type: 'paragraph', icon: Type, description: 'نص عادي', isEnabled: true },
   { type: 'heading', icon: Heading, description: 'عنوان فرعي', isEnabled: true },
-  { type: 'image', icon: Image, description: 'صورة من جهازك أو رابط', isEnabled: true },
+  { type: 'image', icon: ImageIcon, description: 'صورة من جهازك أو رابط', isEnabled: true },
   { type: 'video', icon: Video, description: 'فيديو يوتيوب أو رابط', isEnabled: true },
   { type: 'quote', icon: Quote, description: 'اقتباس مميز', isEnabled: true },
   { type: 'list', icon: List, description: 'قائمة نقطية أو رقمية', isEnabled: true },

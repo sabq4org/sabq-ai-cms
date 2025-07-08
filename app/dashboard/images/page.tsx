@@ -4,7 +4,7 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
-  Image, 
+  Image as ImageIcon, 
   RefreshCw, 
   AlertTriangle, 
   CheckCircle, 
@@ -127,7 +127,7 @@ export default function ImagesManagementPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-                <Image className="w-8 h-8" />
+                <ImageIcon className="w-8 h-8" />
                 إدارة الصور
               </h1>
               <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>

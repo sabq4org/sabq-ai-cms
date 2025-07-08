@@ -168,7 +168,13 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
         </div>
       ) : (
         <div className="relative group">
-          <Image src="/placeholder.jpg" alt="صورة بارزة" width={100} height={100} /> {
+          <Image 
+            src={value || "/placeholder.jpg"} 
+            alt="صورة بارزة" 
+            width={300} 
+            height={200}
+            className="w-full h-48 object-cover rounded-xl"
+            onError={(e) => {
               console.error('خطأ في تحميل الصورة:', {
                 src: e.currentTarget.src,
                 alt: e.currentTarget.alt

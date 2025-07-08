@@ -8,7 +8,7 @@ import {
   Filter,
   Layout,
   FileText,
-  Image,
+  Image as ImageIcon,
   Menu,
   Calendar,
   Palette,
@@ -75,7 +75,7 @@ export default function TemplatesPage() {
       id: 'category', 
       name: 'الأقسام', 
       count: 5,
-      icon: Image
+      icon: ImageIcon
     },
     { 
       id: 'special', 

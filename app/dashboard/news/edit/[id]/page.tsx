@@ -9,7 +9,7 @@ import { logActions, getCurrentUser } from '../../../../../lib/log-activity';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Block } from '../../../../../components/BlockEditor/types';
 import { 
-  Save, Eye, Send, AlertTriangle, Image, Video,
+  Save, Eye, Send, AlertTriangle, Image as ImageIcon, Video,
   Sparkles, Brain, Globe, Settings, Hash, FileText, CheckCircle,
   XCircle, Lightbulb, Target, RefreshCw,
   Wand2, PenTool, BarChart3, Rocket, ArrowLeft, Loader2
@@ -505,7 +505,7 @@ export default function EditArticlePage() {
                 <div className="grid grid-cols-3 gap-2">
                   <div className="text-center">
                     <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-1">
-                      <Image className="w-5 h-5 text-white" />
+                      <ImageIcon className="w-5 h-5 text-white" />
                     </div>
                     <div className="text-xs text-white/80">صور</div>
                     <div className="text-lg font-bold text-white">
@@ -917,7 +917,7 @@ export default function EditArticlePage() {
             {/* بطاقة الوسائط */}
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-6 border border-purple-200">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Image className="w-5 h-5 text-purple-600" />
+                <ImageIcon className="w-5 h-5 text-purple-600" />
                 الوسائط المتعددة
               </h3>
                 <div className="space-y-4">

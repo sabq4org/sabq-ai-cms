@@ -110,7 +110,13 @@ export default function ImageBlock({ data, onChange, readOnly = false }: ImageBl
       <figure className="my-4">
         {data.url ? (
           <>
-            <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
+            <Image 
+              src={data.url} 
+              alt={data.alt || ""} 
+              width={600} 
+              height={400}
+              className="w-full h-auto rounded-lg"
+              onError={(e) => {
                 console.error('خطأ في تحميل الصورة:', {
                   src: e.currentTarget.src,
                   alt: e.currentTarget.alt
@@ -221,7 +227,13 @@ export default function ImageBlock({ data, onChange, readOnly = false }: ImageBl
       ) : (
         <>
           <div className="relative group">
-            <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
+            <Image 
+              src={data.url || "/placeholder.jpg"} 
+              alt={data.alt || ""} 
+              width={600} 
+              height={400}
+              className="w-full h-auto rounded-lg"
+              onError={(e) => {
                 console.error('خطأ في تحميل الصورة:', {
                   src: e.currentTarget.src,
                   alt: e.currentTarget.alt
