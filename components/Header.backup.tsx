@@ -274,7 +274,13 @@ export default function Header() {
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
+                      <Image 
+                        src={user.avatar} 
+                        alt={user.name} 
+                        width={32} 
+                        height={32} 
+                        className="w-8 h-8 rounded-full object-cover"
+                        onError={(e) => {
                           e.currentTarget.style.display = 'none';
                           e.currentTarget.nextElementSibling?.classList.remove('hidden');
                         }}
@@ -370,7 +376,13 @@ export default function Header() {
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
+                      <Image 
+                        src={user.avatar} 
+                        alt={user.name} 
+                        width={40} 
+                        height={40} 
+                        className="w-10 h-10 rounded-full object-cover"
+                        onError={(e) => {
                           e.currentTarget.style.display = 'none';
                           e.currentTarget.nextElementSibling?.classList.remove('hidden');
                         }}
