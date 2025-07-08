@@ -1,10 +1,11 @@
+'use client'
+
 import React from 'react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-'use client';
 import { 
   Send, 
   Mail, 

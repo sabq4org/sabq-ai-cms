@@ -1,16 +1,19 @@
+'use client'
+
 import Image from 'next/image';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { getArticleLink } from '@/lib/utils';
 import { formatDateOnly } from '@/lib/date-utils';
 import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
-'use client';
 import { 
   Search, Filter, Grid, List, ChevronDown, Sparkles, 
   TrendingUp, Calendar, User, Eye, Heart, Share2, 
+  Bookmark, Clock, ArrowRight, X, Check, BarChart3,
   Volume2, Zap, BookOpen, Flame, Star, Award,
   SortAsc, SortDesc, Loader2, RefreshCw, Play
 } from 'lucide-react';
+
 interface Article {
   id: string;
   title: string;
@@ -40,6 +43,7 @@ interface Article {
   engagement_score?: number;
   topic_tags?: string[];
 }
+
 interface Category {
   id: number;
   name: string;
@@ -49,6 +53,7 @@ interface Category {
   color?: string;
   articles_count?: number;
 }
+
 interface Author {
   id: string;
   name: string;
@@ -56,6 +61,7 @@ interface Author {
   specialization?: string;
   articles_count?: number;
 }
+
 interface FilterOptions {
   category: string;
   author: string;
@@ -63,6 +69,7 @@ interface FilterOptions {
   sortBy: 'latest' | 'popular' | 'trending' | 'engagement';
   type: 'all' | 'news' | 'opinion' | 'analysis';
 }
+
 export default function ArticlesPage() {
   // الحالات الأساسية
   const [articles, setArticles] = useState<Article[]>([]);

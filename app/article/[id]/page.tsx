@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image';
 import React, { useState, useEffect, useRef, use } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,7 +11,6 @@ import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
 import { marked } from 'marked';
 import Header from '@/components/Header';
-'use client';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark
@@ -796,7 +797,13 @@ export default function ArticlePage({ params }: PageProps) {
               جديد
             </div>
           )}
-          <Image src={undefined} alt="" width={100} height={100} /> {
+          <Image 
+            src={article.featured_image || generatePlaceholderImage(article.title)}
+            alt={article.featured_image_alt || article.title}
+            fill
+            className="object-cover"
+            priority
+            onError={(e) => {
               e.currentTarget.src = generatePlaceholderImage(article.title);
             }}
           />

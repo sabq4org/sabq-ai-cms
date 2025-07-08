@@ -1,10 +1,12 @@
+'use client'
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, CheckCircle, Clock, RefreshCw, ArrowRight, Star, Shield } from 'lucide-react';
 import Link from 'next/link';
-'use client';
+
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();

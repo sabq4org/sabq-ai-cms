@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -6,30 +8,43 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-'use client';
 import { 
   Brain, 
   TrendingUp, 
-  Target, 
-  Clock, 
-  Cpu, 
-  Database,
-  BarChart3,
+  Users, 
+  FileText, 
+  BarChart3, 
   Activity,
-  FileText,
+  Sparkles,
+  Target,
+  Zap,
+  BookOpen,
+  MessageSquare,
+  Eye,
+  Clock,
+  ThumbsUp,
+  Share2,
+  Hash,
+  Filter,
+  Calendar,
+  Download,
+  RefreshCw,
+  ChevronRight,
   AlertCircle,
   CheckCircle,
+  Info,
+  Database,
+  Gauge,
+  Network,
+  Server,
+  Cpu,
   ArrowUp,
   ArrowDown,
-  RefreshCw,
-  Download,
-  Gauge,
-  Server,
-  Network,
   Bot,
   Lightbulb,
   ChartLine
 } from 'lucide-react';
+
 interface AIMetric {
   id: string;
   name: string;
@@ -42,6 +57,7 @@ interface AIMetric {
   icon: React.ReactNode;
   color: string;
 }
+
 interface AIModel {
   id: string;
   name: string;
@@ -55,6 +71,7 @@ interface AIModel {
   throughput: number;
   description: string;
 }
+
 interface AIInsight {
   id: string;
   type: 'recommendation' | 'warning' | 'opportunity' | 'trend';
@@ -66,6 +83,7 @@ interface AIInsight {
   actionable: boolean;
   impact: string;
 }
+
 interface PerformanceData {
   timestamp: string;
   accuracy: number;
@@ -73,6 +91,7 @@ interface PerformanceData {
   latency: number;
   errors: number;
 }
+
 export default function AIAnalyticsPage() {
   const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(true);

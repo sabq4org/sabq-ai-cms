@@ -1,16 +1,20 @@
+'use client'
+
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTheme } from '@/contexts/ThemeContext';
 import Header from '@/components/Header';
 import { toast } from 'react-hot-toast';
-'use client';
 import { 
   Calendar, Eye, Clock, ArrowLeft, BookOpen, 
   Sun, Cloud, Moon, Sparkles, Volume2, Headphones, 
-  Sunrise, Sunset, Share2, Bookmark, ThumbsUp,
-  Play, Pause, Download, ChevronLeft, ChevronRight
+  Coffee, Battery, Zap, Heart, Share2, Bookmark,
+  Play, Pause, SkipForward, SkipBack, ChevronRight,
+  TrendingUp, Award, Target, Flame, Star,
+  Sunrise, Sunset, ThumbsUp, ChevronLeft, Download
 } from 'lucide-react';
+
 interface DoseContent {
   id: string;
   contentType: 'article' | 'weather' | 'quote' | 'tip' | 'audio' | 'analysis';
@@ -34,6 +38,7 @@ interface DoseContent {
     readingTime?: number;
   };
 }
+
 interface DailyDose {
   id: string;
   period: 'morning' | 'afternoon' | 'evening' | 'night';
@@ -45,6 +50,7 @@ interface DailyDose {
   contents: DoseContent[];
   mock?: boolean;
 }
+
 export default function DailyDosePage() {
   const { theme } = useTheme();
   const darkMode = theme === 'dark';

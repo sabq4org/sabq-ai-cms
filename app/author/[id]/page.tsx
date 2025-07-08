@@ -1,15 +1,20 @@
+'use client'
+
 import Image from 'next/image';
 import React, { useState, useEffect, use } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatDateOnly, formatRelativeDate } from '@/lib/date-utils';
-'use client';
 import { 
   Star, Calendar, Eye, Heart, Share2, MessageSquare, Clock, 
   TrendingUp, BarChart3, Brain, Headphones, Quote, Copy,
-  Sparkles, Activity, BookOpen, Users, Zap, Award,
-  ChevronLeft, ChevronRight, Volume2, PieChart
+  Trophy, Award, Target, User, Mail, MapPin, Briefcase,
+  BookOpen, Users, Sparkles, CheckCircle, ArrowRight,
+  ChevronLeft, ChevronRight, Loader2, Info, Filter,
+  Download, FileText, Video, Twitter, Facebook, Instagram,
+  Linkedin, Youtube, Globe, Phone, Link as LinkIcon,
+  Zap, Activity, Volume2, PieChart
 } from 'lucide-react';
 // Types
 interface Author {

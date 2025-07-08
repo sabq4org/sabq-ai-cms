@@ -1,10 +1,11 @@
+'use client'
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Tag, BookOpen, Loader2, Search, TrendingUp, Trophy, Building2, Heart, Leaf, Globe, Activity, Code, Sparkles, Palette, Users } from 'lucide-react';
-'use client';
 import './categories-fixes.css';
 interface Category {
   id: number;
