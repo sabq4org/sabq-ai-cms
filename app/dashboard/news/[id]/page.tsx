@@ -1,12 +1,14 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
-'use client';
 import { 
   ArrowRight, Edit3, Trash2, Copy, Eye, Calendar, User, Clock, Activity, FileText, BarChart3, Brain
 } from 'lucide-react';
+
 interface Article {
   id: string;
   title: string;
