@@ -2,54 +2,19 @@
 
 import React from 'react';
 import Image from 'next/image';
+
+
+
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { Menu, X, Search, User, Sun, Moon, Bell, Activity, ChevronDown, Grid3X3, Sparkles } from 'lucide-react'
+import { Menu, X, Search, User, Sun, Moon, Bell, Activity } from 'lucide-react'
 import { useDarkModeContext } from '@/contexts/DarkModeContext'
-
-// أيقونات التصنيفات
-import { Code, Trophy, TrendingUp, Building2, Heart, Leaf, Globe, Palette, Users, Tag } from 'lucide-react'
-
-// بيانات التصنيفات مع الألوان المحسنة
-const categoryIcons = {
-  'تقنية': { icon: Code, color: 'from-violet-500 to-purple-600' },
-  'رياضة': { icon: Trophy, color: 'from-blue-500 to-cyan-500' },
-  'اقتصاد': { icon: TrendingUp, color: 'from-emerald-500 to-green-500' },
-  'سياسة': { icon: Building2, color: 'from-red-500 to-rose-500' },
-  'ثقافة': { icon: Palette, color: 'from-amber-500 to-orange-500' },
-  'صحة': { icon: Heart, color: 'from-pink-500 to-rose-500' },
-  'محلي': { icon: Users, color: 'from-indigo-500 to-blue-600' },
-  'دولي': { icon: Globe, color: 'from-cyan-500 to-teal-500' },
-  'منوعات': { icon: Activity, color: 'from-orange-500 to-red-500' },
-  'بيئة': { icon: Leaf, color: 'from-green-500 to-emerald-500' }
-};
 
 export function StaticHeader() {
   const { darkMode, mounted, toggleDarkMode } = useDarkModeContext()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [newEventsCount, setNewEventsCount] = useState(0)
-  const [categoriesOpen, setCategoriesOpen] = useState(false)
-  const [categories, setCategories] = useState<any[]>([])
-
-  // جلب التصنيفات
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('/api/categories');
-        if (response.ok) {
-          const data = await response.json();
-          const categoriesData = data.categories || data.data || [];
-          const activeCategories = categoriesData.filter((cat: any) => cat.is_active).slice(0, 8);
-          setCategories(activeCategories);
-        }
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
 
   const navigationItems = [
     { label: 'الرئيسية', url: '/', icon: null },
@@ -60,12 +25,7 @@ export function StaticHeader() {
       highlight: true 
     },
     { label: 'الأخبار', url: '/news', icon: null },
-    { 
-      label: 'التصنيفات', 
-      url: '/categories', 
-      icon: null,
-      hasDropdown: true 
-    },
+    { label: 'التصنيفات', url: '/categories', icon: null },
     { label: 'تواصل معنا', url: '/contact', icon: null }
   ]
 
@@ -94,13 +54,6 @@ export function StaticHeader() {
     
     return () => clearInterval(interval);
   }, []);
-
-  const getCategoryIcon = (name: string) => {
-    return categoryIcons[name as keyof typeof categoryIcons] || {
-      icon: Tag,
-      color: 'from-gray-500 to-slate-600'
-    };
-  };
 
   return (
     <div className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50 transition-colors duration-300">
@@ -227,100 +180,25 @@ export function StaticHeader() {
         <nav className="hidden lg:block py-4 border-t border-gray-200 dark:border-gray-700">
           <ul className="flex items-center justify-center gap-8">
             {navigationItems.map((item, index) => (
-              <li key={index} className="relative">
-                {item.hasDropdown ? (
-                  <div className="relative">
-                    <button
-                      onMouseEnter={() => setCategoriesOpen(true)}
-                      onMouseLeave={() => setCategoriesOpen(false)}
-                      className="flex items-center gap-2 font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                    >
-                      <Grid3X3 className="w-4 h-4" />
-                      <span>{item.label}</span>
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${categoriesOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    
-                    {/* Dropdown للتصنيفات */}
-                    {categoriesOpen && (
-                      <div 
-                        className="absolute top-full right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 backdrop-blur-xl z-50 overflow-hidden"
-                        onMouseEnter={() => setCategoriesOpen(true)}
-                        onMouseLeave={() => setCategoriesOpen(false)}
-                      >
-                        {/* Header */}
-                        <div className="px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                          <div className="flex items-center gap-2">
-                            <Sparkles className="w-5 h-5" />
-                            <h3 className="font-bold text-lg">التصنيفات</h3>
-                          </div>
-                          <p className="text-sm text-white/80 mt-1">اكتشف المحتوى المصنف</p>
-                        </div>
-                        
-                        {/* Categories Grid */}
-                        <div className="p-4">
-                          <div className="grid grid-cols-2 gap-3">
-                            {categories.map((category) => {
-                              const categorySlug = category.slug || category.name_ar.toLowerCase().replace(/\s+/g, '-');
-                              const iconData = getCategoryIcon(category.name_ar);
-                              const Icon = iconData.icon;
-                              
-                              return (
-                                <Link
-                                  key={category.id}
-                                  href={`/categories/${categorySlug}`}
-                                  className="group p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 hover:scale-105"
-                                  onClick={() => setCategoriesOpen(false)}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 bg-gradient-to-r ${iconData.color} rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200`}>
-                                      <Icon className="w-5 h-5 text-white" />
-                                    </div>
-                                    <div className="flex-1">
-                                      <h4 className="font-semibold text-gray-900 dark:text-white text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                        {category.name_ar}
-                                      </h4>
-                                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        {category.articles_count || 0} مقال
-                                      </p>
-                                    </div>
-                                  </div>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                          
-                          {/* View All Link */}
-                          <Link
-                            href="/categories"
-                            className="block mt-4 p-3 text-center bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 font-medium"
-                            onClick={() => setCategoriesOpen(false)}
-                          >
-                            عرض جميع التصنيفات
-                          </Link>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    href={item.url}
-                    className={`flex items-center gap-2 font-medium transition-all ${
-                      item.highlight 
-                        ? 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 relative' 
-                        : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'
-                    }`}
-                  >
-                    {item.icon && (
-                      <item.icon className={`w-4 h-4 ${item.highlight ? 'animate-pulse' : ''}`} />
-                    )}
-                    <span>{item.label}</span>
-                    {item.highlight && newEventsCount > 0 && (
-                      <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-bounce">
-                        {newEventsCount}
-                      </span>
-                    )}
-                  </Link>
-                )}
+              <li key={index}>
+                <Link
+                  href={item.url}
+                  className={`flex items-center gap-2 font-medium transition-all ${
+                    item.highlight 
+                      ? 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 relative' 
+                      : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'
+                  }`}
+                >
+                  {item.icon && (
+                    <item.icon className={`w-4 h-4 ${item.highlight ? 'animate-pulse' : ''}`} />
+                  )}
+                  <span>{item.label}</span>
+                  {item.highlight && newEventsCount > 0 && (
+                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-bounce">
+                      {newEventsCount}
+                    </span>
+                  )}
+                </Link>
               </li>
             ))}
           </ul>
