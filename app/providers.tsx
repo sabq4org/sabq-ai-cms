@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { DarkModeProvider } from '@/contexts/DarkModeContext'
 import { migrateThemeSettings } from '@/lib/theme-migration'
+import { Toaster } from 'react-hot-toast'
+
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(

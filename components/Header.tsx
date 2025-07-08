@@ -11,6 +11,7 @@ import { getCookie } from '@/lib/cookies';
 import { 
   Menu, ChevronDown, LogIn, User, Sun, Moon, Activity, Clock, MessageCircle
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface UserData {
   id: string;
