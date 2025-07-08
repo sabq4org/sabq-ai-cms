@@ -46,6 +46,7 @@ type NewsItem = {
   status: NewsStatus;
   rating: number;
   slug?: string;
+  createdAt?: string; // إضافة تاريخ الإنشاء للترتيب
 };
 // دالة لتحديد لون النص بناءً على لون الخلفية
 function getContrastColor(hexColor: string): string {
@@ -58,6 +59,22 @@ function getContrastColor(hexColor: string): string {
   // إرجاع أسود أو أبيض حسب اللمعان
   return luminance > 0.5 ? '#000000' : '#FFFFFF';
 }
+
+// دالة لحساب الوقت النسبي
+function getRelativeTime(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return 'قبل لحظات';
+  if (diffInSeconds < 3600) return `قبل ${Math.floor(diffInSeconds / 60)} دقيقة`;
+  if (diffInSeconds < 86400) return `قبل ${Math.floor(diffInSeconds / 3600)} ساعة`;
+  if (diffInSeconds < 604800) return `قبل ${Math.floor(diffInSeconds / 86400)} يوم`;
+  if (diffInSeconds < 2592000) return `قبل ${Math.floor(diffInSeconds / 604800)} أسبوع`;
+  if (diffInSeconds < 31536000) return `قبل ${Math.floor(diffInSeconds / 2592000)} شهر`;
+  return `قبل ${Math.floor(diffInSeconds / 31536000)} سنة`;
+}
+
 export default function NewsManagementPage() {
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,7 +109,8 @@ export default function NewsManagementPage() {
         setError(null);
         console.log('🔄 بدء جلب البيانات...');
         const startTime = Date.now();
-        const response = await fetch('/api/articles?limit=50');
+        // جلب البيانات مع الترتيب من الأحدث
+        const response = await fetch('/api/articles?limit=100&sort=created_at&order=desc');
         if (!response.ok) {
           throw new Error('فشل في تحميل البيانات');
         }
@@ -122,7 +140,8 @@ export default function NewsManagementPage() {
               month: 'short',
               day: 'numeric',
               hour: '2-digit',
-              minute: '2-digit'
+              minute: '2-digit',
+              hour12: true
             }) : '-',
             publishAt: publishAt,
             viewCount: a.views_count || 0,
@@ -131,18 +150,28 @@ export default function NewsManagementPage() {
               month: 'short',
               day: 'numeric',
               hour: '2-digit',
-              minute: '2-digit'
+              minute: '2-digit',
+              hour12: true
             }),
             lastModifiedBy: a.editor_id || a.author_id || '—',
             isPinned: a.is_pinned || false,
             isBreaking: a.is_breaking || false,
             status: status,
             rating: 0,
-            slug: a.slug
+            slug: a.slug,
+            createdAt: a.created_at // إضافة تاريخ الإنشاء للترتيب
           };
         });
-        console.log(`📊 تم تحويل ${mapped.length} مقال`);
-        setNewsData(mapped);
+        
+        // ترتيب البيانات من الأحدث إلى الأقدم
+        const sortedData = mapped.sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA; // ترتيب تنازلي (الأحدث أولاً)
+        });
+        
+        console.log(`📊 تم تحويل وترتيب ${sortedData.length} مقال`);
+        setNewsData(sortedData);
       } catch (err) {
         console.error('❌ خطأ في جلب البيانات:', err);
         setError(err instanceof Error ? err.message : 'حدث خطأ في تحميل البيانات');
@@ -618,27 +647,73 @@ export default function NewsManagementPage() {
           <div style={{ borderColor: darkMode ? '#374151' : '#f4f8fe' }} className="divide-y">
             {newsData
               .filter(item => {
+                // فلترة حسب التاب النشط
                 if (activeTab === 'deleted') return item.status === 'deleted';
                 if (item.status === 'deleted') return false;
-                if (activeTab === 'all') return true;
-                if (activeTab === 'breaking') return item.isBreaking;
-                if (activeTab === 'scheduled') return item.status === 'scheduled';
-                return item.status === activeTab;
+                if (activeTab === 'all') {
+                  // لا تظهر المحذوفة في "الكل"
+                } else if (activeTab === 'breaking') {
+                  if (!item.isBreaking) return false;
+                } else if (activeTab === 'scheduled') {
+                  if (item.status !== 'scheduled') return false;
+                } else {
+                  if (item.status !== activeTab) return false;
+                }
+                
+                // فلترة حسب البحث
+                if (searchTerm) {
+                  const searchLower = searchTerm.toLowerCase();
+                  const titleMatch = item.title.toLowerCase().includes(searchLower);
+                  const authorMatch = item.author_name?.toLowerCase().includes(searchLower);
+                  const categoryMatch = item.category_name?.toLowerCase().includes(searchLower);
+                  if (!titleMatch && !authorMatch && !categoryMatch) return false;
+                }
+                
+                // فلترة حسب التصنيف
+                if (selectedCategory !== 'all' && item.category.toString() !== selectedCategory) {
+                  return false;
+                }
+                
+                // فلترة حسب الحالة
+                if (selectedStatus !== 'all' && item.status !== selectedStatus) {
+                  return false;
+                }
+                
+                return true;
               })
               .map((news, index) => (
                 <div 
                   key={news.id} 
                   className={`grid grid-cols-12 gap-4 px-6 py-4 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-slate-50'} transition-all duration-300 ${
-                    news.isPinned ? 'border-r-4 border-blue-500' : ''
+                    news.isPinned ? 'border-r-4 border-blue-500 bg-blue-50/10' : ''
+                  } ${
+                    news.createdAt && new Date(news.createdAt).getTime() > Date.now() - 86400000 ? 'border-l-4 border-green-500' : ''
                   }`}
                   style={{ borderBottom: index < newsData.length - 1 ? (darkMode ? '1px solid #374151' : '1px solid #f4f8fe') : 'none' }}
                 >
                   {/* العنوان */}
                   <div className="col-span-4">
-                    <div className="flex items-start">
+                    <div className="flex items-start gap-2">
                       <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          {news.isPinned && (
+                            <span className="text-blue-500" title="مثبت">
+                              📌
+                            </span>
+                          )}
+                          {news.isBreaking && (
+                            <span className="px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded animate-pulse">
+                              عاجل
+                            </span>
+                          )}
+                          {news.createdAt && new Date(news.createdAt).getTime() > Date.now() - 86400000 && (
+                            <span className="px-2 py-0.5 bg-green-500 text-white text-xs font-medium rounded">
+                              جديد
+                            </span>
+                          )}
+                        </div>
                         <Link 
-                          href={`/dashboard/news/${news.id}`}
+                          href={`/dashboard/article/edit/${news.id}`}
                           className={`font-medium text-right leading-tight transition-colors duration-300 hover:underline ${
                             darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'
                           }`}
@@ -679,26 +754,43 @@ export default function NewsManagementPage() {
                               month: 'short',
                               day: 'numeric',
                               hour: '2-digit',
-                              minute: '2-digit'
+                              minute: '2-digit',
+                              hour12: true
                             })}
                           </div>
                         </div>
-                      ) : news.publishTime && news.publishTime !== '-' ? (
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {news.publishTime}
+                      ) : news.publishTime && news.publishTime !== '-' && news.publishAt ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1 font-medium text-green-600 dark:text-green-400">
+                            <Calendar className="w-3 h-3" />
+                            <span title={news.publishTime}>{getRelativeTime(news.publishAt)}</span>
+                          </div>
+                          <div className="text-xs opacity-75">
+                            {news.publishTime}
+                          </div>
                         </div>
                       ) : (
-                        '-'
+                        <span className="text-gray-400">غير منشور</span>
                       )}
                     </div>
                   </div>
                   {/* المشاهدات */}
                   <div className="col-span-1">
                     <div className="flex items-center gap-1">
-                      <Eye className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                      <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {news.status === 'draft' ? 0 : news.viewCount.toLocaleString()}
+                      <Eye className={`w-4 h-4 ${
+                        news.viewCount > 1000 ? 'text-green-500' : 
+                        news.viewCount > 100 ? 'text-blue-500' : 
+                        darkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`} />
+                      <span className={`font-medium ${
+                        news.viewCount > 1000 ? 'text-green-600 dark:text-green-400' : 
+                        news.viewCount > 100 ? 'text-blue-600 dark:text-blue-400' : 
+                        darkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        {news.status === 'draft' ? '—' : 
+                         news.viewCount >= 1000000 ? `${(news.viewCount / 1000000).toFixed(1)}M` :
+                         news.viewCount >= 1000 ? `${(news.viewCount / 1000).toFixed(1)}K` :
+                         news.viewCount.toLocaleString('ar-SA')}
                       </span>
                     </div>
                   </div>
