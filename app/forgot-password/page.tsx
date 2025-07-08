@@ -1,10 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-'use client';
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -139,4 +140,4 @@ export default function ForgotPasswordPage() {
       </div>
     </div>
   );
-} 
+}

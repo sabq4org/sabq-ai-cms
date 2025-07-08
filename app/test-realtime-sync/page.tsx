@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useLocalStorageSync } from '@/hooks/useLocalStorageSync';
 import toast, { Toaster } from 'react-hot-toast';
-'use client';
 // تحميل المحرر ديناميكياً لتجنب مشاكل SSR
 const RealtimeEditor = dynamic(
   () => import('@/components/ArticleEditor/RealtimeEditor'),
@@ -180,4 +181,4 @@ export default function TestRealtimeSyncPage() {
       </div>
     </div>
   );
-} 
+}

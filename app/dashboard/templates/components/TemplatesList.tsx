@@ -1,14 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-
 'use client';
 
-
-
-
-
-
-'use client'
+import React from 'react';
+import Image from 'next/image';
 
 import { useState, useEffect } from 'react'
 import { Edit, Trash2, ToggleLeft, ToggleRight, Calendar, Globe, Tag, Star, Eye } from 'lucide-react'
@@ -276,4 +269,4 @@ export function TemplatesList({ type, onEdit }: TemplatesListProps) {
       )}
     </div>
   )
-} 
+}

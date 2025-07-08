@@ -1,15 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import { Calendar, Eye, Tag } from 'lucide-react';
-
-'use client';
-
-
-
-
-
-
 
 interface Article {
   id: string;
@@ -72,7 +66,7 @@ export const ImageLeftBlock: React.FC<ImageLeftBlockProps> = ({ block, articles 
               {/* الصورة على اليسار */}
               {article.imageUrl && (
                 <div className="flex-shrink-0 w-32 h-24 rounded-lg overflow-hidden">
-                  <Image src={undefined} alt="" width={100} height={100} /> {
+                  <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
                       e.currentTarget.style.display = 'none';
                     }}
                   />
@@ -140,4 +134,4 @@ export const ImageLeftBlock: React.FC<ImageLeftBlockProps> = ({ block, articles 
       </div>
     </div>
   );
-}; 
+};

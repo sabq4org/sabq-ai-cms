@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-'use client';
 import { 
   Mail, Lock, Eye, EyeOff, 
   LogIn, AlertCircle, Sparkles 
@@ -230,4 +231,4 @@ export default function LoginPage() {
       <LoginForm />
     </Suspense>
   );
-} 
+}

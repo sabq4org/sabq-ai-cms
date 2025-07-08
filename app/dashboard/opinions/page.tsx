@@ -1,7 +1,7 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
-'use client';
-'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, Edit, Trash2, Eye, Calendar, User, MessageSquare, TrendingUp, FileText } from 'lucide-react'
@@ -275,7 +275,7 @@ export default function OpinionsPage() {
                     <div className="flex-1">
                       <div className="flex items-start gap-3">
                         {article.opinion_author?.avatar && (
-                          <Image src={undefined} alt="" width={100} height={100} />
+                          <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                         )}
                         <div className="flex-1">
                           <h3 className="font-semibold text-lg mb-1">
@@ -341,4 +341,4 @@ export default function OpinionsPage() {
       </Card>
     </div>
   )
-} 
+}

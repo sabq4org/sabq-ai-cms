@@ -1,6 +1,4 @@
-
-
-'use client'
+'use client';
 
 import { useTemplates } from './TemplateProvider'
 import Image from 'next/image'
@@ -180,4 +178,4 @@ function SocialIcon({ platform }: { platform: string }) {
   }
   
   return icons[platform] || <span className="text-xs">{platform}</span>
-} 
+}

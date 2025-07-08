@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import Header from '@/components/Header';
-'use client';
 import { 
   Clock, 
   Calendar, 
@@ -588,4 +589,4 @@ export default function MomentByMomentPage() {
       `}</style>
     </div>
   );
-} 
+}

@@ -1,8 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-'use client';
 import { 
   TrendingUp, 
   Users, 
@@ -584,4 +585,4 @@ export default function NewsInsightsPage() {
       </div>
     </div>
   );
-} 
+}

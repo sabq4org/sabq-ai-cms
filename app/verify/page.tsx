@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, CheckCircle, AlertCircle, ArrowRight, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
-'use client';
 function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -264,4 +265,4 @@ export default function VerifyEmailPage() {
       <VerifyEmailForm />
     </Suspense>
   );
-} 
+}

@@ -1,7 +1,7 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
-'use client';
-'use client'
 import { useState } from 'react'
 import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock'
 const timeSlots = [
@@ -43,4 +43,4 @@ export default function TestTimeSlotsPage() {
       </div>
     </div>
   )
-} 
+}

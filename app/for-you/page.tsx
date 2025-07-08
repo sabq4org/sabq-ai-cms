@@ -1,10 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import CategoryBadge from '@/app/components/CategoryBadge';
 import { generatePlaceholderImage } from '@/lib/cloudinary';
-'use client';
 import { Filter, TrendingUp, Clock, Eye, 
   Heart, Sparkles, Brain, ChevronDown, Target, RefreshCw
 } from 'lucide-react';
@@ -306,7 +307,7 @@ export default function ForYouPage() {
                 } shadow-sm`}>
                   {/* الصورة مع نسبة عرض ثابتة */}
                   <div className="relative aspect-[16/9] overflow-hidden">
-                    <Image src={undefined} alt="" width={100} height={100} />
+                    <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                     {/* شارة التصنيف - أعلى اليسار */}
                     <div className="absolute top-3 left-3">
                       {(() => {
@@ -411,4 +412,4 @@ export default function ForYouPage() {
       </main>
     </div>
   );
-} 
+}

@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -6,13 +8,6 @@ import toast from 'react-hot-toast';
 import UserDropdown from './UserDropdown';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { getCookie } from '@/lib/cookies';
-
-'use client';
-
-
-
-
-
 
 import { 
   Menu, ChevronDown, LogIn, User, Sun, Moon, Activity, Clock
@@ -279,7 +274,7 @@ export default function Header() {
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <Image src={undefined} alt="" width={100} height={100} /> {
+                      <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
                           e.currentTarget.style.display = 'none';
                           e.currentTarget.nextElementSibling?.classList.remove('hidden');
                         }}
@@ -375,7 +370,7 @@ export default function Header() {
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <Image src={undefined} alt="" width={100} height={100} /> {
+                      <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
                           e.currentTarget.style.display = 'none';
                           e.currentTarget.nextElementSibling?.classList.remove('hidden');
                         }}

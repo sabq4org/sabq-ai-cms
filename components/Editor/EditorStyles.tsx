@@ -1,8 +1,6 @@
-import Image from 'next/image';
-
 'use client';
 
-
+import Image from 'next/image';
 
 export default function EditorStyles() {
   return (
@@ -256,4 +254,4 @@ export default function EditorStyles() {
       }
     `}</style>
   );
-} 
+}

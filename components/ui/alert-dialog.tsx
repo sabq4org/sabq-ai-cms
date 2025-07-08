@@ -1,7 +1,7 @@
+'use client';
+
 import Image from 'next/image';
 
-
-"use client"
 
 import * as React from "react"
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
@@ -141,4 +141,4 @@ export {
   AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
-} 
+}

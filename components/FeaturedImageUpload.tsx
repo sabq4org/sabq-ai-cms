@@ -1,15 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useRef } from 'react';
 import { Upload, Image as ImageIcon, X, Link, Loader } from 'lucide-react';
 import { getDefaultImageUrl } from '@/lib/cloudinary';
-
-'use client';
-
-
-
-
-
-
 
 interface FeaturedImageUploadProps {
   value: string;
@@ -174,7 +168,7 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
         </div>
       ) : (
         <div className="relative group">
-          <Image src={undefined} alt="صورة بارزة" width={100} height={100} /> {
+          <Image src="/placeholder.jpg" alt="صورة بارزة" width={100} height={100} /> {
               console.error('خطأ في تحميل الصورة:', {
                 src: e.currentTarget.src,
                 alt: e.currentTarget.alt
@@ -279,4 +273,4 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
       )}
     </div>
   );
-} 
+}

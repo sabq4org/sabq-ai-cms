@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -5,11 +7,6 @@ import { useAuth } from '@/hooks/useAuth';
 import CommentForm from './CommentForm';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
-
-'use client';
-
-
-
 
 import { 
   ThumbsUp, 
@@ -112,7 +109,7 @@ export default function CommentItem({
           <div className="flex items-center gap-3">
             {/* صورة المستخدم */}
             {comment.user.avatar ? (
-              <Image src={undefined} alt="" width={100} height={100} />
+              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
             ) : (
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 darkMode ? 'bg-gray-600' : 'bg-gray-200'
@@ -352,4 +349,4 @@ export default function CommentItem({
       )}
     </div>
   );
-} 
+}

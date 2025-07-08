@@ -1,8 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Mail, Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-'use client';
 export default function TestEmailPage() {
   const [email, setEmail] = useState('');
   const [testType, setTestType] = useState<'connection' | 'verification' | 'welcome'>('connection');
@@ -203,4 +204,4 @@ export default function TestEmailPage() {
       </div>
     </div>
   );
-} 
+}

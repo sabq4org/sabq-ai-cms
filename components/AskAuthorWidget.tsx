@@ -1,11 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useRef, useEffect } from 'react';
 import { generatePlaceholderImage } from '@/lib/cloudinary';
-
-'use client';
-
-
-
 
 import { 
   MessageCircle, Send, User, Clock, Heart, Sparkles,
@@ -152,7 +149,7 @@ export default function AskAuthorWidget({
                   }`}
                 >
                   <div className="relative">
-                    <Image src={undefined} alt="" width={100} height={100} />
+                    <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                     <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
                       author.is_online ? 'bg-green-500' : 'bg-gray-400'
                     }`} />
@@ -348,4 +345,4 @@ export default function AskAuthorWidget({
       )}
     </div>
   );
-} 
+}

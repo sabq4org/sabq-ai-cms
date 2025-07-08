@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,7 +11,6 @@ import ReadingInsights from '@/components/profile/ReadingInsights';
 import AchievementBadges from '@/components/profile/AchievementBadges';
 import ReadingTimeline from '@/components/profile/ReadingTimeline';
 import SavedArticles from '@/components/profile/SavedArticles';
-'use client';
 import { Crown, Heart, 
   Edit2, X, Star, TrendingUp,
   Calendar, Activity, BookOpen, Share2, ChevronRight, Zap, Eye,
@@ -422,7 +423,7 @@ export default function ProfilePage() {
             <div className="flex items-center gap-6">
               <div className="relative group">
                 {user.avatar ? (
-                  <Image src={undefined} alt="" width={100} height={100} />
+                  <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                 ) : (
                   <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center text-5xl font-bold shadow-xl">
                     {user.name.charAt(0).toUpperCase()}
@@ -1101,4 +1102,4 @@ export default function ProfilePage() {
       </div>
     </>
   );
-} 
+}

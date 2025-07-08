@@ -1,15 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReaderProfile } from '@/types/reader-profile';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-
-'use client';
-
-
-
-
 
 import { 
   BookOpen, 
@@ -305,4 +301,4 @@ export default function ReaderProfileCard({ profile, isLoading, darkMode = false
       </div>
     </motion.div>
   );
-} 
+}

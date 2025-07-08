@@ -1,10 +1,7 @@
-import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
-
 'use client';
 
-
-
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
 
 import { 
   Save, Send, Eye, Globe, MapPin, Clock, User, RefreshCw, CheckCircle, AlertTriangle,
@@ -384,4 +381,4 @@ export default function PublishPanel({
       </div>
     </div>
   );
-} 
+}

@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-'use client';
 import { 
   Plus, 
   Edit2, 
@@ -184,7 +185,7 @@ export default function OpinionAuthorsPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
                       {author.avatar ? (
-                        <Image src={undefined} alt="" width={100} height={100} />
+                        <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                       ) : (
                         <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
                           darkMode ? 'bg-gray-700' : 'bg-gray-200'
@@ -332,4 +333,4 @@ export default function OpinionAuthorsPage() {
       </div>
     </div>
   );
-} 
+}

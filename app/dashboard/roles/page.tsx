@@ -1,8 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Shield, Plus, Users, Lock, X, Save, Trash2, Edit3, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Role, SYSTEM_PERMISSIONS, PERMISSION_CATEGORIES } from '@/types/roles';
-'use client';
 export default function RolesPage() {
   console.log('RolesPage component loaded');
   const [darkMode, setDarkMode] = useState(false);

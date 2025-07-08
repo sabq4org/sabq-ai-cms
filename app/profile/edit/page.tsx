@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import Header from '@/components/Header';
-'use client';
 import { 
   User, Mail, MapPin, Users, Save, X,
   ArrowRight, AlertCircle
@@ -217,4 +218,4 @@ export default function EditProfilePage() {
       </div>
     </>
   );
-} 
+}

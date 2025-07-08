@@ -1,16 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-
-'use client';
-
-
-
-
-
-
-
 
 export function usePortalDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -68,4 +61,4 @@ export function usePortalDropdown() {
     renderDropdown,
     toggle: () => setIsOpen(!isOpen)
   };
-} 
+}

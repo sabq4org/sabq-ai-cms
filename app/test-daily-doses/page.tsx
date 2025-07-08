@@ -1,7 +1,7 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
-'use client';
-'use client'
 import { useState } from 'react'
 import { Calendar, Zap, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 interface TestResult {
@@ -293,4 +293,4 @@ export default function TestDailyDosesPage() {
       </div>
     </div>
   )
-} 
+}

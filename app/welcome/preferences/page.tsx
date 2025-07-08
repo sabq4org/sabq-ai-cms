@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Heart, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
-'use client';
 interface Category {
   id: string;
   name: string;
@@ -308,4 +309,4 @@ export default function PreferencesPage() {
       </div>
     </div>
   );
-} 
+}

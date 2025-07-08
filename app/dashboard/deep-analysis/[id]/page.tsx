@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -5,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-'use client';
 import { 
   ArrowLeft, 
   Eye, 
@@ -733,4 +734,4 @@ export default function DeepAnalysisDetailPage({ params }: PageProps) {
       </div>
     </div>
   );
-} 
+}

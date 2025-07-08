@@ -1,10 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { formatDateOnly } from '@/lib/date-utils';
 import ArticleCard from '@/components/ArticleCard';
-'use client';
 import './news-styles.css';
 import { 
   Newspaper, Search, Loader2,
@@ -311,4 +312,4 @@ export default function NewsPage() {
       `}</style>
     </>
   );
-} 
+}

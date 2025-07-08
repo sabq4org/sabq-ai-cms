@@ -1,7 +1,7 @@
+'use client';
+
 import Image from 'next/image';
 
-
-"use client"
 
 import * as React from "react"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
@@ -30,4 +30,4 @@ const Checkbox = React.forwardRef<
 ))
 Checkbox.displayName = CheckboxPrimitive.Root.displayName
 
-export { Checkbox } 
+export { Checkbox }

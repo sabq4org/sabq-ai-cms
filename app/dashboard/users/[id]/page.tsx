@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-'use client';
 import { 
   ArrowRight, Mail, Phone, MapPin, Calendar, Eye, MessageSquare, 
   Heart, Award, Edit, Ban, UserCheck, Monitor, 

@@ -1,7 +1,7 @@
+'use client';
+
 import Image from 'next/image';
 
-
-'use client'
 
 import { createContext, useContext, ReactNode } from 'react'
 import { useTemplate } from '@/hooks/useTemplate'
@@ -63,4 +63,4 @@ export function useTemplates() {
     throw new Error('useTemplates must be used within TemplateProvider')
   }
   return context
-} 
+}

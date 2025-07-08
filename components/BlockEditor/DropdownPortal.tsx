@@ -1,16 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-
-'use client';
-
-
-
-
-
-
-
 
 interface DropdownPortalProps {
   children: React.ReactNode;
@@ -95,4 +88,4 @@ export function DropdownPortal({
     </div>,
     document.body
   );
-} 
+}

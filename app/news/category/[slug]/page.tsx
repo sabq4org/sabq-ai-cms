@@ -1,8 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-'use client';
 import { 
   ArrowRight, Calendar, Clock, Eye, Heart, MessageCircle, TrendingUp, Filter, Grid, List,
   ChevronDown, Search, Loader2, Tag,
@@ -378,7 +379,7 @@ export default function CategoryPage({ params }: PageProps) {
                       <div className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-transparent transform hover:-translate-y-1">
                         <div className="relative h-64 overflow-hidden">
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
-                          <Image src={undefined} alt="" width={100} height={100} />
+                          <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                           <div className="absolute top-4 right-4 z-20">
                             <div className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
                               <Award className="w-3 h-3" />
@@ -434,7 +435,7 @@ export default function CategoryPage({ params }: PageProps) {
                     <div className={`relative overflow-hidden ${
                       viewMode === 'list' ? 'w-64 h-48' : 'h-48'
                     }`}>
-                      <Image src={undefined} alt="" width={100} height={100} />
+                      <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                       {article.is_breaking && (
                         <span className="absolute top-3 right-3 px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
                           عاجل
@@ -521,4 +522,4 @@ export default function CategoryPage({ params }: PageProps) {
       </div>
     </div>
   );
-} 
+}

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-'use client';
-"use client";
 import { 
   MessageCircle, 
   Users, 
@@ -273,4 +273,4 @@ export default function ForumDashboard() {
       </Tabs>
     </div>
   );
-} 
+}

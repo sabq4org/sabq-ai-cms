@@ -1,12 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import { SabqCard } from '@/components/ui/SabqCard';
 import { SabqBadge } from '@/components/ui/SabqBadge';
-
-'use client';
-
-
-
 
 import { 
   Users, Clock, Bot, Award,
@@ -249,4 +246,4 @@ export default function EditorBehavior() {
       </div>
     </SabqCard>
   );
-} 
+}

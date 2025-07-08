@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState } from "react";
@@ -10,8 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadixSel
 import { Label } from "@/components/ui/label";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-'use client';
-"use client";
 import "../forum.css";
 export default function NewTopicPage() {
   const router = useRouter();
@@ -131,4 +131,4 @@ export default function NewTopicPage() {
       </div>
     </div>
   );
-} 
+}

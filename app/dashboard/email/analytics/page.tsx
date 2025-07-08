@@ -1,9 +1,10 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-'use client';
 import { 
   Mail, 
   Users,
@@ -274,4 +275,4 @@ export default function EmailAnalyticsPage() {
       </Card>
     </div>
   );
-} 
+}

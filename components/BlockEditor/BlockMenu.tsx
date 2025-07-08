@@ -1,13 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useRef, useEffect } from 'react';
 import { BlockType } from './types';
 import { getBlockTitle } from './utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
-'use client';
-
-
-
 
 import {
   Type, Heading, Image, Video, Quote, List, Code,
@@ -153,4 +150,4 @@ export default function BlockMenu({ onSelect, trigger }: BlockMenuProps) {
       )}
     </div>
   );
-} 
+}

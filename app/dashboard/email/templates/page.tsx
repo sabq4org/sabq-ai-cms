@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -8,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-'use client';
 import { 
   FileText, 
   Plus, 
@@ -382,4 +383,4 @@ export default function EmailTemplatesPage() {
       </Dialog>
     </div>
   );
-} 
+}

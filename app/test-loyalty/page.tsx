@@ -1,8 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { getMembershipLevel, getProgressToNextLevel, getPointsToNextLevel } from '@/lib/loyalty';
-'use client';
 export default function TestLoyaltyPage() {
   const [points, setPoints] = useState(0);
   const testPoints = [0, 50, 100, 101, 250, 500, 501, 1000, 2000, 2001, 5000];
@@ -106,4 +107,4 @@ export default function TestLoyaltyPage() {
       </div>
     </div>
   );
-} 
+}

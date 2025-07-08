@@ -1,9 +1,10 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-'use client';
 import { 
   User, Calendar, Briefcase, GraduationCap, Camera, CheckCircle, Gift,
   ArrowRight, ArrowLeft
@@ -157,7 +158,7 @@ export default function CompleteProfilePage() {
                 <div className="relative inline-block">
                   <div className="w-24 h-24 bg-gray-200 rounded-full overflow-hidden">
                     {profileData.avatar ? (
-                      <Image src={undefined} alt="الصورة الشخصية" width={100} height={100} />
+                      <Image src="/placeholder.jpg" alt="الصورة الشخصية" width={100} height={100} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <User className="w-12 h-12 text-gray-400" />

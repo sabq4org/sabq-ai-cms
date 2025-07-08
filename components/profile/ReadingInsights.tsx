@@ -1,13 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import { Brain, TrendingUp, Clock, Target, Sparkles } from 'lucide-react';
-
-'use client';
-
-
-
-
-
 
 interface ReadingProfile {
   type: string;
@@ -179,4 +174,4 @@ export default function ReadingInsights({
       </div>
     </div>
   );
-} 
+}

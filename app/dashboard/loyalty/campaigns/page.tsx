@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Target, Plus, Calendar, Users, TrendingUp, Play, Pause, Edit } from 'lucide-react';
-'use client';
 export default function CampaignsPage() {
   const [darkMode, setDarkMode] = useState(false);
   useEffect(() => {
@@ -175,4 +176,4 @@ export default function CampaignsPage() {
       </div>
     </div>
   );
-} 
+}

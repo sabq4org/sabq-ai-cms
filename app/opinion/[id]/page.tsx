@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import EconomicCharts from '@/components/EconomicCharts';
-'use client';
 import { 
   Heart, Share2, Volume2, Eye, Clock, Calendar, User, MessageSquare,
   ThumbsUp, ThumbsDown, Lightbulb, TrendingUp, BarChart3, 
@@ -171,7 +172,7 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
     <article className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* صورة الغطاء والعنوان */}
       <div className="relative h-96 overflow-hidden">
-        <Image src={undefined} alt="" width={100} height={100} />
+        <Image src="/placeholder.jpg" alt="" width={100} height={100} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
         <div className="absolute bottom-0 left-0 right-0 p-8">
           <div className="max-w-4xl mx-auto">
@@ -186,7 +187,7 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
             </h1>
             {/* معلومات الكاتب */}
             <div className="flex items-center gap-4 mb-6">
-              <Image src={undefined} alt="" width={100} height={100} />
+              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
               <div>
                 <h3 className="text-xl font-bold text-white">{article.author_name}</h3>
                 <p className="text-gray-200">{article.author_specialization}</p>
@@ -368,7 +369,7 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
               عن الكاتب
             </h3>
             <div className="flex items-start gap-4 mb-4">
-              <Image src={undefined} alt="" width={100} height={100} />
+              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
               <div>
                 <h4 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                   {article.author_name}
@@ -419,4 +420,4 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
       </div>
     </article>
   );
-} 
+}

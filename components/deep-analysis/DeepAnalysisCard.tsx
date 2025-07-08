@@ -1,14 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import AnalysisTypeIcon from './AnalysisTypeIcon';
-
-'use client';
-
-
-
-
 
 import {
   Brain,
@@ -113,7 +109,7 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
       {/* صورة مميزة */}
       <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-72 flex-shrink-0' : 'h-48'}`}>
         <Link href={analysisUrl}>
-          <Image src={undefined} alt="" width={100} height={100} />
+          <Image src="/placeholder.jpg" alt="" width={100} height={100} />
         </Link>
         
         {/* شارة التحليل العميق */}
@@ -237,4 +233,4 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
       </div>
     </div>
   );
-} 
+}

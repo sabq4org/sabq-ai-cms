@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -5,7 +7,6 @@ import { Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast, Toaster } from 'react-hot-toast';
-'use client';
 export default function ImageUploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -62,7 +63,7 @@ export default function ImageUploadPage() {
               >
                 <div className="w-48 h-48 mx-auto border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-blue-500 hover:bg-gray-50 transition-colors">
                   {preview ? (
-                    <Image src={undefined} alt="معاينة" width={100} height={100} />
+                    <Image src="/placeholder.jpg" alt="معاينة" width={100} height={100} />
                   ) : (
                     <div className="text-center text-gray-400">
                       <ImageIcon className="w-12 h-12 mx-auto" />
@@ -120,4 +121,4 @@ export default function ImageUploadPage() {
       </div>
     </>
   );
-} 
+}

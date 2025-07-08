@@ -1,8 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-'use client';
 export default function FixAuthPage() {
   const router = useRouter();
   const [status, setStatus] = useState('جاري إصلاح المصادقة...');
@@ -59,4 +60,4 @@ export default function FixAuthPage() {
       </div>
     </div>
   );
-} 
+}

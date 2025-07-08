@@ -1,11 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import { SabqCard } from '@/components/ui';
-
-'use client';
-
-
-
 
 import { 
   FileText, 
@@ -198,4 +195,4 @@ export const NewsStats: React.FC<NewsStatsProps> = ({ stats }) => {
       ))}
     </div>
   );
-}; 
+};

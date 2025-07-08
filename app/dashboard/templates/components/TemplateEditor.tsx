@@ -1,14 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-
 'use client';
 
-
-
-
-
-
-'use client'
+import React from 'react';
+import Image from 'next/image';
 
 import { useState, useEffect } from 'react'
 import { ArrowLeft, Save, Calendar, Globe, Tag, Eye, Palette, Image } from 'lucide-react'
@@ -516,4 +509,4 @@ export function TemplateEditor({ template, type, isNew, onSave, onCancel }: Temp
       )}
     </div>
   )
-} 
+}

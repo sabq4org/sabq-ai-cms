@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -5,8 +7,6 @@ import Link from "next/link";
 import { Search, Loader2, AlertTriangle, Hash, Calendar, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-'use client';
-"use client";
 interface Article {
   id: string;
   title: string;
@@ -94,7 +94,7 @@ function SearchContent() {
                 className="group block bg-white border rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="relative">
-                  <Image src={undefined} alt="" width={100} height={100} />
+                  <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                   <div className="absolute top-3 right-3 px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
                     {article.category_name || 'أخبار'}
                   </div>
@@ -138,4 +138,4 @@ export default function SearchPage() {
       <SearchContent />
     </Suspense>
   );
-} 
+}

@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-'use client';
 import { 
   User, Mail, Lock, Eye, EyeOff, 
   CheckCircle, AlertCircle, Sparkles 
@@ -295,4 +296,4 @@ export default function RegisterPage() {
       </div>
     </div>
   );
-} 
+}

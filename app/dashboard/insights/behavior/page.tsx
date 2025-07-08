@@ -1,7 +1,8 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-'use client';
 import { 
   Users, Award, BookOpen, 
   Eye, Heart, Share2, MessageSquare, 
@@ -557,7 +558,7 @@ export default function BehaviorInsightsPage() {
                 >
                   <div className="flex items-center gap-3">
                     {user.avatar ? (
-                      <Image src={undefined} alt="" width={100} height={100} />
+                      <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
                         {user.name.charAt(0)}
@@ -608,4 +609,4 @@ export default function BehaviorInsightsPage() {
       </div>
     </div>
   );
-} 
+}

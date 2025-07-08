@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -5,16 +7,6 @@ import { Clock, Eye, User, Award, Zap, Heart, Bookmark } from 'lucide-react';
 import { formatDateOnly } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 import { getArticleLink } from '@/lib/utils';
-
-'use client';
-
-
-
-
-
-
-
-
 
 interface Article {
   id: string;
@@ -294,4 +286,4 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
       </div>
     </Link>
   );
-} 
+}

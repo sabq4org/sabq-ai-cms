@@ -1,15 +1,7 @@
-import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
-
 'use client';
 
-
-
-
-
-
-
-
+import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
 
 interface LoyaltyData {
   user_id: number;
@@ -321,4 +313,4 @@ export const LoyaltyBadge: React.FC<{ userId: number; onClick?: () => void }> = 
   );
 };
 
-export default LoyaltyWidget; 
+export default LoyaltyWidget;

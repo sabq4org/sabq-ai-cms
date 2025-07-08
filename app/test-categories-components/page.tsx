@@ -1,9 +1,10 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Tag, X, BookOpen, Calendar, Clock, Eye, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-'use client';
 // أيقونات التصنيفات
 const categoryIcons: any = {
   'تقنية': '💻',
@@ -181,4 +182,4 @@ export default function TestCategoriesComponents() {
       </div>
     </div>
   );
-} 
+}

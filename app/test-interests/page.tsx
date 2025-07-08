@@ -1,8 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Heart, CheckCircle, AlertCircle } from 'lucide-react';
-'use client';
 export default function TestInterestsPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -181,4 +182,4 @@ export default function TestInterestsPage() {
       </div>
     </div>
   );
-} 
+}

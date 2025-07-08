@@ -1,13 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Quote, Share2, Download, Copy, Sparkles, Heart } from 'lucide-react';
-
-'use client';
-
-
-
-
-
 
 interface ExtractedQuote {
   id: string;
@@ -318,4 +313,4 @@ export default function QuoteExtractor({
       )}
     </div>
   );
-} 
+}

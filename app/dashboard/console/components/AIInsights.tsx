@@ -1,14 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-
 'use client';
 
-
-
-
-
-
-'use client'
+import React from 'react';
+import Image from 'next/image';
 
 import { useEffect, useState } from 'react'
 import { Lightbulb, TrendingUp, AlertTriangle, Sparkles } from 'lucide-react'
@@ -127,4 +120,4 @@ export function AIInsights() {
       </div>
     </div>
   )
-} 
+}

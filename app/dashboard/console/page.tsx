@@ -1,6 +1,7 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-'use client';
 import { 
   Activity,
   Users,
@@ -594,4 +595,4 @@ export default function ConsolePage() {
       {renderTabContent()}
     </div>
   );
-} 
+}

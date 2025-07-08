@@ -1,8 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { AlHilalWorldCupBlock } from '@/components/smart-blocks/AlHilalWorldCupBlock';
-'use client';
 import { 
   Clock, 
   Heart, 
@@ -426,4 +427,4 @@ export default function HomePage() {
       </div>
     </div>
   );
-} 
+}

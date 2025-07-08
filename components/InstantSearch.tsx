@@ -1,10 +1,7 @@
-import Image from 'next/image';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-
 'use client';
 
-
-
+import Image from 'next/image';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 import { 
   Search, Filter, X, Brain, Zap, TrendingUp, Calendar,
@@ -269,7 +266,7 @@ export default function InstantSearch({
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
                         {suggestion.type === 'author' ? (
                           suggestion.avatar ? (
-                            <Image src={undefined} alt="" width={100} height={100} />
+                            <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                           ) : (
                             <User className="w-4 h-4 text-white" />
                           )
@@ -498,4 +495,4 @@ export default function InstantSearch({
       )}
     </div>
   );
-} 
+}

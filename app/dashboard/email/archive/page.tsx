@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -8,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-'use client';
 import { 
   Mail, 
   Search, 
@@ -358,4 +359,4 @@ export default function EmailArchivePage() {
       </Dialog>
     </div>
   );
-} 
+}

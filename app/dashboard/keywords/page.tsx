@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useEffect, useState } from "react";
 import { Search, Plus, Trash2, Edit3, Hash, BarChart3, RefreshCw } from "lucide-react";
-"use client";
 interface Keyword {
   id: string;
   name: string;
@@ -170,4 +171,4 @@ export default function KeywordsPage() {
       )}
     </div>
   );
-} 
+}

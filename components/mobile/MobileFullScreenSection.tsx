@@ -1,11 +1,7 @@
-import Image from 'next/image';
-import React from 'react';
-
 'use client';
 
-
-
-
+import Image from 'next/image';
+import React from 'react';
 
 interface MobileFullScreenSectionProps {
   children: React.ReactNode;
@@ -66,4 +62,4 @@ export default function MobileFullScreenSection({
       </div>
     </section>
   );
-} 
+}

@@ -156,16 +156,33 @@ export default function NewsManagementPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف المقال؟')) return;
     try {
-      await fetch('/api/articles', {
+      const response = await fetch('/api/articles', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          // إرسال رمز المصادقة من الكوكيز تلقائياً
+        },
+        credentials: 'include', // مهم: لإرسال الكوكيز مع الطلب
         body: JSON.stringify({ ids: [id] })
       });
-      setNewsData(prev => prev.map(n => n.id === id ? { ...n, status: 'deleted' as NewsStatus } : n));
-      toast.success('تم نقل المقال إلى المحذوفات');
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'فشل حذف المقال');
+      }
+
+      const result = await response.json();
+      
+      // تحديث البيانات محلياً فقط إذا نجح الحذف
+      if (result.success) {
+        setNewsData(prev => prev.map(n => n.id === id ? { ...n, status: 'deleted' as NewsStatus } : n));
+        toast.success(result.message || 'تم نقل المقال إلى المحذوفات');
+      } else {
+        throw new Error(result.error || 'فشل حذف المقال');
+      }
     } catch (e) {
-      toast.error('فشل حذف المقال');
-      console.error(e);
+      toast.error(e instanceof Error ? e.message : 'فشل حذف المقال');
+      console.error('خطأ في حذف المقال:', e);
     }
   };
   const handleCopy = (slugOrId: string) => {
@@ -175,16 +192,29 @@ export default function NewsManagementPage() {
   };
   const handleRestore = async (id: string) => {
     try {
-      await fetch(`/api/articles/${id}`, {
+      const response = await fetch(`/api/articles/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // مهم: لإرسال الكوكيز مع الطلب
         body: JSON.stringify({ status: 'draft', is_deleted: false })
       });
-      setNewsData(prev => prev.map(n => n.id === id ? { ...n, status: 'draft' as NewsStatus } : n));
-      toast.success('تم استعادة المقال إلى المسودات');
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'فشل استعادة المقال');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setNewsData(prev => prev.map(n => n.id === id ? { ...n, status: 'draft' as NewsStatus } : n));
+        toast.success('تم استعادة المقال إلى المسودات');
+      } else {
+        throw new Error(result.error || 'فشل استعادة المقال');
+      }
     } catch (e) {
-      toast.error('فشل استعادة المقال');
-      console.error(e);
+      toast.error(e instanceof Error ? e.message : 'فشل استعادة المقال');
+      console.error('خطأ في استعادة المقال:', e);
     }
   };
   const statusTabs = [

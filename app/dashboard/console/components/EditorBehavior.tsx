@@ -1,14 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-
 'use client';
 
-
-
-
-
-
-'use client'
+import React from 'react';
+import Image from 'next/image';
 
 import { useState } from 'react'
 import { User, Clock, FileText, Zap, TrendingUp } from 'lucide-react'
@@ -163,4 +156,4 @@ export function EditorBehavior() {
       </div>
     </div>
   )
-} 
+}

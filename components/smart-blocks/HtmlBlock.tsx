@@ -1,11 +1,7 @@
-import Image from 'next/image';
-import React from 'react';
-
 'use client';
 
-
-
-
+import Image from 'next/image';
+import React from 'react';
 
 interface HtmlBlockProps {
   block: {
@@ -40,4 +36,4 @@ export const HtmlBlock: React.FC<HtmlBlockProps> = ({ block }) => {
       />
     </div>
   );
-}; 
+};

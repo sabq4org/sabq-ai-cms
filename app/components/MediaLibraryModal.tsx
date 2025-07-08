@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -5,27 +7,6 @@ import { X, Search, Image as ImageIcon, Video, CheckCircle, Upload } from 'lucid
 import MediaGrid from './MediaGrid';
 import MediaUpload from './MediaUpload';
 import SmartSuggestions from './SmartSuggestions';
-
-'use client';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 interface MediaFile {
   id: string;

@@ -1,12 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-
 'use client';
 
-
-
-
-'use client'
+import React from 'react';
+import Image from 'next/image';
 
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react'
@@ -158,4 +153,4 @@ function getKPIIcon(label: string) {
   }
   
   return icons[label] || '📊'
-} 
+}

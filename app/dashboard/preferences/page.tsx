@@ -1,8 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
-'use client';
 import { 
   Brain, Users, TrendingUp, Eye, BarChart3, Settings, Target, 
   Heart, Share2, MessageSquare, Clock, Zap, Filter, TrendingDown, Activity
@@ -407,4 +408,4 @@ export default function PreferencesPage() {
       {renderTabContent()}
     </div>
   );
-} 
+}

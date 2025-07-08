@@ -1,7 +1,7 @@
+'use client';
+
 import Image from 'next/image';
 
-
-"use client"
 
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
@@ -212,4 +212,4 @@ export {
   SelectScrollDownButton,
   SelectOption,
   RadixSelect,
-} 
+}

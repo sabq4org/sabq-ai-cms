@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Users, Plus, Search, Download, Bell, Shield, CheckCircle, AlertCircle, UserPlus, Edit3, Trash2, X, Camera, Eye, EyeOff, Upload } from 'lucide-react';
 import { Role } from '@/types/roles';
 import { TeamMember } from '@/types/team';
-'use client';
 interface Notification {
   id: number;
   message: string;
@@ -479,7 +480,7 @@ export default function TeamPage() {
                 <tr key={member.id} className={`transition-colors duration-300 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <Image src={undefined} alt="" width={100} height={100} />
+                      <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                       <div>
                         <p className={`font-medium transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{member.name}</p>
                         <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.email}</p>
@@ -715,7 +716,7 @@ export default function TeamPage() {
                   <div className={avatarPreview ? 'block' : 'hidden'}>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>معاينة الصورة</label>
                     <div className="relative inline-block">
-                      <Image src={undefined} alt="Avatar Preview" width={100} height={100} />
+                      <Image src="/placeholder.jpg" alt="Avatar Preview" width={100} height={100} />
                       {avatarPreview && (
                         <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
                           <CheckCircle className="w-4 h-4 text-white" />
@@ -776,4 +777,4 @@ export default function TeamPage() {
       )}
     </div>
   );
-} 
+}

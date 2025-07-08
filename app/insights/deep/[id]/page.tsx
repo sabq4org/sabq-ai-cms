@@ -1,10 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
-'use client';
 import { 
   Brain, 
   Eye, 
@@ -414,7 +415,7 @@ export default function DeepAnalysisPage() {
           {/* Featured Image */}
           {analysis.featuredImage && (
             <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
-              <Image src={undefined} alt="" width={100} height={100} />
+              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
             </div>
           )}
           {/* Meta Info */}
@@ -563,7 +564,7 @@ export default function DeepAnalysisPage() {
                 {analysis.author && (
                   <div className="mt-4 flex items-center gap-3">
                     {analysis.authorAvatar ? (
-                      <Image src={undefined} alt="" width={100} height={100} />
+                      <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                     ) : (
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${darkMode ? 'bg-purple-800' : 'bg-purple-200'}`}>
                         <User className="w-5 h-5" />
@@ -817,4 +818,4 @@ export default function DeepAnalysisPage() {
       `}</style>
     </div>
   );
-} 
+}

@@ -1,8 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Upload, Image as ImageIcon, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import FeaturedImageUpload from '@/components/FeaturedImageUpload';
-'use client';
 export default function TestImageUploadPage() {
   const [uploadedImage1, setUploadedImage1] = useState('');
   const [uploadedImage2, setUploadedImage2] = useState('');
@@ -91,7 +92,7 @@ export default function TestImageUploadPage() {
               </button>
               {uploadedImage2 && (
                 <div className="space-y-2">
-                  <Image src={undefined} alt="صورة مرفوعة" width={100} height={100} />
+                  <Image src="/placeholder.jpg" alt="صورة مرفوعة" width={100} height={100} />
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                     <p className="text-sm text-green-700">
                       <strong>رابط الصورة:</strong> {uploadedImage2}
@@ -164,4 +165,4 @@ export default function TestImageUploadPage() {
       </div>
     </div>
   );
-} 
+}

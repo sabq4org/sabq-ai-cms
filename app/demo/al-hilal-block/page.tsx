@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import { AlHilalWorldCupBlock } from '@/components/smart-blocks/AlHilalWorldCupBlock';
-'use client';
 export default function AlHilalBlockDemo() {
   const sampleArticles = [
     {
@@ -109,4 +110,4 @@ export default function AlHilalBlockDemo() {
       </div>
     </div>
   );
-} 
+}

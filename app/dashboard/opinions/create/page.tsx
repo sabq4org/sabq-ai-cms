@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -5,7 +7,6 @@ import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import dynamic from 'next/dynamic';
-'use client';
 import { 
   PenTool,
   Save,
@@ -384,7 +385,7 @@ export default function CreateOpinionPage() {
               }`}>
                 <div className="flex items-center gap-3">
                   {selectedAuthorData.avatar ? (
-                    <Image src={undefined} alt="" width={100} height={100} />
+                    <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                   ) : (
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                       darkMode ? 'bg-gray-600' : 'bg-gray-300'
@@ -623,4 +624,4 @@ export default function CreateOpinionPage() {
       </div>
     </div>
   );
-} 
+}

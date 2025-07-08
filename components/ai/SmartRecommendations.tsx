@@ -1,13 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getArticleLink } from '@/lib/utils';
 import { formatDateOnly } from '@/lib/date-utils';
-
-'use client';
-
-
-
 
 import { 
   Sparkles, Brain, TrendingUp, User, Heart, BookOpen, 
@@ -259,7 +256,7 @@ export default function SmartRecommendations({
               >
                 {/* صورة المقال */}
                 <div className="flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden">
-                  <Image src={undefined} alt="" width={100} height={100} />
+                  <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                 </div>
 
                 {/* محتوى المقال */}
@@ -325,7 +322,7 @@ export default function SmartRecommendations({
               >
                 {/* صورة الكاتب */}
                 <div className="flex-shrink-0">
-                  <Image src={undefined} alt="" width={100} height={100} />
+                  <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                 </div>
 
                 {/* معلومات الكاتب */}
@@ -371,4 +368,4 @@ export default function SmartRecommendations({
       </div>
     </div>
   );
-} 
+}

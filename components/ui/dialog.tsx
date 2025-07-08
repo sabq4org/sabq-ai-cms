@@ -1,7 +1,7 @@
+'use client';
+
 import Image from 'next/image';
 
-
-"use client"
 
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
@@ -122,4 +122,4 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} 
+}

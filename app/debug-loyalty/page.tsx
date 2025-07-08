@@ -1,8 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { getMembershipLevel } from '@/lib/loyalty';
-'use client';
 export default function DebugLoyaltyPage() {
   const [localStorageData, setLocalStorageData] = useState<any>(null);
   const [loyaltyAPIData, setLoyaltyAPIData] = useState<any>(null);
@@ -173,4 +174,4 @@ export default function DebugLoyaltyPage() {
       </div>
     </div>
   );
-} 
+}

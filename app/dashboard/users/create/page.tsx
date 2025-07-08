@@ -1,8 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Save, Mail, Phone, Shield, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-'use client';
 export default function CreateUserPage() {
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);

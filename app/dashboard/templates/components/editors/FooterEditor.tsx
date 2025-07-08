@@ -1,14 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-
 'use client';
 
-
-
-
-
-
-'use client'
+import React from 'react';
+import Image from 'next/image';
 
 import { useState } from 'react'
 import { Plus, Trash2, Move, Link, Mail, Smartphone, Copyright } from 'lucide-react'
@@ -328,4 +321,4 @@ export function FooterEditor({ content, onChange }: FooterEditorProps) {
       )}
     </div>
   )
-} 
+}

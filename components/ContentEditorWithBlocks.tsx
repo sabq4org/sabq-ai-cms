@@ -1,17 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useCallback, useMemo } from 'react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import BlockEditor from './BlockEditor/BlockEditor';
 import { Block, AIAction } from './BlockEditor/types';
-
-'use client';
-
-
-
-
-
-
-
 
 interface ContentEditorProps {
   formData: {
@@ -172,4 +165,4 @@ export default function ContentEditorWithBlocks({
       )}
     </div>
   );
-} 
+}

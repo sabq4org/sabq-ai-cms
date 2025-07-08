@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Brain, Send, AlertTriangle, CheckCircle, XCircle, Info } from 'lucide-react';
-'use client';
 export default function TestCommentAI() {
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -170,4 +171,4 @@ export default function TestCommentAI() {
       </div>
     </div>
   );
-} 
+}

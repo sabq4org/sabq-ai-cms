@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-'use client';
 import { 
   Image, 
   RefreshCw, 
@@ -302,4 +303,4 @@ export default function ImagesManagementPage() {
       </div>
     </div>
   );
-} 
+}

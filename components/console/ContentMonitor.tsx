@@ -1,12 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import { SabqCard } from '@/components/ui/SabqCard';
 import { SabqBadge } from '@/components/ui/SabqBadge';
-
-'use client';
-
-
-
 
 import { 
   FileText, TrendingUp, TrendingDown, Edit3, 
@@ -212,4 +209,4 @@ export default function ContentMonitor() {
       </div>
     </SabqCard>
   );
-} 
+}

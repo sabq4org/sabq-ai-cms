@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -9,7 +11,6 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-'use client';
 import { 
   Brain, 
   Key, 
@@ -389,4 +390,4 @@ export default function AISettingsPage() {
       </div>
     </div>
   );
-} 
+}

@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Users, Target, Brain, BarChart3 } from 'lucide-react';
-'use client';
 export default function PersonalizationPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -242,4 +243,4 @@ export default function PersonalizationPage() {
       )}
     </div>
   );
-} 
+}

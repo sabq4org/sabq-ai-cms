@@ -1,14 +1,9 @@
+'use client';
+
 import React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-'use client';
-
-
-
-
-
 
 import { 
   Clock, Eye, Share2, MessageSquare, 
@@ -371,4 +366,4 @@ export default function PersonalizedFeed({ userId, limit = 10 }: PersonalizedFee
       )}
     </div>
   );
-} 
+}

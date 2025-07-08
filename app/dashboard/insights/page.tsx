@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useDarkMode } from '@/hooks/useDarkMode';
-'use client';
 import { Users, Eye, FileText, Heart, MessageSquare,
   Share2, Clock, Activity,
   ArrowUp, ArrowDown, Minus, BarChart3, PieChart,
@@ -332,4 +333,4 @@ export default function InsightsPage() {
       </div>
     </div>
   );
-} 
+}

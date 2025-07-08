@@ -1,10 +1,11 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ThumbsUp, Bookmark, Share2, RefreshCw, Trash2 } from 'lucide-react';
-'use client';
 export default function TestInteractionsPage() {
   const [guestId, setGuestId] = useState<string>('');
   const [interactions, setInteractions] = useState<any>({});
@@ -187,4 +188,4 @@ export default function TestInteractionsPage() {
       </div>
     </div>
   );
-} 
+}

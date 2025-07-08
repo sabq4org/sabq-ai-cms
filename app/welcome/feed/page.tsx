@@ -1,9 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-'use client';
 import { 
   Heart, Star, TrendingUp, Clock, User, Share2, 
   BookOpen, Zap, ArrowRight, Gift, Award, Target,
@@ -196,7 +197,7 @@ export default function WelcomeFeedPage() {
               >
                 {article.featured_image && (
                   <div className="aspect-video overflow-hidden">
-                    <Image src={undefined} alt="" width={100} height={100} />
+                    <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                   </div>
                 )}
                 <div className="p-6">
@@ -315,4 +316,4 @@ export default function WelcomeFeedPage() {
       </div>
     </div>
   );
-} 
+}

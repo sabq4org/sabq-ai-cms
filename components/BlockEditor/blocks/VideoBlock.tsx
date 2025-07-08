@@ -1,15 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Video, Youtube, Link } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
-'use client';
-
-
-
-
-
-
 
 interface VideoBlockProps {
   data: { url: string; caption?: string; provider?: 'youtube' | 'vimeo' | 'other' };
@@ -204,4 +198,4 @@ export default function VideoBlock({ data, onChange, readOnly = false }: VideoBl
       )}
     </div>
   );
-} 
+}

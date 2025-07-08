@@ -1,10 +1,7 @@
-import Image from 'next/image';
-import React, { useState } from 'react';
-
 'use client';
 
-
-
+import Image from 'next/image';
+import React, { useState } from 'react';
 
 import { 
   Sparkles, Brain, RefreshCw, Type, ArrowUp, ArrowDown, 
@@ -397,7 +394,7 @@ export default function ContentEditor({
                 
                 {formData.featured_image ? (
                   <div className="relative">
-                    <Image src={undefined} alt="الصورة المميزة" width={100} height={100} />
+                    <Image src="/placeholder.jpg" alt="الصورة المميزة" width={100} height={100} />
                     <div className="absolute top-4 right-4 flex gap-2">
                       <button
                         onClick={() => setFormData((prev: any) => ({ ...prev, featured_image: '' }))}
@@ -899,5 +896,3 @@ function BlockContentEditor({ block, onUpdate }: { block: any; onUpdate: (blockI
       );
   }
 }
-
- 

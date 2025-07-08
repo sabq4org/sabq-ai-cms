@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -7,7 +9,6 @@ import Header from '@/components/Header';
 import { useReaderProfile } from '@/hooks/useReaderProfile';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/contexts/ThemeContext';
-'use client';
 import { 
   Brain, 
   TrendingUp, 
@@ -617,4 +618,4 @@ export default function SmartProfilePage() {
       </div>
     </div>
   );
-} 
+}

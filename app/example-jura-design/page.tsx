@@ -1,6 +1,7 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
-'use client';
 export default function JuraDesignExample() {
   return (
   <div className="min-h-screen bg-gray-50">
@@ -208,4 +209,4 @@ export default function JuraDesignExample() {
       </div>
     </div>
   );
-} 
+}

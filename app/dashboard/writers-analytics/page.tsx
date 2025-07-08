@@ -1,6 +1,7 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-'use client';
 import { 
   BarChart3, TrendingUp, Users, Eye, Heart, Share2, 
   MessageSquare, Calendar, Clock, Lightbulb, Sparkles,
@@ -546,4 +547,4 @@ export default function WritersAnalyticsPage() {
       </div>
     </div>
   );
-} 
+}

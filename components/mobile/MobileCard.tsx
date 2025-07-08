@@ -1,14 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, Share2, Bookmark, MessageSquare } from 'lucide-react';
-
-'use client';
-
-
-
-
-
 
 interface MobileCardProps {
   article: {
@@ -300,4 +295,4 @@ export default function MobileCard({
       </Link>
     </div>
   );
-} 
+}

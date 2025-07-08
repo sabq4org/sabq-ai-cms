@@ -1,10 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import Header from '@/components/Header';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-'use client';
 import { Bell, Shield, Moon, Sun, Globe, Save, ArrowLeft
 } from 'lucide-react';
 interface UserSettings {
@@ -280,4 +281,4 @@ export default function SettingsPage() {
       </div>
     </>
   );
-} 
+}

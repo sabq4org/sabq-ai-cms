@@ -1,6 +1,7 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-'use client';
 import { 
   Users, Crown, Star, Award, AlertTriangle, CheckCircle, 
   Search, Filter, Mail, Calendar, Eye, 
@@ -402,7 +403,7 @@ export default function LoyaltyUsersPage() {
                         <div className="flex items-center gap-3">
                           <div className="relative">
                             {user.avatar ? (
-                              <Image src={undefined} alt="" width={100} height={100} />
+                              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                             ) : (
                               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                                 <span className="text-white font-semibold">
@@ -493,4 +494,4 @@ export default function LoyaltyUsersPage() {
       </div>
     </div>
   );
-} 
+}

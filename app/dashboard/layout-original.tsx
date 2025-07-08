@@ -1,23 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getCurrentUser, logActions } from '@/lib/log-activity';
 import { useTheme } from '@/contexts/ThemeContext';
 import { DashboardMobileLayout } from '@/components/mobile/MobileLayout';
-
-'use client';
-
-
-
-
-
-
-
-
-
-
-
-
 
 import { 
   Bell,
@@ -1189,4 +1177,4 @@ export default function DashboardLayout({
       </div>
     </div>
   );
-} 
+}

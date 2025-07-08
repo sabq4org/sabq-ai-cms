@@ -1,12 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { SabqCard } from '@/components/ui/SabqCard';
 import { SabqButton } from '@/components/ui/SabqButton';
-
-'use client';
-
-
-
 
 import { 
   Brain, AlertTriangle, Lightbulb, 
@@ -217,4 +214,4 @@ export default function AIInsights() {
       </div>
     </SabqCard>
   );
-} 
+}

@@ -1,13 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
-'use client';
-
-
-
-
 
 import { Image as ImageIcon, Sparkles
 } from 'lucide-react';
@@ -390,4 +386,4 @@ declare global {
   interface Window {
     editorInsertAIResult?: (result: string) => void;
   }
-} 
+}

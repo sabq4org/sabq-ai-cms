@@ -1,7 +1,8 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-'use client';
 export default function TestCategoriesAPI() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,4 +96,4 @@ export default function TestCategoriesAPI() {
       </div>
     </div>
   );
-} 
+}

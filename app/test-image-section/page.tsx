@@ -1,8 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Upload, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-'use client';
 export default function TestImageSection() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -36,7 +37,7 @@ export default function TestImageSection() {
         <div className="space-y-4">
           {(imagePreview || featuredImage) ? (
             <div className="relative">
-              <Image src={undefined} alt="معاينة الصورة" width={100} height={100} />
+              <Image src="/placeholder.jpg" alt="معاينة الصورة" width={100} height={100} />
               <button
                 type="button"
                 onClick={() => {
@@ -88,4 +89,4 @@ export default function TestImageSection() {
       </div>
     </div>
   );
-} 
+}

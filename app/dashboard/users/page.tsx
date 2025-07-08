@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useDarkMode } from '@/hooks/useDarkMode';
@@ -5,7 +7,6 @@ import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { getMembershipLevel } from '@/lib/loyalty';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
-'use client';
 import { 
   Users,
   UserCheck,
@@ -312,7 +313,7 @@ export default function UsersPage() {
         <td className="px-6 py-4">
           <div className="flex items-center">
             {user.avatar ? (
-              <Image src={undefined} alt="" width={100} height={100} />
+              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium">
                 {user.name.charAt(0)}
@@ -971,7 +972,7 @@ export default function UsersPage() {
               <div className="col-span-2">
                 <div className="flex items-center gap-4 mb-6">
                   {selectedUser.avatar ? (
-                    <Image src={undefined} alt="" width={100} height={100} />
+                    <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                   ) : (
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-2xl font-bold">
                       {selectedUser.name.charAt(0)}
@@ -1144,4 +1145,4 @@ export default function UsersPage() {
       )}
     </div>
   );
-} 
+}

@@ -1,18 +1,8 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useRef, useCallback } from 'react';
-
-'use client';
-
-
-
-
-
-
-
-
-
-
 
 import { 
   Upload, X, Video, FileText, 
@@ -384,7 +374,7 @@ export default function MediaUpload({ onClose, onSuccess, articleId }: MediaUplo
                     {/* معاينة الملف */}
                     <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                       {uploadFile.preview ? (
-                        <Image src={undefined} alt="" width={100} height={100} />
+                        <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                       ) : uploadFile.file.type.startsWith('video/') ? (
                         <div className="w-full h-full flex items-center justify-center">
                           <Video className="w-8 h-8 text-gray-400" />

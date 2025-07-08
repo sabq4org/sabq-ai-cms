@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Gift, Plus, Edit, Trash2, Star, Crown } from 'lucide-react';
-'use client';
 export default function RewardsPage() {
   const [darkMode, setDarkMode] = useState(false);
   useEffect(() => {
@@ -115,4 +116,4 @@ export default function RewardsPage() {
       </div>
     </div>
   );
-} 
+}

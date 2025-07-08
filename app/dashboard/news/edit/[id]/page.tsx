@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -6,7 +8,6 @@ import FeaturedImageUpload from '../../../../../components/FeaturedImageUpload';
 import { logActions, getCurrentUser } from '../../../../../lib/log-activity';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Block } from '../../../../../components/BlockEditor/types';
-'use client';
 import { 
   Save, Eye, Send, AlertTriangle, Image, Video,
   Sparkles, Brain, Globe, Settings, Hash, FileText, CheckCircle,
@@ -972,4 +973,4 @@ export default function EditArticlePage() {
       </div>
     </div>
   );
-} 
+}

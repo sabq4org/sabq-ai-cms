@@ -1,13 +1,10 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
-
-'use client';
-
-
-
 
 import { 
   User, 
@@ -712,4 +709,4 @@ export default function PersonalizedContent() {
       )}
     </div>
   );
-} 
+}

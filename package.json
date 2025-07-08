@@ -171,6 +171,7 @@
     "eslint-plugin-next": "^0.0.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-unused-imports": "^4.1.4",
+    "glob": "^11.0.3",
     "ts-prune": "^0.10.3",
     "vercel": "^44.2.7"
   }

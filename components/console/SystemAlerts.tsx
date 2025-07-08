@@ -1,14 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { SabqCard } from '@/components/ui/SabqCard';
 import { SabqBadge } from '@/components/ui/SabqBadge';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
-
-'use client';
-
-
-
 
 import { 
   AlertTriangle, AlertCircle, Info, CheckCircle, Server, Clock, X,
@@ -281,4 +278,4 @@ export default function SystemAlerts() {
       </div>
     </SabqCard>
   );
-} 
+}

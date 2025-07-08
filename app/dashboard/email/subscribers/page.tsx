@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
@@ -9,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadixSel
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-'use client';
 import { 
   Mail, 
   UserPlus, 
@@ -412,4 +413,4 @@ export default function SubscribersPage() {
       </Card>
     </div>
   );
-} 
+}

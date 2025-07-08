@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Block, BlockData, AIAction } from './types';
@@ -7,19 +9,6 @@ import BlockMenu from './BlockMenu';
 import { ParagraphBlock, HeadingBlock, ImageBlock, VideoBlock, QuoteBlock, ListBlock, DividerBlock, TweetBlock, LinkBlock, TableBlock } from './blocks';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Code } from 'lucide-react';
-
-'use client';
-
-
-
-
-
-
-
-
-
-
-
 
 interface BlockItemProps {
   block: Block;
@@ -296,4 +285,4 @@ export default function BlockItem({
       )}
     </div>
   );
-} 
+}

@@ -1,7 +1,7 @@
+'use client';
+
 import Image from 'next/image';
 
-
-"use client"
 
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
@@ -26,4 +26,4 @@ const Label = React.forwardRef<
 ))
 Label.displayName = LabelPrimitive.Root.displayName
 
-export { Label } 
+export { Label }

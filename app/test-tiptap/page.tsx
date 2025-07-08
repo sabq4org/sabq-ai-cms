@@ -1,8 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-'use client';
 const TiptapEditor = dynamic(() => import('@/components/Editor/TiptapEditor'), {
   ssr: false,
   loading: () => (
@@ -51,4 +52,4 @@ export default function TestTiptapPage() {
       </div>
     </div>
   );
-} 
+}

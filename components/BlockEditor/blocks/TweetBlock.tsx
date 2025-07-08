@@ -1,15 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import { Twitter } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
-'use client';
-
-
-
-
-
-
 
 interface TweetBlockProps {
   data: {
@@ -82,4 +76,4 @@ export default function TweetBlock({ data, onChange, readOnly }: TweetBlockProps
       </p>
     </div>
   );
-} 
+}

@@ -1,10 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-'use client';
 import { 
   BarChart3, Users, Settings, Award, TrendingUp, 
   Download, Plus, Filter, Search, ChevronRight,
@@ -272,4 +273,4 @@ export default function EnhancedDashboardExample() {
       </Card>
     </div>
   );
-} 
+}

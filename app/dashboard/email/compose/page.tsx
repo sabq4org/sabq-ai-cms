@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -10,7 +12,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadixSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-'use client';
 import { 
   Send, 
   Save, 
@@ -449,4 +450,4 @@ export default function EmailComposePage() {
       </Dialog>
     </div>
   );
-} 
+}

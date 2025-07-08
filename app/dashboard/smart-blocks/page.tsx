@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +11,6 @@ import { SelectContent, SelectItem, SelectTrigger, SelectValue, RadixSelect } fr
 import { Textarea } from '@/components/ui/textarea';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { toast } from 'react-hot-toast';
-'use client';
 import { 
   Plus, 
   Edit3, 

@@ -1,8 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
-'use client';
 export default function TestAuthPage() {
   const { user, isLoggedIn, isLoading } = useAuth();
   const [debugInfo, setDebugInfo] = useState<any>({});
@@ -114,4 +115,4 @@ export default function TestAuthPage() {
       </div>
     </div>
   );
-} 
+}

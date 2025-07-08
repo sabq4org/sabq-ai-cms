@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,19 +10,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { getArticleLink } from '@/lib/utils';
-
-'use client';
-
-
-
-
-
-
-
-
-
-
-
 
 interface Article {
   id: string;
@@ -404,4 +393,4 @@ export function MobileArticleGrid({ articles }: { articles: Article[] }) {
       ))}
     </div>
   );
-} 
+}

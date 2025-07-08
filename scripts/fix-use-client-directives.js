@@ -47,6 +47,9 @@ const filesToFix = [
   'components/TodayOpinionsSection.tsx',
   'components/UserDropdown.tsx',
   'components/Editor/Editor.tsx',
+  'components/Editor/EditorToolbar.tsx',
+  'components/Editor/ImageUploader.tsx',
+  'components/Editor/LinkDialog.tsx',
   'components/ui/tabs-enhanced.tsx',
   
   // home components
@@ -66,6 +69,26 @@ const filesToFix = [
   'components/smart-blocks/HeroSliderBlock.tsx',
   'components/smart-blocks/SmartDigestBlock.tsx'
 ];
+
+// البحث عن جميع ملفات TypeScript/TSX في المشروع
+function findAllTsxFiles() {
+  const patterns = [
+    'app/**/*.tsx',
+    'app/**/*.ts',
+    'components/**/*.tsx',
+    'components/**/*.ts',
+    'contexts/**/*.tsx',
+    'contexts/**/*.ts'
+  ];
+  
+  let allFiles = [];
+  patterns.forEach(pattern => {
+    const files = glob.sync(pattern, { ignore: ['node_modules/**', '.next/**'] });
+    allFiles = allFiles.concat(files);
+  });
+  
+  return allFiles;
+}
 
 function fixUseClientDirective(filePath) {
   try {
@@ -95,6 +118,7 @@ console.log('🔧 بدء إصلاح توجيهات "use client"...\n');
 let successCount = 0;
 let errorCount = 0;
 
+// إصلاح الملفات المحددة أولاً
 filesToFix.forEach(file => {
   const fullPath = path.join(process.cwd(), file);
   
@@ -133,6 +157,39 @@ filesToFix.forEach(file => {
   }
 });
 
+// البحث عن ملفات إضافية قد تحتاج إصلاح
+console.log('\n🔍 البحث عن ملفات إضافية...\n');
+const allFiles = findAllTsxFiles();
+const processedFiles = new Set(filesToFix.map(f => path.join(process.cwd(), f)));
+
+allFiles.forEach(file => {
+  const fullPath = path.join(process.cwd(), file);
+  
+  // تجاهل الملفات التي تمت معالجتها بالفعل
+  if (processedFiles.has(fullPath)) {
+    return;
+  }
+  
+  // قراءة الملف والتحقق من وجود 'use client' في مكان خاطئ
+  try {
+    const content = fs.readFileSync(fullPath, 'utf8');
+    
+    // التحقق من وجود 'use client' في مكان خاطئ
+    const hasUseClientWrong = /^(?!['"]use client['"];?\s*\n)[\s\S]*['"]use client['"];?/m.test(content);
+    
+    if (hasUseClientWrong) {
+      console.log(`🔧 Found misplaced 'use client' in: ${file}`);
+      if (fixUseClientDirective(fullPath)) {
+        successCount++;
+      } else {
+        errorCount++;
+      }
+    }
+  } catch (error) {
+    // تجاهل الأخطاء في قراءة الملفات
+  }
+});
+
 console.log('\n📊 النتائج:');
 console.log(`✅ تم إصلاح: ${successCount} ملف`);
 console.log(`❌ فشل: ${errorCount} ملف`);
@@ -154,7 +211,7 @@ const imageFixPatterns = [
   }
 ];
 
-filesToFix.forEach(file => {
+[...filesToFix, ...allFiles].forEach(file => {
   const fullPath = path.join(process.cwd(), file);
   
   if (!fs.existsSync(fullPath)) {

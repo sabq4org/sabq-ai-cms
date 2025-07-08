@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
@@ -9,7 +11,6 @@ import EnhancedArticleCard from '@/components/EnhancedArticleCard';
 import InstantSearch from '@/components/InstantSearch';
 import PowerBar from '@/components/PowerBar';
 import AskAuthorWidget from '@/components/AskAuthorWidget';
-'use client';
 import { 
   Search, Filter, ChevronLeft, ChevronRight, Sparkles, 
   TrendingUp, Calendar, User, Eye, Heart, MessageCircle, 
@@ -470,7 +471,7 @@ export default function OpinionPage() {
                         </div>
                       </div>
                       <div className="relative">
-                        <Image src={undefined} alt="" width={100} height={100} />
+                        <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                         {/* مؤشر الحالة */}
                         <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-gray-800 ${
                           isOnline ? 'bg-green-500' : 'bg-gray-400'
@@ -602,7 +603,7 @@ function OpinionArticleCard({
       <div className="flex flex-col md:flex-row">
         {/* صورة المقال */}
         <div className="md:w-64 h-48 md:h-auto relative overflow-hidden">
-          <Image src={undefined} alt="" width={100} height={100} />
+          <Image src="/placeholder.jpg" alt="" width={100} height={100} />
           {article.audio_url || article.podcast_duration ? (
             <div className="absolute top-4 left-4 px-3 py-1 bg-purple-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
               <Podcast className="w-3 h-3" />
@@ -615,7 +616,7 @@ function OpinionArticleCard({
           {/* معلومات الكاتب */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
-              <Image src={undefined} alt="" width={100} height={100} />
+              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
               <div>
                 <Link href={`/author/${article.author_id}`} className="font-bold text-gray-900 dark:text-white hover:text-blue-600 transition-colors">
                   {article.author_name}
@@ -727,4 +728,4 @@ function Trophy({ className }: { className?: string }) {
       <path d="M8 19H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
-} 
+}

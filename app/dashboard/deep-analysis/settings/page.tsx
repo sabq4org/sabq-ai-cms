@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import toast from 'react-hot-toast';
-'use client';
 import { 
   Settings, 
   Save, 
@@ -600,4 +601,4 @@ export default function DeepAnalysisSettingsPage() {
       </div>
     </div>
   );
-} 
+}

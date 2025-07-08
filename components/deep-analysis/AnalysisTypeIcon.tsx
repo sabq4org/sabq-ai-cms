@@ -1,10 +1,7 @@
-import Image from 'next/image';
-import React from 'react';
-
 'use client';
 
-
-
+import Image from 'next/image';
+import React from 'react';
 
 import {
   Tooltip,
@@ -80,4 +77,4 @@ const AnalysisTypeIcon: React.FC<AnalysisTypeIconProps> = ({
   );
 };
 
-export default AnalysisTypeIcon; 
+export default AnalysisTypeIcon;

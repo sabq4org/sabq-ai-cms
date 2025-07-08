@@ -1,22 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { X, Calendar, Tag, User, HardDrive } from 'lucide-react';
-
-'use client';
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 interface MediaFilters {
   search: string;

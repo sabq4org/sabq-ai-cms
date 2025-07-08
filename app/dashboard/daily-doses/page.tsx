@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'react-hot-toast';
 import { useDarkMode } from '@/hooks/useDarkMode';
-'use client';
 import {
   Select,
   SelectContent,
@@ -627,4 +628,4 @@ export default function DailyDosesManagementPage() {
       )}
     </div>
   );
-} 
+}

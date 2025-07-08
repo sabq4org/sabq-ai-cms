@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
@@ -5,7 +7,6 @@ import Footer from '@/components/Footer';
 import DeepAnalysisCard from '@/components/deep-analysis/DeepAnalysisCard';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
-'use client';
 import { 
   Brain,
   Search,
@@ -330,4 +331,4 @@ export default function DeepAnalysesPage() {
       `}</style>
     </>
   );
-} 
+}

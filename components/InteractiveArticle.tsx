@@ -1,9 +1,8 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
-
-'use client';
-
 
 import { 
   MessageSquare, ThumbsUp, Share2, Bookmark, 
@@ -159,7 +158,7 @@ export default function InteractiveArticle({
         return (
           <div className="mb-8 group relative">
             <div className={`relative rounded-2xl overflow-hidden shadow-lg ${isDark ? 'border border-gray-700' : ''}`}>
-              <Image src={undefined} alt="" width={100} height={100} />
+              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                 <p className="text-white text-sm">{block.metadata?.imageAlt}</p>
               </div>
@@ -363,7 +362,7 @@ export default function InteractiveArticle({
         }`}>
           <div className="flex items-center gap-4">
             {author.avatar && (
-              <Image src={undefined} alt="" width={100} height={100} />
+              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
             )}
             <div>
               <p className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{author.name}</p>
@@ -451,4 +450,4 @@ function BlockActions({
       </button>
     </div>
   );
-} 
+}

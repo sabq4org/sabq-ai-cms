@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
@@ -12,7 +14,6 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-'use client';
 import { 
   Save, Shield, Brain, Database, Search, CheckCircle, 
   Upload, Download, AlertCircle, Loader, Eye, EyeOff, Share2,
@@ -1145,7 +1146,7 @@ export default function SettingsPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">معاينة الشعار</h2>
         <div className="bg-gray-100 rounded-lg p-6 flex items-center justify-center">
           {previewLogo ? (
-            <Image src={undefined} alt="معاينة الشعار" width={100} height={100} />
+            <Image src="/placeholder.jpg" alt="معاينة الشعار" width={100} height={100} />
           ) : (
             <div className="text-gray-400 flex flex-col items-center">
               <ImageIcon className="w-12 h-12 mb-2" />

@@ -1,12 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { useAuth } from '@/hooks/useAuth';
-
-'use client';
-
-
-
 
 import { 
   TrendingUp, 
@@ -430,4 +427,4 @@ export default function DashboardFooter({ userId, onInteraction }: DashboardFoot
       </div>
     </div>
   );
-} 
+}

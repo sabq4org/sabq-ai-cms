@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
@@ -10,8 +12,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import { useTheme } from "@/contexts/ThemeContext";
-'use client';
-"use client";
 import "./forum.css";
 // تعريف أنواع البيانات
 interface Topic {
@@ -339,4 +339,4 @@ export default function SabqForum() {
       </div>
     </div>
   );
-} 
+}

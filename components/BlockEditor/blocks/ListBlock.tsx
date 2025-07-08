@@ -1,15 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { List, ListOrdered, Plus, Trash2 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
-'use client';
-
-
-
-
-
-
 
 interface ListBlockProps {
   data: { items: string[]; ordered?: boolean };
@@ -188,4 +182,4 @@ export default function ListBlock({ data, onChange, readOnly = false }: ListBloc
       </button>
     </div>
   );
-} 
+}

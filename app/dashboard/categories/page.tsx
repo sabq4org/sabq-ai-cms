@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import CategoryFormModal from '../../../components/CategoryFormModal';
@@ -8,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-'use client';
 import { 
   Plus, 
   Edit3,

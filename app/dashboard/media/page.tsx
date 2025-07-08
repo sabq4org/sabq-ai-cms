@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
-'use client';
-"use client";
 import {
   RadixSelect as Select,
   SelectContent,

@@ -1,16 +1,9 @@
+'use client';
+
 import React from 'react';
-import Image from 'next/image';
 import { Editor } from '@tiptap/react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useState } from 'react';
-
-'use client';
-
-
-
-
-
-
 
 import {
   Bold,
@@ -21,7 +14,7 @@ import {
   ListOrdered,
   Quote,
   Link,
-  Image,
+  Image as ImageIcon,
   Youtube,
   Table,
   Undo,
@@ -245,7 +238,7 @@ export default function EditorToolbar({ editor, enableAI = true, onAIAction }: E
           className={buttonClass}
           title="إضافة صورة"
         >
-          <Image className="w-4 h-4" />
+          <ImageIcon className="w-4 h-4" />
         </button>
         <button
           onClick={addYoutube}
@@ -312,4 +305,4 @@ export default function EditorToolbar({ editor, enableAI = true, onAIAction }: E
       </div>
     </div>
   );
-} 
+}

@@ -1,15 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import { Link, ExternalLink } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
-'use client';
-
-
-
-
-
-
 
 interface LinkBlockProps {
   data: {
@@ -109,4 +103,4 @@ export default function LinkBlock({ data, onChange, readOnly }: LinkBlockProps) 
       </div>
     </div>
   );
-} 
+}

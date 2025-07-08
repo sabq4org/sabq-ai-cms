@@ -1,14 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-
 'use client';
 
-
-
-
-
-
-'use client'
+import React from 'react';
+import Image from 'next/image';
 
 import { useState } from 'react'
 import { Clock, User, FileText, Edit, Eye, MessageCircle } from 'lucide-react'
@@ -131,4 +124,4 @@ export function ActivityTimeline() {
       </div>
     </div>
   )
-} 
+}

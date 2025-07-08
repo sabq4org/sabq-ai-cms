@@ -1,13 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { SabqBadge } from '@/components/ui/SabqBadge';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
-
-'use client';
-
-
-
 
 import { 
   FileText, User, Shield, Settings, AlertCircle, 
@@ -339,4 +336,4 @@ export default function ActivityTimeline({ searchQuery = '' }: ActivityTimelineP
       })}
     </div>
   );
-} 
+}

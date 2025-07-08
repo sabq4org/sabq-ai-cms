@@ -1,11 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import { SabqCard } from '@/components/ui/SabqCard';
-
-'use client';
-
-
-
 
 import { 
   Users, FileText, Eye, Clock, MessageSquare,
@@ -172,4 +169,4 @@ export default function LiveKPIs({ timeRange }: LiveKPIsProps) {
       </SabqCard>
     </div>
   );
-} 
+}

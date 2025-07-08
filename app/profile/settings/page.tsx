@@ -1,10 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import Header from '@/components/Header';
-'use client';
 import { 
   ArrowLeft, Save, User, Mail, Lock, Bell,
   Shield, Globe, Moon, Sun, Check

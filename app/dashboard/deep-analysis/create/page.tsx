@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { CreateAnalysisRequest, SourceType, CreationType, DisplayPosition } from '@/types/deep-analysis';
 import toast from 'react-hot-toast';
-'use client';
 import { 
   ArrowLeft, 
   Sparkles, 
@@ -632,7 +633,7 @@ const CreateDeepAnalysisPage = () => {
             <div className={`mt-2 space-y-4`}>
               {imagePreview ? (
                 <div className="relative">
-                  <Image src={undefined} alt="معاينة الصورة" width={100} height={100} />
+                  <Image src="/placeholder.jpg" alt="معاينة الصورة" width={100} height={100} />
                   <button
                     onClick={() => {
                       setImageFile(null);
@@ -1118,4 +1119,4 @@ const CreateDeepAnalysisPage = () => {
     </div>
   );
 };
-export default CreateDeepAnalysisPage; 
+export default CreateDeepAnalysisPage;

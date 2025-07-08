@@ -1,8 +1,9 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { getCookie } from '@/lib/cookies';
-'use client';
 export default function TestLoginPage() {
   const [diagnostics, setDiagnostics] = useState<any>({});
   const [loading, setLoading] = useState(true);
@@ -133,4 +134,4 @@ export default function TestLoginPage() {
       </div>
     </div>
   );
-} 
+}

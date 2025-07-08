@@ -1,13 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Calendar, Clock, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
-
-'use client';
-
-
-
-
-
 
 interface TimelineEntry {
   date: string;
@@ -136,4 +131,4 @@ export default function ReadingTimeline({ timeline }: Props) {
       )}
     </div>
   );
-} 
+}

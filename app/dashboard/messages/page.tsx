@@ -1,9 +1,10 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useDarkMode } from '@/hooks/useDarkMode';
-'use client';
 import { 
   Mail,
   Archive,
@@ -830,4 +831,4 @@ export default function MessagesPage() {
       <MessagesContent />
     </Suspense>
   );
-} 
+}

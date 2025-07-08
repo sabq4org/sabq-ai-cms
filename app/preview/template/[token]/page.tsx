@@ -72,7 +72,7 @@ function HeaderPreview({ template }: { template: Template }) {
         {/* الشعار */}
         {template.logo_url && (
           <div className="py-4">
-            <Image src={undefined} alt="" width={100} height={100} />
+            <Image src="/placeholder.jpg" alt="" width={100} height={100} />
           </div>
         )}
         {/* التنقل */}

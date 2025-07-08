@@ -1,15 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Table, Plus, Trash2 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
-'use client';
-
-
-
-
-
-
 
 interface TableData {
   headers: string[];
@@ -195,4 +189,4 @@ export default function TableBlock({ data, onChange, readOnly }: TableBlockProps
       </div>
     </div>
   );
-} 
+}

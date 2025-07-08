@@ -1,17 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useRef } from 'react';
 import { Image as ImageIcon, Upload, Link, Loader } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { getDefaultImageUrl } from '@/lib/cloudinary';
-
-'use client';
-
-
-
-
-
-
-
 
 interface ImageBlockProps {
   data: { url: string; alt?: string; caption?: string };
@@ -117,7 +110,7 @@ export default function ImageBlock({ data, onChange, readOnly = false }: ImageBl
       <figure className="my-4">
         {data.url ? (
           <>
-            <Image src={undefined} alt="" width={100} height={100} /> {
+            <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
                 console.error('خطأ في تحميل الصورة:', {
                   src: e.currentTarget.src,
                   alt: e.currentTarget.alt
@@ -228,7 +221,7 @@ export default function ImageBlock({ data, onChange, readOnly = false }: ImageBl
       ) : (
         <>
           <div className="relative group">
-            <Image src={undefined} alt="" width={100} height={100} /> {
+            <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
                 console.error('خطأ في تحميل الصورة:', {
                   src: e.currentTarget.src,
                   alt: e.currentTarget.alt
@@ -278,4 +271,4 @@ export default function ImageBlock({ data, onChange, readOnly = false }: ImageBl
       )}
     </div>
   );
-} 
+}

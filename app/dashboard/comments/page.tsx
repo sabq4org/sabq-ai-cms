@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -5,7 +7,6 @@ import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
-'use client';
 import { 
   MessageCircle, 
   Check, 
@@ -636,4 +637,4 @@ export default function CommentsManagementPage() {
       </div>
     </div>
   );
-} 
+}

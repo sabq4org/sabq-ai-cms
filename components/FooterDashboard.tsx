@@ -1,12 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
-
-'use client';
-
-
-
 
 import { 
   Brain, 
@@ -371,4 +368,4 @@ export default function FooterDashboard() {
       </div>
     </div>
   );
-} 
+}

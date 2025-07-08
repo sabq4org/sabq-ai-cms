@@ -1,13 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
 import { Trophy, Lock } from 'lucide-react';
-
-'use client';
-
-
-
-
-
 
 interface Achievement {
   id: string;
@@ -120,4 +115,4 @@ export default function AchievementBadges({ achievements }: Props) {
       </div>
     </div>
   );
-} 
+}

@@ -1,8 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Heart, Bookmark, Eye, Clock, User } from 'lucide-react';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
-'use client';
 interface Article {
   id: string;
   title: string;
@@ -171,7 +172,7 @@ export default function TestBookmarksPage() {
               {articles.map((article) => (
                 <div key={article.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-start gap-4">
-                    <Image src={undefined} alt="" width={100} height={100} /> {
+                    <Image src="/placeholder.jpg" alt="" width={100} height={100} /> {
                         e.currentTarget.src = generatePlaceholderImage(article.title, 'article');
                       }}
                     />
@@ -283,4 +284,4 @@ export default function TestBookmarksPage() {
       </div>
     </div>
   );
-} 
+}
