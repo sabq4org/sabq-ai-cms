@@ -1,154 +1,157 @@
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { DeepAnalysis } from '@/types/deep-analysis';
 
+export const runtime = 'nodejs';
 
-
-
-
-
-
-// بيانات تجريبية
-const deepAnalyses = [
-  {
-    id: '1',
-    title: 'تحليل تأثير الذكاء الاصطناعي على سوق العمل السعودي',
-    summary: 'دراسة معمقة حول كيفية تأثير تقنيات الذكاء الاصطناعي على فرص العمل والمهارات المطلوبة في السوق السعودي.',
-    content: '<h2>المقدمة</h2><p>يشهد العالم ثورة تقنية غير مسبوقة...</p>',
-    status: 'published',
-    source: 'gpt',
-    rating: 4.8,
-    author: 'محمد الأحمد',
-    authorId: 'user-1',
-    categories: ['تقنية', 'اقتصاد'],
-    articleId: 'article-123',
-    createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-01-15T14:30:00Z',
-    publishedAt: '2024-01-15T15:00:00Z',
-    views: 1250,
-    shares: 45,
-    comments: 23
-  },
-  {
-    id: '2',
-    title: 'الآثار الاقتصادية لرؤية 2030 على القطاع الخاص',
-    summary: 'تحليل شامل للتحولات الاقتصادية وتأثيرها على الشركات والاستثمارات.',
-    content: '<h2>نظرة عامة</h2><p>تهدف رؤية 2030 إلى تنويع الاقتصاد...</p>',
-    status: 'analyzing',
-    source: 'hybrid',
-    rating: 0,
-    author: 'سارة العتيبي',
-    authorId: 'user-2',
-    categories: ['اقتصاد', 'سياسة'],
-    createdAt: '2024-01-14T15:30:00Z',
-    updatedAt: '2024-01-14T15:30:00Z',
-    views: 0,
-    shares: 0,
-    comments: 0
-  },
-  {
-    id: '3',
-    title: 'دراسة معمقة: تحول الطاقة في المملكة',
-    summary: 'كيف تتحول المملكة نحو الطاقة المتجددة وما هي التحديات والفرص.',
-    content: '<h2>التحول نحو الطاقة النظيفة</h2><p>في إطار جهود المملكة...</p>',
-    status: 'draft',
-    source: 'manual',
-    rating: 4.2,
-    author: 'عبدالله الشمري',
-    authorId: 'user-3',
-    categories: ['بيئة', 'اقتصاد'],
-    createdAt: '2024-01-13T09:15:00Z',
-    updatedAt: '2024-01-14T11:20:00Z',
-    views: 320,
-    shares: 12,
-    comments: 8
-  }
-];
+// Helper function to convert DB data to DeepAnalysis format
+function convertToDeepAnalysis(dbAnalysis: any): DeepAnalysis {
+  const metadata = dbAnalysis.metadata as any || {};
+  
+  return {
+    id: dbAnalysis.id,
+    title: metadata.title || dbAnalysis.ai_summary || 'تحليل عميق',
+    slug: metadata.slug || `analysis-${dbAnalysis.id}`,
+    summary: metadata.summary || dbAnalysis.ai_summary || '',
+    content: metadata.content || {
+      sections: [],
+      tableOfContents: [],
+      recommendations: [],
+      keyInsights: dbAnalysis.key_topics || [],
+      dataPoints: []
+    },
+    rawContent: metadata.rawContent || dbAnalysis.ai_summary || '',
+    featuredImage: metadata.featuredImage,
+    categories: metadata.categories || [],
+    tags: (dbAnalysis.tags as string[]) || [],
+    authorName: metadata.authorName || 'محرر سبق',
+    sourceType: metadata.sourceType || 'original',
+    creationType: metadata.creationType || 'gpt',
+    analysisType: metadata.analysisType || 'ai',
+    readingTime: metadata.readingTime || 5,
+    qualityScore: dbAnalysis.engagement_score || 0,
+    contentScore: metadata.contentScore || {
+      overall: dbAnalysis.engagement_score || 0,
+      contentLength: dbAnalysis.ai_summary?.length || 0,
+      hasSections: false,
+      hasData: false,
+      hasRecommendations: false,
+      readability: parseFloat(dbAnalysis.readability_score?.toString() || '0'),
+      uniqueness: 0.8
+    },
+    status: metadata.status || 'published',
+    isActive: metadata.isActive !== false,
+    isFeatured: metadata.isFeatured || false,
+    displayPosition: metadata.displayPosition || 'middle',
+    views: metadata.views || 0,
+    likes: metadata.likes || 0,
+    shares: metadata.shares || 0,
+    saves: metadata.saves || 0,
+    commentsCount: metadata.commentsCount || 0,
+    avgReadTime: metadata.avgReadTime || 0,
+    createdAt: metadata.createdAt || dbAnalysis.analyzed_at.toISOString(),
+    updatedAt: metadata.updatedAt || dbAnalysis.updated_at.toISOString(),
+    publishedAt: metadata.publishedAt || dbAnalysis.analyzed_at.toISOString(),
+    metadata: metadata.metadata || {}
+  };
+}
 
 export async function GET(request: NextRequest) {
   try {
-    // فلترة حسب المعايير
     const searchParams = request.nextUrl.searchParams;
-    const status = searchParams.get('status');
-    const source = searchParams.get('source');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
     const category = searchParams.get('category');
-    const authorId = searchParams.get('authorId');
-
-    let filteredAnalyses = [...deepAnalyses];
-
-    if (status) {
-      filteredAnalyses = filteredAnalyses.filter(a => a.status === status);
+    const status = searchParams.get('status') || 'published';
+    const featured = searchParams.get('featured') === 'true';
+    
+    const skip = (page - 1) * limit;
+    
+    // بناء شروط البحث
+    const where: any = {};
+    
+    if (status && status !== 'all') {
+      where.metadata = {
+        path: ['status'],
+        equals: status
+      };
     }
-
-    if (source) {
-      filteredAnalyses = filteredAnalyses.filter(a => a.source === source);
+    
+    if (featured) {
+      where.metadata = {
+        ...where.metadata,
+        path: ['isFeatured'],
+        equals: true
+      };
     }
-
-    if (category) {
-      filteredAnalyses = filteredAnalyses.filter(a => 
-        a.categories.some(cat => cat.toLowerCase().includes(category.toLowerCase()))
-      );
-    }
-
-    if (authorId) {
-      filteredAnalyses = filteredAnalyses.filter(a => a.authorId === authorId);
-    }
-
-    // ترتيب حسب التاريخ
-    filteredAnalyses.sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-
-    return NextResponse.json(filteredAnalyses);
+    
+    // جلب التحليلات من قاعدة البيانات
+    const [analyses, total] = await Promise.all([
+      prisma.deep_analyses.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { analyzed_at: 'desc' }
+      }),
+      prisma.deep_analyses.count({ where })
+    ]);
+    
+    // تحويل البيانات
+    const deepAnalyses = analyses.map(convertToDeepAnalysis);
+    
+    return NextResponse.json({
+      success: true,
+      data: deepAnalyses,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+    
   } catch (error) {
     console.error('Error fetching deep analyses:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch deep analyses' },
+      { success: false, error: 'Failed to fetch analyses' },
       { status: 500 }
     );
   }
 }
 
+// POST - إنشاء تحليل جديد
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const id = `analysis-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
-    // التحقق من المدخلات
-    if (!body.title || !body.content || !body.categories || body.categories.length === 0) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
-
-    // إنشاء تحليل جديد
-    const newAnalysis = {
-      id: `analysis-${Date.now()}`,
-      title: body.title,
-      summary: body.summary || '',
-      content: body.content,
-      status: body.status || 'draft',
-      source: body.source || 'manual',
-      rating: 0,
-      author: 'المستخدم الحالي', // في الإنتاج، سيتم أخذ هذا من الجلسة
-      authorId: 'current-user',
-      categories: body.categories,
-      articleId: body.articleId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      publishedAt: body.status === 'published' ? new Date().toISOString() : undefined,
-      views: 0,
-      shares: 0,
-      comments: 0,
-      analysisMetadata: body.analysisMetadata
-    };
-
-    // في الإنتاج، سيتم حفظ التحليل في قاعدة البيانات
-    deepAnalyses.push(newAnalysis);
-
-    return NextResponse.json(newAnalysis, { status: 201 });
+    const analysis = await prisma.deep_analyses.create({
+      data: {
+        id,
+        article_id: body.articleId || `article-${id}`,
+        ai_summary: body.summary || body.title,
+        key_topics: body.tags || [],
+        tags: body.tags || [],
+        sentiment: 'neutral',
+        readability_score: body.contentScore?.readability || 0.7,
+        engagement_score: body.qualityScore || 0,
+        suggested_headlines: body.content?.recommendations || [],
+        related_articles: body.relatedArticles || [],
+        metadata: body,
+        analyzed_at: new Date(),
+        updated_at: new Date()
+      }
+    });
+    
+    return NextResponse.json({
+      success: true,
+      data: convertToDeepAnalysis(analysis)
+    });
+    
   } catch (error) {
-    console.error('Error creating deep analysis:', error);
+    console.error('Error creating analysis:', error);
     return NextResponse.json(
-      { error: 'Failed to create deep analysis' },
+      { success: false, error: 'Failed to create analysis' },
       { status: 500 }
     );
   }

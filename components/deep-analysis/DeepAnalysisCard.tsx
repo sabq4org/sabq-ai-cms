@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import AnalysisTypeIcon from './AnalysisTypeIcon';
@@ -16,11 +16,11 @@ import {
   Heart,
   Share2,
   Calendar,
-  ArrowLeft,
-  ExternalLink
+  ArrowUpRight,
+  ExternalLink,
+  Plus,
+  ChevronRight
 } from 'lucide-react';
-
-
 
 interface DeepAnalysisCardProps {
   analysis: {
@@ -39,7 +39,7 @@ interface DeepAnalysisCardProps {
     qualityScore: number;
     status: string;
     createdAt: string;
-    publishedAt: string;
+    publishedAt?: string;
     featuredImage?: string;
   };
   viewMode?: 'grid' | 'list';
@@ -47,6 +47,7 @@ interface DeepAnalysisCardProps {
 
 export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAnalysisCardProps) {
   const { darkMode } = useDarkModeContext();
+  const [showAllTags, setShowAllTags] = useState(false);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -96,65 +97,77 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
   // تحديد الرابط الصحيح بالاعتماد على id فقط لضمان توافقه مع مسار الـ API
   const analysisUrl = `/insights/deep/${analysis.id}`;
 
+  // الوسوم المرئية (4 كحد أقصى)
+  const visibleTags = showAllTags ? analysis.tags : analysis.tags.slice(0, 4);
+  const remainingTags = analysis.tags.length - 4;
+
   return (
     <div className={`
-      relative overflow-hidden rounded-xl transition-all duration-300 group
+      relative overflow-hidden rounded-2xl transition-all duration-300 group
       ${darkMode 
-        ? 'bg-gray-800 border border-gray-700 hover:border-gray-600' 
-        : 'bg-white shadow-sm border border-gray-200 hover:shadow-lg'
+        ? 'bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-purple-500/30' 
+        : 'bg-white/80 backdrop-blur-sm shadow-sm border border-gray-100 hover:shadow-xl hover:border-purple-200'
       } 
       ${viewMode === 'list' ? 'flex' : ''}
-      hover:transform hover:scale-105
+      hover:transform hover:scale-[1.02]
     `}>
-      {/* صورة مميزة */}
+      {/* صورة مميزة محسنة */}
       <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-72 flex-shrink-0' : 'h-48'}`}>
-        <Link href={analysisUrl}>
-          <Image src="/placeholder.jpg" alt="" width={100} height={100} />
+        <Link href={analysisUrl} className="block w-full h-full">
+          <Image 
+            src={analysis.featuredImage || generatePlaceholderImage(analysis.title)} 
+            alt={analysis.title}
+            width={400}
+            height={300}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
         </Link>
         
-        {/* شارة التحليل العميق */}
+        {/* تدرج علوي */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
+        
+        {/* شارة التحليل العميق - محسنة */}
         <div className="absolute top-3 right-3">
-          <div className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
+          <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-lg backdrop-blur-sm">
             <Brain className="w-3.5 h-3.5" />
-            تحليل عميق
+            <span>تحليل عميق</span>
           </div>
         </div>
 
-        {/* نسبة الجودة */}
+        {/* نسبة الجودة - محسنة */}
         <div className="absolute bottom-3 left-3">
           <div className={`
-            ${analysis.qualityScore >= 80 ? 'bg-green-600' : analysis.qualityScore >= 60 ? 'bg-yellow-600' : 'bg-red-600'}
-            text-white px-2.5 py-1 rounded text-xs font-medium flex items-center gap-1
+            bg-gradient-to-r ${getQualityColor(analysis.qualityScore)}
+            text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-sm
           `}>
             <BarChart3 className="w-3.5 h-3.5" />
             {analysis.qualityScore}%
           </div>
         </div>
 
-        {/* زر عرض سريع */}
-        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Link 
-            href={analysisUrl}
-            className="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 hover:bg-white transition-colors"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            عرض
-          </Link>
-        </div>
+        {/* أيقونة عرض سريع - محسنة */}
+        <Link 
+          href={analysisUrl}
+          className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-sm"
+        >
+          <div className="bg-white/90 text-gray-800 p-3 rounded-full shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-300">
+            <ArrowUpRight className="w-5 h-5" />
+          </div>
+        </Link>
       </div>
 
-      {/* محتوى البطاقة */}
-      <div className={`p-4 sm:p-5 ${viewMode === 'list' ? 'flex-1' : ''} flex flex-col`}>
-        {/* التصنيفات */}
-        <div className="flex flex-wrap gap-2 mb-3">
+      {/* محتوى البطاقة - محسن */}
+      <div className={`p-5 ${viewMode === 'list' ? 'flex-1' : ''} flex flex-col`}>
+        {/* التصنيفات - محسنة */}
+        <div className="flex flex-wrap gap-2 mb-4">
           {analysis.categories.slice(0, 2).map((category, index) => (
             <span 
               key={index}
               className={`
-                text-xs px-2.5 py-1 rounded font-medium
+                text-xs px-3 py-1.5 rounded-full font-medium transition-colors
                 ${darkMode 
-                  ? 'bg-gray-700 text-gray-300' 
-                  : 'bg-gray-100 text-gray-700'
+                  ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50' 
+                  : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
                 }
               `}
             >
@@ -163,73 +176,110 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           ))}
         </div>
 
-        {/* العنوان */}
+        {/* العنوان - محسن */}
         <Link href={analysisUrl}>
           <h3 className={`
-            text-lg font-bold line-clamp-3 mb-3 group-hover:text-purple-600 transition-colors cursor-pointer
-            ${darkMode ? 'text-white' : 'text-gray-900'}
-          `}>
+            text-lg font-bold line-clamp-2 mb-3 transition-colors cursor-pointer
+            ${darkMode ? 'text-white hover:text-purple-400' : 'text-gray-900 hover:text-purple-600'}
+          `}
+          title={analysis.title}
+          >
             {analysis.title}
           </h3>
         </Link>
 
-        {/* الملخص */}
+        {/* الملخص - محسن */}
         <p className={`
-          text-sm line-clamp-2 mb-4 flex-grow
-          ${darkMode ? 'text-gray-400' : 'text-gray-600'}
-        `}>
+          text-sm line-clamp-2 mb-4 flex-grow leading-relaxed
+          ${darkMode ? 'text-gray-300' : 'text-gray-600'}
+        `}
+        title={analysis.summary}
+        >
           {analysis.summary}
         </p>
 
-        {/* معلومات أسفل البطاقة */}
+        {/* الوسوم - تصميم جديد */}
+        {analysis.tags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {visibleTags.map((tag, index) => (
+              <span 
+                key={index}
+                className={`
+                  text-xs px-2 py-1 rounded-md font-medium
+                  ${darkMode 
+                    ? 'bg-gray-700/50 text-gray-400' 
+                    : 'bg-gray-100 text-gray-600'
+                  }
+                `}
+              >
+                #{tag}
+              </span>
+            ))}
+            {remainingTags > 0 && !showAllTags && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowAllTags(true);
+                }}
+                className={`
+                  text-xs px-2 py-1 rounded-md font-medium flex items-center gap-1 transition-colors
+                  ${darkMode 
+                    ? 'bg-purple-900/30 text-purple-400 hover:bg-purple-900/50' 
+                    : 'bg-purple-50 text-purple-600 hover:bg-purple-100'
+                  }
+                `}
+              >
+                <Plus className="w-3 h-3" />
+                {remainingTags} المزيد
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* معلومات أسفل البطاقة - محسنة */}
         <div className={`
-          flex items-center justify-between text-xs pt-3 border-t mb-4
-          ${darkMode ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-500'}
+          flex items-center justify-between text-xs pt-4 border-t
+          ${darkMode ? 'border-gray-700/50 text-gray-400' : 'border-gray-100 text-gray-500'}
         `}>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{formatDate(analysis.publishedAt || analysis.createdAt)}</span>
-              <span className="sm:hidden">{new Date(analysis.publishedAt || analysis.createdAt).toLocaleDateString('ar-SA', { month: 'short', day: 'numeric' })}</span>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 opacity-60" />
+              <span>{new Date(analysis.publishedAt || analysis.createdAt).toLocaleDateString('ar-SA', { month: 'short', day: 'numeric' })}</span>
             </span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 opacity-60" />
               {analysis.readingTime} د
             </span>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{analysis.views.toLocaleString('ar-SA')}</span>
-              <span className="sm:hidden">{analysis.views > 999 ? `${Math.floor(analysis.views / 1000)}k` : analysis.views}</span>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5">
+              <Eye className="w-3.5 h-3.5 opacity-60" />
+              <span>{analysis.views > 999 ? `${(analysis.views / 1000).toFixed(1)}k` : analysis.views}</span>
             </span>
             {analysis.likes > 0 && (
-              <span className="flex items-center gap-1">
-                <Heart className="w-3.5 h-3.5" />
+              <span className="flex items-center gap-1.5">
+                <Heart className="w-3.5 h-3.5 opacity-60" />
                 {analysis.likes}
               </span>
             )}
           </div>
         </div>
 
-        {/* زر عرض التفاصيل - محسن */}
-        <div className="pt-2 pb-4 mt-auto">
-          <Link 
-            href={analysisUrl}
-            className={`
-              w-fit max-w-[180px] mx-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all
-              ${darkMode 
-                ? 'bg-slate-100 hover:bg-blue-100 text-gray-900 hover:text-blue-900' 
-                : 'bg-slate-100 hover:bg-blue-100 text-gray-900 hover:text-blue-900'
-              }
-              hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98] border border-transparent hover:border-blue-200
-            `}
-          >
-            <Brain className="w-4 h-4" />
-            <span>عرض التحليل الكامل</span>
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-        </div>
+        {/* زر عرض مختصر - تصميم جديد */}
+        <Link 
+          href={analysisUrl}
+          className={`
+            absolute bottom-4 left-4 p-2 rounded-full transition-all opacity-0 group-hover:opacity-100
+            ${darkMode 
+              ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+              : 'bg-purple-600 hover:bg-purple-700 text-white'
+            }
+            shadow-lg hover:shadow-xl transform hover:scale-110
+          `}
+          title="عرض التحليل الكامل"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </Link>
       </div>
     </div>
   );

@@ -58,6 +58,7 @@ interface TimelineEvent {
     comments: number;
     shares: number;
   };
+  isImportant?: boolean;
 }
 export default function MomentByMomentPage() {
   const { darkMode } = useDarkModeContext();
@@ -71,6 +72,7 @@ export default function MomentByMomentPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [stats, setStats] = useState<any>({});
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [isRefreshing, setIsRefreshing] = useState(false);
   // أنواع المحتوى وألوانها
   const eventTypes = {
     all: { icon: '📍', color: 'blue', label: 'الكل', bgColor: '#3B82F6' },
@@ -78,7 +80,10 @@ export default function MomentByMomentPage() {
     analysis: { icon: '📊', color: 'purple', label: 'تحليلات', bgColor: '#8B5CF6' },
     comments: { icon: '💬', color: 'green', label: 'تعليقات', bgColor: '#10B981' },
     system: { icon: '🛠️', color: 'gray', label: 'نظام', bgColor: '#6B7280' },
-    community: { icon: '🏆', color: 'pink', label: 'مجتمع', bgColor: '#EC4899' }
+    community: { icon: '🏆', color: 'pink', label: 'مجتمع', bgColor: '#EC4899' },
+    daily_dose: { icon: '💊', color: 'pink', label: 'جرعات يومية', bgColor: '#EC4899' },
+    forum: { icon: '💭', color: 'emerald', label: 'المنتدى', bgColor: '#059669' },
+    trending: { icon: '🔥', color: 'violet', label: 'رائج', bgColor: '#7C3AED' }
   };
   // تحديث الوقت الحالي
   useEffect(() => {
@@ -188,9 +193,21 @@ export default function MomentByMomentPage() {
         return <Trophy className="w-4 h-4" />;
       case 'system':
         return <Settings className="w-4 h-4" />;
+      case 'daily_dose':
+        return <Sunrise className="w-4 h-4" />;
+      case 'forum':
+        return <Users className="w-4 h-4" />;
+      case 'trending':
+        return <TrendingUp className="w-4 h-4" />;
       default:
         return <Clock className="w-4 h-4" />;
     }
+  };
+  const refreshEvents = async () => {
+    setIsRefreshing(true);
+    await fetchTimelineEvents();
+    setIsRefreshing(false);
+    setNewEventsCount(0);
   };
   if (loading) {
     return (
@@ -277,36 +294,53 @@ export default function MomentByMomentPage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Filters */}
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide w-full sm:w-auto">
-              <button
-                onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
-                  filter === 'all'
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
-              >
-                جميع الأحداث
-              </button>
-                              {Object.entries(eventTypes).map(([key, value]) => (
-                  <button
-                    key={key}
-                    onClick={() => setFilter(key)}
-                    className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all flex items-center gap-2 ${
-                      filter === key
-                        ? 'text-white shadow-lg'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                    }`}
-                    style={{
-                      backgroundColor: filter === key ? value.bgColor : undefined
-                    }}
-                  >
-                    <span className="w-4 h-4">{value.icon}</span>
-                    {value.label}
-                  </button>
-                ))}
+              {Object.entries(eventTypes).map(([key, value]) => (
+                <button
+                  key={key}
+                  onClick={() => setFilter(key)}
+                  className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all flex items-center gap-2 ${
+                    filter === key
+                      ? 'text-white shadow-lg'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                  style={{
+                    backgroundColor: filter === key ? value.bgColor : undefined
+                  }}
+                >
+                  <span className="w-4 h-4">{value.icon}</span>
+                  {value.label}
+                </button>
+              ))}
             </div>
             {/* Sort and Load More */}
             <div className="flex items-center gap-3">
+              {/* زر التحديث الفوري */}
+              <button
+                onClick={() => setAutoRefresh(!autoRefresh)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                  autoRefresh
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                }`}
+              >
+                <Activity className={`w-4 h-4 ${autoRefresh ? 'animate-pulse' : ''}`} />
+                {autoRefresh ? 'مباشر' : 'تحديث تلقائي'}
+              </button>
+
+              {/* زر التحديث اليدوي */}
+              <button
+                onClick={refreshEvents}
+                disabled={isRefreshing}
+                className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {newEventsCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                    {newEventsCount}
+                  </span>
+                )}
+              </button>
+
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
@@ -315,31 +349,28 @@ export default function MomentByMomentPage() {
                 <option value="newest">الأحدث أولاً</option>
                 <option value="oldest">الأقدم أولاً</option>
               </select>
-              {hasMore && (
-                                  <button
-                    onClick={loadMore}
-                    disabled={isLoadingMore}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
-                  >
-                    {isLoadingMore ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      جاري التحميل...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4" />
-                      تحميل المزيد
-                    </>
-                  )}
-                </button>
-              )}
             </div>
           </div>
         </div>
       </section>
       {/* Main Content */}
       <section className="max-w-7xl mx-auto px-6 py-8">
+        {/* إشعار بالأحداث الجديدة */}
+        {newEventsCount > 0 && !isRefreshing && (
+          <div className="mb-6 animate-pulse">
+            <button
+              onClick={refreshEvents}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl p-4 flex items-center justify-center gap-3 hover:shadow-lg transition-all"
+            >
+              <Bell className="w-5 h-5 animate-bounce" />
+              <span className="font-semibold">
+                {newEventsCount} حدث جديد - اضغط للتحديث
+              </span>
+              <ArrowUp className="w-5 h-5 animate-bounce" />
+            </button>
+          </div>
+        )}
+
         {events.length === 0 ? (
           <div className="text-center py-12">
             <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -397,7 +428,18 @@ export default function MomentByMomentPage() {
                       darkMode ? 'bg-gray-800/50' : 'bg-white'
                     } rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-5 border ${
                       darkMode ? 'border-gray-700/50' : 'border-gray-100'
+                    } ${event.isNew ? 'ring-2 ring-red-500 ring-offset-2' : ''} ${
+                      event.isImportant ? 'bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10' : ''
                     }`}>
+                      {/* شارة مهم */}
+                      {event.isImportant && (
+                        <div className="absolute top-2 left-2">
+                          <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            مهم
+                          </div>
+                        </div>
+                      )}
                       {/* خلفية متدرجة خفيفة */}
                       <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
                         darkMode 

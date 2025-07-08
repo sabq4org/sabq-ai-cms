@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DeepAnalysisCard from '@/components/deep-analysis/DeepAnalysisCard';
+import DeepAnalysisHorizontalScroll from '@/components/deep-analysis/DeepAnalysisHorizontalScroll';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 import { 
@@ -13,26 +14,17 @@ import {
   Grid,
   List,
   Loader2,
-  SlidersHorizontal
+  SlidersHorizontal,
+  TrendingUp,
+  Calendar,
+  Eye,
+  MessageCircle,
+  Share2,
+  ChevronRight,
+  Filter
 } from 'lucide-react';
-interface DeepAnalysis {
-  id: string;
-  title: string;
-  slug: string;
-  summary: string;
-  categories: string[];
-  tags: string[];
-  authorName: string;
-  sourceType: string;
-  readingTime: number;
-  views: number;
-  likes: number;
-  qualityScore: number;
-  status: string;
-  createdAt: string;
-  publishedAt: string;
-  featuredImage?: string;
-}
+import { DeepAnalysis } from '@/types/deep-analysis';
+
 export default function DeepAnalysesPage() {
   const { darkMode } = useDarkModeContext();
   const [mounted, setMounted] = useState(false);
@@ -46,32 +38,45 @@ export default function DeepAnalysesPage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
+  const [filter, setFilter] = useState('all');
+
   useEffect(() => {
     setMounted(true);
     fetchAnalyses();
-  }, []);
+  }, [filter, page]);
+
   useEffect(() => {
     filterAndSortAnalyses();
   }, [analyses, searchTerm, selectedCategory, sortBy]);
+
   const fetchAnalyses = async () => {
     try {
-      const response = await fetch('/api/deep-analyses');
-      if (!response.ok) {
-        throw new Error('Failed to fetch analyses');
+      setLoading(true);
+      let url = `/api/deep-analysis?page=${page}&limit=9`;
+      
+      if (filter !== 'all') {
+        url += `&status=${filter}`;
       }
+      
+      const response = await fetch(url);
       const data = await response.json();
-      const analysesArray = data.analyses || data;
-      const uniqueCategories = [...new Set(analysesArray.flatMap((a: DeepAnalysis) => a.categories || []))];
-      setCategories(uniqueCategories as string[]);
-      setAnalyses(analysesArray);
-      setLoading(false);
+      
+      if (data.success) {
+        const analysesArray = data.data;
+        const uniqueCategories = [...new Set(analysesArray.flatMap((a: DeepAnalysis) => a.categories || []))];
+        setCategories(uniqueCategories as string[]);
+        setAnalyses(analysesArray);
+        setTotalPages(data.pagination.totalPages);
+      }
     } catch (error) {
       console.error('Error fetching analyses:', error);
       toast.error('حدث خطأ في تحميل التحليلات');
+    } finally {
       setLoading(false);
     }
   };
+
   const filterAndSortAnalyses = () => {
     let filtered = [...analyses];
     if (searchTerm) {
@@ -102,6 +107,7 @@ export default function DeepAnalysesPage() {
     }
     setFilteredAnalyses(filtered);
   };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ar-SA', {
@@ -110,11 +116,13 @@ export default function DeepAnalysesPage() {
       day: 'numeric'
     });
   };
+
   const getQualityColor = (score: number) => {
     if (score >= 80) return 'text-emerald-400 bg-emerald-500/20 border-emerald-400/30';
     if (score >= 60) return 'text-amber-400 bg-amber-500/20 border-amber-400/30';
     return 'text-red-400 bg-red-500/20 border-red-400/30';
   };
+
   const generatePlaceholderImage = (title: string) => {
     const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#EF4444', '#F59E0B'];
     const colorIndex = title.charCodeAt(0) % colors.length;
@@ -138,6 +146,19 @@ export default function DeepAnalysesPage() {
       </svg>
     `)}`;
   };
+
+  const getCategoryColor = (category: string) => {
+    const colors: { [key: string]: string } = {
+      'تقنية': 'bg-blue-100 text-blue-800',
+      'اقتصاد': 'bg-green-100 text-green-800',
+      'سياسة': 'bg-purple-100 text-purple-800',
+      'بيئة': 'bg-emerald-100 text-emerald-800',
+      'رياضة': 'bg-orange-100 text-orange-800',
+      'صحة': 'bg-red-100 text-red-800',
+    };
+    return colors[category] || 'bg-gray-100 text-gray-800';
+  };
+
   if (!mounted || loading) {
     return (
       <>
@@ -246,20 +267,32 @@ export default function DeepAnalysesPage() {
               </button>
             </div>
           ) : (
-            <div className={`
-              ${viewMode === 'grid' 
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' 
-                : 'space-y-6'
-              }
-            `}>
-              {filteredAnalyses.map((analysis) => (
-                <DeepAnalysisCard 
-                  key={analysis.id}
-                  analysis={analysis} 
-                  viewMode={viewMode}
+            <>
+              {/* عرض أفقي للموبايل */}
+              <div className="lg:hidden">
+                <DeepAnalysisHorizontalScroll 
+                  analyses={filteredAnalyses} 
+                  title={selectedCategory !== 'all' ? `تحليلات ${selectedCategory}` : undefined}
                 />
-              ))}
-            </div>
+              </div>
+
+              {/* عرض الشبكة للشاشات الكبيرة */}
+              <div className={`
+                hidden lg:block
+                ${viewMode === 'grid' 
+                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' 
+                  : 'space-y-6'
+                }
+              `}>
+                {filteredAnalyses.map((analysis) => (
+                  <DeepAnalysisCard 
+                    key={analysis.id}
+                    analysis={analysis} 
+                    viewMode={viewMode}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </section>
       </div>

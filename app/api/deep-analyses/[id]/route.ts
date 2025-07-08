@@ -1,40 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { DeepAnalysis, UpdateAnalysisRequest } from '@/types/deep-analysis';
-
-
-
-
-
-
-
-
-
-
-
-
+import prisma from '@/lib/prisma';
+import { DeepAnalysis } from '@/types/deep-analysis';
 
 export const runtime = 'nodejs';
-
-// مسار ملف البيانات
-const DATA_PATH = path.join(process.cwd(), 'data', 'deep_analyses.json');
-
-// قراءة التحليلات من الملف
-async function readAnalyses(): Promise<DeepAnalysis[]> {
-  try {
-    const data = await fs.readFile(DATA_PATH, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
-
-// كتابة التحليلات إلى الملف
-async function writeAnalyses(analyses: DeepAnalysis[]): Promise<void> {
-  await fs.writeFile(DATA_PATH, JSON.stringify(analyses, null, 2));
-}
-
 
 // GET - جلب تحليل محدد
 export async function GET(
@@ -43,21 +11,143 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    const analyses = await readAnalyses();
-    const analysis = analyses.find(a => a.id === id);
     
-    if (!analysis) {
-      return NextResponse.json(
-        { error: 'Analysis not found' },
-        { status: 404 }
-      );
+    // البحث في جدول deep_analyses أولاً
+    const dbAnalysis = await prisma.deep_analyses.findUnique({
+      where: { id }
+    });
+    
+    if (dbAnalysis) {
+      // استخراج البيانات من metadata إذا كانت موجودة
+      const metadata = dbAnalysis.metadata as any || {};
+      
+      // تحويل البيانات من قاعدة البيانات إلى صيغة DeepAnalysis
+      const analysis: DeepAnalysis = {
+        id: dbAnalysis.id,
+        title: metadata.title || dbAnalysis.ai_summary || 'تحليل عميق',
+        slug: metadata.slug || `analysis-${dbAnalysis.id}`,
+        summary: metadata.summary || dbAnalysis.ai_summary || '',
+        content: metadata.content || {
+          sections: [],
+          tableOfContents: [],
+          recommendations: dbAnalysis.suggested_headlines || [],
+          keyInsights: dbAnalysis.key_topics as any || [],
+          dataPoints: []
+        },
+        rawContent: metadata.rawContent || dbAnalysis.ai_summary || '',
+        featuredImage: metadata.featuredImage,
+        categories: metadata.categories || [],
+        tags: (dbAnalysis.tags as string[]) || [],
+        authorName: metadata.authorName || 'محرر سبق',
+        sourceType: metadata.sourceType || 'original',
+        creationType: metadata.creationType || 'gpt' as const,
+        analysisType: metadata.analysisType || 'ai',
+        readingTime: metadata.readingTime || 5,
+        qualityScore: metadata.qualityScore || dbAnalysis.engagement_score || 0,
+        contentScore: metadata.contentScore || {
+          overall: dbAnalysis.engagement_score || 0,
+          contentLength: dbAnalysis.ai_summary?.length || 0,
+          hasSections: false,
+          hasData: false,
+          hasRecommendations: Array.isArray(dbAnalysis.suggested_headlines) && dbAnalysis.suggested_headlines.length > 0,
+          readability: parseFloat(dbAnalysis.readability_score?.toString() || '0'),
+          uniqueness: 0.8
+        },
+        status: metadata.status || 'published',
+        isActive: metadata.isActive !== false,
+        isFeatured: metadata.isFeatured || false,
+        displayPosition: metadata.displayPosition || 'middle',
+        views: metadata.views || 0,
+        likes: metadata.likes || 0,
+        shares: metadata.shares || 0,
+        saves: metadata.saves || 0,
+        commentsCount: metadata.commentsCount || 0,
+        avgReadTime: metadata.avgReadTime || 0,
+        createdAt: metadata.createdAt || dbAnalysis.analyzed_at.toISOString(),
+        updatedAt: metadata.updatedAt || dbAnalysis.updated_at.toISOString(),
+        publishedAt: metadata.publishedAt || dbAnalysis.analyzed_at.toISOString(),
+        metadata: metadata.metadata || {}
+      };
+      
+      return NextResponse.json(analysis);
     }
     
-    // زيادة عدد المشاهدات
-    analysis.views += 1;
-    await writeAnalyses(analyses);
+    // إذا لم يوجد في قاعدة البيانات، نحاول البحث عن مقال له تحليل
+    const articleAnalysis = await prisma.articles.findFirst({
+      where: {
+        OR: [
+          { id },
+          { slug: id }
+        ]
+      }
+    });
     
-    return NextResponse.json(analysis);
+    if (articleAnalysis) {
+      // استخراج البيانات من metadata إذا كانت موجودة
+      const articleMetadata = articleAnalysis.metadata as any || {};
+      
+      // إنشاء تحليل من بيانات المقال
+      const analysis: DeepAnalysis = {
+        id: `analysis-${articleAnalysis.id}`,
+        title: `تحليل عميق: ${articleAnalysis.title}`,
+        slug: `analysis-${articleAnalysis.slug}`,
+        summary: articleAnalysis.content?.substring(0, 300) + '...',
+        content: {
+          sections: [{
+            id: 'main',
+            title: 'التحليل الرئيسي',
+            content: articleAnalysis.content || '',
+            order: 1,
+            type: 'text'
+          }],
+          tableOfContents: [],
+          recommendations: [],
+          keyInsights: [],
+          dataPoints: []
+        },
+        rawContent: articleAnalysis.content || '',
+        featuredImage: articleMetadata.image_url,
+        categories: articleMetadata.category_name ? [articleMetadata.category_name] : [],
+        tags: [],
+        authorName: articleMetadata.author_name || 'محرر سبق',
+        sourceType: 'original',
+        creationType: 'manual' as const,
+        analysisType: 'ai',
+        readingTime: Math.ceil((articleAnalysis.content?.length || 0) / 250),
+        qualityScore: 75,
+        contentScore: {
+          overall: 75,
+          contentLength: articleAnalysis.content?.length || 0,
+          hasSections: true,
+          hasData: false,
+          hasRecommendations: false,
+          readability: 0.7,
+          uniqueness: 0.8
+        },
+        status: 'published',
+        isActive: true,
+        isFeatured: false,
+        displayPosition: 'middle',
+        views: articleAnalysis.views,
+        likes: 0,
+        shares: 0,
+        saves: 0,
+        commentsCount: 0,
+        avgReadTime: 0,
+        createdAt: articleAnalysis.created_at.toISOString(),
+        updatedAt: articleAnalysis.updated_at.toISOString(),
+        publishedAt: articleAnalysis.published_at?.toISOString() || articleAnalysis.created_at.toISOString(),
+        metadata: {}
+      };
+      
+      return NextResponse.json(analysis);
+    }
+    
+    // إذا لم نجد أي شيء
+    return NextResponse.json(
+      { error: 'Analysis not found' },
+      { status: 404 }
+    );
     
   } catch (error) {
     console.error('Error fetching analysis:', error);
@@ -75,56 +165,33 @@ export async function PUT(
 ) {
   try {
     const { id } = await context.params;
-    const body: UpdateAnalysisRequest = await request.json();
-    const analyses = await readAnalyses();
+    const body = await request.json();
     
-    const analysisIndex = analyses.findIndex(a => a.id === id);
-    if (analysisIndex === -1) {
-      return NextResponse.json(
-        { error: 'Analysis not found' },
-        { status: 404 }
-      );
-    }
+    // نحاول تحديث في قاعدة البيانات
+    const updated = await prisma.deep_analyses.upsert({
+      where: { id },
+      create: {
+        id,
+        article_id: id,
+        ai_summary: body.summary || body.title,
+        key_topics: body.tags || [],
+        tags: body.tags || [],
+        sentiment: 'neutral',
+        engagement_score: body.qualityScore || 0,
+        metadata: body,
+        updated_at: new Date()
+      },
+      update: {
+        ai_summary: body.summary || body.title,
+        key_topics: body.tags || [],
+        tags: body.tags || [],
+        engagement_score: body.qualityScore || 0,
+        metadata: body,
+        updated_at: new Date()
+      }
+    });
     
-    const currentAnalysis = analyses[analysisIndex];
-    
-    // تحديث التحليل
-    const updatedAnalysis: DeepAnalysis = {
-      ...currentAnalysis,
-      ...(body.title && { title: body.title }),
-      ...(body.summary && { summary: body.summary }),
-      ...(body.content && { 
-        rawContent: body.content,
-        content: {
-          ...currentAnalysis.content,
-          sections: [{
-            id: 'section-1',
-            title: 'المحتوى الرئيسي',
-            content: body.content,
-            order: 1,
-            type: 'text'
-          }]
-        }
-      }),
-      ...(body.categories && { categories: body.categories }),
-      ...(body.tags && { tags: body.tags }),
-      ...(body.status && { status: body.status }),
-      ...(body.isActive !== undefined && { isActive: body.isActive }),
-      ...(body.isFeatured !== undefined && { isFeatured: body.isFeatured }),
-      ...(body.displayPosition && { displayPosition: body.displayPosition }),
-      ...(body.featuredImage !== undefined && { featuredImage: body.featuredImage }),
-      updatedAt: new Date().toISOString()
-    };
-    
-    // إذا تم تغيير الحالة إلى منشور
-    if (body.status === 'published' && currentAnalysis.status !== 'published') {
-      updatedAnalysis.publishedAt = new Date().toISOString();
-    }
-    
-    analyses[analysisIndex] = updatedAnalysis;
-    await writeAnalyses(analyses);
-    
-    return NextResponse.json(updatedAnalysis);
+    return NextResponse.json({ success: true, analysis: updated });
     
   } catch (error) {
     console.error('Error updating analysis:', error);
@@ -143,28 +210,18 @@ export async function PATCH(
   try {
     const { id } = await context.params;
     const body = await request.json();
-    const analyses = await readAnalyses();
     
-    const analysisIndex = analyses.findIndex(a => a.id === id);
-    if (analysisIndex === -1) {
-      return NextResponse.json(
-        { error: 'Analysis not found' },
-        { status: 404 }
-      );
-    }
-    
-    // تحديث التحليل بالحقول المرسلة فقط
-    analyses[analysisIndex] = {
-      ...analyses[analysisIndex],
-      ...body,
-      updatedAt: new Date().toISOString()
-    };
-    
-    await writeAnalyses(analyses);
+    const updated = await prisma.deep_analyses.update({
+      where: { id },
+      data: {
+        metadata: body,
+        updated_at: new Date()
+      }
+    });
     
     return NextResponse.json({
       success: true,
-      analysis: analyses[analysisIndex]
+      analysis: updated
     });
     
   } catch (error) {
@@ -183,19 +240,10 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    const analyses = await readAnalyses();
     
-    const analysisIndex = analyses.findIndex(a => a.id === id);
-    if (analysisIndex === -1) {
-      return NextResponse.json(
-        { error: 'Analysis not found' },
-        { status: 404 }
-      );
-    }
-    
-    // حذف التحليل
-    analyses.splice(analysisIndex, 1);
-    await writeAnalyses(analyses);
+    await prisma.deep_analyses.delete({
+      where: { id }
+    });
     
     return NextResponse.json({ success: true });
     

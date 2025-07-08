@@ -23,6 +23,7 @@ import TodayOpinionsSection from '@/components/TodayOpinionsSection';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import MobileArticleCard from '@/components/mobile/MobileArticleCard';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Share2, 
   Eye, 
@@ -332,92 +333,99 @@ function NewspaperHomePage(): React.ReactElement {
     setShowPersonalized(prev => !prev);
   };
   // مكون بطاقة الأخبار
-  const NewsCard = ({ news }: { news: any }) => (
-    <Link href={getArticleLink(news)} className="group block">
-      <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'}`}>
-        {/* صورة المقال */}
-        <div className="relative h-40 sm:h-48 overflow-hidden">
-          {news.featured_image ? (
+  const NewsCard = ({ news }: { news: any }) => {
+    const [imageLoading, setImageLoading] = useState(true);
+    
+    return (
+      <Link href={getArticleLink(news)} className="group block">
+        <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'}`}>
+          {/* صورة المقال */}
+          <div className="relative h-40 sm:h-48 overflow-hidden">
+            {imageLoading && (
+              <Skeleton className="absolute inset-0 w-full h-full" />
+            )}
             <Image 
-              src={getValidImageUrl(news.featured_image) || '/placeholder-image.jpg'} 
-              alt={news.title || ''} 
+              src={news.featured_image ? (getValidImageUrl(news.featured_image) || '/images/placeholder-news.svg') : '/images/placeholder-news.svg'} 
+              alt={news.title || 'صورة المقال'} 
               width={400} 
               height={300}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+              onLoad={() => setImageLoading(false)}
+              onError={(e) => {
+                const img = e.target as HTMLImageElement;
+                img.src = '/images/placeholder-news.svg';
+                setImageLoading(false);
+              }}
             />
-          ) : (
-            <div className={`w-full h-full flex items-center justify-center ${darkMode ? 'bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'}`}>
-              <BookOpen className={`w-12 h-12 sm:w-16 sm:h-16 ${darkMode ? 'text-gray-600 dark:text-gray-400 dark:text-gray-500' : 'text-gray-300'}`} />
-            </div>
-          )}
-          {/* تأثير التدرج على الصورة */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          {/* Category Badge */}
-          {news.category_name && (
-            <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-              <span className={`inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${darkMode ? 'bg-blue-900/80 text-blue-200 backdrop-blur-sm' : 'bg-blue-500/90 text-white backdrop-blur-sm'}`}>
-                <Tag className="w-2 h-2 sm:w-3 sm:h-3" />
-                {news.category_name}
-              </span>
-            </div>
-          )}
-        </div>
-        {/* محتوى البطاقة */}
-        <div className="p-4 sm:p-5">
-          {/* العنوان */}
-          <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors ${darkMode ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
-            {news.title}
-          </h4>
-          {/* الملخص */}
-          {news.summary && (
-            <p className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400 dark:text-gray-500`}>
-              {news.summary}
-            </p>
-          )}
-          {/* التفاصيل السفلية */}
-          <div className={`flex items-center justify-between pt-3 sm:pt-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
-            {/* المعلومات */}
-            <div className="flex flex-col gap-1">
-              {/* التاريخ والوقت */}
-              <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
-                  <Calendar className="w-3 h-3" />
-                  {new Date(news.created_at).toLocaleDateString('ar-SA', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  })}
-                </span>
-                {news.reading_time && (
-                  <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
-                    <Clock className="w-3 h-3" />
-                    {news.reading_time} د
-                  </span>
-                )}
-              </div>
-              {/* الكاتب والمشاهدات */}
-              <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                {news.author_name && (
-                  <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
-                    <User className="w-3 h-3" />
-                    {news.author_name}
-                  </span>
-                )}
-                <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
-                  <Eye className="w-3 h-3" />
-                  {news.views_count || 0}
+            {/* تأثير التدرج على الصورة */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {/* Category Badge */}
+            {news.category_name && (
+              <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                <span className={`inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${darkMode ? 'bg-blue-900/80 text-blue-200 backdrop-blur-sm' : 'bg-blue-500/90 text-white backdrop-blur-sm'}`}>
+                  <Tag className="w-2 h-2 sm:w-3 sm:h-3" />
+                  {news.category_name}
                 </span>
               </div>
-            </div>
-            {/* زر القراءة */}
-            <div className={`p-2 rounded-xl transition-all ${darkMode ? 'bg-blue-900/20 group-hover:bg-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100'}`}>
-              <ArrowLeft className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+            )}
+          </div>
+          {/* محتوى البطاقة */}
+          <div className="p-4 sm:p-5">
+            {/* العنوان - محدود بسطرين */}
+            <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors ${darkMode ? 'text-white' : 'text-gray-900 dark:text-white'}`} title={news.title}>
+              {news.title}
+            </h4>
+            {/* الملخص */}
+            {news.summary && (
+              <p className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400 dark:text-gray-500`}>
+                {news.summary}
+              </p>
+            )}
+            {/* التفاصيل السفلية */}
+            <div className={`flex items-center justify-between pt-3 sm:pt-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
+              {/* المعلومات */}
+              <div className="flex flex-col gap-1">
+                {/* التاريخ والوقت */}
+                <div className="flex items-center gap-2 sm:gap-3 text-xs">
+                  <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+                    <Calendar className="w-3 h-3" />
+                    {new Date(news.created_at).toLocaleDateString('ar-SA', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </span>
+                  {news.reading_time && (
+                    <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+                      <Clock className="w-3 h-3" />
+                      {news.reading_time} د
+                    </span>
+                  )}
+                </div>
+                {/* الكاتب والمشاهدات */}
+                <div className="flex items-center gap-2 sm:gap-3 text-xs">
+                  {news.author_name && (
+                    <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+                      <User className="w-3 h-3" />
+                      {news.author_name}
+                    </span>
+                  )}
+                  <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
+                    <Eye className="w-3 h-3" />
+                    {news.views_count || 0}
+                  </span>
+                </div>
+              </div>
+              {/* زر القراءة */}
+              <div className={`p-2 rounded-xl transition-all ${darkMode ? 'bg-blue-900/20 group-hover:bg-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100'}`}>
+                <ArrowLeft className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+              </div>
             </div>
           </div>
-        </div>
-      </article>
-    </Link>
-  );
+        </article>
+      </Link>
+    );
+  };
   // جلب التحليلات العميقة عند التحميل
   useEffect(() => {
     const fetchDeepInsights = async () => {
@@ -465,7 +473,7 @@ function NewspaperHomePage(): React.ReactElement {
     const fetchArticles = async () => {
       try {
         setArticlesLoading(true);
-        const res = await fetch('/api/articles?status=published&limit=12&sort=created_at&order=desc');
+        const res = await fetch('/api/articles?status=published&limit=12&sortBy=published_at&order=desc');
         const json = await res.json();
         const list = Array.isArray(json) ? json : (json.articles ?? []);
         // تعيين المقالات للعرض في بلوك "محتوى مخصص لك"
@@ -483,7 +491,7 @@ function NewspaperHomePage(): React.ReactElement {
     setSelectedCategory(categoryId);
     setCategoryArticlesLoading(true);
     try {
-      const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=12&sort=created_at&order=desc`);
+      const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=12&sortBy=published_at&order=desc`);
       const json = await res.json();
       const list = Array.isArray(json) ? json : (json.articles ?? []);
       setCategoryArticles(list);
@@ -825,15 +833,6 @@ function NewspaperHomePage(): React.ReactElement {
               </>
             )}
           </div>
-          {/* Enhanced Show All Link */}
-          <div className="flex items-center justify-end mb-8">
-            <Link 
-              href="/for-you"
-              className="group inline-flex items-center gap-2 px-6 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 hover:scale-105">
-              <span>عرض الكل</span>
-              <ArrowLeft className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
           {/* Enhanced News Grid - مع دعم المحتوى المخصص */}
           {articlesLoading || personalizedLoading ? (
             <div className="flex items-center justify-center py-20">
@@ -907,7 +906,7 @@ function NewspaperHomePage(): React.ReactElement {
               {/* عرض المقالات */}
               {(showPersonalized && personalizedArticles.length > 0) ? (
                 // عرض المقالات المخصصة للمستخدمين المسجلين
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                   {personalizedArticles.slice(0, 12).map((news) => (
                     <div key={news.id} className="relative">
                       {/* شارة "مخصص لك" */}
@@ -927,7 +926,7 @@ function NewspaperHomePage(): React.ReactElement {
                 </div>
               ) : articles.length > 0 ? (
                 // عرض آخر المقالات للزوار أو المستخدمين بدون تفضيلات
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                   {articles.slice(0, 12).map((news) => (
                     <NewsCard key={news.id} news={news} />
                   ))}
@@ -938,6 +937,18 @@ function NewspaperHomePage(): React.ReactElement {
                   <Newspaper className="w-16 h-16 mx-auto mb-4 opacity-50" />
                   <p className="text-lg mb-2">لا توجد مقالات منشورة حالياً</p>
                   <p className="text-sm">تحقق لاحقاً للحصول على آخر الأخبار والمقالات</p>
+                </div>
+              )}
+              
+              {/* زر عرض الكل في الأسفل - جديد */}
+              {((showPersonalized && personalizedArticles.length > 0) || articles.length > 0) && (
+                <div className="flex items-center justify-center mt-12">
+                  <Link 
+                    href="/for-you"
+                    className="group inline-flex items-center gap-2 px-8 py-3 rounded-full text-base font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <span>عرض جميع المقالات</span>
+                    <ArrowLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 </div>
               )}
             </>

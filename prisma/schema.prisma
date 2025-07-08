@@ -488,6 +488,30 @@ model messages {
   @@index([to_user_id])
 }
 
+model timeline_events {
+  id              String   @id
+  event_type      String   @db.VarChar(50)
+  entity_type     String   @db.VarChar(50)
+  entity_id       String?
+  title           String   @db.VarChar(500)
+  description     String?
+  icon            String?  @db.VarChar(50)
+  url             String?  @db.VarChar(500)
+  user_id         String?
+  author_name     String?  @db.VarChar(255)
+  author_avatar   String?
+  category_name   String?  @db.VarChar(255)
+  category_color  String?  @db.VarChar(50)
+  metadata        Json?
+  is_important    Boolean  @default(false)
+  created_at      DateTime @default(now())
+
+  @@index([event_type])
+  @@index([entity_type, entity_id])
+  @@index([user_id])
+  @@index([created_at])
+}
+
 model password_reset_tokens {
   id         String    @id
   user_id    String

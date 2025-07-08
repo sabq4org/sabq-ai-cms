@@ -25,7 +25,16 @@ const EVENT_TYPES = {
   AUTHOR_JOINED: 'author_joined',
   ANALYSIS_COMPLETED: 'analysis_completed',
   USER_MILESTONE: 'user_milestone',
-  SYSTEM_UPDATE: 'system_update'
+  SYSTEM_UPDATE: 'system_update',
+  DAILY_DOSE_PUBLISHED: 'daily_dose_published',
+  FORUM_TOPIC_CREATED: 'forum_topic_created',
+  FORUM_REPLY_ADDED: 'forum_reply_added',
+  TEAM_MEMBER_JOINED: 'team_member_joined',
+  TEMPLATE_CREATED: 'template_created',
+  SMART_BLOCK_UPDATED: 'smart_block_updated',
+  KEYWORD_TRENDING: 'keyword_trending',
+  USER_VERIFIED: 'user_verified',
+  LOYALTY_ACHIEVEMENT: 'loyalty_achievement'
 };
 
 export async function GET(request: NextRequest) {
@@ -49,7 +58,17 @@ export async function GET(request: NextRequest) {
       recentAnalyses,
       recentComments,
       recentCategories,
-      recentAuthors
+      recentAuthors,
+      recentDailyDoses,
+      recentForumTopics,
+      recentForumReplies,
+      recentTeamMembers,
+      recentTemplates,
+      recentSmartBlocks,
+      recentKeywords,
+      recentVerifiedUsers,
+      recentLoyaltyPoints,
+      storedEvents
     ] = await Promise.all([
       // 1. المقالات المنشورة حديثاً
       prisma.articles.findMany({
@@ -117,6 +136,148 @@ export async function GET(request: NextRequest) {
           created_at: 'desc'
         },
         take: 5
+      }),
+
+      // 6. الجرعات اليومية الجديدة
+      realtime ? [] : prisma.daily_doses.findMany({
+        where: {
+          status: 'published',
+          publishedAt: {
+            gte: last24Hours
+          }
+        },
+        orderBy: {
+          publishedAt: 'desc'
+        },
+        take: 5
+      }),
+
+      // 7. مواضيع المنتدى الجديدة
+      realtime ? [] : prisma.forum_topics.findMany({
+        where: {
+          status: 'active',
+          created_at: {
+            gte: last24Hours
+          }
+        },
+        orderBy: {
+          created_at: 'desc'
+        },
+        take: 10
+      }),
+
+      // 8. ردود المنتدى الجديدة
+      realtime ? [] : prisma.forum_replies.findMany({
+        where: {
+          status: 'active',
+          created_at: {
+            gte: lastHour
+          }
+        },
+        orderBy: {
+          created_at: 'desc'
+        },
+        take: 15
+      }),
+
+      // 9. أعضاء الفريق الجدد
+      realtime ? [] : prisma.team_members.findMany({
+        where: {
+          is_active: true,
+          created_at: {
+            gte: last3Days
+          }
+        },
+        orderBy: {
+          created_at: 'desc'
+        },
+        take: 5
+      }),
+
+      // 10. القوالب الجديدة
+      realtime ? [] : prisma.templates.findMany({
+        where: {
+          is_active: true,
+          created_at: {
+            gte: last3Days
+          }
+        },
+        orderBy: {
+          created_at: 'desc'
+        },
+        take: 5
+      }),
+
+      // 11. تحديثات الكتل الذكية
+      realtime ? [] : prisma.smart_blocks.findMany({
+        where: {
+          updated_at: {
+            gte: last24Hours
+          }
+        },
+        orderBy: {
+          updated_at: 'desc'
+        },
+        take: 5
+      }),
+
+      // 12. الكلمات المفتاحية الرائجة
+      realtime ? [] : prisma.keywords.findMany({
+        where: {
+          count: {
+            gte: 10
+          },
+          created_at: {
+            gte: last24Hours
+          }
+        },
+        orderBy: {
+          count: 'desc'
+        },
+        take: 10
+      }),
+
+      // 13. المستخدمون المعتمدون حديثاً
+      realtime ? [] : prisma.users.findMany({
+        where: {
+          is_verified: true,
+          updated_at: {
+            gte: last24Hours
+          }
+        },
+        orderBy: {
+          updated_at: 'desc'
+        },
+        take: 10
+      }),
+
+      // 14. إنجازات نقاط الولاء
+      realtime ? [] : prisma.loyalty_points.findMany({
+        where: {
+          points: {
+            gte: 100
+          },
+          created_at: {
+            gte: last24Hours
+          }
+        },
+        orderBy: {
+          created_at: 'desc'
+        },
+        take: 10
+      }),
+
+      // 15. الأحداث المخزنة في جدول timeline_events
+      prisma.timeline_events.findMany({
+        where: {
+          created_at: {
+            gte: realtime ? lastHour : last3Days
+          }
+        },
+        orderBy: {
+          created_at: 'desc'
+        },
+        take: realtime ? 20 : 50
       })
     ]);
 
@@ -305,6 +466,220 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // تحويل الجرعات اليومية لأحداث
+    for (const dose of recentDailyDoses) {
+      events.push({
+        id: `dose-${dose.id}`,
+        type: EVENT_TYPES.DAILY_DOSE_PUBLISHED,
+        timestamp: dose.publishedAt?.toISOString() || dose.createdAt.toISOString(),
+        title: dose.title,
+        description: dose.subtitle,
+        category: 'جرعات يومية',
+        categoryColor: '#EC4899',
+        url: `/daily-dose`,
+        metadata: {
+          period: dose.period,
+          views: dose.views || 0
+        },
+        isNew: (dose.publishedAt || dose.createdAt).getTime() > lastHour.getTime(),
+        icon: '💊'
+      });
+    }
+
+    // تحويل مواضيع المنتدى لأحداث
+    for (const topic of recentForumTopics) {
+      events.push({
+        id: `forum-topic-${topic.id}`,
+        type: EVENT_TYPES.FORUM_TOPIC_CREATED,
+        timestamp: topic.created_at?.toISOString() || new Date().toISOString(),
+        title: `موضوع جديد: ${topic.title}`,
+        description: topic.content.substring(0, 150) + '...',
+        category: 'المنتدى',
+        categoryColor: '#059669',
+        url: `/forum/topic/${topic.id}`,
+        metadata: {
+          views: topic.views || 0,
+          isPinned: topic.is_pinned,
+          isFeatured: topic.is_featured
+        },
+        isNew: (topic.created_at || new Date()).getTime() > lastHour.getTime(),
+        icon: '💬'
+      });
+    }
+
+    // تحويل ردود المنتدى لأحداث
+    for (const reply of recentForumReplies) {
+      events.push({
+        id: `forum-reply-${reply.id}`,
+        type: EVENT_TYPES.FORUM_REPLY_ADDED,
+        timestamp: reply.created_at?.toISOString() || new Date().toISOString(),
+        title: 'رد جديد في المنتدى',
+        description: reply.content.substring(0, 100) + '...',
+        category: 'المنتدى',
+        categoryColor: '#059669',
+        url: `/forum/topic/${reply.topic_id}#reply-${reply.id}`,
+        metadata: {
+          isAccepted: reply.is_accepted
+        },
+        isNew: (reply.created_at || new Date()).getTime() > lastHour.getTime(),
+        icon: '💭'
+      });
+    }
+
+    // تحويل أعضاء الفريق الجدد لأحداث
+    for (const member of recentTeamMembers) {
+      events.push({
+        id: `team-${member.id}`,
+        type: EVENT_TYPES.TEAM_MEMBER_JOINED,
+        timestamp: member.created_at.toISOString(),
+        title: `انضم للفريق: ${member.name}`,
+        description: `${member.role} في ${member.department || 'القسم العام'}`,
+        category: 'فريق العمل',
+        categoryColor: '#F59E0B',
+        authorAvatar: member.avatar,
+        url: `/team`,
+        metadata: {
+          department: member.department,
+          role: member.role
+        },
+        isNew: member.created_at.getTime() > lastHour.getTime(),
+        icon: '��'
+      });
+    }
+
+    // تحويل القوالب الجديدة لأحداث
+    for (const template of recentTemplates) {
+      events.push({
+        id: `template-${template.id}`,
+        type: EVENT_TYPES.TEMPLATE_CREATED,
+        timestamp: template.created_at.toISOString(),
+        title: `قالب جديد: ${template.name}`,
+        description: template.description || '',
+        category: 'النظام',
+        categoryColor: '#6B7280',
+        url: `/dashboard/templates/${template.id}`,
+        metadata: {
+          category: template.category
+        },
+        isNew: template.created_at.getTime() > lastHour.getTime(),
+        icon: '📋'
+      });
+    }
+
+    // تحويل تحديثات الكتل الذكية لأحداث
+    for (const block of recentSmartBlocks) {
+      events.push({
+        id: `smart-block-${block.id}`,
+        type: EVENT_TYPES.SMART_BLOCK_UPDATED,
+        timestamp: block.updated_at.toISOString(),
+        title: `تحديث كتلة ذكية: ${block.name}`,
+        description: 'تم تحديث محتوى الكتلة الذكية',
+        category: 'النظام',
+        categoryColor: '#6B7280',
+        url: '/',
+        metadata: {
+          type: block.type
+        },
+        isNew: block.updated_at.getTime() > lastHour.getTime(),
+        icon: '��'
+      });
+    }
+
+    // تحويل الكلمات المفتاحية الرائجة لأحداث
+    for (const keyword of recentKeywords) {
+      events.push({
+        id: `keyword-${keyword.id}`,
+        type: EVENT_TYPES.KEYWORD_TRENDING,
+        timestamp: keyword.created_at.toISOString(),
+        title: `كلمة رائجة: ${keyword.name}`,
+        description: `تم استخدامها ${keyword.count} مرة`,
+        category: 'إحصائيات',
+        categoryColor: '#7C3AED',
+        url: `/search?q=${encodeURIComponent(keyword.name)}`,
+        metadata: {
+          count: keyword.count
+        },
+        isNew: keyword.created_at.getTime() > lastHour.getTime(),
+        icon: '🔥'
+      });
+    }
+
+    // تحويل المستخدمين المعتمدين لأحداث
+    for (const user of recentVerifiedUsers) {
+      if (user.role !== 'AUTHOR') { // تجنب التكرار مع المؤلفين
+        events.push({
+          id: `verified-${user.id}`,
+          type: EVENT_TYPES.USER_VERIFIED,
+          timestamp: user.updated_at.toISOString(),
+          title: `مستخدم معتمد: ${user.name}`,
+          description: 'تم التحقق من الحساب',
+          category: 'المستخدمون',
+          categoryColor: '#10B981',
+          authorAvatar: user.avatar,
+          url: `/profile/${user.id}`,
+          metadata: {
+            role: user.role
+          },
+          isNew: user.updated_at.getTime() > lastHour.getTime(),
+          icon: '✅'
+        });
+      }
+    }
+
+    // تحويل إنجازات نقاط الولاء لأحداث
+    const loyaltyUserIds = [...new Set(recentLoyaltyPoints.map((l: any) => l.user_id).filter(Boolean))];
+    const loyaltyUsersMap = new Map();
+    if (loyaltyUserIds.length > 0) {
+      const loyaltyUsers = await prisma.users.findMany({
+        where: { id: { in: loyaltyUserIds } },
+        select: { id: true, name: true, avatar: true }
+      });
+      loyaltyUsers.forEach((user: any) => {
+        loyaltyUsersMap.set(user.id, user);
+      });
+    }
+
+    for (const loyaltyPoint of recentLoyaltyPoints) {
+      const user = loyaltyUsersMap.get(loyaltyPoint.user_id);
+      events.push({
+        id: `loyalty-${loyaltyPoint.id}`,
+        type: EVENT_TYPES.LOYALTY_ACHIEVEMENT,
+        timestamp: loyaltyPoint.created_at.toISOString(),
+        title: `إنجاز: ${user?.name || 'مستخدم'}`,
+        description: `حصل على ${loyaltyPoint.points} نقطة - ${loyaltyPoint.action}`,
+        category: 'الولاء',
+        categoryColor: '#F59E0B',
+        authorAvatar: user?.avatar,
+        url: `/profile/${loyaltyPoint.user_id}`,
+        metadata: {
+          points: loyaltyPoint.points,
+          action: loyaltyPoint.action
+        },
+        isNew: loyaltyPoint.created_at.getTime() > lastHour.getTime(),
+        icon: '🏆'
+      });
+    }
+
+    // إضافة الأحداث المخزنة من جدول timeline_events
+    for (const storedEvent of storedEvents) {
+      events.push({
+        id: storedEvent.id,
+        type: storedEvent.event_type,
+        timestamp: storedEvent.created_at.toISOString(),
+        title: storedEvent.title,
+        description: storedEvent.description || '',
+        category: storedEvent.category_name || 'عام',
+        categoryColor: storedEvent.category_color || '#6B7280',
+        author: storedEvent.author_name,
+        authorAvatar: storedEvent.author_avatar,
+        url: storedEvent.url,
+        metadata: storedEvent.metadata || {},
+        isNew: storedEvent.created_at.getTime() > lastHour.getTime(),
+        icon: storedEvent.icon || '📍',
+        isImportant: storedEvent.is_important
+      });
+    }
+
     // ترتيب الأحداث حسب الوقت
     events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
@@ -357,23 +732,30 @@ export async function GET(request: NextRequest) {
     };
 
     // جلب الإحصائيات الكاملة فقط في الطلب الأول (offset = 0)
-    if (offset === 0 && !realtime) {
+    if (offset === 0) {
       const [
         totalArticles,
         todayArticles,
         totalComments,
-        activeUsers,
+        activeUsersCount,
         totalViews
       ] = await Promise.all([
         prisma.articles.count({ where: { status: 'published' } }),
         prisma.articles.count({ 
           where: { 
             status: 'published',
-            published_at: { gte: new Date(now.setHours(0, 0, 0, 0)) }
+            published_at: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
           } 
         }),
         prisma.comments.count({ where: { status: 'approved' } }),
-        prisma.users.count({ where: { is_verified: true } }),
+        prisma.users.count({ 
+          where: { 
+            OR: [
+              { is_verified: true },
+              { role: { not: 'USER' } }
+            ]
+          } 
+        }),
         prisma.articles.aggregate({
           _sum: { views: true },
           where: { status: 'published' }
@@ -382,7 +764,7 @@ export async function GET(request: NextRequest) {
 
       stats = {
         ...stats,
-        activeUsers,
+        activeUsers: activeUsersCount,
         totalArticles,
         todayArticles,
         totalComments,
@@ -426,10 +808,10 @@ export async function GET(request: NextRequest) {
         displayType: getDisplayType(event.type),
         // إضافة معلومات التفاعل
         engagement: {
-          views: event.metadata?.views || 0,
-          likes: event.metadata?.likes || 0,
-          comments: event.metadata?.comments || 0,
-          shares: event.metadata?.shares || 0
+          views: (event.metadata && typeof event.metadata === 'object' && 'views' in event.metadata) ? (event.metadata as any).views : 0,
+          likes: (event.metadata && typeof event.metadata === 'object' && 'likes' in event.metadata) ? (event.metadata as any).likes : 0,
+          comments: (event.metadata && typeof event.metadata === 'object' && 'comments' in event.metadata) ? (event.metadata as any).comments : 0,
+          shares: (event.metadata && typeof event.metadata === 'object' && 'shares' in event.metadata) ? (event.metadata as any).shares : 0
         }
       };
     });
@@ -473,10 +855,22 @@ function getDisplayType(eventType: string) {
       return 'comment';
     case EVENT_TYPES.CATEGORY_CREATED:
     case EVENT_TYPES.SYSTEM_UPDATE:
+    case EVENT_TYPES.TEMPLATE_CREATED:
+    case EVENT_TYPES.SMART_BLOCK_UPDATED:
       return 'system';
     case EVENT_TYPES.USER_MILESTONE:
     case EVENT_TYPES.AUTHOR_JOINED:
+    case EVENT_TYPES.TEAM_MEMBER_JOINED:
+    case EVENT_TYPES.USER_VERIFIED:
+    case EVENT_TYPES.LOYALTY_ACHIEVEMENT:
       return 'community';
+    case EVENT_TYPES.DAILY_DOSE_PUBLISHED:
+      return 'daily_dose';
+    case EVENT_TYPES.FORUM_TOPIC_CREATED:
+    case EVENT_TYPES.FORUM_REPLY_ADDED:
+      return 'forum';
+    case EVENT_TYPES.KEYWORD_TRENDING:
+      return 'trending';
     default:
       return 'default';
   }
@@ -486,20 +880,66 @@ function getDisplayType(eventType: string) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { type, title, description, metadata } = body;
+    const { 
+      event_type, 
+      entity_type,
+      entity_id,
+      title, 
+      description, 
+      icon,
+      url,
+      user_id,
+      author_name,
+      author_avatar,
+      category_name,
+      category_color,
+      metadata,
+      is_important
+    } = body;
 
-    // هنا يمكن إضافة الحدث إلى جدول أحداث مخصص
-    // أو إرساله عبر WebSocket للتحديث الفوري
+    // التحقق من الحقول المطلوبة
+    if (!event_type || !entity_type || !title) {
+      return NextResponse.json(
+        { success: false, error: 'Missing required fields: event_type, entity_type, title' },
+        { status: 400 }
+      );
+    }
+
+    // إنشاء الحدث في جدول timeline_events
+    const newEvent = await prisma.timeline_events.create({
+      data: {
+        id: crypto.randomUUID(),
+        event_type,
+        entity_type,
+        entity_id,
+        title,
+        description,
+        icon,
+        url,
+        user_id,
+        author_name,
+        author_avatar,
+        category_name,
+        category_color,
+        metadata: metadata || {},
+        is_important: is_important || false
+      }
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Event added successfully'
+      message: 'Event added successfully',
+      event: newEvent
     });
 
   } catch (error) {
     console.error('Error adding event:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to add event' },
+      { 
+        success: false, 
+        error: 'Failed to add event',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
