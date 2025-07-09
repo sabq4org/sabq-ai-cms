@@ -43,13 +43,18 @@ export async function getSpaBaskets() {
   
   try {
     // استخدام GET method مع body كما هو مطلوب
-    const { data } = await axios({
+    const response = await fetch(endpoint, {
       method: 'GET',
-      url: endpoint,
+      
       headers: getHeaders(),
-      data: payload,
-      timeout: 15000
+      body: JSON.stringify(payload),
     });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     
     console.log("✅ API Call succeeded!");
     console.log("Response:", JSON.stringify(data, null, 2));
@@ -100,13 +105,18 @@ export async function getSpaNextNews({
   console.log("Headers:", getHeaders());
   
   try {
-    const { data } = await axios({
+    const response = await fetch(endpoint, {
       method: 'GET',
-      url: endpoint,
+      
       headers: getHeaders(),
-      data: payload,
-      timeout: 15000
+      body: JSON.stringify(payload),
     });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     
     console.log("✅ News API Call succeeded!");
     console.log("Response:", JSON.stringify(data, null, 2));
@@ -155,13 +165,18 @@ export async function getSpaPreviousNews({
   console.log("Headers:", getHeaders());
   
   try {
-    const { data } = await axios({
+    const response = await fetch(endpoint, {
       method: 'GET',
-      url: endpoint,
+      
       headers: getHeaders(),
-      data: payload,
-      timeout: 15000
+      body: JSON.stringify(payload),
     });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     
     console.log("✅ Previous News API Call succeeded!");
     console.log("Response:", JSON.stringify(data, null, 2));
