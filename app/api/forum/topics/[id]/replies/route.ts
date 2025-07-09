@@ -5,10 +5,10 @@ import prisma from '@/lib/prisma';
 // GET: جلب ردود الموضوع
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const topicId = params.id;
+    const { id: topicId } = await params;
     console.log('Fetching replies for topic:', topicId);
 
     // جلب الردود مع معلومات المؤلفين
@@ -81,10 +81,10 @@ export async function GET(
 // POST: إضافة رد جديد
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const topicId = params.id;
+    const { id: topicId } = await params;
     const headersList = await headers();
     const authorization = headersList.get('authorization');
     

@@ -4,10 +4,10 @@ import prisma from '@/lib/prisma';
 // GET: جلب موضوع محدد
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const topicId = params.id;
+    const { id: topicId } = await params;
     console.log('Fetching topic:', topicId);
 
     // جلب الموضوع مع معلومات المؤلف والفئة
@@ -106,10 +106,10 @@ export async function GET(
 // PUT: تحديث موضوع
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const topicId = params.id;
+    const { id: topicId } = await params;
     const body = await request.json();
     const { title, content } = body;
 
@@ -146,10 +146,10 @@ export async function PUT(
 // DELETE: حذف موضوع (soft delete)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const topicId = params.id;
+    const { id: topicId } = await params;
 
     // حذف ناعم للموضوع
     await prisma.$executeRawUnsafe(`
