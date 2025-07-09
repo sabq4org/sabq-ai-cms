@@ -172,11 +172,14 @@ export async function GET(request: NextRequest) {
 // POST: إنشاء موضوع جديد
 export async function POST(request: NextRequest) {
   try {
+    console.log('Starting POST /api/forum/topics');
+    
     // التحقق من تسجيل الدخول (مؤقتاً)
     const headersList = await headers();
     const authorization = headersList.get('authorization');
     
     if (!authorization) {
+      console.log('No authorization header found');
       return NextResponse.json(
         { error: 'يجب تسجيل الدخول لإنشاء موضوع' },
         { status: 401 }
@@ -184,39 +187,130 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    console.log('Request body:', body);
+    
     const { title, content, category_id } = body;
 
     // التحقق من البيانات
     if (!title || !content || !category_id) {
+      console.log('Missing required fields:', { title: !!title, content: !!content, category_id: !!category_id });
       return NextResponse.json(
         { error: 'جميع الحقول مطلوبة' },
         { status: 400 }
       );
     }
 
+    // التحقق من طول البيانات
+    if (title.trim().length < 5) {
+      return NextResponse.json(
+        { error: 'عنوان الموضوع يجب أن يكون أكثر من 5 أحرف' },
+        { status: 400 }
+      );
+    }
+
+    if (content.trim().length < 10) {
+      return NextResponse.json(
+        { error: 'محتوى الموضوع يجب أن يكون أكثر من 10 أحرف' },
+        { status: 400 }
+      );
+    }
+
+    // التحقق من وجود الفئة
+    console.log('Checking category existence:', category_id);
+    const categoryCheck = await prisma.$queryRawUnsafe(`
+      SELECT id FROM forum_categories WHERE id = $1 AND is_active = true
+    `, category_id);
+    
+    if (!categoryCheck || (categoryCheck as any[]).length === 0) {
+      console.log('Category not found or inactive:', category_id);
+      return NextResponse.json(
+        { error: 'الفئة المحددة غير موجودة أو غير مفعلة' },
+        { status: 400 }
+      );
+    }
+
     // إنشاء الموضوع في قاعدة البيانات
     const topicId = crypto.randomUUID();
-    const userId = 'user1'; // مؤقتاً حتى يتم تنفيذ نظام المصادقة
     
+    // استخدام UUID ثابت مؤقت للمستخدم
+    // في بيئة الإنتاج، يجب استخراج معرف المستخدم من JWT token
+    const userId = '00000000-0000-0000-0000-000000000001'; // UUID صالح
+    
+    console.log('Creating topic with ID:', topicId);
+    
+    try {
+      // التحقق من وجود جدول users وإنشاء مستخدم مؤقت إذا لزم الأمر
+      const userCheck = await prisma.$queryRawUnsafe(`
+              SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'users'
+      ) as exists
+      `);
+      
+      const userTableExists = (userCheck as any[])[0]?.exists;
+      
+      if (userTableExists) {
+        // التحقق من وجود المستخدم المؤقت
+        const existingUser = await prisma.$queryRawUnsafe(`
+          SELECT id FROM users WHERE id = $1
+        `, userId);
+        
+        if (!existingUser || (existingUser as any[]).length === 0) {
+          // إنشاء مستخدم مؤقت
+          await prisma.$executeRawUnsafe(`
+            INSERT INTO users (id, name, email, created_at, updated_at)
+            VALUES ($1, $2, $3, NOW(), NOW())
+            ON CONFLICT (id) DO NOTHING
+          `, userId, 'مستخدم مؤقت', 'temp@sabq.org');
+        }
+      }
+    } catch (userError) {
+      console.log('User table might not exist, continuing without user check:', userError);
+    }
+    
+    // إنشاء الموضوع
     await prisma.$executeRawUnsafe(`
-      INSERT INTO forum_topics (id, title, content, category_id, author_id)
-      VALUES (?, ?, ?, ?, ?)
-    `, topicId, title, content, category_id, userId);
+      INSERT INTO forum_topics (id, title, content, category_id, author_id, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+    `, topicId, title.trim(), content.trim(), category_id, userId);
 
-    // إضافة نقاط السمعة
-    await prisma.$executeRawUnsafe(`
-      INSERT INTO forum_reputation (id, user_id, points, action_type, target_type, target_id, description)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, crypto.randomUUID(), userId, 10, 'topic_created', 'topic', topicId, 'إنشاء موضوع جديد');
+    console.log('Topic created successfully');
+
+    // إضافة نقاط السمعة (اختياري)
+    try {
+      await prisma.$executeRawUnsafe(`
+        INSERT INTO forum_reputation (id, user_id, points, action_type, target_type, target_id, description)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `, crypto.randomUUID(), userId, 10, 'topic_created', 'topic', topicId, 'إنشاء موضوع جديد');
+      console.log('Reputation points added');
+    } catch (repError) {
+      console.log('Could not add reputation points:', repError);
+      // لا نريد فشل العملية بسبب نقاط السمعة
+    }
 
     return NextResponse.json({
       id: topicId,
       message: 'تم إنشاء الموضوع بنجاح'
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating topic:', error);
+    console.error('Error details:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    // معالجة أخطاء قاعدة البيانات المحددة
+    if (error.message?.includes('foreign key constraint')) {
+      return NextResponse.json(
+        { error: 'الفئة المحددة غير موجودة' },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'حدث خطأ في إنشاء الموضوع' },
+      { 
+        error: 'حدث خطأ في إنشاء الموضوع',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     );
   }
