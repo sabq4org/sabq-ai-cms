@@ -4,10 +4,10 @@ import prisma from '@/lib/prisma';
 // GET: جلب موضوع واحد بالتفصيل
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const topicId = params.id;
+    const { id: topicId } = await params;
 
     if (!topicId) {
       return NextResponse.json(
@@ -115,11 +115,11 @@ export async function GET(
 // PUT: تحديث موضوع (للمؤلف أو المشرف)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // TODO: إضافة التحقق من تسجيل الدخول والصلاحيات
-    const topicId = params.id;
+    const { id: topicId } = await params;
     const body = await request.json();
     const { title, content, category_id } = body;
 
@@ -158,11 +158,11 @@ export async function PUT(
 // DELETE: حذف موضوع (للمؤلف أو المشرف)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // TODO: إضافة التحقق من تسجيل الدخول والصلاحيات
-    const topicId = params.id;
+    const { id: topicId } = await params;
 
     if (!topicId) {
       return NextResponse.json(

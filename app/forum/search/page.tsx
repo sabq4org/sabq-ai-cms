@@ -48,8 +48,8 @@ export default function ForumSearchPage() {
 
   // جلب قيمة البحث من URL
   useEffect(() => {
-    const query = searchParams.get('q');
-    const type = searchParams.get('type') as 'all' | 'topics' | 'replies' || 'all';
+    const query = searchParams?.get('q') || '';
+    const type = (searchParams?.get('type') as 'all' | 'topics' | 'replies') || 'all';
     
     if (query) {
       setSearchQuery(query);
