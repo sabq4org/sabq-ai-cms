@@ -78,9 +78,13 @@ export async function GET(request: NextRequest) {
 
     // جلب معلومات المؤلفين بشكل منفصل
     const authorIds = [...new Set((topics as any[]).map(t => t.author_id))];
+    console.log('Author IDs to fetch:', authorIds);
+    
     const authors = authorIds.length > 0 ? await prisma.$queryRawUnsafe(`
       SELECT id, name, email FROM users WHERE id IN (${authorIds.map((_, i) => '$' + (i + 1)).join(',')})
     `, ...authorIds) : [];
+    
+    console.log('Found authors:', authors);
 
     const authorsMap = new Map((authors as any[]).map(a => [a.id, a]));
 
@@ -359,7 +363,13 @@ function getRelativeTime(date: Date): string {
   if (diffHours < 24) return `قبل ${diffHours} ساعة`;
   if (diffDays < 30) return `قبل ${diffDays} يوم`;
   
-  return date.toLocaleDateString('ar-SA');
+  return date.toLocaleDateString('ar-SA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    calendar: 'gregory',
+    numberingSystem: 'latn'
+  });
 } 
 
   const formatDate = (date: Date) => {

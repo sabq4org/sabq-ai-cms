@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, MessageCircle, Send, AlertCircle, Check } from "lucide-react";
+import { ArrowRight, MessageCircle, Send, AlertCircle, Check, Bold, Italic, List, Link as LinkIcon, Code } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -224,19 +224,87 @@ export default function NewTopicPage() {
                   <CardTitle className={`text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>محتوى الموضوع</CardTitle>
                 </CardHeader>
                 <CardContent>
+                  {/* شريط أدوات بسيط */}
+                  <div className={`flex items-center gap-2 p-2 mb-2 rounded-lg border ${
+                    darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'
+                  }`}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const textarea = document.querySelector('textarea[name="content"]') as HTMLTextAreaElement;
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        const selectedText = formData.content.substring(start, end);
+                        const newText = formData.content.substring(0, start) + '**' + selectedText + '**' + formData.content.substring(end);
+                        setFormData({ ...formData, content: newText });
+                      }}
+                      className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors`}
+                      title="عريض"
+                    >
+                      <Bold className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const textarea = document.querySelector('textarea[name="content"]') as HTMLTextAreaElement;
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        const selectedText = formData.content.substring(start, end);
+                        const newText = formData.content.substring(0, start) + '*' + selectedText + '*' + formData.content.substring(end);
+                        setFormData({ ...formData, content: newText });
+                      }}
+                      className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors`}
+                      title="مائل"
+                    >
+                      <Italic className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newText = formData.content + '\n- ';
+                        setFormData({ ...formData, content: newText });
+                      }}
+                      className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors`}
+                      title="قائمة"
+                    >
+                      <List className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const textarea = document.querySelector('textarea[name="content"]') as HTMLTextAreaElement;
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        const selectedText = formData.content.substring(start, end);
+                        const newText = formData.content.substring(0, start) + '`' + selectedText + '`' + formData.content.substring(end);
+                        setFormData({ ...formData, content: newText });
+                      }}
+                      className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors`}
+                      title="كود"
+                    >
+                      <Code className="w-4 h-4" />
+                    </button>
+                    <div className={`h-6 w-px ${darkMode ? 'bg-gray-600' : 'bg-gray-300'} mx-1`}></div>
+                    <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'} ml-auto`}>
+                      يدعم Markdown
+                    </span>
+                  </div>
+                  
                   <Textarea
-                    placeholder="اكتب تفاصيل موضوعك هنا... كلما كان أكثر تفصيلاً، كان أفضل للمناقشة"
+                    name="content"
+                    placeholder="اكتب تفاصيل موضوعك هنا... كلما كان أكثر تفصيلاً، كان أفضل للمناقشة&#10;&#10;يمكنك استخدام Markdown للتنسيق:&#10;**نص عريض** | *نص مائل* | `كود` | - قائمة"
                     value={formData.content}
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    className={`w-full min-h-[300px] ${
+                    className={`w-full min-h-[300px] font-mono ${
                       darkMode 
                         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300'
                     }`}
                     maxLength={5000}
                   />
-                  <div className={`mt-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {formData.content.length}/5000 حرف
+                  <div className={`mt-2 flex items-center justify-between text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <span>{formData.content.length}/5000 حرف</span>
+                    <span className="text-xs">نصيحة: اضغط Ctrl+B للنص العريض</span>
                   </div>
                 </CardContent>
               </Card>
