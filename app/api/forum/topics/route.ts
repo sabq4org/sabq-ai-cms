@@ -30,9 +30,10 @@ export async function GET(request: NextRequest) {
     const params: any[] = [];
 
     // فلترة حسب الفئة
-    if (category) {
+    if (category && category !== 'all') {
       whereClause += " AND c.slug = $" + (params.length + 1);
       params.push(category);
+      console.log('Filtering by category slug:', category);
     }
 
     // الترتيب

@@ -220,14 +220,20 @@ export default function SabqForum() {
       try {
         setLoading(true);
         const params = new URLSearchParams();
-        if (selectedCategory !== 'all') params.append('category', selectedCategory);
+        if (selectedCategory !== 'all') {
+          params.append('category', selectedCategory);
+        }
+        console.log('Fetching topics with category:', selectedCategory);
         const response = await fetch(`/api/forum/topics?${params}`);
         const data = await response.json();
         if (data.topics) {
           setTopics(data.topics);
+        } else {
+          setTopics([]);
         }
       } catch (error) {
         console.error('Error fetching topics:', error);
+        setTopics([]);
       } finally {
         setLoading(false);
       }
