@@ -232,9 +232,34 @@ export async function POST(request: NextRequest) {
     // إنشاء الموضوع في قاعدة البيانات
     const topicId = crypto.randomUUID();
     
-    // استخدام UUID ثابت مؤقت للمستخدم
-    // في بيئة الإنتاج، يجب استخراج معرف المستخدم من JWT token
-    const userId = '00000000-0000-0000-0000-000000000001'; // UUID صالح
+    // استخراج معلومات المستخدم من الجلسة
+    let userId = '00000000-0000-0000-0000-000000000001'; // قيمة افتراضية
+    let userName = 'مستخدم مؤقت';
+    
+    try {
+      // محاولة الحصول على معلومات المستخدم من الكوكيز أو الجلسة
+      const cookieHeader = headersList.get('cookie') || '';
+      const userIdMatch = cookieHeader.match(/user_id=([^;]+)/);
+      const userNameMatch = cookieHeader.match(/user_name=([^;]+)/);
+      
+      if (userIdMatch) {
+        userId = decodeURIComponent(userIdMatch[1]);
+      }
+      if (userNameMatch) {
+        userName = decodeURIComponent(userNameMatch[1]);
+      }
+      
+      // أو من localStorage/sessionStorage عبر custom header
+      const customUserId = headersList.get('x-user-id');
+      const customUserName = headersList.get('x-user-name');
+      
+      if (customUserId) userId = customUserId;
+      if (customUserName) userName = decodeURIComponent(customUserName);
+      
+      console.log('User info:', { userId, userName });
+    } catch (error) {
+      console.error('Error extracting user info:', error);
+    }
     
     console.log('Creating topic with ID:', topicId);
     
@@ -262,7 +287,12 @@ export async function POST(request: NextRequest) {
             INSERT INTO users (id, name, email, created_at, updated_at)
             VALUES ($1, $2, $3, NOW(), NOW())
             ON CONFLICT (id) DO NOTHING
-          `, userId, 'مستخدم مؤقت', 'temp@sabq.org');
+          `, userId, userName, `${userId}@sabq.org`);
+        } else {
+          // تحديث اسم المستخدم إذا تغير
+          await prisma.$executeRawUnsafe(`
+            UPDATE users SET name = $2, updated_at = NOW() WHERE id = $1
+          `, userId, userName);
         }
       }
     } catch (userError) {

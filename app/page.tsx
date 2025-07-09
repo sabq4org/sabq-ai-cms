@@ -9,7 +9,8 @@ import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
 import FooterDashboard from '@/components/FooterDashboard';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getCookie, setCookie } from '@/lib/cookies';
-import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
+import { getImageUrl } from '@/lib/image-utils';
+import CloudImage, { ArticleImage, CloudAvatar } from '@/components/ui/CloudImage';
 import { getArticleLink } from '@/lib/utils';
 import CategoryBadge from './components/CategoryBadge';
 import Header from '../components/Header';
@@ -352,18 +353,13 @@ function NewspaperHomePage(): React.ReactElement {
             {imageLoading && (
               <Skeleton className="absolute inset-0 w-full h-full" />
             )}
-            <Image 
-              src={news.featured_image ? (getValidImageUrl(news.featured_image) || '/images/placeholder-news.svg') : '/images/placeholder-news.svg'} 
-              alt={news.title || 'صورة المقال'} 
-              width={400} 
-              height={300}
-              className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
-              onLoad={() => setImageLoading(false)}
-              onError={(e) => {
-                const img = e.target as HTMLImageElement;
-                img.src = '/images/placeholder-news.svg';
-                setImageLoading(false);
-              }}
+            <CloudImage
+              src={news.featured_image}
+              alt={news.title || 'صورة المقال'}
+              fill
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              fallbackType="article"
+              priority={false}
             />
             {/* تأثير التدرج على الصورة */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -694,19 +690,14 @@ function NewspaperHomePage(): React.ReactElement {
                             <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'}`}>
                               {/* صورة المقال */}
                               <div className="relative h-40 sm:h-48 overflow-hidden">
-                                {article.featured_image ? (
-                                  <Image 
-                                    src={getValidImageUrl(article.featured_image) || '/placeholder-image.jpg'} 
-                                    alt={article.title || ''} 
-                                    width={400} 
-                                    height={300}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                  />
-                                ) : (
-                                  <div className={`w-full h-full flex items-center justify-center ${darkMode ? 'bg-gray-700' : 'bg-gray-100 dark:bg-gray-800'}`}>
-                                    <BookOpen className={`w-12 h-12 sm:w-16 sm:h-16 ${darkMode ? 'text-gray-600 dark:text-gray-400 dark:text-gray-500' : 'text-gray-300'}`} />
-                                  </div>
-                                )}
+                                <CloudImage
+                                  src={article.featured_image}
+                                  alt={article.title || ''}
+                                  fill
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                  fallbackType="article"
+                                  priority={false}
+                                />
                                 {/* تأثير التدرج على الصورة */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 {/* Category Badge */}

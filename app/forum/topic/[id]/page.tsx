@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from '@/contexts/ThemeContext';
+import Header from '@/components/Header';
 import TimelineReply from '@/components/forum/TimelineReply';
 import { 
   ArrowRight, 
@@ -77,133 +78,107 @@ export default function TopicPage() {
   const [replyContent, setReplyContent] = useState('');
   const [isReplying, setIsReplying] = useState(false);
 
-  // بيانات تجريبية
+  // جلب بيانات الموضوع الفعلية
   useEffect(() => {
-    // محاكاة تحميل البيانات
-    setTimeout(() => {
-      setTopic({
-        id: topicId,
-        title: 'كيف يمكنني تحسين أداء تطبيقي في Next.js؟',
-        content: `أواجه مشكلة في بطء تحميل الصفحات في تطبيقي المبني بـ Next.js. 
+    const fetchTopic = async () => {
+      try {
+        setLoading(true);
         
-لقد جربت عدة حلول مثل:
-- تفعيل Static Generation للصفحات الثابتة
-- استخدام Image Optimization
-- تقليل حجم الحزم (Bundle Size)
-
-لكن ما زال الأداء بطيئاً، خاصة في الصفحة الرئيسية التي تحتوي على الكثير من المكونات.
-
-هل لديكم اقتراحات أخرى لتحسين الأداء؟`,
-        author: {
-          id: '1',
-          name: 'أحمد محمد',
-          role: 'مطور'
-        },
-        category: {
-          id: '1',
-          name: 'التقنية والبرمجة',
-          slug: 'tech',
-          color: '#3B82F6'
-        },
-        createdAt: '2024-01-15T10:30:00Z',
-        updatedAt: '2024-01-15T10:30:00Z',
-        views: 234,
-        replies: 12,
-        isPinned: false,
-        isLocked: false,
-        tags: ['Next.js', 'Performance', 'React']
-      });
-
-      setReplies([
-        {
-          id: '1',
-          content: 'جرب استخدام React.lazy() و Suspense للتحميل الكسول للمكونات الثقيلة. هذا سيساعد في تقليل حجم الحزمة الأولية.',
-          author: {
-            id: '2',
-            name: 'سارة أحمد',
-            role: 'خبيرة'
-          },
-          createdAt: '2024-01-15T11:00:00Z',
-          likes: 15,
-          isLiked: true,
-          isAccepted: true
-        },
-        {
-          id: '2',
-          content: `أنصحك بالتالي:
-
-1. استخدم getStaticProps مع revalidate للصفحات شبه الثابتة
-2. فعّل Incremental Static Regeneration (ISR)
-3. استخدم CDN لتوزيع المحتوى
-4. قم بتحليل Bundle باستخدام @next/bundle-analyzer`,
-          author: {
-            id: '3',
-            name: 'محمد علي',
-            role: 'مشرف'
-          },
-          createdAt: '2024-01-15T12:30:00Z',
-          likes: 23,
-          isPinned: true
-        },
-        {
-          id: '3',
-          content: 'لا تنسى أيضاً تفعيل compression في next.config.js وإضافة cache headers مناسبة.',
-          author: {
-            id: '4',
-            name: 'ليلى خالد'
-          },
-          createdAt: '2024-01-15T14:15:00Z',
-          likes: 8
-        },
-        {
-          id: '4',
-          content: 'يمكنك استخدام Lighthouse في Chrome DevTools لتحليل الأداء والحصول على اقتراحات محددة.',
-          author: {
-            id: '5',
-            name: 'عمر حسن'
-          },
-          createdAt: '2024-01-16T09:00:00Z',
-          likes: 5
-        },
-        {
-          id: '5',
-          content: 'شكراً لكم جميعاً! جربت الحلول المقترحة وتحسن الأداء بشكل ملحوظ 🎉',
-          author: {
-            id: '1',
-            name: 'أحمد محمد',
-            role: 'مطور'
-          },
-          createdAt: '2024-01-16T15:30:00Z',
-          likes: 12,
-          isHighlighted: true
+        // جلب بيانات الموضوع
+        const topicResponse = await fetch(`/api/forum/topics/${topicId}`);
+        if (!topicResponse.ok) {
+          throw new Error('Topic not found');
         }
-      ]);
-
-      setLoading(false);
-    }, 1000);
+        
+        const topicData = await topicResponse.json();
+        
+        // تحويل البيانات للتنسيق المطلوب
+        setTopic({
+          id: topicData.id,
+          title: topicData.title,
+          content: topicData.content,
+          author: {
+            id: topicData.author.id,
+            name: topicData.author.name || 'مستخدم',
+            avatar: topicData.author.avatar,
+            role: topicData.author.role
+          },
+          category: {
+            id: topicData.category.id,
+            name: topicData.category.name,
+            slug: topicData.category.slug,
+            color: topicData.category.color || '#3B82F6'
+          },
+          createdAt: topicData.created_at,
+          updatedAt: topicData.updated_at || topicData.created_at,
+          views: topicData.views || 0,
+          replies: topicData.replies_count || 0,
+          isPinned: topicData.is_pinned || false,
+          isLocked: topicData.is_locked || false,
+          tags: topicData.tags || []
+        });
+        
+        // جلب الردود
+        const repliesResponse = await fetch(`/api/forum/topics/${topicId}/replies`);
+        if (repliesResponse.ok) {
+          const repliesData = await repliesResponse.json();
+          setReplies(repliesData.replies || []);
+        }
+        
+      } catch (error) {
+        console.error('Error fetching topic:', error);
+        setTopic(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (topicId) {
+      fetchTopic();
+    }
   }, [topicId]);
 
   const handleReply = async () => {
     if (!replyContent.trim()) return;
     
     setIsReplying(true);
-    // محاكاة إرسال الرد
-    setTimeout(() => {
-      const newReply: Reply = {
-        id: Date.now().toString(),
-        content: replyContent,
-        author: {
-          id: 'current-user',
-          name: 'المستخدم الحالي'
-        },
-        createdAt: new Date().toISOString(),
-        likes: 0
-      };
+    
+    try {
+      // الحصول على معلومات المستخدم
+      const userId = localStorage.getItem('user_id') || '';
+      const userName = localStorage.getItem('user_name') || 'مستخدم';
       
-      setReplies([...replies, newReply]);
-      setReplyContent('');
+      const response = await fetch(`/api/forum/topics/${topicId}/replies`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer dummy-token',
+          'X-User-Id': userId,
+          'X-User-Name': encodeURIComponent(userName)
+        },
+        body: JSON.stringify({ content: replyContent })
+      });
+
+      if (response.ok) {
+        // إعادة جلب الردود
+        const repliesResponse = await fetch(`/api/forum/topics/${topicId}/replies`);
+        if (repliesResponse.ok) {
+          const repliesData = await repliesResponse.json();
+          setReplies(repliesData.replies || []);
+        }
+        
+        setReplyContent('');
+      } else {
+        const error = await response.json();
+        console.error('Error posting reply:', error);
+        alert(error.error || 'حدث خطأ في إرسال الرد');
+      }
+    } catch (error) {
+      console.error('Error posting reply:', error);
+      alert('حدث خطأ في الاتصال بالخادم');
+    } finally {
       setIsReplying(false);
-    }, 500);
+    }
   };
 
   if (loading) {
@@ -229,6 +204,9 @@ export default function TopicPage() {
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      {/* الهيدر الرسمي للصحيفة */}
+      <Header />
+      
       {/* رأس الصفحة */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
         <div className="max-w-7xl mx-auto px-4 py-4">

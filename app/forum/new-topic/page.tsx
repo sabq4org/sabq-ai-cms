@@ -106,12 +106,18 @@ export default function NewTopicPage() {
     const loadingToast = toast.loading('جاري نشر الموضوع...');
 
     try {
+      // الحصول على معلومات المستخدم من localStorage
+      const userId = localStorage.getItem('user_id') || '';
+      const userName = localStorage.getItem('user_name') || 'مستخدم';
+      
       const response = await fetch('/api/forum/topics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // TODO: إضافة token المصادقة هنا
-          'Authorization': 'Bearer dummy-token'
+          'Authorization': 'Bearer dummy-token',
+          // إرسال معلومات المستخدم
+          'X-User-Id': userId,
+          'X-User-Name': encodeURIComponent(userName)
         },
         body: JSON.stringify(formData)
       });
