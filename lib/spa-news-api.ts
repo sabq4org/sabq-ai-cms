@@ -1,4 +1,3 @@
-import axios from "axios";
 
 // طباعة متغيرات البيئة للتحقق
 console.log("=== SPA API Environment Variables ===");
@@ -9,24 +8,11 @@ console.log("SPA_CLIENT_NAME:", process.env.SPA_CLIENT_NAME);
 console.log("=====================================");
 
 // استخدام البيانات الحقيقية من متغيرات البيئة
-const API_URL = process.env.SPA_API_URL?.replace(/\/+$/, "") || "";
-const API_KEY = process.env.SPA_API_KEY!;
-const CUSTOMER_KEY = process.env.SPA_CUSTOMER_KEY!;
-const CLIENT_NAME = process.env.SPA_CLIENT_NAME!;
+const API_URL = process.env.SPA_API_URL?.replace(/\/+$/, "") || "https://nwdistapi.spa.gov.sa";
+const API_KEY = process.env.SPA_API_KEY || "owuDXImzoEIyRUJ4564z75O9WKGn44456353459bOOdfgdfxfV7qsvkEn5drAssdgfsgrdfgfdE3Q8drNupAHpHMTlljEkfjfjkfjkfjkfi84jksjds456d568y27893289kj89389d889jkjkjkdk490k3656d5asklskGGP";
+const CUSTOMER_KEY = process.env.SPA_CUSTOMER_KEY || "olU7cUWPqYGizEUMkau0iUw2xgMkLiJMrUcP6pweIWMp04mlNcW7pF/J12loX6YWHfw/kdQP4E7SPysGCzgK027taWDp11dvC2BYtE+W1nOSzqhHC2wPXz/LBqfSdbqSMxx0ur8Py4NVsPeq2PgQL4UqeXNak1qBknm45pbAW+4=";
+const CLIENT_NAME = process.env.SPA_CLIENT_NAME || "SABQ";
 
-// التحقق من وجود المتغيرات المطلوبة
-if (!API_URL) {
-  throw new Error("SPA_API_URL not defined! تحقق من ملف البيئة .env.local وإعادة التشغيل.");
-}
-if (!API_KEY) {
-  throw new Error("SPA_API_KEY not defined! تحقق من ملف البيئة .env.local");
-}
-if (!CUSTOMER_KEY) {
-  throw new Error("SPA_CUSTOMER_KEY not defined! تحقق من ملف البيئة .env.local");
-}
-if (!CLIENT_NAME) {
-  throw new Error("SPA_CLIENT_NAME not defined! تحقق من ملف البيئة .env.local");
-}
 
 // Headers للطلبات - استخدام X-API-KEY كما هو مطلوب
 const getHeaders = () => ({
