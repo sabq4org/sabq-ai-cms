@@ -12,6 +12,7 @@ import { ArrowRight, MessageCircle, Send, AlertCircle, Check } from "lucide-reac
 import Link from "next/link";
 import Header from "@/components/Header";
 import { useTheme } from "@/contexts/ThemeContext";
+import { toast } from "react-hot-toast";
 
 interface Category {
   id: string;
@@ -60,23 +61,33 @@ export default function NewTopicPage() {
   // التحقق من صحة البيانات
   const validateForm = () => {
     if (!formData.title.trim()) {
-      setError('عنوان الموضوع مطلوب');
+      const msg = 'عنوان الموضوع مطلوب';
+      setError(msg);
+      toast.error(msg);
       return false;
     }
     if (formData.title.trim().length < 5) {
-      setError('عنوان الموضوع يجب أن يكون أكثر من 5 أحرف');
+      const msg = 'عنوان الموضوع يجب أن يكون أكثر من 5 أحرف';
+      setError(msg);
+      toast.error(msg);
       return false;
     }
     if (!formData.content.trim()) {
-      setError('محتوى الموضوع مطلوب');
+      const msg = 'محتوى الموضوع مطلوب';
+      setError(msg);
+      toast.error(msg);
       return false;
     }
     if (formData.content.trim().length < 10) {
-      setError('محتوى الموضوع يجب أن يكون أكثر من 10 أحرف');
+      const msg = 'محتوى الموضوع يجب أن يكون أكثر من 10 أحرف';
+      setError(msg);
+      toast.error(msg);
       return false;
     }
     if (!formData.category_id) {
-      setError('يرجى اختيار فئة للموضوع');
+      const msg = 'يرجى اختيار فئة للموضوع';
+      setError(msg);
+      toast.error(msg);
       return false;
     }
     return true;
@@ -90,6 +101,9 @@ export default function NewTopicPage() {
     
     setSubmitting(true);
     setError(null);
+    
+    // إظهار إشعار بدء العملية
+    const loadingToast = toast.loading('جاري نشر الموضوع...');
 
     try {
       const response = await fetch('/api/forum/topics', {
@@ -105,14 +119,23 @@ export default function NewTopicPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // نجح الإنشاء - توجه للموضوع الجديد
-        router.push(`/forum/topic/${data.id}`);
+        // نجح الإنشاء
+        toast.success('تم نشر الموضوع بنجاح! 🎉', { id: loadingToast });
+        
+        // الانتظار قليلاً قبل التوجيه
+        setTimeout(() => {
+          router.push(`/forum/topic/${data.id}`);
+        }, 1000);
       } else {
-        setError(data.error || 'حدث خطأ في إنشاء الموضوع');
+        const errorMsg = data.error || 'حدث خطأ في إنشاء الموضوع';
+        setError(errorMsg);
+        toast.error(errorMsg, { id: loadingToast });
       }
     } catch (error) {
       console.error('Error creating topic:', error);
-      setError('حدث خطأ في الاتصال بالخادم');
+      const errorMsg = 'حدث خطأ في الاتصال بالخادم';
+      setError(errorMsg);
+      toast.error(errorMsg, { id: loadingToast });
     } finally {
       setSubmitting(false);
     }

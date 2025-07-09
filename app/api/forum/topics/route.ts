@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 
     // فلترة حسب الفئة
     if (category) {
-      whereClause += " AND c.slug = ?";
+      whereClause += " AND c.slug = $" + (params.length + 1);
       params.push(category);
     }
 
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       JOIN forum_categories c ON t.category_id = c.id
       ${whereClause}
       ${orderBy}
-      LIMIT ? OFFSET ?
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `, ...params, limit, offset);
 
     console.log('Found topics:', (topics as any[]).length);
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     // جلب معلومات المؤلفين بشكل منفصل
     const authorIds = [...new Set((topics as any[]).map(t => t.author_id))];
     const authors = authorIds.length > 0 ? await prisma.$queryRawUnsafe(`
-      SELECT id, name, email FROM users WHERE id IN (${authorIds.map(() => '?').join(',')})
+      SELECT id, name, email FROM users WHERE id IN (${authorIds.map((_, i) => '$' + (i + 1)).join(',')})
     `, ...authorIds) : [];
 
     const authorsMap = new Map((authors as any[]).map(a => [a.id, a]));
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
     const replyCounts = topicIds.length > 0 ? await prisma.$queryRawUnsafe(`
       SELECT topic_id, COUNT(*) as count 
       FROM forum_replies 
-      WHERE topic_id IN (${topicIds.map(() => '?').join(',')}) AND status = 'active'
+      WHERE topic_id IN (${topicIds.map((_, i) => '$' + (i + 1)).join(',')}) AND status = 'active'
       GROUP BY topic_id
     `, ...topicIds) : [];
 
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     const likeCounts = topicIds.length > 0 ? await prisma.$queryRawUnsafe(`
       SELECT target_id, COUNT(*) as count 
       FROM forum_votes 
-      WHERE target_id IN (${topicIds.map(() => '?').join(',')}) AND target_type = 'topic' AND vote_type = 'like'
+      WHERE target_id IN (${topicIds.map((_, i) => '$' + (i + 1)).join(',')}) AND target_type = 'topic' AND vote_type = 'like'
       GROUP BY target_id
     `, ...topicIds) : [];
 
