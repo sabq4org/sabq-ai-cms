@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     try {
       console.log('🔍 فحص حالة الاتصال...');
       const statusResponse = await axios({
-        method: 'GET',
+        method: 'GET', // العودة إلى GET
         url: ENDPOINTS.GET_STATUS,
         headers: {
           "X-API-Key": SPA_API_KEY,
@@ -56,11 +56,11 @@ export async function GET(request: Request) {
 
       console.log('✅ حالة الاتصال:', statusResponse.data);
       
-      if (!statusResponse.data.isActiveClient) {
-        throw new Error('العميل غير نشط: ' + statusResponse.data.message);
+      if (statusResponse.data && statusResponse.data.isActiveClient === false) {
+        console.log('⚠️ العميل غير نشط:', statusResponse.data.message);
       }
-    } catch (statusError) {
-      console.error('❌ فشل فحص الحالة:', statusError);
+    } catch (statusError: any) {
+      console.error('❌ فشل فحص الحالة:', statusError.response?.data || statusError.message);
     }
 
     // محاولة جلب الأخبار
@@ -308,11 +308,12 @@ export async function GET(request: Request) {
 async function checkStatus() {
   try {
     const response = await axios({
-      method: 'GET',
+      method: 'GET', // العودة إلى GET - API يقبل GET فقط لهذا endpoint
       url: ENDPOINTS.GET_STATUS,
       headers: {
         "X-API-Key": SPA_API_KEY,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Accept": "application/json"
       },
       timeout: 30000
     });

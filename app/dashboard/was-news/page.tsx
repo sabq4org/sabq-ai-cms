@@ -9,6 +9,7 @@ import {
   TrendingUp, Calendar, Tag, Eye, Share2,
   Download, FileText, Zap, Star
 } from 'lucide-react';
+import WasApiStatus from './ApiStatus';
 
 interface WasNewsItem {
   id: string;
@@ -37,6 +38,7 @@ export default function WasNewsPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -48,6 +50,7 @@ export default function WasNewsPage() {
       if (showLoading) setLoading(true);
       setRefreshing(true);
       setError(null);
+      setErrorStatus(null);
 
       const response = await fetch('/api/was-news', {
         method: 'GET',
@@ -64,6 +67,7 @@ export default function WasNewsPage() {
         console.log(`✅ تم جلب ${data.count} خبر من واس`);
       } else {
         setError(data.error || 'فشل في جلب الأخبار');
+        setErrorStatus(response.status);
       }
     } catch (err: any) {
       console.error('خطأ في جلب الأخبار:', err);
@@ -371,8 +375,10 @@ export default function WasNewsPage() {
           </div>
         </div>
 
-        {/* News Grid */}
-        {sortedNews.length === 0 ? (
+        {/* News Grid or API Status */}
+        {error && error.includes('400') ? (
+          <WasApiStatus darkMode={darkMode} />
+        ) : sortedNews.length === 0 ? (
           <div className={`text-center py-16 ${
             darkMode ? 'bg-gray-800' : 'bg-white'
           } rounded-2xl`}>

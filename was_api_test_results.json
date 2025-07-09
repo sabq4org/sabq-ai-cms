@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-07-09T15:13:14.179038",
+  "results": [
+    {
+      "success": false,
+      "status_code": 400,
+      "response_time": 0.06,
+      "data": "Invalid request format. Please ensure all values are correctly formatted as JSON. For more information kindly check the API document."
+    },
+    {
+      "success": false,
+      "status_code": 400,
+      "response_time": 0.054,
+      "data": "Invalid request format. Please ensure all values are correctly formatted as JSON. For more information kindly check the API document."
+    },
+    {
+      "success": false,
+      "status_code": 400,
+      "response_time": 0.062,
+      "data": "Invalid request format. Please ensure all values are correctly formatted as JSON. For more information kindly check the API document."
+    },
+    {
+      "success": false,
+      "status_code": 400,
+      "response_time": 0.054,
+      "data": "Invalid request format. Please ensure all values are correctly formatted as JSON. For more information kindly check the API document."
+    }
+  ]
+}

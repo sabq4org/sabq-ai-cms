@@ -67,164 +67,81 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         
-        // جلب إحصائيات المقالات
-        const articlesRes = await fetch('/api/articles?status=published&limit=100&page=1');
-        const articlesData = await articlesRes.json();
-        const articlesArray = articlesData.articles || articlesData.data || articlesData || [];
-        
-        // جلب إجمالي عدد المقالات من البيانات الوصفية
-        const totalArticles = articlesData.pagination?.total || articlesData.total || articlesData.totalCount || articlesArray.length;
-        
-        // حساب مقالات اليوم
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayArticles = articlesArray.filter((article: any) => {
-          const articleDate = new Date(article.created_at);
-          return articleDate >= today;
-        }).length;
-        
-        // حساب مقالات الأسبوع للرسم البياني
-        const weeklyStats = [];
-        const days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
-        for (let i = 6; i >= 0; i--) {
-          const date = new Date();
-          date.setDate(date.getDate() - i);
-          date.setHours(0, 0, 0, 0);
-          const nextDate = new Date(date);
-          nextDate.setDate(nextDate.getDate() + 1);
+        // جلب الإحصائيات من API الجديد
+        const statsRes = await fetch('/api/dashboard/stats');
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setStats(statsData.stats);
+          setWeeklyActivity(statsData.weeklyActivity);
           
-          const count = articlesArray.filter((article: any) => {
-            const articleDate = new Date(article.created_at);
-            return articleDate >= date && articleDate < nextDate;
-          }).length;
-          
-          weeklyStats.push({
-            day: days[date.getDay()],
-            count: count
+          // جلب عناوين المقالات الأكثر قراءة
+          if (statsData.topArticles && statsData.topArticles.length > 0) {
+            const articleIds = statsData.topArticles.map((a: any) => a.id);
+            const articlesRes = await fetch('/api/articles?ids=' + articleIds.join(','));
+            if (articlesRes.ok) {
+              const articlesData = await articlesRes.json();
+              const articlesMap = new Map(
+                (articlesData.articles || articlesData.data || articlesData || [])
+                  .map((a: any) => [a.id, a])
+              );
+              
+              const topArticlesWithTitles = statsData.topArticles.map((item: any) => {
+                const article = articlesMap.get(item.id) as any;
+                return {
+                  ...item,
+                  title: article?.title || 'مقال غير معروف',
+                  trend: Math.random() > 0.5 ? 'up' : 'down'
+                };
+              });
+              setTopArticles(topArticlesWithTitles);
+            }
+          }
+        }
+        
+        // جلب الأنشطة الأخيرة من API الجديد
+        const activitiesRes = await fetch('/api/dashboard/activities');
+        if (activitiesRes.ok) {
+          const activitiesData = await activitiesRes.json();
+          const formattedActivities = activitiesData.activities.slice(0, 4).map((activity: any) => {
+            // تحديد الأيقونة واللون حسب نوع النشاط
+            let icon = FileText;
+            let color = 'blue';
+            
+            switch (activity.type) {
+              case 'article_published':
+                icon = FileText;
+                color = 'blue';
+                break;
+              case 'user_registered':
+                icon = UserPlus;
+                color = 'green';
+                break;
+              case 'comment_posted':
+                icon = MessageSquare;
+                color = 'purple';
+                break;
+              case 'achievement_unlocked':
+                icon = Award;
+                color = 'yellow';
+                break;
+              default:
+                icon = Activity;
+                color = 'gray';
+            }
+            
+            // حساب الوقت النسبي
+            const timeAgo = getRelativeTime(new Date(activity.created_at));
+            
+            return {
+              icon,
+              color,
+              title: activity.title,
+              desc: activity.description,
+              time: timeAgo
+            };
           });
+          setRecentActivities(formattedActivities);
         }
-        setWeeklyActivity(weeklyStats);
-        
-        // جلب المقالات الأكثر قراءة (بناءً على views)
-        const sortedArticles = [...articlesArray]
-          .filter((article: any) => article.views > 0)
-          .sort((a: any, b: any) => (b.views || 0) - (a.views || 0))
-          .slice(0, 4)
-          .map((article: any, index: number) => ({
-            rank: index + 1,
-            title: article.title,
-            views: article.views || 0,
-            trend: Math.random() > 0.5 ? 'up' : 'down', // سيتم حسابه من البيانات الحقيقية لاحقاً
-            id: article.id
-          }));
-        setTopArticles(sortedArticles);
-        
-        // جلب عدد المستخدمين النشطين
-        const usersRes = await fetch('/api/users');
-        const usersData = await usersRes.json();
-        const usersArray = usersData.users || usersData.data || usersData || [];
-        const activeUsers = usersArray.filter((user: any) => user.is_active !== false).length;
-        
-        // جلب التعليقات الجديدة
-        let newComments = 0;
-        try {
-          const commentsRes = await fetch('/api/comments?limit=100');
-          if (commentsRes.ok) {
-            const commentsData = await commentsRes.json();
-            const commentsArray = commentsData.comments || commentsData.data || commentsData || [];
-            // عد التعليقات في آخر 24 ساعة
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            newComments = commentsArray.filter((comment: any) => {
-              return new Date(comment.created_at) >= yesterday;
-            }).length;
-          }
-        } catch (error) {
-          console.log('التعليقات غير متوفرة');
-        }
-        
-        // جلب الأنشطة الأخيرة من جدول timeline_events
-        try {
-          const timelineRes = await fetch('/api/timeline?limit=10');
-          if (timelineRes.ok) {
-            const timelineData = await timelineRes.json();
-            const activities = (timelineData.events || []).slice(0, 4).map((event: any) => {
-              // تحديد الأيقونة واللون حسب نوع الحدث
-              let icon = FileText;
-              let color = 'blue';
-              let title = 'نشاط جديد';
-              let desc = event.description;
-              
-              switch (event.event_type) {
-                case 'article_published':
-                  icon = FileText;
-                  color = 'blue';
-                  title = 'مقال جديد';
-                  break;
-                case 'user_registered':
-                  icon = UserPlus;
-                  color = 'green';
-                  title = 'مستخدم جديد';
-                  break;
-                case 'comment_posted':
-                  icon = MessageSquare;
-                  color = 'purple';
-                  title = 'تعليق جديد';
-                  break;
-                case 'achievement_unlocked':
-                  icon = Award;
-                  color = 'yellow';
-                  title = 'إنجاز مفتوح';
-                  break;
-                default:
-                  icon = Activity;
-                  color = 'gray';
-              }
-              
-              // حساب الوقت النسبي
-              const timeAgo = getRelativeTime(new Date(event.created_at));
-              
-              return { icon, color, title, desc, time: timeAgo };
-            });
-            setRecentActivities(activities);
-          }
-        } catch (error) {
-          console.log('الأنشطة غير متوفرة');
-        }
-        
-        // حساب معدل التفاعل والإحصائيات الأخرى
-        const engagementRate = activeUsers > 0 ? Math.round((newComments / activeUsers) * 100) : 0;
-        const breakingNews = articlesArray.filter((article: any) => 
-          article.is_breaking === true || article.category === 'breaking-news'
-        ).length;
-        
-        // حساب إجمالي المشاهدات
-        const totalViews = articlesArray.reduce((sum: number, article: any) => 
-          sum + (article.views || 0), 0
-        );
-        
-        // حساب نسبة النمو الأسبوعي
-        const lastWeekDate = new Date();
-        lastWeekDate.setDate(lastWeekDate.getDate() - 7);
-        const lastWeekArticles = articlesArray.filter((article: any) => {
-          const articleDate = new Date(article.created_at);
-          return articleDate < lastWeekDate;
-        }).length;
-        const weeklyGrowth = lastWeekArticles > 0 
-          ? Math.round(((totalArticles - lastWeekArticles) / lastWeekArticles) * 100)
-          : 0;
-        
-        // تحديث الإحصائيات
-        setStats({
-          totalArticles,
-          activeUsers,
-          newComments,
-          engagementRate,
-          breakingNews,
-          totalViews,
-          todayArticles,
-          weeklyGrowth
-        });
         
       } catch (error) {
         console.error('خطأ في جلب البيانات:', error);
