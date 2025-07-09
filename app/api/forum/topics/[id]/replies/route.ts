@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { getSupabaseClient } from '@/lib/supabase';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+const supabase = getSupabaseClient();
 
 // GET: جلب ردود الموضوع
 export async function GET(
@@ -42,7 +39,7 @@ export async function GET(
     }
 
     // تنسيق البيانات للواجهة
-    const formattedReplies = (replies || []).map(reply => ({
+    const formattedReplies = (replies || []).map((reply: any) => ({
       id: reply.id,
       content: reply.content,
       author: {
