@@ -1,139 +1,114 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
-// GET: جلب إعدادات المنتدى
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
+
+// جلب الإعدادات
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 جلب إعدادات المنتدى...');
+    const { data: settings, error } = await supabase
+      .from('forum_settings')
+      .select('*')
+      .single();
 
-    // جلب الإعدادات من قاعدة البيانات
-    const settings = await prisma.$queryRawUnsafe(`
-      SELECT 
-        setting_key,
-        setting_value,
-        setting_type,
-        description
-      FROM forum_settings
-      ORDER BY setting_key
-    `);
+    if (error && error.code === 'PGRST116') {
+      // لا توجد إعدادات، إرجاع الإعدادات الافتراضية
+      return NextResponse.json({
+        success: true,
+        settings: {
+          forum_name: 'منتدى سبق',
+          forum_description: 'مجتمع النقاش والحوار',
+          allow_guest_read: true,
+          require_moderation: false,
+          allow_edit_posts: true,
+          enable_reputation: true,
+          enable_badges: true,
+          max_topics_per_day: 10
+        }
+      });
+    }
 
-    // تحويل الإعدادات إلى كائن
-    const settingsObject = (settings as any[]).reduce((acc, setting) => {
-      let value = setting.setting_value;
-      
-      // تحويل القيم حسب النوع
-      switch (setting.setting_type) {
-        case 'boolean':
-          value = value === 'true' || value === '1';
-          break;
-        case 'number':
-          value = parseInt(value) || 0;
-          break;
-        case 'json':
-          try {
-            value = JSON.parse(value);
-          } catch {
-            value = {};
-          }
-          break;
-      }
-      
-      acc[setting.setting_key] = value;
-      return acc;
-    }, {});
-
-    // الإعدادات الافتراضية إذا لم تكن موجودة
-    const defaultSettings = {
-      forum_name: 'منتدى سبق',
-      forum_description: 'مجتمع النقاش والحوار',
-      allow_guest_read: true,
-      require_moderation: false,
-      allow_edit_posts: true,
-      max_topics_per_day: 10,
-      max_replies_per_day: 50,
-      auto_lock_old_topics: false,
-      auto_lock_days: 365,
-      enable_reputation: true,
-      enable_badges: true,
-      enable_notifications: true,
-      ...settingsObject
-    };
-
-    console.log('✅ تم جلب إعدادات المنتدى');
+    if (error) {
+      console.error('Error fetching settings:', error);
+      return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,
-      settings: defaultSettings
+      settings
     });
-
-  } catch (error: any) {
-    console.error('❌ خطأ في جلب إعدادات المنتدى:', error);
-    
-    // إرجاع الإعدادات الافتراضية في حالة الخطأ
-    return NextResponse.json({
-      success: true,
-      settings: {
-        forum_name: 'منتدى سبق',
-        forum_description: 'مجتمع النقاش والحوار',
-        allow_guest_read: true,
-        require_moderation: false,
-        allow_edit_posts: true,
-        max_topics_per_day: 10,
-        max_replies_per_day: 50,
-        auto_lock_old_topics: false,
-        auto_lock_days: 365,
-        enable_reputation: true,
-        enable_badges: true,
-        enable_notifications: true
-      }
-    });
+  } catch (error) {
+    console.error('Error in GET /api/forum/settings:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-// POST: حفظ إعدادات المنتدى
+// حفظ الإعدادات
 export async function POST(request: NextRequest) {
   try {
-    console.log('💾 حفظ إعدادات المنتدى...');
+    // التحقق من المستخدم
+    const cookieStore = await cookies();
+    const userCookie = cookieStore.get('user');
     
-    const body = await request.json();
-    const { settings } = body;
-
-    if (!settings || typeof settings !== 'object') {
-      return NextResponse.json(
-        { error: 'بيانات الإعدادات مطلوبة' },
-        { status: 400 }
-      );
+    if (!userCookie) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const user = JSON.parse(userCookie.value);
+    
+    // التحقق من صلاحيات المستخدم (يجب أن يكون مشرف)
+    if (user.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // حفظ كل إعداد
-    for (const [key, value] of Object.entries(settings)) {
-      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-      
-      await prisma.$executeRawUnsafe(`
-        INSERT INTO forum_settings (setting_key, setting_value, setting_type, updated_at)
-        VALUES (?, ?, ?, NOW())
-        ON DUPLICATE KEY UPDATE 
-        setting_value = VALUES(setting_value),
-        updated_at = NOW()
-      `, key, stringValue, typeof value === 'boolean' ? 'boolean' : typeof value === 'number' ? 'number' : 'string');
+    const { settings } = await request.json();
+
+    // التحقق من وجود جدول الإعدادات أولاً
+    const { data: existingSettings } = await supabase
+      .from('forum_settings')
+      .select('id')
+      .single();
+
+    let result;
+    if (existingSettings) {
+      // تحديث الإعدادات الموجودة
+      result = await supabase
+        .from('forum_settings')
+        .update({
+          ...settings,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingSettings.id)
+        .select()
+        .single();
+    } else {
+      // إنشاء إعدادات جديدة
+      result = await supabase
+        .from('forum_settings')
+        .insert({
+          ...settings,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
     }
 
-    console.log('✅ تم حفظ إعدادات المنتدى');
+    if (result.error) {
+      console.error('Error saving settings:', result.error);
+      return NextResponse.json({ error: 'Failed to save settings' }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'تم حفظ الإعدادات بنجاح'
+      settings: result.data
     });
-
-  } catch (error: any) {
-    console.error('❌ خطأ في حفظ إعدادات المنتدى:', error);
-    return NextResponse.json(
-      { 
-        success: false,
-        error: 'حدث خطأ في حفظ الإعدادات',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('Error in POST /api/forum/settings:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

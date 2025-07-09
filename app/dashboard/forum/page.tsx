@@ -27,6 +27,7 @@ import {
   Search
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { toast } from 'react-hot-toast';
 
 interface ForumStats {
   totalTopics: number;
@@ -147,20 +148,212 @@ export default function ForumAdminPage() {
   // تبديل حالة تثبيت الموضوع
   const togglePinTopic = async (topicId: string, isPinned: boolean) => {
     try {
-      // TODO: إضافة API call
-      console.log(`Toggle pin for topic ${topicId}: ${!isPinned}`);
+      const response = await fetch(`/api/forum/topics/${topicId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          is_pinned: !isPinned
+        }),
+      });
+
+      if (response.ok) {
+        toast.success(isPinned ? 'تم إلغاء تثبيت الموضوع' : 'تم تثبيت الموضوع');
+        
+        // تحديث القائمة المحلية
+        setRecentTopics(prev => prev.map(topic => 
+          topic.id === topicId 
+            ? { ...topic, isPinned: !isPinned }
+            : topic
+        ));
+      } else {
+        const error = await response.json();
+        toast.error(`خطأ: ${error.error}`);
+      }
     } catch (error) {
       console.error('Error toggling pin:', error);
+      toast.error('حدث خطأ في تحديث حالة التثبيت');
     }
   };
 
   // تبديل حالة قفل الموضوع
   const toggleLockTopic = async (topicId: string, isLocked: boolean) => {
     try {
-      // TODO: إضافة API call
-      console.log(`Toggle lock for topic ${topicId}: ${!isLocked}`);
+      const response = await fetch(`/api/forum/topics/${topicId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          is_locked: !isLocked
+        }),
+      });
+
+      if (response.ok) {
+        toast.success(isLocked ? 'تم فتح الموضوع' : 'تم إغلاق الموضوع');
+        
+        // تحديث القائمة المحلية
+        setRecentTopics(prev => prev.map(topic => 
+          topic.id === topicId 
+            ? { ...topic, isLocked: !isLocked }
+            : topic
+        ));
+      } else {
+        const error = await response.json();
+        toast.error(`خطأ: ${error.error}`);
+      }
     } catch (error) {
       console.error('Error toggling lock:', error);
+      toast.error('حدث خطأ في تحديث حالة القفل');
+    }
+  };
+
+  // حذف موضوع
+  const deleteTopic = async (topicId: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذا الموضوع؟')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/forum/topics/${topicId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        toast.success('تم حذف الموضوع بنجاح');
+        
+        // إزالة من القائمة المحلية
+        setRecentTopics(prev => prev.filter(topic => topic.id !== topicId));
+      } else {
+        const error = await response.json();
+        toast.error(`خطأ: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error deleting topic:', error);
+      toast.error('حدث خطأ في حذف الموضوع');
+    }
+  };
+
+  // تعديل موضوع
+  const [editingTopic, setEditingTopic] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ title: '', content: '' });
+
+  const startEditTopic = (topic: RecentTopic) => {
+    setEditingTopic(topic.id);
+    setEditForm({ title: topic.title, content: '' }); // نحتاج لجلب المحتوى من API
+  };
+
+  const saveEditTopic = async (topicId: string) => {
+    try {
+      const response = await fetch(`/api/forum/topics/${topicId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: editForm.title,
+          content: editForm.content
+        }),
+      });
+
+      if (response.ok) {
+        toast.success('تم تحديث الموضوع بنجاح');
+        
+        // تحديث القائمة المحلية
+        setRecentTopics(prev => prev.map(topic => 
+          topic.id === topicId 
+            ? { ...topic, title: editForm.title }
+            : topic
+        ));
+        
+        setEditingTopic(null);
+        setEditForm({ title: '', content: '' });
+      } else {
+        const error = await response.json();
+        toast.error(`خطأ: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error updating topic:', error);
+      toast.error('حدث خطأ في تحديث الموضوع');
+    }
+  };
+
+  // حذف فئة
+  const deleteCategory = async (categoryId: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذه الفئة؟')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/forum/categories/${categoryId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        toast.success('تم حذف الفئة بنجاح');
+        
+        // إعادة جلب الفئات
+        const categoriesResponse = await fetch('/api/forum/categories?include_inactive=true');
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json();
+          setCategories(categoriesData.categories || []);
+        }
+      } else {
+        const error = await response.json();
+        toast.error(`خطأ: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      toast.error('حدث خطأ في حذف الفئة');
+    }
+  };
+
+  // تعديل فئة
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editCategoryForm, setEditCategoryForm] = useState({
+    name: '',
+    description: '',
+    color: '#3B82F6'
+  });
+
+  const startEditCategory = (category: Category) => {
+    setEditingCategory(category.id);
+    setEditCategoryForm({
+      name: category.name,
+      description: category.description || '',
+      color: category.color
+    });
+  };
+
+  const saveEditCategory = async (categoryId: string) => {
+    try {
+      const response = await fetch(`/api/forum/categories/${categoryId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editCategoryForm),
+      });
+
+      if (response.ok) {
+        toast.success('تم تحديث الفئة بنجاح');
+        
+        // إعادة جلب الفئات
+        const categoriesResponse = await fetch('/api/forum/categories?include_inactive=true');
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json();
+          setCategories(categoriesData.categories || []);
+        }
+        
+        setEditingCategory(null);
+      } else {
+        const error = await response.json();
+        toast.error(`خطأ: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error updating category:', error);
+      toast.error('حدث خطأ في تحديث الفئة');
     }
   };
 
@@ -504,10 +697,19 @@ export default function ForumAdminPage() {
                         >
                           {topic.isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => startEditTopic(topic)}
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => deleteTopic(topic.id)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -564,10 +766,19 @@ export default function ForumAdminPage() {
                           {category.isActive ? 'نشطة' : 'غير نشطة'}
                         </Badge>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => startEditCategory(category)}
+                          >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => deleteCategory(category.id)}
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -654,13 +865,26 @@ export default function ForumAdminPage() {
                         >
                           {topic.isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => window.open(`/forum/topic/${topic.id}`, '_blank')}
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => startEditTopic(topic)}
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => deleteTopic(topic.id)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -935,6 +1159,120 @@ export default function ForumAdminPage() {
               </Button>
               <Button 
                 onClick={() => setShowSettingsModal(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                إلغاء
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* نافذة تعديل الموضوع */}
+      {editingTopic && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-xl max-w-2xl w-full mx-4`}>
+            <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              تعديل الموضوع
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  عنوان الموضوع
+                </label>
+                <Input 
+                  value={editForm.title}
+                  onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                  className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  محتوى الموضوع
+                </label>
+                <Textarea 
+                  value={editForm.content}
+                  onChange={(e) => setEditForm({...editForm, content: e.target.value})}
+                  className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'} min-h-[200px]`}
+                  placeholder="أدخل محتوى الموضوع..."
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <Button 
+                onClick={() => saveEditTopic(editingTopic)}
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                حفظ التغييرات
+              </Button>
+              <Button 
+                onClick={() => {
+                  setEditingTopic(null);
+                  setEditForm({ title: '', content: '' });
+                }}
+                variant="outline"
+                className="flex-1"
+              >
+                إلغاء
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* نافذة تعديل الفئة */}
+      {editingCategory && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-xl max-w-md w-full mx-4`}>
+            <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              تعديل الفئة
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  اسم الفئة
+                </label>
+                <Input 
+                  value={editCategoryForm.name}
+                  onChange={(e) => setEditCategoryForm({...editCategoryForm, name: e.target.value})}
+                  className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  وصف الفئة
+                </label>
+                <Textarea 
+                  value={editCategoryForm.description}
+                  onChange={(e) => setEditCategoryForm({...editCategoryForm, description: e.target.value})}
+                  className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  لون الفئة
+                </label>
+                <Input 
+                  type="color"
+                  value={editCategoryForm.color}
+                  onChange={(e) => setEditCategoryForm({...editCategoryForm, color: e.target.value})}
+                  className="w-full h-10"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <Button 
+                onClick={() => saveEditCategory(editingCategory)}
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                حفظ التغييرات
+              </Button>
+              <Button 
+                onClick={() => {
+                  setEditingCategory(null);
+                  setEditCategoryForm({ name: '', description: '', color: '#3B82F6' });
+                }}
                 variant="outline"
                 className="flex-1"
               >

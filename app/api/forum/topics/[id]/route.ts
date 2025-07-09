@@ -1,174 +1,229 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
-// GET: جلب موضوع محدد
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
+
+// جلب موضوع واحد
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: topicId } = await params;
-    console.log('Fetching topic:', topicId);
+    const { id } = await params;
+    
+    const { data: topic, error } = await supabase
+      .from('forum_topics')
+      .select(`
+        *,
+        category:forum_categories (
+          id,
+          name,
+          slug,
+          color
+        ),
+        author:users (
+          id,
+          name,
+          email,
+          avatar_url
+        )
+      `)
+      .eq('id', id)
+      .single();
 
-    // جلب الموضوع مع معلومات المؤلف والفئة
-    const topic = await prisma.$queryRawUnsafe(`
-      SELECT 
-        t.id,
-        t.title,
-        t.content,
-        t.views,
-        t.is_pinned,
-        t.is_locked,
-        t.is_featured,
-        t.created_at,
-        t.updated_at,
-        t.category_id,
-        t.author_id,
-        c.name_ar as category_name,
-        c.slug as category_slug,
-        c.color as category_color,
-        u.name as author_name,
-        u.email as author_email
-      FROM forum_topics t
-      JOIN forum_categories c ON t.category_id = c.id
-      LEFT JOIN users u ON t.author_id = u.id
-      WHERE t.id = $1 AND t.status = 'active'
-    `, topicId);
-
-    if (!topic || (topic as any[]).length === 0) {
-      return NextResponse.json(
-        { error: 'الموضوع غير موجود' },
-        { status: 404 }
-      );
+    if (error) {
+      console.error('Error fetching topic:', error);
+      return NextResponse.json({ error: 'Failed to fetch topic' }, { status: 500 });
     }
 
-    const topicData = (topic as any[])[0];
+    if (!topic) {
+      return NextResponse.json({ error: 'Topic not found' }, { status: 404 });
+    }
 
     // زيادة عدد المشاهدات
-    await prisma.$executeRawUnsafe(`
-      UPDATE forum_topics SET views = views + 1 WHERE id = $1
-    `, topicId);
+    await supabase
+      .from('forum_topics')
+      .update({ views: (topic.views || 0) + 1 })
+      .eq('id', id);
 
-    // جلب عدد الردود
-    const replyCount = await prisma.$queryRawUnsafe(`
-      SELECT COUNT(*) as count 
-      FROM forum_replies 
-      WHERE topic_id = $1 AND status = 'active'
-    `, topicId);
+    // جلب الردود
+    const { data: replies, error: repliesError } = await supabase
+      .from('forum_replies')
+      .select(`
+        *,
+        author:users (
+          id,
+          name,
+          email,
+          avatar_url
+        )
+      `)
+      .eq('topic_id', id)
+      .order('created_at', { ascending: true });
 
-    // جلب عدد الإعجابات
-    const likeCount = await prisma.$queryRawUnsafe(`
-      SELECT COUNT(*) as count 
-      FROM forum_votes 
-      WHERE target_id = $1 AND target_type = 'topic' AND vote_type = 'like'
-    `, topicId);
+    if (repliesError) {
+      console.error('Error fetching replies:', repliesError);
+    }
 
-    // تنسيق البيانات
-    const formattedTopic = {
-      id: topicData.id,
-      title: topicData.title,
-      content: topicData.content,
-      views: Number(topicData.views) + 1,
-      is_pinned: Boolean(topicData.is_pinned),
-      is_locked: Boolean(topicData.is_locked),
-      is_featured: Boolean(topicData.is_featured),
-      created_at: topicData.created_at,
-      updated_at: topicData.updated_at,
-      category: {
-        id: topicData.category_id,
-        name: topicData.category_name,
-        slug: topicData.category_slug,
-        color: topicData.category_color
-      },
-      author: {
-        id: topicData.author_id,
-        name: topicData.author_name || 'مستخدم',
-        email: topicData.author_email,
-        avatar: `/images/authors/default-avatar.jpg`
-      },
-      replies_count: Number((replyCount as any)[0]?.count || 0),
-      likes_count: Number((likeCount as any)[0]?.count || 0)
-    };
-
-    return NextResponse.json(formattedTopic);
-  } catch (error: any) {
-    console.error('Error fetching topic:', error);
-    return NextResponse.json(
-      { 
-        error: 'حدث خطأ في جلب الموضوع',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      success: true,
+      topic: {
+        ...topic,
+        replies: replies || []
+      }
+    });
+  } catch (error) {
+    console.error('Error in GET /api/forum/topics/[id]:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-// PUT: تحديث موضوع
-export async function PUT(
+// تحديث موضوع
+export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: topicId } = await params;
+    const { id } = await params;
     const body = await request.json();
-    const { title, content } = body;
-
-    // التحقق من البيانات
-    if (!title || !content) {
-      return NextResponse.json(
-        { error: 'العنوان والمحتوى مطلوبان' },
-        { status: 400 }
-      );
+    
+    // التحقق من المستخدم
+    const cookieStore = await cookies();
+    const userCookie = cookieStore.get('user');
+    
+    if (!userCookie) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    // تحديث الموضوع
-    await prisma.$executeRawUnsafe(`
-      UPDATE forum_topics 
-      SET title = $2, content = $3, updated_at = NOW()
-      WHERE id = $1
-    `, topicId, title.trim(), content.trim());
-
-    return NextResponse.json({
-      message: 'تم تحديث الموضوع بنجاح'
+    
+    const user = JSON.parse(userCookie.value);
+    
+    // التحقق من صلاحيات المستخدم (يجب أن يكون مشرف أو صاحب الموضوع)
+    const { data: topic } = await supabase
+      .from('forum_topics')
+      .select('author_id')
+      .eq('id', id)
+      .single();
+      
+    if (!topic) {
+      return NextResponse.json({ error: 'Topic not found' }, { status: 404 });
+    }
+    
+    const isAdmin = user.role === 'admin' || user.role === 'moderator';
+    const isAuthor = topic.author_id === user.id;
+    
+    if (!isAdmin && !isAuthor) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    
+    // السماح بتحديث حقول معينة فقط
+    const allowedFields = ['title', 'content', 'category_id'];
+    const adminOnlyFields = ['is_pinned', 'is_locked', 'status'];
+    
+    const updateData: any = {};
+    
+    // إضافة الحقول المسموحة للجميع
+    allowedFields.forEach(field => {
+      if (body[field] !== undefined) {
+        updateData[field] = body[field];
+      }
     });
-  } catch (error: any) {
-    console.error('Error updating topic:', error);
-    return NextResponse.json(
-      { 
-        error: 'حدث خطأ في تحديث الموضوع',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
-      { status: 500 }
-    );
+    
+    // إضافة الحقول المسموحة للمشرفين فقط
+    if (isAdmin) {
+      adminOnlyFields.forEach(field => {
+        if (body[field] !== undefined) {
+          updateData[field] = body[field];
+        }
+      });
+    }
+    
+    updateData.updated_at = new Date().toISOString();
+    
+    const { data, error } = await supabase
+      .from('forum_topics')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+      
+    if (error) {
+      console.error('Error updating topic:', error);
+      return NextResponse.json({ error: 'Failed to update topic' }, { status: 500 });
+    }
+    
+    return NextResponse.json({
+      success: true,
+      topic: data
+    });
+  } catch (error) {
+    console.error('Error in PATCH /api/forum/topics/[id]:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-// DELETE: حذف موضوع (soft delete)
+// حذف موضوع
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: topicId } = await params;
-
-    // حذف ناعم للموضوع
-    await prisma.$executeRawUnsafe(`
-      UPDATE forum_topics 
-      SET status = 'deleted', updated_at = NOW()
-      WHERE id = $1
-    `, topicId);
-
+    const { id } = await params;
+    
+    // التحقق من المستخدم
+    const cookieStore = await cookies();
+    const userCookie = cookieStore.get('user');
+    
+    if (!userCookie) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const user = JSON.parse(userCookie.value);
+    
+    // التحقق من صلاحيات المستخدم (يجب أن يكون مشرف أو صاحب الموضوع)
+    const { data: topic } = await supabase
+      .from('forum_topics')
+      .select('author_id')
+      .eq('id', id)
+      .single();
+      
+    if (!topic) {
+      return NextResponse.json({ error: 'Topic not found' }, { status: 404 });
+    }
+    
+    const isAdmin = user.role === 'admin' || user.role === 'moderator';
+    const isAuthor = topic.author_id === user.id;
+    
+    if (!isAdmin && !isAuthor) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    
+    // حذف الردود أولاً
+    await supabase
+      .from('forum_replies')
+      .delete()
+      .eq('topic_id', id);
+    
+    // حذف الموضوع
+    const { error } = await supabase
+      .from('forum_topics')
+      .delete()
+      .eq('id', id);
+      
+    if (error) {
+      console.error('Error deleting topic:', error);
+      return NextResponse.json({ error: 'Failed to delete topic' }, { status: 500 });
+    }
+    
     return NextResponse.json({
-      message: 'تم حذف الموضوع بنجاح'
+      success: true,
+      message: 'Topic deleted successfully'
     });
-  } catch (error: any) {
-    console.error('Error deleting topic:', error);
-    return NextResponse.json(
-      { 
-        error: 'حدث خطأ في حذف الموضوع',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('Error in DELETE /api/forum/topics/[id]:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 
