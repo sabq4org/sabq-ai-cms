@@ -1,6 +1,27 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseClient } from '@/lib/supabase';
 
+// تعريف أنواع البيانات
+interface Article {
+  id: string;
+  created_at: string;
+  views: number;
+  status: string;
+  is_breaking: boolean;
+  category: string;
+}
+
+interface User {
+  id: string;
+  is_active: boolean;
+  last_login: string;
+}
+
+interface Comment {
+  id: string;
+  created_at: string;
+}
+
 export async function GET() {
   try {
     const supabase = getSupabaseClient();
@@ -21,17 +42,17 @@ export async function GET() {
     // مقالات اليوم
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayArticles = articles?.filter(article => 
+    const todayArticles = articles?.filter((article: Article) => 
       new Date(article.created_at) >= today
     ).length || 0;
 
     // الأخبار العاجلة
-    const breakingNews = articles?.filter(article => 
+    const breakingNews = articles?.filter((article: Article) => 
       article.is_breaking === true
     ).length || 0;
 
     // إجمالي المشاهدات
-    const totalViews = articles?.reduce((sum, article) => 
+    const totalViews = articles?.reduce((sum: number, article: Article) => 
       sum + (article.views || 0), 0
     ) || 0;
 
@@ -42,7 +63,7 @@ export async function GET() {
 
     if (usersError) throw usersError;
 
-    const activeUsers = users?.filter(user => 
+    const activeUsers = users?.filter((user: User) => 
       user.is_active !== false
     ).length || 0;
 
@@ -66,7 +87,7 @@ export async function GET() {
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
     
-    const lastWeekArticles = articles?.filter(article => 
+    const lastWeekArticles = articles?.filter((article: Article) => 
       new Date(article.created_at) < lastWeek
     ).length || 0;
     
@@ -85,7 +106,7 @@ export async function GET() {
       const nextDate = new Date(date);
       nextDate.setDate(nextDate.getDate() + 1);
       
-      const count = articles?.filter(article => {
+      const count = articles?.filter((article: Article) => {
         const articleDate = new Date(article.created_at);
         return articleDate >= date && articleDate < nextDate;
       }).length || 0;
@@ -98,10 +119,10 @@ export async function GET() {
 
     // المقالات الأكثر قراءة
     const topArticles = articles
-      ?.filter(article => article.views > 0)
-      ?.sort((a, b) => (b.views || 0) - (a.views || 0))
+      ?.filter((article: Article) => article.views > 0)
+      ?.sort((a: Article, b: Article) => (b.views || 0) - (a.views || 0))
       ?.slice(0, 4)
-      ?.map((article, index) => ({
+      ?.map((article: Article, index: number) => ({
         rank: index + 1,
         id: article.id,
         views: article.views || 0,
