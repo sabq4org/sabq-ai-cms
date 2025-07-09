@@ -91,7 +91,9 @@ export default function WasNewsPage() {
           toast.success('تم جلب خبر جديد!');
           fetchSavedNews(); // تحديث القائمة
         } else {
-          toast.info(data.message || 'لا توجد أخبار جديدة');
+          toast(data.message || 'لا توجد أخبار جديدة', {
+            icon: '📰',
+          });
         }
       } else {
         toast.error(data.error || 'فشل جلب الأخبار');
