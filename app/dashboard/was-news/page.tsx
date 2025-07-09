@@ -297,27 +297,27 @@ export default function WasNewsPage() {
     ];
 
     return (
-      <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${
+      <div className={`rounded-2xl p-4 shadow-sm border mb-8 w-full transition-colors duration-300 ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
       }`}>
-        <div className="flex gap-2 justify-start">
-          {tabs.map((tab) => {
+        <div className="flex gap-6 justify-start">
+          {tabs.map((tab, index) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-xl font-medium text-sm transition-all duration-300 relative ${
-                  isActive
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
-                    : darkMode
-                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
+              <div key={tab.id} className="flex-1">
+                <button
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex flex-col items-center justify-center gap-3 py-6 px-6 rounded-xl font-medium text-sm transition-all duration-300 relative ${
+                    isActive
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105'
+                      : darkMode
+                        ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
                 {isActive && (
                   <div className="absolute bottom-0 left-6 right-6 h-1 bg-white/30 rounded-full" />
                 )}
@@ -333,6 +333,7 @@ export default function WasNewsPage() {
                   {tab.count}
                 </span>
               </button>
+                </div>
             );
           })}
         </div>
