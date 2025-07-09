@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseClient } from '@/lib/supabase';
 
+interface Activity {
+  type: string;
+  title: string;
+  description: string;
+  created_at: string;
+  metadata: Record<string, any>;
+}
+
 export async function GET() {
   try {
     const supabase = getSupabaseClient();
@@ -19,7 +27,7 @@ export async function GET() {
       // إذا لم يكن الجدول موجود، نحاول جلب من جداول أخرى
       console.log('جدول timeline_events غير موجود، جلب من جداول أخرى');
       
-      const activities = [];
+      const activities: Activity[] = [];
       
       // جلب آخر المقالات
       const { data: articles } = await supabase
@@ -29,7 +37,7 @@ export async function GET() {
         .limit(3);
       
       if (articles) {
-        articles.forEach(article => {
+        articles.forEach((article: any) => {
           activities.push({
             type: 'article_published',
             title: 'مقال جديد',
@@ -48,7 +56,7 @@ export async function GET() {
         .limit(3);
       
       if (comments) {
-        comments.forEach(comment => {
+        comments.forEach((comment: any) => {
           activities.push({
             type: 'comment_posted',
             title: 'تعليق جديد',
@@ -67,7 +75,7 @@ export async function GET() {
         .limit(2);
       
       if (users) {
-        users.forEach(user => {
+        users.forEach((user: any) => {
           activities.push({
             type: 'user_registered',
             title: 'مستخدم جديد',
@@ -89,7 +97,7 @@ export async function GET() {
     }
 
     // معالجة الأنشطة من جدول timeline_events
-    const activities = events?.map(event => ({
+    const activities = events?.map((event: any) => ({
       type: event.event_type,
       title: getEventTitle(event.event_type),
       description: event.description || getEventDescription(event),
