@@ -660,6 +660,32 @@ model users {
   @@index([role])
 }
 
+// WAS News Model - أخبار وكالة الأنباء السعودية
+model was_news {
+  id               String    @id @default(uuid())
+  news_NUM         Int       @unique
+  news_DT          DateTime
+  news_basket_CD   Int
+  news_class_CD    Int
+  news_priority_CD Int
+  is_Report        Boolean   @default(false)
+  title_TXT        String
+  story_TXT        String?
+  media            Json?
+  royalType        Int?
+  keywords         Json?
+  related_news_CD  Int?
+  is_imported      Boolean   @default(false)
+  imported_to_id   String?   // Article ID if imported
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now())
+
+  @@index([news_basket_CD])
+  @@index([news_DT])
+  @@index([is_imported])
+  @@index([created_at])
+}
+
 enum EmailJob_status {
   queued
   sending

@@ -1,508 +1,329 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { 
-  Globe, RefreshCw, AlertTriangle, CheckCircle, 
-  Clock, ExternalLink, Filter, Search, Newspaper,
-  TrendingUp, Calendar, Tag, Eye, Share2,
-  Download, FileText, Zap, Star
-} from 'lucide-react';
-import WasApiStatus from './ApiStatus';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Loader2, RefreshCw, Download, Eye, FileText, AlertCircle, CheckCircle, Clock, Newspaper } from 'lucide-react';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
+import toast from 'react-hot-toast';
 
-interface WasNewsItem {
+interface WasNews {
   id: string;
-  title: string;
-  summary?: string;
-  content?: string;
-  publishDate: string;
-  category?: string;
-  imageUrl?: string;
-  priority?: string;
-  language?: string;
+  news_NUM: number;
+  news_DT: string;
+  title_TXT: string;
+  story_TXT: string;
+  news_priority_CD: number;
+  is_Report: boolean;
+  is_imported: boolean;
+  media?: any;
+  keywords?: any;
+  created_at: string;
 }
 
-interface ApiResponse {
-  success: boolean;
-  count?: number;
-  data?: WasNewsItem[];
-  message?: string;
-  error?: string;
-  timestamp?: string;
+interface Basket {
+  news_basket_CD: number;
+  news_basket_TXT: string;
+  news_basket_TXT_AR: string;
 }
 
 export default function WasNewsPage() {
-  const { darkMode } = useDarkModeContext();
-  const [news, setNews] = useState<WasNewsItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [errorStatus, setErrorStatus] = useState<number | null>(null);
-  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [sortBy, setSortBy] = useState('date');
+  const [loading, setLoading] = useState(false);
+  const [fetchingNew, setFetchingNew] = useState(false);
+  const [savedNews, setSavedNews] = useState<WasNews[]>([]);
+  const [baskets, setBaskets] = useState<Basket[]>([]);
+  const [selectedBasket, setSelectedBasket] = useState<number | null>(null);
+  const [selectedNews, setSelectedNews] = useState<WasNews | null>(null);
+  const [activeTab, setActiveTab] = useState('saved');
+  const [importingId, setImportingId] = useState<string | null>(null);
 
-  // جلب الأخبار من API
-  const fetchNews = async (showLoading = true) => {
+  // جلب الأخبار المحفوظة
+  const fetchSavedNews = async () => {
+    setLoading(true);
     try {
-      if (showLoading) setLoading(true);
-      setRefreshing(true);
-      setError(null);
-      setErrorStatus(null);
-
-      const response = await fetch('/api/was-news', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data: ApiResponse = await response.json();
-
+      const res = await fetch('/api/was-news?action=saved');
+      const data = await res.json();
       if (data.success) {
-        setNews(data.data || []);
-        setLastUpdate(new Date().toLocaleString('ar-SA'));
-        console.log(`✅ تم جلب ${data.count} خبر من واس`);
+        setSavedNews(data.data);
       } else {
-        setError(data.error || 'فشل في جلب الأخبار');
-        setErrorStatus(response.status);
+        toast.error(data.error || 'فشل جلب الأخبار');
       }
-    } catch (err: any) {
-      console.error('خطأ في جلب الأخبار:', err);
-      setError('حدث خطأ في الاتصال بالخدمة');
+    } catch (error) {
+      toast.error('حدث خطأ في جلب الأخبار');
     } finally {
       setLoading(false);
-      setRefreshing(false);
+    }
+  };
+
+  // جلب السلال المتاحة
+  const fetchBaskets = async () => {
+    try {
+      const res = await fetch('/api/was-news?action=baskets');
+      const data = await res.json();
+      if (data.success) {
+        setBaskets(data.baskets);
+        if (data.baskets.length > 0 && !selectedBasket) {
+          setSelectedBasket(data.baskets[0].news_basket_CD);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching baskets:', error);
+    }
+  };
+
+  // جلب أخبار جديدة من واس
+  const fetchNewNews = async () => {
+    setFetchingNew(true);
+    try {
+      const url = selectedBasket 
+        ? `/api/was-news?basket_id=${selectedBasket}`
+        : '/api/was-news';
+      
+      const res = await fetch(url);
+      const data = await res.json();
+      
+      if (data.success) {
+        if (data.data) {
+          toast.success('تم جلب خبر جديد!');
+          fetchSavedNews(); // تحديث القائمة
+        } else {
+          toast.info(data.message || 'لا توجد أخبار جديدة');
+        }
+      } else {
+        toast.error(data.error || 'فشل جلب الأخبار');
+      }
+    } catch (error) {
+      toast.error('حدث خطأ في الاتصال بواس');
+    } finally {
+      setFetchingNew(false);
+    }
+  };
+
+  // استيراد خبر إلى المقالات
+  const importNews = async (newsId: string) => {
+    setImportingId(newsId);
+    try {
+      const res = await fetch('/api/was-news', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newsId })
+      });
+      
+      const data = await res.json();
+      
+      if (data.success) {
+        toast.success('تم استيراد الخبر بنجاح!');
+        fetchSavedNews(); // تحديث القائمة
+      } else {
+        toast.error(data.error || 'فشل استيراد الخبر');
+      }
+    } catch (error) {
+      toast.error('حدث خطأ في استيراد الخبر');
+    } finally {
+      setImportingId(null);
     }
   };
 
   useEffect(() => {
-    fetchNews();
-    
-    // تحديث تلقائي كل 10 دقائق
-    const interval = setInterval(() => {
-      fetchNews(false);
-    }, 10 * 60 * 1000);
-
-    return () => clearInterval(interval);
+    fetchSavedNews();
+    fetchBaskets();
   }, []);
 
-  // فلترة الأخبار
-  const filteredNews = news.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (item.summary && item.summary.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = !selectedCategory || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  // ترتيب الأخبار
-  const sortedNews = [...filteredNews].sort((a, b) => {
-    switch (sortBy) {
-      case 'date':
-        return new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime();
-      case 'title':
-        return a.title.localeCompare(b.title, 'ar');
-      case 'category':
-        return (a.category || '').localeCompare(b.category || '', 'ar');
+  const getPriorityBadge = (priority: number) => {
+    switch(priority) {
+      case 1:
+        return <Badge variant="destructive">عاجل</Badge>;
+      case 2:
+        return <Badge variant="default">مهم</Badge>;
       default:
-        return 0;
-    }
-  });
-
-  // الحصول على التصنيفات الفريدة
-  const categories = Array.from(new Set(news.map(item => item.category).filter(Boolean)));
-
-  const formatDate = (dateString: string) => {
-    try {
-      return new Date(dateString).toLocaleString('ar-SA', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch {
-      return dateString;
+        return <Badge variant="secondary">عادي</Badge>;
     }
   };
-
-  const getTimeAgo = (dateString: string) => {
-    try {
-      const now = new Date();
-      const date = new Date(dateString);
-      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-      
-      if (diffInMinutes < 60) return `منذ ${diffInMinutes} دقيقة`;
-      if (diffInMinutes < 1440) return `منذ ${Math.floor(diffInMinutes / 60)} ساعة`;
-      return `منذ ${Math.floor(diffInMinutes / 1440)} يوم`;
-    } catch {
-      return 'منذ وقت قصير';
-    }
-  };
-
-  const getPriorityColor = (priority?: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-green-500';
-      default: return 'bg-blue-500';
-    }
-  };
-
-  if (loading && news.length === 0) {
-    return (
-      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="text-center">
-              <RefreshCw className="w-12 h-12 mx-auto mb-4 animate-spin text-blue-500" />
-              <h3 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                جاري جلب الأخبار من واس...
-              </h3>
-              <p className={`text-sm mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                قد تستغرق هذه العملية بضع ثوانٍ
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Globe className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  أخبار واس
-                </h1>
-                <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  آخر الأخبار من وكالة الأنباء السعودية
-                </p>
-              </div>
-            </div>
-            
-            <button
-              onClick={() => fetchNews(false)}
-              disabled={refreshing}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 ${
-                refreshing
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg'
-              }`}
-            >
-              <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? 'جاري التحديث...' : 'تحديث'}
-            </button>
+    <div className="container mx-auto p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">أخبار وكالة الأنباء السعودية (واس)</h1>
+        <p className="text-gray-600">إدارة وعرض الأخبار من وكالة واس</p>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="saved">الأخبار المحفوظة</TabsTrigger>
+          <TabsTrigger value="fetch">جلب أخبار جديدة</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="saved" className="mt-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">الأخبار المحفوظة ({savedNews.length})</h2>
+            <Button onClick={fetchSavedNews} disabled={loading}>
+              <RefreshCw className={`h-4 w-4 ml-2 ${loading ? 'animate-spin' : ''}`} />
+              تحديث
+            </Button>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className={`p-6 rounded-2xl border ${
-              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-            }`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    إجمالي الأخبار
-                  </p>
-                  <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {news.length}
-                  </p>
-                </div>
-                <Newspaper className="w-8 h-8 text-blue-500" />
-              </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-            
-            <div className={`p-6 rounded-2xl border ${
-              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-            }`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    التصنيفات
-                  </p>
-                  <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {categories.length}
-                  </p>
-                </div>
-                <Tag className="w-8 h-8 text-green-500" />
-              </div>
-            </div>
-            
-            <div className={`p-6 rounded-2xl border ${
-              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-            }`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    آخر تحديث
-                  </p>
-                  <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {lastUpdate || 'لم يتم التحديث'}
-                  </p>
-                </div>
-                <Clock className="w-8 h-8 text-orange-500" />
-              </div>
-            </div>
-            
-            <div className={`p-6 rounded-2xl border ${
-              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-            }`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    الحالة
-                  </p>
-                  <div className="flex items-center gap-2">
-                    {error ? (
-                      <>
-                        <AlertTriangle className="w-4 h-4 text-red-500" />
-                        <span className="text-sm text-red-500">خطأ</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-green-500">متصل</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <TrendingUp className="w-8 h-8 text-purple-500" />
-              </div>
-            </div>
-          </div>
-
-          {/* Error Alert */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
-                <div>
-                  <h3 className="font-medium text-red-900">خطأ في جلب الأخبار</h3>
-                  <p className="text-sm text-red-700 mt-1">{error}</p>
-                  {error.includes('500') && (
-                    <div className="mt-2 text-xs text-red-600">
-                      <p>⚠️ خدمة واس تواجه مشاكل تقنية حالياً</p>
-                      <p>• يُرجى المحاولة لاحقاً</p>
-                      <p>• أو التواصل مع الدعم الفني لواس</p>
+          ) : savedNews.length === 0 ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>لا توجد أخبار محفوظة</AlertTitle>
+              <AlertDescription>
+                قم بجلب أخبار جديدة من تبويب "جلب أخبار جديدة"
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <div className="grid gap-4">
+              {savedNews.map((news) => (
+                <Card key={news.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg mb-2">{news.title_TXT}</CardTitle>
+                        <div className="flex gap-2 items-center text-sm text-gray-600">
+                          <Clock className="h-4 w-4" />
+                          {format(new Date(news.news_DT), 'PPpp', { locale: ar })}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {getPriorityBadge(news.news_priority_CD)}
+                        {news.is_imported && <Badge variant="outline" className="bg-green-50">مستورد</Badge>}
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 mb-4 line-clamp-3">
+                      {news.story_TXT || 'لا يوجد محتوى'}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedNews(news)}
+                      >
+                        <Eye className="h-4 w-4 ml-2" />
+                        عرض التفاصيل
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => importNews(news.id)}
+                        disabled={news.is_imported || importingId === news.id}
+                      >
+                        {importingId === news.id ? (
+                          <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                        ) : (
+                          <FileText className="h-4 w-4 ml-2" />
+                        )}
+                        {news.is_imported ? 'تم الاستيراد' : 'استيراد كمقال'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
+        </TabsContent>
 
-          {/* Filters */}
-          <div className={`p-6 rounded-2xl border mb-8 ${
-            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-          }`}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  البحث
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="ابحث في الأخبار..."
-                    className={`w-full pl-10 pr-4 py-2 rounded-lg border transition-colors ${
-                      darkMode 
-                        ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-500 focus:border-blue-500'
-                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500'
-                    } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
-                  />
+        <TabsContent value="fetch" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>جلب أخبار جديدة من واس</CardTitle>
+              <CardDescription>
+                اختر السلة المطلوبة واضغط على زر الجلب لاستيراد آخر الأخبار
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {baskets.length > 0 && (
+                <div className="mb-6">
+                  <label className="block text-sm font-medium mb-2">اختر السلة:</label>
+                  <select
+                    className="w-full p-2 border rounded-md"
+                    value={selectedBasket || ''}
+                    onChange={(e) => setSelectedBasket(Number(e.target.value))}
+                  >
+                    {baskets.map((basket) => (
+                      <option key={basket.news_basket_CD} value={basket.news_basket_CD}>
+                        {basket.news_basket_TXT_AR || basket.news_basket_TXT}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
-              
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  التصنيف
-                </label>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-100 focus:border-blue-500'
-                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+              )}
+
+              <Button
+                onClick={fetchNewNews}
+                disabled={fetchingNew}
+                className="w-full"
+                size="lg"
+              >
+                {fetchingNew ? (
+                  <>
+                    <Loader2 className="h-5 w-5 ml-2 animate-spin" />
+                    جاري جلب الأخبار...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-5 w-5 ml-2" />
+                    جلب أخبار جديدة
+                  </>
+                )}
+              </Button>
+
+              <Alert className="mt-6">
+                <Newspaper className="h-4 w-4" />
+                <AlertTitle>ملاحظة</AlertTitle>
+                <AlertDescription>
+                  يتم جلب الأخبار الجديدة فقط. الأخبار المكررة لن يتم جلبها مرة أخرى.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* نافذة عرض تفاصيل الخبر */}
+      {selectedNews && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <CardTitle>{selectedNews.title_TXT}</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedNews(null)}
                 >
-                  <option value="">جميع التصنيفات</option>
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
+                  ✕
+                </Button>
               </div>
-              
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  ترتيب حسب
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-100 focus:border-blue-500'
-                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
-                >
-                  <option value="date">التاريخ</option>
-                  <option value="title">العنوان</option>
-                  <option value="category">التصنيف</option>
-                </select>
+              <div className="flex gap-2 items-center text-sm text-gray-600">
+                <Clock className="h-4 w-4" />
+                {format(new Date(selectedNews.news_DT), 'PPpp', { locale: ar })}
               </div>
-            </div>
-          </div>
+            </CardHeader>
+            <CardContent>
+              <div className="prose max-w-none">
+                <p className="whitespace-pre-wrap">{selectedNews.story_TXT}</p>
+              </div>
+              {selectedNews.media && selectedNews.media.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="font-semibold mb-2">الوسائط المرفقة:</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* عرض الوسائط هنا */}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-
-        {/* News Grid or API Status */}
-        {error && error.includes('400') ? (
-          <WasApiStatus darkMode={darkMode} />
-        ) : sortedNews.length === 0 ? (
-          <div className={`text-center py-16 ${
-            darkMode ? 'bg-gray-800' : 'bg-white'
-          } rounded-2xl`}>
-            <Newspaper className={`w-16 h-16 mx-auto mb-4 ${
-              darkMode ? 'text-gray-600' : 'text-gray-400'
-            }`} />
-            <h3 className={`text-xl font-medium mb-2 ${
-              darkMode ? 'text-white' : 'text-gray-900'
-            }`}>
-              {error 
-                ? 'خدمة واس غير متاحة حالياً'
-                : searchTerm || selectedCategory 
-                  ? 'لا توجد نتائج' 
-                  : 'لا توجد أخبار حالياً'
-              }
-            </h3>
-            <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              {error 
-                ? 'يُرجى المحاولة لاحقاً أو التواصل مع الدعم الفني'
-                : searchTerm || selectedCategory 
-                  ? 'جرب البحث بكلمات مختلفة أو غير الفلاتر'
-                  : 'تأكد من الاتصال بالإنترنت وحاول مرة أخرى'
-              }
-            </p>
-            {error && error.includes('500') && (
-              <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg max-w-md mx-auto">
-                <div className="flex items-center gap-2 mb-2">
-                  <Zap className="w-4 h-4 text-yellow-600" />
-                  <h4 className="text-sm font-semibold text-yellow-900">معلومات مهمة</h4>
-                </div>
-                <ul className="text-xs text-yellow-800 space-y-1 text-right">
-                  <li>• خدمة واس API تواجه مشاكل من جهة السيرفر</li>
-                  <li>• الكود جاهز وسيعمل عند استقرار الخدمة</li>
-                  <li>• يمكنك محاولة التحديث بعد فترة</li>
-                </ul>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedNews.map((item) => (
-              <div key={item.id} className={`rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:scale-[1.02] ${
-                darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-              }`}>
-                {/* Priority Indicator */}
-                {item.priority && item.priority !== 'normal' && (
-                  <div className={`h-1 ${getPriorityColor(item.priority)}`}></div>
-                )}
-                
-                {/* Image */}
-                {item.imageUrl && (
-                  <div className="aspect-video relative">
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
-                
-                <div className="p-6">
-                  {/* Category and Date */}
-                  <div className="flex items-center justify-between mb-3">
-                    {item.category && (
-                      <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                        darkMode 
-                          ? 'bg-blue-900/50 text-blue-300 border border-blue-700' 
-                          : 'bg-blue-100 text-blue-800 border border-blue-200'
-                      }`}>
-                        {item.category}
-                      </span>
-                    )}
-                    <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {getTimeAgo(item.publishDate)}
-                    </span>
-                  </div>
-                  
-                  {/* Title */}
-                  <h3 className={`text-lg font-bold mb-3 line-clamp-2 ${
-                    darkMode ? 'text-white' : 'text-gray-900'
-                  }`}>
-                    {item.title}
-                  </h3>
-                  
-                  {/* Summary */}
-                  {item.summary && (
-                    <p className={`text-sm mb-4 line-clamp-3 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-600'
-                    }`}>
-                      {item.summary}
-                    </p>
-                  )}
-                  
-                  {/* Footer */}
-                  <div className="flex items-center justify-between">
-                    <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {formatDate(item.publishDate)}
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {item.language && item.language !== 'ar' && (
-                        <span className={`px-2 py-1 text-xs rounded ${
-                          darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          {item.language.toUpperCase()}
-                        </span>
-                      )}
-                      <button className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                        darkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>
-                        <ExternalLink className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 } 
