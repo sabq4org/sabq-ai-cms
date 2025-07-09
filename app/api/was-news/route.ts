@@ -207,18 +207,29 @@ export async function POST(req: NextRequest) {
     }
 
     // إنشاء مقال جديد من خبر واس
+    const articleId = crypto.randomUUID();
+    const slug = wasNews.title_TXT
+      .toLowerCase()
+      .replace(/[^\u0621-\u064A\u0660-\u0669a-z0-9\s-]/g, '') // إزالة الأحرف الخاصة
+      .replace(/\s+/g, '-') // استبدال المسافات بـ -
+      .replace(/-+/g, '-') // إزالة الـ - المتكررة
+      .trim();
+    
     const article = await prisma.articles.create({
       data: {
+        id: articleId,
         title: wasNews.title_TXT,
+        slug: `${slug}-${wasNews.news_NUM}`, // إضافة رقم الخبر لضمان التفرد
         content: wasNews.story_TXT || "",
         excerpt: wasNews.story_TXT?.substring(0, 200) || "",
         category_id: categoryId || "news", // افتراضي: أخبار
         author_id: "system", // يمكن تغييره حسب المستخدم الحالي
         status: "draft",
-        is_breaking: wasNews.news_priority_CD === 1,
-        source: "واس",
-        source_url: `https://www.spa.gov.sa/news${wasNews.news_NUM}`,
+        breaking: wasNews.news_priority_CD === 1,
+        updated_at: new Date(),
         metadata: {
+          source: "واس",
+          source_url: `https://www.spa.gov.sa/news${wasNews.news_NUM}`,
           was_news_id: wasNews.id,
           was_news_num: wasNews.news_NUM,
           was_basket_cd: wasNews.news_basket_CD,
