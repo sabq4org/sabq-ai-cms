@@ -409,9 +409,9 @@ export default function WasNewsPage() {
     <div className={`min-h-screen transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : 'bg-gray-50'
     }`}>
-      <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6">
         {/* رأس الصفحة */}
-        <div className="mb-8">
+      <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
               <Newspaper className="w-6 h-6 text-white" />
@@ -551,8 +551,8 @@ export default function WasNewsPage() {
                       <span className="font-mono text-sm">
                         {start ? start.toLocaleTimeString('ar-SA') : "--:--:--"}
                       </span>
-                    </div>
-                    
+      </div>
+
                     <div className="flex items-center">
                       <span className={`w-28 transition-colors duration-300 ${
                         darkMode ? 'text-gray-300' : 'text-gray-600'
@@ -703,13 +703,13 @@ export default function WasNewsPage() {
                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 تحديث
               </button>
-            </div>
+          </div>
 
-            {loading ? (
-              <div className="flex justify-center items-center h-64">
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              </div>
-            ) : savedNews.length === 0 ? (
+            </div>
+          ) : savedNews.length === 0 ? (
               <div className={`rounded-2xl p-8 text-center transition-colors duration-300 ${
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
               } border`}>
@@ -722,12 +722,12 @@ export default function WasNewsPage() {
                 <p className={`transition-colors duration-300 ${
                   darkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}>
-                  قم بجلب أخبار جديدة من تبويب "جلب أخبار جديدة"
+                قم بجلب أخبار جديدة من تبويب "جلب أخبار جديدة"
                 </p>
               </div>
-            ) : (
-              <div className="grid gap-4">
-                {savedNews.map((news) => (
+          ) : (
+            <div className="grid gap-4">
+              {savedNews.map((news) => (
                   <div key={news.id} className={`rounded-2xl p-6 shadow-sm border transition-all duration-300 hover:shadow-lg ${
                     darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
                   }`}>
@@ -788,9 +788,9 @@ export default function WasNewsPage() {
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+              ))}
+            </div>
+          )}
           </div>
         )}
 
@@ -811,47 +811,47 @@ export default function WasNewsPage() {
               </p>
             </div>
 
-            {baskets.length > 0 && (
-              <div className="mb-6">
+              {baskets.length > 0 && (
+                <div className="mb-6">
                 <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}>
                   اختر السلة:
                 </label>
-                <select
+                  <select
                   className={`w-full p-3 border rounded-xl transition-colors duration-300 ${
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-white' 
                       : 'bg-white border-gray-300 text-gray-900'
                   }`}
-                  value={selectedBasket || ''}
-                  onChange={(e) => setSelectedBasket(Number(e.target.value))}
-                >
-                  {baskets.map((basket) => (
-                    <option key={basket.news_basket_CD} value={basket.news_basket_CD}>
-                      {basket.news_basket_TXT_AR || basket.news_basket_TXT}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+                    value={selectedBasket || ''}
+                    onChange={(e) => setSelectedBasket(Number(e.target.value))}
+                  >
+                    {baskets.map((basket) => (
+                      <option key={basket.news_basket_CD} value={basket.news_basket_CD}>
+                        {basket.news_basket_TXT_AR || basket.news_basket_TXT}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
             <button
               onClick={fetchNewsWithMonitoring}
-              disabled={fetchingNew}
+                disabled={fetchingNew}
               className="w-full px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 transition-all duration-300 flex items-center justify-center gap-3 text-lg font-medium shadow-lg"
-            >
-              {fetchingNew ? (
-                <>
+              >
+                {fetchingNew ? (
+                  <>
                   <Loader2 className="h-6 w-6 animate-spin" />
-                  جاري جلب الأخبار...
-                </>
-              ) : (
-                <>
+                    جاري جلب الأخبار...
+                  </>
+                ) : (
+                  <>
                   <Download className="h-6 w-6" />
-                  جلب أخبار جديدة
-                </>
-              )}
+                    جلب أخبار جديدة
+                  </>
+                )}
             </button>
 
             <div className={`mt-6 rounded-xl p-4 flex items-start gap-3 transition-colors duration-300 ${
@@ -868,26 +868,26 @@ export default function WasNewsPage() {
           </div>
         )}
 
-        {/* نافذة عرض تفاصيل الخبر */}
-        {selectedNews && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      {/* نافذة عرض تفاصيل الخبر */}
+      {selectedNews && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className={`max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl transition-colors duration-300 ${
               darkMode ? 'bg-gray-800' : 'bg-white'
             }`}>
               <div className="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
-                <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start">
                   <h2 className="text-xl font-bold pr-8">{selectedNews.title_TXT}</h2>
                   <button
-                    onClick={() => setSelectedNews(null)}
+                  onClick={() => setSelectedNews(null)}
                     className="p-2 hover:bg-white/20 rounded-lg transition-colors duration-300"
-                  >
+                >
                     <X className="h-5 w-5" />
                   </button>
-                </div>
+              </div>
                 <div className="flex gap-2 items-center text-sm text-white/80 mt-2">
-                  <Clock className="h-4 w-4" />
-                  {format(new Date(selectedNews.news_DT), 'PPpp', { locale: ar })}
-                </div>
+                <Clock className="h-4 w-4" />
+                {format(new Date(selectedNews.news_DT), 'PPpp', { locale: ar })}
+              </div>
               </div>
               
               <div className="p-6">
@@ -899,22 +899,22 @@ export default function WasNewsPage() {
                   </p>
                 </div>
                 
-                {selectedNews.media && selectedNews.media.length > 0 && (
-                  <div className="mt-6">
+              {selectedNews.media && selectedNews.media.length > 0 && (
+                <div className="mt-6">
                     <h3 className={`font-semibold mb-2 transition-colors duration-300 ${
                       darkMode ? 'text-white' : 'text-gray-900'
                     }`}>
                       الوسائط المرفقة:
                     </h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      {/* عرض الوسائط هنا */}
-                    </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* عرض الوسائط هنا */}
                   </div>
-                )}
+                </div>
+              )}
               </div>
             </div>
-          </div>
-        )}
+        </div>
+      )}
       </div>
     </div>
   );
