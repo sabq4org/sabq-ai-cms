@@ -3341,8 +3341,8 @@
   },
   "27e3bdc6-68a5-459a-9f11-15ddd9a46aac": {
     "user_id": "27e3bdc6-68a5-459a-9f11-15ddd9a46aac",
-    "total_points": 12,
-    "earned_points": 12,
+    "total_points": 13,
+    "earned_points": 13,
     "redeemed_points": 0,
     "history": [
       {
@@ -3440,6 +3440,14 @@
           "article_id": "38f23099-31a1-4a2e-b32d-12740ea0e43a"
         },
         "timestamp": "2025-07-08T08:42:38.840Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "69c2ce96-748b-4752-8463-2ac7a3f2354b"
+        },
+        "timestamp": "2025-07-09T05:34:49.339Z"
       }
     ]
   }

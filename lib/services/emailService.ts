@@ -64,19 +64,19 @@ export class EmailService {
     const config: EmailConfig = {
       provider,
       from: {
-        name: process.env.EMAIL_FROM_NAME || 'سبق',
-        email: process.env.EMAIL_FROM_ADDRESS || 'noreply@sabq.org'
+        name: process.env.EMAIL_FROM_NAME || 'صحيفة سبق',
+        email: process.env.EMAIL_FROM_ADDRESS || 'sabqai@sabq.ai'
       }
     };
 
     switch (provider) {
       case 'smtp':
         config.smtp = {
-          host: process.env.SMTP_HOST || 'localhost',
-          port: parseInt(process.env.SMTP_PORT || '587'),
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: parseInt(process.env.SMTP_PORT || '465'),
           secure: process.env.SMTP_SECURE === 'true',
           auth: {
-            user: process.env.SMTP_USER || '',
+            user: process.env.SMTP_USER || 'sabqai@sabq.ai',
             pass: process.env.SMTP_PASS || ''
           }
         };
@@ -470,6 +470,61 @@ export async function sendWelcomeEmail(
       subject: `مرحباً بك في سبق، ${name}!`,
       html,
       text: `مرحباً ${name}! نحن سعداء بانضمامك إلى مجتمع سبق. ابدأ القراءة الآن: ${process.env.NEXT_PUBLIC_SITE_URL}`
+    });
+    
+    return {
+      success: result.success,
+      error: result.error,
+      messageId: result.messageId
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function sendPasswordResetEmail(
+  email: string, 
+  name: string,
+  resetToken: string
+): Promise<{ success: boolean; error?: string; messageId?: string }> {
+  try {
+    const resetUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password?token=${resetToken}`;
+    
+    const html = `
+      <div style="direction: rtl; text-align: right; font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #1a73e8;">إعادة تعيين كلمة المرور</h2>
+        <p>مرحباً ${name}،</p>
+        <p>لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك في منصة سبق.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" 
+             style="background-color: #1a73e8; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            إعادة تعيين كلمة المرور
+          </a>
+        </div>
+        
+        <p style="color: #666; font-size: 14px;">
+          إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذا البريد الإلكتروني.
+        </p>
+        
+        <p style="color: #666; font-size: 12px; margin-top: 40px;">
+          هذا الرابط صالح لمدة ساعة واحدة فقط.
+        </p>
+        
+        <p style="color: #666; font-size: 14px; margin-top: 20px;">
+          إذا لم تتمكن من النقر على الزر أعلاه، يمكنك نسخ الرابط التالي ولصقه في متصفحك:
+        </p>
+        <p style="word-break: break-all; color: #1a73e8; font-size: 14px;">
+          ${resetUrl}
+        </p>
+      </div>
+    `;
+    
+    const result = await emailService.sendEmail({
+      to: email,
+      subject: 'إعادة تعيين كلمة المرور - سبق',
+      html,
+      text: `مرحباً ${name}. لإعادة تعيين كلمة المرور، يرجى زيارة: ${resetUrl}`
     });
     
     return {

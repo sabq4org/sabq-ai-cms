@@ -1,13 +1,13 @@
-// إعدادات البريد الإلكتروني لموقع jur3a.ai
+// إعدادات البريد الإلكتروني لموقع سبق مع Gmail
 
 export const emailConfig = {
-  // إعدادات SMTP
+  // إعدادات SMTP للبريد الصادر
   smtp: {
-    host: process.env.SMTP_HOST || 'smtp.office365.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true', // false for port 587
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '465'),
+    secure: process.env.SMTP_SECURE === 'true', // true for port 465, false for port 587
     auth: {
-      user: process.env.SMTP_USER || 'noreply@sabq.org',
+      user: process.env.SMTP_USER || 'sabqai@sabq.ai',
       pass: process.env.SMTP_PASS || '' // يجب استخدام App Password
     },
     tls: {
@@ -19,7 +19,7 @@ export const emailConfig = {
   // معلومات المرسل
   from: {
     name: process.env.EMAIL_FROM_NAME || 'صحيفة سبق',
-    email: process.env.EMAIL_FROM_ADDRESS || 'noreply@sabq.org'
+    email: process.env.EMAIL_FROM_ADDRESS || 'sabqai@sabq.ai'
   },
   
   // إعدادات عامة
@@ -46,21 +46,33 @@ export const emailConfig = {
     }
   },
   
-  // إعدادات Microsoft 365 المحددة
-  microsoft365: {
-    host: 'smtp.office365.com',
-    port: 587,
-    secure: false,
-    requireTLS: true,
-    tls: {
-      ciphers: 'SSLv3'
+  // إعدادات Gmail المحددة
+  gmail: {
+    smtp: {
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'sabqai@sabq.ai',
+        pass: process.env.SMTP_PASS || ''
+      }
+    },
+    smtp_alt: {
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      auth: {
+        user: 'sabqai@sabq.ai',
+        pass: process.env.SMTP_PASS || ''
+      }
     }
   },
   
   // إعدادات بديلة (للتطوير)
   development: {
-    host: process.env.DEV_SMTP_HOST || 'smtp.office365.com',
-    port: parseInt(process.env.DEV_SMTP_PORT || '587'),
+    host: process.env.DEV_SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.DEV_SMTP_PORT || '465'),
     auth: {
       user: process.env.DEV_SMTP_USER || process.env.SMTP_USER,
       pass: process.env.DEV_SMTP_PASS || process.env.SMTP_PASS
@@ -68,24 +80,24 @@ export const emailConfig = {
   }
 };
 
-// إعدادات خادم البريد الوارد (للمعلومات فقط)
+// إعدادات خادم البريد الوارد (IMAP)
 export const incomingMailConfig = {
   imap: {
-    host: 'mail.jur3a.ai',
+    host: 'imap.gmail.com',
     port: 993,
     secure: true,
     auth: {
-      user: 'noreplay@jur3a.ai',
-      pass: process.env.SMTP_PASS || 'oFWD[H,A8~8;iw7('
+      user: 'sabqai@sabq.ai',
+      pass: process.env.SMTP_PASS || ''
     }
   },
   pop3: {
-    host: 'mail.jur3a.ai',
+    host: 'pop.gmail.com',
     port: 995,
     secure: true,
     auth: {
-      user: 'noreplay@jur3a.ai',
-      pass: process.env.SMTP_PASS || 'oFWD[H,A8~8;iw7('
+      user: 'sabqai@sabq.ai',
+      pass: process.env.SMTP_PASS || ''
     }
   }
 };
@@ -99,5 +111,11 @@ export function getSmtpConfig() {
     return emailConfig.development;
   }
   
-  return emailConfig.smtp;
+  // استخدام إعدادات Gmail كافتراضي
+  return emailConfig.gmail.smtp;
+}
+
+// دالة للحصول على إعدادات IMAP
+export function getImapConfig() {
+  return incomingMailConfig.imap;
 } 

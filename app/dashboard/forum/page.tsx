@@ -1,276 +1,949 @@
 'use client';
 
-import React from 'react';
-import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useState, useEffect } from 'react';
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
   MessageCircle, 
+  Settings, 
   Users, 
-  Flag, 
-  TrendingUp, 
-  Eye, 
-  ThumbsUp,
-  Calendar,
-  Search,
-  MoreVertical,
+  BarChart3, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Pin, 
+  Lock, 
+  Unlock,
+  Eye,
+  MessageSquare,
+  TrendingUp,
+  AlertTriangle,
   CheckCircle,
-  XCircle,
-  AlertCircle
+  Clock,
+  Search
 } from "lucide-react";
-// بيانات تجريبية للإحصائيات
-const stats = [
-  {
-    title: "إجمالي المواضيع",
-    value: "1,234",
-    change: "+12%",
-    icon: MessageCircle,
-    color: "text-blue-600",
-    bgColor: "bg-blue-100"
-  },
-  {
-    title: "الأعضاء النشطون",
-    value: "456",
-    change: "+8%",
-    icon: Users,
-    color: "text-green-600",
-    bgColor: "bg-green-100"
-  },
-  {
-    title: "التقارير المعلقة",
-    value: "23",
-    change: "-5%",
-    icon: Flag,
-    color: "text-red-600",
-    bgColor: "bg-red-100"
-  },
-  {
-    title: "معدل التفاعل",
-    value: "78%",
-    change: "+3%",
-    icon: TrendingUp,
-    color: "text-purple-600",
-    bgColor: "bg-purple-100"
-  }
-];
-// بيانات المواضيع المبلغ عنها
-const reportedContent = [
-  {
-    id: 1,
-    type: "topic",
-    title: "موضوع يحتوي على محتوى غير لائق",
-    author: "user123",
-    reporter: "أحمد سالم",
-    reason: "محتوى غير لائق",
-    reportedAt: "قبل ساعتين",
-    status: "pending"
-  },
-  {
-    id: 2,
-    type: "reply",
-    title: "رد يحتوي على إساءة شخصية",
-    author: "user456",
-    reporter: "فاطمة علي",
-    reason: "إساءة وتحرش",
-    reportedAt: "قبل 5 ساعات",
-    status: "pending"
-  }
-];
-// أحدث المواضيع
-const recentTopics = [
-  {
-    id: 1,
-    title: "كيف أستخدم نظام الذكاء الاصطناعي في سبق؟",
-    author: "أحمد الغامدي",
-    category: "مساعدة",
-    replies: 12,
-    views: 458,
-    createdAt: "قبل 30 دقيقة"
-  },
-  {
-    id: 2,
-    title: "اقتراح: إضافة ميزة الترجمة التلقائية",
-    author: "سارة المالكي",
-    category: "اقتراحات",
-    replies: 45,
-    views: 1234,
-    createdAt: "قبل ساعة"
-  }
-];
-export default function ForumDashboard() {
-  const [searchQuery, setSearchQuery] = useState("");
-  return (
-  <div className="space-y-6" dir="rtl">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">إدارة المنتدى</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            إدارة فئات ومواضيع منتدى سبق
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input 
-              placeholder="بحث في المنتدى..." 
-              className="pr-10 w-64"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+import { useTheme } from "@/contexts/ThemeContext";
+
+interface ForumStats {
+  totalTopics: number;
+  totalReplies: number;
+  totalMembers: number;
+  activeTopics: number;
+  pinnedTopics: number;
+  lockedTopics: number;
+  todayTopics: number;
+  todayReplies: number;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  color: string;
+  icon?: string;
+  topicsCount: number;
+  isActive: boolean;
+  displayOrder: number;
+}
+
+interface RecentTopic {
+  id: string;
+  title: string;
+  author: string;
+  category: string;
+  categoryColor: string;
+  replies: number;
+  views: number;
+  createdAt: string;
+  isPinned: boolean;
+  isLocked: boolean;
+  status: 'active' | 'pending' | 'deleted';
+}
+
+export default function ForumAdminPage() {
+  const { theme } = useTheme();
+  const darkMode = theme === 'dark';
+  
+  const [activeTab, setActiveTab] = useState<'overview' | 'categories' | 'topics' | 'settings'>('overview');
+  const [stats, setStats] = useState<ForumStats>({
+    totalTopics: 0,
+    totalReplies: 0,
+    totalMembers: 0,
+    activeTopics: 0,
+    pinnedTopics: 0,
+    lockedTopics: 0,
+    todayTopics: 0,
+    todayReplies: 0
+  });
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [recentTopics, setRecentTopics] = useState<RecentTopic[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<any>({});
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [newCategory, setNewCategory] = useState({
+    name_ar: '',
+    name_en: '',
+    slug: '',
+    description: '',
+    color: '#3B82F6'
+  });
+
+  // جلب البيانات
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // جلب الإحصائيات الحقيقية
+        const statsResponse = await fetch('/api/forum/stats');
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          if (statsData.success) {
+            setStats(statsData.stats);
+          }
+        }
+
+        // جلب الفئات
+        const categoriesResponse = await fetch('/api/forum/categories?include_inactive=true');
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json();
+          setCategories(categoriesData.categories || []);
+        }
+
+        // جلب المواضيع الأخيرة
+        const topicsResponse = await fetch('/api/forum/topics?limit=10');
+        if (topicsResponse.ok) {
+          const topicsData = await topicsResponse.json();
+          setRecentTopics(topicsData.topics?.map((topic: any) => ({
+            id: topic.id,
+            title: topic.title,
+            author: topic.author.name,
+            category: topic.category.name,
+            categoryColor: topic.category.color,
+            replies: topic.replies,
+            views: topic.views,
+            createdAt: topic.created_at,
+            isPinned: topic.is_pinned,
+            isLocked: topic.is_locked,
+            status: 'active'
+          })) || []);
+        }
+      } catch (error) {
+        console.error('Error fetching forum admin data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // تبديل حالة تثبيت الموضوع
+  const togglePinTopic = async (topicId: string, isPinned: boolean) => {
+    try {
+      // TODO: إضافة API call
+      console.log(`Toggle pin for topic ${topicId}: ${!isPinned}`);
+    } catch (error) {
+      console.error('Error toggling pin:', error);
+    }
+  };
+
+  // تبديل حالة قفل الموضوع
+  const toggleLockTopic = async (topicId: string, isLocked: boolean) => {
+    try {
+      // TODO: إضافة API call
+      console.log(`Toggle lock for topic ${topicId}: ${!isLocked}`);
+    } catch (error) {
+      console.error('Error toggling lock:', error);
+    }
+  };
+
+  // إنشاء فئة جديدة
+  const createCategory = async () => {
+    try {
+      const response = await fetch('/api/forum/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCategory),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Category created:', result);
+        
+        // إعادة جلب الفئات
+        const categoriesResponse = await fetch('/api/forum/categories?include_inactive=true');
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json();
+          setCategories(categoriesData.categories || []);
+        }
+        
+        // إعادة تعيين النموذج
+        setNewCategory({
+          name_ar: '',
+          name_en: '',
+          slug: '',
+          description: '',
+          color: '#3B82F6'
+        });
+        setShowCategoryModal(false);
+      } else {
+        const error = await response.json();
+        alert(`خطأ في إنشاء الفئة: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error creating category:', error);
+      alert('حدث خطأ في إنشاء الفئة');
+    }
+  };
+
+  // حفظ إعدادات المنتدى
+  const saveSettings = async (newSettings: any) => {
+    try {
+      const response = await fetch('/api/forum/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ settings: newSettings }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Settings saved:', result);
+        setSettings(newSettings);
+        setShowSettingsModal(false);
+        alert('تم حفظ الإعدادات بنجاح');
+      } else {
+        const error = await response.json();
+        alert(`خطأ في حفظ الإعدادات: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      alert('حدث خطأ في حفظ الإعدادات');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={`min-h-screen p-6 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="max-w-7xl mx-auto">
+          <div className="animate-pulse space-y-6">
+            <div className={`h-8 ${darkMode ? 'bg-gray-800' : 'bg-gray-200'} rounded w-1/4`}></div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className={`h-32 ${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg border`}></div>
+              ))}
+            </div>
           </div>
-          <Button>
-            <MessageCircle className="w-4 h-4 ml-2" />
-            موضوع جديد
-          </Button>
         </div>
       </div>
-      {/* إحصائيات */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">{stat.title}</p>
-                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
-                    <p className={`text-sm mt-1 ${
-                      stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {stat.change} من الشهر الماضي
-                    </p>
+    );
+  }
+
+  return (
+    <div className={`min-h-screen p-6 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="max-w-7xl mx-auto">
+        {/* العنوان الرئيسي */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+              darkMode ? 'bg-gradient-to-br from-blue-600 to-blue-700' : 'bg-gradient-to-br from-blue-500 to-blue-600'
+            } shadow-lg`}>
+              <MessageCircle className="w-5 h-5 text-white" />
+            </div>
+            <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              إدارة المنتدى
+            </h1>
+          </div>
+          <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            إدارة المواضيع والفئات وإعدادات المنتدى
+          </p>
+        </div>
+
+        {/* تبويبات التنقل */}
+        <div className="mb-8">
+          <div className="flex space-x-1 space-x-reverse">
+            {[
+              { id: 'overview', label: 'نظرة عامة', icon: BarChart3 },
+              { id: 'categories', label: 'الفئات', icon: Settings },
+              { id: 'topics', label: 'المواضيع', icon: MessageSquare },
+              { id: 'settings', label: 'الإعدادات', icon: Settings }
+            ].map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-blue-500 text-white'
+                      : darkMode
+                        ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* محتوى التبويبات */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            {/* الإحصائيات */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>إجمالي المواضيع</p>
+                      <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {stats.totalTopics.toLocaleString()}
+                      </p>
+                    </div>
+                    <MessageCircle className="w-8 h-8 text-blue-500" />
                   </div>
-                  <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                    <Icon className={`w-6 h-6 ${stat.color}`} />
+                  <p className="text-sm text-green-600 mt-2">
+                    +{stats.todayTopics} اليوم
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>إجمالي الردود</p>
+                      <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {stats.totalReplies.toLocaleString()}
+                      </p>
+                    </div>
+                    <MessageSquare className="w-8 h-8 text-green-500" />
                   </div>
+                  <p className="text-sm text-green-600 mt-2">
+                    +{stats.todayReplies} اليوم
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الأعضاء</p>
+                      <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {stats.totalMembers.toLocaleString()}
+                      </p>
+                    </div>
+                    <Users className="w-8 h-8 text-purple-500" />
+                  </div>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-2`}>
+                    عضو مسجل
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>مواضيع نشطة</p>
+                      <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {stats.activeTopics.toLocaleString()}
+                      </p>
+                    </div>
+                    <TrendingUp className="w-8 h-8 text-orange-500" />
+                  </div>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-2`}>
+                    من {stats.totalTopics}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* إحصائيات إضافية */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <CardHeader>
+                  <CardTitle className={`text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    حالة المواضيع
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>مثبتة</span>
+                    <span className="font-bold text-orange-600">{stats.pinnedTopics}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>مغلقة</span>
+                    <span className="font-bold text-red-600">{stats.lockedTopics}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>عادية</span>
+                    <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {stats.totalTopics - stats.pinnedTopics - stats.lockedTopics}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <CardHeader>
+                  <CardTitle className={`text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    الفئات النشطة
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {categories.slice(0, 4).map((category) => (
+                      <div key={category.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: category.color }}
+                          ></div>
+                          <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {category.name}
+                          </span>
+                        </div>
+                        <span className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {category.topicsCount}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <CardHeader>
+                  <CardTitle className={`text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    إجراءات سريعة
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button variant="outline" className="w-full justify-start" size="sm">
+                    <Plus className="w-4 h-4 ml-2" />
+                    إنشاء فئة جديدة
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start" size="sm">
+                    <Settings className="w-4 h-4 ml-2" />
+                    إعدادات المنتدى
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start" size="sm">
+                    <BarChart3 className="w-4 h-4 ml-2" />
+                    تقارير مفصلة
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* المواضيع الأخيرة */}
+            <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+              <CardHeader>
+                <CardTitle className={`text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  المواضيع الأخيرة
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentTopics.slice(0, 8).map((topic) => (
+                    <div key={topic.id} className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          {topic.isPinned && <Pin className="w-3 h-3 text-orange-500" />}
+                          {topic.isLocked && <Lock className="w-3 h-3 text-red-500" />}
+                          <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {topic.title}
+                          </h4>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm">
+                          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            بواسطة {topic.author}
+                          </span>
+                          <div 
+                            className="inline-flex items-center px-2 py-0.5 text-xs text-white rounded"
+                            style={{ backgroundColor: topic.categoryColor }}
+                          >
+                            {topic.category}
+                          </div>
+                          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {topic.replies} رد
+                          </span>
+                          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {topic.views} مشاهدة
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => togglePinTopic(topic.id, topic.isPinned)}
+                          className={topic.isPinned ? 'text-orange-500' : ''}
+                        >
+                          <Pin className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleLockTopic(topic.id, topic.isLocked)}
+                          className={topic.isLocked ? 'text-red-500' : ''}
+                        >
+                          {topic.isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
-      {/* التبويبات الرئيسية */}
-      <Tabs defaultValue="reports" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="reports">التقارير المعلقة</TabsTrigger>
-          <TabsTrigger value="topics">المواضيع الحديثة</TabsTrigger>
-          <TabsTrigger value="users">إدارة المستخدمين</TabsTrigger>
-          <TabsTrigger value="settings">الإعدادات</TabsTrigger>
-        </TabsList>
-        {/* تبويب التقارير */}
-        <TabsContent value="reports">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Flag className="w-5 h-5 text-red-600" />
-                التقارير المعلقة ({reportedContent.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {reportedContent.map((report) => (
-                  <div key={report.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between">
+          </div>
+        )}
+
+        {activeTab === 'categories' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                إدارة الفئات
+              </h2>
+              <Button 
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+                onClick={() => setShowCategoryModal(true)}
+              >
+                <Plus className="w-4 h-4 ml-2" />
+                إضافة فئة جديدة
+              </Button>
+            </div>
+
+            <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {categories.map((category) => (
+                    <div key={category.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div 
+                          className="w-6 h-6 rounded-lg" 
+                          style={{ backgroundColor: category.color }}
+                        ></div>
+                        <div>
+                          <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {category.name}
+                          </h3>
+                          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {category.description || 'لا يوجد وصف'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-center">
+                          <p className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {category.topicsCount}
+                          </p>
+                          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>موضوع</p>
+                        </div>
+                        <Badge variant={category.isActive ? "default" : "secondary"}>
+                          {category.isActive ? 'نشطة' : 'غير نشطة'}
+                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="sm">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'topics' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                إدارة المواضيع
+              </h2>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input 
+                    placeholder="البحث في المواضيع..." 
+                    className={`pr-10 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'}`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {recentTopics.map((topic) => (
+                    <div key={topic.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant={report.type === 'topic' ? 'default' : 'secondary'}>
-                            {report.type === 'topic' ? 'موضوع' : 'رد'}
-                          </Badge>
-                          <span className="text-sm text-gray-500">{report.reportedAt}</span>
+                          {topic.isPinned && <Pin className="w-4 h-4 text-orange-500" />}
+                          {topic.isLocked && <Lock className="w-4 h-4 text-red-500" />}
+                          <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {topic.title}
+                          </h3>
                         </div>
-                        <h4 className="font-semibold mb-1">{report.title}</h4>
-                        <div className="text-sm text-gray-600">
-                          <p>الكاتب: <span className="font-medium">{report.author}</span></p>
-                          <p>المبلغ: <span className="font-medium">{report.reporter}</span></p>
-                          <p>السبب: <Badge variant="destructive" className="text-xs">{report.reason}</Badge></p>
+                        <div className="flex items-center gap-4 text-sm">
+                          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            بواسطة {topic.author}
+                          </span>
+                          <div 
+                            className="inline-flex items-center px-2 py-0.5 text-xs text-white rounded"
+                            style={{ backgroundColor: topic.categoryColor }}
+                          >
+                            {topic.category}
+                          </div>
+                          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {topic.replies} رد
+                          </span>
+                          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {topic.views} مشاهدة
+                          </span>
+                          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {new Date(topic.createdAt).toLocaleDateString('ar-SA', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              calendar: 'gregory',
+                              numberingSystem: 'latn'
+                            })}
+                          </span>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="text-green-600 hover:text-green-700">
-                          <CheckCircle className="w-4 h-4 ml-1" />
-                          قبول
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => togglePinTopic(topic.id, topic.isPinned)}
+                          className={topic.isPinned ? 'text-orange-500' : ''}
+                        >
+                          <Pin className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
-                          <XCircle className="w-4 h-4 ml-1" />
-                          رفض
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleLockTopic(topic.id, topic.isLocked)}
+                          className={topic.isLocked ? 'text-red-500' : ''}
+                        >
+                          {topic.isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                         </Button>
-                        <Button size="sm" variant="ghost">
-                          <MoreVertical className="w-4 h-4" />
+                        <Button variant="ghost" size="sm">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                إعدادات المنتدى
+              </h2>
+              <Button 
+                className="bg-green-500 hover:bg-green-600 text-white"
+                onClick={() => setShowSettingsModal(true)}
+              >
+                <Settings className="w-4 h-4 ml-2" />
+                تعديل الإعدادات
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <CardHeader>
+                  <CardTitle className={`${darkMode ? 'text-white' : 'text-gray-900'}`}>الإعدادات العامة</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      اسم المنتدى
+                    </label>
+                    <Input 
+                      defaultValue={settings.forum_name || "منتدى سبق"} 
+                      className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                    />
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        {/* تبويب المواضيع */}
-        <TabsContent value="topics">
-          <Card>
-            <CardHeader>
-              <CardTitle>أحدث المواضيع</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentTopics.map((topic) => (
-                  <div key={topic.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                    <div>
-                      <h4 className="font-semibold">{topic.title}</h4>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                        <span>{topic.author}</span>
-                        <Badge variant="secondary">{topic.category}</Badge>
-                        <span>{topic.createdAt}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="w-4 h-4" />
-                        {topic.replies}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        {topic.views}
-                      </div>
-                      <Button size="sm" variant="ghost">
-                        إدارة
-                      </Button>
-                    </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      وصف المنتدى
+                    </label>
+                    <Textarea 
+                      defaultValue={settings.forum_description || "مجتمع النقاش والحوار"}
+                      className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                    />
                   </div>
-                ))}
+                  <Button 
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                    onClick={() => saveSettings(settings)}
+                  >
+                    حفظ التغييرات
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <CardHeader>
+                  <CardTitle className={`${darkMode ? 'text-white' : 'text-gray-900'}`}>إعدادات المشاركة</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>السماح للضيوف بالقراءة</span>
+                    <input 
+                      type="checkbox" 
+                      defaultChecked={settings.allow_guest_read !== false}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>مراجعة المواضيع الجديدة</span>
+                    <input 
+                      type="checkbox" 
+                      defaultChecked={settings.require_moderation === true}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>السماح بتعديل المشاركات</span>
+                    <input 
+                      type="checkbox" 
+                      defaultChecked={settings.allow_edit_posts !== false}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                  </div>
+                  <Button 
+                    className="w-full bg-green-500 hover:bg-green-600 text-white"
+                    onClick={() => saveSettings(settings)}
+                  >
+                    حفظ التغييرات
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* نافذة إنشاء فئة جديدة */}
+      {showCategoryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-xl max-w-md w-full mx-4`}>
+            <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              إنشاء فئة جديدة
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  اسم الفئة (عربي)
+                </label>
+                <Input 
+                  value={newCategory.name_ar}
+                  onChange={(e) => setNewCategory({...newCategory, name_ar: e.target.value})}
+                  className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                  placeholder="أدخل اسم الفئة"
+                />
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        {/* تبويب المستخدمين */}
-        <TabsContent value="users">
-          <Card>
-            <CardHeader>
-              <CardTitle>إدارة المستخدمين</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500">قسم إدارة المستخدمين والصلاحيات...</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        {/* تبويب الإعدادات */}
-        <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>إعدادات المنتدى</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500">إعدادات وتكوينات المنتدى...</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  اسم الفئة (إنجليزي)
+                </label>
+                <Input 
+                  value={newCategory.name_en}
+                  onChange={(e) => setNewCategory({...newCategory, name_en: e.target.value})}
+                  className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                  placeholder="Enter category name"
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  رابط الفئة
+                </label>
+                <Input 
+                  value={newCategory.slug}
+                  onChange={(e) => setNewCategory({...newCategory, slug: e.target.value})}
+                  className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                  placeholder="category-slug"
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  وصف الفئة
+                </label>
+                <Textarea 
+                  value={newCategory.description}
+                  onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
+                  className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                  placeholder="وصف مختصر للفئة"
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  لون الفئة
+                </label>
+                <Input 
+                  type="color"
+                  value={newCategory.color}
+                  onChange={(e) => setNewCategory({...newCategory, color: e.target.value})}
+                  className="w-full h-10"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <Button 
+                onClick={createCategory}
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                إنشاء الفئة
+              </Button>
+              <Button 
+                onClick={() => setShowCategoryModal(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                إلغاء
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* نافذة تعديل الإعدادات */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto`}>
+            <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              تعديل إعدادات المنتدى
+            </h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    اسم المنتدى
+                  </label>
+                  <Input 
+                    defaultValue={settings.forum_name || "منتدى سبق"}
+                    className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    الحد الأقصى للمواضيع يومياً
+                  </label>
+                  <Input 
+                    type="number"
+                    defaultValue={settings.max_topics_per_day || 10}
+                    className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  وصف المنتدى
+                </label>
+                <Textarea 
+                  defaultValue={settings.forum_description || "مجتمع النقاش والحوار"}
+                  className={`${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
+                />
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>السماح للضيوف بالقراءة</span>
+                  <input 
+                    type="checkbox" 
+                    defaultChecked={settings.allow_guest_read !== false}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>مراجعة المواضيع الجديدة</span>
+                  <input 
+                    type="checkbox" 
+                    defaultChecked={settings.require_moderation === true}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>السماح بتعديل المشاركات</span>
+                  <input 
+                    type="checkbox" 
+                    defaultChecked={settings.allow_edit_posts !== false}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>تفعيل نظام السمعة</span>
+                  <input 
+                    type="checkbox" 
+                    defaultChecked={settings.enable_reputation !== false}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>تفعيل الأوسمة</span>
+                  <input 
+                    type="checkbox" 
+                    defaultChecked={settings.enable_badges !== false}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <Button 
+                onClick={() => saveSettings(settings)}
+                className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+              >
+                حفظ الإعدادات
+              </Button>
+              <Button 
+                onClick={() => setShowSettingsModal(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                إلغاء
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -13,6 +13,174 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import { useTheme } from "@/contexts/ThemeContext";
 import "./forum.css";
+
+// مكون إحصائيات المنتدى
+function ForumStats({ darkMode }: { darkMode: boolean }) {
+  const [stats, setStats] = useState({
+    topics: 0,
+    replies: 0,
+    members: 0,
+    activeMembers: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        
+        // جلب إحصائيات حقيقية من قاعدة البيانات
+        const promises = [
+          fetch('/api/forum/topics?limit=1').then(r => r.json()), // للحصول على العدد الإجمالي
+          fetch('/api/forum/replies?topic_id=dummy&limit=1').catch(() => ({ pagination: { total: 0 } })), // تجريبي
+        ];
+
+        const [topicsData] = await Promise.all(promises);
+        
+        setStats({
+          topics: topicsData.pagination?.total || 0,
+          replies: 0, // سيتم حسابه لاحقاً
+          members: 0, // سيتم حسابه لاحقاً
+          activeMembers: 0 // سيتم حسابه لاحقاً
+        });
+      } catch (error) {
+        console.error('Error fetching forum stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
+        <CardHeader className="pb-4">
+          <CardTitle className={`text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>إحصائيات المنتدى</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="flex items-center justify-between">
+              <div className={`h-4 w-20 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
+              <div className={`h-4 w-12 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
+      <CardHeader className="pb-4">
+        <CardTitle className={`text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>إحصائيات المنتدى</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>المواضيع</span>
+          <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`} dir="ltr">{stats.topics.toLocaleString()}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الردود</span>
+          <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`} dir="ltr">{stats.replies.toLocaleString()}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الأعضاء</span>
+          <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`} dir="ltr">{stats.members.toLocaleString()}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الأعضاء النشطون</span>
+          <span className="font-bold text-green-600" dir="ltr">{stats.activeMembers.toLocaleString()}</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// مكون أفضل الأعضاء
+function TopMembers({ darkMode }: { darkMode: boolean }) {
+  const [topMembers, setTopMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTopMembers = async () => {
+      try {
+        setLoading(true);
+        // TODO: إنشاء API للحصول على أفضل الأعضاء من جدول forum_reputation
+        // حالياً سنستخدم placeholder
+        setTopMembers([]);
+      } catch (error) {
+        console.error('Error fetching top members:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTopMembers();
+  }, []);
+
+  if (loading) {
+    return (
+      <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
+        <CardHeader className="pb-4">
+          <CardTitle className={`text-lg flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <Award className="w-5 h-5 text-yellow-500" />
+            أفضل الأعضاء
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="flex items-center gap-3">
+              <div className={`w-8 h-8 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
+              <div className={`w-8 h-8 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded-full animate-pulse`}></div>
+              <div className={`h-4 flex-1 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
+              <div className={`h-4 w-12 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
+      <CardHeader className="pb-4">
+        <CardTitle className={`text-lg flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          <Award className="w-5 h-5 text-yellow-500" />
+          أفضل الأعضاء
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {topMembers.length > 0 ? (
+          topMembers.map((user, index) => (
+            <div key={index} className="flex items-center gap-3">
+              <span className={`text-2xl font-bold w-8 ${
+                index === 0 ? 'text-yellow-500' :
+                index === 1 ? 'text-gray-400' :
+                'text-orange-600'
+              }`}>{index + 1}</span>
+              <Avatar className="w-8 h-8">
+                <AvatarFallback className={`text-sm ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100'}`}>
+                  {user.name[0]}
+                </AvatarFallback>
+              </Avatar>
+              <span className={`flex-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                {user.name}
+              </span>
+              <span className="text-sm font-bold text-yellow-600" dir="ltr">{user.points}</span>
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-4">
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>لا توجد بيانات متاحة حالياً</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 // تعريف أنواع البيانات
 interface Topic {
   id: string;
@@ -66,13 +234,34 @@ export default function SabqForum() {
     };
     fetchTopics();
   }, [selectedCategory]);
-  // تعريف الفئات
-  const categories = [
-    { id: 'all', name: 'جميع المواضيع', icon: Hash, color: 'bg-gray-500' },
-    { id: 'general', name: 'نقاش عام', icon: MessageCircle, color: 'bg-blue-500' },
-    { id: 'help', name: 'مساعدة ودعم', icon: HelpCircle, color: 'bg-green-500' },
-    { id: 'requests', name: 'اقتراحات', icon: Lightbulb, color: 'bg-purple-500' }
-  ];
+  const [categories, setCategories] = useState([
+    { id: 'all', name: 'جميع المواضيع', icon: Hash, color: 'bg-gray-500' }
+  ]);
+  
+  // جلب الفئات من API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/forum/categories');
+        const data = await response.json();
+        if (data.categories) {
+          const allCategories = [
+            { id: 'all', name: 'جميع المواضيع', icon: Hash, color: 'bg-gray-500' },
+            ...data.categories.map((cat: any) => ({
+              id: cat.slug,
+              name: cat.name,
+              icon: MessageCircle, // يمكن تخصيص الأيقونات لاحقاً
+              color: cat.color || 'bg-blue-500'
+            }))
+          ];
+          setCategories(allCategories);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
   return (
   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} dir="rtl">
       {/* الهيدر الرسمي للصحيفة */}
@@ -108,6 +297,11 @@ export default function SabqForum() {
                   }`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim().length > 1) {
+                      window.location.href = `/forum/search?q=${encodeURIComponent(searchQuery.trim())}`;
+                    }
+                  }}
                 />
               </div>
               <Button variant="ghost" size="icon" className={`shrink-0 ${
@@ -168,62 +362,9 @@ export default function SabqForum() {
               </CardContent>
             </Card>
             {/* إحصائيات المنتدى */}
-            <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
-              <CardHeader className="pb-4">
-                <CardTitle className={`text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>إحصائيات المنتدى</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>المواضيع</span>
-                  <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`} dir="ltr">1,234</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الردود</span>
-                  <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`} dir="ltr">5,678</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الأعضاء</span>
-                  <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`} dir="ltr">892</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الأعضاء النشطون</span>
-                  <span className="font-bold text-green-600" dir="ltr">234</span>
-                </div>
-              </CardContent>
-            </Card>
+            <ForumStats darkMode={darkMode} />
             {/* أفضل الأعضاء */}
-            <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
-              <CardHeader className="pb-4">
-                <CardTitle className={`text-lg flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  <Award className="w-5 h-5 text-yellow-500" />
-                  أفضل الأعضاء
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {[
-                  { name: "أحمد الغامدي", points: 2450 },
-                  { name: "سارة المالكي", points: 1850 },
-                  { name: "محمد العتيبي", points: 1320 }
-                ].map((user, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <span className={`text-2xl font-bold w-8 ${
-                      index === 0 ? 'text-yellow-500' :
-                      index === 1 ? 'text-gray-400' :
-                      'text-orange-600'
-                    }`}>{index + 1}</span>
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback className={`text-sm ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100'}`}>
-                        {user.name[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className={`flex-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                      {user.name}
-                    </span>
-                    <span className="text-sm font-bold text-yellow-600" dir="ltr">{user.points}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+            <TopMembers darkMode={darkMode} />
           </div>
           {/* قائمة المواضيع */}
           <div className="lg:col-span-3">
@@ -256,68 +397,70 @@ export default function SabqForum() {
             ) : topics.length > 0 ? (
               <div className="space-y-4">
                 {topics.map((topic) => (
-                  <Card key={topic.id} className={`hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 ${
-                    darkMode ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-white border-gray-200 hover:bg-gray-50'
-                  }`}>
-                    <CardContent className="p-6">
-                      <div className="flex gap-4">
-                        {/* صورة المؤلف */}
-                        <Avatar className="w-12 h-12 shrink-0">
-                          <AvatarFallback className={`font-bold ${
-                            darkMode ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white' : 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
-                          }`}>
-                            {topic.author.name[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        {/* محتوى الموضوع */}
-                        <div className="flex-1 min-w-0">
-                          {/* العنوان والفئة */}
-                          <div className="flex items-start gap-3 mb-2">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                {topic.is_pinned && (
-                                  <Pin className="w-4 h-4 text-orange-500" />
-                                )}
-                                <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                  {topic.title}
-                                </h3>
+                  <Link key={topic.id} href={`/forum/topic/${topic.id}`}>
+                    <Card className={`hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 ${
+                      darkMode ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-white border-gray-200 hover:bg-gray-50'
+                    }`}>
+                      <CardContent className="p-6">
+                        <div className="flex gap-4">
+                          {/* صورة المؤلف */}
+                          <Avatar className="w-12 h-12 shrink-0">
+                            <AvatarFallback className={`font-bold ${
+                              darkMode ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white' : 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
+                            }`}>
+                              {topic.author.name[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          {/* محتوى الموضوع */}
+                          <div className="flex-1 min-w-0">
+                            {/* العنوان والفئة */}
+                            <div className="flex items-start gap-3 mb-2">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  {topic.is_pinned && (
+                                    <Pin className="w-4 h-4 text-orange-500" />
+                                  )}
+                                  <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {topic.title}
+                                  </h3>
+                                </div>
+                                <Badge 
+                                  className={`${topic.category.color} text-white text-xs px-2 py-0.5`}
+                                >
+                                  {topic.category.name}
+                                </Badge>
                               </div>
-                              <Badge 
-                                className={`${topic.category.color} text-white text-xs px-2 py-0.5`}
-                              >
-                                {topic.category.name}
-                              </Badge>
                             </div>
-                          </div>
-                          {/* معلومات المؤلف والوقت */}
-                          <div className={`flex items-center gap-2 text-sm mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            <span className="font-medium">{topic.author.name}</span>
-                            <span>•</span>
-                            <Clock className="w-3 h-3" />
-                            <span>{topic.lastReply}</span>
-                          </div>
-                          {/* الإحصائيات */}
-                          <div className="flex items-center gap-6 text-sm">
-                            <div className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                              <MessageSquare className="w-4 h-4" />
-                              <span className="font-medium" dir="ltr">{topic.replies}</span>
-                              <span>رد</span>
+                            {/* معلومات المؤلف والوقت */}
+                            <div className={`flex items-center gap-2 text-sm mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <span className="font-medium">{topic.author.name}</span>
+                              <span>•</span>
+                              <Clock className="w-3 h-3" />
+                              <span>{topic.lastReply}</span>
                             </div>
-                            <div className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                              <Eye className="w-4 h-4" />
-                              <span className="font-medium" dir="ltr">{topic.views}</span>
-                              <span>مشاهدة</span>
-                            </div>
-                            <div className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                              <ThumbsUp className="w-4 h-4" />
-                              <span className="font-medium" dir="ltr">{topic.likes}</span>
-                              <span>إعجاب</span>
+                            {/* الإحصائيات */}
+                            <div className="flex items-center gap-6 text-sm">
+                              <div className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                <MessageSquare className="w-4 h-4" />
+                                <span className="font-medium" dir="ltr">{topic.replies}</span>
+                                <span>رد</span>
+                              </div>
+                              <div className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                <Eye className="w-4 h-4" />
+                                <span className="font-medium" dir="ltr">{topic.views}</span>
+                                <span>مشاهدة</span>
+                              </div>
+                              <div className={`flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                <ThumbsUp className="w-4 h-4" />
+                                <span className="font-medium" dir="ltr">{topic.likes}</span>
+                                <span>إعجاب</span>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             ) : (
