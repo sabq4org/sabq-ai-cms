@@ -44,7 +44,7 @@ export async function getSpaBaskets() {
   try {
     // استخدام GET method مع body كما هو مطلوب
     const response = await fetch(endpoint, {
-      method: 'GET',
+      method: 'POST',
       
       headers: getHeaders(),
       body: JSON.stringify(payload),
@@ -106,7 +106,7 @@ export async function getSpaNextNews({
   
   try {
     const response = await fetch(endpoint, {
-      method: 'GET',
+      method: 'POST',
       
       headers: getHeaders(),
       body: JSON.stringify(payload),
@@ -166,7 +166,7 @@ export async function getSpaPreviousNews({
   
   try {
     const response = await fetch(endpoint, {
-      method: 'GET',
+      method: 'POST',
       
       headers: getHeaders(),
       body: JSON.stringify(payload),
