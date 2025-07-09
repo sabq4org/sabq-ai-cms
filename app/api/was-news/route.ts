@@ -305,7 +305,7 @@ export async function GET(request: Request) {
 }
 
 // دالة مساعدة لجلب حالة الاتصال - محدثة للمسار الصحيح
-export async function checkStatus() {
+async function checkStatus() {
   try {
     const response = await axios({
       method: 'GET',
@@ -325,7 +325,7 @@ export async function checkStatus() {
 }
 
 // دالة مساعدة لجلب التصنيفات - محدثة للمسار الصحيح
-export async function getClassifications() {
+async function getClassifications() {
   try {
     const response = await axios({
       method: 'GET',
@@ -345,7 +345,7 @@ export async function getClassifications() {
 }
 
 // دالة مساعدة لجلب الأولويات - محدثة للمسار الصحيح
-export async function getPriorities() {
+async function getPriorities() {
   try {
     const response = await axios({
       method: 'GET',
@@ -365,7 +365,7 @@ export async function getPriorities() {
 }
 
 // دالة مساعدة لجلب المناطق - محدثة للمسار الصحيح
-export async function getRegions() {
+async function getRegions() {
   try {
     const response = await axios({
       method: 'GET',
