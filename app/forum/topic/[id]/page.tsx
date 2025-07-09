@@ -19,7 +19,8 @@ import {
   Edit,
   Trash2,
   Share2,
-  Bookmark
+  Bookmark,
+  Shield
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -78,6 +79,32 @@ export default function TopicPage() {
   const [loading, setLoading] = useState(true);
   const [replyContent, setReplyContent] = useState('');
   const [isReplying, setIsReplying] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // التحقق من تسجيل الدخول
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user) {
+            setUser(data.user);
+          }
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   // جلب بيانات الموضوع الفعلية
   useEffect(() => {
@@ -148,18 +175,12 @@ export default function TopicPage() {
     setIsReplying(true);
     
     try {
-      // الحصول على معلومات المستخدم
-      const userId = localStorage.getItem('user_id') || '';
-      const userName = localStorage.getItem('user_name') || 'مستخدم';
-      
       const response = await fetch(`/api/forum/topics/${topicId}/replies`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer dummy-token',
-          'X-User-Id': userId,
-          'X-User-Name': encodeURIComponent(userName)
         },
+        credentials: 'include',
         body: JSON.stringify({ content: replyContent })
       });
 
@@ -363,29 +384,49 @@ export default function TopicPage() {
         {/* صندوق الرد */}
         {!topic.isLocked && (
           <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6`}>
-            <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              أضف ردك
-            </h3>
-            <textarea
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              placeholder="اكتب ردك هنا..."
-              className={`w-full p-4 rounded-lg border ${
-                darkMode 
-                  ? 'bg-gray-700 border-gray-600 text-white' 
-                  : 'bg-gray-50 border-gray-200'
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              rows={4}
-            />
-            <div className="flex justify-end mt-4">
-              <button
-                onClick={handleReply}
-                disabled={isReplying || !replyContent.trim()}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isReplying ? 'جاري الإرسال...' : 'إرسال الرد'}
-              </button>
-            </div>
+            {user && user.emailVerified ? (
+              <>
+                <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  أضف ردك
+                </h3>
+                <div className={`flex items-center gap-2 mb-3 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <Shield className="w-4 h-4 text-green-500" />
+                  <span>تنشر باسم: <strong>{user.name}</strong></span>
+                </div>
+                <textarea
+                  value={replyContent}
+                  onChange={(e) => setReplyContent(e.target.value)}
+                  placeholder="اكتب ردك هنا..."
+                  className={`w-full p-4 rounded-lg border ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'bg-gray-50 border-gray-200'
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  rows={4}
+                />
+                <div className="flex justify-end mt-4">
+                  <button
+                    onClick={handleReply}
+                    disabled={isReplying || !replyContent.trim()}
+                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isReplying ? 'جاري الإرسال...' : 'إرسال الرد'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <Shield className={`w-16 h-16 ${darkMode ? 'text-gray-600' : 'text-gray-300'} mx-auto mb-4`} />
+                <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-4`}>
+                  يجب تسجيل الدخول للمشاركة في النقاش
+                </p>
+                <Link href={`/login?redirect=/forum/topic/${topicId}`}>
+                  <button className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    تسجيل الدخول
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>

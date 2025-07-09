@@ -91,35 +91,41 @@ export async function POST(
       );
     }
 
-    // استخراج معلومات المستخدم من الكوكيز
+    // التحقق من تسجيل الدخول
     const cookieStore = await cookies();
-    const userCookie = cookieStore.get('user');
+    const authToken = cookieStore.get('auth_token')?.value;
     
-    let userId = '00000000-0000-0000-0000-000000000001';
-    let userName = 'مستخدم';
-    let userEmail = 'user@sabq.org';
-    
-    if (userCookie) {
-      try {
-        const user = JSON.parse(userCookie.value);
-        userId = user.id || userId;
-        userName = user.name || userName;
-        userEmail = user.email || userEmail;
-        console.log('User from cookie:', { userId, userName });
-      } catch (e) {
-        console.error('Error parsing user cookie:', e);
-      }
+    if (!authToken) {
+      return NextResponse.json(
+        { error: 'يجب تسجيل الدخول لإضافة رد' },
+        { status: 401 }
+      );
     }
     
-    // أو من الهيدرز المخصصة
-    const headersList = request.headers;
-    const customUserId = headersList.get('x-user-id');
-    const customUserName = headersList.get('x-user-name');
-    
-    if (customUserId) userId = customUserId;
-    if (customUserName) userName = decodeURIComponent(customUserName);
+    // التحقق من صحة التوكن
+    let user: any;
+    try {
+      const jwt = require('jsonwebtoken');
+      user = jwt.verify(authToken, process.env.JWT_SECRET || 'default-secret');
+      
+      if (!user.emailVerified) {
+        return NextResponse.json(
+          { error: 'يجب تفعيل البريد الإلكتروني أولاً' },
+          { status: 403 }
+        );
+      }
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'جلسة غير صالحة، يرجى تسجيل الدخول مرة أخرى' },
+        { status: 401 }
+      );
+    }
 
-    console.log('Final user info:', { userId, userName });
+    const userId = user.id;
+    const userName = user.name;
+    const userEmail = user.email;
+
+    console.log('Authenticated user:', { userId, userName });
 
     // التحقق من وجود الموضوع وحالته
     const { data: topic, error: topicError } = await supabase

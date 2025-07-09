@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
+import { headers, cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 
 
@@ -179,14 +179,34 @@ export async function POST(request: NextRequest) {
   try {
     console.log('Starting POST /api/forum/topics');
     
-    // التحقق من تسجيل الدخول (مؤقتاً)
-    const headersList = await headers();
-    const authorization = headersList.get('authorization');
+    // التحقق من تسجيل الدخول
+    const cookieStore = await cookies();
+    const authToken = cookieStore.get('auth_token')?.value;
     
-    if (!authorization) {
-      console.log('No authorization header found');
+    if (!authToken) {
+      console.log('No auth token found');
       return NextResponse.json(
         { error: 'يجب تسجيل الدخول لإنشاء موضوع' },
+        { status: 401 }
+      );
+    }
+    
+    // التحقق من صحة التوكن
+    let user: any;
+    try {
+      const jwt = require('jsonwebtoken');
+      user = jwt.verify(authToken, process.env.JWT_SECRET || 'default-secret');
+      
+      if (!user.emailVerified) {
+        return NextResponse.json(
+          { error: 'يجب تفعيل البريد الإلكتروني أولاً' },
+          { status: 403 }
+        );
+      }
+    } catch (error) {
+      console.log('Invalid auth token');
+      return NextResponse.json(
+        { error: 'جلسة غير صالحة، يرجى تسجيل الدخول مرة أخرى' },
         { status: 401 }
       );
     }
@@ -237,34 +257,9 @@ export async function POST(request: NextRequest) {
     // إنشاء الموضوع في قاعدة البيانات
     const topicId = crypto.randomUUID();
     
-    // استخراج معلومات المستخدم من الجلسة
-    let userId = '00000000-0000-0000-0000-000000000001'; // قيمة افتراضية
-    let userName = 'مستخدم مؤقت';
-    
-    try {
-      // محاولة الحصول على معلومات المستخدم من الكوكيز أو الجلسة
-      const cookieHeader = headersList.get('cookie') || '';
-      const userIdMatch = cookieHeader.match(/user_id=([^;]+)/);
-      const userNameMatch = cookieHeader.match(/user_name=([^;]+)/);
-      
-      if (userIdMatch) {
-        userId = decodeURIComponent(userIdMatch[1]);
-      }
-      if (userNameMatch) {
-        userName = decodeURIComponent(userNameMatch[1]);
-      }
-      
-      // أو من localStorage/sessionStorage عبر custom header
-      const customUserId = headersList.get('x-user-id');
-      const customUserName = headersList.get('x-user-name');
-      
-      if (customUserId) userId = customUserId;
-      if (customUserName) userName = decodeURIComponent(customUserName);
-      
-      console.log('User info:', { userId, userName });
-    } catch (error) {
-      console.error('Error extracting user info:', error);
-    }
+    // استخدام معلومات المستخدم من التوكن
+    const userId = user.id;
+    const userName = user.name;
     
     console.log('Creating topic with ID:', topicId);
     

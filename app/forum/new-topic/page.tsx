@@ -8,12 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, MessageCircle, Send, AlertCircle, Check, Bold, Italic, List, Link as LinkIcon, Code, User } from "lucide-react";
+import { ArrowRight, MessageCircle, Send, AlertCircle, Check, Bold, Italic, List, Link as LinkIcon, Code, User, Shield } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import { useTheme } from "@/contexts/ThemeContext";
 import { toast } from "react-hot-toast";
-import UserNameModal from '@/components/forum/UserNameModal';
 
 interface Category {
   id: string;
@@ -21,6 +20,13 @@ interface Category {
   slug: string;
   color: string;
   description?: string;
+}
+
+interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  emailVerified: boolean;
 }
 
 export default function NewTopicPage() {
@@ -37,10 +43,42 @@ export default function NewTopicPage() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showUserNameModal, setShowUserNameModal] = useState(false);
-  const [userName, setUserName] = useState<string>('');
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  // جلب الفئات وإعداد اسم المستخدم
+  // التحقق من تسجيل الدخول
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user && data.user.emailVerified) {
+            setUser(data.user);
+          } else if (data.user && !data.user.emailVerified) {
+            toast.error('يجب تفعيل البريد الإلكتروني أولاً');
+            router.push('/auth/verify');
+          } else {
+            router.push('/login?redirect=/forum/new-topic');
+          }
+        } else {
+          router.push('/login?redirect=/forum/new-topic');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        router.push('/login?redirect=/forum/new-topic');
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  // جلب الفئات
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -58,17 +96,10 @@ export default function NewTopicPage() {
       }
     };
 
-    fetchCategories();
-    
-    // التحقق من وجود اسم المستخدم
-    const savedUserName = localStorage.getItem('user_name');
-    if (savedUserName) {
-      setUserName(savedUserName);
-    } else {
-      // إذا لم يكن هناك اسم محفوظ، اعرض النافذة
-      setShowUserNameModal(true);
+    if (user) {
+      fetchCategories();
     }
-  }, []);
+  }, [user]);
 
   // التحقق من صحة البيانات
   const validateForm = () => {
@@ -111,6 +142,12 @@ export default function NewTopicPage() {
     
     if (!validateForm()) return;
     
+    if (!user) {
+      toast.error('يجب تسجيل الدخول أولاً');
+      router.push('/login?redirect=/forum/new-topic');
+      return;
+    }
+    
     setSubmitting(true);
     setError(null);
     
@@ -118,31 +155,12 @@ export default function NewTopicPage() {
     const loadingToast = toast.loading('جاري نشر الموضوع...');
 
     try {
-      // التحقق من وجود اسم المستخدم
-      if (!userName) {
-        setShowUserNameModal(true);
-        toast.dismiss(loadingToast);
-        setSubmitting(false);
-        return;
-      }
-      
-      // الحصول على معلومات المستخدم من localStorage
-      const userId = localStorage.getItem('user_id') || crypto.randomUUID();
-      
-      // حفظ معرف المستخدم إذا لم يكن موجوداً
-      if (!localStorage.getItem('user_id')) {
-        localStorage.setItem('user_id', userId);
-      }
-      
       const response = await fetch('/api/forum/topics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer dummy-token',
-          // إرسال معلومات المستخدم
-          'X-User-Id': userId,
-          'X-User-Name': encodeURIComponent(userName)
         },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -172,6 +190,23 @@ export default function NewTopicPage() {
   };
 
   const selectedCategory = categories.find(cat => cat.id === formData.category_id);
+
+  // عرض شاشة التحميل أثناء التحقق من المصادقة
+  if (authLoading) {
+    return (
+      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center`}>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>جاري التحقق من صلاحياتك...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // إذا لم يكن هناك مستخدم، لا تعرض شيئاً (سيتم التوجيه)
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} dir="rtl">
@@ -345,37 +380,69 @@ export default function NewTopicPage() {
                   {loading ? (
                     <div className={`h-10 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
                   ) : (
-                                         <select 
-                       value={formData.category_id} 
-                       onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                       className={`w-full p-3 rounded-lg border ${
-                         darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
-                       }`}
-                     >
-                       <option value="">اختر فئة مناسبة</option>
-                       {categories.map((category) => (
-                         <option key={category.id} value={category.id}>
-                           {category.name}
-                         </option>
-                       ))}
-                     </select>
+                    <select 
+                      value={formData.category_id} 
+                      onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                      className={`w-full p-3 rounded-lg border ${
+                        darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'
+                      }`}
+                    >
+                      <option value="">اختر فئة مناسبة</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
                   )}
                   
-                                     {selectedCategory && (
-                     <div className="mt-3">
-                       <div 
-                         className="inline-flex items-center px-2 py-1 text-xs text-white rounded-md"
-                         style={{ backgroundColor: selectedCategory.color }}
-                       >
-                         {selectedCategory.name}
-                       </div>
-                       {selectedCategory.description && (
-                         <p className={`text-sm mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                           {selectedCategory.description}
-                         </p>
-                       )}
-                     </div>
-                   )}
+                  {selectedCategory && (
+                    <div className="mt-3">
+                      <div 
+                        className="inline-flex items-center px-2 py-1 text-xs text-white rounded-md"
+                        style={{ backgroundColor: selectedCategory.color }}
+                      >
+                        {selectedCategory.name}
+                      </div>
+                      {selectedCategory.description && (
+                        <p className={`text-sm mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {selectedCategory.description}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* معلومات المستخدم */}
+              <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
+                <CardHeader className="pb-4">
+                  <CardTitle className={`text-lg flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <Shield className="w-5 h-5 text-green-500" />
+                    معلومات النشر
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${
+                      darkMode ? 'bg-gradient-to-br from-blue-600 to-blue-700' : 'bg-gradient-to-br from-blue-500 to-blue-600'
+                    }`}>
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1">
+                      <p className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{user.name}</p>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{user.email}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <Check className="w-3 h-3 text-green-500" />
+                        <span className="text-xs text-green-600">حساب موثق</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={`mt-4 p-3 rounded-lg ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      سيتم نشر الموضوع باسمك المسجل في النظام. لا يمكن تغيير اسم الناشر بعد النشر.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -412,32 +479,6 @@ export default function NewTopicPage() {
                 </CardContent>
               </Card>
 
-              {/* عرض اسم المستخدم */}
-              {userName && (
-                <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${
-                        darkMode ? 'bg-gradient-to-br from-blue-600 to-blue-700' : 'bg-gradient-to-br from-blue-500 to-blue-600'
-                      }`}>
-                        {userName.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>تنشر باسم</p>
-                        <p className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{userName}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setShowUserNameModal(true)}
-                        className={`mr-auto text-sm ${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
-                      >
-                        تغيير
-                      </button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
               {/* أزرار الإجراءات */}
               <div className="space-y-3">
                 <Button
@@ -468,19 +509,6 @@ export default function NewTopicPage() {
           </div>
         </form>
       </div>
-      
-      {/* نافذة إدخال اسم المستخدم */}
-      <UserNameModal
-        isOpen={showUserNameModal}
-        onClose={() => setShowUserNameModal(false)}
-        onSave={(name) => {
-          setUserName(name);
-          localStorage.setItem('user_name', name);
-          setShowUserNameModal(false);
-          toast.success(`مرحباً ${name}! 👋`);
-        }}
-        darkMode={darkMode}
-      />
     </div>
   );
 }
