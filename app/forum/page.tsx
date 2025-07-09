@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bell, MessageSquare, ThumbsUp, Eye, Search, Plus, TrendingUp, MessageCircle, Users, Award, HelpCircle, Lightbulb, Hash, Clock, Pin } from "lucide-react";
+import { Bell, MessageSquare, ThumbsUp, Eye, Search, Plus, TrendingUp, MessageCircle, Users, Award, HelpCircle, Lightbulb, Hash, Clock, Pin, Bug, Megaphone } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
@@ -245,13 +245,23 @@ export default function SabqForum() {
         const response = await fetch('/api/forum/categories');
         const data = await response.json();
         if (data.categories) {
+          // ربط الأيقونات بناءً على slug الفئة
+          const iconMap: { [key: string]: any } = {
+            'general': MessageCircle,
+            'requests': Lightbulb,
+            'bugs': Bug,
+            'help': HelpCircle,
+            'announcements': Megaphone
+          };
+          
           const allCategories = [
-            { id: 'all', name: 'جميع المواضيع', icon: Hash, color: 'bg-gray-500' },
+            { id: 'all', name: 'جميع المواضيع', icon: Hash, color: '#6B7280', slug: 'all' },
             ...data.categories.map((cat: any) => ({
               id: cat.slug,
               name: cat.name,
-              icon: MessageCircle, // يمكن تخصيص الأيقونات لاحقاً
-              color: cat.color || 'bg-blue-500'
+              icon: iconMap[cat.slug] || MessageCircle,
+              color: cat.color || '#3B82F6',
+              slug: cat.slug
             }))
           ];
           setCategories(allCategories);
@@ -332,30 +342,69 @@ export default function SabqForum() {
               <CardContent className="space-y-2">
                 {categories.map((category) => {
                   const Icon = category.icon;
+                  const isSelected = selectedCategory === category.id;
+                  
                   return (
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
-                        selectedCategory === category.id
+                      className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 relative overflow-hidden group ${
+                        isSelected
                           ? darkMode 
-                            ? 'bg-gray-700 shadow-inner' 
-                            : 'bg-gray-100 shadow-inner'
+                            ? 'bg-gray-700/50' 
+                            : 'bg-gray-50'
                           : darkMode 
-                            ? 'hover:bg-gray-700/50' 
-                            : 'hover:bg-gray-50'
+                            ? 'hover:bg-gray-700/30' 
+                            : 'hover:bg-gray-50/50'
                       }`}
+                      style={{
+                        borderLeft: `4px solid ${category.color}`,
+                        backgroundColor: isSelected 
+                          ? `${category.color}10` 
+                          : undefined
+                      }}
                     >
-                      <div className={`w-8 h-8 ${category.color} rounded-lg flex items-center justify-center text-white shadow-sm`}>
+                      {/* شريط لوني متحرك عند التحديد */}
+                      {isSelected && (
+                        <div 
+                          className="absolute inset-y-0 left-0 w-1 transition-all duration-300"
+                          style={{ backgroundColor: category.color }}
+                        />
+                      )}
+                      
+                      {/* دائرة اللون */}
+                      <div 
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm transition-transform duration-200 group-hover:scale-110"
+                        style={{ backgroundColor: category.color }}
+                      >
                         <Icon className="w-4 h-4" />
                       </div>
-                      <span className={`flex-1 text-right font-medium ${
-                        selectedCategory === category.id 
+                      
+                      {/* اسم الفئة */}
+                      <span className={`flex-1 text-right font-medium transition-colors duration-200 ${
+                        isSelected 
                           ? darkMode ? 'text-white' : 'text-gray-900'
                           : darkMode ? 'text-gray-300' : 'text-gray-600'
                       }`}>
                         {category.name}
                       </span>
+                      
+                      {/* مؤشر عدد المواضيع (يمكن إضافته لاحقاً) */}
+                      {category.id !== 'all' && (
+                        <span 
+                          className={`text-xs px-2 py-0.5 rounded-full transition-all duration-200 ${
+                            isSelected
+                              ? 'text-white'
+                              : darkMode ? 'text-gray-400' : 'text-gray-500'
+                          }`}
+                          style={{
+                            backgroundColor: isSelected ? category.color : undefined,
+                            color: isSelected ? 'white' : undefined
+                          }}
+                        >
+                          {/* عدد المواضيع سيضاف لاحقاً */}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
@@ -424,11 +473,12 @@ export default function SabqForum() {
                                     {topic.title}
                                   </h3>
                                 </div>
-                                <Badge 
-                                  className={`${topic.category.color} text-white text-xs px-2 py-0.5`}
+                                <span 
+                                  className="inline-flex items-center text-white text-xs px-2 py-0.5 rounded-full font-medium"
+                                  style={{ backgroundColor: topic.category.color }}
                                 >
                                   {topic.category.name}
-                                </Badge>
+                                </span>
                               </div>
                             </div>
                             {/* معلومات المؤلف والوقت */}
