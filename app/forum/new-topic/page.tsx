@@ -8,11 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, MessageCircle, Send, AlertCircle, Check, Bold, Italic, List, Link as LinkIcon, Code } from "lucide-react";
+import { ArrowRight, MessageCircle, Send, AlertCircle, Check, Bold, Italic, List, Link as LinkIcon, Code, User } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import { useTheme } from "@/contexts/ThemeContext";
 import { toast } from "react-hot-toast";
+import UserNameModal from '@/components/forum/UserNameModal';
 
 interface Category {
   id: string;
@@ -36,8 +37,10 @@ export default function NewTopicPage() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showUserNameModal, setShowUserNameModal] = useState(false);
+  const [userName, setUserName] = useState<string>('');
 
-  // جلب الفئات
+  // جلب الفئات وإعداد اسم المستخدم
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -56,6 +59,15 @@ export default function NewTopicPage() {
     };
 
     fetchCategories();
+    
+    // التحقق من وجود اسم المستخدم
+    const savedUserName = localStorage.getItem('user_name');
+    if (savedUserName) {
+      setUserName(savedUserName);
+    } else {
+      // إذا لم يكن هناك اسم محفوظ، اعرض النافذة
+      setShowUserNameModal(true);
+    }
   }, []);
 
   // التحقق من صحة البيانات
@@ -106,9 +118,21 @@ export default function NewTopicPage() {
     const loadingToast = toast.loading('جاري نشر الموضوع...');
 
     try {
+      // التحقق من وجود اسم المستخدم
+      if (!userName) {
+        setShowUserNameModal(true);
+        toast.dismiss(loadingToast);
+        setSubmitting(false);
+        return;
+      }
+      
       // الحصول على معلومات المستخدم من localStorage
-      const userId = localStorage.getItem('user_id') || '';
-      const userName = localStorage.getItem('user_name') || 'مستخدم';
+      const userId = localStorage.getItem('user_id') || crypto.randomUUID();
+      
+      // حفظ معرف المستخدم إذا لم يكن موجوداً
+      if (!localStorage.getItem('user_id')) {
+        localStorage.setItem('user_id', userId);
+      }
       
       const response = await fetch('/api/forum/topics', {
         method: 'POST',
@@ -388,6 +412,32 @@ export default function NewTopicPage() {
                 </CardContent>
               </Card>
 
+              {/* عرض اسم المستخدم */}
+              {userName && (
+                <Card className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-md`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${
+                        darkMode ? 'bg-gradient-to-br from-blue-600 to-blue-700' : 'bg-gradient-to-br from-blue-500 to-blue-600'
+                      }`}>
+                        {userName.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>تنشر باسم</p>
+                        <p className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{userName}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowUserNameModal(true)}
+                        className={`mr-auto text-sm ${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
+                      >
+                        تغيير
+                      </button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* أزرار الإجراءات */}
               <div className="space-y-3">
                 <Button
@@ -418,6 +468,19 @@ export default function NewTopicPage() {
           </div>
         </form>
       </div>
+      
+      {/* نافذة إدخال اسم المستخدم */}
+      <UserNameModal
+        isOpen={showUserNameModal}
+        onClose={() => setShowUserNameModal(false)}
+        onSave={(name) => {
+          setUserName(name);
+          localStorage.setItem('user_name', name);
+          setShowUserNameModal(false);
+          toast.success(`مرحباً ${name}! 👋`);
+        }}
+        darkMode={darkMode}
+      />
     </div>
   );
 }

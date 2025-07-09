@@ -21,6 +21,7 @@ import {
   Share2,
   Bookmark
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 interface Topic {
   id: string;
@@ -92,30 +93,33 @@ export default function TopicPage() {
         
         const topicData = await topicResponse.json();
         
+        // إذا كان الاستجابة تحتوي على topic
+        const topic = topicData.topic || topicData;
+        
         // تحويل البيانات للتنسيق المطلوب
         setTopic({
-          id: topicData.id,
-          title: topicData.title,
-          content: topicData.content,
+          id: topic.id,
+          title: topic.title,
+          content: topic.content,
           author: {
-            id: topicData.author.id,
-            name: topicData.author.name || 'مستخدم',
-            avatar: topicData.author.avatar,
-            role: topicData.author.role
+            id: topic.author?.id || topic.author_id,
+            name: topic.author?.name || 'مستخدم',
+            avatar: topic.author?.avatar || topic.author?.avatar_url,
+            role: topic.author?.role
           },
           category: {
-            id: topicData.category.id,
-            name: topicData.category.name,
-            slug: topicData.category.slug,
-            color: topicData.category.color || '#3B82F6'
+            id: topic.category?.id || topic.category_id,
+            name: topic.category?.name || 'عام',
+            slug: topic.category?.slug || 'general',
+            color: topic.category?.color || '#3B82F6'
           },
-          createdAt: topicData.created_at,
-          updatedAt: topicData.updated_at || topicData.created_at,
-          views: topicData.views || 0,
-          replies: topicData.replies_count || 0,
-          isPinned: topicData.is_pinned || false,
-          isLocked: topicData.is_locked || false,
-          tags: topicData.tags || []
+          createdAt: topic.created_at,
+          updatedAt: topic.updated_at || topic.created_at,
+          views: topic.views || 0,
+          replies: topic.replies || topic.replies_count || 0,
+          isPinned: topic.is_pinned || false,
+          isLocked: topic.is_locked || false,
+          tags: topic.tags || []
         });
         
         // جلب الردود
@@ -160,18 +164,33 @@ export default function TopicPage() {
       });
 
       if (response.ok) {
-        // إعادة جلب الردود
-        const repliesResponse = await fetch(`/api/forum/topics/${topicId}/replies`);
-        if (repliesResponse.ok) {
-          const repliesData = await repliesResponse.json();
-          setReplies(repliesData.replies || []);
+        const result = await response.json();
+        
+        // إضافة الرد الجديد مباشرة للقائمة
+        if (result.reply) {
+          setReplies(prev => [...prev, result.reply]);
+          
+          // تحديث عدد الردود
+          setTopic(prev => prev ? { ...prev, replies: prev.replies + 1 } : prev);
         }
         
+        // إظهار رسالة النجاح
+        toast.success('تم إضافة ردك بنجاح! 🎉');
+        
+        // مسح المحتوى
         setReplyContent('');
+        
+        // التمرير لأسفل لرؤية الرد الجديد
+        setTimeout(() => {
+          window.scrollTo({ 
+            top: document.documentElement.scrollHeight, 
+            behavior: 'smooth' 
+          });
+        }, 100);
       } else {
         const error = await response.json();
         console.error('Error posting reply:', error);
-        alert(error.error || 'حدث خطأ في إرسال الرد');
+        toast.error(error.error || 'حدث خطأ في إرسال الرد');
       }
     } catch (error) {
       console.error('Error posting reply:', error);
@@ -326,7 +345,19 @@ export default function TopicPage() {
             الردود ({replies.length})
           </h2>
           
-          <TimelineReply replies={replies} />
+          {replies.length > 0 ? (
+            <TimelineReply replies={replies} />
+          ) : (
+            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-12 text-center`}>
+              <MessageSquare className={`w-16 h-16 ${darkMode ? 'text-gray-600' : 'text-gray-300'} mx-auto mb-4`} />
+              <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-500'} mb-2`}>
+                لا توجد ردود بعد
+              </p>
+              <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                كن أول من يشارك برأيه! 💬
+              </p>
+            </div>
+          )}
         </div>
 
         {/* صندوق الرد */}

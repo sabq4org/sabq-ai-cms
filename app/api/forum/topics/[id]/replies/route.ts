@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
 
 // GET: جلب ردود الموضوع
 export async function GET(
@@ -12,69 +17,62 @@ export async function GET(
     console.log('Fetching replies for topic:', topicId);
 
     // جلب الردود مع معلومات المؤلفين
-    const replies = await prisma.$queryRawUnsafe(`
-      SELECT 
-        r.id,
-        r.content,
-        r.created_at,
-        r.updated_at,
-        r.is_accepted,
-        r.is_pinned,
-        r.author_id,
-        u.name as author_name,
-        u.email as author_email
-      FROM forum_replies r
-      LEFT JOIN users u ON r.author_id = u.id
-      WHERE r.topic_id = $1 AND r.status = 'active'
-      ORDER BY r.is_pinned DESC, r.created_at ASC
-    `, topicId);
+    const { data: replies, error } = await supabase
+      .from('forum_replies')
+      .select(`
+        *,
+        author:users (
+          id,
+          name,
+          email,
+          avatar_url
+        )
+      `)
+      .eq('topic_id', topicId)
+      .eq('status', 'active')
+      .order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: true });
 
-    // جلب عدد الإعجابات لكل رد
-    const replyIds = (replies as any[]).map(r => r.id);
-    let likeCounts = new Map();
-    
-    if (replyIds.length > 0) {
-      const likes = await prisma.$queryRawUnsafe(`
-        SELECT target_id, COUNT(*) as count 
-        FROM forum_votes 
-        WHERE target_id IN (${replyIds.map((_, i) => '$' + (i + 2)).join(',')}) 
-        AND target_type = 'reply' 
-        AND vote_type = 'like'
-        GROUP BY target_id
-      `, topicId, ...replyIds);
-      
-      likeCounts = new Map((likes as any[]).map(l => [l.target_id, Number(l.count)]));
+    if (error) {
+      console.error('Error fetching replies:', error);
+      return NextResponse.json({ 
+        error: 'حدث خطأ في جلب الردود',
+        details: error.message 
+      }, { status: 500 });
     }
 
-    // تنسيق البيانات
-    const formattedReplies = (replies as any[]).map(reply => ({
+    // تنسيق البيانات للواجهة
+    const formattedReplies = (replies || []).map(reply => ({
       id: reply.id,
       content: reply.content,
       author: {
-        id: reply.author_id,
-        name: reply.author_name || 'مستخدم',
-        avatar: `/images/authors/default-avatar.jpg`
+        id: reply.author?.id || reply.author_id,
+        name: reply.author?.name || 'مستخدم',
+        avatar: reply.author?.avatar_url || `/images/authors/default-avatar.jpg`,
+        role: reply.author?.role
       },
       createdAt: reply.created_at,
       updatedAt: reply.updated_at,
-      isAccepted: Boolean(reply.is_accepted),
-      isPinned: Boolean(reply.is_pinned),
-      likes: likeCounts.get(reply.id) || 0
+      isAccepted: reply.is_accepted || false,
+      isPinned: reply.is_pinned || false,
+      isHighlighted: reply.is_highlighted || false,
+      likes: reply.likes_count || 0,
+      isLiked: false // سيتم تحديثه لاحقاً بناءً على المستخدم الحالي
     }));
 
+    console.log(`Found ${formattedReplies.length} replies for topic ${topicId}`);
+
     return NextResponse.json({
+      success: true,
       replies: formattedReplies,
       total: formattedReplies.length
     });
   } catch (error: any) {
-    console.error('Error fetching replies:', error);
-    return NextResponse.json(
-      { 
-        error: 'حدث خطأ في جلب الردود',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
-      { status: 500 }
-    );
+    console.error('Error in GET replies:', error);
+    return NextResponse.json({ 
+      error: 'حدث خطأ في جلب الردود',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    }, { status: 500 });
   }
 }
 
@@ -85,19 +83,10 @@ export async function POST(
 ) {
   try {
     const { id: topicId } = await params;
-    const headersList = await headers();
-    const authorization = headersList.get('authorization');
-    
-    if (!authorization) {
-      return NextResponse.json(
-        { error: 'يجب تسجيل الدخول لإضافة رد' },
-        { status: 401 }
-      );
-    }
-
     const body = await request.json();
     const { content } = body;
 
+    // التحقق من المحتوى
     if (!content || content.trim().length < 5) {
       return NextResponse.json(
         { error: 'محتوى الرد يجب أن يكون أكثر من 5 أحرف' },
@@ -105,19 +94,50 @@ export async function POST(
       );
     }
 
-    // التحقق من وجود الموضوع
-    const topicCheck = await prisma.$queryRawUnsafe(`
-      SELECT id, is_locked FROM forum_topics WHERE id = $1 AND status = 'active'
-    `, topicId);
+    // استخراج معلومات المستخدم من الكوكيز
+    const cookieStore = await cookies();
+    const userCookie = cookieStore.get('user');
     
-    if (!topicCheck || (topicCheck as any[]).length === 0) {
+    let userId = '00000000-0000-0000-0000-000000000001';
+    let userName = 'مستخدم';
+    let userEmail = 'user@sabq.org';
+    
+    if (userCookie) {
+      try {
+        const user = JSON.parse(userCookie.value);
+        userId = user.id || userId;
+        userName = user.name || userName;
+        userEmail = user.email || userEmail;
+        console.log('User from cookie:', { userId, userName });
+      } catch (e) {
+        console.error('Error parsing user cookie:', e);
+      }
+    }
+    
+    // أو من الهيدرز المخصصة
+    const headersList = request.headers;
+    const customUserId = headersList.get('x-user-id');
+    const customUserName = headersList.get('x-user-name');
+    
+    if (customUserId) userId = customUserId;
+    if (customUserName) userName = decodeURIComponent(customUserName);
+
+    console.log('Final user info:', { userId, userName });
+
+    // التحقق من وجود الموضوع وحالته
+    const { data: topic, error: topicError } = await supabase
+      .from('forum_topics')
+      .select('id, is_locked, status')
+      .eq('id', topicId)
+      .single();
+
+    if (topicError || !topic) {
       return NextResponse.json(
         { error: 'الموضوع غير موجود' },
         { status: 404 }
       );
     }
 
-    const topic = (topicCheck as any[])[0];
     if (topic.is_locked) {
       return NextResponse.json(
         { error: 'لا يمكن الرد على موضوع مغلق' },
@@ -125,65 +145,108 @@ export async function POST(
       );
     }
 
-    // استخراج معلومات المستخدم
-    let userId = '00000000-0000-0000-0000-000000000001';
-    let userName = 'مستخدم';
-    
-    try {
-      const cookieHeader = headersList.get('cookie') || '';
-      const userIdMatch = cookieHeader.match(/user_id=([^;]+)/);
-      const userNameMatch = cookieHeader.match(/user_name=([^;]+)/);
-      
-      if (userIdMatch) userId = decodeURIComponent(userIdMatch[1]);
-      if (userNameMatch) userName = decodeURIComponent(userNameMatch[1]);
-      
-      const customUserId = headersList.get('x-user-id');
-      const customUserName = headersList.get('x-user-name');
-      
-      if (customUserId) userId = customUserId;
-      if (customUserName) userName = decodeURIComponent(customUserName);
-    } catch (error) {
-      console.error('Error extracting user info:', error);
+    if (topic.status !== 'active') {
+      return NextResponse.json(
+        { error: 'لا يمكن الرد على موضوع غير نشط' },
+        { status: 403 }
+      );
     }
 
     // التحقق من وجود المستخدم أو إنشاؤه
-    const userCheck = await prisma.$queryRawUnsafe(`
-      SELECT id FROM users WHERE id = $1
-    `, userId);
-    
-    if (!userCheck || (userCheck as any[]).length === 0) {
-      await prisma.$executeRawUnsafe(`
-        INSERT INTO users (id, name, email, created_at, updated_at)
-        VALUES ($1, $2, $3, NOW(), NOW())
-        ON CONFLICT (id) DO UPDATE SET name = $2, updated_at = NOW()
-      `, userId, userName, `${userId}@sabq.org`);
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', userId)
+      .single();
+
+    if (!existingUser) {
+      const { error: userError } = await supabase
+        .from('users')
+        .insert({
+          id: userId,
+          name: userName,
+          email: userEmail,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      
+      if (userError) {
+        console.error('Error creating user:', userError);
+      }
     }
 
     // إنشاء الرد
-    const replyId = crypto.randomUUID();
-    
-    await prisma.$executeRawUnsafe(`
-      INSERT INTO forum_replies (id, topic_id, author_id, content, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, NOW(), NOW())
-    `, replyId, topicId, userId, content.trim());
+    const replyData = {
+      id: crypto.randomUUID(),
+      topic_id: topicId,
+      author_id: userId,
+      content: content.trim(),
+      status: 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
 
-    // تحديث وقت آخر رد في الموضوع
-    await prisma.$executeRawUnsafe(`
-      UPDATE forum_topics SET last_reply_at = NOW() WHERE id = $1
-    `, topicId);
+    const { data: newReply, error: replyError } = await supabase
+      .from('forum_replies')
+      .insert(replyData)
+      .select(`
+        *,
+        author:users (
+          id,
+          name,
+          email,
+          avatar_url
+        )
+      `)
+      .single();
+
+    if (replyError) {
+      console.error('Error creating reply:', replyError);
+      return NextResponse.json({ 
+        error: 'حدث خطأ في إضافة الرد',
+        details: replyError.message 
+      }, { status: 500 });
+    }
+
+    // تحديث وقت آخر رد في الموضوع وعدد الردود
+    await supabase
+      .from('forum_topics')
+      .update({ 
+        last_reply_at: new Date().toISOString(),
+        replies: supabase.rpc('increment', { x: 1 })
+      })
+      .eq('id', topicId);
+
+    // تنسيق الرد للإرجاع
+    const formattedReply = {
+      id: newReply.id,
+      content: newReply.content,
+      author: {
+        id: newReply.author?.id || userId,
+        name: newReply.author?.name || userName,
+        avatar: newReply.author?.avatar_url || `/images/authors/default-avatar.jpg`
+      },
+      createdAt: newReply.created_at,
+      updatedAt: newReply.updated_at,
+      isAccepted: false,
+      isPinned: false,
+      isHighlighted: false,
+      likes: 0,
+      isLiked: false
+    };
+
+    console.log('Reply created successfully:', replyData.id);
 
     return NextResponse.json({
-      id: replyId,
-      message: 'تم إضافة الرد بنجاح'
+      success: true,
+      message: 'تم إضافة الرد بنجاح',
+      reply: formattedReply
     });
   } catch (error: any) {
-    console.error('Error creating reply:', error);
-    return NextResponse.json(
-      { 
-        error: 'حدث خطأ في إضافة الرد',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
-      { status: 500 }
-    );
+    console.error('Error in POST reply:', error);
+    return NextResponse.json({ 
+      error: 'حدث خطأ في إضافة الرد',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    }, { status: 500 });
   }
 } 
