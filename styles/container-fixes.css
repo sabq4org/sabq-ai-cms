@@ -1,509 +1,0 @@
-/* 🔧 إصلاح عرض الصفحات - إعادة الحاوية المركزية */
-
-/* ===============================
-   🎯 1. إعادة الحاوية المركزية لجميع الصفحات
-   =============================== */
-
-/* الحاوية الرئيسية لجميع الصفحات */
-.container,
-.container-fluid {
-  max-width: 1280px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-  width: 100% !important;
-}
-
-/* حاوية متوسطة للمحتوى الرئيسي */
-.container-content {
-  max-width: 1152px !important; /* max-w-6xl */
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-  width: 100% !important;
-}
-
-/* حاوية صغيرة للمقالات والتفاصيل */
-.container-article {
-  max-width: 896px !important; /* max-w-4xl */
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-  width: 100% !important;
-}
-
-/* إصلاح الحاوية للموبايل */
-.mobile-container {
-  max-width: 1152px !important; /* max-w-6xl */
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-  width: 100% !important;
-}
-
-/* تطبيق الحاوية على العناصر الرئيسية */
-main > div:first-child,
-.page-container,
-.content-wrapper {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-  width: 100% !important;
-}
-
-/* ===============================
-   📏 2. تحديد عرض المحتوى
-   =============================== */
-
-/* منع التمدد الكامل للعناصر */
-.full-width-fix {
-  max-width: 100% !important;
-  width: auto !important;
-}
-
-/* إصلاح البطاقات والبلوكات */
-.card,
-.block,
-.section-content {
-  max-width: 100% !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* إصلاح شبكة البطاقات */
-.grid,
-.grid-container {
-  max-width: 100% !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* ===============================
-   🎨 3. إصلاح بلوكات التصنيفات
-   =============================== */
-
-/* بلوكات التصنيفات */
-.categories-container,
-.categories-grid,
-.category-blocks {
-  max-width: 1152px !important; /* نفس عرض البطاقات العلوية */
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-  width: 100% !important;
-}
-
-/* التأكد من محاذاة التصنيفات مع البطاقات */
-.deep-analysis-section + .categories-section {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* ===============================
-   📱 4. الاستجابة للشاشات المختلفة
-   =============================== */
-
-/* شاشات متوسطة */
-@media (min-width: 768px) {
-  .container,
-  .container-fluid,
-  .container-content,
-  .mobile-container {
-    padding-left: 1.5rem !important;
-    padding-right: 1.5rem !important;
-  }
-}
-
-/* شاشات كبيرة */
-@media (min-width: 1024px) {
-  .container,
-  .container-fluid,
-  .container-content,
-  .mobile-container {
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
-  }
-}
-
-/* شاشات كبيرة جداً */
-@media (min-width: 1280px) {
-  .container,
-  .container-fluid {
-    max-width: 1280px !important;
-  }
-  
-  .container-content,
-  .mobile-container {
-    max-width: 1152px !important;
-  }
-  
-  .container-article {
-    max-width: 896px !important;
-  }
-}
-
-/* ===============================
-   🚫 5. منع التمدد الكامل
-   =============================== */
-
-/* منع التمدد الكامل للصفحات */
-body > div,
-#__next > div,
-.page-wrapper {
-  max-width: 100vw !important;
-  overflow-x: hidden !important;
-}
-
-/* إصلاح العناصر التي تتمدد بالخطأ */
-.w-full {
-  max-width: 100% !important;
-}
-
-.w-screen {
-  max-width: 100vw !important;
-}
-
-/* ===============================
-   🎯 6. إصلاحات خاصة بـ Tailwind
-   =============================== */
-
-/* إعادة تعريف max-w classes */
-.max-w-7xl {
-  max-width: 1280px !important;
-}
-
-.max-w-6xl {
-  max-width: 1152px !important;
-}
-
-.max-w-5xl {
-  max-width: 1024px !important;
-}
-
-.max-w-4xl {
-  max-width: 896px !important;
-}
-
-.max-w-3xl {
-  max-width: 768px !important;
-}
-
-.max-w-2xl {
-  max-width: 672px !important;
-}
-
-.max-w-xl {
-  max-width: 576px !important;
-}
-
-/* تطبيق mx-auto بشكل صحيح */
-.mx-auto {
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* ===============================
-   🔧 7. إصلاحات للعناصر الخاصة
-   =============================== */
-
-/* الهيدر والفوتر - يمكن أن يكونا بعرض كامل */
-header,
-footer,
-.header-wrapper,
-.footer-wrapper {
-  width: 100% !important;
-}
-
-/* لكن المحتوى داخلهم محدود */
-header > div,
-footer > div,
-.header-content,
-.footer-content {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* البانرات الرئيسية - يمكن أن تكون بعرض كامل */
-.hero-banner,
-.main-banner,
-.full-width-banner {
-  width: 100% !important;
-}
-
-/* لكن المحتوى داخلها محدود */
-.hero-banner > div,
-.main-banner > div,
-.banner-content {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* ===============================
-   📐 8. إصلاحات للصفحات الداخلية
-   =============================== */
-
-/* صفحات المقالات */
-.article-page,
-.article-container,
-[class*="article"] {
-  max-width: 896px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* صفحات التصنيفات */
-.category-page,
-.categories-page,
-[class*="category-page"] {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* صفحات المنتدى */
-.forum-page,
-.forum-container,
-[class*="forum"] {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* ===============================
-   🎨 9. إصلاحات الشبكة والتخطيط
-   =============================== */
-
-/* شبكة البطاقات */
-.cards-grid,
-.articles-grid,
-.grid {
-  display: grid !important;
-  gap: 1.5rem !important;
-  width: 100% !important;
-}
-
-/* تخطيط العمودين */
-.two-column-layout {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  gap: 2rem !important;
-}
-
-@media (min-width: 1024px) {
-  .two-column-layout {
-    grid-template-columns: 2fr 1fr !important;
-  }
-}
-
-/* الشريط الجانبي */
-.sidebar {
-  max-width: 100% !important;
-}
-
-@media (min-width: 1024px) {
-  .sidebar {
-    max-width: 384px !important;
-  }
-}
-
-/* ===============================
-   ✅ 10. إصلاحات نهائية
-   =============================== */
-
-/* التأكد من عدم تجاوز العرض */
-* {
-  max-width: 100vw !important;
-}
-
-/* إصلاح overflow */
-html,
-body {
-  overflow-x: hidden !important;
-}
-
-/* إصلاح الصور والفيديوهات */
-img,
-video,
-iframe {
-  max-width: 100% !important;
-  height: auto !important;
-}
-
-/* إصلاح الجداول */
-table {
-  max-width: 100% !important;
-  overflow-x: auto !important;
-}
-
-/* إصلاح pre و code blocks */
-pre,
-code {
-  max-width: 100% !important;
-  overflow-x: auto !important;
-}
-
-/* ===============================
-   🎯 11. إصلاحات خاصة بمشروع سبق
-   =============================== */
-
-/* الصفحة الرئيسية */
-.home-page > div,
-.main-content > div {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* بطاقات التحليل العميق */
-.deep-analysis-cards {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* قسم التصنيفات أسفل التحليل العميق */
-.categories-below-analysis {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* ===============================
-   📱 12. إصلاحات الموبايل
-   =============================== */
-
-@media (max-width: 768px) {
-  /* تقليل الحشو على الموبايل */
-  .container,
-  .container-fluid,
-  .container-content,
-  .container-article,
-  .mobile-container {
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-  }
-  
-  /* تحسين المسافات */
-  .grid {
-    gap: 1rem !important;
-  }
-}
-
-@media (max-width: 640px) {
-  /* تقليل الحشو أكثر على الشاشات الصغيرة */
-  .container,
-  .container-fluid,
-  .container-content,
-  .container-article,
-  .mobile-container {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-  }
-}
-
-/* ===============================
-   🚀 13. تطبيق فوري
-   =============================== */
-
-/* تطبيق الإصلاحات على جميع divs الرئيسية */
-main > div,
-.page > div,
-[class*="page"] > div:first-child {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* استثناءات للعناصر التي يجب أن تكون بعرض كامل */
-.hero,
-.banner,
-.full-bleed {
-  max-width: 100% !important;
-  width: 100% !important;
-}
-
-/* لكن المحتوى داخلها محدود */
-.hero > *,
-.banner > *,
-.full-bleed > * {
-  max-width: 1152px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-/* ===============================
-   ✨ 14. تحسينات إضافية
-   =============================== */
-
-/* تحسين التباعد العمودي */
-section {
-  padding-top: 3rem !important;
-  padding-bottom: 3rem !important;
-}
-
-@media (max-width: 768px) {
-  section {
-    padding-top: 2rem !important;
-    padding-bottom: 2rem !important;
-  }
-}
-
-/* تحسين القراءة */
-.content p,
-.content li {
-  max-width: 65ch !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* ===============================
-   ✅ 15. الخلاصة
-   =============================== */
-
-/*
-تم إصلاح المشاكل التالية:
-
-1. ✅ جميع الصفحات الآن داخل حاوية مركزية محددة العرض
-2. ✅ بلوكات التصنيفات تبدأ من نفس حدود البطاقات العلوية
-3. ✅ لا يوجد محتوى يتمدد بعرض الصفحة الكامل (إلا الهيدر والفوتر والبانرات)
-4. ✅ الاستجابة محسنة لجميع أحجام الشاشات
-5. ✅ الهوامش والحشو متسقة في جميع الأقسام
-
-الحاويات المستخدمة:
-- الحاوية الرئيسية: max-width: 1152px (max-w-6xl)
-- حاوية المقالات: max-width: 896px (max-w-4xl)
-- الحشو الافتراضي: 1rem (16px)
-- الحشو على الشاشات الكبيرة: 2rem (32px)
-*/ 

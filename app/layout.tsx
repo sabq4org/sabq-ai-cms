@@ -5,9 +5,7 @@ import Image from 'next/image';
 
 import { Metadata } from 'next'
 import './globals.css'
-import '../styles/mobile-first-optimizations.css'
-import '@/styles/mobile-critical-fixes.css'
-import '@/styles/container-fixes.css'
+
 import '@/styles/tiptap-editor.css'
 import '@/styles/deep-analysis.css'
 import '@/styles/fix-layout.css'
@@ -20,7 +18,7 @@ import { cn } from '@/lib/utils'
 import { Providers } from './providers'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeScript } from './theme-script'
-import MobileOptimizer from '@/components/mobile/MobileOptimizer'
+
 
 const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
   subsets: ['arabic'],
@@ -140,9 +138,7 @@ export default function RootLayout({
       )} suppressHydrationWarning>
         <Providers>
           <AuthProvider>
-            <MobileOptimizer>
-              {children}
-            </MobileOptimizer>
+            {children}
             <Toaster 
               position="top-center"
               toastOptions={{
