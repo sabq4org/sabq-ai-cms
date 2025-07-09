@@ -32,41 +32,6 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // جلب الإحصائيات
-    if (action === 'stats') {
-      const totalNews = await prisma.was_news.count();
-      const todayNews = await prisma.was_news.count({
-        where: {
-          created_at: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0))
-          }
-        }
-      });
-      const importedNews = await prisma.was_news.count({
-        where: { is_imported: true }
-      });
-      const pendingNews = await prisma.was_news.count({
-        where: { is_imported: false }
-      });
-
-      // حساب نسبة النجاح (افتراضية)
-      const successRate = 95; // يمكن حسابها من سجل العمليات
-
-      return NextResponse.json({
-        success: true,
-        stats: {
-          total_news: totalNews,
-          today_news: todayNews,
-          imported_news: importedNews,
-          pending_news: pendingNews,
-          success_rate: successRate,
-          average_response_time: 1200, // بالمللي ثانية
-          last_fetch: new Date().toISOString(),
-          next_scheduled_fetch: new Date(Date.now() + 5 * 60 * 1000).toISOString() // بعد 5 دقائق
-        }
-      });
-    }
-
     // جلب أخبار جديدة من واس
     const basketId = searchParams.get('basket_id');
     const basketCD = basketId ? parseInt(basketId) : null;
