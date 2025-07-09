@@ -1,96 +1,90 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSpaBaskets, getSpaNextNews, formatSpaNews } from "@/lib/spa-news-api";
+import { getSpaBaskets, getSpaNextNews } from "@/lib/spa-news-api";
 
 export async function GET(request: NextRequest) {
-  console.log("Testing SPA API directly...");
+  console.log("=== SPA API Route Invoked (GET) ===");
+  
+  const url = new URL(request.url);
+  const action = url.searchParams.get("action") || "test";
+  
+  if (action === "test") {
+    return NextResponse.json({
+      success: true,
+      message: "API route is working!",
+      timestamp: new Date().toISOString(),
+    });
+  }
+  
+  return NextResponse.json({
+    error: "Use POST method for data requests",
+    hint: "GET is only for test action"
+  }, { status: 405 });
+}
+
+export async function POST(request: NextRequest) {
+  console.log("=== SPA API Route Invoked (POST) ===");
   
   try {
-    const url = new URL(request.url);
-    const action = url.searchParams.get("action") || "baskets";
+    const body = await request.json();
+    const action = body.action;
     
-    if (action === "baskets") {
-      // جلب السلال المتاحة
-      const baskets = await getSpaBaskets();
-      console.log("SPA API Response:", baskets);
-      
+    console.log("Action from body:", action);
+    console.log("Request body:", body);
+    
+    if (action === "test") {
       return NextResponse.json({
         success: true,
-        baskets: baskets,
+        message: "API route is working!",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    if (action === "baskets") {
+      console.log("🔄 Fetching SPA baskets...");
+      const baskets = await getSpaBaskets();
+      console.log("✅ GetBaskets API Call succeeded!");
+      
+      return NextResponse.json({ 
+        success: true, 
+        baskets: baskets 
       });
     }
     
     if (action === "news") {
-      // جلب الأخبار باستخدام التنسيق الصحيح
-      console.log("=== getSpaNextNews API Call ===");
-      console.log("Testing news fetch from baskets...");
-      
-      // تجربة السلال المختلفة
-      const testBaskets = [3, 17]; // واس عام، واس صور
-      const errors = []; // جمع الأخطاء
-      
-      for (const basketId of testBaskets) {
-        try {
-          console.log(`\n🔄 Testing BasketId: ${basketId}`);
-          
-          const news = await getSpaNextNews({
-            basket_CD: basketId,
-            last_news_CD: 0,
-            IS_recived: false,
-            IS_load_media: true,
-          });
-          
-          console.log("✅ News API Call succeeded!");
-          console.log("Raw news response:", JSON.stringify(news, null, 2));
-          
-          // تنسيق الأخبار للعرض
-          const formattedNews = Array.isArray(news) ? news.map(formatSpaNews) : [formatSpaNews(news)];
-          
-          return NextResponse.json({
-            success: true,
-            news: formattedNews,
-            rawResponse: news,
-            basketId: basketId
-          });
-          
-        } catch (error: any) {
-          console.log(`❌ Failed with BasketId: ${basketId}`);
-          console.log("Error:", error.message);
-          console.log("Error details:", error.response?.data);
-          console.log("Error status:", error.response?.status);
-          
-          // إضافة تفاصيل الخطأ للمصفوفة
-          errors.push({
-            basketId: basketId,
-            error: error.message,
-            status: error.response?.status,
-            details: error.response?.data
-          });
-          // استمر للتجربة التالية
-        }
+      const basket_CD = body.basket_CD;
+      if (!basket_CD) {
+        return NextResponse.json({ error: "basket_CD is required" }, { status: 400 });
       }
+
+      console.log(`🔄 Fetching news for BasketId: ${basket_CD}`);
       
-      // إذا فشلت جميع التجارب
-      return NextResponse.json({
-        error: "فشل جلب الأخبار من جميع السلال",
-        testedBaskets: testBaskets,
-        errors: errors
-      }, { status: 500 });
+      const news = await getSpaNextNews({
+        basket_CD: basket_CD,
+        last_news_CD: body.last_news_CD || 0,
+        IS_recived: body.IS_recived || false,
+        IS_load_media: body.IS_load_media !== false,
+      });
+      
+      console.log("✅ GetNextNews API Call succeeded!");
+      
+      return NextResponse.json({ 
+        success: true, 
+        news: news 
+      });
     }
     
     return NextResponse.json({
       error: "Invalid action. Use 'baskets' or 'news'",
-      availableActions: ["baskets", "news"]
+      availableActions: ["baskets", "news"],
+      receivedAction: action
     }, { status: 400 });
     
   } catch (error: any) {
-    console.error("WAS API Error:", error);
+    console.error("WAS API Error:", error.message);
     
-    const errorResponse = {
+    return NextResponse.json({
       error: error.message || "حدث خطأ غير متوقع",
-      errorCode: "UNKNOWN_ERROR",
-      details: error.response?.data || error.response?.status || "No additional details"
-    };
-    
-    return NextResponse.json(errorResponse, { status: 500 });
+      errorCode: error.code || "UNKNOWN_ERROR",
+    }, { status: 500 });
   }
-} 
+}
