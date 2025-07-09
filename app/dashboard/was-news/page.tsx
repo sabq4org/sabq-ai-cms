@@ -10,6 +10,7 @@ import { Loader2, RefreshCw, Download, Eye, FileText, AlertCircle, CheckCircle, 
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
+import WasNewsMonitor from '@/components/WasNewsMonitor';
 
 interface WasNews {
   id: string;
@@ -154,9 +155,10 @@ export default function WasNewsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="saved">الأخبار المحفوظة</TabsTrigger>
           <TabsTrigger value="fetch">جلب أخبار جديدة</TabsTrigger>
+          <TabsTrigger value="monitor">مراقبة الاتصال</TabsTrigger>
         </TabsList>
 
         <TabsContent value="saved" className="mt-6">
@@ -287,6 +289,10 @@ export default function WasNewsPage() {
               </Alert>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="monitor" className="mt-6">
+          <WasNewsMonitor />
         </TabsContent>
       </Tabs>
 
