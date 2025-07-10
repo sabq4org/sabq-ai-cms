@@ -1,27 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-// تهيئة Prisma Client بشكل آمن
-const getPrismaInstance = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return new PrismaClient({
-      log: ['warn', 'error'],
-      errorFormat: 'pretty',
-    });
-  }
-
-  // في بيئة التطوير، نستخدم متغيرًا عامًا لتجنب إنشاء اتصالات متعددة
-  if (!(global as any).prisma) {
-    (global as any).prisma = new PrismaClient({
-      log: ['warn', 'error', 'query', 'info'],
-      errorFormat: 'pretty',
-    });
-  }
-  return (global as any).prisma;
-};
-
-const prisma = getPrismaInstance();
-
 export const runtime = 'nodejs';
 
 // GET - جلب مقال واحد
@@ -138,7 +117,6 @@ export async function PATCH(
   } finally {
     // في بيئات غير الإنتاج، لا يتم قطع الاتصال للسماح بإعادة الاستخدام
     if (process.env.NODE_ENV === 'production') {
-      await prisma.$disconnect();
     }
   }
 }
