@@ -155,23 +155,23 @@ export async function PUT(
     const metadata = body.metadata || {};
     
     // معالجة is_breaking - إعطاء الأولوية للقيمة المباشرة ثم metadata
-    const is_breaking = body.is_breaking === true || metadata.is_breaking === true || false;
+    const is_breaking = body.is_breaking === true || (metadata as any).is_breaking === true || false;
     
     // معالجة is_featured
-    const is_featured = body.is_featured === true || metadata.is_featured === true || false;
+    const is_featured = body.is_featured === true || (metadata as any).is_featured === true || false;
     
     // تحديث metadata بالقيم الصحيحة
-    metadata.is_breaking = is_breaking;
-    metadata.is_featured = is_featured;
+    (metadata as any).is_breaking = is_breaking;
+    (metadata as any).is_featured = is_featured;
     
     // إذا كان هناك كلمات مفتاحية في body
     if (body.keywords) {
-      metadata.keywords = body.keywords;
+      (metadata as any).keywords = body.keywords;
     }
     
     // إذا كان هناك اسم مؤلف
     if (body.author_name) {
-      metadata.author_name = body.author_name;
+      (metadata as any).author_name = body.author_name;
     }
 
     const updateData: any = {

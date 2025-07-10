@@ -296,8 +296,8 @@ export async function POST(request: NextRequest) {
         metadata: {
           ...metadata,
           createdAt: new Date().toISOString(),
-          isSmartDraft: metadata.isSmartDraft || false,
-          aiEditor: metadata.aiEditor || false,
+          isSmartDraft: (metadata as any)?.isSmartDraft || false,
+          aiEditor: (metadata as any)?.aiEditor || false,
           author_name: author_name || undefined // حفظ اسم المؤلف في metadata
         },
         author_id: author_id || 'default-author-id', // استخدام author_id المرسل أو القيمة الافتراضية
@@ -324,7 +324,7 @@ export async function POST(request: NextRequest) {
             metadata: {
               category_id: category_id,
               featured_image: featured_image,
-              is_breaking: metadata.is_breaking || false
+              is_breaking: (metadata as any)?.is_breaking || false
             },
             created_at: new Date()
           }
@@ -340,7 +340,7 @@ export async function POST(request: NextRequest) {
       id: article.id,
       title: article.title,
       status: article.status,
-      isSmartDraft: metadata.isSmartDraft
+      isSmartDraft: (metadata as any)?.isSmartDraft
     })
 
     return NextResponse.json({
