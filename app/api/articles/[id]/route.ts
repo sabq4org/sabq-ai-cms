@@ -215,7 +215,7 @@ export async function PUT(
     console.log('✅ [API PUT] تم تحديث المقال بنجاح:', {
       id: articleId,
       is_breaking: updatedArticle.breaking,
-      metadata_is_breaking: updatedArticle.metadata?.is_breaking
+      metadata: updatedArticle.metadata
     });
 
     return NextResponse.json({
