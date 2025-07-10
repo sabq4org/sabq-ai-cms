@@ -1,14 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-
-
-
-
-
-
-
-
 export const dynamic = 'force-dynamic'; // Prevent caching
 
 export async function GET() {
@@ -33,16 +25,9 @@ export async function GET() {
   };
 
   try {
-    console.log('Attempting to create Prisma Client...');
-      log: ['warn', 'error'],
-      datasources: {
-        db: {
-          url: process.env.DATABASE_URL,
-        },
-      },
-    });
-    console.log('Prisma Client created. Attempting to connect...');
+    console.log('Attempting to connect to database...');
 
+    // استخدام prisma المستورد من lib/prisma
     await prisma.$connect();
     console.log('Prisma connection successful.');
     diagnostics.connection.status = '✅ SUCCESS';
@@ -67,4 +52,4 @@ export async function GET() {
 
   console.log('--- Vercel Debug Endpoint Finished ---');
   return NextResponse.json(diagnostics);
-} 
+}
