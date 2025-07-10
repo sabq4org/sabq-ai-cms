@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 import { corsResponse } from '@/lib/cors';
 
 
@@ -12,7 +12,6 @@ import { corsResponse } from '@/lib/cors';
 
 
 
-const prisma = new PrismaClient();
 
 // كلمات محظورة محلياً للفحص السريع
 const BANNED_WORDS = [

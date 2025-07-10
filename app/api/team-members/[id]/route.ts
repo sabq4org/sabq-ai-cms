@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 
-const prisma = new PrismaClient();
 
 export const runtime = 'nodejs';
 

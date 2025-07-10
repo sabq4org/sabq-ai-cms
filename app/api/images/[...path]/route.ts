@@ -1,16 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
-import path from 'path';
-
-
-
-
-
-
-
-
-
-
+import { getOptimizedImageUrl } from '@/lib/cloudinary';
 
 export const runtime = 'nodejs';
 
@@ -21,49 +10,51 @@ export async function GET(
   try {
     const resolvedParams = await context.params;
     const imagePath = resolvedParams.path.join('/');
-    const fullPath = path.join(process.cwd(), 'public', 'uploads', imagePath);
     
-    try {
-      // محاولة قراءة الملف
-      const file = await readFile(fullPath);
-      
-      // تحديد نوع المحتوى بناءً على الامتداد
-      const ext = path.extname(fullPath).toLowerCase();
-      let contentType = 'image/jpeg';
-      
-      switch (ext) {
-        case '.png':
-          contentType = 'image/png';
-          break;
-        case '.gif':
-          contentType = 'image/gif';
-          break;
-        case '.webp':
-          contentType = 'image/webp';
-          break;
-        case '.avif':
-          contentType = 'image/avif';
-          break;
-        case '.svg':
-          contentType = 'image/svg+xml';
-          break;
-      }
-      
-      return new NextResponse(file, {
-        headers: {
-          'Content-Type': contentType,
-          'Cache-Control': 'public, max-age=31536000, immutable',
-        },
-      });
-    } catch (error) {
-      // إذا لم يتم العثور على الملف، أرجع صورة افتراضية
-      console.error('Image not found:', fullPath);
-      
-      // إعادة توجيه إلى صورة افتراضية
-      return NextResponse.redirect(new URL('/default-avatar.png', request.url));
+    // التحقق من وجود المسار
+    if (!imagePath) {
+      return NextResponse.json(
+        { error: 'مسار الصورة مطلوب' },
+        { status: 400 }
+      );
     }
+    
+    // إنشاء رابط Cloudinary محسن
+    const cloudinaryUrl = getOptimizedImageUrl(imagePath, {
+      width: 800,
+      height: 600,
+      quality: 80,
+      format: 'webp',
+      crop: 'fill'
+    });
+    
+    // إعادة توجيه إلى Cloudinary
+    return NextResponse.redirect(cloudinaryUrl);
+    
   } catch (error) {
-    console.error('Error serving image:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('خطأ في معالجة الصورة:', error);
+    
+    // إرجاع صورة افتراضية من Cloudinary
+    const defaultImageUrl = `https://res.cloudinary.com/dybhezmvb/image/upload/v1/sabq-cms/defaults/default-image.jpg`;
+    return NextResponse.redirect(defaultImageUrl);
   }
-} 
+}
+
+// معالجة طلبات POST لتحميل الصور إلى Cloudinary
+export async function POST(request: Request) {
+  try {
+    return NextResponse.json(
+      { 
+        error: 'التحميل يجب أن يتم عبر Cloudinary مباشرة',
+        message: 'استخدم API Cloudinary للتحميل' 
+      },
+      { status: 400 }
+    );
+  } catch (error) {
+    console.error('خطأ في معالجة الطلب:', error);
+    return NextResponse.json(
+      { error: 'فشل معالجة الطلب' },
+      { status: 500 }
+    );
+  }
+}

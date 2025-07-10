@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { parse } from 'csv-parse/sync';
 import crypto from 'crypto';
@@ -15,7 +15,6 @@ import crypto from 'crypto';
 
 
 
-const prisma = new PrismaClient();
 
 
 

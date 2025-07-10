@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 
-const prisma = new PrismaClient();
 
 // GET - جلب جميع الأدوار
 export async function GET(request: NextRequest) {

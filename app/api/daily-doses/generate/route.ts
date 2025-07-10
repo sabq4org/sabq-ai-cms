@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 import { handleOptions, corsResponse } from '@/lib/cors';
 import OpenAI from 'openai';
 
@@ -13,7 +13,6 @@ import OpenAI from 'openai';
 
 
 
-const prisma = new PrismaClient();
 
 
 

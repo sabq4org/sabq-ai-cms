@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 import { getCurrentUser } from '@/app/lib/auth';
 import { quickLocalAnalysis } from '@/lib/comment-moderation';
 import { classifyCommentWithAI } from '@/lib/services/ai-comment-classifier';
@@ -18,7 +18,6 @@ import { classifyCommentWithAI } from '@/lib/services/ai-comment-classifier';
 
 
 
-const prisma = new PrismaClient();
 
 // دالة مساعدة للتحقق من دور المستخدم
 async function getUserRole(userId: string): Promise<string> {

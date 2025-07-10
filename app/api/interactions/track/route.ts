@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { recordInteraction } from '@/lib/user-interactions';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 
 
 
@@ -87,7 +87,6 @@ const POINTS_SYSTEM = {
   save: 10
 };
 
-const prisma = new PrismaClient();
 
 // دالة لتحميل التفاعلات
 async function loadInteractions() {

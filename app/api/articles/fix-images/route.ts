@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 import { checkImageExists, getDefaultImageUrl, extractPublicIdFromUrl } from '@/lib/cloudinary';
 import { deleteFromCloudinary } from '@/lib/cloudinary-server';
 
@@ -13,7 +13,6 @@ import { deleteFromCloudinary } from '@/lib/cloudinary-server';
 
 
 
-const prisma = new PrismaClient();
 
 
 

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { sendVerificationEmail, generateVerificationCode } from '@/lib/email';
 import crypto from 'crypto';
 
-const prisma = new PrismaClient();
 
 export const runtime = 'nodejs';
 

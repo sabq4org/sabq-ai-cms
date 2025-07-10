@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 
 // تهيئة Prisma Client بشكل آمن
 const getPrismaInstance = () => {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 import { getCurrentUser } from '@/app/lib/auth';
 
 
@@ -12,7 +12,6 @@ import { getCurrentUser } from '@/app/lib/auth';
 
 
 
-const prisma = new PrismaClient();
 
 // GET - جلب جميع كتّاب الرأي
 export async function GET(request: NextRequest) {

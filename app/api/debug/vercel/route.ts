@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 
 
 
@@ -34,7 +34,6 @@ export async function GET() {
 
   try {
     console.log('Attempting to create Prisma Client...');
-    const prisma = new PrismaClient({
       log: ['warn', 'error'],
       datasources: {
         db: {

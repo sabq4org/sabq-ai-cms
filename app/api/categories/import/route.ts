@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@/lib/generated/prisma'
 
-const prisma = new PrismaClient()
 import { getCurrentUser } from '@/app/lib/auth'
 
 export const runtime = 'nodejs'
