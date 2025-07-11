@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { uploadToCloudinary } from '@/lib/cloudinary-server';
+import { uploadToCloudinary, uploadWithRetry } from '@/lib/cloudinary-server';
 
 
 
@@ -72,11 +72,11 @@ export async function POST(request: NextRequest) {
 
         console.log('📤 رفع الصورة إلى Cloudinary...');
 
-        // رفع الصورة إلى Cloudinary
-        const result = await uploadToCloudinary(file, {
+        // رفع الصورة إلى Cloudinary مع إعادة المحاولة
+        const result = await uploadWithRetry(file, {
           folder,
           fileName: file.name
-        });
+        }, 3);
 
         console.log('✅ تم رفع الصورة إلى Cloudinary بنجاح:', result.url);
 
@@ -94,33 +94,29 @@ export async function POST(request: NextRequest) {
 
       } catch (uploadError) {
         console.error('❌ خطأ في رفع الملف إلى Cloudinary:', uploadError);
-        // السماح بالاستمرار مع placeholder
+        
+        // إرجاع خطأ واضح بدلاً من نجاح زائف
+        return NextResponse.json({ 
+          success: false,
+          error: 'فشل رفع الصورة إلى السحابة',
+          message: 'حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى أو الاتصال بالدعم الفني.',
+          details: uploadError instanceof Error ? uploadError.message : 'خطأ غير معروف',
+          is_placeholder: true,
+          placeholder_url: '/placeholder.jpg'
+        }, { status: 400 });
       }
     }
 
-    // إذا لم يتوفر Cloudinary، استخدم placeholder
-    console.log('⚠️ استخدام صورة placeholder - Cloudinary غير متوفر');
+    // إذا لم يتوفر Cloudinary، إرجاع خطأ
+    console.log('⚠️ Cloudinary غير مُعد بشكل صحيح');
     
-    // إرجاع صورة placeholder حسب النوع
-    let placeholderUrl = '/placeholder.jpg';
-    if (type === 'avatar') {
-      placeholderUrl = '/images/placeholder-avatar.jpg';
-    } else if (type === 'featured') {
-      placeholderUrl = '/images/placeholder-featured.jpg';
-    }
-
     return NextResponse.json({ 
-      success: true, 
-      url: placeholderUrl,
-      public_id: 'placeholder_' + Date.now(),
-      width: 800,
-      height: 600,
-      format: 'jpg',
-      bytes: 0,
-      message: 'تم استخدام صورة مؤقتة - يرجى إعداد Cloudinary للرفع الحقيقي',
+      success: false,
+      error: 'خدمة رفع الصور غير متوفرة',
+      message: 'لم يتم إعداد خدمة رفع الصور. يرجى الاتصال بالدعم الفني.',
       cloudinary_storage: false,
       is_placeholder: true
-    });
+    }, { status: 503 });
 
   } catch (error) {
     console.error('❌ خطأ في معالجة الملف:', error);

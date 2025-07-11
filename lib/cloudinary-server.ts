@@ -27,6 +27,51 @@ export const cleanFileName = (fileName: string): string => {
     .substring(0, 50); // تقليل الطول الأقصى
 };
 
+// دالة رفع مع إعادة المحاولة
+export const uploadWithRetry = async (
+  file: File | Buffer,
+  options: {
+    folder?: string;
+    publicId?: string;
+    transformation?: any[] | string;
+    resourceType?: 'image' | 'video' | 'raw';
+    fileName?: string;
+  } = {},
+  maxRetries: number = 3
+): Promise<{
+  url: string;
+  publicId: string;
+  width?: number;
+  height?: number;
+  format?: string;
+  bytes?: number;
+  secureUrl?: string;
+}> => {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`📤 محاولة رفع ${attempt}/${maxRetries}...`);
+      const result = await uploadToCloudinary(file, options);
+      console.log(`✅ نجح الرفع من المحاولة ${attempt}`);
+      return result;
+      
+    } catch (error) {
+      lastError = error as Error;
+      console.error(`❌ فشلت المحاولة ${attempt}: ${lastError.message}`);
+      
+      if (attempt < maxRetries) {
+        // انتظار تصاعدي: 1s, 2s, 3s
+        const delay = attempt * 1000;
+        console.log(`⏳ الانتظار ${delay}ms قبل المحاولة التالية...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  throw new Error(`فشل الرفع بعد ${maxRetries} محاولات: ${lastError?.message}`);
+};
+
 // دالة رفع الصور إلى Cloudinary
 export const uploadToCloudinary = async (
   file: File | Buffer,
