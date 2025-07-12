@@ -245,7 +245,14 @@ export default function Header() {
 
             {/* الشعار في المنتصف */}
             <Link href="/" className="flex-shrink-0">
-              <span className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">سبق</span>
+              <Image 
+                src="/logo.png" 
+                alt="سبق" 
+                width={80} 
+                height={32} 
+                className="h-10 w-auto object-contain hover:opacity-80 transition-opacity mt-1"
+                priority
+              />
             </Link>
 
             {/* أزرار التحكم على اليسار - مبسطة */}
@@ -316,7 +323,14 @@ export default function Header() {
           <div className="hidden lg:flex items-center justify-between w-full">
             {/* الشعار */}
             <Link href="/" className="flex-shrink-0 min-w-[120px]">
-              <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">سبق</span>
+              <Image 
+                src="/logo.png" 
+                alt="سبق" 
+                width={100} 
+                height={40} 
+                className="h-12 w-auto object-contain hover:opacity-80 transition-opacity mt-1"
+                priority
+              />
             </Link>
 
             {/* التنقل الرئيسي */}
