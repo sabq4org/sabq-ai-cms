@@ -15,7 +15,7 @@ interface MobileNewsCardProps {
 export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) {
   return (
     <Link href={getArticleLink(news)} className="block">
-      <article className={`relative overflow-hidden rounded-2xl shadow-sm transition-all hover:shadow-md ${
+      <article className={`relative overflow-hidden rounded-xl shadow-sm transition-all hover:shadow-md ${
         news.is_breaking 
           ? darkMode 
             ? 'bg-gradient-to-br from-red-950/30 to-red-900/20 border border-red-800' 
@@ -24,10 +24,10 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
             ? 'bg-gray-800 border border-gray-700' 
             : 'bg-white border border-gray-200'
       }`}>
-        {/* تصميم أفقي مستطيل */}
-        <div className="flex">
-          {/* الصورة - أكبر ومربعة */}
-          <div className="relative w-32 h-32 flex-shrink-0">
+        {/* تصميم أفقي محسّن */}
+        <div className="flex h-28">
+          {/* الصورة - مربعة ومحاذاة لليمين */}
+          <div className="relative w-28 h-28 flex-shrink-0">
             <CloudImage
               src={news.featured_image}
               alt={news.title || 'صورة المقال'}
@@ -37,9 +37,9 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
               priority={false}
             />
             {news.is_breaking && (
-              <div className="absolute top-2 right-2">
-                <span className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-bold bg-red-500 text-white shadow-lg">
-                  <Zap className="w-3 h-3" />
+              <div className="absolute top-1 right-1">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-500 text-white shadow">
+                  <Zap className="w-2.5 h-2.5" />
                   عاجل
                 </span>
               </div>
@@ -47,11 +47,11 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
           </div>
 
           {/* المحتوى */}
-          <div className="flex-1 p-4 flex flex-col justify-between">
+          <div className="flex-1 p-3 flex flex-col">
             {/* التصنيف */}
             {news.category_name && (
-              <div className="flex items-center gap-1 mb-2">
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+              <div className="mb-1.5">
+                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full inline-block ${
                   darkMode 
                     ? 'bg-blue-900/30 text-blue-400' 
                     : 'bg-blue-100 text-blue-700'
@@ -61,8 +61,8 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
               </div>
             )}
 
-            {/* العنوان */}
-            <h3 className={`font-bold text-base mb-2 line-clamp-2 leading-snug ${
+            {/* العنوان - أصغر وأكثر أناقة */}
+            <h3 className={`font-bold text-sm mb-auto line-clamp-3 leading-tight ${
               news.is_breaking 
                 ? 'text-red-700 dark:text-red-400' 
                 : darkMode 
@@ -72,24 +72,31 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
               {news.title}
             </h3>
 
-            {/* معلومات سريعة */}
-            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
+            {/* الملخص المختصر - إضافة جديدة */}
+            {news.summary && (
+              <p className={`text-xs line-clamp-2 mb-2 leading-relaxed ${
+                darkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}>
+                {news.summary}
+              </p>
+            )}
+
+            {/* معلومات سريعة - في الأسفل */}
+            <div className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+              <span className="flex items-center gap-0.5">
+                <Clock className="w-2.5 h-2.5" />
                 {news.reading_time || 5} د
               </span>
-              <span className="flex items-center gap-1">
-                <Eye className="w-3 h-3" />
+              <span className="flex items-center gap-0.5">
+                <Eye className="w-2.5 h-2.5" />
                 {news.views_count > 1000 
                   ? `${(news.views_count / 1000).toFixed(1)}k` 
                   : news.views_count || 0}
               </span>
-              <span className="mr-auto text-gray-400">
+              <span className="mr-auto">
                 {new Date(news.published_at || news.created_at).toLocaleDateString('ar-SA', {
                   month: 'short',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit'
+                  day: 'numeric'
                 })}
               </span>
             </div>
