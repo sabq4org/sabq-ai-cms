@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import ContentEditorWithBlocks from '../../../../../components/ContentEditorWithBlocks';
-import FeaturedImageUpload from '../../../../../components/FeaturedImageUpload';
 import { logActions, getCurrentUser } from '../../../../../lib/log-activity';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Block } from '../../../../../components/BlockEditor/types';
@@ -12,7 +11,8 @@ import {
   Save, Eye, Send, AlertTriangle, Image as ImageIcon, Video,
   Sparkles, Brain, Globe, Settings, Hash, FileText, CheckCircle,
   XCircle, Lightbulb, Target, RefreshCw,
-  Wand2, PenTool, BarChart3, Rocket, ArrowLeft, Loader2
+  Wand2, PenTool, BarChart3, Rocket, ArrowLeft, Loader2,
+  Zap, TrendingUp
 } from 'lucide-react';
 // استيراد المكونات
 // ===============================
@@ -45,6 +45,7 @@ interface ArticleFormData {
   content_blocks: ContentBlock[];
   featured_image?: string;
   featured_image_alt?: string;
+  featured_image_caption?: string; // إضافة حقل شرح الصورة
 }
 // استخدام أنواع Block من محرر البلوكات
 // ContentBlock سيكون مرادف لـ Block
@@ -161,6 +162,7 @@ export default function EditArticlePage() {
           cover_image: articleData.featured_image || '',
           featured_image: articleData.featured_image || '',
           featured_image_alt: articleData.featured_image_alt || '',
+          featured_image_caption: articleData.image_caption || articleData.featured_image_caption || '', // تحميل شرح الصورة
           publish_time: formatDate(articleData.publish_at || articleData.published_at) || formatDate(new Date().toISOString()),
           author_id: articleData.author_id || 'current_user',
           scope: articleData.scope || 'local',
@@ -378,6 +380,7 @@ export default function EditArticlePage() {
         },
         featured_image: formData.featured_image || formData.cover_image,
         featured_image_alt: formData.featured_image_alt,
+        image_caption: formData.featured_image_caption || undefined, // إضافة شرح الصورة
         seo_title: formData.title,
         seo_description: formData.description,
         seo_keywords: formData.keywords,
@@ -898,8 +901,201 @@ export default function EditArticlePage() {
                 </div>
               </div>
             )}
-            {/* باقي التبويبات تبقى كما هي مع نفس التصميم من صفحة الإنشاء */}
-            {/* يمكن إضافتها لاحقاً حسب الحاجة */}
+            {/* تبويب SEO */}
+            {activeTab === 'seo' && (
+              <div className="bg-white rounded-3xl shadow-xl p-8">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Target className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">تحسين محركات البحث</h2>
+                    <p className="text-gray-600">حسّن ظهور مقالك في نتائج البحث</p>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {/* الكلمات المفتاحية */}
+                  <div className="border-2 border-gray-100 rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <Hash className="w-5 h-5 text-purple-600" />
+                        الكلمات المفتاحية
+                        {formData.keywords.length > 0 && (
+                          <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
+                            {formData.keywords.length}
+                          </span>
+                        )}
+                      </h3>
+                      <button
+                        onClick={generateKeywords}
+                        disabled={aiLoading.keywords}
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors disabled:opacity-50"
+                      >
+                        {aiLoading.keywords ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-4 h-4" />
+                        )}
+                        اقتراح بالذكاء الاصطناعي
+                      </button>
+                    </div>
+                    {/* عرض الكلمات المفتاحية الحالية */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {formData.keywords.map((keyword, index) => (
+                        <span key={`keyword-${index}-${keyword}`} className="px-3 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-purple-200 transition-colors">
+                          <Hash className="w-3 h-3" />
+                          {keyword}
+                          <button
+                            onClick={() => setFormData(prev => ({ 
+                              ...prev, 
+                              keywords: prev.keywords.filter(k => k !== keyword)
+                            }))}
+                            className="ml-1 hover:text-purple-900 hover:bg-purple-300 rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                            title="حذف الكلمة المفتاحية"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                      {/* حقل إدخال جديد */}
+                      <input
+                        type="text"
+                        placeholder="أضف كلمة مفتاحية واضغط Enter..."
+                        className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-w-[200px]"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const value = (e.target as HTMLInputElement).value.trim();
+                            if (value && !formData.keywords.includes(value)) {
+                              setFormData(prev => ({ 
+                                ...prev, 
+                                keywords: [...prev.keywords, value]
+                              }));
+                              (e.target as HTMLInputElement).value = '';
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                    {/* اقتراحات سريعة */}
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                        <Lightbulb className="w-4 h-4 text-yellow-500" />
+                        اقتراحات سريعة
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {['السعودية', 'الرياض', 'أخبار', 'عاجل', 'تقنية', 'اقتصاد', 'رياضة', 'صحة'].map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            onClick={() => {
+                              if (!formData.keywords.includes(suggestion)) {
+                                setFormData(prev => ({ 
+                                  ...prev, 
+                                  keywords: [...prev.keywords, suggestion]
+                                }));
+                              }
+                            }}
+                            disabled={formData.keywords.includes(suggestion)}
+                            className="px-3 py-1 bg-white border border-gray-200 text-gray-600 rounded-full text-xs hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            + {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* تبويب إعدادات النشر */}
+            {activeTab === 'publish' && (
+              <div className="bg-white rounded-3xl shadow-xl p-8">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Rocket className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">إعدادات النشر</h2>
+                    <p className="text-gray-600">خيارات النشر والتوقيت</p>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {/* خيارات الظهور */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900">خيارات الظهور</h3>
+                    <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_breaking}
+                        onChange={(e) => setFormData(prev => ({ ...prev, is_breaking: e.target.checked }))}
+                        className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <Zap className="w-5 h-5 text-red-600" />
+                          <span className="font-medium">خبر عاجل</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">سيظهر في شريط الأخبار العاجلة</p>
+                      </div>
+                    </label>
+                    
+                    <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_featured}
+                        onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
+                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-blue-600" />
+                          <span className="font-medium">خبر مميز</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">سيظهر في القسم المميز بالصفحة الرئيسية</p>
+                      </div>
+                    </label>
+                  </div>
+                  
+                  {/* توقيت النشر */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">توقيت النشر</h3>
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium text-gray-700 block">
+                        تاريخ ووقت النشر
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={formData.publish_time}
+                        onChange={(e) => setFormData(prev => ({ ...prev, publish_time: e.target.value }))}
+                        className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <p className="text-sm text-gray-600">
+                        سيتم نشر المقال في: {formData.publish_time ? formatDateArabic(formData.publish_time) : 'فور الحفظ'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* تبويب الإعدادات */}
+            {activeTab === 'settings' && (
+              <div className="bg-white rounded-3xl shadow-xl p-8">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Settings className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">الإعدادات</h2>
+                    <p className="text-gray-600">خيارات العرض والإعدادات المتقدمة</p>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  <p className="text-gray-600">إعدادات إضافية قيد التطوير...</p>
+                </div>
+              </div>
+            )}
             </div>
             {/* الشريط الجانبي */}
           <div className="xl:col-span-1 space-y-6">
@@ -979,11 +1175,47 @@ export default function EditArticlePage() {
                 <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">الصورة البارزة</label>
-                  <FeaturedImageUpload
-                    value={formData.featured_image || ''}
-                    onChange={(url) => setFormData(prev => ({ ...prev, featured_image: url }))}
-                    darkMode={darkMode}
-                  />
+                  {formData.featured_image ? (
+                    <div className="space-y-3">
+                      <div className="relative">
+                        <Image 
+                          src={formData.featured_image} 
+                          alt="الصورة البارزة" 
+                          width={200} 
+                          height={150}
+                          className="rounded-lg object-cover w-full h-48"
+                        />
+                        <button
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                          onClick={() => setFormData(prev => ({ ...prev, featured_image: '', featured_image_caption: '' }))}
+                        >
+                          <XCircle className="w-4 h-4" />
+                        </button>
+                      </div>
+                      {/* حقل شرح الصورة */}
+                      <div>
+                        <label htmlFor="image-caption" className="text-xs font-medium text-gray-600 mb-1 block">
+                          شرح الصورة (Alt Text)
+                        </label>
+                        <input
+                          id="image-caption"
+                          type="text"
+                          value={formData.featured_image_caption || ''}
+                          onChange={(e) => setFormData(prev => ({ ...prev, featured_image_caption: e.target.value }))}
+                          placeholder="اكتب وصفاً للصورة يظهر تحتها..."
+                          className="w-full p-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          يظهر تحت الصورة ويساعد في SEO
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center text-sm text-gray-500">
+                      <ImageIcon className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                      <p>لم يتم رفع صورة بارزة</p>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">الصور في المقال</span>

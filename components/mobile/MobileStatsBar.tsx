@@ -5,11 +5,12 @@ import { Newspaper, Tag, Users, Clock, TrendingUp } from 'lucide-react';
 
 interface MobileStatsBarProps {
   stats: {
-    articlesCount: number;
-    categoriesCount: number;
-    todayArticles?: number;
-    activeUsers?: number;
-    coveragePercentage?: number;
+    articlesCount: number | null;
+    categoriesCount: number | null;
+    todayArticles?: number | null;
+    activeUsers?: number | null;
+    coveragePercentage?: number | null;
+    loading?: boolean;
   };
   darkMode: boolean;
 }
@@ -36,7 +37,11 @@ export default function MobileStatsBar({ stats, darkMode }: MobileStatsBarProps)
               المقالات
             </p>
             <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              {stats.articlesCount.toLocaleString()}
+              {stats.loading || stats.articlesCount === null ? (
+                <span className="inline-block w-12 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
+              ) : (
+                stats.articlesCount.toLocaleString()
+              )}
             </p>
           </div>
         </div>
@@ -55,7 +60,11 @@ export default function MobileStatsBar({ stats, darkMode }: MobileStatsBarProps)
               التصنيفات
             </p>
             <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              {stats.categoriesCount}
+              {stats.loading || stats.categoriesCount === null ? (
+                <span className="inline-block w-8 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
+              ) : (
+                stats.categoriesCount
+              )}
             </p>
           </div>
         </div>
@@ -74,7 +83,11 @@ export default function MobileStatsBar({ stats, darkMode }: MobileStatsBarProps)
               اليوم
             </p>
             <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              {stats.todayArticles || 12}
+              {stats.loading || stats.todayArticles === null ? (
+                <span className="inline-block w-8 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
+              ) : (
+                stats.todayArticles || 0
+              )}
             </p>
           </div>
         </div>

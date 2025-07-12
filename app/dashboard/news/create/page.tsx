@@ -71,6 +71,7 @@ export default function CreateArticlePage() {
     isBreaking: false,
     isFeatured: false,
     featuredImage: '',
+    featuredImageCaption: '', // إضافة حقل شرح الصورة
     gallery: [] as UploadedImage[],
     externalLink: '',
     publishType: 'now',
@@ -430,6 +431,7 @@ export default function CreateArticlePage() {
         author_name: selectedAuthor?.name || undefined, // إضافة اسم المؤلف
         category_id: formData.categoryId || undefined,
         featured_image: formData.featuredImage || undefined,
+        image_caption: formData.featuredImageCaption || undefined, // إضافة شرح الصورة
         status,
         metadata: {
           keywords: formData.keywords,
@@ -779,6 +781,24 @@ export default function CreateArticlePage() {
                         </div>
                       )}
                     </div>
+                    
+                    {/* حقل شرح الصورة */}
+                    {formData.featuredImage && (
+                      <div className="mt-3">
+                        <Label htmlFor="image-caption">شرح الصورة (Alt Text)</Label>
+                        <Input
+                          id="image-caption"
+                          type="text"
+                          value={formData.featuredImageCaption}
+                          onChange={(e) => setFormData(prev => ({ ...prev, featuredImageCaption: e.target.value }))}
+                          placeholder="اكتب وصفاً للصورة يظهر تحتها..."
+                          className="mt-1"
+                        />
+                        <p className="text-sm text-muted-foreground mt-1">
+                          هذا الوصف سيظهر تحت الصورة في صفحة المقال ويساعد في تحسين SEO
+                        </p>
+                      </div>
+                    )}
                     
                     {/* عرض حالة رفع الصورة */}
                     {imageUploadStatus.status !== 'idle' && (

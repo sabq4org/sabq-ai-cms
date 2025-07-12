@@ -141,7 +141,7 @@ export default function DashboardLayout({
         <div className="flex items-center justify-between">
           {/* الجهة اليمنى - القائمة واللوجو والعنوان */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* زر القائمة للموبايل */}
+            {/* زر القائمة للموبايل - لوحة التحكم */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className={`lg:hidden p-2 rounded-lg transition-colors duration-300 ${
@@ -149,6 +149,7 @@ export default function DashboardLayout({
                   ? 'hover:bg-gray-700 text-gray-300' 
                   : 'hover:bg-gray-100 text-gray-600'
               }`}
+              aria-label="قائمة لوحة التحكم"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -287,18 +288,18 @@ export default function DashboardLayout({
             ? 'bg-gradient-to-b from-gray-800 to-gray-900 border-gray-700' 
             : 'bg-gradient-to-b from-slate-50 to-white border-gray-100'
         }`}>
-          {/* زر إغلاق للموبايل */}
-          <div className="lg:hidden flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-              القائمة الرئيسية
-            </h2>
+          {/* رأس القائمة الجانبية للموبايل */}
+          <div className="lg:hidden flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-500 to-purple-600">
+            <div>
+              <h2 className="text-lg font-bold text-white">
+                لوحة التحكم
+              </h2>
+              <p className="text-xs text-blue-100 mt-1">قائمة الإدارة</p>
+            </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className={`p-2 rounded-lg transition-colors ${
-                darkMode 
-                  ? 'hover:bg-gray-700 text-gray-300' 
-                  : 'hover:bg-gray-100 text-gray-600'
-              }`}
+              className="p-2 rounded-lg transition-colors hover:bg-white/20 text-white"
+              aria-label="إغلاق القائمة"
             >
               <X className="w-5 h-5" />
             </button>
@@ -321,7 +322,7 @@ export default function DashboardLayout({
                 }`}>
                   <LayoutDashboard className="w-4 h-4 lg:w-5 lg:h-5" />
                 </div>
-                <span className="text-sm lg:text-base font-medium">الصفحة الرئيسية</span>
+                <span className="text-sm lg:text-base font-medium">لوحة التحكم الرئيسية</span>
               </Link>
             </div>
 
@@ -992,6 +993,26 @@ export default function DashboardLayout({
                 </div>
                 <span className="text-sm lg:text-base font-medium">تسجيل الخروج</span>
               </button>
+            </div>
+            
+            {/* رابط العودة للموقع الرئيسي */}
+            <div className="mt-4">
+              <Link href="/" 
+                onClick={() => setSidebarOpen(false)}
+                className={`group flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl transition-all duration-300 hover:shadow-md w-full ${
+                darkMode 
+                  ? 'text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-gray-700/30 hover:text-gray-300' 
+                  : 'text-gray-600 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-800'
+              }`}>
+                <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                  darkMode 
+                    ? 'bg-gray-800/40 group-hover:bg-gray-600 group-hover:text-white' 
+                    : 'bg-gray-200 group-hover:bg-gray-400 group-hover:text-white'
+                }`}>
+                  <Globe className="w-4 h-4 lg:w-5 lg:h-5" />
+                </div>
+                <span className="text-sm lg:text-base font-medium">العودة للموقع الرئيسي</span>
+              </Link>
             </div>
 
           </div>
