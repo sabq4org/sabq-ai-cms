@@ -699,57 +699,6 @@ export default function ArticlePage({ params }: PageProps) {
       {article && <ArticleJsonLd article={article} />}
       {/* أنماط CSS مخصصة */}
       <style jsx>{`
-        /* أنماط البلوكات الجانبية الموحدة */
-        .sidebar-card {
-          padding: 1.5rem;
-          background-color: rgb(249 250 251);
-          border-radius: 0.75rem;
-          border: 1px solid rgb(229 231 235);
-          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-        .dark .sidebar-card {
-          background-color: rgb(31 41 55);
-          border-color: rgb(55 65 81);
-        }
-        .article-info-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-          margin-top: 1rem;
-        }
-        .article-info-item {
-          text-align: center;
-          padding: 0.75rem;
-          background-color: white;
-          border-radius: 0.5rem;
-          border: 1px solid rgb(229 231 235);
-        }
-        .dark .article-info-item {
-          background-color: rgb(17 24 39);
-          border-color: rgb(75 85 99);
-        }
-        .article-info-item svg {
-          width: 1.25rem;
-          height: 1.25rem;
-          margin: 0 auto 0.5rem;
-          color: rgb(59 130 246);
-        }
-        .article-info-label {
-          font-size: 0.75rem;
-          color: rgb(107 114 128);
-          margin-bottom: 0.25rem;
-        }
-        .dark .article-info-label {
-          color: rgb(156 163 175);
-        }
-        .article-info-value {
-          font-size: 1.125rem;
-          font-weight: 700;
-          color: rgb(17 24 39);
-        }
-        .dark .article-info-value {
-          color: white;
-        }
         .trend-badge {
           display: inline-flex;
           align-items: center;
@@ -1121,40 +1070,34 @@ export default function ArticlePage({ params }: PageProps) {
           </section>
           {/* Sidebar */}
           <aside className="lg:col-span-1 space-y-6 px-4 sm:px-6 md:px-8 lg:px-0">
-            {/* Article Stats */}
-            <div className="sidebar-card">
+            {/* Article Stats - تصميم موحد */}
+            <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="trend-badge text-sm text-green-600 mb-2">↑ نمو كبير اليوم</div>
               <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-blue-600" />
                 إحصائيات المقال
               </h3>
-              <div className="article-info-grid">
-                <div className="article-info-item">
-                  <Eye className="w-5 h-5" />
-                  <div>
-                    <div className="article-info-label">المشاهدات</div>
-                    <div className="article-info-value">{article.views_count || 0}</div>
-                  </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <Eye className="w-5 h-5 mx-auto mb-2 text-blue-600" />
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">المشاهدات</div>
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">{article.views_count || 0}</div>
                 </div>
-                <div className="article-info-item">
-                  <Clock className="w-5 h-5" />
-                  <div>
-                    <div className="article-info-label">وقت القراءة</div>
-                    <div className="article-info-value">{calculateReadingTime(article.content)} دقائق</div>
-                  </div>
+                <div className="text-center p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <Clock className="w-5 h-5 mx-auto mb-2 text-blue-600" />
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">وقت القراءة</div>
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">{calculateReadingTime(article.content)} د</div>
                 </div>
-                <div className="article-info-item">
-                  <MessageCircle className="w-5 h-5" />
-                  <div>
-                    <div className="article-info-label">التعليقات</div>
-                    <div className="article-info-value">{article.stats?.comments || 0}</div>
-                  </div>
+                <div className="text-center p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <MessageCircle className="w-5 h-5 mx-auto mb-2 text-blue-600" />
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">التعليقات</div>
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">{article.stats?.comments || 0}</div>
                 </div>
               </div>
             </div>
             {/* فهرس المحتويات */}
             {tableOfContents.length > 0 && (
-              <div className="sidebar-card sticky top-20">
+              <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 sticky top-20">
                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <Hash className="w-5 h-5 text-blue-600" />
                   فهرس المحتويات
@@ -1187,8 +1130,8 @@ export default function ArticlePage({ params }: PageProps) {
                 </div>
               </div>
             )}
-            {/* مساعد AI - جديد */}
-            <div className="sidebar-card bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800">
+            {/* مساعد AI - تصميم موحد */}
+            <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

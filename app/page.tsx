@@ -1345,31 +1345,38 @@ function NewspaperHomePage({ stats }: NewspaperHomePageProps): React.ReactElemen
               </div>
             </div>
           </div>
-          {/* Stats */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-8">
-            <div className={`text-center px-4 py-3 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'} border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}`}>
-              <div className="text-xl sm:text-2xl font-bold text-blue-600 mb-1">
-                {!stats || stats.loading || stats.activeReaders === null ? (
-                  <span className="inline-block w-16 h-6 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
-                ) : (
-                  `${(stats.activeReaders / 1000000).toFixed(1)}M+`
-                )}
-              </div>
-              <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>قارئ نشط</div>
-            </div>
-            <div className={`text-center px-4 py-3 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'} border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}`}>
-              <div className="text-xl sm:text-2xl font-bold text-green-600 mb-1">
-                {!stats || stats.loading || stats.dailyArticles === null ? (
-                  <span className="inline-block w-16 h-6 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
-                ) : (
-                  `${Math.floor(stats.dailyArticles / 1000)}K+`
-                )}
-              </div>
-              <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>مقال يومياً</div>
-            </div>
-            <div className={`text-center px-4 py-3 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'} border ${darkMode ? 'border-gray-700' : 'border-gray-200 dark:border-gray-700'}`}>
-              <div className="text-xl sm:text-2xl font-bold text-purple-600 mb-1">AI</div>
-              <div className={`text-xs ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>ذكاء اصطناعي</div>
+          {/* Stats - تصميم أفقي محسن */}
+          <div className={`rounded-xl p-4 mb-8 ${darkMode ? 'bg-gray-800/50' : 'bg-gray-100/50'}`}>
+            <div className="flex items-center justify-center gap-3 text-sm">
+              <span className="flex items-center gap-2">
+                <span className="text-lg">📰</span>
+                <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {!stats || stats.loading || stats.activeReaders === null ? (
+                    <span className="inline-block w-12 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
+                  ) : (
+                    `${(stats.activeReaders / 1000000).toFixed(1)}M+`
+                  )}
+                </span>
+                <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>قارئ</span>
+              </span>
+              <span className={`${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>|</span>
+              <span className="flex items-center gap-2">
+                <span className="text-lg">📂</span>
+                <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {!stats || stats.loading || stats.dailyArticles === null ? (
+                    <span className="inline-block w-10 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
+                  ) : (
+                    `${Math.floor(stats.dailyArticles / 1000)}K+`
+                  )}
+                </span>
+                <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>مقال</span>
+              </span>
+              <span className={`${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>|</span>
+              <span className="flex items-center gap-2">
+                <span className="text-lg">🤖</span>
+                <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>24/7</span>
+                <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>تغطية ذكية</span>
+              </span>
             </div>
           </div>
           {/* Links */}

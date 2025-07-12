@@ -24,10 +24,10 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
             ? 'bg-gray-800 border border-gray-700' 
             : 'bg-white border border-gray-200'
       }`}>
-        {/* تصميم أفقي محسّن */}
-        <div className="flex h-32">
-          {/* الصورة - مربعة */}
-          <div className="relative w-32 h-32 flex-shrink-0 bg-gray-200 dark:bg-gray-700">
+        {/* تصميم أفقي محسّن - ارتفاع ثابت */}
+        <div className="flex h-28">
+          {/* الصورة - مربعة مع margin */}
+          <div className="relative w-28 h-28 flex-shrink-0 bg-gray-200 dark:bg-gray-700 ml-2">
             <CloudImage
               src={news.featured_image}
               alt={news.title || 'صورة المقال'}
@@ -35,7 +35,7 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
               className="w-full h-full object-cover"
               fallbackType="article"
               priority={false}
-              sizes="128px"
+              sizes="112px"
             />
             {news.is_breaking && (
               <div className="absolute top-1 right-1">
@@ -47,12 +47,12 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
             )}
           </div>
 
-          {/* المحتوى */}
-          <div className="flex-1 p-3 flex flex-col">
+          {/* المحتوى - مساحة أكبر للعنوان */}
+          <div className="flex-1 p-2.5 pl-1 flex flex-col">
             {/* التصنيف والتاريخ */}
             <div className="flex items-center justify-between text-[10px] mb-1">
               {news.category_name && (
-                <span className={`font-medium px-2 py-0.5 rounded-full ${
+                <span className={`font-medium px-1.5 py-0.5 rounded-full ${
                   darkMode 
                     ? 'bg-blue-900/30 text-blue-400' 
                     : 'bg-blue-100 text-blue-700'
@@ -68,8 +68,8 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
               </span>
             </div>
 
-            {/* العنوان */}
-            <h3 className={`font-bold text-sm leading-relaxed line-clamp-3 flex-1 ${
+            {/* العنوان - 3 أسطر كحد أقصى */}
+            <h3 className={`font-bold text-sm leading-snug line-clamp-3 flex-grow ${
               news.is_breaking 
                 ? 'text-red-700 dark:text-red-400' 
                 : darkMode 
@@ -80,7 +80,7 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
             </h3>
 
             {/* معلومات سريعة */}
-            <div className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400 mt-auto">
+            <div className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400 mt-1">
               <span className="flex items-center gap-0.5">
                 <Clock className="w-2.5 h-2.5" />
                 {news.reading_time || 5} د
