@@ -65,7 +65,9 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
               <span className="text-gray-500 dark:text-gray-400">
                 {new Date(news.published_at || news.created_at).toLocaleDateString('ar-SA', {
                   month: 'short',
-                  day: 'numeric'
+                  day: 'numeric',
+                  calendar: 'gregory',
+                  numberingSystem: 'latn'
                 })}
               </span>
             </div>

@@ -21,7 +21,14 @@ export async function GET(
     if (!dbArticle) {
       return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
-    return NextResponse.json(dbArticle);
+    
+    // إضافة views_count من حقل views
+    const articleWithViewsCount = {
+      ...dbArticle,
+      views_count: dbArticle.views || 0
+    };
+    
+    return NextResponse.json(articleWithViewsCount);
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

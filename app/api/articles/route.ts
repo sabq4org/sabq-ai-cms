@@ -186,9 +186,12 @@ export async function GET(request: NextRequest) {
     const total = await prisma.articles.count({ where })
     console.timeEnd('📊 جلب العدد الإجمالي للمقالات')
 
-    // جلب التصنيفات إذا كانت هناك مقالات
+    // جلب التصنيفات والمؤلفين إذا كانت هناك مقالات
     let categoriesMap: any = {}
+    let authorsMap: any = {}
+    
     if (articles.length > 0) {
+      // جلب التصنيفات
       const categoryIds = [...new Set(articles.map((a: any) => a.category_id).filter(Boolean))]
       if (categoryIds.length > 0) {
         const categories = await prisma.categories.findMany({
@@ -199,24 +202,64 @@ export async function GET(request: NextRequest) {
           return acc
         }, {})
       }
+      
+      // جلب المؤلفين
+      const authorIds = [...new Set(articles.map((a: any) => a.author_id).filter(Boolean))]
+      if (authorIds.length > 0) {
+        try {
+          const authors = await prisma.users.findMany({
+            where: { id: { in: authorIds } },
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          })
+          authorsMap = authors.reduce((acc: any, author: any) => {
+            acc[author.id] = author
+            return acc
+          }, {})
+        } catch (error) {
+          console.error('خطأ في جلب بيانات المؤلفين:', error)
+        }
+      }
     }
 
     // تحويل البيانات للتوافق مع الواجهة
     console.time('🔄 تحويل وتنسيق البيانات')
-    const formattedArticles = articles.map((article: any) => ({
-      ...article,
-      author: { id: article.author_id, name: 'كاتب مجهول' },
-      category: categoriesMap[article.category_id] || { 
-        id: article.category_id, 
-        name: 'غير مصنف',
-        slug: 'uncategorized'
-      },
-      featured_image: article.featured_image,
-      reading_time: article.reading_time,
-      created_at: article.created_at,
-      updated_at: article.updated_at,
-      published_at: article.published_at
-    }))
+    const formattedArticles = articles.map((article: any) => {
+      // محاولة الحصول على اسم المؤلف من مصادر مختلفة
+      const author = authorsMap[article.author_id] || null
+      const authorName = author?.name || 
+                        article.metadata?.author_name || 
+                        (author?.email ? author.email.split('@')[0] : null) ||
+                        'غير محدد'
+      
+      return {
+        ...article,
+        author: { 
+          id: article.author_id, 
+          name: authorName,
+          email: author?.email
+        },
+        author_name: authorName, // إضافة author_name مباشرة للتوافق
+        category: categoriesMap[article.category_id] || { 
+          id: article.category_id, 
+          name: 'غير مصنف',
+          name_ar: 'غير مصنف',
+          slug: 'uncategorized',
+          color: '#6B7280'
+        },
+        category_name: categoriesMap[article.category_id]?.name_ar || categoriesMap[article.category_id]?.name || 'غير مصنف',
+        category_color: categoriesMap[article.category_id]?.color || '#6B7280',
+        featured_image: article.featured_image,
+        reading_time: article.reading_time,
+        created_at: article.created_at,
+        updated_at: article.updated_at,
+        published_at: article.published_at,
+        views_count: article.views || 0 // إضافة views_count من حقل views في قاعدة البيانات
+      }
+    })
     console.timeEnd('🔄 تحويل وتنسيق البيانات')
 
     // تصفية المحتوى التجريبي إذا كان مطلوباً
@@ -262,6 +305,9 @@ export async function GET(request: NextRequest) {
 // إنشاء مقال جديد
 export async function POST(request: NextRequest) {
   try {
+    // التحقق من صلاحيات المستخدم
+    const authCheck = await checkUserPermissions(request);
+    
     const body = await request.json()
     const {
       title,
@@ -282,6 +328,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+    
+    // استخدام معرف المستخدم الحالي إذا لم يتم تحديد author_id
+    const finalAuthorId = author_id || (authCheck.valid ? authCheck.user?.id : null) || 'default-author-id'
+    const finalAuthorName = author_name || (authCheck.valid ? authCheck.user?.name : null) || 'غير محدد'
 
     // إنشاء المقال في قاعدة البيانات البعيدة
     const article = await prisma.articles.create({
@@ -298,9 +348,9 @@ export async function POST(request: NextRequest) {
           createdAt: new Date().toISOString(),
           isSmartDraft: (metadata as any)?.isSmartDraft || false,
           aiEditor: (metadata as any)?.aiEditor || false,
-          author_name: author_name || undefined // حفظ اسم المؤلف في metadata
+          author_name: finalAuthorName // حفظ اسم المؤلف في metadata
         },
-        author_id: author_id || 'default-author-id', // استخدام author_id المرسل أو القيمة الافتراضية
+        author_id: finalAuthorId, // استخدام معرف المؤلف النهائي
         slug: generateSlug(title),
         views: 0,
         reading_time: Math.ceil(content.split(' ').length / 200), // تقدير وقت القراءة
@@ -319,8 +369,8 @@ export async function POST(request: NextRequest) {
             entity_id: article.id,
             title: `مقال جديد: ${title}`,
             description: excerpt || content.substring(0, 100) + '...',
-            user_id: author_id || null,
-            author_name: author_name || 'كاتب مجهول',
+            user_id: finalAuthorId || null,
+            author_name: finalAuthorName,
             metadata: {
               category_id: category_id,
               featured_image: featured_image,
@@ -379,7 +429,7 @@ function calculateReadingTime(content: string): number {
 }
 
 // دالة للتحقق من صلاحيات المستخدم
-async function checkUserPermissions(request: NextRequest): Promise<{ valid: boolean, user?: any, error?: string }> {
+async function checkUserPermissions(request: NextRequest, requireDelete: boolean = false): Promise<{ valid: boolean, user?: any, error?: string }> {
   try {
     // محاولة الحصول على التوكن من الكوكيز أو من Authorization header
     let token = request.cookies.get('auth-token')?.value;
@@ -425,14 +475,16 @@ async function checkUserPermissions(request: NextRequest): Promise<{ valid: bool
       return { valid: false, error: 'المستخدم غير مفعل' };
     }
 
-    // التحقق من صلاحيات الحذف
-    const canDelete = user.is_admin || 
-                     user.role === 'admin' || 
-                     user.role === 'editor' || 
-                     user.role === 'super_admin';
+    // التحقق من صلاحيات الحذف إذا كان مطلوباً
+    if (requireDelete) {
+      const canDelete = user.is_admin || 
+                       user.role === 'admin' || 
+                       user.role === 'editor' || 
+                       user.role === 'super_admin';
 
-    if (!canDelete) {
-      return { valid: false, error: 'ليس لديك صلاحية حذف المقالات' };
+      if (!canDelete) {
+        return { valid: false, error: 'ليس لديك صلاحية حذف المقالات' };
+      }
     }
 
     return { valid: true, user };
@@ -444,8 +496,8 @@ async function checkUserPermissions(request: NextRequest): Promise<{ valid: bool
 // DELETE: حذف مقالات (حذف ناعم) - محمي بالمصادقة
 export async function DELETE(request: NextRequest) {
   try {
-    // التحقق من صلاحيات المستخدم
-    const authCheck = await checkUserPermissions(request);
+    // التحقق من صلاحيات المستخدم للحذف
+    const authCheck = await checkUserPermissions(request, true);
     if (!authCheck.valid) {
       return NextResponse.json({
         success: false,

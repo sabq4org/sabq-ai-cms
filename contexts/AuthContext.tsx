@@ -180,7 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 } 

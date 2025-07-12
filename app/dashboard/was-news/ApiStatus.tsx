@@ -19,7 +19,10 @@ export default function WasApiStatus({ darkMode }: { darkMode: boolean }) {
               حالة خدمة واس API
             </h2>
             <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              آخر تحديث: {new Date().toLocaleString('ar-SA')}
+              آخر تحديث: {new Date().toLocaleString('ar-SA', {
+                calendar: 'gregory',
+                numberingSystem: 'latn'
+              })}
             </p>
           </div>
         </div>

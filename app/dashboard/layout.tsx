@@ -33,7 +33,8 @@ import {
   Image as ImageIcon,
   MessageCircle,
   Globe,
-  Layers
+  Layers,
+  Newspaper
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -454,7 +455,7 @@ export default function DashboardLayout({
                         ? 'bg-green-900/40 group-hover:bg-green-500 group-hover:text-white' 
                         : 'bg-green-100 group-hover:bg-green-500 group-hover:text-white'
                     }`}>
-                      <FileText className="w-4 h-4 lg:w-5 lg:h-5" />
+                      <Newspaper className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">إدارة الأخبار</span>
                     <div className={`px-2 py-1 rounded-full text-xs font-bold transition-all ${

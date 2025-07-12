@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
 import FooterDashboard from '@/components/FooterDashboard';
+import Footer from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getCookie, setCookie } from '@/lib/cookies';
 import { getImageUrl } from '@/lib/image-utils';
@@ -1340,87 +1341,7 @@ function NewspaperHomePage({ stats }: NewspaperHomePageProps): React.ReactElemen
       <FooterDashboard />
 
       {/* Footer Section */}
-      <footer className={`mt-20 py-12 border-t ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {/* Logo Section */}
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${darkMode ? 'bg-gradient-to-br from-blue-600 to-purple-700' : 'bg-gradient-to-br from-blue-500 to-purple-600'}`}>
-                <span className="text-white font-bold text-xl">س</span>
-              </div>
-              <div className="text-left">
-                <h3 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>
-                  سبق
-                </h3>
-                <p className={`text-sm ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-                  صحيفة المستقبل الذكية
-                </p>
-              </div>
-            </div>
-          </div>
-          {/* Stats - تصميم أفقي محسن */}
-          <div className={`rounded-xl p-4 mb-8 ${darkMode ? 'bg-gray-800/50' : 'bg-gray-100/50'}`}>
-            <div className="flex items-center justify-center gap-3 text-sm">
-              <span className="flex items-center gap-2">
-                <span className="text-lg">📰</span>
-                <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {!stats || stats.loading || stats.activeReaders === null ? (
-                    <span className="inline-block w-12 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
-                  ) : (
-                    `${(stats.activeReaders / 1000000).toFixed(1)}M+`
-                  )}
-                </span>
-                <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>قارئ</span>
-              </span>
-              <span className={`${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>|</span>
-              <span className="flex items-center gap-2">
-                <span className="text-lg">📅</span>
-                <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {!stats || stats.loading || stats.dailyArticles === null ? (
-                    <span className="inline-block w-10 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
-                  ) : (
-                    `${Math.floor(stats.dailyArticles / 1000)}K+`
-                  )}
-                </span>
-                <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>مقالات اليوم</span>
-              </span>
-              <span className={`${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>|</span>
-              <span className="flex items-center gap-2">
-                <span className="text-lg">🤖</span>
-                <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>24/7</span>
-                <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>تغطية ذكية</span>
-              </span>
-            </div>
-          </div>
-          {/* Links */}
-          <div className="flex items-center justify-center gap-6 mb-8">
-            <a href="#" className={`text-sm hover:text-blue-500 transition-colors ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-              سياسة الخصوصية
-            </a>
-            <a href="#" className={`text-sm hover:text-blue-500 transition-colors ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-              شروط الاستخدام
-            </a>
-            <a href="#" className={`text-sm hover:text-blue-500 transition-colors ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-              تواصل معنا
-            </a>
-            <a href="#" className={`text-sm hover:text-blue-500 transition-colors ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-              عن سبق
-            </a>
-          </div>
-          {/* Copyright */}
-          <div className="flex items-center justify-center gap-2">
-            <p className={`text-sm ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-              © 2025 صحيفة سبق – جميع الحقوق محفوظة
-            </p>
-            <div className="flex items-center gap-1">
-              <span className="text-red-500">❤️</span>
-              <span className={`text-xs ${darkMode ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-                صُنع بحب في المملكة العربية السعودية
-              </span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

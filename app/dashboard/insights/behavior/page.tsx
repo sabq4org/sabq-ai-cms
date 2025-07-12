@@ -234,7 +234,10 @@ export default function BehaviorInsightsPage() {
         user.points,
         user.level,
         user.favorite_category,
-        new Date(user.last_activity).toLocaleString('ar-SA')
+        new Date(user.last_activity).toLocaleString('ar-SA', {
+          calendar: 'gregory',
+          numberingSystem: 'latn'
+        })
       ].join(','))
     ].join('\n');
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });

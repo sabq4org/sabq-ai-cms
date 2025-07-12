@@ -27,7 +27,7 @@ import {
   BarChart3,
   Sparkles
 } from 'lucide-react';
-import { formatDate, formatDateTime, formatRelativeDate } from '@/lib/date-utils';
+import { formatDate, formatDateTime, formatRelativeDate, formatDateSafe } from '@/lib/date-utils';
 type NewsStatus = 'published' | 'draft' | 'pending' | 'deleted' | 'scheduled';
 type NewsItem = {
   id: string;
@@ -128,33 +128,64 @@ export default function NewsManagementPage() {
               status = 'scheduled';
             }
           }
+          
+          // معالجة التاريخ بشكل آمن
+          const formatSafeDate = (dateString: any) => {
+            if (!dateString) return null;
+            try {
+              const date = new Date(dateString);
+              // التحقق من صحة التاريخ
+              if (isNaN(date.getTime())) {
+                console.warn('تاريخ غير صالح:', dateString);
+                return null;
+              }
+              return date.toLocaleString('ar-SA', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              });
+            } catch (error) {
+              console.error('خطأ في تحويل التاريخ:', error);
+              return null;
+            }
+          };
+          
+          // الحصول على اسم الكاتب من البيانات المتاحة
+          const getAuthorName = () => {
+            // أولاً: محاولة الحصول على الاسم من علاقة author
+            if (a.author && a.author.name) return a.author.name;
+            
+            // ثانياً: محاولة الحصول على الاسم من author_name
+            if (a.author_name) return a.author_name;
+            
+            // ثالثاً: محاولة الحصول على الاسم من created_by أو user
+            if (a.created_by && a.created_by.name) return a.created_by.name;
+            if (a.user && a.user.name) return a.user.name;
+            
+            // رابعاً: استخدام البريد الإلكتروني إذا كان متاحاً
+            if (a.author && a.author.email) return a.author.email.split('@')[0];
+            if (a.created_by && a.created_by.email) return a.created_by.email.split('@')[0];
+            
+            // خامساً: إذا لم يتوفر أي شيء، إرجاع "غير محدد" بدلاً من "كاتب مجهول"
+            return 'غير محدد';
+          };
+          
           return {
             id: a.id,
             title: a.title,
-            author: a.author_id || '—',
-            author_name: a.author?.name || a.author_name || 'كاتب غير معروف',
+            author: a.author_id || a.created_by_id || a.user_id || '—',
+            author_name: getAuthorName(),
             category: a.category_id || 0,
             category_name: a.category?.name || a.category_name || 'غير مصنف',
             category_color: a.category?.color || a.category_color || '#6B7280',
-            publishTime: a.published_at ? new Date(a.published_at).toLocaleString('ar-SA', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true
-            }) : '-',
-            publishAt: publishAt,
+            publishTime: formatSafeDate(a.published_at) || formatSafeDate(a.created_at) || '—',
+            publishAt: a.published_at || a.created_at, // استخدام التاريخ الخام للمعالجة في العرض
             viewCount: a.views_count || 0,
-            lastModified: new Date(a.updated_at || a.created_at).toLocaleString('ar-SA', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true
-            }),
-            lastModifiedBy: a.editor_id || a.author_id || '—',
+            lastModified: formatSafeDate(a.updated_at) || formatSafeDate(a.created_at) || '—',
+            lastModifiedBy: a.editor?.name || a.editor_name || getAuthorName(),
             isPinned: a.is_pinned || false,
             isBreaking: a.is_breaking || false,
             status: status,
@@ -750,14 +781,7 @@ export default function NewsManagementPage() {
                             <span>مجدول للنشر</span>
                           </div>
                           <div className="text-xs">
-                            {new Date(news.publishAt).toLocaleString('ar-SA', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: true
-                            })}
+                            {formatDateSafe(news.publishAt, 'full', '—')}
                           </div>
                         </div>
                       ) : news.status === 'published' ? (
@@ -765,18 +789,7 @@ export default function NewsManagementPage() {
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3 text-green-600 dark:text-green-400" />
                             <span className="font-medium text-green-600 dark:text-green-400">
-                              {news.publishAt || news.publishTime ? (
-                                new Date(news.publishAt || news.publishTime).toLocaleString('ar-SA', {
-                                  year: 'numeric',
-                                  month: 'short',
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: true
-                                })
-                              ) : (
-                                'منشور'
-                              )}
+                              {formatDateSafe(news.publishAt || news.publishTime, 'full', 'منشور')}
                             </span>
                           </div>
                           {news.publishAt && (

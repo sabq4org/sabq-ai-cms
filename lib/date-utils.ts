@@ -182,3 +182,102 @@ export function formatFullDate(date: Date | string): string {
 export function formatDateOnly(date: Date | string): string {
   return formatDate(date, { format: 'long' });
 } 
+
+/**
+ * التحقق من صحة التاريخ وإصلاحه
+ * @param dateInput - التاريخ المدخل (string, Date, أو null)
+ * @returns التاريخ الصحيح أو null
+ */
+export function validateAndFixDate(dateInput: any): Date | null {
+  if (!dateInput) return null;
+  
+  try {
+    let date: Date;
+    
+    // إذا كان التاريخ من نوع Date
+    if (dateInput instanceof Date) {
+      date = dateInput;
+    } 
+    // إذا كان نص
+    else if (typeof dateInput === 'string') {
+      // محاولة تحويل التاريخ
+      date = new Date(dateInput);
+      
+      // إذا فشل التحويل، محاولة تحليل التاريخ بطرق أخرى
+      if (isNaN(date.getTime())) {
+        // محاولة تحليل التاريخ بتنسيق ISO
+        const isoMatch = dateInput.match(/(\d{4})-(\d{2})-(\d{2})/);
+        if (isoMatch) {
+          date = new Date(`${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}T00:00:00.000Z`);
+        } else {
+          return null;
+        }
+      }
+    } 
+    // إذا كان رقم (timestamp)
+    else if (typeof dateInput === 'number') {
+      date = new Date(dateInput);
+    } 
+    else {
+      return null;
+    }
+    
+    // التحقق من صحة التاريخ النهائي
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+    
+    // التحقق من أن التاريخ منطقي (ليس في المستقبل البعيد أو الماضي البعيد)
+    const now = new Date();
+    const yearDiff = Math.abs(now.getFullYear() - date.getFullYear());
+    if (yearDiff > 100) {
+      return null;
+    }
+    
+    return date;
+  } catch (error) {
+    console.error('خطأ في معالجة التاريخ:', error);
+    return null;
+  }
+}
+
+/**
+ * تنسيق التاريخ بشكل آمن
+ * @param dateInput - التاريخ المدخل
+ * @param format - تنسيق التاريخ المطلوب
+ * @returns التاريخ المنسق أو قيمة افتراضية
+ */
+export function formatDateSafe(
+  dateInput: any, 
+  format: 'full' | 'date' | 'time' | 'relative' = 'full',
+  defaultValue: string = '—'
+): string {
+  const date = validateAndFixDate(dateInput);
+  
+  if (!date) {
+    return defaultValue;
+  }
+  
+  try {
+    switch (format) {
+      case 'date':
+        return formatDate(date);
+      case 'time':
+        return date.toLocaleTimeString('ar-SA', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+          calendar: 'gregory',
+          numberingSystem: 'latn'
+        });
+      case 'relative':
+        return formatRelativeDate(date);
+      case 'full':
+      default:
+        return formatDateTime(date);
+    }
+  } catch (error) {
+    console.error('خطأ في تنسيق التاريخ:', error);
+    return defaultValue;
+  }
+} 

@@ -215,29 +215,20 @@ export default function NewsPage() {
               تابع آخر الأخبار والمستجدات المحلية والعالمية لحظة بلحظة
             </p>
             {/* Stats with Glass Effect */}
-            <div className="inline-flex flex-row items-center gap-6 sm:gap-10 bg-black bg-opacity-30 backdrop-blur-md rounded-3xl px-8 sm:px-12 py-6 shadow-2xl border border-white border-opacity-30">
+            <div className="inline-flex flex-row items-center gap-4 sm:gap-8 bg-black bg-opacity-20 backdrop-blur-md rounded-2xl px-6 sm:px-8 py-4 shadow-xl border border-white border-opacity-20">
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl mb-2">📰</div>
-                <div className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">{articles.length}</div>
-                <div className="text-sm sm:text-base text-white mt-1 font-medium">المقالات</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-lg">{articles.length}</div>
+                <div className="text-xs sm:text-sm text-white">مقال منشور</div>
               </div>
-              <div className="w-px h-20 bg-white bg-opacity-50"></div>
+              <div className="w-px h-12 bg-white bg-opacity-50"></div>
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl mb-2">📂</div>
-                <div className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">{categories.length}</div>
-                <div className="text-sm sm:text-base text-white mt-1 font-medium">التصنيفات</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-lg">{categories.length}</div>
+                <div className="text-xs sm:text-sm text-white">تصنيف متنوع</div>
               </div>
-              <div className="w-px h-20 bg-white bg-opacity-50"></div>
+              <div className="w-px h-12 bg-white bg-opacity-50"></div>
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl mb-2">📅</div>
-                <div className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">
-                  {articles.filter(article => {
-                    const today = new Date();
-                    const articleDate = new Date(article.published_at || article.created_at);
-                    return articleDate.toDateString() === today.toDateString();
-                  }).length}
-                </div>
-                <div className="text-sm sm:text-base text-white mt-1 font-medium">مقالات اليوم</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-lg">24/7</div>
+                <div className="text-xs sm:text-sm text-white">تغطية مستمرة</div>
               </div>
             </div>
           </div>

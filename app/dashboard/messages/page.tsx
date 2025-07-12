@@ -232,7 +232,10 @@ function MessagesContent() {
     const csvContent = [
       headers.join(','),
       ...filteredMessages.map(msg => [
-        new Date(msg.created_at).toLocaleString('ar-SA'),
+        new Date(msg.created_at).toLocaleString('ar-SA', {
+          calendar: 'gregory',
+          numberingSystem: 'latn'
+        }),
         msg.email,
         messageTypeConfig[msg.type].label,
         msg.subject,
@@ -609,7 +612,10 @@ function MessagesContent() {
                         من: {selectedMessage.email}
                       </span>
                       <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
-                        {new Date(selectedMessage.created_at).toLocaleString('ar-SA')}
+                        {new Date(selectedMessage.created_at).toLocaleString('ar-SA', {
+                          calendar: 'gregory',
+                          numberingSystem: 'latn'
+                        })}
                       </span>
                     </div>
                   </div>
@@ -725,7 +731,10 @@ function MessagesContent() {
                         darkMode ? 'text-gray-500' : 'text-gray-500'
                       }`}>
                         تم الرد بواسطة {selectedMessage.responded_by} في{' '}
-                        {new Date(selectedMessage.responded_at).toLocaleString('ar-SA')}
+                        {new Date(selectedMessage.responded_at).toLocaleString('ar-SA', {
+                          calendar: 'gregory',
+                          numberingSystem: 'latn'
+                        })}
                       </p>
                     )}
                   </div>
