@@ -432,14 +432,24 @@ export default function ProfilePage() {
                     className="w-32 h-32 rounded-full object-cover shadow-xl"
                     onError={(e) => {
                       console.error('خطأ في تحميل الصورة:', user.avatar);
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                      const target = e.currentTarget;
+                      const parent = target.parentElement;
+                      if (parent) {
+                        // إخفاء الصورة
+                        target.style.display = 'none';
+                        // إنشاء وإظهار الدائرة البديلة
+                        const fallback = document.createElement('div');
+                        fallback.className = 'w-32 h-32 bg-white/20 rounded-full flex items-center justify-center text-5xl font-bold shadow-xl';
+                        fallback.textContent = user.name.charAt(0).toUpperCase();
+                        parent.appendChild(fallback);
+                      }
                     }}
                   />
-                ) : null}
-                <div className={`w-32 h-32 bg-white/20 rounded-full flex items-center justify-center text-5xl font-bold shadow-xl ${user.avatar ? 'hidden' : ''}`}>
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
+                ) : (
+                  <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center text-5xl font-bold shadow-xl">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 {/* زر تغيير الصورة */}
                 <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <input

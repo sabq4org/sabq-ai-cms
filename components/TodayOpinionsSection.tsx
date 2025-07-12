@@ -332,12 +332,12 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                 {/* معلومات الكاتب الحالي */}
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className="w-[80px] h-[80px] rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+                    <div className="w-[120px] h-[120px] rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
                       <Image 
                         src={featuredWriters[currentWriterIndex]?.author_avatar || '/default-avatar.png'} 
                         alt={featuredWriters[currentWriterIndex]?.author_name || ''} 
-                        width={80} 
-                        height={80}
+                        width={120} 
+                        height={120}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -462,7 +462,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
             ))}
           </div>
         ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {opinionArticles.map((article) => (
             <div 
               key={article.id}
@@ -488,72 +488,71 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
 
               {/* المحتوى الرئيسي - بدون صورة كبيرة */}
               <div className="p-4">
-                {/* 1. صورة الكاتب (avatar دائرية صغيرة) */}
-                <div className="flex items-start gap-3 mb-3">
-                  <Link href={`/author/${article.author_slug || 'dr-mohammed-ahmad'}`} className="flex-shrink-0">
+                {/* 1. صورة الكاتب مع معلوماته - تصميم محسن للصورة الكبيرة */}
+                <div className="text-center mb-4">
+                  <Link href={`/author/${article.author_slug || 'dr-mohammed-ahmad'}`} className="inline-block">
                     <div className="relative">
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 ring-2 ring-white dark:ring-gray-800 shadow-lg">
+                      <div className="w-[120px] h-[120px] rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 ring-2 ring-white dark:ring-gray-800 shadow-lg mx-auto">
                         <Image 
                           src={article.author_avatar || '/default-avatar.png'} 
                           alt={article.author_name}
-                          width={56}
-                          height={56}
+                          width={120}
+                          height={120}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-gradient-to-r ${
+                      <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-r ${
                         writerClubColors[article.author_club || 'default']
-                      } flex items-center justify-center border border-white dark:border-gray-800`}>
-                        <Star className="w-1.5 h-1.5 text-white" />
+                      } flex items-center justify-center border-2 border-white dark:border-gray-800`}>
+                        <Star className="w-3 h-3 text-white" />
                       </div>
                     </div>
                   </Link>
                   
-                  <div className="flex-1 min-w-0">
-                    {/* 2. اسم الكاتب (سطر واحد فقط) */}
+                  {/* 2. اسم الكاتب وصفته تحت الصورة */}
+                  <div className="mt-3">
                     <Link href={`/author/${article.author_slug || 'dr-mohammed-ahmad'}`}>
-                      <h4 className={`font-bold text-sm truncate hover:text-blue-600 transition-colors ${
+                      <h4 className={`font-bold text-base hover:text-blue-600 transition-colors ${
                         darkMode ? 'text-white' : 'text-gray-800'
                       }`}>
                         {article.author_name}
                       </h4>
                     </Link>
-                    {/* 3. صفة الكاتب */}
-                    <p className={`text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {article.author_specialization}
                     </p>
                   </div>
                 </div>
 
-                {/* 4. عنوان المقال (2 سطر max) */}
+                {/* 3. عنوان المقال */}
                 <Link href={`/opinion/${article.id}`}>
-                  <h3 className={`font-bold text-sm mb-2 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors ${
+                  <h3 className={`font-bold text-base mb-3 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors ${
                     darkMode ? 'text-white' : 'text-gray-900'
                   }`}>
                     {article.title}
                   </h3>
                 </Link>
 
-                {/* 5. الملخص */}
-                <p className={`text-xs leading-relaxed line-clamp-3 mb-3 ${
+                {/* 4. الملخص */}
+                <p className={`text-sm leading-relaxed line-clamp-2 mb-4 ${
                   darkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}>
                   {article.ai_summary || article.excerpt}
                 </p>
 
-                {/* 6. أزرار التفاعل والتفاصيل */}
+                {/* 5. أزرار التفاعل والتفاصيل */}
                 <div className="space-y-3">
                   {/* زر التفاصيل - كرابط نصي أنيق */}
                   <Link 
                     href={`/opinion/${article.id}`}
-                    className={`inline-flex items-center gap-1 text-xs font-medium transition-colors ${
+                    className={`inline-flex items-center gap-1 text-sm font-medium transition-colors ${
                       darkMode 
                         ? 'text-blue-400 hover:text-blue-300' 
                         : 'text-blue-600 hover:text-blue-700'
                     }`}
                   >
                     <span>قراءة المزيد</span>
-                    <ArrowRight className="w-3 h-3" />
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
 
                   {/* أزرار التفاعل */}

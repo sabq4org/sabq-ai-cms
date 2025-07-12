@@ -6,10 +6,12 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { formatDateOnly } from '@/lib/date-utils';
 import ArticleCard from '@/components/ArticleCard';
+import CompactArticleCard from '@/components/CompactArticleCard';
+import MobileNewsCard from '@/components/mobile/MobileNewsCard';
 import './news-styles.css';
 import { 
   Newspaper, Search, Loader2,
-  Grid, List, ChevronRight
+  Grid, List, ChevronRight, Calendar
 } from 'lucide-react';
 interface Article {
   id: string;
@@ -62,6 +64,20 @@ export default function NewsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isCompactView, setIsCompactView] = useState(true); // افتراضياً نستخدم العرض المضغوط
+  // تحديد حجم الشاشة
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+  
   // جلب التصنيفات
   useEffect(() => {
     fetchCategories();
@@ -198,14 +214,30 @@ export default function NewsPage() {
             <p className="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
               تابع آخر الأخبار والمستجدات المحلية والعالمية لحظة بلحظة
             </p>
-            {/* Stats with Glass Effect - Mobile Optimized */}
-            <div className="inline-flex items-center bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-md rounded-2xl px-4 sm:px-6 py-3 shadow-xl border border-white border-opacity-20">
-              <div className="flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
-                <span className="text-white font-bold">📰 {(125000 + Math.floor(Math.random() * 5000)).toLocaleString('ar-SA')} قارئ</span>
-                <span className="text-white/70">|</span>
-                <span className="text-white font-bold">📂 {articles.length} مقال</span>
-                <span className="text-white/70">|</span>
-                <span className="text-white font-bold">🤖 تغطية ذكية</span>
+            {/* Stats with Glass Effect */}
+            <div className="inline-flex flex-row items-center gap-6 sm:gap-10 bg-black bg-opacity-30 backdrop-blur-md rounded-3xl px-8 sm:px-12 py-6 shadow-2xl border border-white border-opacity-30">
+              <div className="text-center">
+                <div className="text-3xl sm:text-4xl mb-2">📰</div>
+                <div className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">{articles.length}</div>
+                <div className="text-sm sm:text-base text-white mt-1 font-medium">المقالات</div>
+              </div>
+              <div className="w-px h-20 bg-white bg-opacity-50"></div>
+              <div className="text-center">
+                <div className="text-3xl sm:text-4xl mb-2">📂</div>
+                <div className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">{categories.length}</div>
+                <div className="text-sm sm:text-base text-white mt-1 font-medium">التصنيفات</div>
+              </div>
+              <div className="w-px h-20 bg-white bg-opacity-50"></div>
+              <div className="text-center">
+                <div className="text-3xl sm:text-4xl mb-2">📅</div>
+                <div className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">
+                  {articles.filter(article => {
+                    const today = new Date();
+                    const articleDate = new Date(article.published_at || article.created_at);
+                    return articleDate.toDateString() === today.toDateString();
+                  }).length}
+                </div>
+                <div className="text-sm sm:text-base text-white mt-1 font-medium">مقالات اليوم</div>
               </div>
             </div>
           </div>
@@ -213,15 +245,45 @@ export default function NewsPage() {
         {/* Search Section - تصميم بسيط */}
         <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10 shadow-md">
           <div className="max-w-7xl mx-auto px-6 py-6">
-            <div className="relative w-full max-w-md mx-auto">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="ابحث في الأخبار..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pr-12 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 focus:border-transparent transition-all text-gray-900 dark:text-white"
-              />
+            <div className="flex items-center justify-between gap-4">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="ابحث في الأخبار..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pr-12 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 focus:border-transparent transition-all text-gray-900 dark:text-white"
+                />
+              </div>
+              
+              {/* أزرار التحكم في العرض - للديسكتوب فقط */}
+              {!isMobile && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsCompactView(true)}
+                    className={`p-2 rounded-lg transition-all ${
+                      isCompactView 
+                        ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400' 
+                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
+                    }`}
+                    title="عرض مضغوط"
+                  >
+                    <List className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setIsCompactView(false)}
+                    className={`p-2 rounded-lg transition-all ${
+                      !isCompactView 
+                        ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400' 
+                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
+                    }`}
+                    title="عرض شبكي"
+                  >
+                    <Grid className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -234,15 +296,37 @@ export default function NewsPage() {
             </div>
           ) : filteredArticles.length > 0 ? (
             <>
-              <div className={`${
-                viewMode === 'grid' 
-                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' 
-                  : 'space-y-6'
-              }`}>
-                {filteredArticles.map((article) => (
-                  <ArticleCard key={article.id} article={article} viewMode={viewMode} />
-                ))}
-              </div>
+              {/* عرض البطاقات حسب الحجم والوضع */}
+              {isMobile ? (
+                // عرض الموبايل - استخدام MobileNewsCard
+                <div className="space-y-3">
+                  {filteredArticles.map((article) => (
+                    <MobileNewsCard 
+                      key={article.id} 
+                      news={article} 
+                      darkMode={false}
+                    />
+                  ))}
+                </div>
+              ) : isCompactView ? (
+                // عرض مضغوط للديسكتوب
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {filteredArticles.map((article) => (
+                    <CompactArticleCard key={article.id} article={article} />
+                  ))}
+                </div>
+              ) : (
+                // عرض البطاقات الكبيرة التقليدية
+                <div className={`${
+                  viewMode === 'grid' 
+                    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' 
+                    : 'space-y-6'
+                }`}>
+                  {filteredArticles.map((article) => (
+                    <ArticleCard key={article.id} article={article} viewMode={viewMode} />
+                  ))}
+                </div>
+              )}
               {/* Load More */}
               {hasMore && (
                 <div className="text-center mt-16">

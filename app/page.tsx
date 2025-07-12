@@ -102,7 +102,8 @@ import {
   Heart,
   Bookmark,
   MessageSquare,
-  MonitorSmartphone
+  MonitorSmartphone,
+  Vote
 } from 'lucide-react';
 // 🚀 إضافة المكونات المحسنة للموبايل
 import { Suspense } from 'react'
@@ -1279,7 +1280,10 @@ function NewspaperHomePage({ stats }: NewspaperHomePageProps): React.ReactElemen
                     '15K+'
                   )}
                 </div>
-                <div className={`text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>تصويت اليوم</div>
+                <div className={`flex items-center justify-center gap-1 text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <Vote className="w-3 h-3 md:w-4 md:h-4" />
+                  <span>تصويت اليوم</span>
+                </div>
               </div>
               <div className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
                 <div className="text-2xl md:text-3xl font-bold text-purple-500 mb-2">
@@ -1289,7 +1293,10 @@ function NewspaperHomePage({ stats }: NewspaperHomePageProps): React.ReactElemen
                     '8.2K'
                   )}
                 </div>
-                <div className={`text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>مشارك نشط</div>
+                <div className={`flex items-center justify-center gap-1 text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <Users className="w-3 h-3 md:w-4 md:h-4" />
+                  <span>مشارك نشط</span>
+                </div>
               </div>
               <div className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
                 <div className="text-2xl md:text-3xl font-bold text-green-500 mb-2">
@@ -1299,7 +1306,10 @@ function NewspaperHomePage({ stats }: NewspaperHomePageProps): React.ReactElemen
                     '2.1K'
                   )}
                 </div>
-                <div className={`text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>تعليق جديد</div>
+                <div className={`flex items-center justify-center gap-1 text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
+                  <span>تعليق جديد</span>
+                </div>
               </div>
               <div className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
                 <div className="text-2xl md:text-3xl font-bold text-blue-500 mb-2">
@@ -1309,7 +1319,10 @@ function NewspaperHomePage({ stats }: NewspaperHomePageProps): React.ReactElemen
                     '94%'
                   )}
                 </div>
-                <div className={`text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>معدل التفاعل</div>
+                <div className={`flex items-center justify-center gap-1 text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <BarChart3 className="w-3 h-3 md:w-4 md:h-4" />
+                  <span>معدل التفاعل</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1361,7 +1374,7 @@ function NewspaperHomePage({ stats }: NewspaperHomePageProps): React.ReactElemen
               </span>
               <span className={`${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>|</span>
               <span className="flex items-center gap-2">
-                <span className="text-lg">📂</span>
+                <span className="text-lg">📅</span>
                 <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   {!stats || stats.loading || stats.dailyArticles === null ? (
                     <span className="inline-block w-10 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
@@ -1369,7 +1382,7 @@ function NewspaperHomePage({ stats }: NewspaperHomePageProps): React.ReactElemen
                     `${Math.floor(stats.dailyArticles / 1000)}K+`
                   )}
                 </span>
-                <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>مقال</span>
+                <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>مقالات اليوم</span>
               </span>
               <span className={`${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>|</span>
               <span className="flex items-center gap-2">

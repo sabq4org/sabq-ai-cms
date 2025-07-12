@@ -286,14 +286,24 @@ export default function Header() {
                         height={32} 
                         className="w-8 h-8 rounded-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          const target = e.currentTarget;
+                          const parent = target.parentElement;
+                          if (parent) {
+                            // إخفاء الصورة
+                            target.style.display = 'none';
+                            // إنشاء وإظهار الدائرة البديلة
+                            const fallback = document.createElement('div');
+                            fallback.className = 'w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border border-gray-200 dark:border-gray-700';
+                            fallback.textContent = getInitials(user.name);
+                            parent.appendChild(fallback);
+                          }
                         }}
                       />
-                    ) : null}
-                    <div className={`w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border border-gray-200 dark:border-gray-700 relative z-10 ${user.avatar ? 'hidden' : ''}`}>
-                      {getInitials(user.name)}
-                    </div>
+                    ) : (
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border border-gray-200 dark:border-gray-700">
+                        {getInitials(user.name)}
+                      </div>
+                    )}
                   </button>
 
                   {showDropdown && (
@@ -387,14 +397,24 @@ export default function Header() {
                         height={36} 
                         className="w-9 h-9 rounded-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          const target = e.currentTarget;
+                          const parent = target.parentElement;
+                          if (parent) {
+                            // إخفاء الصورة
+                            target.style.display = 'none';
+                            // إنشاء وإظهار الدائرة البديلة
+                            const fallback = document.createElement('div');
+                            fallback.className = 'w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm border border-gray-200 dark:border-gray-700';
+                            fallback.textContent = getInitials(user.name);
+                            parent.appendChild(fallback);
+                          }
                         }}
                       />
-                    ) : null}
-                    <div className={`w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm border border-gray-200 dark:border-gray-700 ${user.avatar ? 'hidden' : ''}`}>
-                      {getInitials(user.name)}
-                    </div>
+                    ) : (
+                      <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm border border-gray-200 dark:border-gray-700">
+                        {getInitials(user.name)}
+                      </div>
+                    )}
                     {/* إزالة السهم لتقليل التشتيت */}
                   </button>
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, Tag, Zap } from 'lucide-react';
 import { getArticleLink } from '@/lib/utils';
-import CloudImage from '@/components/ui/CloudImage';
+import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 
 interface MobileNewsCardProps {
   news: any;
@@ -28,14 +28,16 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
         <div className="flex h-28">
           {/* الصورة - مربعة مع margin */}
           <div className="relative w-28 h-28 flex-shrink-0 bg-gray-200 dark:bg-gray-700 ml-2">
-            <CloudImage
-              src={news.featured_image}
+            <Image
+              src={getValidImageUrl(news.featured_image, news.title, 'article')}
               alt={news.title || 'صورة المقال'}
               fill
               className="w-full h-full object-cover"
-              fallbackType="article"
-              priority={false}
               sizes="112px"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = generatePlaceholderImage(news.title, 'article');
+              }}
             />
             {news.is_breaking && (
               <div className="absolute top-1 right-1">

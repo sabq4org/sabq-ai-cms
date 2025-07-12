@@ -51,9 +51,9 @@ export default function MobileOpinionCard({ article, darkMode }: MobileOpinionCa
               <Image 
                 src={article.author_avatar || '/default-avatar.png'} 
                 alt={article.author_name}
-                width={48}
-                height={48}
-                className="rounded-full object-cover border-2 border-white dark:border-gray-800"
+                width={72}
+                height={72}
+                className="w-[72px] h-[72px] rounded-full object-cover border-2 border-white dark:border-gray-800"
               />
               {/* نجمة نادي الكاتب */}
               <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-r ${
