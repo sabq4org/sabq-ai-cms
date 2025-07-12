@@ -969,7 +969,7 @@ export default function ArticlePage({ params }: PageProps) {
         </div>
       </section>
       {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12" ref={contentRef}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pb-12" ref={contentRef}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Article Content */}
           <section className="lg:col-span-2">

@@ -2869,3 +2869,117 @@ a[class*="flex items-center gap-3"][class*="bg-blue"] {
   }
 }
 
+/* إصلاح مشكلة الأيقونات في الهيدر للموبايل */
+@media (max-width: 1023px) {
+  /* إخفاء أي أيقونات غير مرغوبة */
+  header .absolute:not([role="menu"]):not(.dropdown):not(.user-dropdown) {
+    display: none !important;
+  }
+  
+  /* إخفاء أيقونات الواي فاي والإشارة */
+  header [class*="wifi"],
+  header [class*="signal"],
+  header [class*="network"],
+  header [class*="connection"],
+  header [class*="status"]:not(.keep-status),
+  header [class*="indicator"]:not(.keep-indicator),
+  header [class*="online"]:not(.keep-online) {
+    display: none !important;
+  }
+  
+  /* تحسين z-index لأيقونة المستخدم */
+  button[aria-label="قائمة المستخدم"] {
+    position: relative !important;
+    z-index: 50 !important;
+    isolation: isolate !important;
+  }
+  
+  /* التأكد من عدم وجود عناصر فوق أيقونة المستخدم */
+  button[aria-label="قائمة المستخدم"] > * {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  
+  /* إخفاء أي عناصر مطلقة غير ضرورية */
+  .w-8.h-8 + .absolute,
+  .rounded-full + .absolute:not(.user-dropdown) {
+    display: none !important;
+  }
+  
+  /* تحسين مساحة الهيدر */
+  header .flex.items-center.gap-1 {
+    position: relative;
+    z-index: 40;
+  }
+}
+
+/* إخفاء جميع المؤشرات والأيقونات غير المرغوبة بشكل عام */
+*[class*="online-indicator"],
+*[class*="status-indicator"],
+*[class*="wifi-icon"],
+*[class*="signal-icon"],
+*[class*="network-status"],
+.green-dot,
+.status-dot,
+.online-badge,
+.connection-indicator {
+  display: none !important;
+}
+
+/* تحسين الهوامش لصفحات المقالات في الموبايل */
+@media (max-width: 640px) {
+  /* ضمان وجود هوامش كافية للمحتوى */
+  .prose {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* تحسين عرض المحتوى في الموبايل */
+  article,
+  .article-content,
+  main section {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* منع النص من الاقتراب من حواف الشاشة */
+  p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote {
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+  
+  /* تحسين عرض الصور */
+  .prose img,
+  article img {
+    max-width: calc(100% - 2rem) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  /* تحسين عرض الجداول */
+  .prose table,
+  article table {
+    max-width: calc(100% - 2rem) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    overflow-x: auto !important;
+  }
+  
+  /* ضمان عدم قطع النص في القوائم */
+  .prose ul,
+  .prose ol,
+  article ul,
+  article ol {
+    padding-right: 2rem !important;
+    padding-left: 0 !important;
+  }
+  
+  /* تحسين عرض الاقتباسات */
+  .prose blockquote,
+  article blockquote {
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+

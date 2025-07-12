@@ -365,31 +365,35 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                 </div>
 
                 {/* أيقونات التفاعل */}
-                <div className="flex items-center gap-3">
+                <div className={`flex items-center gap-1 sm:gap-3 ${isMobile ? 'flex-col' : ''}`}>
                   <button 
                     onClick={() => handleLike(featuredWriters[currentWriterIndex]?.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all hover:scale-105 ${
+                    className={`flex items-center gap-1 sm:gap-2 ${
+                      isMobile ? 'px-3 py-1.5' : 'px-4 py-2'
+                    } rounded-xl transition-all hover:scale-105 ${
                       darkMode 
                         ? 'bg-gray-700 hover:bg-red-900/20 text-gray-300 hover:text-red-400' 
                         : 'bg-white hover:bg-red-50 text-gray-600 hover:text-red-600'
                     } shadow-lg`}
                   >
-                    <Heart className="w-4 h-4" />
-                    <span className="text-sm font-medium">
+                    <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
                       {featuredWriters[currentWriterIndex]?.likes_count}
                     </span>
                   </button>
                   
                   <button 
                     onClick={() => handleShare(featuredWriters[currentWriterIndex])}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all hover:scale-105 ${
+                    className={`flex items-center gap-1 sm:gap-2 ${
+                      isMobile ? 'px-3 py-1.5' : 'px-4 py-2'
+                    } rounded-xl transition-all hover:scale-105 ${
                       darkMode 
                         ? 'bg-gray-700 hover:bg-blue-900/20 text-gray-300 hover:text-blue-400' 
                         : 'bg-white hover:bg-blue-50 text-gray-600 hover:text-blue-600'
                     } shadow-lg`}
                   >
-                    <Share2 className="w-4 h-4" />
-                    <span className="text-sm font-medium">مشاركة</span>
+                    <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className={`${isMobile ? 'text-xs hidden' : 'text-sm'} font-medium`}>مشاركة</span>
                   </button>
                   
                   <button 
@@ -397,7 +401,9 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                       featuredWriters[currentWriterIndex]?.id, 
                       featuredWriters[currentWriterIndex]?.ai_summary || featuredWriters[currentWriterIndex]?.excerpt
                     )}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all hover:scale-105 ${
+                    className={`flex items-center gap-1 sm:gap-2 ${
+                      isMobile ? 'px-3 py-1.5' : 'px-4 py-2'
+                    } rounded-xl transition-all hover:scale-105 ${
                       currentPlayingId === featuredWriters[currentWriterIndex]?.id
                         ? 'bg-green-500 text-white'
                         : darkMode 
@@ -406,11 +412,11 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                     } shadow-lg`}
                   >
                     {currentPlayingId === featuredWriters[currentWriterIndex]?.id ? (
-                      <Volume2 className="w-4 h-4 animate-pulse" />
+                      <Volume2 className="w-3 h-3 sm:w-4 sm:h-4 animate-pulse" />
                     ) : (
-                      <Headphones className="w-4 h-4" />
+                      <Headphones className="w-3 h-3 sm:w-4 sm:h-4" />
                     )}
-                    <span className="text-sm font-medium">استمع</span>
+                    <span className={`${isMobile ? 'text-xs hidden' : 'text-sm'} font-medium`}>استمع</span>
                   </button>
                 </div>
               </div>
