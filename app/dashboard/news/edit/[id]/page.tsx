@@ -87,7 +87,7 @@ export default function EditArticlePage() {
   const [articleLoading, setArticleLoading] = useState(true);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
   const [previewMode, setPreviewMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'seo' | 'ai' | 'publish'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'media' | 'seo' | 'ai' | 'publish' | 'settings'>('content');
   const [aiLoading, setAiLoading] = useState<{ [key: string]: boolean }>({});
   const [qualityScore, setQualityScore] = useState(0);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -148,17 +148,19 @@ export default function EditArticlePage() {
           id: articleData.id,
           title: articleData.title || '',
           subtitle: articleData.subtitle || '',
-          description: articleData.excerpt || articleData.summary || articleData.seo_description || '',
+          description: articleData.excerpt || articleData.summary || articleData.description || articleData.seo_description || '',
           category_id: articleData.category_id || 1,
           subcategory_id: articleData.subcategory_id,
-          is_breaking: articleData.is_breaking === true || articleData.breaking === true || articleData.metadata?.is_breaking === true || false,
+          is_breaking: articleData.is_breaking === true || articleData.breaking === true || articleData.metadata?.is_breaking === true || articleData.metadata?.breaking === true || false,
           is_featured: articleData.is_featured === true || articleData.metadata?.is_featured === true || false,
           is_smart_newsletter: articleData.is_smart_newsletter || false,
           keywords: Array.isArray(articleData.seo_keywords) 
             ? articleData.seo_keywords 
-            : typeof articleData.seo_keywords === 'string' 
+            : typeof articleData.seo_keywords === 'string' && articleData.seo_keywords
             ? articleData.seo_keywords.split(',').map((k: string) => k.trim()).filter((k: string) => k)
-            : articleData.metadata?.keywords || [],
+            : Array.isArray(articleData.metadata?.keywords)
+            ? articleData.metadata.keywords
+            : articleData.keywords || [],
           cover_image: articleData.featured_image || '',
           featured_image: articleData.featured_image || '',
           featured_image_alt: articleData.featured_image_alt || '',
@@ -364,6 +366,7 @@ export default function EditArticlePage() {
         content: textContent || 'محتوى المقال', // fallback نصي للتوافق
         excerpt: formData.description, // حفظ الموجز في الحقل الأساسي
         summary: formData.description, // للتوافق القديم
+        description: formData.description, // حفظ في حقل description أيضاً
         category_id: formData.category_id,
         author_id: formData.author_id,
         author_name: selectedAuthor?.name || undefined, // إضافة اسم المؤلف
@@ -379,7 +382,7 @@ export default function EditArticlePage() {
           updated_at: new Date().toISOString()
         },
         featured_image: formData.featured_image || formData.cover_image,
-        featured_image_alt: formData.featured_image_alt,
+        featured_image_alt: formData.featured_image_alt || undefined,
         image_caption: formData.featured_image_caption || undefined, // إضافة شرح الصورة
         seo_title: formData.title,
         seo_description: formData.description,
@@ -632,10 +635,11 @@ export default function EditArticlePage() {
             <div className="flex flex-wrap gap-2">
               {[
                 { id: 'content', name: 'المحتوى', icon: FileText, color: 'from-blue-500 to-blue-600', desc: 'محرر المحتوى الأساسي' },
+                { id: 'media', name: 'الوسائط', icon: ImageIcon, color: 'from-indigo-500 to-purple-600', desc: 'الصور والفيديو' },
+                { id: 'seo', name: 'تحسين SEO', icon: Target, color: 'from-green-500 to-emerald-600', desc: 'محركات البحث' },
                 { id: 'ai', name: 'مساعد AI', icon: Brain, color: 'from-purple-500 to-pink-600', desc: 'أدوات الذكاء الاصطناعي' },
                 { id: 'publish', name: 'إعدادات النشر', icon: Rocket, color: 'from-orange-500 to-red-600', desc: 'خيارات النشر والتوقيت' },
-                { id: 'settings', name: 'الإعدادات', icon: Settings, color: 'from-cyan-500 to-blue-600', desc: 'خيارات العرض' },
-                { id: 'seo', name: 'تحسين SEO', icon: Target, color: 'from-green-500 to-emerald-600', desc: 'محركات البحث' }
+                { id: 'settings', name: 'الإعدادات', icon: Settings, color: 'from-cyan-500 to-blue-600', desc: 'خيارات العرض' }
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -850,6 +854,167 @@ export default function EditArticlePage() {
                 </div>
               </div>
             )}
+            
+            {/* تبويب الوسائط */}
+            {activeTab === 'media' && (
+              <div className="bg-white rounded-3xl shadow-xl p-8">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <ImageIcon className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">الصور والوسائط</h2>
+                    <p className="text-gray-600">إدارة الصور والوسائط المتعددة</p>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {/* الصورة البارزة */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      الصورة البارزة
+                    </label>
+                    {formData.featured_image ? (
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <Image 
+                            src={formData.featured_image} 
+                            alt={formData.featured_image_alt || "الصورة البارزة"} 
+                            width={400} 
+                            height={300}
+                            className="rounded-xl object-cover w-full"
+                          />
+                          <button
+                            className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                            onClick={() => setFormData(prev => ({ 
+                              ...prev, 
+                              featured_image: '', 
+                              featured_image_caption: '',
+                              featured_image_alt: ''
+                            }))}
+                          >
+                            <XCircle className="w-5 h-5" />
+                          </button>
+                        </div>
+                        
+                        {/* حقل شرح الصورة */}
+                        <div>
+                          <label htmlFor="media-image-caption" className="text-sm font-medium text-gray-700 mb-1 block">
+                            شرح الصورة (Caption)
+                          </label>
+                          <input
+                            id="media-image-caption"
+                            type="text"
+                            value={formData.featured_image_caption || ''}
+                            onChange={(e) => setFormData(prev => ({ ...prev, featured_image_caption: e.target.value }))}
+                            placeholder="اكتب وصفاً للصورة يظهر تحتها..."
+                            className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            هذا الوصف سيظهر تحت الصورة في صفحة المقال
+                          </p>
+                        </div>
+                        
+                        {/* حقل النص البديل */}
+                        <div>
+                          <label htmlFor="media-image-alt" className="text-sm font-medium text-gray-700 mb-1 block">
+                            النص البديل (Alt Text)
+                          </label>
+                          <input
+                            id="media-image-alt"
+                            type="text"
+                            value={formData.featured_image_alt || ''}
+                            onChange={(e) => setFormData(prev => ({ ...prev, featured_image_alt: e.target.value }))}
+                            placeholder="وصف بديل للصورة لمحركات البحث..."
+                            className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            يساعد في تحسين SEO وإمكانية الوصول
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
+                        <ImageIcon className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+                        <p className="text-gray-600 mb-2">لم يتم رفع صورة بارزة</p>
+                        <p className="text-sm text-gray-500">يمكنك رفع صورة من محرر المحتوى</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* إحصائيات الوسائط */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <ImageIcon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">الصور</p>
+                          <p className="text-2xl font-bold text-blue-600">
+                            {formData.content_blocks.filter(b => b.type === 'image').length}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                          <Video className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">الفيديو</p>
+                          <p className="text-2xl font-bold text-purple-600">
+                            {formData.content_blocks.filter(b => b.type === 'video').length}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                          <FileText className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">المرفقات</p>
+                          <p className="text-2xl font-bold text-green-600">
+                            {formData.content_blocks.filter(b => b.type === 'image' || b.type === 'video').length}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* نصائح الوسائط */}
+                  <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Lightbulb className="w-5 h-5 text-yellow-600" />
+                      نصائح لتحسين الوسائط
+                    </h3>
+                    <ul className="space-y-2 text-sm text-gray-700">
+                      <li className="flex items-start gap-2">
+                        <span className="text-yellow-600 mt-0.5">•</span>
+                        <span>استخدم صور عالية الجودة بحجم لا يقل عن 1200x630 بكسل</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-yellow-600 mt-0.5">•</span>
+                        <span>أضف نص بديل (Alt Text) وصفي لجميع الصور</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-yellow-600 mt-0.5">•</span>
+                        <span>استخدم تنسيقات WebP أو JPEG للصور لتحسين سرعة التحميل</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-yellow-600 mt-0.5">•</span>
+                        <span>تأكد من أن الصور ذات صلة بالمحتوى وتضيف قيمة للقارئ</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {activeTab === 'ai' && (
               <div className="bg-white rounded-3xl shadow-xl p-8">
                 <div className="flex items-center gap-4 mb-8">
@@ -1207,6 +1372,23 @@ export default function EditArticlePage() {
                         />
                         <p className="text-xs text-gray-500 mt-1">
                           يظهر تحت الصورة ويساعد في SEO
+                        </p>
+                      </div>
+                      {/* حقل النص البديل (Alt Text) */}
+                      <div>
+                        <label htmlFor="image-alt" className="text-xs font-medium text-gray-600 mb-1 block">
+                          النص البديل (Alt Text)
+                        </label>
+                        <input
+                          id="image-alt"
+                          type="text"
+                          value={formData.featured_image_alt || ''}
+                          onChange={(e) => setFormData(prev => ({ ...prev, featured_image_alt: e.target.value }))}
+                          placeholder="وصف بديل للصورة لمحركات البحث..."
+                          className="w-full p-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          يساعد في تحسين SEO وإمكانية الوصول
                         </p>
                       </div>
                     </div>
