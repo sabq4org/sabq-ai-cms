@@ -3098,3 +3098,43 @@ button.bg-green-600,
   }
 }
 
+/* تحسينات بطاقات الأخبار للموبايل */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+@media (max-width: 640px) {
+  /* بطاقات الأخبار */
+  article .aspect-video img {
+    object-fit: cover;
+    object-position: center;
+  }
+  
+  /* ضمان عدم تشويه الصور العمودية */
+  article img[src*="portrait"],
+  article img[src*="vertical"] {
+    object-position: center top;
+  }
+  
+  /* تحسين المساحات البيضاء */
+  article {
+    margin-bottom: 1rem;
+  }
+  
+  /* Caption للصور */
+  figcaption,
+  .image-caption {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    color: #6b7280;
+    padding: 0.5rem 1rem;
+    background-color: #f9fafb;
+  }
+  
+  .dark figcaption,
+  .dark .image-caption {
+    color: #9ca3af;
+    background-color: #1f2937;
+  }
+}
+
