@@ -49,6 +49,14 @@ export default function CreateArticlePage() {
   const [aiSuggestions, setAiSuggestions] = useState<any>({});
   const [uploadingImage, setUploadingImage] = useState(false);
   const [activeTab, setActiveTab] = useState('content');
+  
+  // إضافة حالة تتبع رفع الصور
+  const [imageUploadStatus, setImageUploadStatus] = useState<{
+    status: 'idle' | 'uploading' | 'success' | 'error' | 'placeholder';
+    message?: string;
+    isPlaceholder?: boolean;
+  }>({ status: 'idle' });
+  
   // مرجع للمحرر
   const editorRef = useRef<any>(null);
   // حالة النموذج
@@ -110,32 +118,77 @@ export default function CreateArticlePage() {
   const handleFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', 'featured');
+    
     try {
       setUploadingImage(true);
+      setImageUploadStatus({ status: 'uploading' });
+      
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
+      
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
           setFormData(prev => ({ ...prev, featuredImage: data.url }));
-          toast.success('تم رفع الصورة بنجاح!');
-          console.log('✅ تم رفع الصورة:', data.url);
+          
+          // التحقق من نوع الصورة
+          if (data.is_placeholder || data.cloudinary_storage === false) {
+            setImageUploadStatus({
+              status: 'placeholder',
+              message: data.message || 'تم استخدام صورة مؤقتة',
+              isPlaceholder: true
+            });
+            toast('تحذير: تم استخدام صورة مؤقتة بدلاً من الصورة الأصلية', {
+              icon: '⚠️',
+              style: {
+                background: '#FEF3C7',
+                color: '#92400E',
+              },
+            });
+          } else {
+            setImageUploadStatus({
+              status: 'success',
+              message: 'تم رفع الصورة بنجاح إلى السحابة',
+              isPlaceholder: false
+            });
+            toast.success('تم رفع الصورة بنجاح!');
+          }
+          
+          console.log('📸 نتيجة رفع الصورة:', {
+            url: data.url,
+            isPlaceholder: data.is_placeholder,
+            cloudinaryStorage: data.cloudinary_storage,
+            message: data.message
+          });
         } else {
+          setImageUploadStatus({
+            status: 'error',
+            message: data.error || 'فشل في رفع الصورة'
+          });
           toast.error(data.error || 'فشل في رفع الصورة');
           console.error('❌ خطأ في رفع الصورة:', data.error);
         }
       } else {
         const errorData = await response.json();
+        setImageUploadStatus({
+          status: 'error',
+          message: errorData.error || 'فشل في رفع الصورة'
+        });
         toast.error(errorData.error || 'فشل في رفع الصورة');
         console.error('❌ خطأ في رفع الصورة:', errorData);
       }
     } catch (error) {
       console.error('خطأ في رفع الصورة:', error);
+      setImageUploadStatus({
+        status: 'error',
+        message: 'حدث خطأ في الاتصال بالخادم'
+      });
       toast.error('حدث خطأ في رفع الصورة');
     } finally {
       setUploadingImage(false);
@@ -304,34 +357,62 @@ export default function CreateArticlePage() {
   // التحقق من البيانات قبل الحفظ
   const validateForm = () => {
     const errors = [];
+    
     if (!formData.title.trim()) {
       errors.push('العنوان الرئيسي مطلوب');
     }
+    
     if (!formData.excerpt.trim()) {
       errors.push('الموجز مطلوب');
     }
+    
     // التحقق من المحتوى من المحرر
     const editorContent = editorRef.current ? editorRef.current.getHTML() : '';
     const plainText = editorContent.replace(/<[^>]*>/g, '').trim();
+    
     if (!plainText || plainText.length < 10) {
       errors.push('محتوى المقال مطلوب');
     }
+    
     if (!formData.authorId) {
       errors.push('يجب اختيار المراسل/الكاتب');
     }
+    
     if (!formData.categoryId) {
       errors.push('يجب اختيار التصنيف');
     }
+    
     const excerptAnalysis = analyzeExcerpt(formData.excerpt);
     if (excerptAnalysis.quality === 'poor') {
       errors.push(excerptAnalysis.message);
     }
+    
+    // التحقق من الصور placeholder
+    if (imageUploadStatus.isPlaceholder) {
+      errors.push('⚠️ تحذير: الصورة البارزة هي صورة مؤقتة (placeholder) - يُنصح برفع صورة حقيقية');
+    }
+    
     return errors;
   };
+  
   // حفظ المقال
   const handleSubmit = async (status: 'draft' | 'pending_review' | 'published') => {
     // التحقق من البيانات
     const errors = validateForm();
+    
+    // منع النشر المباشر مع صور placeholder
+    if (status === 'published' && imageUploadStatus.isPlaceholder) {
+      const confirmPublish = confirm(
+        'تحذير: الصورة البارزة هي صورة مؤقتة (placeholder).\n\n' +
+        'هل أنت متأكد من نشر المقال بصورة مؤقتة؟\n' +
+        'يُنصح بشدة برفع صورة حقيقية قبل النشر.'
+      );
+      
+      if (!confirmPublish) {
+        return;
+      }
+    }
+    
     if (errors.length > 0 && status !== 'draft') {
       alert('يرجى تصحيح الأخطاء التالية:\n\n' + errors.join('\n'));
       return;
@@ -661,7 +742,13 @@ export default function CreateArticlePage() {
                     <div className="mt-2">
                       {formData.featuredImage ? (
                         <div className="relative">
-                          <Image src="/placeholder.jpg" alt="الصورة البارزة" width={100} height={100} />
+                          <Image 
+                            src={formData.featuredImage || "/placeholder.jpg"} 
+                            alt="الصورة البارزة" 
+                            width={200} 
+                            height={150}
+                            className="rounded-lg object-cover w-full h-48"
+                          />
                           <Button
                             variant="destructive"
                             size="icon"
@@ -692,6 +779,60 @@ export default function CreateArticlePage() {
                         </div>
                       )}
                     </div>
+                    
+                    {/* عرض حالة رفع الصورة */}
+                    {imageUploadStatus.status !== 'idle' && (
+                      <div className="mt-3">
+                        {imageUploadStatus.status === 'uploading' && (
+                          <Alert className="border-blue-200 bg-blue-50">
+                            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                            <AlertDescription className="text-blue-700">
+                              جاري رفع الصورة إلى السحابة...
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                        
+                        {imageUploadStatus.status === 'success' && !imageUploadStatus.isPlaceholder && (
+                          <Alert className="border-green-200 bg-green-50">
+                            <AlertCircle className="h-4 w-4 text-green-600" />
+                            <AlertDescription className="text-green-700">
+                              ✅ تم رفع الصورة بنجاح إلى Cloudinary
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                        
+                        {(imageUploadStatus.status === 'placeholder' || imageUploadStatus.isPlaceholder) && (
+                          <Alert className="border-yellow-200 bg-yellow-50">
+                            <AlertCircle className="h-4 w-4 text-yellow-600" />
+                            <AlertDescription className="text-yellow-700">
+                              <strong>⚠️ تحذير: صورة مؤقتة</strong>
+                              <p className="mt-1">تم استخدام صورة placeholder بدلاً من الصورة الأصلية.</p>
+                              <p className="text-sm mt-1">{imageUploadStatus.message}</p>
+                              <p className="text-sm mt-2 font-semibold">يُنصح بإعادة رفع الصورة أو التحقق من إعدادات Cloudinary.</p>
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                        
+                        {imageUploadStatus.status === 'error' && (
+                          <Alert className="border-red-200 bg-red-50">
+                            <X className="h-4 w-4 text-red-600" />
+                            <AlertDescription className="text-red-700">
+                              <strong>❌ فشل رفع الصورة</strong>
+                              <p className="mt-1">{imageUploadStatus.message}</p>
+                              <button 
+                                onClick={() => {
+                                  setImageUploadStatus({ status: 'idle' });
+                                  document.getElementById('featured-image')?.click();
+                                }}
+                                className="mt-2 text-sm underline hover:no-underline"
+                              >
+                                إعادة المحاولة
+                              </button>
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {/* ألبوم الصور */}
                   <div>
@@ -709,7 +850,13 @@ export default function CreateArticlePage() {
                         <div className="grid grid-cols-3 gap-2">
                           {formData.gallery.map((image, index) => (
                             <div key={image.id} className="relative">
-                              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
+                              <Image 
+                                src={image.url || "/placeholder.jpg"} 
+                                alt={`صورة ${index + 1}`} 
+                                width={150} 
+                                height={150}
+                                className="rounded-lg object-cover w-full h-full"
+                              />
                               <Button
                                 variant="destructive"
                                 size="icon"

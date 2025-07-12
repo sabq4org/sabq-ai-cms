@@ -339,7 +339,7 @@ function NewspaperHomePage(): React.ReactElement {
     
     return (
       <Link href={getArticleLink(news)} className="group block">
-        <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${
+        <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform ${
           news.is_breaking 
             ? darkMode 
               ? 'bg-red-950/20 border border-red-800' 
@@ -350,19 +350,15 @@ function NewspaperHomePage(): React.ReactElement {
         }`}>
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden">
-            {imageLoading && (
-              <Skeleton className="absolute inset-0 w-full h-full" />
-            )}
             <CloudImage
               src={news.featured_image}
               alt={news.title || 'صورة المقال'}
               fill
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="w-full h-full object-cover transition-transform duration-500"
               fallbackType="article"
               priority={false}
             />
-            {/* تأثير التدرج على الصورة */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {/* تم حذف طبقة التدرج فوق الصورة */}
             {/* Category Badge */}
             {news.category_name && (
               <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
@@ -391,7 +387,7 @@ function NewspaperHomePage(): React.ReactElement {
                 : darkMode 
                   ? 'text-white' 
                   : 'text-gray-900 dark:text-white'
-            } group-hover:text-blue-600 transition-colors`} title={news.title}>
+            } transition-colors`} title={news.title}>
               {news.title}
             </h4>
             {/* الملخص */}
@@ -438,8 +434,8 @@ function NewspaperHomePage(): React.ReactElement {
                 </div>
               </div>
               {/* زر القراءة */}
-              <div className={`p-2 rounded-xl transition-all ${darkMode ? 'bg-blue-900/20 group-hover:bg-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100'}`}>
-                <ArrowLeft className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+              <div className={`p-2 rounded-xl transition-all ${darkMode ? 'bg-blue-900/20' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
+                <ArrowLeft className={`w-4 h-4 transition-transform ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
               </div>
             </div>
           </div>
@@ -478,8 +474,12 @@ function NewspaperHomePage(): React.ReactElement {
         setCategoriesLoading(true);
         const res = await fetch('/api/categories?is_active=true');
         const json = await res.json();
-        const list = Array.isArray(json) ? json : (json.categories ?? []);
+        // 💡 FIX: The API returns { data: [...] } or just [...]
+        const list = Array.isArray(json) ? json : (json.data ?? json.categories ?? []);
         setCategories(list);
+        if (list.length === 0) {
+          console.warn("No categories were fetched from the API.");
+        }
       } catch (err) {
         console.error('خطأ في جلب التصنيفات:', err);
       } finally {
@@ -496,9 +496,13 @@ function NewspaperHomePage(): React.ReactElement {
         setArticlesLoading(true);
         const res = await fetch('/api/articles?status=published&limit=12&sortBy=published_at&order=desc');
         const json = await res.json();
-        const list = Array.isArray(json) ? json : (json.articles ?? []);
+        // 💡 FIX: The API returns { data: [...] } or { articles: [...] }
+        const list = Array.isArray(json) ? json : (json.data ?? json.articles ?? []);
         // تعيين المقالات للعرض في بلوك "محتوى مخصص لك"
         setArticles(list);
+        if (list.length === 0) {
+          console.warn("No articles were fetched from the API.");
+        }
       } catch (err) {
         console.error('خطأ في جلب المقالات:', err);
       } finally {
@@ -514,7 +518,8 @@ function NewspaperHomePage(): React.ReactElement {
     try {
       const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=12&sortBy=published_at&order=desc`);
       const json = await res.json();
-      const list = Array.isArray(json) ? json : (json.articles ?? []);
+      // 💡 FIX: The API returns { data: [...] } or { articles: [...] }
+      const list = Array.isArray(json) ? json : (json.data ?? json.articles ?? []);
       setCategoryArticles(list);
     } catch (err) {
       console.error('خطأ في جلب مقالات التصنيف:', err);
@@ -687,19 +692,18 @@ function NewspaperHomePage(): React.ReactElement {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                         {categoryArticles.map((article: any) => (
                           <Link key={article.id} href={getArticleLink(article)} className="group">
-                            <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'}`}>
+                            <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'}`}>
                               {/* صورة المقال */}
                               <div className="relative h-40 sm:h-48 overflow-hidden">
                                 <CloudImage
                                   src={article.featured_image}
                                   alt={article.title || ''}
                                   fill
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                  className="w-full h-full object-cover transition-transform duration-500"
                                   fallbackType="article"
                                   priority={false}
                                 />
-                                {/* تأثير التدرج على الصورة */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                {/* تم حذف طبقة التدرج فوق الصورة */}
                                 {/* Category Badge */}
                                 <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
                                   <span className={`inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${darkMode ? 'bg-blue-900/80 text-blue-200 backdrop-blur-sm' : 'bg-blue-500/90 text-white backdrop-blur-sm'}`}>
@@ -717,7 +721,7 @@ function NewspaperHomePage(): React.ReactElement {
                                     : darkMode 
                                       ? 'text-white' 
                                       : 'text-gray-900 dark:text-white'
-                                } group-hover:text-blue-600 transition-colors`} title={article.title}>
+                                } transition-colors`} title={article.title}>
                                   {article.title}
                                 </h4>
                                 {/* الملخص */}
@@ -764,8 +768,8 @@ function NewspaperHomePage(): React.ReactElement {
                                     </div>
                                   </div>
                                   {/* زر القراءة */}
-                                  <div className={`p-2 rounded-xl transition-all ${darkMode ? 'bg-blue-900/20 group-hover:bg-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100'}`}>
-                                    <ArrowLeft className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                                  <div className={`p-2 rounded-xl transition-all ${darkMode ? 'bg-blue-900/20' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
+                                    <ArrowLeft className={`w-4 h-4 transition-transform ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
                                   </div>
                                 </div>
                               </div>

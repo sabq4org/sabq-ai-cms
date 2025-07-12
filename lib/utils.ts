@@ -40,35 +40,6 @@ export function formatDateAr(date: Date): string {
 /**
  * تنسيق الوقت النسبي باللغة العربية
  */
-export function formatRelativeTime(date: Date | string, locale: string = 'ar-SA'): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date
-  const now = new Date()
-  const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000)
-  
-  const units = [
-    { name: 'year', seconds: 31536000 },
-    { name: 'month', seconds: 2592000 },
-    { name: 'week', seconds: 604800 },
-    { name: 'day', seconds: 86400 },
-    { name: 'hour', seconds: 3600 },
-    { name: 'minute', seconds: 60 },
-    { name: 'second', seconds: 1 }
-  ]
-  
-  for (const unit of units) {
-    const interval = Math.floor(diffInSeconds / unit.seconds)
-    if (interval >= 1) {
-      const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
-      return rtf.format(-interval, unit.name as any)
-    }
-  }
-  
-  return 'الآن'
-}
-
-/**
- * تنسيق الوقت النسبي باللغة العربية
- */
 export function getRelativeTimeAr(date: Date): string {
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -153,6 +124,12 @@ export function getImageUrl(imagePath: string | undefined | null): string {
  * @returns المسار المناسب للمقال
  */
 export function getArticleLink(article: any): string {
+  // 🛡️ Guard Clause: التحقق من وجود المقال ومعرفه (ID)
+  if (!article || !article.id) {
+    console.warn('getArticleLink: Article or article.id is missing. Returning fallback link.', { article });
+    return '/'; // إرجاع رابط احتياطي آمن
+  }
+
   // التحقق من نوع المقال بعدة طرق
   const isOpinionArticle = (
     // 1. فحص category slug

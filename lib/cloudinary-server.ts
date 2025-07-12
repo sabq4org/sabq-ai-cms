@@ -8,12 +8,24 @@ const cloudinaryConfig = {
   api_secret: process.env.CLOUDINARY_API_SECRET,
 };
 
+// تسجيل القيم للتشخيص
+console.log('🔧 إعدادات Cloudinary:', {
+  cloud_name: cloudinaryConfig.cloud_name,
+  api_key: cloudinaryConfig.api_key,
+  api_secret: cloudinaryConfig.api_secret ? `${cloudinaryConfig.api_secret.substring(0, 10)}...` : 'غير محدد'
+});
+
 // تكوين Cloudinary
 cloudinary.config(cloudinaryConfig);
 
 // التحقق من صحة الإعدادات
 if (!cloudinaryConfig.cloud_name || !cloudinaryConfig.api_key || !cloudinaryConfig.api_secret) {
   console.warn('⚠️  مفاتيح Cloudinary غير مكتملة في متغيرات البيئة');
+  console.warn('القيم الحالية:', {
+    cloud_name: cloudinaryConfig.cloud_name || 'غير محدد',
+    api_key: cloudinaryConfig.api_key || 'غير محدد',
+    api_secret: cloudinaryConfig.api_secret ? 'محدد' : 'غير محدد'
+  });
 }
 
 // دالة تنظيف أسماء الملفات
@@ -89,8 +101,22 @@ export const uploadToCloudinary = async (
     // رفع الملف
     const result = await cloudinary.uploader.upload(dataURI, uploadOptions);
 
+    console.log('📥 استجابة Cloudinary الكاملة:', {
+      secure_url: result.secure_url,
+      public_id: result.public_id,
+      format: result.format,
+      resource_type: result.resource_type,
+      created_at: result.created_at,
+      bytes: result.bytes,
+      width: result.width,
+      height: result.height,
+      url: result.url,
+      version: result.version
+    });
+
     if (!result || !result.secure_url) {
-      throw new Error('فشل في رفع الملف إلى Cloudinary');
+      console.error('❌ الاستجابة غير صحيحة من Cloudinary:', result);
+      throw new Error('فشل في رفع الملف إلى Cloudinary - لا يوجد secure_url');
     }
 
     console.log('✅ تم رفع الصورة بنجاح:', {

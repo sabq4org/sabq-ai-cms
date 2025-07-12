@@ -1,13 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadToCloudinary } from '@/lib/cloudinary-server';
+import { getSupabaseClient } from '@/lib/supabase';
 
-
-
-
-
-
-
-
+// دالة لتسجيل محاولات رفع الصور
+async function logUploadAttempt(details: {
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  uploadType: string;
+  status: 'success' | 'failed' | 'placeholder';
+  errorMessage?: string;
+  cloudinaryUrl?: string;
+  isPlaceholder: boolean;
+}) {
+  try {
+    const supabase = getSupabaseClient();
+    
+    await supabase.from('upload_logs').insert({
+      file_name: details.fileName,
+      file_size: details.fileSize,
+      file_type: details.fileType,
+      upload_type: details.uploadType,
+      status: details.status,
+      error_message: details.errorMessage,
+      cloudinary_url: details.cloudinaryUrl,
+      is_placeholder: details.isPlaceholder,
+      created_at: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('خطأ في تسجيل محاولة الرفع:', error);
+  }
+}
 
 export const runtime = 'nodejs';
 
@@ -80,6 +103,17 @@ export async function POST(request: NextRequest) {
 
         console.log('✅ تم رفع الصورة إلى Cloudinary بنجاح:', result.url);
 
+        // تسجيل النجاح
+        await logUploadAttempt({
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+          uploadType: type,
+          status: 'success',
+          cloudinaryUrl: result.url,
+          isPlaceholder: false
+        });
+
         return NextResponse.json({ 
           success: true, 
           url: result.url,
@@ -94,12 +128,35 @@ export async function POST(request: NextRequest) {
 
       } catch (uploadError) {
         console.error('❌ خطأ في رفع الملف إلى Cloudinary:', uploadError);
+        
+        // تسجيل الفشل
+        await logUploadAttempt({
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+          uploadType: type,
+          status: 'failed',
+          errorMessage: uploadError instanceof Error ? uploadError.message : 'خطأ غير معروف',
+          isPlaceholder: true
+        });
+        
         // السماح بالاستمرار مع placeholder
       }
     }
 
     // إذا لم يتوفر Cloudinary، استخدم placeholder
     console.log('⚠️ استخدام صورة placeholder - Cloudinary غير متوفر');
+    
+    // تسجيل استخدام placeholder
+    await logUploadAttempt({
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      uploadType: type,
+      status: 'placeholder',
+      errorMessage: hasCloudinary ? 'فشل رفع الصورة إلى Cloudinary' : 'Cloudinary غير مُعد',
+      isPlaceholder: true
+    });
     
     // إرجاع صورة placeholder حسب النوع
     let placeholderUrl = '/placeholder.jpg';
@@ -124,11 +181,19 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ خطأ في معالجة الملف:', error);
+    
+    // إرجاع استجابة خطأ صحيحة
     return NextResponse.json({ 
       success: false, 
-      error: 'فشل في معالجة الملف',
-      message: error instanceof Error ? error.message : 'خطأ غير معروف' 
-    }, { status: 500 });
+      error: error instanceof Error ? error.message : 'فشل في معالجة الملف',
+      message: 'حدث خطأ أثناء معالجة الطلب',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
+    }, { 
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
   }
 }
 
