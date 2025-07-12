@@ -275,7 +275,7 @@ export default function Header() {
                   <button
                     ref={mobileButtonRef}
                     onClick={() => setShowDropdown(!showDropdown)}
-                    className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative isolate"
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
@@ -292,7 +292,7 @@ export default function Header() {
                       />
                     ) : null}
                     {(!user.avatar || true) && (
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border border-gray-200 dark:border-gray-700">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border border-gray-200 dark:border-gray-700 relative z-10">
                         {getInitials(user.name)}
                       </div>
                     )}

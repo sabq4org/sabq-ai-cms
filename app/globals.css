@@ -2820,3 +2820,52 @@ a[class*="flex items-center gap-3"][class*="bg-blue"] {
   background-color: transparent !important;
 }
 
+/* إخفاء أي مؤشرات حالة غير مرغوبة على أيقونة المستخدم */
+@media (max-width: 768px) {
+  /* إخفاء أي عناصر pseudo أو مؤشرات على أيقونة المستخدم */
+  .user-avatar-mobile::before,
+  .user-avatar-mobile::after,
+  [aria-label="قائمة المستخدم"]::before,
+  [aria-label="قائمة المستخدم"]::after {
+    display: none !important;
+  }
+  
+  /* التأكد من عدم وجود أي overflow مرئي */
+  [aria-label="قائمة المستخدم"] {
+    overflow: hidden;
+    position: relative;
+  }
+  
+  /* إخفاء أي عناصر مطلقة صغيرة قد تكون مؤشرات */
+  [aria-label="قائمة المستخدم"] .absolute {
+    display: none !important;
+  }
+  
+  /* إزالة أي مؤشرات أو نقاط خضراء */
+  [aria-label="قائمة المستخدم"] > *::before,
+  [aria-label="قائمة المستخدم"] > *::after {
+    content: none !important;
+    display: none !important;
+  }
+  
+  /* التأكد من عدم وجود أي عناصر فوق الأيقونة */
+  [aria-label="قائمة المستخدم"] > div {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  
+  /* إخفاء أي دوائر صغيرة خضراء أو ملونة */
+  .w-2.h-2.rounded-full,
+  .w-3.h-3.rounded-full {
+    display: none !important;
+  }
+  
+  /* استثناء: السماح بالدوائر داخل القوائم المنسدلة */
+  .dropdown-menu .w-2.h-2.rounded-full,
+  .dropdown-menu .w-3.h-3.rounded-full,
+  nav .w-2.h-2.rounded-full,
+  nav .w-3.h-3.rounded-full {
+    display: inline-block !important;
+  }
+}
+
