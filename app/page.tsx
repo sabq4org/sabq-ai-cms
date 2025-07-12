@@ -24,6 +24,7 @@ import TodayOpinionsSection from '@/components/TodayOpinionsSection';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import MobileArticleCard from '@/components/mobile/MobileArticleCard';
 import MobileNewsCard from '@/components/mobile/MobileNewsCard';
+import MobileStatsBar from '@/components/mobile/MobileStatsBar';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
@@ -539,6 +540,19 @@ function NewspaperHomePage(): React.ReactElement {
       <DebugAuth />
       {/* Header */}
       <Header />
+      
+      {/* شريط الإحصائيات للموبايل */}
+      {isMobile && (
+        <MobileStatsBar 
+          stats={{
+            articlesCount: articles.length || 120,
+            categoriesCount: categories.length || 8,
+            coveragePercentage: 95
+          }}
+          darkMode={darkMode}
+        />
+      )}
+      
       {/* عرض جميع البلوكات الذكية */}
       {getOrderedBlocks().some(block => blocksConfig[block.key]?.enabled) && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
-import { Facebook, Twitter, Instagram, Youtube, Heart, Globe } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Youtube, Heart, Globe, ChevronDown } from 'lucide-react';
 
 
 
@@ -50,13 +50,20 @@ export default function Footer() {
 
   return (
     <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-6 py-16">
+      {/* Desktop Footer */}
+      <div className="hidden lg:block max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Logo and description */}
           <div className="md:col-span-2 lg:col-span-1">
-             <div className="flex items-center gap-2 mb-4">
-                 <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">س</div>
-                 <span className="font-bold text-2xl text-gray-800 dark:text-gray-100 dark:text-white">سبق</span>
+             <div className="mb-4">
+                 <Image 
+                   src="/logo.png" 
+                   alt="سبق" 
+                   width={120} 
+                   height={48} 
+                   className="h-12 w-auto object-contain"
+                   priority
+                 />
              </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
              صحيفة إلكترونية سعودية شاملة، نعمل على مدار الساعة لننقل لكم الحقيقة كما هي، ونغطي كافة الأحداث المحلية والعالمية بمصداقية واحترافية.
@@ -94,6 +101,76 @@ export default function Footer() {
                 <span>صنع بحب في المملكة العربية السعودية</span>
                 <Globe className="w-4 h-4 text-green-500"/>
               </div>
+        </div>
+      </div>
+
+      {/* Mobile Footer - Accordion Style */}
+      <div className="lg:hidden px-4 py-6">
+        {/* الشعار والوصف */}
+        <div className="text-center mb-6">
+          <div className="flex justify-center mb-2">
+            <Image 
+              src="/logo.png" 
+              alt="سبق" 
+              width={100} 
+              height={40} 
+              className="h-10 w-auto object-contain"
+              priority
+            />
+          </div>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            صحيفة إلكترونية سعودية شاملة
+          </p>
+        </div>
+
+        {/* الأقسام بتصميم Accordion */}
+        <div className="space-y-2 mb-6">
+          {footerSections.map((section) => (
+            <details key={section.title} className="group">
+              <summary className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 rounded-lg cursor-pointer">
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{section.title}</span>
+                <ChevronDown className="w-4 h-4 text-gray-500 group-open:rotate-180 transition-transform" />
+              </summary>
+              <div className="mt-2 grid grid-cols-2 gap-2 px-3">
+                {section.links.map((link) => (
+                  <Link 
+                    key={link.url} 
+                    href={link.url}
+                    className="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 py-1"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </details>
+          ))}
+        </div>
+
+        {/* التواصل الاجتماعي */}
+        <div className="flex justify-center gap-3 mb-6">
+          {socialLinks.map((social) => (
+            <a 
+              key={social.name} 
+              href={social.url} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:bg-blue-100 hover:text-blue-600 transition-colors"
+            >
+              {React.cloneElement(social.icon, { className: "w-4 h-4" })}
+            </a>
+          ))}
+        </div>
+
+        {/* حقوق النشر */}
+        <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+            © {new Date().getFullYear()} صحيفة سبق. جميع الحقوق محفوظة
+          </p>
+          <div className="flex items-center justify-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <Heart className="w-3 h-3 text-red-500" />
+            <span>صنع بحب في السعودية</span>
+            <Globe className="w-3 h-3 text-green-500"/>
+          </div>
         </div>
       </div>
     </footer>
