@@ -222,7 +222,7 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
           </div>
         </div>
         
-        <div className="max-w-4xl mx-auto px-6 py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* ملخص AI */}
         <section className={`mb-12 p-6 rounded-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-blue-50 border border-blue-100'}`}>
           <div className="flex items-start gap-4 mb-4">

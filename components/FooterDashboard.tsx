@@ -111,6 +111,17 @@ export default function FooterDashboard() {
   const [insights, setInsights] = useState<UserInsights | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDismissed, setIsDismissed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // تحديد نوع الجهاز
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     // تحميل فوري للبيانات
@@ -189,6 +200,72 @@ export default function FooterDashboard() {
     );
   }
 
+  // نسخة مبسطة للموبايل
+  if (isMobile) {
+    return (
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-100 py-6 px-4 border-t border-blue-200 dark:border-gray-800">
+        <div className="text-center mb-4">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            {getTimeIcon()}
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white">{getTimeGreeting()}</h3>
+          </div>
+        </div>
+
+        {/* بطاقة واحدة فقط - توصية اليوم */}
+        {insights?.todayRecommendation && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-blue-100 dark:border-gray-700 shadow-sm mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Pin className="w-4 h-4 text-blue-400" />
+              <h4 className="font-bold text-sm">ما يهمك اليوم</h4>
+              <span className="text-xs bg-blue-100 dark:bg-blue-800/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full mr-auto">
+                {insights.todayRecommendation.readingTime} د
+              </span>
+            </div>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 line-clamp-2 font-medium">
+              {insights.todayRecommendation.title}
+            </p>
+            <Link 
+              href={`/article/${insights.todayRecommendation.id}`}
+              className="inline-flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300"
+            >
+              <span>اقرأ الآن</span>
+              <ChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
+        )}
+
+        {/* نشاط مختصر */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-blue-100 dark:border-gray-700 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-orange-400" />
+              <span className="text-sm font-bold">نشاطك</span>
+            </div>
+            <div className="flex items-center gap-4 text-xs">
+              <div className="text-center">
+                <div className="font-bold text-orange-400">{insights?.weeklyActivity.articlesRead || 0}</div>
+                <div className="text-gray-500">مقروء</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-orange-400">{insights?.weeklyActivity.articlesSaved || 0}</div>
+                <div className="text-gray-500">محفوظ</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {!isLoggedIn && (
+          <div className="mt-4 text-center">
+            <Link href="/register" className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">
+              إنشاء حساب للمزيد
+            </Link>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // النسخة الكاملة للديسكتوب
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-100 py-12 px-6 border-t border-blue-200 dark:border-gray-800 relative">
       {/* زر الإغلاق */}

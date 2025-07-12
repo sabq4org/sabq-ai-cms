@@ -23,6 +23,7 @@ import InteractiveArticle from '@/components/InteractiveArticle';
 import TodayOpinionsSection from '@/components/TodayOpinionsSection';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import MobileArticleCard from '@/components/mobile/MobileArticleCard';
+import MobileNewsCard from '@/components/mobile/MobileNewsCard';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
@@ -804,9 +805,9 @@ function NewspaperHomePage(): React.ReactElement {
         </div>
       </section>
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {/* Enhanced News Section */}
-        <section className="mb-20">
+        <section className="mb-10 sm:mb-20">
           <div className="text-center mb-12">
             {isCheckingAuth ? (
               // عرض حالة تحميل أثناء التحقق من تسجيل الدخول
@@ -934,31 +935,60 @@ function NewspaperHomePage(): React.ReactElement {
               {/* عرض المقالات */}
               {(showPersonalized && personalizedArticles.length > 0) ? (
                 // عرض المقالات المخصصة للمستخدمين المسجلين
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                  {personalizedArticles.slice(0, 12).map((news) => (
-                    <div key={news.id} className="relative">
-                      {/* شارة "مخصص لك" */}
-                      <div className="absolute top-2 left-2 z-10">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
-                          darkMode 
-                            ? 'bg-purple-900/80 text-purple-200' 
-                            : 'bg-purple-500/90 text-white'
-                        }`}>
-                          <Sparkles className="w-3 h-3" />
-                          مخصص
-                        </span>
+                isMobile ? (
+                  // عرض الموبايل - قائمة عمودية
+                  <div className="space-y-3">
+                    {personalizedArticles.slice(0, 10).map((news) => (
+                      <div key={news.id} className="relative">
+                        <MobileNewsCard news={news} darkMode={darkMode} />
+                        {/* شارة "مخصص لك" */}
+                        <div className="absolute top-2 left-2 z-10">
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-bold bg-purple-500/90 text-white">
+                            <Sparkles className="w-3 h-3" />
+                            مخصص
+                          </span>
+                        </div>
                       </div>
-                      <NewsCard news={news} />
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  // عرض الديسكتوب - شبكة
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    {personalizedArticles.slice(0, 12).map((news) => (
+                      <div key={news.id} className="relative">
+                        {/* شارة "مخصص لك" */}
+                        <div className="absolute top-2 left-2 z-10">
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
+                            darkMode 
+                              ? 'bg-purple-900/80 text-purple-200' 
+                              : 'bg-purple-500/90 text-white'
+                          }`}>
+                            <Sparkles className="w-3 h-3" />
+                            مخصص
+                          </span>
+                        </div>
+                        <NewsCard news={news} />
+                      </div>
+                    ))}
+                  </div>
+                )
               ) : articles.length > 0 ? (
                 // عرض آخر المقالات للزوار أو المستخدمين بدون تفضيلات
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                  {articles.slice(0, 12).map((news) => (
-                    <NewsCard key={news.id} news={news} />
-                  ))}
-                </div>
+                isMobile ? (
+                  // عرض الموبايل - قائمة عمودية
+                  <div className="space-y-3">
+                    {articles.slice(0, 10).map((news) => (
+                      <MobileNewsCard key={news.id} news={news} darkMode={darkMode} />
+                    ))}
+                  </div>
+                ) : (
+                  // عرض الديسكتوب - شبكة
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    {articles.slice(0, 12).map((news) => (
+                      <NewsCard key={news.id} news={news} />
+                    ))}
+                  </div>
+                )
               ) : (
                 // لا توجد مقالات
                 <div className={`text-center py-20 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
@@ -991,8 +1021,8 @@ function NewspaperHomePage(): React.ReactElement {
         {/* قسم رأي اليوم */}
         <TodayOpinionsSection darkMode={darkMode} />
         {/* المقالات التفاعلية - التصميم الجديد */}
-        <section className="mb-16">
-          <div className="max-w-7xl mx-auto px-6">
+        <section className="mb-8 sm:mb-16">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6">
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 mb-6">
                 <MessageSquare className="w-5 h-5 text-purple-600" />
