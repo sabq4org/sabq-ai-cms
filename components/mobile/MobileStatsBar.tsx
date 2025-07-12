@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Newspaper, Tag, Users, Clock, TrendingUp } from 'lucide-react';
+import { Newspaper, Tag, Users, Clock, TrendingUp, Calendar } from 'lucide-react';
 
 interface MobileStatsBarProps {
   stats: {
@@ -74,13 +74,13 @@ export default function MobileStatsBar({ stats, darkMode }: MobileStatsBarProps)
           <div className={`p-1.5 rounded-lg ${
             darkMode ? 'bg-green-900/30' : 'bg-green-100'
           }`}>
-            <Clock className={`w-4 h-4 ${
+            <Calendar className={`w-4 h-4 ${
               darkMode ? 'text-green-400' : 'text-green-600'
             }`} />
           </div>
           <div>
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              اليوم
+              مقالات اليوم
             </p>
             <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {stats.loading || stats.todayArticles === null ? (

@@ -1077,21 +1077,27 @@ export default function ArticlePage({ params }: PageProps) {
                 <TrendingUp className="w-5 h-5 text-blue-600" />
                 إحصائيات المقال
               </h3>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="text-center p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <Eye className="w-5 h-5 mx-auto mb-2 text-blue-600" />
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">المشاهدات</div>
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">{article.views_count || 0}</div>
+              <div className="flex items-center gap-2 justify-between">
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <Eye className="w-4 h-4 text-blue-600" />
+                  <div className="text-sm">
+                    <span className="font-bold text-gray-900 dark:text-white">{article.views_count || 0}</span>
+                    <span className="text-gray-500 dark:text-gray-400 mr-1">مشاهدة</span>
+                  </div>
                 </div>
-                <div className="text-center p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <Clock className="w-5 h-5 mx-auto mb-2 text-blue-600" />
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">وقت القراءة</div>
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">{calculateReadingTime(article.content)} د</div>
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                  <div className="text-sm">
+                    <span className="font-bold text-gray-900 dark:text-white">{calculateReadingTime(article.content)}</span>
+                    <span className="text-gray-500 dark:text-gray-400 mr-1">دقيقة</span>
+                  </div>
                 </div>
-                <div className="text-center p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <MessageCircle className="w-5 h-5 mx-auto mb-2 text-blue-600" />
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">التعليقات</div>
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">{article.stats?.comments || 0}</div>
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <MessageCircle className="w-4 h-4 text-blue-600" />
+                  <div className="text-sm">
+                    <span className="font-bold text-gray-900 dark:text-white">{article.stats?.comments || 0}</span>
+                    <span className="text-gray-500 dark:text-gray-400 mr-1">تعليق</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1130,8 +1136,8 @@ export default function ArticlePage({ params }: PageProps) {
                 </div>
               </div>
             )}
-            {/* مساعد AI - تصميم موحد */}
-            <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            {/* مساعد AI - تصميم محسن */}
+            <div className="p-6 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-800">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

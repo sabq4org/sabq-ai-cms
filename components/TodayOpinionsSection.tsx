@@ -332,19 +332,19 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                 {/* معلومات الكاتب الحالي */}
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className="w-[60px] h-[60px] rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+                    <div className="w-[80px] h-[80px] rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
                       <Image 
                         src={featuredWriters[currentWriterIndex]?.author_avatar || '/default-avatar.png'} 
                         alt={featuredWriters[currentWriterIndex]?.author_name || ''} 
-                        width={60} 
-                        height={60}
+                        width={80} 
+                        height={80}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-r ${
+                    <div className={`absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-r ${
                       writerClubColors[featuredWriters[currentWriterIndex]?.author_club || 'default']
-                    } flex items-center justify-center border-2 border-white dark:border-gray-800`}>
-                      <Star className="w-3 h-3 text-white" />
+                    } flex items-center justify-center border-2 border-white dark:border-gray-800 shadow-lg`}>
+                      <Star className="w-4 h-4 text-white" />
                     </div>
                   </div>
                   
@@ -492,12 +492,12 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                 <div className="flex items-start gap-3 mb-3">
                   <Link href={`/author/${article.author_slug || 'dr-mohammed-ahmad'}`} className="flex-shrink-0">
                     <div className="relative">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 ring-2 ring-white dark:ring-gray-800 shadow-lg">
                         <Image 
                           src={article.author_avatar || '/default-avatar.png'} 
                           alt={article.author_name}
-                          width={40}
-                          height={40}
+                          width={56}
+                          height={56}
                           className="w-full h-full object-cover"
                         />
                       </div>
