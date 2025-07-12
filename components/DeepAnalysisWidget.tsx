@@ -8,6 +8,7 @@ import AnalysisTypeIcon from './deep-analysis/AnalysisTypeIcon';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import MobileDeepAnalysisCard from './mobile/MobileDeepAnalysisCard';
 
 interface DeepInsight {
   id: string;
@@ -39,6 +40,17 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAllTags, setShowAllTags] = useState<{ [key: string]: boolean }>({});
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // تحديد نوع الجهاز
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // بيانات افتراضية للعرض
   const defaultInsights: DeepInsight[] = [
@@ -200,6 +212,18 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
         </div>
 
         {/* البطاقات - صف أفقي قابل للتمرير */}
+        {isMobile ? (
+          // عرض الموبايل - قائمة عمودية
+          <div className="space-y-3 mb-6">
+            {displayInsights.slice(0, 5).map((item) => (
+              <MobileDeepAnalysisCard 
+                key={item.id} 
+                insight={item} 
+                darkMode={darkMode} 
+              />
+            ))}
+          </div>
+        ) : (
         <div className="relative mb-6">
           {/* أزرار التمرير للشاشات الكبيرة */}
           {displayInsights.length > 3 && (
@@ -397,6 +421,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
             </div>
           )}
         </div>
+        )}
 
         {/* زر استكشاف المزيد - محسّن */}
         <div className="text-center">

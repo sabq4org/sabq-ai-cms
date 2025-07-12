@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { formatDateOnly } from '@/lib/date-utils';
 import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
+import MobileOpinionCard from './mobile/MobileOpinionCard';
 
 // أيقونات أندية الكتاب
 const writerClubColors = {
@@ -72,6 +73,17 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // تحديد نوع الجهاز
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // جلب البيانات
   useEffect(() => {
@@ -430,6 +442,18 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
         </div>
 
         {/* بطاقات الآراء المُضغوطة والأنيقة */}
+        {isMobile ? (
+          // عرض الموبايل - قائمة عمودية
+          <div className="space-y-3">
+            {opinionArticles.slice(0, 6).map((article) => (
+              <MobileOpinionCard 
+                key={article.id} 
+                article={article} 
+                darkMode={darkMode} 
+              />
+            ))}
+          </div>
+        ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
           {opinionArticles.map((article) => (
             <div 
@@ -587,6 +611,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
             </div>
           ))}
         </div>
+        )}
 
         {/* رابط عرض المزيد */}
         <div className="text-center mt-12">
