@@ -3045,3 +3045,56 @@ button.bg-green-600,
   display: inline-flex !important;
 }
 
+/* تحسينات صفحة المقال للموبايل */
+@media (max-width: 640px) {
+  /* ضمان تساوي الهوامش الجانبية */
+  .article-content,
+  .prose,
+  article section,
+  .sidebar-card {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* منع تجاوز المحتوى لحدود الشاشة */
+  .sidebar-card,
+  .prose > *,
+  article img,
+  article figure {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* تحسين بلوك الإحصاءات */
+  .sidebar-card {
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* تحسين معلومات المقال */
+  .article-meta-info {
+    padding: 0 1rem;
+  }
+  
+  /* أزرار التفاعل */
+  .quick-interaction-bar {
+    padding: 0.75rem 1rem;
+    margin: 0;
+  }
+}
+
+/* تحسينات إضافية لبلوك AI */
+.sidebar-card.bg-gradient-to-br {
+  overflow: hidden;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .sidebar-card.bg-gradient-to-br {
+    margin: 0 1rem;
+    max-width: calc(100% - 2rem);
+  }
+}
+

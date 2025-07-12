@@ -544,10 +544,16 @@ export default function ArticlePage({ params }: PageProps) {
                 case 'image':
                   return (
                     <figure key={block.id || index} className="my-8">
-                      <Image src="/placeholder.jpg" alt="" width={100} height={100} />
+                      <Image 
+                        src={block.url || "/placeholder.jpg"} 
+                        alt={block.alt || ""} 
+                        width={800} 
+                        height={600}
+                        className="w-full h-auto rounded-lg"
+                      />
                       {block.caption && (
-                        <figcaption className="text-center text-sm text-gray-600 dark:text-gray-400 mt-2">
-                          {block.caption}
+                        <figcaption className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center px-4">
+                          📷 {block.caption}
                         </figcaption>
                       )}
                     </figure>
@@ -809,6 +815,14 @@ export default function ArticlePage({ params }: PageProps) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
+        {/* Caption للصورة الرئيسية */}
+        {article.image_caption && (
+          <div className="bg-gray-100 dark:bg-gray-800 px-4 py-2">
+            <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
+              📷 {article.image_caption}
+            </p>
+          </div>
+        )}
       </section>
       {/* Article Title & Meta */}
       <section className="px-4 sm:px-6 md:px-8 py-6 max-w-5xl mx-auto">
@@ -841,31 +855,40 @@ export default function ArticlePage({ params }: PageProps) {
             </div>
           </div>
         )}
-        {/* معلومات المقال */}
-        <div className="article-meta-info">
-          <div className="article-meta-item">
-            <span
-              className="px-3 py-1 rounded-full text-xs font-medium text-white"
-              style={{ backgroundColor: getCategoryColor(article.category) }}
-            >
-              {article.category?.name_ar || (article.category as any)?.name || article.category_name || 'غير مصنف'}
+        {/* معلومات المقال - إعادة ترتيب */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4">
+          {/* القسم أولاً */}
+          <span
+            className="px-3 py-1 rounded-full text-xs font-medium text-white"
+            style={{ backgroundColor: getCategoryColor(article.category) }}
+          >
+            {article.category?.name_ar || (article.category as any)?.name || article.category_name || 'غير مصنف'}
+          </span>
+          
+          {/* اسم الكاتب */}
+          <div className="flex items-center gap-1">
+            <User className="w-4 h-4" />
+            <Link href={`/author/${article.author_id || (article.author as any)?.id || ''}`} className="hover:text-blue-600 font-medium">
+              {article.author_name || (article.author && (article.author as any).name) || '—'}
+            </Link>
+          </div>
+          
+          {/* المشاهدات ومدة القراءة */}
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <Eye className="w-4 h-4" />
+              {article.views_count || 0} مشاهدة
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              {calculateReadingTime(article.content)} دقائق
             </span>
           </div>
-          <div className="article-meta-item">
-            <User className="w-5 h-5" />
-            <Link href={`/author/${article.author_id || (article.author as any)?.id || ''}`} className="hover:text-blue-600">{article.author_name || (article.author && (article.author as any).name) || '—'}</Link>
-          </div>
-          <div className="article-meta-item">
-            <Calendar className="w-5 h-5" />
+          
+          {/* التاريخ والوقت */}
+          <div className="flex items-center gap-1 mr-auto">
+            <Calendar className="w-4 h-4" />
             <span>{formatFullDate(article.published_at || article.created_at)}</span>
-          </div>
-          <div className="article-meta-item">
-            <Clock className="w-5 h-5" />
-            <span>{calculateReadingTime(article.content)} دقائق قراءة</span>
-          </div>
-          <div className="article-meta-item">
-            <Eye className="w-5 h-5" />
-            <span>{article.views_count || 0} مشاهدة</span>
           </div>
         </div>
         {/* الكلمات المفتاحية */}
@@ -892,93 +915,103 @@ export default function ArticlePage({ params }: PageProps) {
             </div>
           </div>
         )}
-        {/* شريط التفاعل السريع */}
-        <div className="quick-interaction-bar">
-          {/* زر الإعجاب */}
-          <button 
-            onClick={handleLike}
-            className={`quick-interaction-button ripple-effect ${
-              interaction.liked ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : ''
-            }`}
-            title={interaction.liked ? 'إلغاء الإعجاب' : 'أعجبني'}
-          >
-            <Heart className={`w-5 h-5 ${interaction.liked ? 'fill-current' : ''}`} />
-            <span>{interaction.liked ? 'أعجبني' : 'أعجبني'}</span>
-            {interaction.likesCount > 0 && (
-              <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                {interaction.likesCount}
-              </span>
-            )}
-          </button>
-          {/* زر الحفظ */}
-          <button 
-            onClick={handleSave}
-            className={`quick-interaction-button ripple-effect ${
-              interaction.saved ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''
-            }`}
-            title={interaction.saved ? 'إلغاء الحفظ' : 'حفظ المقال'}
-          >
-            <Bookmark className={`w-5 h-5 ${interaction.saved ? 'fill-current' : ''}`} />
-            <span>{interaction.saved ? 'محفوظ' : 'حفظ'}</span>
-            {interaction.savesCount > 0 && (
-              <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                {interaction.savesCount}
-              </span>
-            )}
-          </button>
-          {/* زر المشاركة */}
-          <button 
-            title="شارك هذا المقال"
-            onClick={() => setShowShareMenu(!showShareMenu)}
-            className="quick-interaction-button ripple-effect relative"
-          >
-            <Share2 className="w-5 h-5" />
-            <span>مشاركة</span>
-            {interaction.sharesCount > 0 && (
-              <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                {interaction.sharesCount}
-              </span>
-            )}
-            {/* قائمة المشاركة */}
-            {showShareMenu && (
-              <div className="absolute top-full mt-2 left-0 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-[200px] z-10">
-                <button
-                  onClick={() => handleShare('twitter')}
-                  className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  <Twitter className="w-4 h-4" />
-                  <span>تويتر</span>
-                </button>
-                <button
-                  onClick={() => handleShare('whatsapp')}
-                  className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>واتساب</span>
-                </button>
-                <button
-                  onClick={() => handleShare('copy')}
-                  className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  {copySuccess ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                  <span>{copySuccess ? 'تم النسخ!' : 'نسخ الرابط'}</span>
-                </button>
-              </div>
-            )}
-          </button>
+        {/* شريط التفاعل السريع - مصغر للموبايل */}
+        <div className="flex items-center gap-2 sm:gap-3 py-3 border-t border-b border-gray-200 dark:border-gray-700 my-4">
+          {/* أزرار التفاعل - أيقونات فقط في الموبايل */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* زر الإعجاب */}
+            <button 
+              onClick={handleLike}
+              className={`relative p-2 sm:px-3 sm:py-2 rounded-full transition-all ${
+                interaction.liked 
+                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20' 
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
+              title={interaction.liked ? 'إلغاء الإعجاب' : 'أعجبني'}
+            >
+              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${interaction.liked ? 'fill-current' : ''}`} />
+              <span className="hidden sm:inline-block mr-1">{interaction.liked ? 'أعجبني' : 'إعجاب'}</span>
+              {interaction.likesCount > 0 && (
+                <span className="absolute -top-1 -right-1 text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                  {interaction.likesCount}
+                </span>
+              )}
+            </button>
+            
+            {/* زر الحفظ */}
+            <button 
+              onClick={handleSave}
+              className={`relative p-2 sm:px-3 sm:py-2 rounded-full transition-all ${
+                interaction.saved 
+                  ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
+              title={interaction.saved ? 'إلغاء الحفظ' : 'حفظ المقال'}
+            >
+              <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${interaction.saved ? 'fill-current' : ''}`} />
+              <span className="hidden sm:inline-block mr-1">{interaction.saved ? 'محفوظ' : 'حفظ'}</span>
+              {interaction.savesCount > 0 && (
+                <span className="absolute -top-1 -right-1 text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                  {interaction.savesCount}
+                </span>
+              )}
+            </button>
+            
+            {/* زر المشاركة */}
+            <button 
+              title="شارك هذا المقال"
+              onClick={() => setShowShareMenu(!showShareMenu)}
+              className="relative p-2 sm:px-3 sm:py-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+            >
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline-block mr-1">مشاركة</span>
+              {interaction.sharesCount > 0 && (
+                <span className="absolute -top-1 -right-1 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                  {interaction.sharesCount}
+                </span>
+              )}
+              
+              {/* قائمة المشاركة */}
+              {showShareMenu && (
+                <div className="absolute top-full mt-2 left-0 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-[180px] z-10">
+                  <button
+                    onClick={() => handleShare('twitter')}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <Twitter className="w-4 h-4" />
+                    <span>تويتر</span>
+                  </button>
+                  <button
+                    onClick={() => handleShare('whatsapp')}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>واتساب</span>
+                  </button>
+                  <button
+                    onClick={() => handleShare('copy')}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    {copySuccess ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                    <span>{copySuccess ? 'تم النسخ!' : 'نسخ الرابط'}</span>
+                  </button>
+                </div>
+              )}
+            </button>
+          </div>
         </div>
       </section>
       {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pb-12" ref={contentRef}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto pb-12" ref={contentRef}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Article Content */}
-          <section className="lg:col-span-2">
+          <section className="lg:col-span-2 px-4 sm:px-6 md:px-8">
             <div className="prose prose-lg max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-code:text-gray-900 dark:prose-code:text-white prose-pre:bg-transparent prose-blockquote:bg-transparent">
               {renderArticleContent(article.content)}
             </div>
           </section>
           {/* Sidebar */}
-          <aside className="lg:col-span-1 space-y-6 px-4 sm:px-0">
+          <aside className="lg:col-span-1 space-y-6 px-4 sm:px-6 md:px-8 lg:px-0">
             {/* Article Stats */}
             <div className="sidebar-card">
               <div className="trend-badge text-sm text-green-600 mb-2">↑ نمو كبير اليوم</div>
