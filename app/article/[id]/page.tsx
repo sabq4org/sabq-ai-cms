@@ -697,8 +697,114 @@ export default function ArticlePage({ params }: PageProps) {
   return (
   <div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
       {article && <ArticleJsonLd article={article} />}
-      {/* أنماط CSS مخصصة لأزرار "لا أرغب بهذا النوع" */}
+      {/* أنماط CSS مخصصة */}
       <style jsx>{`
+        /* أنماط البلوكات الجانبية الموحدة */
+        .sidebar-card {
+          padding: 1.5rem;
+          background-color: rgb(249 250 251);
+          border-radius: 0.75rem;
+          border: 1px solid rgb(229 231 235);
+          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .dark .sidebar-card {
+          background-color: rgb(31 41 55);
+          border-color: rgb(55 65 81);
+        }
+        .article-info-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+          margin-top: 1rem;
+        }
+        .article-info-item {
+          text-align: center;
+          padding: 0.75rem;
+          background-color: white;
+          border-radius: 0.5rem;
+          border: 1px solid rgb(229 231 235);
+        }
+        .dark .article-info-item {
+          background-color: rgb(17 24 39);
+          border-color: rgb(75 85 99);
+        }
+        .article-info-item svg {
+          width: 1.25rem;
+          height: 1.25rem;
+          margin: 0 auto 0.5rem;
+          color: rgb(59 130 246);
+        }
+        .article-info-label {
+          font-size: 0.75rem;
+          color: rgb(107 114 128);
+          margin-bottom: 0.25rem;
+        }
+        .dark .article-info-label {
+          color: rgb(156 163 175);
+        }
+        .article-info-value {
+          font-size: 1.125rem;
+          font-weight: 700;
+          color: rgb(17 24 39);
+        }
+        .dark .article-info-value {
+          color: white;
+        }
+        .trend-badge {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.25rem 0.75rem;
+          background-color: rgb(220 252 231);
+          color: rgb(22 163 74);
+          border-radius: 9999px;
+          font-size: 0.75rem;
+          font-weight: 500;
+        }
+        .dark .trend-badge {
+          background-color: rgba(34, 197, 94, 0.1);
+          color: rgb(134 239 172);
+        }
+        /* أنماط الأزرار العائمة */
+        .floating-actions {
+          position: fixed;
+          bottom: 2rem;
+          left: 2rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          z-index: 40;
+        }
+        .floating-action-button {
+          width: 3rem;
+          height: 3rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgb(59 130 246);
+          color: white;
+          border-radius: 9999px;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          transition: all 0.2s;
+          border: none;
+          cursor: pointer;
+        }
+        .floating-action-button:hover {
+          transform: scale(1.1);
+          background-color: rgb(37 99 235);
+        }
+        @media (max-width: 640px) {
+          .floating-actions {
+            bottom: 1.5rem;
+            left: 1rem;
+          }
+          .article-info-grid {
+            gap: 0.5rem;
+          }
+          .article-info-item {
+            padding: 0.5rem;
+          }
+        }
+        /* أنماط أزرار "لا أرغب بهذا النوع" */
         .no-thanks-button {
           position: absolute;
           top: 8px;
@@ -892,14 +998,17 @@ export default function ArticlePage({ params }: PageProps) {
           </div>
         </div>
         {/* الكلمات المفتاحية */}
-        {article.seo_keywords && Array.isArray(article.seo_keywords) && article.seo_keywords.length > 0 && (
+        {article.seo_keywords && (
           <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-3">
               <Hash className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">الكلمات المفتاحية</h3>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {article.seo_keywords.map((keyword, index) => (
+            <div className="flex flex-wrap gap-2 justify-end">
+              {(typeof article.seo_keywords === 'string' 
+                ? article.seo_keywords.split(',').map(k => k.trim())
+                : Array.isArray(article.seo_keywords) ? article.seo_keywords : []
+              ).filter(k => k).map((keyword, index) => (
                 <span
                   key={index}
                   className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-800 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cursor-pointer"
@@ -916,9 +1025,9 @@ export default function ArticlePage({ params }: PageProps) {
           </div>
         )}
         {/* شريط التفاعل السريع - مصغر للموبايل */}
-        <div className="flex items-center gap-2 sm:gap-3 py-3 border-t border-b border-gray-200 dark:border-gray-700 my-4">
+        <div className="flex items-center justify-start gap-2 sm:gap-3 py-3 border-t border-b border-gray-200 dark:border-gray-700 my-4">
           {/* أزرار التفاعل - أيقونات فقط في الموبايل */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 mr-auto">
             {/* زر الإعجاب */}
             <button 
               onClick={handleLike}
@@ -1175,13 +1284,7 @@ export default function ArticlePage({ params }: PageProps) {
           >
             <ChevronRight className="w-6 h-6 rotate-90" />
           </button>
-          <button 
-            onClick={() => setShowShareMenu(!showShareMenu)}
-            className="floating-action-button"
-            title="مشاركة"
-          >
-            <Share2 className="w-6 h-6" />
-          </button>
+          {/* تم حذف زر المشاركة العائم */}
           {tableOfContents.length > 0 && (
             <button 
               onClick={() => setShowMobileToc(!showMobileToc)}
