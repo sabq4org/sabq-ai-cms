@@ -426,12 +426,20 @@ export default function ProfilePage() {
             <div className="flex items-center gap-6">
               <div className="relative group">
                 {user.avatar ? (
-                  <Image src="/placeholder.jpg" alt="" width={100} height={100} />
-                ) : (
-                  <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center text-5xl font-bold shadow-xl">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                  <img 
+                    src={user.avatar} 
+                    alt={user.name}
+                    className="w-32 h-32 rounded-full object-cover shadow-xl"
+                    onError={(e) => {
+                      console.error('خطأ في تحميل الصورة:', user.avatar);
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <div className={`w-32 h-32 bg-white/20 rounded-full flex items-center justify-center text-5xl font-bold shadow-xl ${user.avatar ? 'hidden' : ''}`}>
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
                 {/* زر تغيير الصورة */}
                 <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <input

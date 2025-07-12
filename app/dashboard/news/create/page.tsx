@@ -88,13 +88,21 @@ export default function CreateArticlePage() {
   }, []);
   const fetchCategories = async () => {
     try {
+      console.log('🔄 جلب التصنيفات...');
       const response = await fetch('/api/categories');
       const data = await response.json();
-      // التأكد من أن البيانات في شكل مصفوفة
-      setCategories(Array.isArray(data.categories) ? data.categories : []);
+      
+      if (data.success && data.categories) {
+        console.log(`✅ تم جلب ${data.categories.length} تصنيف:`, data.categories.map((c: any) => c.name));
+        setCategories(data.categories);
+      } else {
+        console.error('❌ خطأ في البيانات:', data);
+        setCategories([]);
+      }
     } catch (error) {
-      console.error('خطأ في تحميل التصنيفات:', error);
-      setCategories([]); // تعيين مصفوفة فارغة في حالة الخطأ
+      console.error('❌ خطأ في جلب التصنيفات:', error);
+      setCategories([]);
+      toast.error('فشل في تحميل التصنيفات');
     }
   };
   const fetchAuthors = async () => {
