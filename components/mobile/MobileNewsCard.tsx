@@ -24,10 +24,10 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
             ? 'bg-gray-800 border border-gray-700' 
             : 'bg-white border border-gray-200'
       }`}>
-        {/* تصميم أفقي مضغوط */}
-        <div className="flex h-24">
-          {/* الصورة - مربعة صغيرة */}
-          <div className="relative w-24 h-24 flex-shrink-0 bg-gray-200 dark:bg-gray-700">
+        {/* تصميم أفقي محسّن */}
+        <div className="flex h-32">
+          {/* الصورة - مربعة */}
+          <div className="relative w-32 h-32 flex-shrink-0 bg-gray-200 dark:bg-gray-700">
             <CloudImage
               src={news.featured_image}
               alt={news.title || 'صورة المقال'}
@@ -35,7 +35,7 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
               className="w-full h-full object-cover"
               fallbackType="article"
               priority={false}
-              sizes="96px"
+              sizes="128px"
             />
             {news.is_breaking && (
               <div className="absolute top-1 right-1">
@@ -48,7 +48,7 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
           </div>
 
           {/* المحتوى */}
-          <div className="flex-1 p-3 flex flex-col justify-between">
+          <div className="flex-1 p-3 flex flex-col">
             {/* التصنيف والتاريخ */}
             <div className="flex items-center justify-between text-[10px] mb-1">
               {news.category_name && (
@@ -69,7 +69,7 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
             </div>
 
             {/* العنوان */}
-            <h3 className={`font-bold text-sm leading-tight line-clamp-2 mb-1 ${
+            <h3 className={`font-bold text-sm leading-relaxed line-clamp-3 flex-1 ${
               news.is_breaking 
                 ? 'text-red-700 dark:text-red-400' 
                 : darkMode 
@@ -80,7 +80,7 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
             </h3>
 
             {/* معلومات سريعة */}
-            <div className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400 mt-auto">
               <span className="flex items-center gap-0.5">
                 <Clock className="w-2.5 h-2.5" />
                 {news.reading_time || 5} د
