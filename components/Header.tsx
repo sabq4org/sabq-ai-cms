@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -279,7 +279,7 @@ export default function Header() {
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <Image 
+                      <img 
                         src={user.avatar} 
                         alt={user.name} 
                         width={32} 
@@ -291,11 +291,9 @@ export default function Header() {
                         }}
                       />
                     ) : null}
-                    {(!user.avatar || true) && (
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border border-gray-200 dark:border-gray-700 relative z-10">
-                        {getInitials(user.name)}
-                      </div>
-                    )}
+                    <div className={`w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border border-gray-200 dark:border-gray-700 relative z-10 ${user.avatar ? 'hidden' : ''}`}>
+                      {getInitials(user.name)}
+                    </div>
                   </button>
 
                   {showDropdown && (
@@ -382,7 +380,7 @@ export default function Header() {
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <Image 
+                      <img 
                         src={user.avatar} 
                         alt={user.name} 
                         width={36} 
