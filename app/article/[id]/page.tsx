@@ -811,7 +811,7 @@ export default function ArticlePage({ params }: PageProps) {
         </div>
       </section>
       {/* Article Title & Meta */}
-      <section className="px-4 md:px-8 py-6 max-w-5xl mx-auto">
+      <section className="px-4 sm:px-6 md:px-8 py-6 max-w-5xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold leading-tight article-title">
           {article.title}
         </h1>
@@ -978,7 +978,7 @@ export default function ArticlePage({ params }: PageProps) {
             </div>
           </section>
           {/* Sidebar */}
-          <aside className="lg:col-span-1 space-y-6">
+          <aside className="lg:col-span-1 space-y-6 px-4 sm:px-0">
             {/* Article Stats */}
             <div className="sidebar-card">
               <div className="trend-badge text-sm text-green-600 mb-2">↑ نمو كبير اليوم</div>

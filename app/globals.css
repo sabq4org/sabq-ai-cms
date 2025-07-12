@@ -2983,3 +2983,65 @@ a[class*="flex items-center gap-3"][class*="bg-blue"] {
   }
 }
 
+/* تحسين تساوي الهوامش في صفحة المقال */
+@media (max-width: 768px) {
+  /* ضمان تساوي الهوامش من الجانبين */
+  .prose,
+  .article-content,
+  article section {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* sidebar cards في الموبايل */
+  .sidebar-card {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  /* محتوى المقال */
+  .prose > * {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  /* العناوين والفقرات */
+  .prose h1, .prose h2, .prose h3, 
+  .prose h4, .prose h5, .prose h6,
+  .prose p {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+/* إخفاء الأيقونة الخضراء نهائياً في الهيدر */
+header *::before,
+header *::after {
+  display: none !important;
+}
+
+/* استثناء العناصر المهمة */
+header button[aria-label="قائمة المستخدم"]::before,
+header button[aria-label="قائمة المستخدم"]::after,
+header .user-dropdown::before,
+header .user-dropdown::after,
+header [role="menu"]::before,
+header [role="menu"]::after {
+  display: block !important;
+}
+
+/* إخفاء أي دوائر خضراء */
+.bg-green-500,
+.bg-green-400,
+.bg-green-600,
+[class*="bg-green"] {
+  display: none !important;
+}
+
+/* استثناء الأزرار الخضراء المهمة */
+button.bg-green-500,
+button.bg-green-600,
+.btn-success {
+  display: inline-flex !important;
+}
+

@@ -453,9 +453,13 @@ export default function Header() {
               {/* إضافة زر الوضع الليلي في قائمة الموبايل */}
               {mounted && (
                 <button
-                  onClick={() => {
-                    toggleDarkMode();
-                    setShowMobileMenu(false);
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setTimeout(() => {
+                      toggleDarkMode();
+                      setShowMobileMenu(false);
+                    }, 50);
                   }}
                   className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 w-full text-right"
                 >
