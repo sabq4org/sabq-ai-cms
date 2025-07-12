@@ -547,7 +547,11 @@ function NewspaperHomePage(): React.ReactElement {
           stats={{
             articlesCount: articles.length || 120,
             categoriesCount: categories.length || 8,
-            coveragePercentage: 95
+            todayArticles: articles.filter(a => {
+              const today = new Date();
+              const articleDate = new Date(a.published_at || a.created_at);
+              return articleDate.toDateString() === today.toDateString();
+            }).length || 12
           }}
           darkMode={darkMode}
         />

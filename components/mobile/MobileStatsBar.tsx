@@ -1,13 +1,15 @@
 'use client';
 
 import React from 'react';
-import { Newspaper, Tag, TrendingUp } from 'lucide-react';
+import { Newspaper, Tag, Users, Clock, TrendingUp } from 'lucide-react';
 
 interface MobileStatsBarProps {
   stats: {
     articlesCount: number;
     categoriesCount: number;
-    coveragePercentage: number;
+    todayArticles?: number;
+    activeUsers?: number;
+    coveragePercentage?: number;
   };
   darkMode: boolean;
 }
@@ -58,21 +60,21 @@ export default function MobileStatsBar({ stats, darkMode }: MobileStatsBarProps)
           </div>
         </div>
 
-        {/* نسبة التغطية */}
+        {/* مقالات اليوم */}
         <div className="flex items-center gap-2">
           <div className={`p-1.5 rounded-lg ${
             darkMode ? 'bg-green-900/30' : 'bg-green-100'
           }`}>
-            <TrendingUp className={`w-4 h-4 ${
+            <Clock className={`w-4 h-4 ${
               darkMode ? 'text-green-400' : 'text-green-600'
             }`} />
           </div>
           <div>
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              التغطية
+              اليوم
             </p>
             <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              {stats.coveragePercentage}%
+              {stats.todayArticles || 12}
             </p>
           </div>
         </div>
