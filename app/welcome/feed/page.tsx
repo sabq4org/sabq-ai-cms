@@ -168,6 +168,9 @@ export default function WelcomeFeedPage() {
         {/* اهتمامات المستخدم */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">اهتماماتك المختارة</h2>
+          <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
+            التصنيفات التي اخترتها لعرض المحتوى الأنسب لك
+          </p>
           <div className="flex flex-wrap justify-center gap-4">
             {user.interests.map((interest) => {
               const interestData = interestMap[interest];
@@ -188,51 +191,68 @@ export default function WelcomeFeedPage() {
         {/* المقالات المقترحة */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">مقالات مخصصة لك</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recommendedArticles.map((article) => (
-              <div
-                key={article.id}
-                onClick={() => handleArticleClick(article.id)}
-                className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
-              >
-                {article.featured_image && (
-                  <div className="aspect-video overflow-hidden">
-                    <Image src="/placeholder.jpg" alt="" width={100} height={100} />
-                  </div>
-                )}
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">
-                      {typeof article.category === 'string' ? article.category : ((article.category as any)?.name_ar || (article.category as any)?.name || 'عام')}
-                    </span>
-                    <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400 text-xs">
-                      <Clock className="w-3 h-3" />
-                      <span>{article.reading_time || 3} دقائق</span>
+          <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
+            مقالات مختارة من فريق التحرير والذكاء الاصطناعي بناءً على اهتماماتك
+          </p>
+          {recommendedArticles.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recommendedArticles.map((article) => (
+                <div
+                  key={article.id}
+                  onClick={() => handleArticleClick(article.id)}
+                  className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
+                >
+                  {article.featured_image && (
+                    <div className="aspect-video overflow-hidden">
+                      <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                     </div>
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 line-clamp-2">
-                    {article.title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
-                    {article.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      <span>{article.author?.name}</span>
+                  )}
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">
+                        {typeof article.category === 'string' ? article.category : ((article.category as any)?.name_ar || (article.category as any)?.name || 'عام')}
+                      </span>
+                      <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400 text-xs">
+                        <Clock className="w-3 h-3" />
+                        <span>{article.reading_time || 3} دقائق</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      <span>{article.views || 0}</span>
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 line-clamp-2">
+                      {article.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                      {article.excerpt}
+                    </p>
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <User className="w-3 h-3" />
+                        <span>{article.author?.name}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        <span>{article.views || 0}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-12 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
+              <div className="flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mx-auto mb-4">
+                <BookOpen className="w-8 h-8 text-gray-400 dark:text-gray-500" />
               </div>
-            ))}
-          </div>
+              <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">
+                لا توجد مقالات الآن
+              </p>
+              <p className="text-gray-500 dark:text-gray-500 text-sm">
+                سيتم ترشيح مقالات لك قريبًا بناءً على اهتماماتك
+              </p>
+            </div>
+          )}
         </div>
         {/* إحصائيات وتحفيز */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
             <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mx-auto mb-4">
               <Star className="w-6 h-6 text-white" />
@@ -253,6 +273,13 @@ export default function WelcomeFeedPage() {
             </div>
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">اليوم الأول</h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm">من رحلتك معنا</p>
+          </div>
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
+            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full mx-auto mb-4">
+              <Share2 className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">شارك المحتوى</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">احصل على 5 نقاط</p>
           </div>
         </div>
         {/* نصائح سريعة */}
