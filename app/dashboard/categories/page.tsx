@@ -360,7 +360,7 @@ export default function CategoriesPage() {
                   )}
                   
                   {/* صورة التصنيف إن وجدت */}
-                  {category.cover_image && (
+                  {category.cover_image && category.cover_image.trim() !== '' && (
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                       <Image
                         src={category.cover_image}

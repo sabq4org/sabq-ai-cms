@@ -594,7 +594,7 @@ export default function CategoryFormModal({
 
               {/* Image Upload Area */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                {imagePreview || formData.cover_image ? (
+                {(imagePreview || (formData.cover_image && formData.cover_image.trim() !== '')) ? (
                   <div className="space-y-4">
                     <div className="relative inline-block">
                       <Image

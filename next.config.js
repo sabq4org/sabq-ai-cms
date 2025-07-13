@@ -112,6 +112,10 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self' https://res.cloudinary.com https://api.cloudinary.com; img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://ui-avatars.com https://via.placeholder.com https://source.unsplash.com https://placehold.co https://picsum.photos; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.cloudinary.com https://res.cloudinary.com https://db.uopckyrdhlvsxnvcobbw.supabase.co https://*.supabase.co wss://*.supabase.co http://localhost:* ws://localhost:*; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;",
+          },
         ],
       },
       // Cache headers للصور

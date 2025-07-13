@@ -180,7 +180,8 @@ export default function CategoryDetailPage({ params }: PageProps) {
                        'cover_image' in category.metadata ? 
                        (category.metadata as any).cover_image : null);
     
-    if (coverImage) {
+    // التحقق من أن الصورة ليست فارغة
+    if (coverImage && coverImage.trim() !== '') {
       // إذا كانت الصورة محلية، أضف URL الأساسي
       if (coverImage.startsWith('/')) {
         return `${process.env.NEXT_PUBLIC_SITE_URL || ''}${coverImage}`;
@@ -188,8 +189,8 @@ export default function CategoryDetailPage({ params }: PageProps) {
       return coverImage;
     }
     
-    // صورة افتراضية بناءً على اسم التصنيف
-    const defaultImages: { [key: string]: string } = {
+    // استخدام صورة افتراضية بناءً على اسم التصنيف
+    const categoryImages: { [key: string]: string } = {
       'تقنية': 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
       'تكنولوجيا': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=1200&q=80',
       'رياضة': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80',
@@ -210,34 +211,34 @@ export default function CategoryDetailPage({ params }: PageProps) {
     };
     
     // البحث المباشر
-    const directMatch = defaultImages[category.name_ar];
+    const directMatch = categoryImages[category.name_ar];
     if (directMatch) return directMatch;
     
     // البحث الجزئي في الكلمات المفتاحية
     const keywords = {
-      'تقني': defaultImages['تقنية'],
-      'تكنولوجي': defaultImages['تكنولوجيا'],
-      'رياضي': defaultImages['رياضة'],
-      'اقتصادي': defaultImages['اقتصاد'],
-      'سياسي': defaultImages['سياسة'],
-      'صحي': defaultImages['صحة'],
-      'بيئي': defaultImages['بيئة'],
-      'ثقافي': defaultImages['ثقافة'],
-      'محلي': defaultImages['محلي'],
-      'دولي': defaultImages['دولي'],
-      'منوع': defaultImages['منوعات'],
-      'تعليمي': defaultImages['تعليم'],
-      'فني': defaultImages['فنون'],
-      'سفر': defaultImages['سفر'],
-      'علمي': defaultImages['علوم'],
-      'خبر': defaultImages['أخبار']
+      'تقني': categoryImages['تقنية'],
+      'تكنولوجي': categoryImages['تكنولوجيا'],
+      'رياضي': categoryImages['رياضة'],
+      'اقتصادي': categoryImages['اقتصاد'],
+      'سياسي': categoryImages['سياسة'],
+      'صحي': categoryImages['صحة'],
+      'بيئي': categoryImages['بيئة'],
+      'ثقافي': categoryImages['ثقافة'],
+      'محلي': categoryImages['محلي'],
+      'دولي': categoryImages['دولي'],
+      'منوع': categoryImages['منوعات'],
+      'تعليمي': categoryImages['تعليم'],
+      'فني': categoryImages['فنون'],
+      'سفر': categoryImages['سفر'],
+      'علمي': categoryImages['علوم'],
+      'خبر': categoryImages['أخبار']
     };
     
     for (const [keyword, image] of Object.entries(keywords)) {
       if (category.name_ar.includes(keyword)) return image;
     }
     
-    return defaultImages['default'];
+    return categoryImages['default'];
   };
   const generatePlaceholderImage = (title: string) => {
     const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#EF4444', '#F59E0B'];

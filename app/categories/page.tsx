@@ -273,17 +273,14 @@ export default function CategoriesPage() {
                        'cover_image' in category.metadata ? 
                        (category.metadata as any).cover_image : null);
     
-    if (coverImage) {
-      // إذا كانت الصورة محلية، أضف URL الأساسي
-      if (coverImage.startsWith('/')) {
-        return `${process.env.NEXT_PUBLIC_SITE_URL || ''}${coverImage}`;
-      }
+    // التحقق من أن الصورة ليست فارغة
+    if (coverImage && coverImage.trim() !== '') {
       return coverImage;
     }
     
-    // استخدام الصورة الافتراضية من categoryData
-    const data = getCategoryData(category.name_ar);
-    return data.image;
+    // إذا لم توجد صورة، استخدام صورة افتراضية بناءً على اسم التصنيف
+    const categoryData = getCategoryData(category.name_ar);
+    return categoryData.image;
   };
 
   if (loading) {
