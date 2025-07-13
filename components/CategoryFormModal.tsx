@@ -229,8 +229,7 @@ export default function CategoryFormModal({
         setFormData(prev => {
           const updated = { ...prev, cover_image: data.secure_url };
           console.log('💾 Updated formData with cover_image:', updated);
-          console.log('🔄 Previous cover_image:', prev.cover_image);
-          console.log('🔄 New cover_image:', data.secure_url);
+          if (!isDirty) setIsDirty(true);
           return updated;
         });
         
@@ -300,8 +299,12 @@ export default function CategoryFormModal({
   // دالة عامة لمعالجة تغييرات النموذج
   const handleFieldChange = (field: string, value: any) => {
     console.log('📝 Field changed:', { field, value, currentFormData: formData });
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // setIsDirty سيتم تحديثه تلقائياً بواسطة useEffect
+    setFormData(prev => {
+      const updated = { ...prev, [field]: value };
+      // تفعيل isDirty مباشرة لضمان تفاعل زر الحفظ
+      if (!isDirty) setIsDirty(true);
+      return updated;
+    });
   };
 
   // دالة حذف الصورة
@@ -312,6 +315,7 @@ export default function CategoryFormModal({
     setFormData(prev => {
       const updated = { ...prev, cover_image: '' };
       console.log('💾 Updated formData after removing image:', updated);
+      if (!isDirty) setIsDirty(true);
       return updated;
     });
     
