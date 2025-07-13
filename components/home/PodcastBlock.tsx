@@ -16,6 +16,7 @@ export default function PodcastBlock() {
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [error, setError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -30,7 +31,13 @@ export default function PodcastBlock() {
 
   const fetchLatestPodcast = async () => {
     try {
+      setError(false);
       const res = await fetch('/api/generate-podcast');
+      
+      if (!res.ok) {
+        throw new Error('Failed to fetch podcast');
+      }
+      
       const data = await res.json();
       
       if (data.success && data.lastPodcast) {
@@ -42,6 +49,7 @@ export default function PodcastBlock() {
       }
     } catch (err) {
       console.error('Error fetching podcast:', err);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -116,8 +124,69 @@ export default function PodcastBlock() {
     );
   }
 
-  if (!podcast) {
-    return null;
+  // عرض رسالة جميلة عندما لا توجد نشرة بدلاً من إخفاء البلوك
+  if (!podcast || error) {
+    return (
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-800 to-pink-700 rounded-3xl p-8 mb-8 shadow-2xl">
+        {/* خلفية متحركة */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-4 -right-4 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+          <div className="absolute -bottom-8 -left-4 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+        </div>
+
+        {/* طبقة شفافة */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+
+        <div className="relative z-10 text-center py-8">
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <div className="absolute inset-0 bg-white/20 rounded-2xl blur-xl animate-pulse"></div>
+              <div className="relative bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20">
+                <Radio className="w-10 h-10 text-white" />
+              </div>
+            </div>
+          </div>
+          
+          <h3 className="text-2xl font-bold text-white mb-4">النشرة الصوتية قادمة قريباً</h3>
+          <p className="text-white/80 mb-6">نعمل على إعداد نشرة صوتية مميزة لك</p>
+          
+          <a
+            href="/dashboard/podcast"
+            className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-xl hover:bg-white/30 transition-all border border-white/20 text-white font-medium"
+          >
+            <Sparkles className="w-5 h-5" />
+            توليد نشرة جديدة
+          </a>
+        </div>
+
+        <style jsx>{`
+          @keyframes blob {
+            0% {
+              transform: translate(0px, 0px) scale(1);
+            }
+            33% {
+              transform: translate(30px, -50px) scale(1.1);
+            }
+            66% {
+              transform: translate(-20px, 20px) scale(0.9);
+            }
+            100% {
+              transform: translate(0px, 0px) scale(1);
+            }
+          }
+          .animate-blob {
+            animation: blob 7s infinite;
+          }
+          .animation-delay-2000 {
+            animation-delay: 2s;
+          }
+          .animation-delay-4000 {
+            animation-delay: 4s;
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (
