@@ -28,6 +28,7 @@ import MobileNewsCard from '@/components/mobile/MobileNewsCard';
 import MobileStatsBar from '@/components/mobile/MobileStatsBar';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
+import PodcastBlock from '@/components/home/PodcastBlock';
 import { 
   Share2, 
   Eye, 
@@ -586,6 +587,12 @@ function NewspaperHomePage({ stats }: NewspaperHomePageProps): React.ReactElemen
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="topBanner" />
       </div>
+      
+      {/* بلوك النشرة الصوتية الإخبارية - NEW */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <PodcastBlock />
+      </div>
+      
       {/* بلوك الجرعات الذكي - ثاني بلوك */}
       <SmartDigestBlock />
       {/* Deep Analysis Widget - ثالث بلوك */}
