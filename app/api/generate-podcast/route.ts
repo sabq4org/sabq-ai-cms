@@ -6,6 +6,15 @@ import FormData from 'form-data';
 
 export async function POST(req: NextRequest) {
   try {
+    // التحقق من CRON_SECRET للأمان
+    const CRON_SECRET = process.env.CRON_SECRET;
+    const sentSecret = req.headers.get('x-cron-secret');
+    if (CRON_SECRET && sentSecret !== CRON_SECRET) {
+      return NextResponse.json({ 
+        error: 'Unauthorized access' 
+      }, { status: 401 });
+    }
+
     const body = await req.json();
     const count = body.count || 5;
     const voice = body.voice || 'EXAVITQu4vr4xnSDxMaL'; // صوت عربي احترافي
@@ -63,23 +72,12 @@ export async function POST(req: NextRequest) {
     
     const newsItems = newsData
       .slice(0, count)
-      .map((n: any, i: number) => `${i + 1}. ${n.title}`)
+      .map((n: any) => `- ${n.title}`)
       .join('\n');
 
-    // 2. توليد نص النشرة الإذاعية باستخدام GPT-4o
+    // 2. توليد نص النشرة الإذاعية باستخدام GPT-4o مع تقصير النص
     console.log('🤖 توليد النص الإذاعي...');
-    const systemPrompt = `أنت مذيع أخبار محترف في إذاعة سعودية رسمية. مهمتك تحويل عناوين الأخبار إلى نشرة إذاعية احترافية.`;
-    
-    const userPrompt = `حوّل عناوين الأخبار التالية إلى نشرة صوتية إذاعية احترافية باللغة العربية الفصحى:
-
-${newsItems}
-
-المطلوب:
-- ابدأ بتحية احترافية مناسبة للوقت
-- اذكر اسم "صحيفة سبق الإلكترونية" كمصدر
-- اعرض كل خبر بصياغة إذاعية سلسة
-- اختتم بشكل احترافي
-- المدة المستهدفة: 2-3 دقائق`;
+    const prompt = `حوّل الأخبار التالية إلى نشرة صوتية رسمية باللغة ${language}. اجعلها مختصرة في فقرة واحدة فقط بدون مقدمات طويلة:\n${newsItems}`;
 
     let narrationText;
     try {
@@ -88,11 +86,10 @@ ${newsItems}
         {
           model: 'gpt-4o',
           messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
+            { role: 'user', content: prompt }
           ],
           temperature: 0.7,
-          max_tokens: 1500
+          max_tokens: 500 // تقليل عدد التوكنز للحصول على نص أقصر
         },
         {
           headers: { 
@@ -102,21 +99,16 @@ ${newsItems}
         }
       );
       
-      narrationText = gptRes.data.choices[0].message.content;
-      console.log('✅ تم توليد النص بنجاح');
+      // تقصير النص إلى 1000 حرف كحد أقصى
+      narrationText = gptRes.data.choices[0].message.content.slice(0, 1000);
+      console.log(`✅ تم توليد النص بنجاح (${narrationText.length} حرف)`);
     } catch (error: any) {
       console.error('❌ خطأ في توليد النص:', error.response?.data || error.message);
-      // استخدام نص افتراضي
-      narrationText = `السلام عليكم ورحمة الله وبركاته، أهلاً بكم في نشرة أخبار صحيفة سبق الإلكترونية.
-
-في نشرتنا لهذا اليوم، نستعرض معكم أهم الأخبار والتطورات:
-
-${newsItems}
-
-كانت هذه أبرز الأخبار من صحيفة سبق الإلكترونية. نشكركم على حسن الاستماع، والسلام عليكم ورحمة الله وبركاته.`;
+      // استخدام نص افتراضي مختصر
+      narrationText = `نشرة أخبار صحيفة سبق. أهم الأخبار: ${newsItems}. شكراً لكم.`.slice(0, 1000);
     }
 
-    // 3. تحويل النص إلى صوت باستخدام ElevenLabs
+    // 3. تحويل النص إلى صوت باستخدام ElevenLabs مع معالجة محسنة للأخطاء
     console.log('🔊 تحويل النص إلى صوت...');
     let audioData;
     try {
@@ -127,9 +119,7 @@ ${newsItems}
           model_id: 'eleven_multilingual_v2',
           voice_settings: {
             stability: 0.4,
-            similarity_boost: 0.75,
-            style: 0.5,
-            use_speaker_boost: true
+            similarity_boost: 0.75
           }
         },
         {
@@ -141,16 +131,38 @@ ${newsItems}
         }
       );
       audioData = audioRes.data;
+      console.log('✅ تم تحويل النص إلى صوت بنجاح');
     } catch (error: any) {
-      console.error('❌ خطأ في تحويل النص إلى صوت:', error.response?.data || error.message);
+      console.error('❌ ElevenLabs Error:', error.response?.data || error.message);
+      
+      // معالجة أنواع مختلفة من الأخطاء
+      let errorMessage = 'فشل تحويل النص إلى صوت.';
+      
+      if (error.response?.status === 401) {
+        errorMessage = 'مفتاح ElevenLabs غير صحيح.';
+      } else if (error.response?.status === 402) {
+        errorMessage = 'رصيد ElevenLabs غير كافٍ. يرجى شحن الرصيد.';
+      } else if (error.response?.status === 400) {
+        errorMessage = 'النص طويل جداً أو يحتوي على أحرف غير مدعومة.';
+      } else if (error.response?.data) {
+        // محاولة استخراج رسالة الخطأ من الاستجابة
+        const errorData = Buffer.from(error.response.data).toString('utf8');
+        try {
+          const parsed = JSON.parse(errorData);
+          errorMessage = parsed.detail?.message || parsed.message || errorMessage;
+        } catch {
+          errorMessage = errorData || errorMessage;
+        }
+      }
+      
       return NextResponse.json({ 
         success: false, 
-        error: 'فشل تحويل النص إلى صوت. تحقق من رصيد ElevenLabs.',
+        error: errorMessage,
         text: narrationText // إرجاع النص على الأقل
       }, { status: 500 });
     }
 
-    // 4. حفظ الملف الصوتي مؤقتاً
+    // 4. حفظ الملف الصوتي
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `nashrah-${timestamp}.mp3`;
     
@@ -168,10 +180,34 @@ ${newsItems}
     await fs.writeFile(filePath, Buffer.from(audioData));
     console.log('✅ تم حفظ الملف الصوتي');
 
-    // 5. إرجاع رابط الملف
-    const publicUrl = process.env.VERCEL 
+    // 5. محاولة رفع الملف إلى الخادم (إن وُجد)
+    let uploadedUrl = null;
+    if (process.env.SITE_UPLOAD_ENDPOINT) {
+      try {
+        const form = new FormData();
+        form.append('file', await fs.readFile(filePath), filename);
+        
+        const uploadRes = await axios.post(
+          process.env.SITE_UPLOAD_ENDPOINT,
+          form,
+          { 
+            headers: form.getHeaders(),
+            timeout: 30000 // 30 ثانية كحد أقصى
+          }
+        );
+        
+        uploadedUrl = uploadRes.data.link;
+        console.log('✅ تم رفع الملف بنجاح');
+      } catch (uploadErr: any) {
+        console.error('❌ Upload Error:', uploadErr.response?.data || uploadErr.message);
+        // الاستمرار بدون رفع - سنستخدم الملف المحلي
+      }
+    }
+
+    // 6. إرجاع رابط الملف
+    const publicUrl = uploadedUrl || (process.env.VERCEL 
       ? `data:audio/mp3;base64,${Buffer.from(audioData).toString('base64')}`
-      : `/temp-podcasts/${filename}`;
+      : `/temp-podcasts/${filename}`);
     
     // حذف الملفات القديمة (في البيئة المحلية فقط)
     if (!process.env.VERCEL && tempDir.includes('public')) {
@@ -194,14 +230,15 @@ ${newsItems}
       link: publicUrl,
       text: narrationText,
       duration: Math.round(narrationText.length / 150), // تقدير المدة بالدقائق
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      uploaded: !!uploadedUrl
     });
 
   } catch (err: any) {
-    console.error('❌ خطأ في توليد النشرة:', err);
+    console.error('❌ Unexpected Error:', err.message);
     return NextResponse.json({ 
       success: false, 
-      error: err.message || 'حدث خطأ في توليد النشرة الصوتية',
+      error: 'حدث خطأ داخلي في إنشاء النشرة الصوتية.',
       details: process.env.NODE_ENV === 'development' ? err.stack : undefined
     }, { status: 500 });
   }

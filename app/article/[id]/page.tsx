@@ -11,6 +11,7 @@ import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
 import { marked } from 'marked';
 import Header from '@/components/Header';
+import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark
@@ -57,6 +58,7 @@ interface Article {
   title: string;
   subtitle?: string;
   summary?: string;
+  excerpt?: string;
   content: string;
   featured_image?: string;
   featured_image_alt?: string;
@@ -99,6 +101,7 @@ interface Article {
   seo_keywords?: string | string[];
   related_articles?: RelatedArticle[];
   ai_summary?: string;
+  audio_summary_url?: string;
 }
 interface RelatedArticle {
   id: string;
@@ -942,6 +945,13 @@ export default function ArticlePage({ params }: PageProps) {
             </div>
           </div>
         )}
+        
+        {/* مشغل صوت الموجز */}
+        <AudioSummaryPlayer 
+          articleId={article.id}
+          excerpt={article.excerpt || article.summary || article.ai_summary}
+          audioUrl={article.audio_summary_url}
+        />
         
         {/* شريط التفاعل والكلمات المفتاحية - إعادة توزيع */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4 border-t border-b border-gray-200 dark:border-gray-700 my-6">

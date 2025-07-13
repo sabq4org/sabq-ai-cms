@@ -393,6 +393,30 @@ export async function POST(request: NextRequest) {
       isSmartDraft: (metadata as any)?.isSmartDraft
     })
 
+    // توليد الصوت تلقائياً إذا كان المقال منشوراً وله موجز
+    if (status === 'published' && article.excerpt && process.env.ELEVENLABS_API_KEY) {
+      try {
+        console.log('🎙️ بدء توليد الصوت للموجز...')
+        const baseUrl = process.env.NEXTAUTH_URL || `https://${request.headers.get('host')}` || 'http://localhost:3000';
+        const audioResponse = await fetch(`${baseUrl}/api/voice-summary?articleId=${article.id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (audioResponse.ok) {
+          const audioData = await audioResponse.json();
+          if (audioData.success) {
+            console.log('✅ تم توليد الصوت بنجاح:', audioData.audioUrl);
+          }
+        }
+      } catch (audioError) {
+        console.error('⚠️ فشل توليد الصوت (لكن المقال تم حفظه):', audioError);
+        // لا نريد أن نفشل العملية بالكامل إذا فشل توليد الصوت
+      }
+    }
+
     return NextResponse.json({
       success: true,
       article,

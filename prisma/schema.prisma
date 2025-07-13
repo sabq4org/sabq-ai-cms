@@ -147,6 +147,7 @@ model articles {
   social_image    String?
   allow_comments  Boolean        @default(true)
   metadata        Json?
+  audio_summary_url String?      // رابط الملف الصوتي للموجز
   created_at      DateTime       @default(now())
   updated_at      DateTime
   categories      categories?    @relation(fields: [category_id], references: [id])

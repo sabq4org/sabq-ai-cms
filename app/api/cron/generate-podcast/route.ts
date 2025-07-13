@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-cron-secret': process.env.CRON_SECRET || '' // إرسال CRON_SECRET للتحقق
       },
       body: JSON.stringify({
         count: 7, // عدد الأخبار للنشرة التلقائية
