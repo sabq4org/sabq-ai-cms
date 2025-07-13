@@ -1,4 +1,7 @@
 {
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
   "crons": [
     {
       "path": "/api/cron/generate-podcast",
@@ -8,6 +11,12 @@
   "functions": {
     "app/api/generate-podcast/route.ts": {
       "maxDuration": 60
+    },
+    "app/api/**/*.ts": {
+      "maxDuration": 30
     }
+  },
+  "env": {
+    "NODE_ENV": "production"
   }
 }
