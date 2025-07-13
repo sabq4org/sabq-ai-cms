@@ -119,147 +119,72 @@ export async function GET(request: NextRequest) {
       where.parent_id = parentId;
     }
     
-    // جلب الفئات
-    let categories = await prisma.categories.findMany({
-      where,
-      orderBy: {
-        display_order: 'asc'
-      }
-    });
-    
-    // حساب عدد المقالات لكل تصنيف
-    const categoryIds = categories.map((c: any) => c.id);
-    const articleCounts = await prisma.articles.groupBy({
-      by: ['category_id'],
-      where: {
-        category_id: { in: categoryIds }
-      },
-      _count: {
-        id: true
-      }
-    });
-    
-    // إنشاء خريطة لعدد المقالات
-    const articleCountMap = new Map(
-      articleCounts.map((item: any) => [item.category_id, item._count.id])
-    );
-    
-    // جلب التصنيفات الأب إن وجدت
-    const parentIds = [...new Set(categories.map((c: any) => c.parent_id).filter(Boolean))] as string[];
-    const parents = parentIds.length > 0 ? await prisma.categories.findMany({
-      where: { id: { in: parentIds } },
-      select: { id: true, name: true, slug: true }
-    }) : [];
-    
-    const parentsMap = new Map(parents.map((p: any) => [p.id, p]));
-
-    // إذا لم تكن هناك تصنيفات، أنشئ تصنيفاً افتراضياً
-    if (categories.length === 0) {
-      const defaultCategory = await prisma.categories.create({
-        data: {
-          id: 'category-general',
-          name: 'عام',
-          slug: 'general',
-          description: JSON.stringify({
-            ar: 'التصنيف الافتراضي',
-            name_ar: 'عام',
-            name_en: 'General',
-            color_hex: '#6B7280',
-            icon: '📄'
-          }),
-          is_active: true,
-          display_order: 0,
-          created_at: new Date(),
-          updated_at: new Date()
-        }
-      });
-
-      categories = [defaultCategory];
+    // فلترة حسب الكلمة المفتاحية
+    const search = searchParams.get('search');
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { name_en: { contains: search } }
+      ];
     }
     
-    // تحويل البيانات للتوافق مع الواجهة
-    const formattedCategories = categories.map((category: any) => {
-      const parent = category.parent_id ? parentsMap.get(category.parent_id) : null;
-      const articleCount = articleCountMap.get(category.id) || 0;
-      
-      // قراءة metadata من قاعدة البيانات أولاً
-      let metadata: any = category.metadata || {};
-      
-      // استخراج البيانات من metadata أو من الحقول المباشرة
-      let icon = metadata.icon || category.icon || '📁';
-      let colorHex = metadata.color_hex || category.color || '#6B7280';
-      let nameAr = metadata.name_ar || category.name;
-      let nameEn = metadata.name_en || category.name_en || '';
-      let descriptionText = metadata.ar || category.description || '';
-      
-      // إذا كانت البيانات في حقل description كـ JSON (للتوافق مع البيانات القديمة)
-      if (!metadata.ar && category.description && category.description.startsWith('{')) {
-        try {
-          const parsedData = JSON.parse(category.description);
-          if (parsedData && typeof parsedData === 'object') {
-            const normalized = normalizeMetadata(parsedData);
-            metadata = { ...metadata, ...normalized };
-            icon = normalized.icon || icon;
-            colorHex = normalized.color_hex || normalized.color || colorHex;
-            nameAr = normalized.name_ar || nameAr;
-            nameEn = normalized.name_en || nameEn;
-            descriptionText = normalized.ar || normalized.en || descriptionText;
-          }
-        } catch (e) {
-          // إذا فشل تحليل JSON، استخدم النص كما هو
-          console.warn('فشل في تحليل description كـ JSON:', e);
+    // استعلام قاعدة البيانات
+    const categories = await prisma.categories.findMany({
+      where,
+      orderBy: [
+        { display_order: 'asc' },
+        { name: 'asc' }
+      ],
+      include: {
+        _count: {
+          select: { articles: true }
         }
       }
-      
-      // Log للتحقق من cover_image
-      if (metadata.cover_image) {
-        console.log(`Category ${category.name} has cover_image:`, metadata.cover_image);
-      }
+    });
+    
+    // تحويل البيانات مع دمج metadata
+    const categoriesWithMeta = categories.map(category => {
+      const metadata = category.metadata || {};
       
       return {
-        id: category.id,
-        name: nameAr,
-        name_ar: nameAr,
-        name_en: nameEn,
-        slug: category.slug,
-        description: descriptionText,
-        color: colorHex,
-        color_hex: colorHex,
-        icon: icon,
-        parent_id: category.parent_id,
-        parent: parent,
-        children: [],
-        articles_count: articleCount,
-        children_count: 0,
-        order_index: category.display_order,
-        is_active: category.is_active,
-        cover_image: metadata.cover_image || '',
-        created_at: category.created_at.toISOString(),
-        updated_at: category.updated_at.toISOString(),
-        metadata: metadata,
-        // إضافة حقول SEO
-        meta_title: metadata.meta_title || '',
-        meta_description: metadata.meta_description || '',
-        og_image_url: metadata.og_image_url || '',
-        canonical_url: metadata.canonical_url || '',
-        noindex: metadata.noindex || false,
-        og_type: metadata.og_type || 'website',
-        position: category.display_order
+        ...category,
+        // إضافة cover_image من metadata
+        cover_image: (metadata as any).cover_image || '',
+        // دمج باقي حقول metadata
+        name_ar: category.name,
+        name_en: (metadata as any).name_en || category.name_en || '',
+        description: (metadata as any).ar || category.description || '',
+        description_en: (metadata as any).en || '',
+        color: category.color || (metadata as any).color_hex || '#6B7280',
+        icon: category.icon || (metadata as any).icon || '📁',
+        meta_title: (metadata as any).meta_title || '',
+        meta_description: (metadata as any).meta_description || '',
+        og_image_url: (metadata as any).og_image_url || '',
+        canonical_url: (metadata as any).canonical_url || '',
+        noindex: (metadata as any).noindex || false,
+        og_type: (metadata as any).og_type || 'website',
+        articles_count: category._count.articles || 0
       };
     });
     
+    console.log('✅ Fetched categories with cover images:', 
+      categoriesWithMeta.filter(cat => cat.cover_image).map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        cover_image: cat.cover_image
+      }))
+    );
+    
     return corsResponse({
       success: true,
-      categories: formattedCategories,
-      total: formattedCategories.length
+      data: categoriesWithMeta
     });
     
   } catch (error) {
     console.error('خطأ في جلب الفئات:', error);
     return corsResponse({
       success: false,
-      error: 'فشل في جلب الفئات',
-      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+      error: 'حدث خطأ في جلب الفئات'
     }, 500);
   }
 }
@@ -380,6 +305,9 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
     
+    console.log('📥 PUT request received with body:', body);
+    console.log('🖼️ Cover image in request:', body.cover_image);
+    
     if (!body.id) {
       return corsResponse({
         success: false,
@@ -470,9 +398,27 @@ export async function PUT(request: NextRequest) {
       }
     });
     
+    console.log('✅ Category updated successfully');
+    console.log('📷 Saved metadata:', updatedCategory.metadata);
+    
+    // إرجاع البيانات مع cover_image من metadata
+    const responseData = {
+      ...updatedCategory,
+      cover_image: (updatedCategory.metadata as any)?.cover_image || '',
+      name_ar: updatedCategory.name,
+      name_en: (updatedCategory.metadata as any)?.name_en || updatedCategory.name_en || '',
+      description: (updatedCategory.metadata as any)?.ar || updatedCategory.description || '',
+      description_en: (updatedCategory.metadata as any)?.en || '',
+      color: updatedCategory.color || (updatedCategory.metadata as any)?.color_hex || '#6B7280',
+      icon: updatedCategory.icon || (updatedCategory.metadata as any)?.icon || '📁',
+      articles_count: 0
+    };
+    
+    console.log('📤 Returning category with cover_image:', responseData.cover_image);
+    
     return corsResponse({
       success: true,
-      data: updatedCategory,
+      data: responseData,
       message: 'تم تحديث الفئة بنجاح'
     });
     

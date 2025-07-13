@@ -175,10 +175,16 @@ export default function CategoryFormModal({
 
       if (response.ok) {
         const data = await response.json();
-        setImagePreview(data.secure_url);
-        setFormData(prev => ({ ...prev, cover_image: data.secure_url }));
+        console.log('✅ Cloudinary response:', data);
+        console.log('📷 Secure URL:', data.secure_url);
         
-        // رسالة نجاح واضحة
+        setImagePreview(data.secure_url);
+        setFormData(prev => {
+          const updated = { ...prev, cover_image: data.secure_url };
+          console.log('💾 Updated formData with cover_image:', updated);
+          return updated;
+        });
+        
         toast.success(
           <div className="flex items-center gap-2">
             <span className="text-2xl">✅</span>
@@ -329,6 +335,8 @@ export default function CategoryFormModal({
     }
 
     try {
+      console.log('🚀 Saving category with data:', formData);
+      console.log('🖼️ Cover image value:', formData.cover_image);
       await onSave(formData);
     } catch (error) {
       console.error('خطأ في حفظ التصنيف:', error);

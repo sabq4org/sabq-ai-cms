@@ -201,17 +201,34 @@ const AuthorProfilePage = () => {
       <section className="relative h-96 overflow-hidden">
         {/* خلفية متدرجة مع صورة */}
         <div className="absolute inset-0">
-          <Image src="/placeholder.jpg" alt="خلفية الكاتب" width={100} height={100} />
+          {/* استخدام صورة الخلفية إذا كانت موجودة، وإلا استخدام تدرج لوني */}
+          {author.coverImage || author.backgroundImage ? (
+            <Image 
+              src={author.coverImage || author.backgroundImage || '/placeholder.jpg'} 
+              alt="خلفية الكاتب" 
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className={`absolute inset-0 bg-gradient-to-br ${writerClubColors[author.club]}`}></div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30"></div>
         </div>
+        
         {/* محتوى Header */}
         <div className="relative h-full flex items-end">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
             <div className="flex items-end gap-6">
               {/* صورة الكاتب */}
               <div className="relative">
-                <Image src="/placeholder.jpg" alt="" width={100} height={100} />
+                <Image 
+                  src={author.avatar || '/default-avatar.png'} 
+                  alt={author.name} 
+                  width={120} 
+                  height={120}
+                  className="rounded-full border-4 border-white shadow-xl"
+                />
                 <div className={`absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-r ${writerClubColors[author.club]} flex items-center justify-center border-4 border-white`}>
                   <Star className="w-5 h-5 text-white" />
                 </div>
