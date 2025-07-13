@@ -13,11 +13,21 @@ import '@/styles/dashboard-enhanced.css'
 import '@/styles/opinion.css'
 import '@/styles/forum-timeline.css'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
-import { Toaster } from 'react-hot-toast'
+import toast, { Toaster } from "react-hot-toast"
 import { cn } from '@/lib/utils'
 import { Providers } from './providers'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeScript } from './theme-script'
+
+// DEBUG: طباعة أنواع المكونات للتحقق من وجودها
+if (process.env.NODE_ENV !== "production") {
+  console.log("ROOT_LAYOUT_COMPONENT_TYPES", {
+    ThemeScript: typeof ThemeScript,
+    Providers: typeof Providers,
+    AuthProvider: typeof AuthProvider,
+    // Toaster removed temporarily
+  });
+}
 
 
 const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
@@ -139,29 +149,6 @@ export default function RootLayout({
         <Providers>
           <AuthProvider>
             {children}
-            <Toaster 
-              position="top-center"
-              toastOptions={{
-                duration: 3000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                  fontSize: '14px',
-                },
-                success: {
-                  iconTheme: {
-                    primary: '#10b981',
-                    secondary: '#fff',
-                  },
-                },
-                error: {
-                  iconTheme: {
-                    primary: '#ef4444',
-                    secondary: '#fff',
-                  },
-                },
-              }}
-            />
           </AuthProvider>
         </Providers>
       </body>

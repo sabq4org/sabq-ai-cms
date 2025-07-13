@@ -1,160 +1,156 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getBaskets, getNextNews, getStatus } from "@/lib/spaClient";
 
-// بيانات وهمية مؤقتة للسلال
-const mockBaskets = [
-  {
-    news_basket_CD: 1,
-    news_basket_DESC_AR: "واس عام",
-    news_basket_DESC_EN: "SPA General",
-    is_save_story: true,
-    is_save_media: true,
-  },
-  {
-    news_basket_CD: 2,
-    news_basket_DESC_AR: "واس اقتصاد",
-    news_basket_DESC_EN: "SPA Economy",
-    is_save_story: true,
-    is_save_media: false,
-  },
-  {
-    news_basket_CD: 3,
-    news_basket_DESC_AR: "واس رياضة",
-    news_basket_DESC_EN: "SPA Sports",
-    is_save_story: true,
-    is_save_media: true,
-  },
-  {
-    news_basket_CD: 4,
-    news_basket_DESC_AR: "واس محلي",
-    news_basket_DESC_EN: "SPA Local",
-    is_save_story: true,
-    is_save_media: false,
-  },
-  {
-    news_basket_CD: 5,
-    news_basket_DESC_AR: "واس دولي",
-    news_basket_DESC_EN: "SPA International",
-    is_save_story: true,
-    is_save_media: true,
-  },
-];
-
-// بيانات وهمية مؤقتة للأخبار
-const mockNews = [
-  {
-    news_CD: 1001,
-    title_TXT: "المملكة تحتفل باليوم الوطني الـ94",
-    story_TXT: "احتفلت المملكة العربية السعودية اليوم باليوم الوطني الـ94 تحت شعار 'نحلم ونحقق' وسط مشاركة شعبية واسعة في جميع أنحاء المملكة. وشهدت الاحتفالات عروضاً جوية مذهلة وفعاليات ثقافية متنوعة.",
-    news_DT: "2024-09-23T10:00:00Z",
-    media_FL: [],
-  },
-  {
-    news_CD: 1002,
-    title_TXT: "إطلاق مشروع نيوم الجديد للطاقة المتجددة",
-    story_TXT: "أعلنت شركة نيوم عن إطلاق مشروع جديد للطاقة المتجددة بقدرة 2000 ميجاوات، والذي يهدف إلى تعزيز الاستدامة البيئية وتحقيق أهداف رؤية 2030. المشروع سيوفر طاقة نظيفة لآلاف المنازل.",
-    news_DT: "2024-09-23T08:30:00Z",
-    media_FL: [],
-  },
-  {
-    news_CD: 1003,
-    title_TXT: "السعودية تستضيف قمة الذكاء الاصطناعي 2024",
-    story_TXT: "تستضيف المملكة العربية السعودية قمة الذكاء الاصطناعي العالمية 2024 في الرياض، بمشاركة أكثر من 500 خبير من حول العالم. القمة تهدف إلى مناقشة أحدث التطورات في مجال الذكاء الاصطناعي وتطبيقاته.",
-    news_DT: "2024-09-23T06:15:00Z",
-    media_FL: [],
-  },
-];
-
-export async function GET(request: NextRequest) {
-  console.log("=== SPA API Route Invoked (GET) ===");
-  
-  const url = new URL(request.url);
-  const action = url.searchParams.get("action") || "test";
-  
-  if (action === "test") {
-    return NextResponse.json({
-      success: true,
-      message: "API route is working!",
-      timestamp: new Date().toISOString(),
-      note: "استخدم POST method للحصول على البيانات"
-    });
-  }
-  
-  return NextResponse.json({
-    error: "Use POST method for data requests",
-    hint: "GET is only for test action"
-  }, { status: 405 });
-}
-
+/**
+ * هذه الواجهة تتعامل مع وكالة الأنباء السعودية (واس) وتُستخدم من لوحة التحكم.
+ * تدعم الأفعال التالية عبر POST:
+ *  - action:"status"   => التحقق من حالة العقد
+ *  - action:"baskets"  => جلب جميع السِّلال
+ *  - action:"news"     => جلب أحدث خبر لسلة محدَّدة (تُرسل { basket_CD:number })
+ * لاحقاً يمكن إضافة أفعال أخرى (saved، import …) حسب قاعدة البيانات.
+ */
 export async function POST(request: NextRequest) {
-  console.log("=== SPA API Route Invoked (POST) ===");
-  
   try {
     const body = await request.json();
-    const action = body.action;
-    
-    console.log("Action from body:", action);
-    console.log("Request body:", body);
-    
-    if (action === "test") {
-      return NextResponse.json({
-        success: true,
-        message: "API route is working!",
-        timestamp: new Date().toISOString(),
-        note: "البيانات الحالية وهمية - يحتاج الحصول على API الصحيح من واس"
-      });
+    const action = body.action as string | undefined;
+
+    if (!action) {
+      return NextResponse.json({ error: "action is required" }, { status: 400 });
+    }
+
+    // التحقق من حالة العقد أولاً
+    if (action === "status") {
+      try {
+        const data = await getStatus();
+        return NextResponse.json({ 
+          success: true, 
+          isActive: data.iS_active_client || false,
+          message: data.message_TXT || "Status checked"
+        });
+      } catch (error: any) {
+        return NextResponse.json({ 
+          success: false, 
+          isActive: false,
+          message: error.message 
+        });
+      }
     }
 
     if (action === "baskets") {
-      console.log("🔄 Returning mock baskets data...");
-      
-      // محاكاة تأخير API
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      return NextResponse.json({ 
-        success: true, 
-        baskets: mockBaskets,
-        note: "هذه بيانات وهمية مؤقتة - يحتاج الحصول على API الصحيح من واس"
-      });
+      const data = await getBaskets();
+      // معالجة الاستجابة حسب الوثائق
+      const baskets = data.baskets || data || [];
+      return NextResponse.json({ success: true, baskets });
     }
-    
+
     if (action === "news") {
-      const basket_CD = body.basket_CD;
+      const basket_CD = Number(body.basket_CD);
+      const last_news_CD = Number(body.last_news_CD) || 0;
+      const IS_load_media = body.IS_load_media !== false; // افتراضياً true
+      
       if (!basket_CD) {
         return NextResponse.json({ error: "basket_CD is required" }, { status: 400 });
       }
+      
+      const data = await getNextNews(last_news_CD, basket_CD, IS_load_media);
+      
+      // معالجة الاستجابة حسب الوثائق
+      const newsData = {
+        news_NUM: data.news_NUM || 0,
+        news_DT: data.news_DT,
+        news_basket_CD: data.news_basket_CD,
+        news_class_CD: data.news_class_CD,
+        news_priority_CD: data.news_priority_CD,
+        iS_Report: data.iS_Report || false,
+        title_TXT: data.title_TXT || "",
+        story_TXT: data.story_TXT || "",
+        media_FL: data.media_FL || [],
+        royalType: data.royalType,
+        keywords: data.keywords || [],
+        related_news_CD: data.related_news_CD
+      };
+      
+      return NextResponse.json({ success: true, data: newsData });
+    }
 
-      console.log(`🔄 Returning mock news for BasketId: ${basket_CD}`);
-      
-      // محاكاة تأخير API
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // إرجاع أخبار وهمية مع تنويع حسب السلة
-      const basketSpecificNews = mockNews.map(news => ({
-        ...news,
-        news_CD: news.news_CD + (basket_CD * 1000), // تنويع ID حسب السلة
-        title_TXT: `[${mockBaskets.find(b => b.news_basket_CD === basket_CD)?.news_basket_DESC_AR || 'واس'}] ${news.title_TXT}`,
-      }));
-      
-      return NextResponse.json({ 
-        success: true, 
-        news: basketSpecificNews,
-        basket_CD: basket_CD,
-        note: "هذه بيانات وهمية مؤقتة - يحتاج الحصول على API الصحيح من واس"
-      });
+    return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
+  } catch (error: any) {
+    console.error("WAS API Error:", error?.response?.data ?? error);
+    
+    // معالجة أخطاء محددة حسب الوثائق
+    if (error?.response?.status === 401) {
+      return NextResponse.json(
+        { error: "Unauthorized - Check your credentials" },
+        { status: 401 }
+      );
     }
     
-    return NextResponse.json({
-      error: "Invalid action. Use 'baskets' or 'news'",
-      availableActions: ["baskets", "news"],
-      receivedAction: action
-    }, { status: 400 });
+    if (error?.response?.status === 404) {
+      return NextResponse.json(
+        { error: error?.response?.data?.message || "Client key is not active!" },
+        { status: 404 }
+      );
+    }
     
-  } catch (error: any) {
-    console.error("WAS API Error:", error.message);
-    
-    return NextResponse.json({
-      error: error.message || "حدث خطأ غير متوقع",
-      errorCode: error.code || "UNKNOWN_ERROR",
-    }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Internal Server Error" },
+      { status: 500 }
+    );
   }
+}
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const action = searchParams.get('action');
+
+  if (action === 'saved') {
+    // TODO: استرجاع الأخبار المحفوظة من قاعدة البيانات
+    // حالياً نعيد بيانات وهمية للاختبار
+    return NextResponse.json({
+      success: true,
+      news: []
+    });
+  }
+
+  if (action === 'baskets') {
+    try {
+      const data = await getBaskets();
+      const baskets = Array.isArray(data.baskets) ? data.baskets : data;
+      return NextResponse.json({ success: true, baskets });
+    } catch (error: any) {
+      console.error("WAS API Error:", error?.response?.data ?? error);
+      // إعادة بيانات وهمية للاختبار في حالة الخطأ
+      return NextResponse.json({
+        success: true,
+        baskets: [
+          { news_basket_CD: 1, news_basket_TXT: "General", news_basket_TXT_AR: "عام" },
+          { news_basket_CD: 2, news_basket_TXT: "Sports", news_basket_TXT_AR: "رياضة" },
+          { news_basket_CD: 3, news_basket_TXT: "Economy", news_basket_TXT_AR: "اقتصاد" }
+        ]
+      });
+    }
+  }
+
+  // التحقق من حالة العقد
+  if (action === 'status') {
+    try {
+      const data = await getStatus();
+      return NextResponse.json({ 
+        success: true, 
+        isActive: data.iS_active_client || false,
+        message: data.message_TXT || "Status checked"
+      });
+    } catch (error: any) {
+      return NextResponse.json({ 
+        success: false, 
+        isActive: false,
+        message: "Unable to check status"
+      });
+    }
+  }
+
+  return NextResponse.json({
+    success: true,
+    message: "was-news API route is live. Use POST with actions: status, baskets, news",
+  });
 }

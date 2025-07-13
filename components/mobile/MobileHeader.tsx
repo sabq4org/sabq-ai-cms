@@ -4,7 +4,7 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Menu, Search, Bell, User, ChevronDown, Home, Newspaper, MessageSquare, Bookmark, Settings, LogOut, X, Sun, Moon, Activity } from 'lucide-react';
 
@@ -24,7 +24,6 @@ export default function MobileHeader({
   const [searchOpen, setSearchOpen] = useState(false);
   const [newEventsCount, setNewEventsCount] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { theme, setTheme } = useTheme();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const navigationItems = [
@@ -158,11 +157,11 @@ export default function MobileHeader({
               {/* تبديل الوضع الليلي */}
               {mounted && (
                 <button
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  onClick={toggleDarkMode}
                   className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   aria-label="تبديل الوضع الليلي"
                 >
-                  {theme === 'dark' ? (
+                  {darkMode ? (
                     <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                   ) : (
                     <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />

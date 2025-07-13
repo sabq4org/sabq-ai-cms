@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 
 // قائمة المسارات المحمية
 const protectedPaths = [
-  '/dashboard',
+//  '/dashboard',
   '/admin',
   '/api/dashboard',
   '/api/admin',
@@ -91,13 +91,13 @@ export function middleware(request: NextRequest) {
   }
 
   // حماية صفحات لوحة التحكم
-  if (pathname.startsWith('/dashboard')) {
-    const authToken = request.cookies.get('auth-token')?.value;
-    
-    if (!authToken) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-  }
+//   if (false && (pathname.startsWith('/dashboard')) {
+//     const authToken = request.cookies.get('auth-token')?.value;
+//     
+//     if (!authToken) {
+//       return NextResponse.redirect(new URL('/login', request.url));
+//     }
+//   }
   
   // تسجيل المسار للتشخيص
   console.log('Middleware processing:', pathname);

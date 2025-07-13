@@ -24,6 +24,7 @@ export interface Category {
   noindex?: boolean;
   og_type?: string;
   can_delete?: boolean;
+  cover_image?: string;
 }
 
 export interface CategoryFormData {
@@ -42,4 +43,5 @@ export interface CategoryFormData {
   canonical_url: string;
   noindex: boolean;
   og_type: string;
+  cover_image: string;
 } 

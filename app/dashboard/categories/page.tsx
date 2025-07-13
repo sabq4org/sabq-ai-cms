@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import CategoryFormModal from '../../../components/CategoryFormModal';
-import CategoriesAnalytics from '../../../components/dashboard/CategoriesAnalytics';
+import CategoryFormModal from '@/components/CategoryFormModal';
+import CategoriesAnalytics from '@/components/dashboard/CategoriesAnalytics';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { Category } from '@/types/category';
 import { Button } from '@/components/ui/button';
@@ -63,7 +63,12 @@ export default function CategoriesPage() {
       const data = await response.json();
       console.log('API Response:', data);
       if (data.success) {
-        setCategories(data.categories || data.data || []);
+        const categoriesData = data.categories || data.data || [];
+        console.log('Categories with images:', categoriesData.filter((cat: any) => cat.cover_image).map((cat: any) => ({
+          name: cat.name_ar,
+          cover_image: cat.cover_image
+        })));
+        setCategories(categoriesData);
       } else {
         // إذا فشل الطلب، حاول مرة أخرى بعد 3 ثواني
         setTimeout(fetchCategories, 3000);
@@ -107,17 +112,21 @@ export default function CategoriesPage() {
         og_image_url: formData.og_image_url.trim() || undefined,
         canonical_url: formData.canonical_url.trim() || undefined,
         noindex: formData.noindex,
-        og_type: formData.og_type.trim() || 'website'
+        og_type: formData.og_type.trim() || 'website',
+        cover_image: formData.cover_image || undefined
       };
       let response;
       if (showEditModal && selectedCategory) {
         // تحديث التصنيف الموجود
-        response = await fetch(`/api/categories/${selectedCategory.id}`, {
+        response = await fetch('/api/categories', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(categoryData)
+          body: JSON.stringify({
+            id: selectedCategory.id,
+            ...categoryData
+          })
         });
       } else {
         // إضافة تصنيف جديد
@@ -135,10 +144,35 @@ export default function CategoriesPage() {
       }
       const result = await response.json();
       if (result.success) {
-        setNotification({
-          type: 'success',
-          message: showEditModal ? 'تم تحديث التصنيف بنجاح' : 'تم إضافة التصنيف بنجاح'
-        });
+        // رسالة نجاح مخصصة حسب وجود الصورة
+        const successMessage = showEditModal ? 'تم تحديث التصنيف بنجاح' : 'تم إضافة التصنيف بنجاح';
+        const hasImage = categoryData.cover_image && categoryData.cover_image.trim() !== '';
+        
+        if (hasImage) {
+          toast.success(
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">✅</span>
+              <div>
+                <div className="font-bold">{successMessage}</div>
+                <div className="text-sm opacity-90">تم حفظ الصورة المرفوعة مع التصنيف</div>
+              </div>
+            </div>,
+            {
+              duration: 5000,
+              style: {
+                background: '#10B981',
+                color: 'white',
+                padding: '16px',
+              }
+            }
+          );
+        } else {
+          setNotification({
+            type: 'success',
+            message: successMessage
+          });
+        }
+        
         // إعادة تحميل التصنيفات
         await fetchCategories();
         // إغلاق النموذج
@@ -297,7 +331,7 @@ export default function CategoriesPage() {
   <div className={level > 0 ? 'mr-6' : ''}>
         {categories.map((category) => (
           <div key={category.id} className="mb-2">
-            <div className={`p-4 rounded-xl border transition-colors duration-200 ${
+            <div className={`p-4 rounded-xl border transition-colors duration-200 min-w-[600px] ${
               darkMode 
                 ? 'bg-gray-700 border-gray-600 hover:bg-gray-600' 
                 : 'bg-white border-gray-200 hover:bg-gray-50'
@@ -324,6 +358,25 @@ export default function CategoriesPage() {
                       )}
                     </button>
                   )}
+                  
+                  {/* صورة التصنيف إن وجدت */}
+                  {category.cover_image && (
+                    <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                      <Image
+                        src={category.cover_image}
+                        alt={category.name_ar}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                        onError={(e) => {
+                          // إخفاء الصورة إذا فشل تحميلها
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                  
                   <div 
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
                     style={{ 
@@ -349,11 +402,23 @@ export default function CategoriesPage() {
                         </span>
                       )}
                     </div>
-                    {category.description && (
+                    {(() => {
+                      let desc = category.description;
+                      // إذا كان الوصف عبارة عن JSON، استخرج القيمة الفعلية
+                      if (desc && desc.startsWith('{')) {
+                        try {
+                          const parsed = JSON.parse(desc);
+                          desc = parsed.ar || parsed.description || desc;
+                        } catch (e) {
+                          // استخدم النص كما هو إذا فشل التحليل
+                        }
+                      }
+                      return desc ? (
                       <p className={`text-sm transition-colors duration-300 ${
                         darkMode ? 'text-gray-400' : 'text-gray-600'
-                      }`}>{category.description}</p>
-                    )}
+                      }`}>{desc}</p>
+                      ) : null;
+                    })()}
                     <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
                       <span>/{category.slug}</span>
                       <span>{category.articles_count || category.article_count || 0} مقال</span>
@@ -609,7 +674,7 @@ export default function CategoriesPage() {
         onTabChange={setActiveTab}
       />
       {/* محتوى التبويبات */}
-      <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
+      <div className={`rounded-2xl shadow-sm border overflow-x-auto transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
       }`}>
         {activeTab === 'list' && (

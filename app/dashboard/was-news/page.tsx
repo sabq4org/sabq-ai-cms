@@ -85,7 +85,7 @@ export default function WasNewsPage() {
       const res = await fetch('/api/was-news?action=saved');
       const data = await res.json();
       if (data.success) {
-        setSavedNews(data.data);
+        setSavedNews(data.news || []);
       } else {
         toast.error(data.error || 'فشل جلب الأخبار');
       }
@@ -102,8 +102,8 @@ export default function WasNewsPage() {
       const res = await fetch('/api/was-news?action=baskets');
       const data = await res.json();
       if (data.success) {
-        setBaskets(data.baskets);
-        if (data.baskets.length > 0 && !selectedBasket) {
+        setBaskets(data.baskets || []);
+        if (data.baskets?.length > 0 && !selectedBasket) {
           setSelectedBasket(data.baskets[0].news_basket_CD);
         }
       }
@@ -124,14 +124,30 @@ export default function WasNewsPage() {
     setFetchingNew(true);
 
     try {
-      // محاكاة مراحل الاتصال
-      setTimeout(() => setStatus("sending"), 100);
+      // التحقق من حالة العقد أولاً
+      const statusRes = await fetch('/api/was-news', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'status' })
+      });
       
-      const url = selectedBasket 
-        ? `/api/was-news?basket_id=${selectedBasket}`
-        : '/api/was-news';
+      const statusData = await statusRes.json();
+      if (!statusData.isActive) {
+        throw new Error('العقد غير نشط: ' + (statusData.message || 'Client key is not active'));
+      }
       
-      const res = await fetch(url);
+      setStatus("sending");
+      
+      const res = await fetch('/api/was-news', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'news',
+          basket_CD: selectedBasket || 1,
+          last_news_CD: 0,
+          IS_load_media: true
+        })
+      });
       
       setStatus("waiting");
       
@@ -147,7 +163,7 @@ export default function WasNewsPage() {
       setEnd(endTime);
       setDuration(elapsedTime);
       
-      if (data.success) {
+      if (data.success && data.data) {
         setStatus("success");
         setApiResult(data);
         
@@ -157,18 +173,30 @@ export default function WasNewsPage() {
           timestamp: startTime,
           duration: elapsedTime,
           status: "success",
-          newsCount: data.data ? 1 : 0,
+          newsCount: data.data.news_NUM ? 1 : 0,
           responseSize: responseSize
         };
         setLogs(prev => [newLog, ...prev.slice(0, 19)]);
         
-        if (data.data) {
+        if (data.data.news_NUM) {
+          // إضافة الخبر إلى القائمة المحفوظة
+          const newsItem: WasNews = {
+            id: data.data.news_NUM.toString(),
+            news_NUM: data.data.news_NUM,
+            news_DT: data.data.news_DT,
+            title_TXT: data.data.title_TXT,
+            story_TXT: data.data.story_TXT,
+            news_priority_CD: data.data.news_priority_CD,
+            is_Report: data.data.iS_Report,
+            is_imported: false,
+            media: data.data.media_FL,
+            keywords: data.data.keywords,
+            created_at: new Date().toISOString()
+          };
+          setSavedNews(prev => [newsItem, ...prev]);
           toast.success('تم جلب خبر جديد!');
-          fetchSavedNews(); // تحديث القائمة
         } else {
-          toast(data.message || 'لا توجد أخبار جديدة', {
-            icon: '📰',
-          });
+          toast('لا توجد أخبار جديدة في هذه السلة', { icon: '📰' });
         }
       } else {
         setStatus("error");
@@ -291,9 +319,9 @@ export default function WasNewsPage() {
   // أزرار التنقل
   const NavigationTabs = () => {
     const tabs = [
-      { id: 'monitor', name: 'مراقبة الاتصال', icon: Activity, count: logs.length },
-      { id: 'saved', name: 'الأخبار المحفوظة', icon: Database, count: savedNews.length },
-      { id: 'fetch', name: 'جلب أخبار جديدة', icon: Download, count: baskets.length }
+      { id: 'monitor', name: 'مراقبة الاتصال', icon: Activity, count: logs?.length || 0 },
+      { id: 'saved', name: 'الأخبار المحفوظة', icon: Database, count: savedNews?.length || 0 },
+      { id: 'fetch', name: 'جلب أخبار جديدة', icon: Download, count: baskets?.length || 0 }
     ];
 
     return (
@@ -434,7 +462,7 @@ export default function WasNewsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatsCard
               title="إجمالي الأخبار"
-              value={savedNews.length}
+              value={savedNews?.length || 0}
               subtitle="محفوظة"
               icon={Database}
               bgColor="bg-blue-100"
@@ -442,7 +470,7 @@ export default function WasNewsPage() {
             />
             <StatsCard
               title="عمليات المراقبة"
-              value={logs.length}
+              value={logs?.length || 0}
               subtitle="عملية"
               icon={Activity}
               bgColor="bg-green-100"
@@ -450,8 +478,8 @@ export default function WasNewsPage() {
             />
             <StatsCard
               title="متوسط الاستجابة"
-              value={logs.length > 0 
-                ? Math.round(logs.reduce((acc, log) => acc + (log.duration || 0), 0) / logs.length)
+              value={logs?.length > 0 
+                ? Math.round(logs?.reduce((acc, log) => acc + (log.duration || 0), 0) / logs.length)
                 : "--"
               }
               subtitle="مللي ثانية"
@@ -461,8 +489,8 @@ export default function WasNewsPage() {
             />
             <StatsCard
               title="نسبة النجاح"
-              value={logs.length > 0 
-                ? Math.round((logs.filter(l => l.status === "success").length / logs.length) * 100)
+              value={logs?.length > 0 
+                ? Math.round((logs?.filter(l => l.status === "success").length / logs.length) * 100)
                 : "--"
               }
               subtitle="بالمئة"
@@ -659,7 +687,7 @@ export default function WasNewsPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {logs.map((log) => (
+                      {logs?.map((log) => (
                         <tr key={log.id} className={`border-b hover:bg-opacity-50 transition-colors duration-300 ${
                           darkMode 
                             ? 'border-gray-700 hover:bg-gray-700' 
@@ -693,7 +721,7 @@ export default function WasNewsPage() {
               <h2 className={`text-xl font-semibold transition-colors duration-300 ${
                 darkMode ? 'text-white' : 'text-gray-900'
               }`}>
-                الأخبار المحفوظة ({savedNews.length})
+                الأخبار المحفوظة ({savedNews?.length || 0})
               </h2>
               <button 
                 onClick={fetchSavedNews} 
@@ -709,7 +737,7 @@ export default function WasNewsPage() {
             <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             </div>
-          ) : savedNews.length === 0 ? (
+          ) : savedNews?.length === 0 ? (
               <div className={`rounded-2xl p-8 text-center transition-colors duration-300 ${
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
               } border`}>
@@ -727,7 +755,7 @@ export default function WasNewsPage() {
               </div>
           ) : (
             <div className="grid gap-4">
-              {savedNews.map((news) => (
+              {savedNews?.map((news) => (
                   <div key={news.id} className={`rounded-2xl p-6 shadow-sm border transition-all duration-300 hover:shadow-lg ${
                     darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
                   }`}>
@@ -811,7 +839,7 @@ export default function WasNewsPage() {
               </p>
             </div>
 
-              {baskets.length > 0 && (
+              {baskets?.length > 0 && (
                 <div className="mb-6">
                 <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
@@ -827,7 +855,7 @@ export default function WasNewsPage() {
                     value={selectedBasket || ''}
                     onChange={(e) => setSelectedBasket(Number(e.target.value))}
                   >
-                    {baskets.map((basket) => (
+                    {baskets?.map((basket) => (
                       <option key={basket.news_basket_CD} value={basket.news_basket_CD}>
                         {basket.news_basket_TXT_AR || basket.news_basket_TXT}
                       </option>

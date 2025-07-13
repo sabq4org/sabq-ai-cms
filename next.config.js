@@ -61,8 +61,17 @@ const nextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+  experimental: {
+    webpackBuildWorker: true,
+    optimizePackageImports: [
+      '@mui/material',
+      '@mui/icons-material',
+      'react-hot-toast',
+      '@tanstack/react-query'
+    ],
+  },
   // منع حفظ الصور محلياً
-  webpack: (config, { isServer }) => {
+  webpack: (config, { dev, isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -70,6 +79,11 @@ const nextConfig = {
         path: false,
       };
     }
+    // Ignore specific warnings for Next.js 15.3.5
+    config.ignoreWarnings = [
+      { module: /node_modules/ },
+      (warning) => warning.message.includes('expected pattern'),
+    ];
     return config;
   },
   // Headers للأمان وتحسين الأداء
@@ -113,5 +127,15 @@ const nextConfig = {
     ];
   },
 }
+
+/**
+ * حل مشكلة "ENOENT pack.gz" بتعطيل الكاش في وضع التطوير
+ */
+nextConfig.webpack = (config, { dev, isServer }) => {
+  if (dev) {
+    config.cache = false;
+  }
+  return config;
+};
 
 module.exports = nextConfig 

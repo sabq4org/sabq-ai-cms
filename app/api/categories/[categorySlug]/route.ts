@@ -12,6 +12,17 @@ import prisma from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 
+// دالة تطبيع البيانات المزدوجة
+function normalizeMetadata(md: any) {
+  if (md && typeof md.ar === 'string') {
+    const str = md.ar.trim();
+    if (str.startsWith('{') && str.endsWith('}')) {
+      try { return { ...md, ...JSON.parse(str) }; } catch {}
+    }
+  }
+  return md;
+}
+
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ categorySlug: string }> }
@@ -46,12 +57,13 @@ export async function GET(
       try {
         const parsedData = JSON.parse(category.description);
         if (parsedData && typeof parsedData === 'object') {
-          icon = parsedData.icon || icon;
-          colorHex = parsedData.color_hex || parsedData.color || colorHex;
-          nameAr = parsedData.name_ar || nameAr;
-          nameEn = parsedData.name_en || nameEn;
-          descriptionText = parsedData.ar || parsedData.en || '';
-          metadata = parsedData;
+          const normalized = normalizeMetadata(parsedData);
+          icon = normalized.icon || icon;
+          colorHex = normalized.color_hex || normalized.color || colorHex;
+          nameAr = normalized.name_ar || nameAr;
+          nameEn = normalized.name_en || nameEn;
+          descriptionText = normalized.ar || normalized.en || '';
+          metadata = normalized;
         } else {
           descriptionText = category.description;
         }
@@ -79,6 +91,7 @@ export async function GET(
         parent_id: category.parent_id,
         parent: null, // سيتم جلبها بشكل منفصل إذا لزم الأمر
         position: category.display_order,
+        cover_image: metadata.cover_image || '',
         created_at: category.created_at.toISOString(),
         updated_at: category.updated_at.toISOString(),
         metadata: metadata
