@@ -149,12 +149,36 @@ export default function CategoryFormModal({
   useEffect(() => {
     if (originalData && isEdit) {
       const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData);
+      
+      // تفاصيل أكثر للتتبع
+      const changes = {
+        name_ar: formData.name_ar !== originalData.name_ar,
+        name_en: formData.name_en !== originalData.name_en,
+        description: formData.description !== originalData.description,
+        slug: formData.slug !== originalData.slug,
+        color_hex: formData.color_hex !== originalData.color_hex,
+        icon: formData.icon !== originalData.icon,
+        parent_id: formData.parent_id !== originalData.parent_id,
+        position: formData.position !== originalData.position,
+        is_active: formData.is_active !== originalData.is_active,
+        meta_title: formData.meta_title !== originalData.meta_title,
+        meta_description: formData.meta_description !== originalData.meta_description,
+        og_image_url: formData.og_image_url !== originalData.og_image_url,
+        canonical_url: formData.canonical_url !== originalData.canonical_url,
+        noindex: formData.noindex !== originalData.noindex,
+        og_type: formData.og_type !== originalData.og_type,
+        cover_image: formData.cover_image !== originalData.cover_image
+      };
+      
       console.log('🔄 Checking for changes:', {
         hasChanges,
-        formData: formData.icon,
-        originalData: originalData.icon,
+        changes,
+        cover_image_changed: changes.cover_image,
+        current_cover_image: formData.cover_image,
+        original_cover_image: originalData.cover_image,
         isDirty: hasChanges
       });
+      
       setIsDirty(hasChanges);
     }
   }, [formData, originalData, isEdit]);
@@ -201,13 +225,22 @@ export default function CategoryFormModal({
         console.log('✅ Cloudinary response:', data);
         console.log('📷 Secure URL:', data.secure_url);
         
-        setImagePreview(data.secure_url);
+        // تحديث formData أولاً
         setFormData(prev => {
           const updated = { ...prev, cover_image: data.secure_url };
           console.log('💾 Updated formData with cover_image:', updated);
+          console.log('🔄 Previous cover_image:', prev.cover_image);
+          console.log('🔄 New cover_image:', data.secure_url);
           return updated;
         });
-        // setIsDirty سيتم تحديثه تلقائياً بواسطة useEffect
+        
+        // ثم تحديث imagePreview
+        setImagePreview(data.secure_url);
+        
+        // إضافة تأخير صغير لضمان تحديث isDirty
+        setTimeout(() => {
+          console.log('🔄 Checking isDirty after image upload...');
+        }, 100);
         
         toast.success(
           <div className="flex items-center gap-2">
@@ -273,9 +306,22 @@ export default function CategoryFormModal({
 
   // دالة حذف الصورة
   const handleRemoveImage = () => {
-    setFormData(prev => ({ ...prev, cover_image: '' }));
+    console.log('🗑️ Removing image...');
+    console.log('🔄 Previous cover_image:', formData.cover_image);
+    
+    setFormData(prev => {
+      const updated = { ...prev, cover_image: '' };
+      console.log('💾 Updated formData after removing image:', updated);
+      return updated;
+    });
+    
     setImagePreview(null);
-    // setIsDirty سيتم تحديثه تلقائياً بواسطة useEffect
+    
+    // إضافة تأخير صغير لضمان تحديث isDirty
+    setTimeout(() => {
+      console.log('🔄 Checking isDirty after removing image...');
+    }, 100);
+    
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
