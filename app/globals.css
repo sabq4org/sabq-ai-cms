@@ -28,6 +28,9 @@
 /* استيراد الألوان الناعمة المريحة للعين */
 @import '../styles/soft-colors.css';
 
+/* استيراد ألوان التصنيفات الجديدة */
+@import '../styles/category-colors.css';
+
 /* استيراد ملفات CSS المخصصة */
 @import '../styles/custom-styles.css';
 @import '../styles/article-editor.css';
