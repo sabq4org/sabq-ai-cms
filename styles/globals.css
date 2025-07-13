@@ -1,0 +1,56 @@
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  /* Remove hover effects on mobile */
+  @media (hover: none) {
+    .hover\:scale-105:hover,
+    .hover\:scale-110:hover,
+    .hover\:shadow-xl:hover,
+    .hover\:shadow-2xl:hover,
+    .group:hover .group-hover\:scale-110,
+    .group:hover .group-hover\:scale-105 {
+      transform: none !important;
+    }
+  }
+  
+  /* Touch feedback */
+  .active\:scale-\[0\.98\]:active {
+    transform: scale(0.98);
+  }
+  
+  /* Optimize font sizes for mobile */
+  html {
+    font-size: 16px;
+  }
+  
+  /* Ensure minimum touch target size */
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Disable animations on low-powered devices */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  
+  /* Better scrolling on mobile */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent zoom on input focus */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+} 

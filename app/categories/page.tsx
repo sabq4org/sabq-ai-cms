@@ -359,7 +359,7 @@ export default function CategoriesPage() {
         </section>
 
         {/* Categories Grid with Improved Spacing */}
-        <section className="max-w-7xl mx-auto px-6 py-16">
+        <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-16">
           {filteredCategories.length === 0 ? (
             <div className="text-center py-20">
               <Tag className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -369,84 +369,144 @@ export default function CategoriesPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {filteredCategories.map((category) => {
-                const categorySlug = category.slug || category.name_ar.toLowerCase().replace(/\s+/g, '-');
-                const data = getCategoryData(category.name_ar);
-                const Icon = data.icon;
-                const imageSrc = getCategoryImage(category);
-                
-                return (
-                  <Link
-                    key={category.id}
-                    href={`/categories/${categorySlug}`}
-                    className="group block"
-                  >
-                    <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 h-80 transition-shadow duration-300">
-                      {/* Background Image with Overlay */}
-                      <div className="absolute inset-0">
-                        <Image 
-                          src={imageSrc} 
-                          alt={category.name_ar}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          onError={(e) => {
-                            console.error(`Failed to load image for ${category.name_ar}:`, imageSrc);
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                      </div>
-                      {/* Content */}
-                      <div className="relative p-4 md:p-6 h-full flex flex-col justify-end">
-                        {/* Bottom Content Container */}
-                        <div className="flex items-end justify-between gap-3 md:gap-4">
-                          {/* Right Side: Icon + Text */}
-                          <div className="flex items-center gap-2 md:gap-3">
-                            {/* Small Icon with Circular Background */}
-                            <div className="w-12 h-12 md:w-14 md:h-14 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
-                              {category.icon ? (
-                                <span className="text-xl md:text-2xl">{category.icon}</span>
-                              ) : (
-                                <Icon className={`w-6 h-6 md:w-7 md:h-7 ${data.bgColor.replace('bg-', 'text-')}`} />
-                              )}
-                            </div>
-                            {/* Title and Description */}
-                            <div className="flex-1">
-                              <h3 className="text-lg md:text-xl font-bold text-white mb-1 drop-shadow-lg">
-                                {category.name_ar}
-                              </h3>
-                              {(() => {
-                                let desc = category.description;
-                                // إذا كان الوصف عبارة عن JSON، استخرج القيمة الفعلية
-                                if (desc && desc.startsWith('{')) {
-                                  try {
-                                    const parsed = JSON.parse(desc);
-                                    desc = parsed.ar || parsed.description || desc;
-                                  } catch (e) {
-                                    // استخدم النص كما هو إذا فشل التحليل
-                                  }
-                                }
-                                return desc ? (
-                                  <p className="text-white/80 text-xs md:text-sm line-clamp-2 drop-shadow">
-                                    {desc}
-                                  </p>
-                                ) : null;
-                              })()}
-                            </div>
+            <>
+              {/* Mobile View - Single Column */}
+              <div className="md:hidden space-y-3">
+                {filteredCategories.map((category) => {
+                  const categorySlug = category.slug || category.name_ar.toLowerCase().replace(/\s+/g, '-');
+                  const data = getCategoryData(category.name_ar);
+                  const Icon = data.icon;
+                  
+                  return (
+                    <Link
+                      key={category.id}
+                      href={`/categories/${categorySlug}`}
+                      className="block"
+                    >
+                      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 active:scale-[0.98] transition-transform">
+                        <div className="flex items-center gap-3">
+                          {/* Icon in small circle */}
+                          <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0">
+                            {category.icon ? (
+                              <span className="text-xl">{category.icon}</span>
+                            ) : (
+                              <Icon className={`w-6 h-6 ${data.bgColor.replace('bg-', 'text-')}`} />
+                            )}
                           </div>
-                          {/* Left Side: Articles Count */}
-                          <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3 py-1.5 md:py-2 rounded-full border border-white/30 flex-shrink-0">
-                            <BookOpen className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
-                            <span className="text-xs md:text-sm font-medium text-white whitespace-nowrap">{category.articles_count || 0} مقال</span>
+                          
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-0.5">
+                              {category.name_ar}
+                            </h3>
+                            {(() => {
+                              let desc = category.description;
+                              if (desc && desc.startsWith('{')) {
+                                try {
+                                  const parsed = JSON.parse(desc);
+                                  desc = parsed.ar || parsed.description || desc;
+                                } catch (e) {}
+                              }
+                              return desc ? (
+                                <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                                  {desc}
+                                </p>
+                              ) : null;
+                            })()}
+                          </div>
+                          
+                          {/* Articles count */}
+                          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
+                            <BookOpen className="w-3.5 h-3.5" />
+                            <span>{category.articles_count || 0} مقال</span>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Desktop View - Keep existing grid */}
+              <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                {filteredCategories.map((category) => {
+                  const categorySlug = category.slug || category.name_ar.toLowerCase().replace(/\s+/g, '-');
+                  const data = getCategoryData(category.name_ar);
+                  const Icon = data.icon;
+                  const imageSrc = getCategoryImage(category);
+                  
+                  return (
+                    <Link
+                      key={category.id}
+                      href={`/categories/${categorySlug}`}
+                      className="group block"
+                    >
+                      <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 h-80 transition-shadow duration-300">
+                        {/* Background Image with Overlay */}
+                        <div className="absolute inset-0">
+                          <Image 
+                            src={imageSrc} 
+                            alt={category.name_ar}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            onError={(e) => {
+                              console.error(`Failed to load image for ${category.name_ar}:`, imageSrc);
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                        </div>
+                        {/* Content */}
+                        <div className="relative p-4 md:p-6 h-full flex flex-col justify-end">
+                          {/* Bottom Content Container */}
+                          <div className="flex items-end justify-between gap-3 md:gap-4">
+                            {/* Right Side: Icon + Text */}
+                            <div className="flex items-center gap-2 md:gap-3">
+                              {/* Small Icon with Circular Background */}
+                              <div className="w-12 h-12 md:w-14 md:h-14 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                                {category.icon ? (
+                                  <span className="text-xl md:text-2xl">{category.icon}</span>
+                                ) : (
+                                  <Icon className={`w-6 h-6 md:w-7 md:h-7 ${data.bgColor.replace('bg-', 'text-')}`} />
+                                )}
+                              </div>
+                              {/* Title and Description */}
+                              <div className="flex-1">
+                                <h3 className="text-lg md:text-xl font-bold text-white mb-1 drop-shadow-lg">
+                                  {category.name_ar}
+                                </h3>
+                                {(() => {
+                                  let desc = category.description;
+                                  // إذا كان الوصف عبارة عن JSON، استخرج القيمة الفعلية
+                                  if (desc && desc.startsWith('{')) {
+                                    try {
+                                      const parsed = JSON.parse(desc);
+                                      desc = parsed.ar || parsed.description || desc;
+                                    } catch (e) {
+                                      // استخدم النص كما هو إذا فشل التحليل
+                                    }
+                                  }
+                                  return desc ? (
+                                    <p className="text-white/80 text-xs md:text-sm line-clamp-2 drop-shadow">
+                                      {desc}
+                                    </p>
+                                  ) : null;
+                                })()}
+                              </div>
+                            </div>
+                            {/* Left Side: Articles Count */}
+                            <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3 py-1.5 md:py-2 rounded-full border border-white/30 flex-shrink-0">
+                              <BookOpen className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
+                              <span className="text-xs md:text-sm font-medium text-white whitespace-nowrap">{category.articles_count || 0} مقال</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </>
           )}
         </section>
       </main>

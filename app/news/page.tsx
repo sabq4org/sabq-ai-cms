@@ -295,7 +295,7 @@ export default function NewsPage() {
         </section>
         
         {/* Articles Section */}
-        <section className="max-w-7xl mx-auto px-6 py-12">
+        <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
           {loading && page === 1 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
@@ -303,238 +303,321 @@ export default function NewsPage() {
             </div>
           ) : filteredArticles.length > 0 ? (
             <>
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {filteredArticles.map((article) => (
-                    <Link key={article.id} href={getArticleLink(article)} className="group block">
-                      <article className={`article-card h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 ${
-                        article.is_breaking 
-                          ? 'bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800'
-                          : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'
-                      }`}>
-                        {/* صورة المقال */}
-                        <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
+              {/* Mobile View */}
+              <div className="md:hidden space-y-4">
+                {filteredArticles.map((article) => (
+                  <Link key={article.id} href={getArticleLink(article)} className="block">
+                    <article className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden active:scale-[0.98] transition-transform">
+                      {/* Mobile Card Layout */}
+                      <div className="flex p-4 gap-3">
+                        {/* Thumbnail */}
+                        <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
                           {article.featured_image ? (
                             <Image
                               src={article.featured_image}
                               alt={article.title || 'صورة المقال'}
                               fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                              className="object-cover"
+                              sizes="96px"
                               priority={false}
                               unoptimized={article.featured_image.includes('cloudinary.com')}
-                              onError={(e) => {
-                                console.error('خطأ في تحميل الصورة:', article.featured_image);
-                                const target = e.currentTarget as HTMLImageElement;
-                                target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRTVFN0VCO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNEMUQ1REI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0idXJsKCNncmFkMSkiLz4KICA8cGF0aCBkPSJNMzAwIDIwMCBMNTAwIDIwMCBMNTAwIDQwMCBMMzAwIDQwMCBaIiBmaWxsPSIjOUNBM0FGIiBvcGFjaXR5PSIwLjUiLz4KICA8Y2lyY2xlIGN4PSI0MDAiIGN5PSIzMDAiIHI9IjUwIiBmaWxsPSIjOUNBM0FGIiBvcGFjaXR5PSIwLjUiLz4KICA8dGV4dCB4PSI0MDAiIHk9IjQ1MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSIjNkI3MjgwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBvcGFjaXR5PSIwLjgiPgogICAgINi12YjYsdipINin2YTZhNmC2KfZhAogIDwvdGV4dD4KPC9zdmc+';
-                              }}
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-                              <Newspaper className="w-16 h-16 text-gray-400 dark:text-gray-600" />
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Newspaper className="w-8 h-8 text-gray-400 dark:text-gray-600" />
                             </div>
                           )}
-                          {/* Category Badge */}
-                          {article.category_name && (
-                            <div className="absolute top-3 right-3">
-                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold text-white backdrop-blur-sm"
-                                style={{ backgroundColor: getCategoryColor(article.category_id) + 'ee' }}>
-                                <Tag className="w-3 h-3" />
-                                {article.category_name}
-                              </span>
-                            </div>
-                          )}
-                          {/* معلومات أسفل الصورة */}
-                          <div className="absolute bottom-3 right-3 left-3 flex gap-2">
-                            {/* وقت القراءة */}
-                            {article.reading_time && (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
-                                <Clock className="w-3 h-3" />
-                                {article.reading_time} دقيقة
-                              </span>
-                            )}
-                            {/* اسم الكاتب */}
-                            {article.author_name && article.author_name !== 'غير محدد' && (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
-                                <User className="w-3 h-3" />
-                                {article.author_name}
-                              </span>
-                            )}
-                          </div>
-                          {/* شارة عاجل */}
+                          {/* Urgent Badge */}
                           {article.is_breaking && (
-                            <div className="absolute top-3 left-3">
-                              <span className="urgent-badge inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white backdrop-blur-sm">
-                                <Zap className="w-3 h-3" />
+                            <div className="absolute top-1 right-1">
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded">
+                                <Zap className="w-2.5 h-2.5" />
                                 عاجل
                               </span>
                             </div>
                           )}
-                          {/* شارة مميز */}
-                          {article.is_featured && (
-                            <div className="absolute top-12 left-3">
-                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white backdrop-blur-sm">
-                                <Sparkles className="w-3 h-3" />
-                                مميز
-                              </span>
-                            </div>
-                          )}
                         </div>
-                        {/* محتوى البطاقة */}
-                        <div className="p-5">
-                          {/* العنوان */}
-                          <h4 className={`font-bold text-[15px] leading-[1.4] mb-3 line-clamp-3 ${
+                        
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          {/* Title - 2 lines max */}
+                          <h3 className={`text-[15px] font-semibold leading-tight mb-2 line-clamp-2 ${
                             article.is_breaking 
                               ? 'text-red-700 dark:text-red-400' 
                               : 'text-gray-900 dark:text-white'
-                          } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors`}>
+                          }`}>
                             {article.title}
-                          </h4>
-                          {/* الملخص */}
-                          {article.excerpt && (
-                            <p className="text-[13px] leading-relaxed mb-4 line-clamp-2 text-gray-600 dark:text-gray-400">
-                              {article.excerpt}
-                            </p>
-                          )}
-                          {/* التفاصيل السفلية */}
-                          <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
-                            {/* المعلومات */}
-                            <div className="flex flex-col gap-1">
-                              {/* التاريخ */}
-                              <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                {formatDate(article.published_at || article.created_at)}
-                              </div>
-                              {/* المشاهدات */}
-                              <div className="flex items-center gap-3 text-xs">
-                                <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                                  <Eye className="w-3 h-3" />
-                                  {article.views_count > 0 ? article.views_count.toLocaleString('ar-SA') : 'جديد'}
-                                </span>
-                                {article.likes_count && article.likes_count > 0 && (
-                                  <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                                    <Heart className="w-3 h-3" />
-                                    {article.likes_count.toLocaleString('ar-SA')}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            {/* زر القراءة */}
-                            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20">
-                              <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredArticles.map((article) => (
-                    <Link key={article.id} href={getArticleLink(article)} className="group block">
-                      <article className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6 ${
-                        article.is_breaking 
-                          ? 'border-2 border-red-200 dark:border-red-800'
-                          : 'border border-gray-100 dark:border-gray-700'
-                      }`}>
-                        {/* Image */}
-                        <div className="relative w-48 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
-                          {article.featured_image ? (
-                            <Image
-                              src={article.featured_image}
-                              alt={article.title || 'صورة المقال'}
-                              fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500"
-                              sizes="200px"
-                              priority={false}
-                              unoptimized={article.featured_image.includes('cloudinary.com')}
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-                              <Newspaper className="w-12 h-12 text-gray-400 dark:text-gray-600" />
-                            </div>
-                          )}
-                          {article.is_breaking && (
-                            <div className="absolute top-2 right-2">
-                              <span className="urgent-badge inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
-                                <Zap className="w-3 h-3" />
-                                عاجل
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        {/* Content */}
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className={`text-[17px] font-bold leading-[1.4] ${
-                              article.is_breaking 
-                                ? 'text-red-700 dark:text-red-400' 
-                                : 'text-gray-900 dark:text-white'
-                            } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-3`}>
-                              {article.title}
-                            </h3>
-                            {article.is_featured && (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white flex-shrink-0 ml-3">
-                                <Sparkles className="w-3 h-3" />
-                                مميز
+                          </h3>
+                          
+                          {/* Meta Info */}
+                          <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
+                            {/* Category */}
+                            {article.category_name && (
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium text-white"
+                                style={{ backgroundColor: getCategoryColor(article.category_id) }}>
+                                <Tag className="w-2.5 h-2.5" />
+                                {article.category_name}
                               </span>
                             )}
+                            {/* Date */}
+                            <span className="flex items-center gap-0.5">
+                              <Calendar className="w-3 h-3" />
+                              {formatDate(article.published_at || article.created_at)}
+                            </span>
+                            {/* Views */}
+                            <span className="flex items-center gap-0.5">
+                              <Eye className="w-3 h-3" />
+                              {(article.views_count || 0) > 0 ? (article.views_count || 0).toLocaleString('ar-SA') : 'جديد'}
+                            </span>
                           </div>
-                          {article.excerpt && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">
-                              {article.excerpt}
-                            </p>
-                          )}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                              {/* التصنيف */}
-                              {article.category_name && (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
-                                  style={{ backgroundColor: getCategoryColor(article.category_id) }}>
+                        </div>
+                        
+                        {/* Arrow */}
+                        <div className="flex items-center">
+                          <ArrowLeft className="w-4 h-4 text-gray-400" />
+                        </div>
+                      </div>
+                    </article>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Desktop View - Keep existing code */}
+              <div className="hidden md:block">
+                {viewMode === 'grid' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {filteredArticles.map((article) => (
+                      <Link key={article.id} href={getArticleLink(article)} className="group block">
+                        <article className={`article-card h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 ${
+                          article.is_breaking 
+                            ? 'bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800'
+                            : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'
+                        }`}>
+                          {/* Keep existing desktop card content */}
+                          {/* صورة المقال */}
+                          <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
+                            {article.featured_image ? (
+                              <Image
+                                src={article.featured_image}
+                                alt={article.title || 'صورة المقال'}
+                                fill
+                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                                priority={false}
+                                unoptimized={article.featured_image.includes('cloudinary.com')}
+                                onError={(e) => {
+                                  console.error('خطأ في تحميل الصورة:', article.featured_image);
+                                  const target = e.currentTarget as HTMLImageElement;
+                                  target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRTVFN0VCO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNEMUQ1REI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0idXJsKCNncmFkMSkiLz4KICA8cGF0aCBkPSJNMzAwIDIwMCBMNTAwIDIwMCBMNTAwIDQwMCBMMzAwIDQwMCBaIiBmaWxsPSIjOUNBM0FGIiBvcGFjaXR5PSIwLjUiLz4KICA8Y2lyY2xlIGN4PSI0MDAiIGN5PSIzMDAiIHI9IjUwIiBmaWxsPSIjOUNBM0FGIiBvcGFjaXR5PSIwLjUiLz4KICA8dGV4dCB4PSI0MDAiIHk9IjQ1MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSIjNkI3MjgwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBvcGFjaXR5PSIwLjgiPgogICAgINi12YjYsdipINin2YTZhNmC2KfZhAogIDwvdGV4dD4KPC9zdmc+';
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+                                <Newspaper className="w-16 h-16 text-gray-400 dark:text-gray-600" />
+                              </div>
+                            )}
+                            {/* Category Badge */}
+                            {article.category_name && (
+                              <div className="absolute top-3 right-3">
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold text-white backdrop-blur-sm"
+                                  style={{ backgroundColor: getCategoryColor(article.category_id) + 'ee' }}>
                                   <Tag className="w-3 h-3" />
                                   {article.category_name}
                                 </span>
-                              )}
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                {formatDate(article.published_at || article.created_at)}
-                              </span>
+                              </div>
+                            )}
+                            {/* معلومات أسفل الصورة */}
+                            <div className="absolute bottom-3 right-3 left-3 flex gap-2">
+                              {/* وقت القراءة */}
                               {article.reading_time && (
-                                <span className="flex items-center gap-1">
-                                  <Clock className="w-4 h-4" />
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
+                                  <Clock className="w-3 h-3" />
                                   {article.reading_time} دقيقة
                                 </span>
                               )}
-                              {article.author_name && (
-                                <span className="flex items-center gap-1">
-                                  <User className="w-4 h-4" />
+                              {/* اسم الكاتب */}
+                              {article.author_name && article.author_name !== 'غير محدد' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
+                                  <User className="w-3 h-3" />
                                   {article.author_name}
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-3">
-                              <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                                <Eye className="w-4 h-4" />
-                                {article.views_count > 0 ? article.views_count.toLocaleString('ar-SA') : 'جديد'}
-                              </span>
-                              {article.likes_count && article.likes_count > 0 && (
-                                <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                                  <Heart className="w-4 h-4" />
-                                  {article.likes_count.toLocaleString('ar-SA')}
+                            {/* شارة عاجل */}
+                            {article.is_breaking && (
+                              <div className="absolute top-3 left-3">
+                                <span className="urgent-badge inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white backdrop-blur-sm">
+                                  <Zap className="w-3 h-3" />
+                                  عاجل
                                 </span>
-                              )}
+                              </div>
+                            )}
+                            {/* شارة مميز */}
+                            {article.is_featured && (
+                              <div className="absolute top-12 left-3">
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white backdrop-blur-sm">
+                                  <Sparkles className="w-3 h-3" />
+                                  مميز
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          {/* محتوى البطاقة */}
+                          <div className="p-5">
+                            {/* العنوان */}
+                            <h4 className={`font-bold text-[15px] leading-[1.4] mb-3 line-clamp-3 ${
+                              article.is_breaking 
+                                ? 'text-red-700 dark:text-red-400' 
+                                : 'text-gray-900 dark:text-white'
+                            } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors`}>
+                              {article.title}
+                            </h4>
+                            {/* الملخص */}
+                            {article.excerpt && (
+                              <p className="text-[13px] leading-relaxed mb-4 line-clamp-2 text-gray-600 dark:text-gray-400">
+                                {article.excerpt}
+                              </p>
+                            )}
+                            {/* التفاصيل السفلية */}
+                            <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                              {/* المعلومات */}
+                              <div className="flex flex-col gap-1">
+                                {/* التاريخ */}
+                                <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {formatDate(article.published_at || article.created_at)}
+                                </div>
+                                {/* المشاهدات */}
+                                <div className="flex items-center gap-3 text-xs">
+                                  <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                                    <Eye className="w-3 h-3" />
+                                    {(article.views_count || 0) > 0 ? (article.views_count || 0).toLocaleString('ar-SA') : 'جديد'}
+                                  </span>
+                                  {article.likes_count && article.likes_count > 0 && (
+                                    <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                                      <Heart className="w-3 h-3" />
+                                      {article.likes_count.toLocaleString('ar-SA')}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              {/* زر القراءة */}
                               <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20">
                                 <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </article>
-                    </Link>
-                  ))}
-                </div>
-              )}
+                        </article>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredArticles.map((article) => (
+                      <Link key={article.id} href={getArticleLink(article)} className="group block">
+                        <article className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6 ${
+                          article.is_breaking 
+                            ? 'border-2 border-red-200 dark:border-red-800'
+                            : 'border border-gray-100 dark:border-gray-700'
+                        }`}>
+                          {/* Image */}
+                          <div className="relative w-48 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
+                            {article.featured_image ? (
+                              <Image
+                                src={article.featured_image}
+                                alt={article.title || 'صورة المقال'}
+                                fill
+                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                sizes="200px"
+                                priority={false}
+                                unoptimized={article.featured_image.includes('cloudinary.com')}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+                                <Newspaper className="w-12 h-12 text-gray-400 dark:text-gray-600" />
+                              </div>
+                            )}
+                            {article.is_breaking && (
+                              <div className="absolute top-2 right-2">
+                                <span className="urgent-badge inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+                                  <Zap className="w-3 h-3" />
+                                  عاجل
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          {/* Content */}
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-2">
+                              <h3 className={`text-[17px] font-bold leading-[1.4] ${
+                                article.is_breaking 
+                                  ? 'text-red-700 dark:text-red-400' 
+                                  : 'text-gray-900 dark:text-white'
+                              } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-3`}>
+                                {article.title}
+                              </h3>
+                              {article.is_featured && (
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white flex-shrink-0 ml-3">
+                                  <Sparkles className="w-3 h-3" />
+                                  مميز
+                                </span>
+                              )}
+                            </div>
+                            {article.excerpt && (
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">
+                                {article.excerpt}
+                              </p>
+                            )}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                                {/* التصنيف */}
+                                {article.category_name && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
+                                    style={{ backgroundColor: getCategoryColor(article.category_id) }}>
+                                    <Tag className="w-3 h-3" />
+                                    {article.category_name}
+                                  </span>
+                                )}
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-4 h-4" />
+                                  {formatDate(article.published_at || article.created_at)}
+                                </span>
+                                {article.reading_time && (
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-4 h-4" />
+                                    {article.reading_time} دقيقة
+                                  </span>
+                                )}
+                                {article.author_name && (
+                                  <span className="flex items-center gap-1">
+                                    <User className="w-4 h-4" />
+                                    {article.author_name}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                                  <Eye className="w-4 h-4" />
+                                  {(article.views_count || 0) > 0 ? (article.views_count || 0).toLocaleString('ar-SA') : 'جديد'}
+                                </span>
+                                {article.likes_count && article.likes_count > 0 && (
+                                  <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                                    <Heart className="w-4 h-4" />
+                                    {article.likes_count.toLocaleString('ar-SA')}
+                                  </span>
+                                )}
+                                <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+                                  <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
               {/* Load More */}
               {hasMore && (
                 <div className="text-center mt-16">
