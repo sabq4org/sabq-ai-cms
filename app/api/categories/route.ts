@@ -102,6 +102,51 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     
+    // التحقق من طلب تصنيف واحد بواسطة ID
+    const categoryId = searchParams.get('id');
+    if (categoryId) {
+      const category = await prisma.categories.findUnique({
+        where: { id: categoryId },
+        include: {
+          _count: {
+            select: { articles: true }
+          }
+        }
+      });
+      
+      if (!category) {
+        return corsResponse({
+          success: false,
+          error: 'التصنيف غير موجود'
+        }, 404);
+      }
+      
+      // تحويل البيانات مع دمج metadata
+      const metadata = category.metadata || {};
+      const categoryWithMeta = {
+        ...category,
+        cover_image: (metadata as any).cover_image || '',
+        name_ar: category.name,
+        name_en: (metadata as any).name_en || category.name_en || '',
+        description: (metadata as any).ar || category.description || '',
+        description_en: (metadata as any).en || '',
+        color: category.color || (metadata as any).color_hex || '#6B7280',
+        icon: category.icon || (metadata as any).icon || '📁',
+        meta_title: (metadata as any).meta_title || '',
+        meta_description: (metadata as any).meta_description || '',
+        og_image_url: (metadata as any).og_image_url || '',
+        canonical_url: (metadata as any).canonical_url || '',
+        noindex: (metadata as any).noindex || false,
+        og_type: (metadata as any).og_type || 'website',
+        articles_count: category._count.articles || 0
+      };
+      
+      return corsResponse({
+        success: true,
+        data: [categoryWithMeta] // إرجاع كمصفوفة للتوافق
+      });
+    }
+    
     // بناء شروط البحث
     const where: any = {};
     
