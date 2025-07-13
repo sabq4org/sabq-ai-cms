@@ -185,7 +185,13 @@ export default function OpinionAuthorsPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
                       {author.avatar ? (
-                        <Image src="/placeholder.jpg" alt="" width={100} height={100} />
+                        <Image 
+                          src={author.avatar} 
+                          alt={author.name} 
+                          width={64} 
+                          height={64}
+                          className="rounded-full object-cover"
+                        />
                       ) : (
                         <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
                           darkMode ? 'bg-gray-700' : 'bg-gray-200'

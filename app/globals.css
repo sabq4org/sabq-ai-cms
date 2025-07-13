@@ -3185,3 +3185,63 @@ main {
   }
 }
 
+/* منع تكرار صور البروفايل وإصلاح العرض */
+/* Author Profile Image Fix */
+.author-avatar-duplicate,
+.profile-bg-duplicate,
+img[alt=""][src="/placeholder.jpg"],
+img[alt="خلفية الكاتب"]:not([data-valid="true"]) {
+  display: none !important;
+}
+
+/* ضمان حجم صحيح لصور البروفايل */
+.author-profile-image,
+.opinion-author-avatar {
+  max-width: 120px !important;
+  max-height: 120px !important;
+  object-fit: cover !important;
+}
+
+/* إصلاح صور الكروت في قادة الرأي */
+.opinion-authors-grid img {
+  max-width: 64px !important;
+  max-height: 64px !important;
+}
+
+/* منع overflow للصور الكبيرة */
+section.relative.h-96 > div.absolute.inset-0 > img {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* تحسين عرض صور البروفايل في الهيدر */
+.author-header-avatar {
+  position: relative !important;
+  z-index: 10 !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+}
+
+/* إصلاح مشكلة الصور المكررة في الموبايل */
+@media (max-width: 768px) {
+  .author-profile-image,
+  .opinion-author-avatar {
+    max-width: 80px !important;
+    max-height: 80px !important;
+  }
+  
+  /* منع عرض أي صور خلفية غير مرغوبة */
+  .mobile-author-view img[src="/placeholder.jpg"] {
+    display: none !important;
+  }
+}
+
+/* تحسين الأداء بإخفاء العناصر غير المستخدمة */
+img:not([src]),
+img[src=""],
+img[src="undefined"],
+img[src="null"] {
+  display: none !important;
+}
+
