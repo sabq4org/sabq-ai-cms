@@ -61,6 +61,7 @@ export default function CategoryFormModal({
   const [activeTab, setActiveTab] = useState<'basic' | 'image' | 'seo' | 'advanced'>('basic');
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [isDirty, setIsDirty] = useState(false); // تتبع التغييرات
+  const [originalData, setOriginalData] = useState<CategoryFormData | null>(null); // البيانات الأصلية
 
   // ألوان التصنيفات المتاحة
   const categoryColors = [
@@ -92,7 +93,7 @@ export default function CategoryFormModal({
       console.log('Loading category data for edit:', category);
       console.log('Category cover_image:', category.cover_image);
       
-      setFormData({
+      const categoryData = {
         name_ar: category.name_ar || '',
         name_en: category.name_en || '',
         description: category.description || '',
@@ -109,13 +110,16 @@ export default function CategoryFormModal({
         noindex: category.noindex ?? false,
         og_type: category.og_type || 'website',
         cover_image: category.cover_image || ''
-      });
+      };
+      
+      setFormData(categoryData);
+      setOriginalData(categoryData); // حفظ البيانات الأصلية
       setImagePreview(category.cover_image || null);
       console.log('Image preview set to:', category.cover_image || null);
       setIsDirty(false); // إعادة تعيين حالة التغيير عند التحرير
     } else {
       // إعادة تعيين النموذج للإضافة
-      setFormData({
+      const emptyData = {
         name_ar: '',
         name_en: '',
         description: '',
@@ -132,11 +136,28 @@ export default function CategoryFormModal({
         noindex: false,
         og_type: 'website',
         cover_image: ''
-      });
+      };
+      
+      setFormData(emptyData);
+      setOriginalData(null); // لا توجد بيانات أصلية للإضافة
       setImagePreview(null);
     }
     setErrors({});
   }, [isEdit, category, isOpen]);
+
+  // مراقبة التغييرات في formData ومقارنتها بالبيانات الأصلية
+  useEffect(() => {
+    if (originalData && isEdit) {
+      const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData);
+      console.log('🔄 Checking for changes:', {
+        hasChanges,
+        formData: formData.icon,
+        originalData: originalData.icon,
+        isDirty: hasChanges
+      });
+      setIsDirty(hasChanges);
+    }
+  }, [formData, originalData, isEdit]);
 
   // دالة رفع الصورة
   const handleImageUpload = async (file: File) => {
@@ -186,7 +207,7 @@ export default function CategoryFormModal({
           console.log('💾 Updated formData with cover_image:', updated);
           return updated;
         });
-        setIsDirty(true); // تشغيل حالة التغيير عند رفع صورة
+        // setIsDirty سيتم تحديثه تلقائياً بواسطة useEffect
         
         toast.success(
           <div className="flex items-center gap-2">
@@ -245,15 +266,16 @@ export default function CategoryFormModal({
 
   // دالة عامة لمعالجة تغييرات النموذج
   const handleFieldChange = (field: string, value: any) => {
+    console.log('📝 Field changed:', { field, value, currentFormData: formData });
     setFormData(prev => ({ ...prev, [field]: value }));
-    setIsDirty(true); // تشغيل حالة التغيير
+    // setIsDirty سيتم تحديثه تلقائياً بواسطة useEffect
   };
 
   // دالة حذف الصورة
   const handleRemoveImage = () => {
     setFormData(prev => ({ ...prev, cover_image: '' }));
     setImagePreview(null);
-    setIsDirty(true); // تشغيل حالة التغيير عند حذف الصورة
+    // setIsDirty سيتم تحديثه تلقائياً بواسطة useEffect
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -288,7 +310,7 @@ export default function CategoryFormModal({
       meta_title: prev.meta_title === '' ? `${value} - صحيفة سبق` : prev.meta_title
     }));
     
-    setIsDirty(true); // تشغيل حالة التغيير
+    // setIsDirty سيتم تحديثه تلقائياً بواسطة useEffect
     
     if (errors.name_ar) {
       setErrors(prev => ({ ...prev, name_ar: '' }));
@@ -362,6 +384,7 @@ export default function CategoryFormModal({
       console.log('🖼️ Cover image value:', formData.cover_image);
       await onSave(formData);
       setIsDirty(false); // إعادة تعيين حالة التغيير بعد الحفظ الناجح
+      setOriginalData(formData); // تحديث البيانات الأصلية بالبيانات الجديدة
     } catch (error) {
       console.error('خطأ في حفظ التصنيف:', error);
     }
