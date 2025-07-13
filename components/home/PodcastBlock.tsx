@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Radio, Play, Pause, Download, Volume2, Headphones, Sparkles, Clock, Mic } from 'lucide-react';
+import { Radio, Play, Pause, Download, Volume2, Headphones, Sparkles, Clock, Mic, RefreshCw, Share2, Calendar, TrendingUp, Zap } from 'lucide-react';
 
 interface PodcastData {
   link: string;
@@ -17,6 +17,7 @@ export default function PodcastBlock() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -52,6 +53,33 @@ export default function PodcastBlock() {
       setError(true);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generateNewPodcast = async () => {
+    setGenerating(true);
+    try {
+      const res = await fetch('/api/generate-podcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ count: 5 })
+      });
+      
+      if (!res.ok) throw new Error('Failed to generate');
+      
+      const data = await res.json();
+      if (data.success) {
+        setPodcast({
+          link: data.link,
+          timestamp: new Date().toISOString(),
+          duration: data.duration || 3
+        });
+      }
+    } catch (err) {
+      console.error('Error generating podcast:', err);
+      alert('حدث خطأ في توليد النشرة. تأكد من إعدادات API.');
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -115,6 +143,19 @@ export default function PodcastBlock() {
     }
   };
 
+  const shareLink = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'النشرة الصوتية - صحيفة سبق',
+        text: 'استمع لآخر الأخبار في نشرة صوتية مميزة',
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('تم نسخ الرابط!');
+    }
+  };
+
   if (loading) {
     return (
       <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-800 to-pink-700 rounded-3xl p-8 mb-8 animate-pulse">
@@ -124,10 +165,10 @@ export default function PodcastBlock() {
     );
   }
 
-  // عرض رسالة جميلة عندما لا توجد نشرة بدلاً من إخفاء البلوك
+  // عرض حالة أفضل عندما لا توجد نشرة
   if (!podcast || error) {
     return (
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-800 to-pink-700 rounded-3xl p-8 mb-8 shadow-2xl">
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-800 to-pink-700 rounded-3xl p-6 mb-8 shadow-2xl">
         {/* خلفية متحركة */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-4 -right-4 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
@@ -138,26 +179,97 @@ export default function PodcastBlock() {
         {/* طبقة شفافة */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
 
-        <div className="relative z-10 text-center py-8">
-          <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-white/20 rounded-2xl blur-xl animate-pulse"></div>
-              <div className="relative bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20">
-                <Radio className="w-10 h-10 text-white" />
+        <div className="relative z-10">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            {/* القسم الأيسر - المحتوى */}
+            <div className="flex-1 text-center md:text-right">
+              {/* العنوان الرئيسي */}
+              <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+                <div className="bg-white/20 backdrop-blur-md p-3 rounded-xl">
+                  <Headphones className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-1">
+                    استمع الآن لنشرة سبق الصوتية 📢
+                  </h3>
+                  <p className="text-white/80 text-sm flex items-center gap-2">
+                    <Zap className="w-4 h-4" />
+                    نلخص لك أهم 5 أخبار في أقل من دقيقتين
+                  </p>
+                </div>
+              </div>
+
+              {/* المميزات */}
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+                  <TrendingUp className="w-5 h-5 text-green-400 mx-auto mb-1" />
+                  <p className="text-white/90 text-xs font-medium">أخبار محدثة</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+                  <Mic className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                  <p className="text-white/90 text-xs font-medium">صوت واضح</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+                  <Clock className="w-5 h-5 text-purple-400 mx-auto mb-1" />
+                  <p className="text-white/90 text-xs font-medium">دقيقتان فقط</p>
+                </div>
+              </div>
+
+              {/* الأزرار */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={generateNewPodcast}
+                  disabled={generating}
+                  className="flex-1 bg-white text-purple-700 px-6 py-3 rounded-xl font-bold hover:bg-white/90 transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                >
+                  {generating ? (
+                    <>
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                      جاري التوليد...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-5 h-5" />
+                      توليد نشرة جديدة الآن
+                    </>
+                  )}
+                </button>
+                
+                <button
+                  onClick={shareLink}
+                  className="bg-white/20 backdrop-blur-md px-4 py-3 rounded-xl hover:bg-white/30 transition-all text-white font-medium flex items-center justify-center gap-2"
+                >
+                  <Share2 className="w-5 h-5" />
+                  مشاركة
+                </button>
+              </div>
+            </div>
+
+            {/* القسم الأيمن - معاينة */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+              <div className="text-center mb-4">
+                <div className="bg-gradient-to-br from-pink-500 to-purple-500 p-6 rounded-full inline-block mb-3 shadow-2xl">
+                  <Radio className="w-12 h-12 text-white" />
+                </div>
+                <p className="text-white/90 font-medium">نموذج من النشرة</p>
+              </div>
+              
+              <div className="space-y-2 text-white/70 text-sm">
+                <p>🎯 أهم الأخبار المحلية</p>
+                <p>💼 تطورات اقتصادية</p>
+                <p>🏆 إنجازات رياضية</p>
+                <p>🌍 أخبار عالمية مؤثرة</p>
+                <p>📱 جديد التقنية</p>
+              </div>
+              
+              <div className="mt-4 pt-4 border-t border-white/20">
+                <p className="text-white/60 text-xs text-center">
+                  <Calendar className="w-3 h-3 inline ml-1" />
+                  يتم التحديث كل 6 ساعات
+                </p>
               </div>
             </div>
           </div>
-          
-          <h3 className="text-2xl font-bold text-white mb-4">النشرة الصوتية قادمة قريباً</h3>
-          <p className="text-white/80 mb-6">نعمل على إعداد نشرة صوتية مميزة لك</p>
-          
-          <a
-            href="/dashboard/podcast"
-            className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-xl hover:bg-white/30 transition-all border border-white/20 text-white font-medium"
-          >
-            <Sparkles className="w-5 h-5" />
-            توليد نشرة جديدة
-          </a>
         </div>
 
         <style jsx>{`
@@ -189,6 +301,7 @@ export default function PodcastBlock() {
     );
   }
 
+  // عرض النشرة الموجودة
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-800 to-pink-700 rounded-3xl p-8 mb-8 shadow-2xl transform hover:scale-[1.01] transition-all duration-300">
       {/* خلفية متحركة */}
@@ -261,15 +374,24 @@ export default function PodcastBlock() {
             </div>
           </div>
 
-          {/* زر التحميل */}
-          <a
-            href={podcast.link}
-            download
-            className="bg-white/10 backdrop-blur-md p-3 rounded-xl hover:bg-white/20 transition-all border border-white/20 group"
-            aria-label="تحميل النشرة"
-          >
-            <Download className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-          </a>
+          {/* أزرار التحكم */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={shareLink}
+              className="bg-white/10 backdrop-blur-md p-3 rounded-xl hover:bg-white/20 transition-all border border-white/20"
+              aria-label="مشاركة"
+            >
+              <Share2 className="w-5 h-5 text-white" />
+            </button>
+            <a
+              href={podcast.link}
+              download
+              className="bg-white/10 backdrop-blur-md p-3 rounded-xl hover:bg-white/20 transition-all border border-white/20 group"
+              aria-label="تحميل النشرة"
+            >
+              <Download className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+            </a>
+          </div>
         </div>
 
         {/* مشغل الصوت */}
