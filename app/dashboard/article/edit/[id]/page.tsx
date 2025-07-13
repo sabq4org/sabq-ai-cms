@@ -72,6 +72,10 @@ export default function EditArticlePage() {
   
   const [articleLoading, setArticleLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  // حالة لتتبع التغييرات في النموذج
+  const [originalFormData, setOriginalFormData] = useState<any>(null);
+  const [isDirty, setIsDirty] = useState(false);
   
   // إضافة حالة تتبع رفع الصور
   const [imageUploadStatus, setImageUploadStatus] = useState<{
@@ -114,7 +118,7 @@ export default function EditArticlePage() {
         }
         const articleData = await res.json();
         // تحويل البيانات إلى تنسيق النموذج
-        setFormData({
+        const currentFormData = {
           title: articleData.title || '',
           subtitle: articleData.subtitle || '',
           excerpt: articleData.summary || '',
@@ -141,7 +145,11 @@ export default function EditArticlePage() {
           seoTitle: articleData.seo_title || '',
           seoDescription: articleData.seo_description || '',
           status: articleData.status || 'draft'
-        });
+        };
+        setFormData(currentFormData);
+        // حفظ البيانات الأصلية للمقارنة
+        setOriginalFormData(currentFormData);
+
         // تحميل المحتوى في المحرر
         if (editorRef.current && articleData.content) {
           editorRef.current.setContent(articleData.content);
@@ -157,6 +165,15 @@ export default function EditArticlePage() {
       fetchArticle();
     }
   }, [articleId]);
+
+  // useEffect للتحقق من التغييرات
+  useEffect(() => {
+    if (originalFormData) {
+      const hasChanged = JSON.stringify(formData) !== JSON.stringify(originalFormData);
+      setIsDirty(hasChanged);
+    }
+  }, [formData, originalFormData]);
+
   // تحميل البيانات الأساسية
   useEffect(() => {
     fetchCategories();
@@ -505,6 +522,16 @@ export default function EditArticlePage() {
           : 'تم نشر المقال بنجاح';
         toast.success(successMessage, { id: 'save' });
         console.log('✅ تم حفظ المقال:', result);
+
+        // تحديث البيانات الأصلية وإعادة حالة التتبع
+        const newOriginalData = {
+          ...formData,
+          content: editorRef.current ? editorRef.current.getHTML() : formData.content,
+          status: status
+        };
+        setOriginalFormData(newOriginalData);
+        setIsDirty(false);
+        
         // تأخير قصير قبل الانتقال
         setTimeout(() => {
           router.push('/dashboard/news');
@@ -634,7 +661,7 @@ export default function EditArticlePage() {
               <Button
                 variant="outline"
                 onClick={() => handleSubmit('draft')}
-                disabled={saving}
+                disabled={!isDirty || saving}
                 className={darkMode ? 'border-gray-600' : ''}
               >
                 {saving ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
@@ -643,14 +670,14 @@ export default function EditArticlePage() {
               <Button
                 variant="secondary"
                 onClick={() => handleSubmit('pending_review')}
-                disabled={saving}
+                disabled={!isDirty || saving}
               >
                 <Send className="w-4 h-4 ml-2" />
                 إرسال للمراجعة
               </Button>
               <Button
                 onClick={() => handleSubmit('published')}
-                disabled={saving || formData.publishType === 'scheduled'}
+                disabled={!isDirty || saving || formData.publishType === 'scheduled'}
                 className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
               >
                 <Eye className="w-4 h-4 ml-2" />

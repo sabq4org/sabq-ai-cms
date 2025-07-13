@@ -409,31 +409,27 @@ export default function CategoriesPage() {
                         </span>
                       )}
                     </div>
-                    {(() => {
-                      let desc = category.description;
-                      // دالة تحليل آمنة
-                      const safeParse = (input: unknown) => {
-                        if (typeof input !== 'string') return input;
-                        const str = input.trim();
-                        if (!str.startsWith('{') || !str.endsWith('}')) return input;
-                        try {
-                          return JSON.parse(str);
-                        } catch {
-                          return input;
-                        }
-                      };
-
-                      const parsedDesc = safeParse(desc);
-                      if (typeof parsedDesc === 'object' && parsedDesc) {
-                        // @ts-ignore
-                        desc = parsedDesc.ar || parsedDesc.description || desc;
-                      }
-                      return desc ? (
-                      <p className={`text-sm transition-colors duration-300 ${
-                        darkMode ? 'text-gray-400' : 'text-gray-600'
-                      }`}>{desc}</p>
-                      ) : null;
-                    })()}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                        {(() => {
+                          if (!category.description) return 'لا يوجد وصف';
+                          const safeParse = (input: unknown) => {
+                            if (typeof input !== 'string' || input.trim() === '') return null;
+                            try {
+                              return JSON.parse(input);
+                            } catch (e) {
+                              return null;
+                            }
+                          };
+                          const parsed = safeParse(category.description);
+                          if (parsed && typeof parsed === 'object' && parsed.blocks) {
+                            const textBlock = parsed.blocks.find((block: any) => block.type === 'paragraph');
+                            return textBlock ? textBlock.data.text.substring(0, 100) + '...' : 'وصف غير نصي';
+                          }
+                          return String(category.description).substring(0, 100) + '...';
+                        })()}
+                      </p>
+                    </div>
                     <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
                       <span>/{category.slug}</span>
                       <span>{category.articles_count || category.article_count || 0} مقال</span>

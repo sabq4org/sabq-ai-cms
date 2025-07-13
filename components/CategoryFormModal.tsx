@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { X, Save, Upload, Loader2, Camera, Trash2, ImageIcon, CheckCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -23,6 +23,18 @@ interface CategoryFormModalProps {
   loading: boolean;
 }
 
+const categoryColors = [
+    { name: 'أزرق سماوي', value: '#E0F2FE', textColor: '#0C4A6E' },
+    { name: 'أخضر باهت', value: '#D1FAE5', textColor: '#065F46' },
+    { name: 'أصفر رملي', value: '#FEF3C7', textColor: '#92400E' },
+    { name: 'برتقالي فانيليا', value: '#FFEADD', textColor: '#C2410C' },
+    { name: 'رمادي فاتح', value: '#F3F4F6', textColor: '#374151' },
+    { name: 'وردي خفيف', value: '#FCE7F3', textColor: '#9D174D' },
+    { name: 'بنفسجي لافندر', value: '#EDE9FE', textColor: '#5B21B6' },
+    { name: 'أحمر فاتح', value: '#FEE2E2', textColor: '#991B1B' }
+];
+const categoryIcons = ['📰', '🏛️', '💼', '⚽', '🎭', '💡', '🌍', '📱', '📈', '⚖️', '💻', ' науки'];
+
 export default function CategoryFormModal({
   isOpen,
   isEdit = false,
@@ -42,14 +54,22 @@ export default function CategoryFormModal({
     setValue,
     watch,
     formState: { errors, isDirty }
-  } = useForm<CategoryFormData>({
-    defaultValues: {
+  } = useForm<CategoryFormData>();
+
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const watchCoverImage = watch('cover_image');
+  const watchColorHex = watch('color_hex');
+
+  useEffect(() => {
+    const defaultValues: Partial<CategoryFormData> = {
       name_ar: '',
       name_en: '',
       description: '',
       slug: '',
-      color_hex: '#E0F2FE',
-      icon: '📰',
+      color_hex: categoryColors[0].value,
+      icon: categoryIcons[0],
       parent_id: undefined,
       position: 0,
       is_active: true,
@@ -60,48 +80,13 @@ export default function CategoryFormModal({
       noindex: false,
       og_type: 'website',
       cover_image: ''
-    }
-  });
+    };
 
-  const [uploadingImage, setUploadingImage] = React.useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const watchCoverImage = watch('cover_image');
-  const watchColorHex = watch('color_hex');
-
-  // ألوان وتصنيفات ثابتة
-  const categoryColors = [
-    { name: 'أزرق سماوي', value: '#E0F2FE', textColor: '#0C4A6E' },
-    { name: 'أخضر باهت', value: '#ECFDF5', textColor: '#064E3B' },
-    { name: 'أصفر رملي', value: '#FEF9C3', textColor: '#92400E' },
-    { name: 'برتقالي فانيليا', value: '#FFF7ED', textColor: '#9A3412' },
-    { name: 'رمادي فاتح', value: '#F3F4F6', textColor: '#374151' },
-    { name: 'وردي خفيف', value: '#FDF2F8', textColor: '#831843' }
-  ];
-  const categoryIcons = ['📰', '🏛️', '💼', '⚽', '🎭', '💡', '🌍', '📱'];
-
-  useEffect(() => {
     if (isOpen) {
       if (isEdit && category) {
-        const categoryData = {
-          name_ar: category.name_ar || '',
-          name_en: category.name_en || '',
-          description: category.description || '',
-          slug: category.slug || '',
-          color_hex: category.color_hex || '#E5F1FA',
-          icon: category.icon || '📰',
-          parent_id: category.parent_id?.toString(),
-          position: category.position || 0,
-          is_active: category.is_active ?? true,
-          cover_image: category.cover_image || ''
-        };
-        reset(categoryData);
+        reset({ ...defaultValues, ...category, parent_id: category.parent_id?.toString() });
       } else {
-        reset({
-          name_ar: '', name_en: '', description: '', slug: '',
-          color_hex: '#E0F2FE', icon: '📰', parent_id: undefined,
-          position: 0, is_active: true, cover_image: ''
-        });
+        reset(defaultValues);
       }
     }
   }, [isOpen, isEdit, category, reset]);
@@ -112,64 +97,86 @@ export default function CategoryFormModal({
       toast.error('❌ يرجى اختيار ملف صورة صحيح');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
       toast.error('❌ حجم الصورة يجب أن يكون أقل من 5MB');
       return;
     }
 
     setUploadingImage(true);
-    const uploadFormData = new FormData();
-    uploadFormData.append('file', file);
-    uploadFormData.append('upload_preset', 'simple_upload');
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb';
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-
+    const uploadToast = toast.loading('جاري رفع الصورة...');
+    const formData = new FormData();
+    formData.append('file', file);
+    
     try {
-      const response = await fetch(uploadUrl, { method: 'POST', body: uploadFormData });
-      if (response.ok) {
-        const data = await response.json();
-        setValue('cover_image', data.secure_url, { shouldDirty: true });
-        toast.success('✅ تم رفع الصورة بنجاح!');
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `فشل الرفع: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      if (result.success && result.url) {
+        setValue('cover_image', result.url, { shouldDirty: true });
+        toast.success('✅ تم رفع الصورة بنجاح!', { id: uploadToast });
       } else {
-        throw new Error('فشل رفع الصورة');
+        throw new Error(result.error || 'فشل رفع الصورة من الخادم');
       }
     } catch (error) {
-      toast.error('❌ حدث خطأ أثناء رفع الصورة');
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
+      toast.error(`❌ ${errorMessage}`, { id: uploadToast });
+      console.error("Upload error:", error);
     } finally {
       setUploadingImage(false);
     }
   };
   
-  const onSubmit = (data: CategoryFormData) => {
-    onSave(data).then(() => {
-      reset(); // إعادة تعيين النموذج بعد الحفظ
-    });
+  const onSubmit = async (data: CategoryFormData) => {
+    try {
+      await onSave(data);
+      reset();
+    } catch (error) {
+      // The parent component should handle the error toast
+      console.error("Save failed:", error);
+    }
   };
 
   if (!isOpen) return null;
 
+  const handleColorSelect = (colorValue: string) => {
+    setValue('color_hex', colorValue, { shouldDirty: true });
+  };
+
+  const handleIconSelect = (iconValue: string) => {
+    setValue('icon', iconValue, { shouldDirty: true });
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className={`relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl shadow-xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-        <div className={`sticky top-0 z-10 flex items-center justify-between p-6 border-b ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" dir="rtl">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className={`relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
+        <div className={`sticky top-0 z-10 flex items-center justify-between p-5 border-b ${darkMode ? 'bg-gray-800/80 backdrop-blur-md border-gray-700' : 'bg-white/80 backdrop-blur-md border-gray-200'}`}>
           <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             {isEdit ? 'تعديل التصنيف' : 'إضافة تصنيف جديد'}
           </h2>
-          <button onClick={onClose} className={`p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'}`}>
+          <button onClick={onClose} className={`p-2 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'}`}>
             <X className="w-5 h-5" />
           </button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+          
           {/* Basic Info */}
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name_ar" className={darkMode ? 'text-gray-200' : ''}>الاسم بالعربية <span className="text-red-500">*</span></Label>
+              <Label htmlFor="name_ar" className={`mb-1 block ${darkMode ? 'text-gray-200' : ''}`}>الاسم بالعربية <span className="text-red-500">*</span></Label>
               <Input id="name_ar" {...register('name_ar', { required: 'الاسم بالعربية مطلوب' })} className={darkMode ? 'bg-gray-700' : ''} />
               {errors.name_ar && <p className="text-red-500 text-sm mt-1">{errors.name_ar.message}</p>}
             </div>
             <div>
-              <Label htmlFor="slug" className={darkMode ? 'text-gray-200' : ''}>الرابط <span className="text-red-500">*</span></Label>
+              <Label htmlFor="slug" className={`mb-1 block ${darkMode ? 'text-gray-200' : ''}`}>الرابط (Slug) <span className="text-red-500">*</span></Label>
               <Input id="slug" {...register('slug', { required: 'الرابط مطلوب' })} className={darkMode ? 'bg-gray-700' : ''} />
               {errors.slug && <p className="text-red-500 text-sm mt-1">{errors.slug.message}</p>}
             </div>
@@ -178,29 +185,25 @@ export default function CategoryFormModal({
           {/* Color & Icon */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <Label className={darkMode ? 'text-gray-200' : ''}>لون التصنيف</Label>
-              <div className="flex items-center gap-2 mt-2">
-                <div className="w-8 h-8 rounded-full border-2" style={{ backgroundColor: watchColorHex }}></div>
-                <Input {...register('color_hex')} placeholder="#E0F2FE" className={`flex-1 ${darkMode ? 'bg-gray-700' : ''}`} />
-              </div>
-              <div className="grid grid-cols-6 gap-2 mt-2">
+              <Label className={`mb-2 block ${darkMode ? 'text-gray-200' : ''}`}>لون التصنيف</Label>
+              <div className="flex flex-wrap gap-2">
                 {categoryColors.map(color => (
-                  <button key={color.value} type="button" onClick={() => setValue('color_hex', color.value, { shouldDirty: true })}
-                    className={`w-10 h-10 rounded-lg border-2 transition-all ${watchColorHex === color.value ? 'border-blue-500 scale-110' : 'border-transparent'}`}
+                  <button key={color.value} type="button" onClick={() => handleColorSelect(color.value)}
+                    className={`w-9 h-9 rounded-full border-2 transition-all duration-150 ${watchColorHex === color.value ? 'border-blue-500 ring-2 ring-blue-500 scale-110' : 'border-gray-300 dark:border-gray-600'}`}
                     style={{ backgroundColor: color.value }} title={color.name} />
                 ))}
               </div>
             </div>
             <div>
-              <Label className={darkMode ? 'text-gray-200' : ''}>أيقونة التصنيف</Label>
-              <Controller
+              <Label className={`mb-2 block ${darkMode ? 'text-gray-200' : ''}`}>أيقونة التصنيف</Label>
+               <Controller
                 name="icon"
                 control={control}
                 render={({ field }) => (
-                  <div className="grid grid-cols-8 gap-2 mt-2">
+                  <div className="flex flex-wrap gap-2">
                     {categoryIcons.map(icon => (
-                      <button key={icon} type="button" onClick={() => setValue('icon', icon, { shouldDirty: true })}
-                        className={`w-10 h-10 rounded-lg border-2 text-lg ${field.value === icon ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                      <button key={icon} type="button" onClick={() => handleIconSelect(icon)}
+                        className={`w-10 h-10 rounded-lg border-2 text-xl flex items-center justify-center transition-all duration-150 ${field.value === icon ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/50' : 'border-gray-200 dark:border-gray-700'}`}>
                         {icon}
                       </button>
                     ))}
@@ -212,20 +215,22 @@ export default function CategoryFormModal({
 
           {/* Cover Image */}
           <div>
-            <Label className={darkMode ? 'text-gray-200' : ''}>صورة الغلاف</Label>
-            <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <Label className={`mb-2 block ${darkMode ? 'text-gray-200' : ''}`}>صورة الغلاف</Label>
+            <div className="mt-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center">
               {watchCoverImage ? (
-                <div className="space-y-2">
-                  <Image src={watchCoverImage} alt="معاينة" width={200} height={120} className="rounded-lg object-cover mx-auto" />
-                  <button type="button" onClick={() => setValue('cover_image', '', { shouldDirty: true })} className="text-red-500 text-sm flex items-center gap-1 mx-auto">
-                    <Trash2 className="w-4 h-4" /> إزالة الصورة
-                  </button>
+                <div className="relative group w-full h-48">
+                  <Image src={watchCoverImage} alt="معاينة" layout="fill" className="rounded-md object-cover" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
+                    <button type="button" onClick={() => setValue('cover_image', '', { shouldDirty: true })} className="text-white text-sm flex items-center gap-2 bg-red-600/80 px-4 py-2 rounded-lg">
+                      <Trash2 className="w-4 h-4" /> إزالة الصورة
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <ImageIcon className={`w-10 h-10 mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                  <p className="text-sm">اسحب الصورة أو اضغط للاختيار</p>
-                  <Button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage}>
+                <div className="space-y-3 py-6">
+                  <ImageIcon className={`w-12 h-12 mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                  <p className="text-sm text-gray-500">اسحب الصورة إلى هنا أو اضغط للاختيار</p>
+                  <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage}>
                     {uploadingImage ? <><Loader2 className="w-4 h-4 animate-spin ml-2" /> جاري الرفع...</> : <><Upload className="w-4 h-4 ml-2" /> اختيار صورة</>}
                   </Button>
                 </div>
@@ -235,10 +240,10 @@ export default function CategoryFormModal({
           </div>
           
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t">
-            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>إلغاء</Button>
-            <Button type="submit" disabled={loading || !isDirty}>
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin ml-2" /> جاري الحفظ...</> : <><Save className="w-4 h-4 ml-2" /> {isEdit ? 'حفظ التعديلات' : 'إضافة'}</>}
+          <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={loading}>إلغاء</Button>
+            <Button type="submit" disabled={loading || !isDirty} className="min-w-[120px]">
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-4 h-4 ml-2" /> {isEdit ? 'حفظ التعديلات' : 'إضافة التصنيف'}</>}
             </Button>
           </div>
         </form>
