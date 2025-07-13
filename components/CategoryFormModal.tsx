@@ -63,20 +63,20 @@ export default function CategoryFormModal({
   const [isDirty, setIsDirty] = useState(false); // تتبع التغييرات
   const [originalData, setOriginalData] = useState<CategoryFormData | null>(null); // البيانات الأصلية
 
-  // ألوان التصنيفات المتاحة
+  // ألوان التصنيفات المتاحة - مجموعة هادئة ومريحة للعين
   const categoryColors = [
-    { name: 'أزرق سماوي', value: '#E5F1FA', textColor: '#1E40AF' },
-    { name: 'أخضر ناعم', value: '#E3FCEF', textColor: '#065F46' },
-    { name: 'برتقالي دافئ', value: '#FFF5E5', textColor: '#C2410C' },
-    { name: 'وردي خفيف', value: '#FDE7F3', textColor: '#BE185D' },
-    { name: 'بنفسجي فاتح', value: '#F2F6FF', textColor: '#6366F1' },
-    { name: 'أصفر ذهبي', value: '#FEF3C7', textColor: '#D97706' },
-    { name: 'أخضر زمردي', value: '#F0FDF4', textColor: '#047857' },
-    { name: 'أزرق غامق', value: '#EFF6FF', textColor: '#1D4ED8' },
-    { name: 'بنفسجي وردي', value: '#FAF5FF', textColor: '#7C3AED' },
-    { name: 'برتقالي فاتح', value: '#FFF7ED', textColor: '#EA580C' },
-    { name: 'رمادي هادئ', value: '#F9FAFB', textColor: '#374151' },
-    { name: 'تركوازي ناعم', value: '#F0FDFA', textColor: '#0F766E' }
+    { name: 'أزرق سماوي', value: '#E0F2FE', textColor: '#0C4A6E' },
+    { name: 'أخضر باهت', value: '#ECFDF5', textColor: '#064E3B' },
+    { name: 'أصفر رملي', value: '#FEF9C3', textColor: '#92400E' },
+    { name: 'برتقالي فانيليا', value: '#FFF7ED', textColor: '#9A3412' },
+    { name: 'رمادي فاتح', value: '#F3F4F6', textColor: '#374151' },
+    { name: 'وردي خفيف', value: '#FDF2F8', textColor: '#831843' },
+    { name: 'بنفسجي فاتح', value: '#FAF5FF', textColor: '#581C87' },
+    { name: 'تركوازي ناعم', value: '#F0FDFA', textColor: '#134E4A' },
+    { name: 'أزرق فاتح', value: '#EFF6FF', textColor: '#1E40AF' },
+    { name: 'أخضر زمردي', value: '#F0FDF4', textColor: '#14532D' },
+    { name: 'أصفر ذهبي', value: '#FFFBEB', textColor: '#92400E' },
+    { name: 'رمادي دافئ', value: '#F9FAFB', textColor: '#374151' }
   ];
 
   // الأيقونات المتاحة
@@ -548,21 +548,72 @@ export default function CategoryFormModal({
                 {/* اللون */}
                 <div>
                   <Label className={darkMode ? 'text-gray-200' : ''}>لون التصنيف</Label>
-                  <div className="grid grid-cols-6 gap-2 mt-2">
-                    {categoryColors.map((color) => (
-                      <button
-                        key={color.value}
-                        type="button"
-                        onClick={() => handleFieldChange('color_hex', color.value)}
-                        className={`w-10 h-10 rounded-lg border-2 transition-all ${
-                          formData.color_hex === color.value
-                            ? 'border-blue-500 scale-110'
-                            : 'border-gray-200 hover:scale-105'
-                        }`}
-                        style={{ backgroundColor: color.value }}
-                        title={color.name}
+                  
+                  {/* معاينة اللون الحالي */}
+                  <div className="flex items-center gap-3 mb-3 p-3 rounded-lg border" style={{ backgroundColor: formData.color_hex }}>
+                    <div className="w-8 h-8 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: formData.color_hex }}></div>
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: categoryColors.find(c => c.value === formData.color_hex)?.textColor || '#000' }}>
+                        اللون الحالي: {categoryColors.find(c => c.value === formData.color_hex)?.name || 'مخصص'}
+                      </p>
+                      <p className="text-xs opacity-75" style={{ color: categoryColors.find(c => c.value === formData.color_hex)?.textColor || '#000' }}>
+                        {formData.color_hex}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* حقل إدخال اللون يدوياً */}
+                  <div className="mb-3">
+                    <Label htmlFor="color_hex" className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      كود اللون (HEX)
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="color_hex"
+                        type="text"
+                        value={formData.color_hex}
+                        onChange={(e) => handleFieldChange('color_hex', e.target.value)}
+                        placeholder="#E0F2FE"
+                        className={`flex-1 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}`}
                       />
-                    ))}
+                      <div 
+                        className="w-10 h-10 rounded-lg border-2 border-gray-300 cursor-pointer"
+                        style={{ backgroundColor: formData.color_hex }}
+                        title="معاينة اللون"
+                      ></div>
+                    </div>
+                    {errors.color_hex && (
+                      <p className="text-red-500 text-xs mt-1">{errors.color_hex}</p>
+                    )}
+                  </div>
+                  
+                  {/* مربعات الألوان الجاهزة */}
+                  <div>
+                    <Label className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      ألوان جاهزة
+                    </Label>
+                    <div className="grid grid-cols-6 gap-2 mt-2">
+                      {categoryColors.map((color) => (
+                        <button
+                          key={color.value}
+                          type="button"
+                          onClick={() => handleFieldChange('color_hex', color.value)}
+                          className={`w-10 h-10 rounded-lg border-2 transition-all duration-200 hover:scale-110 ${
+                            formData.color_hex === color.value
+                              ? 'border-blue-500 scale-110 shadow-lg'
+                              : 'border-gray-200 hover:border-gray-400'
+                          }`}
+                          style={{ backgroundColor: color.value }}
+                          title={color.name}
+                        >
+                          {formData.color_hex === color.value && (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <div className="w-3 h-3 bg-white rounded-full shadow-sm"></div>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

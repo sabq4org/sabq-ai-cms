@@ -866,14 +866,61 @@ export default function ArticlePage({ params }: PageProps) {
       </section>
       {/* Article Title & Meta */}
       <section className="px-4 sm:px-6 md:px-8 py-6 max-w-5xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold leading-tight article-title">
+        {/* التصنيف - عرض بارز */}
+        {article.category && (
+          <div className="mb-4">
+            <Link 
+              href={`/categories/${article.category.name_ar?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}`}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white transition-all hover:scale-105"
+              style={{ backgroundColor: getCategoryColor(article.category) }}
+            >
+              {article.category.icon && <span>{article.category.icon}</span>}
+              <span>{article.category.name_ar || 'غير مصنف'}</span>
+            </Link>
+          </div>
+        )}
+        
+        <h1 className="text-3xl md:text-4xl font-bold leading-tight article-title mb-4">
           {article.title}
         </h1>
+        
         {article.subtitle && (
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-4">
             {article.subtitle}
           </p>
         )}
+        
+        {/* معلومات المقال المحسنة */}
+        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
+          {/* اسم المراسل/الكاتب */}
+          {(article.reporter_name || article.author_name || (article.author && (article.author as any).name)) && (
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4" />
+              <span className="font-medium">
+                ✍️ بواسطة: {article.reporter_name || article.author_name || (article.author && (article.author as any).name) || '—'}
+              </span>
+            </div>
+          )}
+          
+          {/* التاريخ */}
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            <span>{formatFullDate(article.published_at || article.created_at)}</span>
+          </div>
+          
+          {/* المشاهدات */}
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4" />
+            <span>{article.views_count || 0} مشاهدة</span>
+          </div>
+          
+          {/* مدة القراءة */}
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            <span>{calculateReadingTime(article.content)} دقائق</span>
+          </div>
+        </div>
+        
         {/* ملخص AI - جديد */}
         {(article.summary || article.ai_summary) && (
           <div className="my-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
@@ -895,61 +942,45 @@ export default function ArticlePage({ params }: PageProps) {
             </div>
           </div>
         )}
-        {/* معلومات المقال - إعادة ترتيب */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4">
-          {/* القسم أولاً */}
-          <span
-            className="px-3 py-1 rounded-full text-xs font-medium text-white"
-            style={{ backgroundColor: getCategoryColor(article.category) }}
-          >
-            {article.category?.name_ar || (article.category as any)?.name || article.category_name || 'غير مصنف'}
-          </span>
-          
-          {/* اسم الكاتب */}
-          <div className="flex items-center gap-1">
-            <User className="w-4 h-4" />
-            <Link href={`/author/${article.author_id || (article.author as any)?.id || ''}`} className="hover:text-blue-600 font-medium">
-              {article.author_name || (article.author && (article.author as any).name) || '—'}
-            </Link>
-          </div>
-          
-          {/* المشاهدات ومدة القراءة */}
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <Eye className="w-4 h-4" />
-              {article.views_count || 0} مشاهدة
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              {calculateReadingTime(article.content)} دقائق
-            </span>
-          </div>
-          
-          {/* التاريخ والوقت */}
-          <div className="flex items-center gap-1 mr-auto">
-            <Calendar className="w-4 h-4" />
-            <span>{formatFullDate(article.published_at || article.created_at)}</span>
-          </div>
-        </div>
         
-        {/* شريط التفاعل والكلمات المفتاحية */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 py-3 border-t border-b border-gray-200 dark:border-gray-700 my-4">
-          {/* أزرار التفاعل - أيقونات فقط في الموبايل */}
-          <div className="flex items-center gap-1 sm:gap-2 mr-auto">
+        {/* شريط التفاعل والكلمات المفتاحية - إعادة توزيع */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4 border-t border-b border-gray-200 dark:border-gray-700 my-6">
+          {/* الكلمات المفتاحية - اليمين */}
+          {article.seo_keywords && (
+            <div className="flex flex-wrap gap-2 order-2 sm:order-1">
+              {(typeof article.seo_keywords === 'string' 
+                ? article.seo_keywords.split(',').map(k => k.trim())
+                : Array.isArray(article.seo_keywords) ? article.seo_keywords : []
+              ).filter(k => k).map((keyword, index) => (
+                <Link
+                  key={index}
+                  href={`/search?q=${encodeURIComponent(keyword)}`}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200"
+                  title={`البحث عن: ${keyword}`}
+                >
+                  <Hash className="w-3 h-3" />
+                  <span>{keyword}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+          
+          {/* أزرار التفاعل - اليسار */}
+          <div className="flex items-center gap-2 order-1 sm:order-2">
             {/* زر الإعجاب */}
             <button 
               onClick={handleLike}
-              className={`relative p-2 sm:px-3 sm:py-2 rounded-full transition-all ${
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
                 interaction.liked 
                   ? 'text-red-500 bg-red-50 dark:bg-red-900/20' 
                   : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
               title={interaction.liked ? 'إلغاء الإعجاب' : 'أعجبني'}
             >
-              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${interaction.liked ? 'fill-current' : ''}`} />
-              <span className="hidden sm:inline-block mr-1">{interaction.liked ? 'أعجبني' : 'إعجاب'}</span>
+              <Heart className={`w-4 h-4 ${interaction.liked ? 'fill-current' : ''}`} />
+              <span className="text-sm font-medium">{interaction.liked ? 'أعجبني' : 'إعجاب'}</span>
               {interaction.likesCount > 0 && (
-                <span className="absolute -top-1 -right-1 text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
                   {interaction.likesCount}
                 </span>
               )}
@@ -958,17 +989,17 @@ export default function ArticlePage({ params }: PageProps) {
             {/* زر الحفظ */}
             <button 
               onClick={handleSave}
-              className={`relative p-2 sm:px-3 sm:py-2 rounded-full transition-all ${
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
                 interaction.saved 
                   ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' 
                   : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
               title={interaction.saved ? 'إلغاء الحفظ' : 'حفظ المقال'}
             >
-              <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${interaction.saved ? 'fill-current' : ''}`} />
-              <span className="hidden sm:inline-block mr-1">{interaction.saved ? 'محفوظ' : 'حفظ'}</span>
+              <Bookmark className={`w-4 h-4 ${interaction.saved ? 'fill-current' : ''}`} />
+              <span className="text-sm font-medium">{interaction.saved ? 'محفوظ' : 'حفظ'}</span>
               {interaction.savesCount > 0 && (
-                <span className="absolute -top-1 -right-1 text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">
                   {interaction.savesCount}
                 </span>
               )}
@@ -978,12 +1009,12 @@ export default function ArticlePage({ params }: PageProps) {
             <button 
               title="شارك هذا المقال"
               onClick={() => setShowShareMenu(!showShareMenu)}
-              className="relative p-2 sm:px-3 sm:py-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              className="relative flex items-center gap-2 px-4 py-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
             >
-              <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline-block mr-1">مشاركة</span>
+              <Share2 className="w-4 h-4" />
+              <span className="text-sm font-medium">مشاركة</span>
               {interaction.sharesCount > 0 && (
-                <span className="absolute -top-1 -right-1 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">
                   {interaction.sharesCount}
                 </span>
               )}
@@ -1016,26 +1047,6 @@ export default function ArticlePage({ params }: PageProps) {
               )}
             </button>
           </div>
-          
-          {/* الكلمات المفتاحية */}
-          {article.seo_keywords && (
-            <div className="flex flex-wrap gap-2 mr-auto">
-              {(typeof article.seo_keywords === 'string' 
-                ? article.seo_keywords.split(',').map(k => k.trim())
-                : Array.isArray(article.seo_keywords) ? article.seo_keywords : []
-              ).filter(k => k).map((keyword, index) => (
-                <Link
-                  key={index}
-                  href={`/search?q=${encodeURIComponent(keyword)}`}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200"
-                  title={`البحث عن: ${keyword}`}
-                >
-                  <Hash className="w-3 h-3" />
-                  <span>{keyword}</span>
-                </Link>
-              ))}
-            </div>
-          )}
         </div>
       </section>
       {/* Main Content Area */}
