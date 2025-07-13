@@ -32,6 +32,8 @@ export default function CategoryFormModal({
   onSave,
   loading
 }: CategoryFormModalProps) {
+  console.log('CategoryFormModal rendered with:', { isOpen, isEdit, category });
+  
   const [showPreview, setShowPreview] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -334,6 +336,8 @@ export default function CategoryFormModal({
   };
 
   if (!isOpen) return null;
+  
+  console.log('Modal is open and will render');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

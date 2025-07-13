@@ -438,15 +438,21 @@ export default function CategoriesPage() {
                     <Eye className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      console.log('Edit button clicked for category:', category);
                       setSelectedCategory(category);
                       setShowEditModal(true);
+                      console.log('showEditModal should be true now');
                     }}
-                    className={`p-2 rounded-lg transition-colors duration-200 ${
+                    className={`p-2 rounded-lg transition-colors duration-200 relative z-10 ${
                       darkMode 
                         ? 'text-blue-400 hover:bg-blue-900/20' 
                         : 'text-blue-600 hover:bg-blue-50'
                     }`}
+                    title="تعديل التصنيف"
+                    type="button"
                   >
                     <Edit3 className="w-4 h-4" />
                   </button>
@@ -878,6 +884,10 @@ export default function CategoriesPage() {
         )}
       </div>
       {/* النماذج */}
+      {(() => {
+        console.log('Modal states:', { showAddModal, showEditModal, selectedCategory });
+        return null;
+      })()}
       {(showAddModal || showEditModal) && (
         <CategoryFormModal
           isOpen={showAddModal || showEditModal}
@@ -886,6 +896,7 @@ export default function CategoriesPage() {
           categories={categories}
           darkMode={darkMode}
           onClose={() => {
+            console.log('Modal closing...');
             setShowAddModal(false);
             setShowEditModal(false);
             setSelectedCategory(null);
