@@ -158,7 +158,7 @@ export default function CategoryFormModal({
       
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', 'ml_default'); // يمكنك إنشاء upload preset في Cloudinary
+      formData.append('upload_preset', 'simple_upload'); // استخدام preset بسيط
       
       // رفع مباشر إلى Cloudinary
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb';

@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     // إعداد FormData لـ Cloudinary
     const cloudinaryData = new FormData();
     cloudinaryData.append('file', file);
-    cloudinaryData.append('upload_preset', 'ml_default');
+    cloudinaryData.append('upload_preset', 'simple_upload');
     
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb';
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
@@ -62,7 +62,7 @@ export async function GET() {
   return NextResponse.json({
     status: 'ready',
     cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb',
-    uploadPreset: 'ml_default',
+    uploadPreset: 'simple_upload',
     testEndpoint: '/api/test-cloudinary',
     usage: 'POST مع FormData يحتوي على file'
   });
