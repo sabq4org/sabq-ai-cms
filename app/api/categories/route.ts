@@ -131,6 +131,7 @@ export async function GET(request: NextRequest) {
         description: (metadata as any).ar || category.description || '',
         description_en: (metadata as any).en || '',
         color: category.color || (metadata as any).color_hex || '#6B7280',
+        color_hex: category.color || (metadata as any).color_hex || '#6B7280',
         icon: category.icon || (metadata as any).icon || '📁',
         meta_title: (metadata as any).meta_title || '',
         meta_description: (metadata as any).meta_description || '',
@@ -201,6 +202,7 @@ export async function GET(request: NextRequest) {
         description: (metadata as any).ar || category.description || '',
         description_en: (metadata as any).en || '',
         color: category.color || (metadata as any).color_hex || '#6B7280',
+        color_hex: category.color || (metadata as any).color_hex || '#6B7280',
         icon: category.icon || (metadata as any).icon || '📁',
         meta_title: (metadata as any).meta_title || '',
         meta_description: (metadata as any).meta_description || '',
@@ -455,6 +457,7 @@ export async function PUT(request: NextRequest) {
       description: (updatedCategory.metadata as any)?.ar || updatedCategory.description || '',
       description_en: (updatedCategory.metadata as any)?.en || '',
       color: updatedCategory.color || (updatedCategory.metadata as any)?.color_hex || '#6B7280',
+      color_hex: updatedCategory.color || (updatedCategory.metadata as any)?.color_hex || '#6B7280',
       icon: updatedCategory.icon || (updatedCategory.metadata as any)?.icon || '📁',
       articles_count: 0
     };
