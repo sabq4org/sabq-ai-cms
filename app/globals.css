@@ -7,6 +7,9 @@
 /* استيراد أنماط تصميم جُرعة */
 @import '../styles/jur3a-colors.css';
 
+/* استيراد إصلاح لوحة التحكم */
+@import '../styles/dashboard-fix.css';
+
 /* استيراد تحسينات لوحة التحكم للموبايل */
 @import '../styles/dashboard-mobile.css';
 
