@@ -14,7 +14,9 @@ import {
   AlertCircle,
   CheckCircle,
   Image as ImageIcon,
-  Trash2
+  Trash2,
+  Palette,
+  Smile
 } from 'lucide-react';
 
 interface Category {
@@ -46,6 +48,8 @@ export default function EditCategoryPage() {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+  const iconPickerRef = useRef<HTMLDivElement>(null);
   
   const categoryId = params?.id as string;
   
@@ -56,11 +60,56 @@ export default function EditCategoryPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showIconPicker, setShowIconPicker] = useState(false);
+  
+  // مجموعة الألوان المحددة مسبقاً
+  const predefinedColors = [
+    '#EF4444', // أحمر
+    '#F59E0B', // برتقالي
+    '#10B981', // أخضر
+    '#3B82F6', // أزرق
+    '#6366F1', // نيلي
+    '#8B5CF6', // بنفسجي
+    '#EC4899', // وردي
+    '#6B7280', // رمادي
+    '#059669', // أخضر داكن
+    '#DC2626', // أحمر داكن
+    '#7C3AED', // بنفسجي داكن
+    '#2563EB', // أزرق داكن
+  ];
+  
+  // مجموعة الأيقونات المحددة مسبقاً
+  const predefinedIcons = [
+    '📰', '📄', '📋', '📌', '📍', '📎', '🗂️', '📁',
+    '💼', '💰', '🏆', '🎯', '🎨', '🎭', '🎪', '🎬',
+    '🏀', '⚽', '🏈', '⚾', '🎾', '🏐', '🏉', '🎱',
+    '🚗', '✈️', '🚀', '🏠', '🏢', '🏛️', '🏗️', '🏭',
+    '💻', '📱', '🖥️', '⌨️', '🖱️', '💾', '💿', '📷',
+    '🍔', '🍕', '🍎', '🥗', '🍰', '☕', '🍷', '🍺',
+    '🌍', '🌎', '🌏', '🗺️', '🧭', '🏔️', '🏖️', '🏜️',
+    '👥', '👤', '👨‍💼', '👩‍💼', '👨‍🎓', '👩‍🎓', '👨‍⚕️', '👩‍⚕️'
+  ];
   
   // جلب بيانات التصنيف
   useEffect(() => {
     fetchCategory();
   }, [categoryId]);
+
+  // إغلاق النوافذ عند النقر خارجها
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(event.target as Node)) {
+        setShowColorPicker(false);
+      }
+      if (iconPickerRef.current && !iconPickerRef.current.contains(event.target as Node)) {
+        setShowIconPicker(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   
   const fetchCategory = async () => {
     try {
@@ -96,12 +145,14 @@ export default function EditCategoryPage() {
     // التحقق من نوع الملف
     if (!file.type.startsWith('image/')) {
       setErrors({ ...errors, cover_image: 'يرجى اختيار ملف صورة صحيح' });
+      toast.error('يرجى اختيار ملف صورة صحيح (JPG, PNG, GIF)');
       return;
     }
     
     // التحقق من حجم الملف (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       setErrors({ ...errors, cover_image: 'حجم الصورة يجب أن يكون أقل من 5MB' });
+      toast.error('حجم الصورة كبير جداً! الحد الأقصى 5MB');
       return;
     }
     
@@ -112,6 +163,7 @@ export default function EditCategoryPage() {
     const reader = new FileReader();
     reader.onload = (event) => {
       setImagePreview(event.target?.result as string);
+      toast.success('تم اختيار الصورة بنجاح! اضغط "حفظ التعديلات" لرفعها');
     };
     reader.readAsDataURL(file);
   };
@@ -122,6 +174,7 @@ export default function EditCategoryPage() {
     
     try {
       setUploading(true);
+      toast.loading('جاري رفع الصورة...', { id: 'upload-image' });
       
       const formData = new FormData();
       formData.append('file', imageFile);
@@ -144,10 +197,12 @@ export default function EditCategoryPage() {
       const data = await response.json();
       console.log('✅ Upload successful:', data.secure_url);
       
+      toast.success('تم رفع الصورة بنجاح ✅', { id: 'upload-image' });
+      
       return data.secure_url;
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('فشل في رفع الصورة');
+      toast.error('فشل في رفع الصورة', { id: 'upload-image' });
       return null;
     } finally {
       setUploading(false);
@@ -169,6 +224,10 @@ export default function EditCategoryPage() {
         const uploadedUrl = await uploadImage();
         if (uploadedUrl) {
           coverImageUrl = uploadedUrl;
+          console.log('📸 New image uploaded:', uploadedUrl);
+        } else {
+          toast.error('فشل رفع الصورة - يرجى المحاولة مرة أخرى');
+          return;
         }
       }
       
@@ -196,7 +255,13 @@ export default function EditCategoryPage() {
         og_type: category.og_type || 'website'
       };
       
-      console.log('📤 Sending update with cover_image:', updateData.cover_image);
+      console.log('📤 Sending update with data:', {
+        id: updateData.id,
+        name: updateData.name,
+        color: updateData.color,
+        icon: updateData.icon,
+        cover_image: updateData.cover_image
+      });
       
       const response = await fetch('/api/categories', {
         method: 'PUT',
@@ -214,10 +279,13 @@ export default function EditCategoryPage() {
         // التحقق من وجود الصورة في النتيجة
         if (result.data?.cover_image) {
           console.log('✅ Cover image saved:', result.data.cover_image);
+          toast.success('تم حفظ صورة الغلاف بنجاح', { duration: 3000 });
         }
         
-        // الانتقال إلى صفحة التصنيفات
-        router.push('/dashboard/categories');
+        // الانتقال إلى صفحة التصنيفات بعد ثانيتين
+        setTimeout(() => {
+          router.push('/dashboard/categories');
+        }, 2000);
       } else {
         throw new Error(result.error || 'فشل في تحديث التصنيف');
       }
@@ -353,23 +421,126 @@ export default function EditCategoryPage() {
               />
             </div>
             
-            {/* Icon */}
+            {/* Color Picker */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                اللون
+              </label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowColorPicker(!showColorPicker)}
+                  className={`w-full px-4 py-2 rounded-lg border flex items-center justify-between ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-6 h-6 rounded border border-gray-300"
+                      style={{ backgroundColor: category.color || category.color_hex || '#6B7280' }}
+                    />
+                    <span>{category.color || category.color_hex || '#6B7280'}</span>
+                  </div>
+                  <Palette className="w-4 h-4" />
+                </button>
+                
+                {/* Color Picker Dropdown */}
+                {showColorPicker && (
+                  <div 
+                    ref={colorPickerRef}
+                    className={`absolute top-full mt-2 p-4 rounded-lg shadow-xl z-10 ${
+                      darkMode ? 'bg-gray-700' : 'bg-white'
+                    } border ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                  >
+                    <div className="grid grid-cols-6 gap-2 mb-3">
+                      {predefinedColors.map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => {
+                            updateField('color', color);
+                            updateField('color_hex', color);
+                            setShowColorPicker(false);
+                          }}
+                          className={`w-8 h-8 rounded border-2 transition-transform hover:scale-110 ${
+                            (category.color === color || category.color_hex === color)
+                              ? 'border-blue-500 ring-2 ring-blue-300'
+                              : 'border-gray-300'
+                          }`}
+                          style={{ backgroundColor: color }}
+                          title={color}
+                        />
+                      ))}
+                    </div>
+                    <input
+                      type="color"
+                      value={category.color || category.color_hex || '#6B7280'}
+                      onChange={(e) => {
+                        updateField('color', e.target.value);
+                        updateField('color_hex', e.target.value);
+                      }}
+                      className="w-full h-10 cursor-pointer rounded"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Icon Picker */}
             <div>
               <label className={`block text-sm font-medium mb-2 ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>
                 الأيقونة
               </label>
-              <input
-                type="text"
-                value={category.icon || '📁'}
-                onChange={(e) => updateField('icon', e.target.value)}
-                className={`w-full px-4 py-2 rounded-lg border text-2xl text-center ${
-                  darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-white' 
-                    : 'bg-white border-gray-300 text-gray-900'
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              />
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowIconPicker(!showIconPicker)}
+                  className={`w-full px-4 py-2 rounded-lg border flex items-center justify-between ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                >
+                  <span className="text-2xl">{category.icon || '📁'}</span>
+                  <Smile className="w-4 h-4" />
+                </button>
+                
+                {/* Icon Picker Dropdown */}
+                {showIconPicker && (
+                  <div 
+                    ref={iconPickerRef}
+                    className={`absolute top-full mt-2 p-4 rounded-lg shadow-xl z-10 max-h-64 overflow-y-auto ${
+                      darkMode ? 'bg-gray-700' : 'bg-white'
+                    } border ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}
+                  >
+                    <div className="grid grid-cols-8 gap-2">
+                      {predefinedIcons.map((icon) => (
+                        <button
+                          key={icon}
+                          type="button"
+                          onClick={() => {
+                            updateField('icon', icon);
+                            setShowIconPicker(false);
+                          }}
+                          className={`p-2 text-2xl rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors ${
+                            category.icon === icon
+                              ? 'bg-blue-100 dark:bg-blue-900 ring-2 ring-blue-500'
+                              : ''
+                          }`}
+                        >
+                          {icon}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
