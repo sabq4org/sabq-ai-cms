@@ -118,15 +118,18 @@ export default function CategoriesPage() {
       let response;
       if (showEditModal && selectedCategory) {
         // تحديث التصنيف الموجود
+        const updateData = {
+          id: selectedCategory.id,
+          ...categoryData
+        };
+        console.log('Updating category with data:', updateData);
+        
         response = await fetch('/api/categories', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            id: selectedCategory.id,
-            ...categoryData
-          })
+          body: JSON.stringify(updateData)
         });
       } else {
         // إضافة تصنيف جديد
@@ -140,9 +143,12 @@ export default function CategoriesPage() {
       }
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Error response:', errorData);
         throw new Error(errorData.error || 'فشل في حفظ التصنيف');
       }
       const result = await response.json();
+      console.log('Save result:', result);
+      
       if (result.success) {
         // رسالة نجاح مخصصة حسب وجود الصورة
         const successMessage = showEditModal ? 'تم تحديث التصنيف بنجاح' : 'تم إضافة التصنيف بنجاح';
@@ -889,21 +895,30 @@ export default function CategoriesPage() {
         return null;
       })()}
       {(showAddModal || showEditModal) && (
-        <CategoryFormModal
-          isOpen={showAddModal || showEditModal}
-          isEdit={showEditModal}
-          category={selectedCategory}
-          categories={categories}
-          darkMode={darkMode}
-          onClose={() => {
-            console.log('Modal closing...');
-            setShowAddModal(false);
-            setShowEditModal(false);
-            setSelectedCategory(null);
-          }}
-          onSave={handleSaveCategory}
-          loading={loading}
-        />
+        (() => {
+          try {
+            return (
+              <CategoryFormModal
+                isOpen={showAddModal || showEditModal}
+                isEdit={showEditModal}
+                category={selectedCategory}
+                categories={categories}
+                darkMode={darkMode}
+                onClose={() => {
+                  console.log('Modal closing...');
+                  setShowAddModal(false);
+                  setShowEditModal(false);
+                  setSelectedCategory(null);
+                }}
+                onSave={handleSaveCategory}
+                loading={loading}
+              />
+            );
+          } catch (error) {
+            console.error('Error rendering CategoryFormModal:', error);
+            return <div>خطأ في عرض النافذة</div>;
+          }
+        })()
       )}
       {/* مكون الإشعارات */}
       <NotificationComponent />
