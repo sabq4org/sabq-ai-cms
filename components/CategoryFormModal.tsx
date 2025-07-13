@@ -161,13 +161,15 @@ export default function CategoryFormModal({
       formData.append('upload_preset', 'ml_default'); // يمكنك إنشاء upload preset في Cloudinary
       
       // رفع مباشر إلى Cloudinary
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb'}/image/upload`,
-        {
-          method: 'POST',
-          body: formData
-        }
-      );
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb';
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+      
+      console.log('محاولة رفع الصورة إلى:', uploadUrl);
+      
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -193,12 +195,38 @@ export default function CategoryFormModal({
           }
         );
       } else {
-        throw new Error('فشل رفع الصورة');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('خطأ من Cloudinary:', errorData);
+        throw new Error(errorData.error?.message || `فشل رفع الصورة: ${response.status}`);
       }
     } catch (error) {
       console.error('Error uploading image:', error);
-      setErrors(prev => ({ ...prev, cover_image: 'حدث خطأ أثناء رفع الصورة' }));
-      toast.error('❌ حدث خطأ أثناء رفع الصورة');
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ أثناء رفع الصورة';
+      setErrors(prev => ({ ...prev, cover_image: errorMessage }));
+      
+      // رسالة خطأ مفصلة
+      toast.error(
+        <div className="flex items-start gap-2">
+          <span className="text-xl">❌</span>
+          <div>
+            <div className="font-bold">خطأ في رفع الصورة</div>
+            <div className="text-sm opacity-90 mt-1">{errorMessage}</div>
+            {!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME && (
+              <div className="text-xs opacity-80 mt-2">
+                تنبيه: متغيرات البيئة قد تكون غير مُعرّفة
+              </div>
+            )}
+          </div>
+        </div>,
+        {
+          duration: 7000,
+          style: {
+            background: '#ff6b6b',
+            color: 'white',
+            padding: '16px',
+          }
+        }
+      );
     } finally {
       setUploadingImage(false);
     }
