@@ -250,3 +250,5 @@ public/uploads/
 # Legacy patterns
 # تجاهل أي ملفات تحميل محلية
 public/uploads/
+# ملفات الاختبار المؤقتة
+test-cloudinary-upload.html
