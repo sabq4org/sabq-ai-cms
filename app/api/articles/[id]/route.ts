@@ -22,13 +22,31 @@ export async function GET(
       return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
     
-    // إضافة views_count من حقل views
-    const articleWithViewsCount = {
+    // استخراج الكلمات المفتاحية من metadata
+    let keywords: string[] = [];
+    if (dbArticle.metadata && typeof dbArticle.metadata === 'object') {
+      const metadata = dbArticle.metadata as any;
+      if (metadata.keywords) {
+        keywords = Array.isArray(metadata.keywords) ? metadata.keywords : [];
+      }
+    }
+    
+    // دمج الكلمات المفتاحية من seo_keywords إذا كانت موجودة
+    if (dbArticle.seo_keywords) {
+      if (typeof dbArticle.seo_keywords === 'string') {
+        const seoKeywords = dbArticle.seo_keywords.split(',').map(k => k.trim()).filter(k => k);
+        keywords = [...new Set([...keywords, ...seoKeywords])];
+      }
+    }
+    
+    // إضافة views_count من حقل views والكلمات المفتاحية
+    const articleWithEnhancedData = {
       ...dbArticle,
-      views_count: dbArticle.views || 0
+      views_count: dbArticle.views || 0,
+      seo_keywords: keywords.length > 0 ? keywords : dbArticle.seo_keywords
     };
     
-    return NextResponse.json(articleWithViewsCount);
+    return NextResponse.json(articleWithEnhancedData);
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
