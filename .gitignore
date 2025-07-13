@@ -253,3 +253,5 @@ public/uploads/
 # ملفات الاختبار المؤقتة
 test-cloudinary-upload.html
 test-cloudinary-settings.html
+test-vercel-cloudinary.html
+public/test-vercel-cloudinary.html
