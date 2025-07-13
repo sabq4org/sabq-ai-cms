@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateDeepAnalysis, initializeOpenAI } from '@/lib/services/deepAnalysisService';
 import { GenerateAnalysisRequest } from '@/types/deep-analysis';
+import prisma from '@/lib/prisma';
+
+// دالة لجلب إعدادات AI من قاعدة البيانات
+async function getAISettings() {
+  try {
+    const settings = await prisma.site_settings.findUnique({
+      where: { section: 'ai' }
+    });
+    if (settings) {
+      return settings.data as any;
+    }
+  } catch (error) {
+    console.error('خطأ في جلب إعدادات AI:', error);
+  }
+  return null;
+}
 
 
 
@@ -16,38 +32,47 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // محاولة الحصول على API key من عدة مصادر
-    let apiKey = process.env.OPENAI_API_KEY;
+    // محاولة الحصول على API key من عدة مصادر بالترتيب
+    let apiKey = '';
     
-    // طباعة معلومات تشخيصية (احذفها بعد حل المشكلة)
-    console.log('Environment API Key exists:', !!apiKey);
-    console.log('Environment API Key length:', apiKey?.length);
-    console.log('API Key starts with:', apiKey?.substring(0, 10));
-    
-    // إذا كان المفتاح في البيئة موجود لكنه مختصر، ونملك مفتاحاً كاملاً في جسم الطلب، فسنستبدله
-    if (apiKey && apiKey.length < 20 && body.openaiKey && body.openaiKey.length >= 20) {
-      console.log('Overriding short env key with full key from request body');
-      apiKey = body.openaiKey;
+    // 1. التحقق من قاعدة البيانات أولاً
+    const aiSettings = await getAISettings();
+    if (aiSettings?.openai?.apiKey && aiSettings.openai.apiKey.trim() !== '') {
+      apiKey = aiSettings.openai.apiKey;
+      console.log('Using API Key from database');
     }
     
-    // إذا لم يكن موجوداً في البيئة، نحاول من الإعدادات المحفوظة
-    if (!apiKey && body.openaiKey) {
+    // 2. إذا لم يكن في قاعدة البيانات، نحاول من البيئة
+    if (!apiKey) {
+      apiKey = process.env.OPENAI_API_KEY || '';
+      if (apiKey) {
+        console.log('Using API Key from environment');
+      }
+    }
+    
+    // 3. إذا لم يكن في البيئة، نحاول من جسم الطلب
+    if (!apiKey && body.openaiKey && body.openaiKey.trim() !== '') {
       apiKey = body.openaiKey;
       console.log('Using API Key from request body');
     }
     
-    // إذا لم يكن موجوداً، نحاول من localStorage (يُرسل من الواجهة)
-    if (!apiKey && body.settings?.openaiKey) {
+    // 4. إذا لم يكن موجوداً، نحاول من الإعدادات في جسم الطلب
+    if (!apiKey && body.settings?.openaiKey && body.settings.openaiKey.trim() !== '') {
       apiKey = body.settings.openaiKey;
-      console.log('Using API Key from settings');
+      console.log('Using API Key from request settings');
     }
     
     // التحقق من وجود API key
-    if (!apiKey) {
+    if (!apiKey || apiKey.trim() === '') {
       return NextResponse.json(
         { 
-          error: 'مفتاح OpenAI API غير موجود. يرجى إضافته من إعدادات الذكاء الاصطناعي.',
+          error: 'يرجى إضافة مفتاح OpenAI من إعدادات الذكاء الاصطناعي',
+          details: 'لم يتم العثور على مفتاح API في قاعدة البيانات أو متغيرات البيئة',
           debug: {
+            checkedDatabase: !!aiSettings?.openai?.apiKey,
+            checkedEnvironment: !!process.env.OPENAI_API_KEY,
+            checkedRequestBody: !!body.openaiKey,
+            checkedRequestSettings: !!body.settings?.openaiKey,
             envExists: !!process.env.OPENAI_API_KEY,
             bodyKeyExists: !!body.openaiKey,
             settingsKeyExists: !!body.settings?.openaiKey

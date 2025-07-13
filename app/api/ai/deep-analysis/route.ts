@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
-
-
-
-
+// دالة لجلب إعدادات AI من قاعدة البيانات
+async function getAISettings() {
+  try {
+    const settings = await prisma.site_settings.findUnique({
+      where: { section: 'ai' }
+    });
+    if (settings) {
+      return settings.data as any;
+    }
+  } catch (error) {
+    console.error('خطأ في جلب إعدادات AI:', error);
+  }
+  return null;
+}
 
 
 // البرومبت الاحترافي لتوليد التحليل العميق
@@ -88,7 +99,20 @@ async function generateAnalysisWithGPT(params: {
   apiKey?: string;
 }): Promise<AnalysisResult> {
   // في بيئة الإنتاج، استخدم OpenAI API
-  const openaiKey = params.apiKey || process.env.OPENAI_API_KEY;
+  // جلب المفتاح من قاعدة البيانات أولاً، ثم من الإعدادات، ثم من البيئة
+  let openaiKey = params.apiKey;
+  
+  if (!openaiKey) {
+    const aiSettings = await getAISettings();
+    if (aiSettings?.openai?.apiKey) {
+      openaiKey = aiSettings.openai.apiKey;
+    }
+  }
+  
+  if (!openaiKey) {
+    openaiKey = process.env.OPENAI_API_KEY;
+  }
+  
   if (openaiKey) {
     try {
       // استيراد OpenAI SDK
@@ -313,6 +337,31 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const apiKey = request.headers.get('x-api-key');
+
+    // التحقق من وجود مفتاح OpenAI
+    let hasValidKey = false;
+    
+    // التحقق من المفتاح بالترتيب: header، قاعدة البيانات، متغير البيئة
+    if (apiKey && apiKey.trim() !== '') {
+      hasValidKey = true;
+    } else {
+      const aiSettings = await getAISettings();
+      if (aiSettings?.openai?.apiKey && aiSettings.openai.apiKey.trim() !== '') {
+        hasValidKey = true;
+      } else if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '') {
+        hasValidKey = true;
+      }
+    }
+    
+    if (!hasValidKey) {
+      return NextResponse.json(
+        { 
+          error: 'يرجى إضافة مفتاح OpenAI من إعدادات الذكاء الاصطناعي',
+          details: 'لم يتم العثور على مفتاح API في الإعدادات أو متغيرات البيئة'
+        },
+        { status: 400 }
+      );
+    }
 
     // التحقق من المدخلات
     if (!body.title) {
