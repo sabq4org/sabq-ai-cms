@@ -384,6 +384,7 @@ export default function EditArticlePage() {
         featured_image: formData.featured_image || formData.cover_image,
         featured_image_alt: formData.featured_image_alt || undefined,
         image_caption: formData.featured_image_caption || undefined, // إضافة شرح الصورة
+        featured_image_caption: formData.featured_image_caption || undefined, // للتوافق
         seo_title: formData.title,
         seo_description: formData.description,
         seo_keywords: formData.keywords,

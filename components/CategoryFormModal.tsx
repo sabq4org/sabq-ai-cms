@@ -60,6 +60,7 @@ export default function CategoryFormModal({
 
   const [activeTab, setActiveTab] = useState<'basic' | 'image' | 'seo' | 'advanced'>('basic');
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [isDirty, setIsDirty] = useState(false); // تتبع التغييرات
 
   // ألوان التصنيفات المتاحة
   const categoryColors = [
@@ -111,6 +112,7 @@ export default function CategoryFormModal({
       });
       setImagePreview(category.cover_image || null);
       console.log('Image preview set to:', category.cover_image || null);
+      setIsDirty(false); // إعادة تعيين حالة التغيير عند التحرير
     } else {
       // إعادة تعيين النموذج للإضافة
       setFormData({
@@ -184,6 +186,7 @@ export default function CategoryFormModal({
           console.log('💾 Updated formData with cover_image:', updated);
           return updated;
         });
+        setIsDirty(true); // تشغيل حالة التغيير عند رفع صورة
         
         toast.success(
           <div className="flex items-center gap-2">
@@ -240,10 +243,17 @@ export default function CategoryFormModal({
     }
   };
 
+  // دالة عامة لمعالجة تغييرات النموذج
+  const handleFieldChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setIsDirty(true); // تشغيل حالة التغيير
+  };
+
   // دالة حذف الصورة
   const handleRemoveImage = () => {
     setFormData(prev => ({ ...prev, cover_image: '' }));
     setImagePreview(null);
+    setIsDirty(true); // تشغيل حالة التغيير عند حذف الصورة
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -277,6 +287,8 @@ export default function CategoryFormModal({
       slug: prev.slug === '' ? generateSlug(value) : prev.slug,
       meta_title: prev.meta_title === '' ? `${value} - صحيفة سبق` : prev.meta_title
     }));
+    
+    setIsDirty(true); // تشغيل حالة التغيير
     
     if (errors.name_ar) {
       setErrors(prev => ({ ...prev, name_ar: '' }));
@@ -334,10 +346,22 @@ export default function CategoryFormModal({
       return;
     }
 
+    // التحقق من وجود تغييرات عند التحرير
+    if (isEdit && !isDirty) {
+      toast.error('لم يتم إجراء أي تغييرات', {
+        style: {
+          background: '#FFA500',
+          color: 'white',
+        }
+      });
+      return;
+    }
+
     try {
       console.log('🚀 Saving category with data:', formData);
       console.log('🖼️ Cover image value:', formData.cover_image);
       await onSave(formData);
+      setIsDirty(false); // إعادة تعيين حالة التغيير بعد الحفظ الناجح
     } catch (error) {
       console.error('خطأ في حفظ التصنيف:', error);
     }
@@ -391,7 +415,10 @@ export default function CategoryFormModal({
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSave} className="p-6">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          handleSave();
+        }} className="p-6">
           {/* Tabs */}
           <div className="flex space-x-1 mb-6 border-b">
             {[
@@ -453,7 +480,7 @@ export default function CategoryFormModal({
                   <Input
                     id="name_en"
                     value={formData.name_en}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name_en: e.target.value }))}
+                    onChange={(e) => handleFieldChange('name_en', e.target.value)}
                     placeholder="مثال: News"
                     className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
                   />
@@ -467,7 +494,7 @@ export default function CategoryFormModal({
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) => handleFieldChange('description', e.target.value)}
                     placeholder="وصف مختصر للتصنيف..."
                     rows={3}
                     className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
@@ -482,7 +509,7 @@ export default function CategoryFormModal({
                   <Input
                     id="slug"
                     value={formData.slug}
-                    onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                    onChange={(e) => handleFieldChange('slug', e.target.value)}
                     placeholder="مثال: news"
                     required
                     className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
@@ -503,7 +530,7 @@ export default function CategoryFormModal({
                       <button
                         key={color.value}
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, color_hex: color.value }))}
+                        onClick={() => handleFieldChange('color_hex', color.value)}
                         className={`w-10 h-10 rounded-lg border-2 transition-all ${
                           formData.color_hex === color.value
                             ? 'border-blue-500 scale-110'
@@ -524,7 +551,7 @@ export default function CategoryFormModal({
                       <button
                         key={icon}
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, icon }))}
+                        onClick={() => handleFieldChange('icon', icon)}
                         className={`w-10 h-10 rounded-lg border-2 text-lg transition-all ${
                           formData.icon === icon
                             ? 'border-blue-500 bg-blue-50 scale-110'
@@ -545,10 +572,7 @@ export default function CategoryFormModal({
                   <select
                     id="parent_id"
                     value={formData.parent_id || ''}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      parent_id: e.target.value || undefined 
-                    }))}
+                    onChange={(e) => handleFieldChange('parent_id', e.target.value || undefined)}
                     className={`w-full px-3 py-2 border rounded-lg ${
                       darkMode 
                         ? 'bg-gray-700 border-gray-600 text-white' 
@@ -575,7 +599,7 @@ export default function CategoryFormModal({
                     id="position"
                     type="number"
                     value={formData.position}
-                    onChange={(e) => setFormData(prev => ({ ...prev, position: parseInt(e.target.value) || 0 }))}
+                    onChange={(e) => handleFieldChange('position', parseInt(e.target.value) || 0)}
                     className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
                   />
                 </div>
@@ -585,7 +609,7 @@ export default function CategoryFormModal({
                   <Label className={darkMode ? 'text-gray-200' : ''}>نشط</Label>
                   <Switch
                     checked={formData.is_active}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
+                    onCheckedChange={(checked) => handleFieldChange('is_active', checked)}
                   />
                 </div>
               </div>
@@ -710,7 +734,7 @@ export default function CategoryFormModal({
                 <Input
                   id="meta_title"
                   value={formData.meta_title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, meta_title: e.target.value }))}
+                  onChange={(e) => handleFieldChange('meta_title', e.target.value)}
                   placeholder="عنوان يظهر في محركات البحث..."
                   className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
                 />
@@ -726,7 +750,7 @@ export default function CategoryFormModal({
                 <Textarea
                   id="meta_description"
                   value={formData.meta_description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, meta_description: e.target.value }))}
+                  onChange={(e) => handleFieldChange('meta_description', e.target.value)}
                   placeholder="وصف مختصر يظهر في محركات البحث..."
                   rows={3}
                   className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
@@ -743,7 +767,7 @@ export default function CategoryFormModal({
                 <Input
                   id="og_image_url"
                   value={formData.og_image_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, og_image_url: e.target.value }))}
+                  onChange={(e) => handleFieldChange('og_image_url', e.target.value)}
                   placeholder="رابط صورة خاصة بـ Open Graph..."
                   className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
                 />
@@ -756,7 +780,7 @@ export default function CategoryFormModal({
                 <Input
                   id="canonical_url"
                   value={formData.canonical_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, canonical_url: e.target.value }))}
+                  onChange={(e) => handleFieldChange('canonical_url', e.target.value)}
                   placeholder="الرابط الأساسي للتصنيف..."
                   className={darkMode ? 'bg-gray-700 border-gray-600 text-white' : ''}
                 />
@@ -766,7 +790,7 @@ export default function CategoryFormModal({
                 <Label className={darkMode ? 'text-gray-200' : ''}>منع الفهرسة</Label>
                 <Switch
                   checked={formData.noindex}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, noindex: checked }))}
+                  onCheckedChange={(checked) => handleFieldChange('noindex', checked)}
                 />
               </div>
 
@@ -777,7 +801,7 @@ export default function CategoryFormModal({
                 <select
                   id="og_type"
                   value={formData.og_type}
-                  onChange={(e) => setFormData(prev => ({ ...prev, og_type: e.target.value }))}
+                  onChange={(e) => handleFieldChange('og_type', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg ${
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-white' 
@@ -810,6 +834,11 @@ export default function CategoryFormModal({
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t">
+            {isEdit && !isDirty && (
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} ml-auto`}>
+                قم بتعديل أي حقل لتفعيل زر الحفظ
+              </p>
+            )}
             <Button
               type="button"
               variant="outline"
@@ -820,8 +849,13 @@ export default function CategoryFormModal({
             </Button>
             <Button
               type="submit"
-              disabled={loading}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
+              disabled={loading || (isEdit && !isDirty)}
+              className={`${
+                isEdit && !isDirty 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-blue-500 hover:bg-blue-600'
+              } text-white`}
+              title={isEdit && !isDirty ? 'لم يتم إجراء أي تغييرات' : ''}
             >
               {loading ? (
                 <>
@@ -831,7 +865,7 @@ export default function CategoryFormModal({
               ) : (
                 <>
                   <Save className="w-4 h-4 ml-2" />
-                  {isEdit ? 'تحديث التصنيف' : 'إضافة التصنيف'}
+                  {isEdit ? 'حفظ التعديلات' : 'إضافة التصنيف'}
                 </>
               )}
             </Button>
