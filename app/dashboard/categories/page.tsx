@@ -411,14 +411,22 @@ export default function CategoriesPage() {
                     </div>
                     {(() => {
                       let desc = category.description;
-                      // إذا كان الوصف عبارة عن JSON، استخرج القيمة الفعلية
-                      if (desc && desc.startsWith('{')) {
+                      // دالة تحليل آمنة
+                      const safeParse = (input: unknown) => {
+                        if (typeof input !== 'string') return input;
+                        const str = input.trim();
+                        if (!str.startsWith('{') || !str.endsWith('}')) return input;
                         try {
-                          const parsed = JSON.parse(desc);
-                          desc = parsed.ar || parsed.description || desc;
-                        } catch (e) {
-                          // استخدم النص كما هو إذا فشل التحليل
+                          return JSON.parse(str);
+                        } catch {
+                          return input;
                         }
+                      };
+
+                      const parsedDesc = safeParse(desc);
+                      if (typeof parsedDesc === 'object' && parsedDesc) {
+                        // @ts-ignore
+                        desc = parsedDesc.ar || parsedDesc.description || desc;
                       }
                       return desc ? (
                       <p className={`text-sm transition-colors duration-300 ${
