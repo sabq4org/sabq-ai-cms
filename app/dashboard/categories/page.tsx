@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import './categories-dashboard.css';
 import { 
   Plus, 
   Edit3,
@@ -299,7 +300,7 @@ export default function CategoriesPage() {
     bgColor: string;
     iconColor: string;
   }) => (
-    <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${
+    <div className={`stat-card rounded-2xl p-6 shadow-sm border transition-colors duration-300 hover:shadow-md ${
       darkMode 
         ? 'bg-gray-800 border-gray-700' 
         : 'bg-white border-gray-100'
@@ -608,7 +609,7 @@ export default function CategoriesPage() {
     );
   }
   return (
-  <div className={`p-8 transition-colors duration-300 ${
+  <div className={`dashboard-categories-container transition-colors duration-300 ${
       darkMode ? 'bg-gray-900' : ''
     }`}>
       {/* عنوان وتعريف الصفحة */}
@@ -644,7 +645,7 @@ export default function CategoriesPage() {
         </div>
       </div>
       {/* إحصائيات التصنيفات */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
+      <div className="stats-grid">
         <CircularStatsCard
           title="إجمالي التصنيفات"
           value={categories.length.toString()}
@@ -679,13 +680,15 @@ export default function CategoriesPage() {
         />
       </div>
       {/* تبويبات التنقل */}
-      <TabsEnhanced
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
+      <div className="tabs-container">
+        <TabsEnhanced
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+      </div>
       {/* محتوى التبويبات */}
-      <div className={`rounded-2xl shadow-sm border overflow-x-auto transition-colors duration-300 ${
+      <div className={`categories-table rounded-2xl shadow-sm border overflow-x-auto transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
       }`}>
         {activeTab === 'list' && (

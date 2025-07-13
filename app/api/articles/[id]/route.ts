@@ -39,11 +39,23 @@ export async function GET(
       }
     }
     
+    // استخراج شرح الصورة من metadata
+    let imageCaption = '';
+    if (dbArticle.metadata && typeof dbArticle.metadata === 'object') {
+      const metadata = dbArticle.metadata as any;
+      imageCaption = metadata.image_caption || '';
+    }
+
     // إضافة views_count من حقل views والكلمات المفتاحية
     const articleWithEnhancedData = {
       ...dbArticle,
       views_count: dbArticle.views || 0,
-      seo_keywords: keywords.length > 0 ? keywords : dbArticle.seo_keywords
+      seo_keywords: keywords.length > 0 ? keywords : dbArticle.seo_keywords,
+      // إضافة حقول للتوافق مع صفحة التعديل
+      description: dbArticle.excerpt || dbArticle.seo_description || '',
+      summary: dbArticle.excerpt || '',
+      image_caption: imageCaption,
+      featured_image_caption: imageCaption
     };
     
     return NextResponse.json(articleWithEnhancedData);
@@ -197,6 +209,11 @@ export async function PUT(
     // إذا كان هناك اسم مؤلف
     if (body.author_name) {
       (metadata as any).author_name = body.author_name;
+    }
+
+    // إضافة شرح الصورة إلى metadata
+    if (body.image_caption || body.featured_image_caption) {
+      (metadata as any).image_caption = body.image_caption || body.featured_image_caption;
     }
 
     const updateData: any = {

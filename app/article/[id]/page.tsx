@@ -931,30 +931,9 @@ export default function ArticlePage({ params }: PageProps) {
             <span>{formatFullDate(article.published_at || article.created_at)}</span>
           </div>
         </div>
-        {/* الكلمات المفتاحية - نقلها فوق أزرار التفاعل */}
-        {article.seo_keywords && (
-          <div className="mt-4 mb-6">
-            <div className="flex flex-wrap gap-2">
-              {(typeof article.seo_keywords === 'string' 
-                ? article.seo_keywords.split(',').map(k => k.trim())
-                : Array.isArray(article.seo_keywords) ? article.seo_keywords : []
-              ).filter(k => k).map((keyword, index) => (
-                <Link
-                  key={index}
-                  href={`/search?q=${encodeURIComponent(keyword)}`}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-full border border-gray-200 dark:border-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200"
-                  title={`البحث عن: ${keyword}`}
-                >
-                  <Hash className="w-3 h-3" />
-                  {keyword}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
         
-        {/* شريط التفاعل السريع - مصغر للموبايل */}
-        <div className="flex items-center justify-start gap-2 sm:gap-3 py-3 border-t border-b border-gray-200 dark:border-gray-700 my-4">
+        {/* شريط التفاعل والكلمات المفتاحية */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 py-3 border-t border-b border-gray-200 dark:border-gray-700 my-4">
           {/* أزرار التفاعل - أيقونات فقط في الموبايل */}
           <div className="flex items-center gap-1 sm:gap-2 mr-auto">
             {/* زر الإعجاب */}
@@ -1037,6 +1016,26 @@ export default function ArticlePage({ params }: PageProps) {
               )}
             </button>
           </div>
+          
+          {/* الكلمات المفتاحية */}
+          {article.seo_keywords && (
+            <div className="flex flex-wrap gap-2 mr-auto">
+              {(typeof article.seo_keywords === 'string' 
+                ? article.seo_keywords.split(',').map(k => k.trim())
+                : Array.isArray(article.seo_keywords) ? article.seo_keywords : []
+              ).filter(k => k).map((keyword, index) => (
+                <Link
+                  key={index}
+                  href={`/search?q=${encodeURIComponent(keyword)}`}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200"
+                  title={`البحث عن: ${keyword}`}
+                >
+                  <Hash className="w-3 h-3" />
+                  <span>{keyword}</span>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
       {/* Main Content Area */}
