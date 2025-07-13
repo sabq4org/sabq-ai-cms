@@ -121,6 +121,8 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+  scroll-behavior: smooth;
+  overscroll-behavior: none;
 }
 
 /* تطبيق أنماط جرعة على العناصر الأساسية */
@@ -3135,6 +3137,51 @@ button.bg-green-600,
   .dark .image-caption {
     color: #9ca3af;
     background-color: #1f2937;
+  }
+}
+
+/* إصلاح مشكلة تداخل الهيدر */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* التأكد من أن الهيدر لا يتداخل مع المحتوى */
+.sticky {
+  position: sticky;
+}
+
+/* إصلاح z-index للهيدر */
+header,
+.z-50 {
+  z-index: 50;
+  position: relative;
+}
+
+/* منع تداخل صورة الملف الشخصي */
+.rounded-full {
+  overflow: hidden;
+}
+
+/* التأكد من أن القوائم المنسدلة تظهر فوق كل شيء */
+[role="menu"],
+.dropdown-menu {
+  z-index: 9999;
+}
+
+/* إصلاح مشكلة تداخل المحتوى مع الهيدر */
+main {
+  position: relative;
+  z-index: 1;
+}
+
+/* مساحة آمنة للمحتوى تحت الهيدر */
+.pt-16 {
+  padding-top: 4rem;
+}
+
+@media (max-width: 768px) {
+  .pt-16 {
+    padding-top: calc(4rem + env(safe-area-inset-top, 0));
   }
 }
 

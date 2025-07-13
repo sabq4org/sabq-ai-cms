@@ -271,11 +271,11 @@ export default function Header() {
               {isLoading ? (
                 <div className="w-8 h-8" />
               ) : user ? (
-                <div ref={mobileDropdownRef}>
+                <div ref={mobileDropdownRef} className="relative">
                   <button
                     ref={mobileButtonRef}
                     onClick={() => setShowDropdown(!showDropdown)}
-                    className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative isolate"
+                    className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
@@ -284,7 +284,7 @@ export default function Header() {
                         alt={user.name} 
                         width={32} 
                         height={32} 
-                        className="w-8 h-8 rounded-full object-cover"
+                        className="w-8 h-8 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm"
                         onError={(e) => {
                           const target = e.currentTarget;
                           const parent = target.parentElement;
@@ -293,14 +293,14 @@ export default function Header() {
                             target.style.display = 'none';
                             // إنشاء وإظهار الدائرة البديلة
                             const fallback = document.createElement('div');
-                            fallback.className = 'w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border border-gray-200 dark:border-gray-700';
+                            fallback.className = 'w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border-2 border-white dark:border-gray-800';
                             fallback.textContent = getInitials(user.name);
                             parent.appendChild(fallback);
                           }
                         }}
                       />
                     ) : (
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border border-gray-200 dark:border-gray-700">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border-2 border-white dark:border-gray-800">
                         {getInitials(user.name)}
                       </div>
                     )}
@@ -386,7 +386,7 @@ export default function Header() {
                   <button
                     ref={desktopButtonRef}
                     onClick={() => setShowDropdown(!showDropdown)}
-                    className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
@@ -395,7 +395,7 @@ export default function Header() {
                         alt={user.name} 
                         width={36} 
                         height={36} 
-                        className="w-9 h-9 rounded-full object-cover"
+                        className="w-9 h-9 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm"
                         onError={(e) => {
                           const target = e.currentTarget;
                           const parent = target.parentElement;
@@ -404,14 +404,14 @@ export default function Header() {
                             target.style.display = 'none';
                             // إنشاء وإظهار الدائرة البديلة
                             const fallback = document.createElement('div');
-                            fallback.className = 'w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm border border-gray-200 dark:border-gray-700';
+                            fallback.className = 'w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm border-2 border-white dark:border-gray-800';
                             fallback.textContent = getInitials(user.name);
                             parent.appendChild(fallback);
                           }
                         }}
                       />
                     ) : (
-                      <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm border border-gray-200 dark:border-gray-700">
+                      <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm border-2 border-white dark:border-gray-800">
                         {getInitials(user.name)}
                       </div>
                     )}
