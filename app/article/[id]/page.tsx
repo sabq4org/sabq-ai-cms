@@ -676,26 +676,11 @@ export default function ArticlePage({ params }: PageProps) {
     );
   }
   if (!article) {
-    return (
-  <div>
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">المقال غير موجود</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">عذراً، لم نتمكن من العثور على المقال المطلوب</p>
-            <Link 
-              href="/" 
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
-            >
-              <Home className="w-5 h-5" />
-              العودة إلى الرئيسية
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+    return <div>Article not found</div>;
   }
+  
   return (
-  <div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+    <div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
       {article && <ArticleJsonLd article={article} />}
       {/* أنماط CSS مخصصة */}
       <style jsx>{`
@@ -946,33 +931,28 @@ export default function ArticlePage({ params }: PageProps) {
             <span>{formatFullDate(article.published_at || article.created_at)}</span>
           </div>
         </div>
-        {/* الكلمات المفتاحية */}
+        {/* الكلمات المفتاحية - نقلها فوق أزرار التفاعل */}
         {article.seo_keywords && (
-          <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-2 mb-3">
-              <Hash className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">الكلمات المفتاحية</h3>
-            </div>
-            <div className="flex flex-wrap gap-2 justify-end">
+          <div className="mt-4 mb-6">
+            <div className="flex flex-wrap gap-2">
               {(typeof article.seo_keywords === 'string' 
                 ? article.seo_keywords.split(',').map(k => k.trim())
                 : Array.isArray(article.seo_keywords) ? article.seo_keywords : []
               ).filter(k => k).map((keyword, index) => (
-                <span
+                <Link
                   key={index}
-                  className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-800 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cursor-pointer"
+                  href={`/search?q=${encodeURIComponent(keyword)}`}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-full border border-gray-200 dark:border-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200"
                   title={`البحث عن: ${keyword}`}
-                  onClick={() => {
-                    // يمكن إضافة وظيفة البحث هنا
-                    console.log(`البحث عن: ${keyword}`);
-                  }}
                 >
+                  <Hash className="w-3 h-3" />
                   {keyword}
-                </span>
+                </Link>
               ))}
             </div>
           </div>
         )}
+        
         {/* شريط التفاعل السريع - مصغر للموبايل */}
         <div className="flex items-center justify-start gap-2 sm:gap-3 py-3 border-t border-b border-gray-200 dark:border-gray-700 my-4">
           {/* أزرار التفاعل - أيقونات فقط في الموبايل */}
