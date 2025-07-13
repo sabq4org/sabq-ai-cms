@@ -448,9 +448,8 @@ export default function CategoriesPage() {
                       e.stopPropagation();
                       e.preventDefault();
                       console.log('Edit button clicked for category:', category);
-                      setSelectedCategory(category);
-                      setShowEditModal(true);
-                      console.log('showEditModal should be true now');
+                      // التوجيه إلى صفحة التعديل المستقلة
+                      router.push(`/dashboard/categories/edit/${category.id}`);
                     }}
                     className={`p-2 rounded-lg transition-colors duration-200 relative z-10 ${
                       darkMode 
