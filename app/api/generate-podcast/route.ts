@@ -15,8 +15,20 @@ export async function POST(req: NextRequest) {
 
     // 1. جلب آخر الأخبار من API صحيفة سبق
     console.log('📰 جلب آخر الأخبار...');
-    const newsResponse = await axios.get(`https://sabq.org/api/news/latest`);
-    const newsItems = newsResponse.data
+    
+    // استخدام API محلي مؤقتاً حتى يعود API الأصلي للعمل
+    let newsData;
+    try {
+      const newsResponse = await axios.get(`https://sabq.org/api/news/latest`);
+      newsData = newsResponse.data;
+    } catch (error) {
+      console.log('⚠️ استخدام البيانات المحلية...');
+      // استخدام API المحلي كبديل
+      const localResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/mock-news`);
+      newsData = await localResponse.json();
+    }
+    
+    const newsItems = newsData
       .slice(0, count)
       .map((n: any, i: number) => `${i + 1}. ${n.title}`)
       .join('\n');
