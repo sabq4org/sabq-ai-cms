@@ -39,8 +39,24 @@ export function getImageUrl(
     return FALLBACK_IMAGES[fallbackType];
   }
 
+  // إذا كانت الصورة محلية (تبدأ بـ /)
+  if (imageUrl.startsWith('/')) {
+    // في بيئة الإنتاج، أضف URL الأساسي
+    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
+      return `${process.env.NEXT_PUBLIC_SITE_URL}${imageUrl}`;
+    }
+    // في بيئة التطوير، إرجاع المسار المحلي كما هو
+    return imageUrl;
+  }
+
   // إذا كانت الصورة من Cloudinary
   if (imageUrl.includes('cloudinary.com')) {
+    // التحقق من وجود transformations موجودة
+    if (imageUrl.includes('/upload/v') || imageUrl.includes('/upload/f_') || imageUrl.includes('/upload/w_')) {
+      // إذا كانت الصورة تحتوي على transformations بالفعل، أعدها كما هي
+      return imageUrl;
+    }
+    
     // إضافة transformations
     const transformations = [
       `w_${width}`,

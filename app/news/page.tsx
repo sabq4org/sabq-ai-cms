@@ -4,32 +4,44 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { formatDateOnly } from '@/lib/date-utils';
-import ArticleCard from '@/components/ArticleCard';
-import CompactArticleCard from '@/components/CompactArticleCard';
-import MobileNewsCard from '@/components/mobile/MobileNewsCard';
+import Link from 'next/link';
+import { getArticleLink } from '@/lib/utils';
 import './news-styles.css';
+import '../categories/categories-fixes.css';
 import { 
-  Newspaper, Search, Loader2,
-  Grid, List, ChevronRight, Calendar
+  Newspaper, Search, Loader2, Tag, ArrowRight, Calendar, Clock, Eye, Heart,
+  Grid, List, ChevronRight, Sparkles, Zap, User, ArrowLeft
 } from 'lucide-react';
+
 interface Article {
   id: string;
   title: string;
+  excerpt?: string;
   summary?: string;
   featured_image?: string;
   category_id: number;
+  category?: {
+    id: number;
+    name: string;
+    slug: string;
+    color?: string;
+  };
   category_name?: string;
   author_name?: string;
   author_id?: string;
-  views_count: number;
+  views_count?: number;
+  views?: number;
+  likes_count?: number;
   created_at: string;
   published_at?: string;
   reading_time?: number;
   is_breaking?: boolean;
+  breaking?: boolean;
   is_featured?: boolean;
+  featured?: boolean;
   status?: string;
 }
+
 interface Category {
   id: number;
   name?: string;
@@ -37,60 +49,62 @@ interface Category {
   name_en?: string;
   slug: string;
   icon?: string;
+  color?: string;
   color_hex?: string;
   articles_count?: number;
   is_active?: boolean;
 }
-// ألوان التصنيفات الافتراضية
-const categoryColors: { [key: string]: string } = {
-  'تقنية': 'from-purple-500 to-purple-600',
-  'اقتصاد': 'from-green-500 to-green-600',
-  'رياضة': 'from-blue-500 to-blue-600',
-  'سياسة': 'from-red-500 to-red-600',
-  'ثقافة': 'from-yellow-500 to-yellow-600',
-  'صحة': 'from-pink-500 to-pink-600',
-  'محلي': 'from-indigo-500 to-indigo-600',
-  'دولي': 'from-cyan-500 to-cyan-600',
-  'منوعات': 'from-orange-500 to-orange-600',
-  'default': 'from-gray-500 to-gray-600'
-};
+
 export default function NewsPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'latest' | 'popular' | 'trending'>('latest');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'views' | 'likes'>('newest');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isCompactView, setIsCompactView] = useState(true); // افتراضياً نستخدم العرض المضغوط
-  // تحديد حجم الشاشة
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
   
   // جلب التصنيفات
   useEffect(() => {
     fetchCategories();
   }, []);
+  
   // جلب المقالات
   useEffect(() => {
     fetchArticles();
-  }, [selectedCategory, sortBy, page]);
+  }, [selectedCategory, page]);
+
+  // فلترة وترتيب المقالات
+  useEffect(() => {
+    const filtered = articles.filter(article =>
+      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (article.excerpt && article.excerpt.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (article.summary && article.summary.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    // ترتيب المقالات
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'views':
+          return ((b.views_count || b.views || 0) - (a.views_count || a.views || 0));
+        case 'likes':
+          return ((b.likes_count || 0) - (a.likes_count || 0));
+        case 'newest':
+        default:
+          return new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime();
+      }
+    });
+
+    setFilteredArticles(sorted);
+  }, [articles, sortBy, searchTerm]);
+
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/categories');
       const data = await response.json();
-      // التأكد من أن البيانات مصفوفة
       let categoriesArray: Category[] = [];
       if (Array.isArray(data)) {
         categoriesArray = data;
@@ -102,9 +116,10 @@ export default function NewsPage() {
       setCategories(categoriesArray);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      setCategories([]); // تعيين مصفوفة فارغة في حالة الخطأ
+      setCategories([]);
     }
   };
+
   const fetchArticles = async () => {
     try {
       setLoading(true);
@@ -112,21 +127,14 @@ export default function NewsPage() {
       if (selectedCategory) {
         url += `&category_id=${selectedCategory}`;
       }
-      if (sortBy === 'popular') {
-        url += '&sort=views_count&order=desc';
-      } else if (sortBy === 'trending') {
-        url += '&sort=interactions_count&order=desc';
-      } else {
-        url += '&sort=created_at&order=desc';
-      }
       if (page > 1) {
         url += `&page=${page}`;
       }
+      
       const response = await fetch(url);
       const data = await response.json();
-      // التأكد من أن البيانات مصفوفة
+      
       let articlesArray: Article[] = [];
-      // API يُرجع البيانات في حقل data
       if (data && data.data && Array.isArray(data.data)) {
         articlesArray = data.data;
       } else if (data && data.articles && Array.isArray(data.articles)) {
@@ -134,16 +142,26 @@ export default function NewsPage() {
       } else if (Array.isArray(data)) {
         articlesArray = data;
       }
-      // فلترة المقالات المنشورة فقط
-      articlesArray = articlesArray.filter(article => 
-        !article.status || article.status === 'published'
-      );
+      
+      // تحويل البيانات
+      const transformedArticles = articlesArray.map((article: any) => ({
+        ...article,
+        views_count: article.views_count || article.views || 0,
+        likes_count: article.likes_count || 0,
+        category_name: article.category_name || article.category?.name || getCategoryName(article.category_id),
+        author_name: article.author_name || article.author?.name || 'غير محدد',
+        published_at: article.published_at || article.created_at,
+        is_featured: article.featured || article.is_featured || false,
+        is_breaking: article.breaking === true || article.is_breaking === true || false,
+        excerpt: article.excerpt || article.summary
+      }));
+      
       if (page === 1) {
-        setArticles(articlesArray);
+        setArticles(transformedArticles);
       } else {
-        setArticles(prev => [...prev, ...articlesArray]);
+        setArticles(prev => [...prev, ...transformedArticles]);
       }
-      setHasMore(articlesArray.length === 20);
+      setHasMore(transformedArticles.length === 20);
     } catch (error) {
       console.error('Error fetching articles:', error);
       setArticles([]);
@@ -151,48 +169,33 @@ export default function NewsPage() {
       setLoading(false);
     }
   };
-  const filteredArticles = articles.filter(article => 
-    searchQuery === '' || 
-    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.summary?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+
   const getCategoryName = (categoryId: number) => {
     const category = categories.find(c => c.id === categoryId);
     return category?.name_ar || category?.name_en || 'عام';
   };
+
   const getCategoryColor = (categoryId: number) => {
     const category = categories.find(c => c.id === categoryId);
-    if (category?.color_hex) {
-      return `from-[${category.color_hex}] to-[${category.color_hex}]`;
-    }
-    const categoryName = category?.name_ar || category?.name_en || '';
-    return categoryColors[categoryName] || categoryColors['default'];
+    return category?.color || category?.color_hex || '#3B82F6';
   };
-  // استخدام دالة التاريخ الميلادي الموحدة
-  const formatDate = formatDateOnly;
-  const generatePlaceholderImage = (title: string) => {
-    const colors = ['#8B5CF6', '#10B981', '#3B82F6', '#EF4444', '#F59E0B'];
-    const colorIndex = title.charCodeAt(0) % colors.length;
-    return `data:image/svg+xml,${encodeURIComponent(`
-      <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:${colors[colorIndex]};stop-opacity:1" />
-            <stop offset="100%" style="stop-color:${colors[(colorIndex + 1) % colors.length]};stop-opacity:1" />
-          </linearGradient>
-        </defs>
-        <rect width="400" height="300" fill="url(#grad)"/>
-        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.8">
-          ${title.substring(0, 20)}
-        </text>
-      </svg>
-    `)}`;
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ar-SA', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
+    });
   };
+
   return (
     <>
       <Header />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* Hero Section - تصميم ملون */}
+        {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 py-16">
           <div className="absolute inset-0 bg-black/20" />
           {/* Animated Background Elements */}
@@ -214,7 +217,7 @@ export default function NewsPage() {
             <p className="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
               تابع آخر الأخبار والمستجدات المحلية والعالمية لحظة بلحظة
             </p>
-            {/* Stats with Glass Effect */}
+            {/* Stats */}
             <div className="inline-flex flex-row items-center gap-4 sm:gap-8 bg-black bg-opacity-20 backdrop-blur-md rounded-2xl px-6 sm:px-8 py-4 shadow-xl border border-white border-opacity-20">
               <div className="text-center">
                 <div className="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-lg">{articles.length}</div>
@@ -233,52 +236,65 @@ export default function NewsPage() {
             </div>
           </div>
         </section>
-        {/* Search Section - تصميم بسيط */}
+        
+        {/* Search and Filters Section */}
         <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10 shadow-md">
           <div className="max-w-7xl mx-auto px-6 py-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="relative flex-1 max-w-md">
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+              {/* Search */}
+              <div className="relative w-full md:w-96">
                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
                   placeholder="ابحث في الأخبار..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pr-12 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 focus:border-transparent transition-all text-gray-900 dark:text-white"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pr-12 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 focus:border-transparent transition-all text-gray-900 dark:text-white"
                 />
               </div>
-              
-              {/* أزرار التحكم في العرض - للديسكتوب فقط */}
-              {!isMobile && (
-                <div className="flex items-center gap-2">
+              {/* Sort and View Options */}
+              <div className="flex items-center gap-4">
+                {/* Sort */}
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="newest">الأحدث</option>
+                  <option value="views">الأكثر مشاهدة</option>
+                  <option value="likes">الأكثر إعجاباً</option>
+                </select>
+                {/* View Mode */}
+                <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                   <button
-                    onClick={() => setIsCompactView(true)}
-                    className={`p-2 rounded-lg transition-all ${
-                      isCompactView 
-                        ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400' 
-                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === 'grid'
+                        ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                     }`}
-                    title="عرض مضغوط"
+                    title="عرض شبكة"
                   >
-                    <List className="w-5 h-5" />
+                    <Grid className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => setIsCompactView(false)}
-                    className={`p-2 rounded-lg transition-all ${
-                      !isCompactView 
-                        ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400' 
-                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === 'list'
+                        ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                     }`}
-                    title="عرض شبكي"
+                    title="عرض قائمة"
                   >
-                    <Grid className="w-5 h-5" />
+                    <List className="w-4 h-4" />
                   </button>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </section>
-        {/* Main Content */}
+        
+        {/* Articles Section */}
         <section className="max-w-7xl mx-auto px-6 py-12">
           {loading && page === 1 ? (
             <div className="flex flex-col items-center justify-center py-20">
@@ -287,34 +303,235 @@ export default function NewsPage() {
             </div>
           ) : filteredArticles.length > 0 ? (
             <>
-              {/* عرض البطاقات حسب الحجم والوضع */}
-              {isMobile ? (
-                // عرض الموبايل - استخدام MobileNewsCard
-                <div className="space-y-3">
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {filteredArticles.map((article) => (
-                    <MobileNewsCard 
-                      key={article.id} 
-                      news={article} 
-                      darkMode={false}
-                    />
-                  ))}
-                </div>
-              ) : isCompactView ? (
-                // عرض مضغوط للديسكتوب
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {filteredArticles.map((article) => (
-                    <CompactArticleCard key={article.id} article={article} />
+                    <Link key={article.id} href={getArticleLink(article)} className="group block">
+                      <article className={`article-card h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 ${
+                        article.is_breaking 
+                          ? 'bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800'
+                          : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'
+                      }`}>
+                        {/* صورة المقال */}
+                        <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
+                          {article.featured_image ? (
+                            <Image
+                              src={article.featured_image}
+                              alt={article.title || 'صورة المقال'}
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                              priority={false}
+                              unoptimized={article.featured_image.includes('cloudinary.com')}
+                              onError={(e) => {
+                                console.error('خطأ في تحميل الصورة:', article.featured_image);
+                                const target = e.currentTarget as HTMLImageElement;
+                                target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRTVFN0VCO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNEMUQ1REI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0idXJsKCNncmFkMSkiLz4KICA8cGF0aCBkPSJNMzAwIDIwMCBMNTAwIDIwMCBMNTAwIDQwMCBMMzAwIDQwMCBaIiBmaWxsPSIjOUNBM0FGIiBvcGFjaXR5PSIwLjUiLz4KICA8Y2lyY2xlIGN4PSI0MDAiIGN5PSIzMDAiIHI9IjUwIiBmaWxsPSIjOUNBM0FGIiBvcGFjaXR5PSIwLjUiLz4KICA8dGV4dCB4PSI0MDAiIHk9IjQ1MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSIjNkI3MjgwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBvcGFjaXR5PSIwLjgiPgogICAgINi12YjYsdipINin2YTZhNmC2KfZhAogIDwvdGV4dD4KPC9zdmc+';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+                              <Newspaper className="w-16 h-16 text-gray-400 dark:text-gray-600" />
+                            </div>
+                          )}
+                          {/* Category Badge */}
+                          {article.category_name && (
+                            <div className="absolute top-3 right-3">
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold text-white backdrop-blur-sm"
+                                style={{ backgroundColor: getCategoryColor(article.category_id) + 'ee' }}>
+                                <Tag className="w-3 h-3" />
+                                {article.category_name}
+                              </span>
+                            </div>
+                          )}
+                          {/* معلومات أسفل الصورة */}
+                          <div className="absolute bottom-3 right-3 left-3 flex gap-2">
+                            {/* وقت القراءة */}
+                            {article.reading_time && (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
+                                <Clock className="w-3 h-3" />
+                                {article.reading_time} دقيقة
+                              </span>
+                            )}
+                            {/* اسم الكاتب */}
+                            {article.author_name && article.author_name !== 'غير محدد' && (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
+                                <User className="w-3 h-3" />
+                                {article.author_name}
+                              </span>
+                            )}
+                          </div>
+                          {/* شارة عاجل */}
+                          {article.is_breaking && (
+                            <div className="absolute top-3 left-3">
+                              <span className="urgent-badge inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white backdrop-blur-sm">
+                                <Zap className="w-3 h-3" />
+                                عاجل
+                              </span>
+                            </div>
+                          )}
+                          {/* شارة مميز */}
+                          {article.is_featured && (
+                            <div className="absolute top-12 left-3">
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white backdrop-blur-sm">
+                                <Sparkles className="w-3 h-3" />
+                                مميز
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        {/* محتوى البطاقة */}
+                        <div className="p-5">
+                          {/* العنوان */}
+                          <h4 className={`font-bold text-[15px] leading-[1.4] mb-3 line-clamp-3 ${
+                            article.is_breaking 
+                              ? 'text-red-700 dark:text-red-400' 
+                              : 'text-gray-900 dark:text-white'
+                          } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors`}>
+                            {article.title}
+                          </h4>
+                          {/* الملخص */}
+                          {article.excerpt && (
+                            <p className="text-[13px] leading-relaxed mb-4 line-clamp-2 text-gray-600 dark:text-gray-400">
+                              {article.excerpt}
+                            </p>
+                          )}
+                          {/* التفاصيل السفلية */}
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                            {/* المعلومات */}
+                            <div className="flex flex-col gap-1">
+                              {/* التاريخ */}
+                              <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {formatDate(article.published_at || article.created_at)}
+                              </div>
+                              {/* المشاهدات */}
+                              <div className="flex items-center gap-3 text-xs">
+                                <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                                  <Eye className="w-3 h-3" />
+                                  {article.views_count > 0 ? article.views_count.toLocaleString('ar-SA') : 'جديد'}
+                                </span>
+                                {article.likes_count && article.likes_count > 0 && (
+                                  <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                                    <Heart className="w-3 h-3" />
+                                    {article.likes_count.toLocaleString('ar-SA')}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {/* زر القراءة */}
+                            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+                              <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    </Link>
                   ))}
                 </div>
               ) : (
-                // عرض البطاقات الكبيرة التقليدية
-                <div className={`${
-                  viewMode === 'grid' 
-                    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' 
-                    : 'space-y-6'
-                }`}>
+                <div className="space-y-4">
                   {filteredArticles.map((article) => (
-                    <ArticleCard key={article.id} article={article} viewMode={viewMode} />
+                    <Link key={article.id} href={getArticleLink(article)} className="group block">
+                      <article className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6 ${
+                        article.is_breaking 
+                          ? 'border-2 border-red-200 dark:border-red-800'
+                          : 'border border-gray-100 dark:border-gray-700'
+                      }`}>
+                        {/* Image */}
+                        <div className="relative w-48 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
+                          {article.featured_image ? (
+                            <Image
+                              src={article.featured_image}
+                              alt={article.title || 'صورة المقال'}
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              sizes="200px"
+                              priority={false}
+                              unoptimized={article.featured_image.includes('cloudinary.com')}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+                              <Newspaper className="w-12 h-12 text-gray-400 dark:text-gray-600" />
+                            </div>
+                          )}
+                          {article.is_breaking && (
+                            <div className="absolute top-2 right-2">
+                              <span className="urgent-badge inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+                                <Zap className="w-3 h-3" />
+                                عاجل
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        {/* Content */}
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className={`text-[17px] font-bold leading-[1.4] ${
+                              article.is_breaking 
+                                ? 'text-red-700 dark:text-red-400' 
+                                : 'text-gray-900 dark:text-white'
+                            } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-3`}>
+                              {article.title}
+                            </h3>
+                            {article.is_featured && (
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white flex-shrink-0 ml-3">
+                                <Sparkles className="w-3 h-3" />
+                                مميز
+                              </span>
+                            )}
+                          </div>
+                          {article.excerpt && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">
+                              {article.excerpt}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                              {/* التصنيف */}
+                              {article.category_name && (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
+                                  style={{ backgroundColor: getCategoryColor(article.category_id) }}>
+                                  <Tag className="w-3 h-3" />
+                                  {article.category_name}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                {formatDate(article.published_at || article.created_at)}
+                              </span>
+                              {article.reading_time && (
+                                <span className="flex items-center gap-1">
+                                  <Clock className="w-4 h-4" />
+                                  {article.reading_time} دقيقة
+                                </span>
+                              )}
+                              {article.author_name && (
+                                <span className="flex items-center gap-1">
+                                  <User className="w-4 h-4" />
+                                  {article.author_name}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                                <Eye className="w-4 h-4" />
+                                {article.views_count > 0 ? article.views_count.toLocaleString('ar-SA') : 'جديد'}
+                              </span>
+                              {article.likes_count && article.likes_count > 0 && (
+                                <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                                  <Heart className="w-4 h-4" />
+                                  {article.likes_count.toLocaleString('ar-SA')}
+                                </span>
+                              )}
+                              <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+                                <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -347,7 +564,9 @@ export default function NewsPage() {
                 <Newspaper className="w-12 h-12 text-gray-400 dark:text-gray-500" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">لا توجد أخبار متاحة</h3>
-              <p className="text-gray-500 dark:text-gray-400">لم يتم العثور على أي مقالات منشورة حالياً</p>
+              <p className="text-gray-500 dark:text-gray-400">
+                {searchTerm ? 'لم يتم العثور على أي مقالات تطابق البحث' : 'لم يتم العثور على أي مقالات منشورة حالياً'}
+              </p>
             </div>
           )}
         </section>
