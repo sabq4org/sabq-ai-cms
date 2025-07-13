@@ -680,7 +680,7 @@ export default function ArticlePage({ params }: PageProps) {
   }
   
   return (
-    <div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+  <div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
       {article && <ArticleJsonLd article={article} />}
       {/* أنماط CSS مخصصة */}
       <style jsx>{`
@@ -946,7 +946,7 @@ export default function ArticlePage({ params }: PageProps) {
         {/* شريط التفاعل والكلمات المفتاحية - إعادة توزيع */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4 border-t border-b border-gray-200 dark:border-gray-700 my-6">
           {/* الكلمات المفتاحية - اليمين */}
-          {article.seo_keywords && (
+        {article.seo_keywords && (
             <div className="flex flex-wrap gap-2 order-2 sm:order-1">
               {(typeof article.seo_keywords === 'string' 
                 ? article.seo_keywords.split(',').map(k => k.trim())
@@ -962,8 +962,8 @@ export default function ArticlePage({ params }: PageProps) {
                   <span>{keyword}</span>
                 </Link>
               ))}
-            </div>
-          )}
+          </div>
+        )}
           
           {/* أزرار التفاعل - اليسار */}
           <div className="flex items-center gap-2 order-1 sm:order-2">

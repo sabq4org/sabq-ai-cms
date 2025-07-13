@@ -305,7 +305,7 @@ export default function NewsPage() {
             <>
               {/* Mobile View */}
               <div className="md:hidden space-y-4">
-                {filteredArticles.map((article) => (
+                  {filteredArticles.map((article) => (
                   <Link key={article.id} href={getArticleLink(article)} className="block">
                     <article className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden active:scale-[0.98] transition-transform">
                       {/* Mobile Card Layout */}
@@ -379,14 +379,14 @@ export default function NewsPage() {
                       </div>
                     </article>
                   </Link>
-                ))}
-              </div>
+                  ))}
+                </div>
 
               {/* Desktop View - Keep existing code */}
               <div className="hidden md:block">
                 {viewMode === 'grid' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {filteredArticles.map((article) => (
+                  {filteredArticles.map((article) => (
                       <Link key={article.id} href={getArticleLink(article)} className="group block">
                         <article className={`article-card h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 ${
                           article.is_breaking 
@@ -509,9 +509,9 @@ export default function NewsPage() {
                           </div>
                         </article>
                       </Link>
-                    ))}
-                  </div>
-                ) : (
+                  ))}
+                </div>
+              ) : (
                   <div className="space-y-4">
                     {filteredArticles.map((article) => (
                       <Link key={article.id} href={getArticleLink(article)} className="group block">
@@ -614,9 +614,9 @@ export default function NewsPage() {
                           </div>
                         </article>
                       </Link>
-                    ))}
-                  </div>
-                )}
+                  ))}
+                </div>
+              )}
               </div>
               {/* Load More */}
               {hasMore && (

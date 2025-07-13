@@ -72,7 +72,7 @@ export default function EditArticlePage() {
   
   const [articleLoading, setArticleLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-
+  
   // حالة لتتبع التغييرات في النموذج
   const [originalFormData, setOriginalFormData] = useState<any>(null);
   const [isDirty, setIsDirty] = useState(false);

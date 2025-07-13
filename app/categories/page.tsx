@@ -285,7 +285,7 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <Header />
         <div className="flex-1 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
@@ -300,7 +300,7 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+  <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Header />
       <main className="flex-1">
         {/* Hero Section with Animated Gradient */}
@@ -369,10 +369,10 @@ export default function CategoriesPage() {
             <>
               {/* Mobile View - Single Column */}
               <div className="md:hidden space-y-3">
-                {filteredCategories.map((category) => {
-                  const categorySlug = category.slug || category.name_ar.toLowerCase().replace(/\s+/g, '-');
-                  const data = getCategoryData(category.name_ar);
-                  const Icon = data.icon;
+              {filteredCategories.map((category) => {
+                const categorySlug = category.slug || category.name_ar.toLowerCase().replace(/\s+/g, '-');
+                const data = getCategoryData(category.name_ar);
+                const Icon = data.icon;
                   
                   return (
                     <Link
@@ -431,26 +431,26 @@ export default function CategoriesPage() {
                   const data = getCategoryData(category.name_ar);
                   const Icon = data.icon;
                   const imageSrc = getCategoryImage(category);
-                  
-                  return (
-                    <Link
-                      key={category.id}
-                      href={`/categories/${categorySlug}`}
+                
+                return (
+                  <Link
+                    key={category.id}
+                    href={`/categories/${categorySlug}`}
                       className="group block"
-                    >
+                  >
                       <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 h-80 transition-shadow duration-300">
                         {/* Background Image with Overlay */}
-                        <div className="absolute inset-0">
-                          <Image 
-                            src={imageSrc} 
-                            alt={category.name_ar}
-                            fill
+                      <div className="absolute inset-0">
+                        <Image 
+                          src={imageSrc} 
+                          alt={category.name_ar}
+                          fill
                             className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            onError={(e) => {
-                              console.error(`Failed to load image for ${category.name_ar}:`, imageSrc);
-                            }}
-                          />
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          onError={(e) => {
+                            console.error(`Failed to load image for ${category.name_ar}:`, imageSrc);
+                          }}
+                        />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                         </div>
                         {/* Content */}
@@ -470,39 +470,39 @@ export default function CategoriesPage() {
                               {/* Title and Description */}
                               <div className="flex-1">
                                 <h3 className="text-lg md:text-xl font-bold text-white mb-1 drop-shadow-lg">
-                                  {category.name_ar}
-                                </h3>
-                                {(() => {
-                                  let desc = category.description;
-                                  // إذا كان الوصف عبارة عن JSON، استخرج القيمة الفعلية
-                                  if (desc && desc.startsWith('{')) {
-                                    try {
-                                      const parsed = JSON.parse(desc);
-                                      desc = parsed.ar || parsed.description || desc;
-                                    } catch (e) {
-                                      // استخدم النص كما هو إذا فشل التحليل
-                                    }
-                                  }
-                                  return desc ? (
+                          {category.name_ar}
+                        </h3>
+                        {(() => {
+                          let desc = category.description;
+                          // إذا كان الوصف عبارة عن JSON، استخرج القيمة الفعلية
+                          if (desc && desc.startsWith('{')) {
+                            try {
+                              const parsed = JSON.parse(desc);
+                              desc = parsed.ar || parsed.description || desc;
+                            } catch (e) {
+                              // استخدم النص كما هو إذا فشل التحليل
+                            }
+                          }
+                          return desc ? (
                                     <p className="text-white/80 text-xs md:text-sm line-clamp-2 drop-shadow">
-                                      {desc}
-                                    </p>
-                                  ) : null;
-                                })()}
+                            {desc}
+                          </p>
+                          ) : null;
+                        })()}
                               </div>
                             </div>
                             {/* Left Side: Articles Count */}
                             <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3 py-1.5 md:py-2 rounded-full border border-white/30 flex-shrink-0">
                               <BookOpen className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
                               <span className="text-xs md:text-sm font-medium text-white whitespace-nowrap">{category.articles_count || 0} مقال</span>
-                            </div>
                           </div>
                         </div>
                       </div>
-                    </Link>
-                  );
-                })}
-              </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
             </>
           )}
         </section>

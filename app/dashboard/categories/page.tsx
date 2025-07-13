@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import CategoryFormModal from '@/components/CategoryFormModal';
+import CategoryEditModal from '@/components/CategoryEditModal';
 import CategoriesAnalytics from '@/components/dashboard/CategoriesAnalytics';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { Category } from '@/types/category';
@@ -551,11 +551,9 @@ export default function CategoriesPage() {
         </div>
         
         {(showAddModal || showEditModal) && (
-            <CategoryFormModal
+            <CategoryEditModal
                 isOpen={showAddModal || showEditModal}
-                isEdit={showEditModal}
-                category={selectedCategory}
-                categories={categories}
+                initialData={showEditModal ? selectedCategory : null}
                 darkMode={darkMode}
                 onClose={() => {
                   setShowAddModal(false);
