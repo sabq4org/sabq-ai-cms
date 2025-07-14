@@ -1,21 +1,35 @@
 'use client';
 
-import Image from 'next/image'
-import React, { useState, useRef, useEffect } from 'react'
-import ReactDOM from 'react-dom'
-import Link from 'next/link'
-import { getMembershipLevel } from '@/lib/loyalty'
+import { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
+import Link from 'next/link';
+import Image from 'next/image';
 import { 
-  User, Trophy, RefreshCw, 
-  Heart, Settings, Bell, LogOut, Loader2,
-  Crown, Star, Award, Gem, X
+  User, 
+  Settings, 
+  LogOut, 
+  X, 
+  Heart, 
+  Bell, 
+  ChevronRight,
+  Award,
+  Star,
+  Crown,
+  Trophy,
+  Bookmark,
+  Activity,
+  Brain,
+  MessageSquare
 } from 'lucide-react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 
 interface UserData {
   id: string;
   name: string;
   email: string;
+  avatar?: string;
+  role?: string;
 }
 
 interface LoyaltyData {
@@ -32,267 +46,305 @@ interface UserDropdownProps {
   anchorElement?: HTMLElement | null;
 }
 
+interface LoyaltyInfo {
+  level: string;
+  levelIcon: any;
+  levelColor: string;
+  points: number;
+  nextLevelPoints: number;
+  progress: number;
+}
+
 export default function UserDropdown({ user, onClose, onLogout, anchorElement }: UserDropdownProps) {
-  const [loyaltyData, setLoyaltyData] = useState<LoyaltyData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [position, setPosition] = useState({ top: 64, left: 0 });
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [isVisible, setIsVisible] = useState(false);
+  const [loyaltyInfo, setLoyaltyInfo] = useState<LoyaltyInfo | null>(null);
+  const { darkMode } = useDarkModeContext();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
+  const isMobile = window.innerWidth < 768;
+
+  // جلب معلومات الولاء
+  useEffect(() => {
+    const fetchLoyaltyInfo = async () => {
+      try {
+        const response = await fetch(`/api/loyalty/user/${user.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          
+          // تحديد مستوى العضوية
+          let level = 'عضو جديد';
+          let levelIcon = Star;
+          let levelColor = 'text-gray-500';
+          let nextLevelPoints = 100;
+          
+          if (data.totalPoints >= 1000) {
+            level = 'عضو ذهبي';
+            levelIcon = Crown;
+            levelColor = 'text-yellow-500';
+            nextLevelPoints = 5000;
+          } else if (data.totalPoints >= 500) {
+            level = 'عضو فضي';
+            levelIcon = Trophy;
+            levelColor = 'text-gray-400';
+            nextLevelPoints = 1000;
+          } else if (data.totalPoints >= 100) {
+            level = 'عضو برونزي';
+            levelIcon = Award;
+            levelColor = 'text-orange-600';
+            nextLevelPoints = 500;
+          }
+          
+          const progress = Math.min(100, (data.totalPoints / nextLevelPoints) * 100);
+          
+          setLoyaltyInfo({
+            level,
+            levelIcon,
+            levelColor,
+            points: data.totalPoints || 0,
+            nextLevelPoints,
+            progress
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching loyalty info:', error);
+      }
+    };
+
+    if (user?.id) {
+      fetchLoyaltyInfo();
+    }
+  }, [user]);
 
   // حساب موقع القائمة
   useEffect(() => {
-    if (!isMobile && anchorElement) {
+    if (anchorElement && !isMobile) {
       const rect = anchorElement.getBoundingClientRect();
-      const dropdownWidth = 320; // عرض القائمة المنسدلة
+      const dropdownWidth = 320;
+      const dropdownHeight = 500;
       
-      // حساب الموقع الأمثل للقائمة المنسدلة
-      // نبدأ من اليمين (محاذاة مع الزر) ثم نعدل حسب الحاجة
-      let leftPosition = rect.right - dropdownWidth;
+      let left = rect.left;
+      let top = rect.bottom + 8;
       
-      // التأكد من أن القائمة لا تخرج من حدود الشاشة اليسرى
-      if (leftPosition < 16) {
-        leftPosition = 16;
+      // التحقق من تجاوز حدود الشاشة
+      if (left + dropdownWidth > window.innerWidth) {
+        left = window.innerWidth - dropdownWidth - 16;
       }
       
-      // التأكد من أن القائمة لا تخرج من حدود الشاشة اليمنى
-      if (leftPosition + dropdownWidth > window.innerWidth - 16) {
-        leftPosition = window.innerWidth - dropdownWidth - 16;
+      if (top + dropdownHeight > window.innerHeight) {
+        top = rect.top - dropdownHeight - 8;
       }
       
-      setPosition({
-        top: rect.bottom + 8,
-        left: leftPosition
-      });
+      setPosition({ top, left });
     }
   }, [anchorElement, isMobile]);
 
-  // كشف حجم الشاشة
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    // منع التمرير في الخلفية عند فتح القائمة على الموبايل
-    if (isMobile) {
-      document.body.style.overflow = 'hidden';
-    }
-    
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-      document.body.style.overflow = '';
-    };
-  }, [isMobile]);
-
-  const fetchLoyaltyPoints = async () => {
-    try {
-      setIsRefreshing(true);
-      const userId = localStorage.getItem('user_id');
-      
-      if (!userId || userId === 'anonymous') {
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch(`/api/loyalty/points?user_id=${userId}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setLoyaltyData(data.data);
-          localStorage.setItem('user_loyalty_points', data.data.total_points.toString());
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching loyalty points:', error);
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchLoyaltyPoints();
-    
-    const handlePointsUpdate = () => {
-      fetchLoyaltyPoints();
-    };
-    
-    window.addEventListener('loyalty-points-updated', handlePointsUpdate);
-    
-    return () => {
-      window.removeEventListener('loyalty-points-updated', handlePointsUpdate);
-    };
+    setIsMounted(true);
+    return () => setIsMounted(false);
   }, []);
 
-  // استخدام نظام التصنيف المركزي
-  const loyaltyLevel = loyaltyData ? getMembershipLevel(loyaltyData.total_points) : null;
-
-  const getTierIcon = (name: string) => {
-    switch (name) {
-      case 'برونزي': return Crown;
-      case 'فضي': return Star;
-      case 'ذهبي': return Award;
-      case 'سفير': return Gem;
-      default: return Trophy;
+  // إظهار القائمة بتأثير
+  useEffect(() => {
+    if (isMounted) {
+      requestAnimationFrame(() => {
+        setIsVisible(true);
+      });
     }
-  };
+  }, [isMounted]);
 
-  const TierIcon = loyaltyLevel ? getTierIcon(loyaltyLevel.name) : Trophy;
-
-  // تأكد من وجود document قبل استخدام createPortal
-  if (typeof document === 'undefined') return null;
+  if (!isMounted) return null;
 
   const dropdownContent = (
     <>
-      {/* خلفية شفافة للموبايل */}
+      {/* الخلفية المعتمة للموبايل */}
       {isMobile && (
         <div 
-          className="fixed inset-0 bg-black/50 z-[999] md:hidden"
+          className="fixed inset-0 bg-black/50 z-40"
           onClick={onClose}
         />
       )}
       
-      {/* القائمة المنسدلة */}
-      <div className={`
-        ${isMobile 
-          ? 'fixed bottom-0 left-0 right-0 w-full max-h-[70vh] rounded-t-3xl animate-slide-up' 
-          : 'fixed w-80 max-w-[calc(100vw-2rem)] rounded-2xl'
-        }
-        bg-white dark:bg-gray-800 shadow-xl dark:shadow-gray-900/50 
-        border border-gray-100 dark:border-gray-700 overflow-hidden z-[1000]
-        ${isMobile ? 'overflow-y-auto' : ''}
-      `      } 
-      style={!isMobile ? { 
-        top: `${position.top}px`, 
-        left: `${position.left}px` 
-      } : undefined}
+      <div 
+        ref={dropdownRef}
+        className={`
+          ${isMobile 
+            ? 'fixed inset-x-0 bottom-0 max-h-[80vh] rounded-t-2xl animate-slide-up' 
+            : 'absolute w-80 rounded-xl animate-fade-in'
+          } 
+          ${darkMode ? 'bg-gray-800' : 'bg-white'}
+          shadow-2xl border ${darkMode ? 'border-gray-700' : 'border-gray-200'}
+          overflow-hidden z-50 transition-all duration-200
+        `}
+        style={!isMobile ? { top: position.top, left: position.left } : {}}
       >
-        {/* زر الإغلاق للموبايل */}
-        {isMobile && (
-          <div className="sticky top-0 bg-white dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <h3 className="font-bold text-lg text-gray-900 dark:text-white">حسابي</h3>
+        {/* رأس القائمة - معلومات المستخدم */}
+        <div className={`p-6 border-b ${darkMode ? 'border-gray-700 bg-gray-900/50' : 'border-gray-100 bg-gray-50'}`}>
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-4">
+              {user.avatar ? (
+                <Image
+                  src={user.avatar}
+                  alt={user.name}
+                  width={56}
+                  height={56}
+                  className="rounded-full ring-2 ring-white dark:ring-gray-700 shadow-md"
+                />
+              ) : (
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold shadow-md ${
+                  darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700'
+                }`}>
+                  {user.name.charAt(0)}
+                </div>
+              )}
+              <div className="flex-1">
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+                  {user.name}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {user.email}
+                </p>
+                {user.role && (
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    {user.role}
+                  </span>
+                )}
+              </div>
+            </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className={`p-2 rounded-lg transition-colors ${
+                darkMode 
+                  ? 'hover:bg-gray-700 text-gray-400' 
+                  : 'hover:bg-gray-100 text-gray-500'
+              }`}
             >
-              <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <X className="w-5 h-5" />
             </button>
           </div>
-        )}
 
-        {/* رأس القائمة - معلومات المستخدم */}
-        <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-700 dark:via-gray-800 dark:to-gray-700 p-6 pointer-events-none">
-          <div className="space-y-3">
-            {/* المستوى */}
-            {loyaltyLevel && (
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-xl shadow-sm dark:shadow-gray-900/50 ${loyaltyLevel.bgColor}`}>
-                  <TierIcon className="w-5 h-5" style={{ color: loyaltyLevel.color }} />
+          {/* بطاقة الولاء */}
+          {loyaltyInfo && (
+            <div className={`p-3 rounded-xl ${
+              darkMode ? 'bg-gray-800' : 'bg-white'
+            } border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <loyaltyInfo.levelIcon className={`w-5 h-5 ${loyaltyInfo.levelColor}`} />
+                  <span className={`text-sm font-semibold ${
+                    darkMode ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    {loyaltyInfo.level}
+                  </span>
                 </div>
-                <div>
-                  <p className="font-bold text-gray-900 dark:text-white">{loyaltyLevel.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">مستوى العضوية</p>
-                </div>
+                <span className={`text-sm font-bold ${loyaltyInfo.levelColor}`}>
+                  {loyaltyInfo.points} نقطة
+                </span>
               </div>
-            )}
-
-            {/* النقاط */}
-            <div className="flex items-center justify-between bg-white/90 dark:bg-gray-700/90 rounded-xl p-3 shadow-sm dark:shadow-gray-900/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
-                  <Trophy className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="font-bold text-gray-900 dark:text-white text-lg">
-                    {loading ? (
-                      <Loader2 className="w-4 h-4 animate-spin inline" />
-                    ) : (
-                      loyaltyData?.total_points.toLocaleString('ar-SA') || '0'
-                    )}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">نقطة ولاء</p>
-                </div>
+              {/* شريط التقدم */}
+              <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
+                  style={{ width: `${loyaltyInfo.progress}%` }}
+                />
               </div>
-              <button
-                onClick={fetchLoyaltyPoints}
-                className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-all pointer-events-auto ${
-                  isRefreshing ? 'animate-spin' : ''
-                }`}
-                title="تحديث النقاط"
-              >
-                <RefreshCw className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </button>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+                {loyaltyInfo.nextLevelPoints - loyaltyInfo.points} نقطة للمستوى التالي
+              </p>
             </div>
-          </div>
+          )}
         </div>
 
         {/* قائمة الروابط */}
-        <div className="py-2">
+        <div className="py-2 max-h-[60vh] overflow-y-auto">
           <Link
             href="/profile"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            onClick={() => {
-              onClose();
-            }}
+            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
+            onClick={onClose}
           >
-            <User className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            <div className="flex flex-col">
-              <span className="font-medium">{user.name}</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">الملف الشخصي</span>
+            <User className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-500" />
+            <div className="flex-1">
+              <span className="font-medium">ملفي الشخصي</span>
+              <p className="text-xs text-gray-500 dark:text-gray-400">عرض معلوماتك الكاملة</p>
             </div>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </Link>
+
+          <Link
+            href="/profile/saved"
+            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
+            onClick={onClose}
+          >
+            <Bookmark className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-green-500" />
+            <div className="flex-1">
+              <span className="font-medium">محفوظاتي</span>
+              <p className="text-xs text-gray-500 dark:text-gray-400">الأخبار المحفوظة للقراءة لاحقاً</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </Link>
+
+          <Link
+            href="/profile/interactions"
+            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
+            onClick={onClose}
+          >
+            <Activity className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-red-500" />
+            <div className="flex-1">
+              <span className="font-medium">تفاعلاتي</span>
+              <p className="text-xs text-gray-500 dark:text-gray-400">اللايكات والمشاركات</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
           </Link>
 
           <Link
             href="/welcome/preferences"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            onClick={() => {
-              onClose();
-            }}
+            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
+            onClick={onClose}
           >
-            <Heart className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            <span>اهتماماتي</span>
+            <Brain className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-500" />
+            <div className="flex-1">
+              <span className="font-medium">اهتماماتي</span>
+              <p className="text-xs text-gray-500 dark:text-gray-400">تخصيص المحتوى</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
           </Link>
+
+          <hr className={`my-2 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
           <Link
             href="/settings"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            onClick={() => {
-              onClose();
-            }}
+            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
+            onClick={onClose}
           >
-            <Settings className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+            <Settings className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600" />
             <span>الإعدادات</span>
           </Link>
 
           <Link
             href="/notifications"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            onClick={() => {
-              onClose();
-            }}
+            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
+            onClick={onClose}
           >
-            <Bell className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+            <Bell className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-yellow-500" />
             <span>الإشعارات</span>
           </Link>
         </div>
 
         {/* زر تسجيل الخروج */}
-        <div className="border-t border-gray-100 dark:border-gray-700">
+        <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <button
             onClick={() => {
               onLogout();
+              onClose();
             }}
-            className="flex items-center gap-3 px-6 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full text-right"
+            className="flex items-center gap-3 px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all w-full text-right group"
           >
-            <LogOut className="w-4 h-4" />
-            <span>تسجيل الخروج</span>
+            <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <span className="font-medium">تسجيل الخروج</span>
           </button>
         </div>
 
-        {/* مساحة إضافية للموبايل لتجنب التداخل مع الشاشة */}
+        {/* مساحة إضافية للموبايل */}
         {isMobile && <div className="h-safe-area-inset-bottom" />}
       </div>
     </>

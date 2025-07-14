@@ -137,8 +137,8 @@
   },
   "guest-1752471321121-66b": {
     "user_id": "guest-1752471321121-66b",
-    "total_points": 50,
-    "earned_points": 50,
+    "total_points": 58,
+    "earned_points": 58,
     "redeemed_points": 0,
     "history": [
       {
@@ -540,6 +540,70 @@
           "article_id": "7626538b-9841-4416-8f91-9e98c9b033a0"
         },
         "timestamp": "2025-07-14T13:55:09.119Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "7626538b-9841-4416-8f91-9e98c9b033a0"
+        },
+        "timestamp": "2025-07-14T13:55:41.698Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "7626538b-9841-4416-8f91-9e98c9b033a0"
+        },
+        "timestamp": "2025-07-14T13:56:23.562Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "07c8827c-d64e-44c8-9aa3-471e395d909e"
+        },
+        "timestamp": "2025-07-14T13:56:49.964Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "07c8827c-d64e-44c8-9aa3-471e395d909e"
+        },
+        "timestamp": "2025-07-14T13:56:50.604Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "97aa3d25-4240-47d6-9497-c0f004c76025"
+        },
+        "timestamp": "2025-07-14T13:59:01.321Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "97aa3d25-4240-47d6-9497-c0f004c76025"
+        },
+        "timestamp": "2025-07-14T13:59:01.947Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "82727dc4-8c63-4860-a20b-a76ca00125bb"
+        },
+        "timestamp": "2025-07-14T13:59:31.294Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "82727dc4-8c63-4860-a20b-a76ca00125bb"
+        },
+        "timestamp": "2025-07-14T13:59:31.933Z"
       }
     ]
   }
