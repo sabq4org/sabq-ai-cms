@@ -176,15 +176,28 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '6')
     const skip = (page - 1) * limit
 
-    // جلب المقالات من قاعدة البيانات البعيدة
+    // جلب المقالات من قاعدة البيانات البعيدة مع العلاقات (Eager Loading)
     console.time('🔍 جلب المقالات من قاعدة البيانات')
     let articles = []
     try {
+      // استخدام include لجلب العلاقات في استعلام واحد
       articles = await prisma.articles.findMany({
         where,
         orderBy,
         skip,
-        take: limit
+        take: limit,
+        include: {
+          categories: {
+            select: {
+              id: true,
+              name: true,
+              name_en: true,
+              slug: true,
+              color: true,
+              icon: true
+            }
+          }
+        }
       })
     } catch (dbError) {
       console.error('خطأ في قاعدة البيانات:', dbError)
@@ -192,49 +205,35 @@ export async function GET(request: NextRequest) {
     }
     console.timeEnd('🔍 جلب المقالات من قاعدة البيانات')
 
-    // جلب العدد الإجمالي
-    console.time('📊 جلب العدد الإجمالي للمقالات')
-    const total = await prisma.articles.count({ where })
-    console.timeEnd('📊 جلب العدد الإجمالي للمقالات')
-
-    // جلب التصنيفات والمؤلفين إذا كانت هناك مقالات
-    let categoriesMap: any = {}
-    let authorsMap: any = {}
-    
-    if (articles.length > 0) {
-      // جلب التصنيفات
-      const categoryIds = [...new Set(articles.map((a: any) => a.category_id).filter(Boolean))]
-      if (categoryIds.length > 0) {
-        const categories = await prisma.categories.findMany({
-          where: { id: { in: categoryIds } }
-        })
-        categoriesMap = categories.reduce((acc: any, cat: any) => {
-          acc[cat.id] = cat
-          return acc
-        }, {})
-      }
+    // جلب العدد الإجمالي والمؤلفين بشكل متوازي
+    console.time('📊 جلب البيانات الإضافية')
+    const [total, authors] = await Promise.all([
+      // جلب العدد الإجمالي
+      prisma.articles.count({ where }),
       
-      // جلب المؤلفين
-      const authorIds = [...new Set(articles.map((a: any) => a.author_id).filter(Boolean))]
-      if (authorIds.length > 0) {
-        try {
-          const authors = await prisma.users.findMany({
-            where: { id: { in: authorIds } },
+      // جلب المؤلفين فقط إذا كانت هناك مقالات
+      articles.length > 0 
+        ? prisma.users.findMany({
+            where: { 
+              id: { 
+                in: [...new Set(articles.map((a: any) => a.author_id).filter(Boolean))] 
+              } 
+            },
             select: {
               id: true,
               name: true,
               email: true
             }
           })
-          authorsMap = authors.reduce((acc: any, author: any) => {
-            acc[author.id] = author
-            return acc
-          }, {})
-        } catch (error) {
-          console.error('خطأ في جلب بيانات المؤلفين:', error)
-        }
-      }
-    }
+        : Promise.resolve([])
+    ])
+    console.timeEnd('📊 جلب البيانات الإضافية')
+
+    // تحويل المؤلفين إلى Map للوصول السريع
+    const authorsMap = authors.reduce((acc: any, author: any) => {
+      acc[author.id] = author
+      return acc
+    }, {})
 
     // تحويل البيانات للتوافق مع الواجهة
     console.time('🔄 تحويل وتنسيق البيانات')
@@ -246,6 +245,9 @@ export async function GET(request: NextRequest) {
                         (author?.email ? author.email.split('@')[0] : null) ||
                         'غير محدد'
       
+      // التصنيف يأتي مباشرة من include
+      const category = article.categories || null
+      
       return {
         ...article,
         author: { 
@@ -254,15 +256,15 @@ export async function GET(request: NextRequest) {
           email: author?.email
         },
         author_name: authorName, // إضافة author_name مباشرة للتوافق
-        category: categoriesMap[article.category_id] || { 
+        category: category || { 
           id: article.category_id, 
           name: 'غير مصنف',
           name_ar: 'غير مصنف',
           slug: 'uncategorized',
           color: '#6B7280'
         },
-        category_name: categoriesMap[article.category_id]?.name_ar || categoriesMap[article.category_id]?.name || 'غير مصنف',
-        category_color: categoriesMap[article.category_id]?.color || '#6B7280',
+        category_name: category?.name_ar || category?.name || 'غير مصنف',
+        category_color: category?.color || '#6B7280',
         featured_image: article.featured_image,
         reading_time: article.reading_time,
         created_at: article.created_at,

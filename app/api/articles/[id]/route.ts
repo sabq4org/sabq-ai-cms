@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis';
 
 export const runtime = 'nodejs';
 
@@ -10,17 +11,67 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    
+    // محاولة جلب من Redis cache أولاً
+    const cacheKey = `article:${id}`;
+    const cachedArticle = await cache.get(cacheKey);
+    
+    if (cachedArticle) {
+      console.log(`✅ تم جلب المقال ${id} من Redis cache`);
+      
+      // زيادة عدد المشاهدات بشكل غير متزامن
+      prisma.articles.updateMany({
+        where: { 
+          OR: [
+            { id },
+            { slug: id }
+          ]
+        },
+        data: { views: { increment: 1 } }
+      }).catch(err => console.error('خطأ في تحديث المشاهدات:', err));
+      
+      return NextResponse.json(cachedArticle);
+    }
+    
+    // استخدام include لجلب جميع البيانات المطلوبة في استعلام واحد
     const dbArticle = await prisma.articles.findFirst({
       where: {
         OR: [
           { id },
           { slug: id }
         ]
+      },
+      include: {
+        categories: {
+          select: {
+            id: true,
+            name: true,
+            name_en: true,
+            slug: true,
+            color: true,
+            icon: true
+          }
+        }
       }
     });
+    
     if (!dbArticle) {
       return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
+    
+    // جلب بيانات المؤلف
+    const author = dbArticle.author_id 
+      ? await prisma.users.findUnique({
+          where: { id: dbArticle.author_id },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+            role: true
+          }
+        })
+      : null;
     
     // استخراج الكلمات المفتاحية من metadata
     let keywords: string[] = [];
@@ -55,8 +106,29 @@ export async function GET(
       description: dbArticle.excerpt || dbArticle.seo_description || '',
       summary: dbArticle.excerpt || '',
       image_caption: imageCaption,
-      featured_image_caption: imageCaption
+      featured_image_caption: imageCaption,
+      // إضافة بيانات المؤلف
+      author: author || {
+        id: dbArticle.author_id,
+        name: (dbArticle.metadata as any)?.author_name || 'غير محدد',
+        email: null
+      },
+      author_name: author?.name || (dbArticle.metadata as any)?.author_name || 'غير محدد',
+      // إضافة بيانات التصنيف
+      category: dbArticle.categories || null,
+      category_name: dbArticle.categories?.name || 'غير مصنف',
+      category_color: dbArticle.categories?.color || '#6B7280'
     };
+    
+    // زيادة عدد المشاهدات بشكل غير متزامن
+    prisma.articles.update({
+      where: { id: dbArticle.id },
+      data: { views: { increment: 1 } }
+    }).catch(err => console.error('خطأ في تحديث المشاهدات:', err));
+    
+    // حفظ في Redis cache
+    await cache.set(cacheKey, articleWithEnhancedData, CACHE_TTL.ARTICLES);
+    console.log(`💾 تم حفظ المقال ${id} في Redis cache`);
     
     return NextResponse.json(articleWithEnhancedData);
   } catch (error) {
