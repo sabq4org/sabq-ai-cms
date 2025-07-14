@@ -6,6 +6,7 @@ import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved'
 
 import { filterTestContent, rejectTestContent } from '@/lib/data-protection'
 import jwt from 'jsonwebtoken'
+import { perfMonitor } from '@/lib/performance-monitor'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
@@ -21,6 +22,16 @@ function addCorsHeaders(response: NextResponse): NextResponse {
 // دالة لإنشاء response مع CORS headers
 function corsResponse(data: any, status: number = 200): NextResponse {
   const response = NextResponse.json(data, { status });
+  
+  // إضافة cache headers لتحسين الأداء
+  if (status === 200) {
+    // cache لمدة 5 دقائق للمقالات
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    // إضافة ETag للتحقق من التغييرات
+    const etag = `"${Buffer.from(JSON.stringify(data)).toString('base64').substring(0, 27)}"`;
+    response.headers.set('ETag', etag);
+  }
+  
   return addCorsHeaders(response);
 }
 
@@ -47,6 +58,8 @@ export const runtime = 'nodejs'
 
 // جلب المقالات
 export async function GET(request: NextRequest) {
+  const endTimer = perfMonitor.startTimer('api_articles_get');
+  
   try {
     console.log('🔍 بدء معالجة طلب المقالات...')
     const { searchParams } = new URL(request.url)
@@ -180,13 +193,33 @@ export async function GET(request: NextRequest) {
     console.time('🔍 جلب المقالات من قاعدة البيانات')
     let articles = []
     try {
-      // استخدام include لجلب العلاقات في استعلام واحد
+      // استخدام select محدد لتقليل حجم البيانات المنقولة
       articles = await prisma.articles.findMany({
         where,
         orderBy,
         skip,
         take: limit,
-        include: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          featured_image: true,
+          published_at: true,
+          created_at: true,
+          views: true,
+          reading_time: true,
+          status: true,
+          featured: true,
+          breaking: true,
+          author_id: true,
+          category_id: true,
+          // محتوى المقال فقط عند الحاجة
+          content: searchParams.get('includeContent') === 'true',
+          // البيانات الوصفية
+          seo_title: true,
+          seo_description: true,
+          // العلاقات
           categories: {
             select: {
               id: true,
@@ -289,12 +322,12 @@ export async function GET(request: NextRequest) {
       hasPrev: page > 1
     }
 
-    console.log(`✅ تم جلب ${filteredArticles.length} مقال من أصل ${total}`)
-
+    console.log(`✅ تم جلب ${formattedArticles.length} مقال من أصل ${total}`)
+    
     const responseData = {
       success: true,
-      articles: filteredArticles,
-      data: filteredArticles,
+      articles: formattedArticles,
+      data: formattedArticles,
       pagination: stats,
       filters: {
         status: searchParams.get('status'),
@@ -306,12 +339,15 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // حفظ البيانات في Redis
+    const duration = endTimer();
+    console.log(`⏱️ إجمالي وقت معالجة الطلب: ${duration.toFixed(2)}ms`);
+    
+    // حفظ البيانات في Redis للطلبات المستقبلية
     await cache.set(cacheKey, responseData, CACHE_TTL.ARTICLES)
-    console.log('💾 تم حفظ المقالات في Redis cache')
-
-    return corsResponse(responseData)
+    
+    return corsResponse(responseData, 200)
   } catch (error) {
+    endTimer();
     console.error('خطأ في جلب المقالات:', error)
     return corsResponse({
       success: false,

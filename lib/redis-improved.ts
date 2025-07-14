@@ -14,17 +14,21 @@ function createRedisConnection() {
         rejectUnauthorized: false
       },
       retryStrategy: (times) => {
-        if (times > 3) {
+        if (times > 2) {
           console.log('⚠️ تجاوز عدد محاولات الاتصال بـ Redis Cloud');
           return null; // إيقاف المحاولات
         }
-        const delay = Math.min(times * 50, 2000);
+        const delay = Math.min(times * 30, 1000);
         return delay;
       },
-      maxRetriesPerRequest: 3,
-      connectTimeout: 10000,
-      commandTimeout: 5000,
+      maxRetriesPerRequest: 2,
+      connectTimeout: 5000,
+      commandTimeout: 2000,
       enableOfflineQueue: false,
+      // تحسينات إضافية للأداء
+      lazyConnect: true,
+      keepAlive: 10000,
+      noDelay: true,
     });
   } else {
     // في بيئة التطوير - استخدام Redis المحلي
@@ -38,16 +42,16 @@ function createRedisConnection() {
       password: process.env.REDIS_PASSWORD,
       db: parseInt(process.env.REDIS_DB || '0'),
       retryStrategy: (times) => {
-        if (times > 3) {
+        if (times > 2) {
           console.log('⚠️ Redis المحلي غير متاح، سيتم العمل بدون cache');
           return null; // إيقاف المحاولات
         }
-        const delay = Math.min(times * 50, 1000);
+        const delay = Math.min(times * 30, 500);
         return delay;
       },
-      maxRetriesPerRequest: 3,
-      connectTimeout: 3000,
-      commandTimeout: 3000,
+      maxRetriesPerRequest: 2,
+      connectTimeout: 2000,
+      commandTimeout: 1000,
       enableOfflineQueue: false,
       lazyConnect: true
     });

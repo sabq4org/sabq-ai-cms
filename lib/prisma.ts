@@ -1,52 +1,40 @@
-import { PrismaClient, Prisma } from './generated/prisma'
+import { PrismaClient } from '@prisma/client'
 
-// PrismaClient is attached to the `global` object in development to prevent
-// exhausting your database connection limit.
-//
-// Learn more: https://pris.ly/d/help/next-js-best-practices
-
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
+declare global {
+  var prisma: PrismaClient | undefined
 }
 
-let prisma: PrismaClient
-
-// Robust initialization for different environments
-function initializePrismaClient() {
-  const clientOptions: Prisma.PrismaClientOptions = {
+// تحسين إعدادات الاتصال
+const prismaClientSingleton = () => {
+  return new PrismaClient({
     log: process.env.NODE_ENV === 'development' 
-      ? [
-          { emit: 'stdout', level: 'query' },
-          { emit: 'stdout', level: 'error' },
-          { emit: 'stdout', level: 'info' },
-          { emit: 'stdout', level: 'warn' }
-        ]
-      : [{ emit: 'stdout', level: 'error' }]
-  }
-
-  try {
-    return new PrismaClient(clientOptions)
-  } catch (error) {
-    console.error('Failed to initialize Prisma Client:', error)
-    throw error
-  }
+      ? ['error', 'warn'] 
+      : ['error'],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+    // تحسينات الأداء
+    errorFormat: 'minimal',
+  })
 }
 
-// Serverless-friendly initialization
-if (typeof window === 'undefined') {
-  if (process.env.NODE_ENV === 'production') {
-    // Always create a new instance in production/serverless
-    prisma = initializePrismaClient()
-  } else {
-    // Use global instance in development
-    if (!globalForPrisma.prisma) {
-      globalForPrisma.prisma = initializePrismaClient()
-    }
-    prisma = globalForPrisma.prisma
-  }
-} else {
-  // Fallback for client-side (should rarely happen)
-  prisma = initializePrismaClient()
+const prisma = globalThis.prisma ?? prismaClientSingleton()
+
+if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma
+
+// تكوين connection pool محسّن
+if (process.env.DATABASE_URL) {
+  const url = new URL(process.env.DATABASE_URL)
+  
+  // إضافة معاملات تحسين الأداء
+  url.searchParams.set('connection_limit', '10')
+  url.searchParams.set('pool_timeout', '20')
+  url.searchParams.set('statement_cache_size', '100')
+  url.searchParams.set('pgbouncer', 'true')
+  
+  process.env.DATABASE_URL = url.toString()
 }
 
 export default prisma

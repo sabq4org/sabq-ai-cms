@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import UserDropdown from './UserDropdown';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { getCookie } from '@/lib/cookies';
+import { useAuth as useAuthContext } from '@/contexts/AuthContext';
 import { 
   Menu, 
   ChevronDown, 
@@ -28,33 +28,24 @@ import {
   Settings,
   Brain
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-}
 
 export default function Header() {
   const router = useRouter();
   const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
-  const [user, setUser] = useState<UserData | null>(null);
+  const { user, logout } = useAuthContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [liveEventCount, setLiveEventCount] = useState(3);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { logout } = useAuth();
 
   // عناصر المينيو الرئيسية
   const navigationItems = [
     { url: '/', label: 'الرئيسية', icon: Home, highlight: false },
     { url: '/news', label: 'الأخبار', icon: Newspaper, highlight: false },
     { url: '/categories', label: 'الأقسام', icon: Folder, highlight: false },
-    { url: '/deep', label: 'عمق', icon: Brain, highlight: false },
+    { url: '/insights/deep', label: 'عمق', icon: Brain, highlight: false },
     { url: '/opinion', label: 'الرأي', icon: Edit, highlight: false },
     { 
       url: '/moment-by-moment', 
@@ -65,64 +56,6 @@ export default function Header() {
       badgeCount: liveEventCount
     }
   ];
-
-  // جلب بيانات المستخدم
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = getCookie('token');
-        if (!token) {
-          setUser(null);
-          return;
-        }
-
-        const response = await fetch('/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        } else {
-          // إذا كان التوكن غير صالح، احذفه
-          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('خطأ في جلب بيانات المستخدم:', error);
-        setUser(null);
-      }
-    };
-
-    fetchUserData();
-    
-    // تحديث بيانات المستخدم كل 5 ثوان لحل مشكلة الدخول
-    const userInterval = setInterval(fetchUserData, 5000);
-    
-    // إضافة مستمع للتغييرات في التخزين المحلي
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'auth-update') {
-        fetchUserData();
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    // إضافة مستمع مخصص لتحديث المصادقة
-    const handleAuthUpdate = () => {
-      fetchUserData();
-    };
-    
-    window.addEventListener('auth-update', handleAuthUpdate);
-    
-    return () => {
-      clearInterval(userInterval);
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('auth-update', handleAuthUpdate);
-    };
-  }, []);
 
   // تحديث عداد الأحداث المباشرة
   useEffect(() => {
@@ -137,7 +70,6 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await logout();
-      setUser(null);
       setIsDropdownOpen(false);
       router.push('/');
       toast.success('تم تسجيل الخروج بنجاح');

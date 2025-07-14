@@ -131,7 +131,8 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: 'تم تسجيل الدخول بنجاح',
-      user: responseUser
+      user: responseUser,
+      token: token // إضافة التوكن للاستجابة
     });
 
     // إضافة الكوكيز الآمنة

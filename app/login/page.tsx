@@ -9,9 +9,15 @@ import {
   Mail, Lock, Eye, EyeOff, 
   LogIn, AlertCircle, Sparkles 
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const callbackUrl = searchParams?.get('callbackUrl') || 
+                     searchParams?.get('redirectTo') || 
+                     searchParams?.get('returnTo');
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -21,9 +27,6 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>({});
   // الحصول على رابط الإرجاع من URL parameters
-  const callbackUrl = searchParams?.get('callbackUrl') || 
-                     searchParams?.get('redirectTo') || 
-                     searchParams?.get('returnTo');
   const validateForm = () => {
     const newErrors: any = {};
     if (!formData.email.trim()) {
@@ -54,29 +57,12 @@ function LoginForm() {
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        // حفظ بيانات المستخدم في localStorage و sessionStorage
-        if (data.user) {
-          try {
-            // حفظ في localStorage
-            localStorage.setItem('user', JSON.stringify(data.user));
-            localStorage.setItem('user_id', data.user.id);
-            // حفظ في sessionStorage كـ backup
-            sessionStorage.setItem('user', JSON.stringify(data.user));
-            // حفظ الكوكيز يدوياً لدعم Safari
-            const userCookie = encodeURIComponent(JSON.stringify(data.user));
-            document.cookie = `user=${userCookie}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-            console.log('[Safari Debug] User data saved successfully');
-          } catch (e) {
-            console.error('[Safari Debug] Error saving user data:', e);
-          }
+        // استخدام login من AuthContext
+        if (data.token) {
+          login(data.token);
         }
+        
         toast.success(data.message || 'تم تسجيل الدخول بنجاح');
-        
-        // إطلاق حدث تحديث المصادقة
-        window.dispatchEvent(new Event('auth-update'));
-        
-        // تحديث التخزين المحلي لإشعار النوافذ الأخرى
-        localStorage.setItem('auth-update', Date.now().toString());
         
         // تحديد مسار إعادة التوجيه
         const redirectPath = data.user?.is_admin ? '/dashboard' : '/';

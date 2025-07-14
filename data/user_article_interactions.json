@@ -4549,6 +4549,54 @@
       "timestamp": "2025-07-14T16:43:39.602Z",
       "source": "article_page",
       "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "guest-1752471321121-66b",
+      "article_id": "7626538b-9841-4416-8f91-9e98c9b033a0",
+      "interaction_type": "view",
+      "timestamp": "2025-07-14T17:33:28.597Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "guest-1752471321121-66b",
+      "article_id": "7626538b-9841-4416-8f91-9e98c9b033a0",
+      "interaction_type": "view",
+      "timestamp": "2025-07-14T17:33:29.512Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "guest-1752471321121-66b",
+      "article_id": "07c8827c-d64e-44c8-9aa3-471e395d909e",
+      "interaction_type": "view",
+      "timestamp": "2025-07-14T17:33:38.151Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "guest-1752471321121-66b",
+      "article_id": "07c8827c-d64e-44c8-9aa3-471e395d909e",
+      "interaction_type": "view",
+      "timestamp": "2025-07-14T17:33:39.110Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "guest-1752471321121-66b",
+      "article_id": "785f7527-1195-4438-9c14-7922733a7a51",
+      "interaction_type": "view",
+      "timestamp": "2025-07-14T17:34:29.238Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "guest-1752471321121-66b",
+      "article_id": "785f7527-1195-4438-9c14-7922733a7a51",
+      "interaction_type": "view",
+      "timestamp": "2025-07-14T17:34:29.905Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
     }
   ]
 }

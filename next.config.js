@@ -3,20 +3,30 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   images: {
-    // إضافة CDN domains
     domains: [
+      'localhost',
       'res.cloudinary.com',
       'images.unsplash.com',
-      'cdn.jsdelivr.net',
-      'your-cdn-domain.com' // استبدل بـ CDN الخاص بك
+      'picsum.photos',
+      'placeholder.com',
+      'via.placeholder.com',
+      'dummyimage.com',
+      'placehold.co',
+      'loremflickr.com',
+      'cloudflare-ipfs.com',
+      'avatars.githubusercontent.com',
+      'lh3.googleusercontent.com',
+      'platform-lookaside.fbsbx.com',
+      'pbs.twimg.com',
+      'sabq-ai-cms.b-cdn.net',
+      'sabq-cdn.b-cdn.net'
     ],
-    // تحسين الصور
+    // تحسينات الصور
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60 * 60 * 24 * 365, // سنة واحدة
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 يوم
     dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   experimental: {

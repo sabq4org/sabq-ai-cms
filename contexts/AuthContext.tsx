@@ -9,6 +9,7 @@ export interface User extends JwtPayload {
   name: string;
   email: string;
   role: string;
+  avatar?: string;
   is_admin?: boolean;
   loyaltyPoints?: number;
   status?: string;
@@ -40,12 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserFromAPI = async (): Promise<User | null> => {
     try {
+      const token = Cookies.get('auth-token');
+      if (!token) return null;
+
       const response = await fetch('/api/auth/me', {
-        method: 'GET',
-        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -121,7 +124,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const decodedUser = jwtDecode<User>(token);
       setUser(decodedUser);
-      Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'lax' });
+      Cookies.set('auth-token', token, { expires: 7, secure: true, sameSite: 'lax' });
+      Cookies.set('user', JSON.stringify(decodedUser), { expires: 7, secure: false, sameSite: 'lax' });
       if (typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(decodedUser));
         if (decodedUser.id) {

@@ -157,6 +157,14 @@ model articles {
   @@index([category_id])
   @@index([slug])
   @@index([status, published_at])
+  @@map("articles")
+  @@index([status, published_at(sort: Desc)], map: "idx_articles_status_published_desc")
+  @@index([category_id, status, published_at(sort: Desc)], map: "idx_articles_category_status_published")
+  @@index([author_id, status, published_at(sort: Desc)], map: "idx_articles_author_status_published")
+  @@index([featured, status, published_at(sort: Desc)], map: "idx_articles_featured_status_published")
+  @@index([breaking, status, published_at(sort: Desc)], map: "idx_articles_breaking_status_published")
+  @@index([created_at(sort: Desc)], map: "idx_articles_created_desc")
+  @@index([views(sort: Desc)], map: "idx_articles_views_desc")
 }
 
 model categories {
