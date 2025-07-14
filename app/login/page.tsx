@@ -71,11 +71,23 @@ function LoginForm() {
           }
         }
         toast.success(data.message || 'تم تسجيل الدخول بنجاح');
+        
+        // إطلاق حدث تحديث المصادقة
+        window.dispatchEvent(new Event('auth-update'));
+        
+        // تحديث التخزين المحلي لإشعار النوافذ الأخرى
+        localStorage.setItem('auth-update', Date.now().toString());
+        
         // تحديد مسار إعادة التوجيه
         const redirectPath = data.user?.is_admin ? '/dashboard' : '/';
-        // استخدام window.location لضمان إعادة تحميل كاملة (مهم لـ Safari)
+        
+        // استخدام router.push بدلاً من window.location للحفاظ على حالة التطبيق
         setTimeout(() => {
-          window.location.href = redirectPath;
+          if (callbackUrl) {
+            router.push(callbackUrl);
+          } else {
+            router.push(redirectPath);
+          }
         }, 500);
       } else {
         toast.error(data.error || 'حدث خطأ في تسجيل الدخول');

@@ -54,7 +54,7 @@ export default function Header() {
     { url: '/', label: 'الرئيسية', icon: Home, highlight: false },
     { url: '/news', label: 'الأخبار', icon: Newspaper, highlight: false },
     { url: '/categories', label: 'الأقسام', icon: Folder, highlight: false },
-    { url: '/deep-analysis', label: 'عمق', icon: Brain, highlight: false },
+    { url: '/deep', label: 'عمق', icon: Brain, highlight: false },
     { url: '/opinion', label: 'الرأي', icon: Edit, highlight: false },
     { 
       url: '/moment-by-moment', 
@@ -98,10 +98,30 @@ export default function Header() {
 
     fetchUserData();
     
-    // تحديث بيانات المستخدم كل 10 ثوان بدلاً من 30 لحل مشكلة الدخول
-    const userInterval = setInterval(fetchUserData, 10000);
+    // تحديث بيانات المستخدم كل 5 ثوان لحل مشكلة الدخول
+    const userInterval = setInterval(fetchUserData, 5000);
     
-    return () => clearInterval(userInterval);
+    // إضافة مستمع للتغييرات في التخزين المحلي
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth-update') {
+        fetchUserData();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // إضافة مستمع مخصص لتحديث المصادقة
+    const handleAuthUpdate = () => {
+      fetchUserData();
+    };
+    
+    window.addEventListener('auth-update', handleAuthUpdate);
+    
+    return () => {
+      clearInterval(userInterval);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth-update', handleAuthUpdate);
+    };
   }, []);
 
   // تحديث عداد الأحداث المباشرة
