@@ -9,7 +9,23 @@ import UserDropdown from './UserDropdown';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { getCookie } from '@/lib/cookies';
 import { 
-  Menu, ChevronDown, LogIn, User, Sun, Moon, Activity, Clock, MessageCircle
+  Menu, 
+  ChevronDown, 
+  LogIn, 
+  User, 
+  Sun, 
+  Moon, 
+  Activity, 
+  Clock, 
+  MessageCircle,
+  Home,
+  Newspaper,
+  Folder,
+  Edit,
+  Users,
+  Search,
+  Bell,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -35,7 +51,6 @@ export default function Header() {
 
   const fetchUserData = async () => {
     try {
-      console.log('[Safari Debug] Fetching user data from API...');
       const response = await fetch('/api/auth/me', {
         method: 'GET',
         credentials: 'include',
@@ -44,23 +59,19 @@ export default function Header() {
         }
       });
       
-      console.log('[Safari Debug] API Response status:', response.status);
-      
       if (response.ok) {
         const data = await response.json();
-        console.log('[Safari Debug] API Response data:', data);
-        
         if (data.user) {
           setUser(data.user);
           try {
             localStorage.setItem('user', JSON.stringify(data.user));
           } catch (e) {
-            console.error('[Safari Debug] localStorage error:', e);
+            console.error('localStorage error:', e);
           }
         }
       }
     } catch (error) {
-      console.error('[Safari Debug] Error fetching user data:', error);
+      console.error('Error fetching user data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -68,18 +79,14 @@ export default function Header() {
 
   const loadUserData = async () => {
     try {
-      // محاولة تحميل البيانات من localStorage أولاً
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
-        console.log('[Safari Debug] Loaded user from localStorage:', parsedUser);
       }
-      
-      // ثم تحديث البيانات من الخادم
       await fetchUserData();
     } catch (error) {
-      console.error('[Safari Debug] Error loading user data:', error);
+      console.error('Error loading user data:', error);
       setIsLoading(false);
     }
   };
@@ -106,38 +113,30 @@ export default function Header() {
     };
 
     checkNewEvents();
-    const interval = setInterval(checkNewEvents, 30000); // كل 30 ثانية
-
+    const interval = setInterval(checkNewEvents, 60000); // كل دقيقة
     return () => clearInterval(interval);
   }, []);
 
-  // دالة آمنة لإغلاق القائمة
   const handleCloseDropdown = () => {
     setShowDropdown(false);
   };
 
-  // دالة آمنة لفتح/إغلاق القائمة
   const handleToggleDropdown = (event: React.MouseEvent) => {
-    event.preventDefault();
     event.stopPropagation();
     setShowDropdown(!showDropdown);
   };
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
+      await fetch('/api/auth/logout', {
         method: 'POST',
-        credentials: 'include',
+        credentials: 'include'
       });
-
-      if (response.ok) {
-        setUser(null);
-        localStorage.removeItem('user');
-        toast.success('تم تسجيل الخروج بنجاح');
-        router.push('/');
-      } else {
-        toast.error('حدث خطأ أثناء تسجيل الخروج');
-      }
+      
+      setUser(null);
+      localStorage.removeItem('user');
+      toast.success('تم تسجيل الخروج بنجاح');
+      router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('حدث خطأ أثناء تسجيل الخروج');
@@ -153,14 +152,49 @@ export default function Header() {
       .slice(0, 2);
   };
 
+  // قائمة التنقل الرئيسية
   const navigationItems = [
-    { url: '/', label: 'الرئيسية', icon: null, highlight: false },
-    { url: '/news', label: 'الأخبار', icon: null, highlight: false },
-    { url: '/categories', label: 'الأقسام', icon: null, highlight: false },
-    { url: '/opinion', label: 'الرأي', icon: null, highlight: false },
-    { url: '/forum', label: 'المنتدى', icon: MessageCircle, highlight: true },
-    { url: '/moment-by-moment', label: '', icon: Activity, highlight: true },
+    { 
+      url: '/', 
+      label: 'الرئيسية', 
+      icon: Home, 
+      highlight: false 
+    },
+    { 
+      url: '/news', 
+      label: 'الأخبار', 
+      icon: Newspaper, 
+      highlight: false 
+    },
+    { 
+      url: '/categories', 
+      label: 'الأقسام', 
+      icon: Folder, 
+      highlight: false 
+    },
+    { 
+      url: '/opinion', 
+      label: 'الرأي', 
+      icon: Edit, 
+      highlight: false 
+    },
+    { 
+      url: '/forum', 
+      label: 'المنتدى', 
+      icon: MessageCircle, 
+      highlight: true 
+    },
+    { 
+      url: '/moment-by-moment', 
+      label: 'لحظة بلحظة', 
+      icon: Activity, 
+      highlight: true 
+    },
   ];
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -168,9 +202,10 @@ export default function Header() {
     } border-b shadow-sm`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+          
           {/* Mobile Layout */}
           <div className="lg:hidden flex items-center justify-between w-full">
-            {/* زر القائمة */}
+            {/* زر القائمة المحمولة */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
               className={`p-2 rounded-lg transition-colors ${
@@ -193,13 +228,13 @@ export default function Header() {
               />
             </Link>
 
-            {/* أزرار المستخدم */}
+            {/* أزرار المستخدم للموبايل */}
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
-              {/* زر الوضع المظلم */}
+              {/* زر الوضع الليلي */}
               <button
                 onClick={toggleDarkMode}
                 className={`p-2 rounded-lg transition-colors ${
-                  darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                  darkMode ? 'text-yellow-400 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 aria-label={darkMode ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع المظلم'}
               >
@@ -271,26 +306,24 @@ export default function Header() {
               />
             </Link>
 
-            {/* القائمة الرئيسية */}
-            <nav className="hidden lg:flex items-center space-x-8 rtl:space-x-reverse">
+            {/* القائمة الرئيسية - Desktop */}
+            <nav className="flex items-center space-x-8 rtl:space-x-reverse">
               {navigationItems.map((item) => (
                 <Link
                   key={item.url}
                   href={item.url}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     item.highlight
                       ? darkMode
-                        ? 'text-blue-400 hover:bg-blue-900/20 hover:text-blue-300'
-                        : 'text-blue-600 hover:bg-blue-50 hover:text-blue-700'
+                        ? 'text-blue-400 hover:bg-blue-900/20 hover:text-blue-300 border border-blue-800/30'
+                        : 'text-blue-600 hover:bg-blue-50 hover:text-blue-700 border border-blue-200'
                       : darkMode
                       ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
                       : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
-                  {item.icon && (
-                    <item.icon className={`w-4 h-4 ${item.highlight ? 'text-current' : ''}`} />
-                  )}
-                  {item.label && <span>{item.label}</span>}
+                  <item.icon className={`w-4 h-4 ${item.highlight ? 'text-current' : ''}`} />
+                  <span>{item.label}</span>
                   {item.url === '/moment-by-moment' && newEventsCount > 0 && (
                     <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full animate-pulse">
                       {newEventsCount}
@@ -300,13 +333,24 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* أزرار المستخدم */}
+            {/* أزرار المستخدم - Desktop */}
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              {/* زر الوضع المظلم */}
+              {/* زر البحث */}
+              <Link
+                href="/search"
+                className={`p-2 rounded-lg transition-colors ${
+                  darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                aria-label="البحث"
+              >
+                <Search className="w-5 h-5" />
+              </Link>
+
+              {/* زر الوضع الليلي */}
               <button
                 onClick={toggleDarkMode}
                 className={`p-2 rounded-lg transition-colors ${
-                  darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                  darkMode ? 'text-yellow-400 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 aria-label={darkMode ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع المظلم'}
               >
@@ -378,20 +422,18 @@ export default function Header() {
                   key={item.url}
                   href={item.url}
                   onClick={() => setShowMobileMenu(false)}
-                  className={`flex items-center space-x-3 rtl:space-x-reverse px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 ${
+                  className={`flex items-center space-x-3 rtl:space-x-reverse px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
                     item.highlight
                       ? darkMode
-                        ? 'text-blue-400 hover:bg-blue-900/20 hover:text-blue-300'
-                        : 'text-blue-600 hover:bg-blue-50 hover:text-blue-700'
+                        ? 'text-blue-400 hover:bg-blue-900/20 hover:text-blue-300 border border-blue-800/30'
+                        : 'text-blue-600 hover:bg-blue-50 hover:text-blue-700 border border-blue-200'
                       : darkMode
                       ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
                       : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
-                  {item.icon && (
-                    <item.icon className={`w-5 h-5 ${item.highlight ? 'text-current' : ''}`} />
-                  )}
-                  {item.label && <span>{item.label}</span>}
+                  <item.icon className={`w-5 h-5 ${item.highlight ? 'text-current' : ''}`} />
+                  <span>{item.label}</span>
                   {item.url === '/moment-by-moment' && newEventsCount > 0 && (
                     <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full animate-pulse">
                       {newEventsCount}
@@ -399,6 +441,33 @@ export default function Header() {
                   )}
                 </Link>
               ))}
+              
+              {/* روابط إضافية للموبايل */}
+              <div className="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
+                <Link
+                  href="/search"
+                  onClick={() => setShowMobileMenu(false)}
+                  className={`flex items-center space-x-3 rtl:space-x-reverse px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                    darkMode ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  }`}
+                >
+                  <Search className="w-5 h-5" />
+                  <span>البحث</span>
+                </Link>
+                
+                {user && (
+                  <Link
+                    href="/settings"
+                    onClick={() => setShowMobileMenu(false)}
+                    className={`flex items-center space-x-3 rtl:space-x-reverse px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                      darkMode ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                    }`}
+                  >
+                    <Settings className="w-5 h-5" />
+                    <span>الإعدادات</span>
+                  </Link>
+                )}
+              </div>
             </nav>
           </div>
         )}
