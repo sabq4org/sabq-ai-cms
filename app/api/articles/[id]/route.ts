@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis';
+import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved';
 
 export const runtime = 'nodejs';
 

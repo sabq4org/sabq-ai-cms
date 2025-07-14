@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
 import prisma from '@/lib/prisma'
-import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis'
+import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved'
 
 import { filterTestContent, rejectTestContent } from '@/lib/data-protection'
 import jwt from 'jsonwebtoken'
@@ -263,7 +263,7 @@ export async function GET(request: NextRequest) {
           slug: 'uncategorized',
           color: '#6B7280'
         },
-        category_name: category?.name_ar || category?.name || 'غير مصنف',
+        category_name: category?.name || 'غير مصنف',
         category_color: category?.color || '#6B7280',
         featured_image: article.featured_image,
         reading_time: article.reading_time,
