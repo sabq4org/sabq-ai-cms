@@ -56,8 +56,14 @@ export default function MomentByMomentPage() {
   const [sortBy, setSortBy] = useState<'newest' | 'views'>('newest');
   const [error, setError] = useState<string | null>(null);
   const [isLive, setIsLive] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   const ITEMS_PER_PAGE = 20;
+
+  // Ensure component is mounted before showing dynamic content
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch live updates
   const fetchArticles = async (reset = false) => {
@@ -122,7 +128,7 @@ export default function MomentByMomentPage() {
     <>
       <Header />
       
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
         {/* Hero Section */}
         <section className="relative py-16 bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <div className="absolute inset-0 overflow-hidden">
@@ -144,22 +150,24 @@ export default function MomentByMomentPage() {
                 تابع الأحداث العاجلة والتحديثات المباشرة أولاً بأول
               </p>
               
-              {!loading && articles.length > 0 && (
+              {mounted && !loading && articles.length > 0 && (
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {articles.length} تحديث مباشر
                 </p>
               )}
 
               {/* Live Indicator */}
-              <div className="mt-4 inline-flex items-center gap-2">
-                <div className="relative">
-                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                  <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+              {mounted && (
+                <div className="mt-4 inline-flex items-center gap-2">
+                  <div className="relative">
+                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                    <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+                  </div>
+                  <span className="text-sm font-medium text-red-600 dark:text-red-400">
+                    بث مباشر
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-red-600 dark:text-red-400">
-                  بث مباشر
-                </span>
-              </div>
+              )}
             </div>
           </div>
         </section>
@@ -188,12 +196,14 @@ export default function MomentByMomentPage() {
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-yellow-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  آخر تحديث: الآن
-                </span>
-              </div>
+              {mounted && (
+                <div className="flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-yellow-500" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    آخر تحديث: الآن
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -205,13 +215,17 @@ export default function MomentByMomentPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex items-center gap-2">
                 <Radio className="w-5 h-5 text-red-600 dark:text-red-400" />
-                <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  {loading && page === 1 ? (
-                    'جاري التحميل...'
-                  ) : articles.length > 0 ? (
-                    `${articles.length} تحديث مباشر`
+                <span className="text-gray-700 dark:text-gray-300 font-medium" suppressHydrationWarning>
+                  {mounted ? (
+                    loading && page === 1 ? (
+                      'جاري التحميل...'
+                    ) : articles.length > 0 ? (
+                      `${articles.length} تحديث مباشر`
+                    ) : (
+                      'لا توجد تحديثات'
+                    )
                   ) : (
-                    'لا توجد تحديثات'
+                    'جاري التحميل...'
                   )}
                 </span>
               </div>
