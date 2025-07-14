@@ -89,11 +89,18 @@ export default function CreateArticlePage() {
   const fetchCategories = async () => {
     try {
       console.log('🔄 جلب التصنيفات...');
-      const response = await fetch('/api/categories');
-      const data = await response.json();
+      const response = await fetch('/api/categories?active=true');
+      console.log('📡 حالة الاستجابة:', response.status);
       
-      if (data.success && data.categories) {
-        console.log(`✅ تم جلب ${data.categories.length} تصنيف:`, data.categories.map((c: any) => c.name));
+      const data = await response.json();
+      console.log('📦 البيانات المستلمة:', JSON.stringify(data, null, 2));
+      
+      if (data.success && data.data) {
+        console.log(`✅ تم جلب ${data.data.length} تصنيف:`, data.data.map((c: any) => c.name));
+        setCategories(data.data);
+      } else if (data.categories) {
+        // محاولة أخرى في حالة كانت البيانات في categories
+        console.log(`✅ تم جلب ${data.categories.length} تصنيف من categories:`, data.categories.map((c: any) => c.name));
         setCategories(data.categories);
       } else {
         console.error('❌ خطأ في البيانات:', data);

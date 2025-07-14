@@ -6,12 +6,31 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '5');
     const offset = parseInt(searchParams.get('offset') || '0');
-    const status = searchParams.get('status') || 'published';
+    const articleId = searchParams.get('articleId');
 
-    // جلب التحليلات العميقة
+    // بناء شروط البحث
+    const where: any = {};
+    if (articleId) {
+      where.article_id = articleId;
+    }
+
+    // جلب التحليلات العميقة مع بيانات المقالات المرتبطة
     const deepAnalyses = await prisma.deep_analyses.findMany({
+      where,
+      orderBy: {
+        analyzed_at: 'desc'
+      },
+      take: limit,
+      skip: offset
+    });
+
+    // جلب بيانات المقالات المرتبطة
+    const articleIds = deepAnalyses.map(da => da.article_id);
+    const articles = await prisma.articles.findMany({
       where: {
-        status: status
+        id: {
+          in: articleIds
+        }
       },
       include: {
         categories: {
@@ -21,46 +40,55 @@ export async function GET(request: NextRequest) {
             slug: true,
             color: true
           }
-        },
-        users: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true
-          }
         }
-      },
-      orderBy: {
-        published_at: 'desc'
-      },
-      take: limit,
-      skip: offset
-    });
-
-    // جلب العدد الإجمالي
-    const total = await prisma.deep_analyses.count({
-      where: {
-        status: status
       }
     });
 
+    // جلب بيانات المؤلفين
+    const authorIds = articles.map(a => a.author_id).filter(Boolean);
+    const authors = await prisma.users.findMany({
+      where: {
+        id: {
+          in: authorIds
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true
+      }
+    });
+
+    // إنشاء خريطة للمؤلفين
+    const authorsMap = new Map(authors.map(a => [a.id, a]));
+
+    // دمج البيانات
+    const articlesMap = new Map(articles.map(a => [a.id, {
+      ...a,
+      author: authorsMap.get(a.author_id)
+    }]));
+    
+    const enrichedAnalyses = deepAnalyses.map(analysis => ({
+      ...analysis,
+      article: articlesMap.get(analysis.article_id)
+    }));
+
+    // جلب العدد الإجمالي
+    const total = await prisma.deep_analyses.count({ where });
+
     return NextResponse.json({
       success: true,
-      data: deepAnalyses,
+      data: enrichedAnalyses,
       total,
       limit,
       offset
     });
-
   } catch (error) {
     console.error('خطأ في جلب التحليلات العميقة:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'حدث خطأ في جلب التحليلات العميقة' 
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في جلب التحليلات العميقة'
+    }, { status: 500 });
   }
 } 

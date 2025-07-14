@@ -137,8 +137,8 @@
   },
   "guest-1752471321121-66b": {
     "user_id": "guest-1752471321121-66b",
-    "total_points": 29,
-    "earned_points": 29,
+    "total_points": 33,
+    "earned_points": 33,
     "redeemed_points": 0,
     "history": [
       {
@@ -372,6 +372,38 @@
           "article_id": "1629063d-436a-464c-a252-552896f25a0c"
         },
         "timestamp": "2025-07-14T05:57:30.918Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "82727dc4-8c63-4860-a20b-a76ca00125bb"
+        },
+        "timestamp": "2025-07-14T06:42:44.690Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "82727dc4-8c63-4860-a20b-a76ca00125bb"
+        },
+        "timestamp": "2025-07-14T06:43:12.197Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "82727dc4-8c63-4860-a20b-a76ca00125bb"
+        },
+        "timestamp": "2025-07-14T06:43:12.557Z"
+      },
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "82727dc4-8c63-4860-a20b-a76ca00125bb"
+        },
+        "timestamp": "2025-07-14T06:46:53.922Z"
       }
     ]
   }

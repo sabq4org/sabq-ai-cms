@@ -8,13 +8,14 @@ import './globals.css'
 
 import '@/styles/fix-layout.css'
 import '@/styles/dashboard-enhanced.css'
-import '@/styles/article-card.css'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
 import toast, { Toaster } from "react-hot-toast"
 import { cn } from '@/lib/utils'
 import { Providers } from './providers'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeScript } from './theme-script'
+// تحميل article-card.css في النهاية لتجنب التعارضات
+import '@/styles/article-card.css'
 
 // DEBUG: طباعة أنواع المكونات للتحقق من وجودها
 if (process.env.NODE_ENV !== "production") {

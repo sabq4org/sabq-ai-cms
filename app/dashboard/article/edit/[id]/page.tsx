@@ -182,7 +182,7 @@ export default function EditArticlePage() {
   }, []);
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/categories?active_only=true');
+      const response = await fetch('/api/categories?active=true');
       const data = await response.json();
       const categoriesData = data.categories || data.data || [];
       setCategories(Array.isArray(categoriesData) ? categoriesData : []);

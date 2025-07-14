@@ -187,7 +187,7 @@ export default function EditArticlePage() {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/categories?active_only=true');
+        const res = await fetch('/api/categories?active=true');
         const result = await res.json();
         if (!res.ok || !result.success) throw new Error(result.error || 'فشل تحميل التصنيفات');
         const categoriesData = result.categories || result.data || [];
