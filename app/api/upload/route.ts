@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadToCloudinary } from '@/lib/cloudinary-server';
 import { getSupabaseClient } from '@/lib/supabase';
+import { optimizeImageBuffer, validateImage } from '@/lib/image-optimizer';
 
 // دالة لتسجيل محاولات رفع الصور
 async function logUploadAttempt(details: {
@@ -93,15 +94,35 @@ export async function POST(request: NextRequest) {
             folder = 'sabq-cms/general';
         }
 
-        console.log('📤 رفع الصورة إلى Cloudinary...');
+        console.log('🔄 تحسين الصورة...');
+        
+        // تحويل الملف إلى Buffer
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        
+        // تحسين الصورة وتحويلها إلى WebP
+        const optimizedBuffer = await optimizeImageBuffer(buffer, {
+          format: 'webp',
+          quality: 85,
+          width: 1920, // الحد الأقصى للعرض
+          height: 1080, // الحد الأقصى للارتفاع
+        });
+        
+        // إنشاء ملف جديد محسّن
+        const optimizedFile = new File([optimizedBuffer], 
+          file.name.replace(/\.[^/.]+$/, '.webp'), 
+          { type: 'image/webp' }
+        );
 
-        // رفع الصورة إلى Cloudinary
-        const result = await uploadToCloudinary(file, {
+        console.log('📤 رفع الصورة المحسنة إلى Cloudinary...');
+
+        // رفع الصورة المحسنة إلى Cloudinary
+        const result = await uploadToCloudinary(optimizedFile, {
           folder,
-          fileName: file.name
+          fileName: optimizedFile.name
         });
 
-        console.log('✅ تم رفع الصورة إلى Cloudinary بنجاح:', result.url);
+        console.log('✅ تم رفع الصورة المحسنة إلى Cloudinary بنجاح:', result.url);
 
         // تسجيل النجاح
         await logUploadAttempt({

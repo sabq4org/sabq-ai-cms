@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
 import prisma from '@/lib/prisma'
+import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis'
 
 import { filterTestContent, rejectTestContent } from '@/lib/data-protection'
 import jwt from 'jsonwebtoken'
@@ -49,6 +50,16 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 بدء معالجة طلب المقالات...')
     const { searchParams } = new URL(request.url)
+    
+    // إنشاء مفتاح التخزين المؤقت بناءً على المعاملات
+    const cacheKey = CACHE_KEYS.articles(Object.fromEntries(searchParams))
+    
+    // محاولة جلب البيانات من Redis
+    const cachedData = await cache.get(cacheKey)
+    if (cachedData) {
+      console.log('✅ تم جلب المقالات من Redis cache')
+      return corsResponse(cachedData, 200)
+    }
     
     // بناء شروط البحث
     const where: any = {}
@@ -278,7 +289,7 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ تم جلب ${filteredArticles.length} مقال من أصل ${total}`)
 
-    return corsResponse({
+    const responseData = {
       success: true,
       articles: filteredArticles,
       data: filteredArticles,
@@ -291,7 +302,13 @@ export async function GET(request: NextRequest) {
         breaking: searchParams.get('breaking'),
         type: searchParams.get('type')
       }
-    })
+    }
+    
+    // حفظ البيانات في Redis
+    await cache.set(cacheKey, responseData, CACHE_TTL.ARTICLES)
+    console.log('💾 تم حفظ المقالات في Redis cache')
+
+    return corsResponse(responseData)
   } catch (error) {
     console.error('خطأ في جلب المقالات:', error)
     return corsResponse({

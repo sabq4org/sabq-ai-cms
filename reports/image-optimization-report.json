@@ -1,0 +1,107 @@
+{
+  "date": "2025-07-14T08:22:45.726Z",
+  "totalImages": 14,
+  "totalOriginalSize": 15776753,
+  "totalOptimizedSize": 4513250,
+  "totalSavings": "71.39",
+  "images": [
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752402489269-n3o538tllhj.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752402489269-n3o538tllhj.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752403292026-i91nucyzo1k.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752403292026-i91nucyzo1k.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752403328321-n0bxylgq0m.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752403328321-n0bxylgq0m.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752403431112-qlc0pijugc.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752403431112-qlc0pijugc.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752403457371-d7dszwzde46.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752403457371-d7dszwzde46.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752403492480-1zp58te7sbs.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752403492480-1zp58te7sbs.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752403607943-pk0qp5jf12.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752403607943-pk0qp5jf12.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752404042296-8e7xft1726c.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752404042296-8e7xft1726c.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752404893583-f3hxlkczrv.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752404893583-f3hxlkczrv.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752409007381-xkmayxvrn1t.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752409007381-xkmayxvrn1t.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752409085339-dooihxvltb.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752409085339-dooihxvltb.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752409551869-i6ym8r4d04.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752409551869-i6ym8r4d04.webp",
+      "originalSize": 996214,
+      "optimizedSize": 362642,
+      "savings": 63.6
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752414435794-43jjzkjhoa8.png",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752414435794-43jjzkjhoa8.webp",
+      "originalSize": 3758645,
+      "optimizedSize": 101896,
+      "savings": 97.29
+    },
+    {
+      "original": "/Users/alialhazmi/sabq-ai-cms/public/uploads/categories/1752414638545-3w30nawfedj.jpg",
+      "optimized": "/Users/alialhazmi/sabq-ai-cms/public/uploads/optimized/categories/1752414638545-3w30nawfedj.webp",
+      "originalSize": 63540,
+      "optimizedSize": 59650,
+      "savings": 6.12
+    }
+  ]
+}
