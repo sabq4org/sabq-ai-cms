@@ -1,11 +1,12 @@
 /** @type {import('next').NextConfig} */
-// Build: 2025-01-16-17-30
+// Build: 2025-01-16-18-45 - Force Vercel Rebuild v2
+// Version: 0.2.0
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   generateBuildId: async () => {
-    // Custom build ID to force rebuild
-    return '2025-01-16-17-30'
+    // Custom build ID to force rebuild - Updated
+    return 'v2-' + Date.now().toString()
   },
   images: {
     domains: [

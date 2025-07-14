@@ -18,7 +18,9 @@
   },
   "env": {
     "NODE_ENV": "production",
-    "BUILD_ID": "2025-01-16-17-30"
+    "BUILD_ID": "v2-2025-01-16-18-45",
+    "FORCE_REBUILD": "true",
+    "VERSION": "0.2.0"
   },
   "headers": [
     {
@@ -61,6 +63,19 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Build-Version",
+          "value": "0.2.0"
+        },
+        {
+          "key": "X-Deploy-Time",
+          "value": "2025-01-16T18:45:00Z"
         }
       ]
     }

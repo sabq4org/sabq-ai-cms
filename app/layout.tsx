@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { Providers } from './providers'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeScript } from './theme-script'
+import BuildVersion from './BUILD_VERSION'
 // تحميل article-card.css في النهاية لتجنب التعارضات
 import '@/styles/article-card.css'
 
@@ -144,6 +145,7 @@ export default function RootLayout({
         "dark:bg-gray-900 dark:text-gray-100",
         "transition-all duration-300"
       )} suppressHydrationWarning>
+        <BuildVersion />
         <Providers>
           <AuthProvider>
             {children}
