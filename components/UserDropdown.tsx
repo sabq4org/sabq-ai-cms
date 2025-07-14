@@ -55,45 +55,25 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [originalScrollY, setOriginalScrollY] = useState(0);
 
   // دالة آمنة لإغلاق القائمة
-  const handleClose = useCallback((event?: Event | React.MouseEvent) => {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    
-    // إخفاء القائمة أولاً
+  const handleClose = useCallback(() => {
     setIsVisible(false);
     
-    // تنظيف body styles بشكل آمن
+    // إزالة منع التمرير
     if (typeof document !== 'undefined') {
-      const body = document.body;
-      
-      // إزالة class الخاص بالقائمة المفتوحة
-      body.classList.remove('dropdown-open');
-      
-      // استعادة overflow فقط إذا لم تكن هناك قوائم أخرى مفتوحة
-      if (!body.classList.contains('dropdown-open')) {
-        body.style.overflow = '';
-        body.style.position = '';
-        body.style.top = '';
-        body.style.width = '';
-        body.style.height = '';
-      }
-      
-      // استعادة موقع التمرير للموبايل
-      if (isMobile && originalScrollY > 0) {
-        window.scrollTo(0, originalScrollY);
-      }
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.classList.remove('dropdown-open');
     }
     
     // إغلاق القائمة بعد انتهاء الأنيميشن
     setTimeout(() => {
       onClose();
-    }, 200);
-  }, [onClose, isMobile, originalScrollY]);
+    }, 150);
+  }, [onClose]);
 
   // تحديد حجم الشاشة
   useEffect(() => {
@@ -106,7 +86,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
     checkMobile();
     
     const handleResize = () => checkMobile();
-    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('resize', handleResize);
     
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -120,47 +100,35 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
     return () => {
       // تنظيف شامل عند إلغاء التحميل
       if (typeof document !== 'undefined') {
-        const body = document.body;
-        body.classList.remove('dropdown-open');
-        body.style.overflow = '';
-        body.style.position = '';
-        body.style.top = '';
-        body.style.width = '';
-        body.style.height = '';
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.classList.remove('dropdown-open');
       }
-      setIsMounted(false);
     };
   }, []);
 
-  // منع التمرير وإظهار القائمة
+  // إظهار القائمة ومنع التمرير للموبايل
   useEffect(() => {
     if (!isMounted) return;
 
-    // حفظ موقع التمرير الحالي للموبايل
-    if (isMobile) {
-      setOriginalScrollY(window.scrollY);
-    }
-
     // إظهار القائمة
-    const timer = requestAnimationFrame(() => {
+    const timer = setTimeout(() => {
       setIsVisible(true);
-    });
+    }, 50);
 
     // منع التمرير للموبايل فقط
     if (isMobile && typeof document !== 'undefined') {
-      const body = document.body;
-      
-      // تطبيق منع التمرير
-      body.style.overflow = 'hidden';
-      body.style.position = 'fixed';
-      body.style.top = `-${window.scrollY}px`;
-      body.style.width = '100%';
-      body.style.height = '100%';
-      body.classList.add('dropdown-open');
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.classList.add('dropdown-open');
     }
 
     return () => {
-      cancelAnimationFrame(timer);
+      clearTimeout(timer);
     };
   }, [isMounted, isMobile]);
 
@@ -198,37 +166,27 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           const data = await response.json();
           
           // تحديد مستوى العضوية
-          let level = 'عضو جديد';
-          let levelIcon = Star;
-          let levelColor = 'text-gray-500';
-          let nextLevelPoints = 100;
+          let level = 'برونزي';
+          let levelIcon = Award;
+          let levelColor = 'text-amber-600';
           
-          if (data.totalPoints >= 1000) {
-            level = 'عضو ذهبي';
+          if (data.points >= 1000) {
+            level = 'ذهبي';
             levelIcon = Crown;
             levelColor = 'text-yellow-500';
-            nextLevelPoints = 5000;
-          } else if (data.totalPoints >= 500) {
-            level = 'عضو فضي';
+          } else if (data.points >= 500) {
+            level = 'فضي';
             levelIcon = Trophy;
-            levelColor = 'text-gray-400';
-            nextLevelPoints = 1000;
-          } else if (data.totalPoints >= 100) {
-            level = 'عضو برونزي';
-            levelIcon = Award;
-            levelColor = 'text-orange-600';
-            nextLevelPoints = 500;
+            levelColor = 'text-gray-500';
           }
-          
-          const progress = Math.min(100, (data.totalPoints / nextLevelPoints) * 100);
           
           setLoyaltyInfo({
             level,
             levelIcon,
             levelColor,
-            points: data.totalPoints || 0,
-            nextLevelPoints,
-            progress
+            points: data.points || 0,
+            nextLevelPoints: data.points >= 1000 ? 1000 : (data.points >= 500 ? 1000 : 500),
+            progress: data.points >= 1000 ? 100 : (data.points >= 500 ? (data.points / 1000) * 100 : (data.points / 500) * 100)
           });
         }
       } catch (error) {
@@ -250,42 +208,29 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
       if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         // تحقق من أن النقرة ليست على زر فتح القائمة
         if (!anchorElement || !anchorElement.contains(target)) {
-          handleClose(event);
+          handleClose();
         }
       }
     };
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        handleClose(event);
+        handleClose();
       }
     };
 
-    const handleTouchMove = (event: TouchEvent) => {
-      // منع التمرير على الموبايل
-      if (isMobile) {
-        event.preventDefault();
-      }
-    };
-
-    // إضافة المستمعين
-    document.addEventListener('mousedown', handleClickOutside, { passive: false });
-    document.addEventListener('keydown', handleEscape, { passive: false });
-    
-    if (isMobile) {
-      document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    }
+    // إضافة المستمعين بدون منع التمرير العام
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [isMounted, isMobile, anchorElement, handleClose]);
+  }, [isMounted, anchorElement, handleClose]);
 
   // دالة معالجة النقر على الروابط
-  const handleLinkClick = useCallback((event: React.MouseEvent) => {
-    event.stopPropagation();
+  const handleLinkClick = useCallback(() => {
     handleClose();
   }, [handleClose]);
 
@@ -298,218 +243,175 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
     handleClose();
   }, [onLogout, handleClose]);
 
-  if (!isMounted || typeof document === 'undefined') return null;
+  if (!isMounted) return null;
+
+  const menuItems = [
+    { icon: User, label: 'الملف الشخصي', href: '/profile' },
+    { icon: Heart, label: 'المفضلة', href: '/profile/favorites' },
+    { icon: Bookmark, label: 'المحفوظات', href: '/profile/bookmarks' },
+    { icon: Bell, label: 'الإشعارات', href: '/profile/notifications' },
+    { icon: Activity, label: 'النشاط', href: '/profile/activity' },
+    { icon: Brain, label: 'التحليلات العميقة', href: '/profile/deep-analysis' },
+    { icon: MessageSquare, label: 'التعليقات', href: '/profile/comments' },
+    { icon: Settings, label: 'الإعدادات', href: '/settings' },
+  ];
 
   const dropdownContent = (
-    <>
-      {/* الخلفية المعتمة للموبايل */}
-      {isMobile && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40"
-          onClick={handleClose}
-          style={{ touchAction: 'none' }}
-        />
-      )}
-      
-      <div 
-        ref={dropdownRef}
-        className={`
-          ${isMobile 
-            ? 'fixed inset-x-0 bottom-0 max-h-[80vh] rounded-t-2xl' 
-            : 'absolute w-80 rounded-xl'
-          } 
-          ${darkMode ? 'bg-gray-800' : 'bg-white'}
-          shadow-2xl border ${darkMode ? 'border-gray-700' : 'border-gray-200'}
-          overflow-hidden z-50 transition-all duration-200 ease-out
-          ${isVisible 
-            ? 'opacity-100 translate-y-0 scale-100' 
-            : 'opacity-0 translate-y-2 scale-95'
-          }
-        `}
-        style={!isMobile ? { top: position.top, left: position.left } : {}}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* رأس القائمة - معلومات المستخدم */}
-        <div className={`p-6 border-b ${darkMode ? 'border-gray-700 bg-gray-900/50' : 'border-gray-100 bg-gray-50'}`}>
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-4">
+    <div
+      ref={dropdownRef}
+      className={`fixed z-[9999] ${
+        isMobile 
+          ? 'inset-0 bg-black/50 backdrop-blur-sm' 
+          : 'w-80'
+      } transition-all duration-200 ${
+        isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}
+      style={!isMobile ? { top: position.top, left: position.left } : {}}
+    >
+      <div className={`${
+        isMobile 
+          ? 'absolute bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl' 
+          : 'rounded-xl shadow-2xl border'
+      } ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-200'
+      } overflow-hidden ${
+        isMobile 
+          ? `transform transition-transform duration-300 ${
+              isVisible ? 'translate-y-0' : 'translate-y-full'
+            }` 
+          : ''
+      }`}>
+        
+        {/* Header */}
+        <div className={`p-4 ${
+          darkMode ? 'bg-gray-700/50' : 'bg-gray-50'
+        } border-b ${
+          darkMode ? 'border-gray-600' : 'border-gray-200'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
               {user.avatar ? (
-                <div className="relative w-14 h-14 flex-shrink-0">
-                  <Image
-                    src={user.avatar}
-                    alt={user.name}
-                    width={56}
-                    height={56}
-                    className="rounded-full ring-2 ring-white dark:ring-gray-700 shadow-md object-cover"
-                    style={{
-                      maxWidth: '56px',
-                      maxHeight: '56px',
-                      minWidth: '56px',
-                      minHeight: '56px'
-                    }}
-                  />
-                </div>
+                <Image
+                  src={user.avatar}
+                  alt={user.name}
+                  width={56}
+                  height={56}
+                  className="w-14 h-14 rounded-full object-cover"
+                />
               ) : (
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold shadow-md flex-shrink-0 ${
-                  darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700'
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold ${
+                  darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
                 }`}>
                   {user.name.charAt(0)}
                 </div>
               )}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-lg text-gray-900 dark:text-white truncate">
+              <div>
+                <h3 className={`font-semibold ${
+                  darkMode ? 'text-white' : 'text-gray-900'
+                }`}>
                   {user.name}
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                <p className={`text-sm ${
+                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>
                   {user.email}
                 </p>
-                {user.role && (
-                  <span className="text-xs text-gray-400 dark:text-gray-500">
-                    {user.role}
-                  </span>
-                )}
               </div>
             </div>
-            <button
-              onClick={handleClose}
-              className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
-                darkMode 
-                  ? 'hover:bg-gray-700 text-gray-400' 
-                  : 'hover:bg-gray-100 text-gray-500'
-              }`}
-            >
-              <X className="w-5 h-5" />
-            </button>
+            
+            {isMobile && (
+              <button
+                onClick={handleClose}
+                className={`p-2 rounded-full ${
+                  darkMode ? 'hover:bg-gray-600 text-gray-400' : 'hover:bg-gray-200 text-gray-500'
+                }`}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
           </div>
-
-          {/* بطاقة الولاء */}
+          
+          {/* Loyalty Info */}
           {loyaltyInfo && (
-            <div className={`p-4 rounded-lg border ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-200 bg-white'}`}>
-              <div className="flex items-center gap-3 mb-3">
-                <loyaltyInfo.levelIcon className={`w-5 h-5 ${loyaltyInfo.levelColor}`} />
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 dark:text-white">
+            <div className={`mt-3 p-3 rounded-lg ${
+              darkMode ? 'bg-gray-800' : 'bg-white'
+            }`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <loyaltyInfo.levelIcon className={`w-4 h-4 ${loyaltyInfo.levelColor}`} />
+                  <span className={`text-sm font-medium ${loyaltyInfo.levelColor}`}>
                     {loyaltyInfo.level}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {loyaltyInfo.points} نقطة
-                  </p>
+                  </span>
                 </div>
+                <span className={`text-sm font-bold ${
+                  darkMode ? 'text-blue-400' : 'text-blue-600'
+                }`}>
+                  {loyaltyInfo.points} نقطة
+                </span>
               </div>
-              
-              {/* شريط التقدم */}
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div className={`w-full bg-gray-200 rounded-full h-2 ${
+                darkMode ? 'bg-gray-700' : 'bg-gray-200'
+              }`}>
                 <div 
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    loyaltyInfo.progress >= 100 
-                      ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' 
-                      : 'bg-gradient-to-r from-blue-400 to-blue-600'
-                  }`}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${loyaltyInfo.progress}%` }}
                 />
               </div>
-              
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                {loyaltyInfo.points < loyaltyInfo.nextLevelPoints 
-                  ? `${loyaltyInfo.nextLevelPoints - loyaltyInfo.points} نقطة للوصول للمستوى التالي`
-                  : 'مستوى مكتمل!'
-                }
+              <p className={`text-xs mt-1 ${
+                darkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}>
+                {loyaltyInfo.nextLevelPoints - loyaltyInfo.points} نقطة للمستوى التالي
               </p>
             </div>
           )}
         </div>
 
-        {/* قائمة الروابط */}
-        <div className="py-2 max-h-[60vh] overflow-y-auto">
-          <Link
-            href="/profile"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleLinkClick}
-          >
-            <User className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <span className="font-medium">ملفي الشخصي</span>
-              <p className="text-xs text-gray-500 dark:text-gray-400">عرض معلوماتك الكاملة</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          </Link>
-
-          <Link
-            href="/profile/saved"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleLinkClick}
-          >
-            <Bookmark className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-green-500 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <span className="font-medium">محفوظاتي</span>
-              <p className="text-xs text-gray-500 dark:text-gray-400">الأخبار المحفوظة للقراءة لاحقاً</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          </Link>
-
-          <Link
-            href="/profile/interactions"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleLinkClick}
-          >
-            <Activity className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-red-500 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <span className="font-medium">تفاعلاتي</span>
-              <p className="text-xs text-gray-500 dark:text-gray-400">اللايكات والمشاركات</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          </Link>
-
-          <Link
-            href="/welcome/preferences"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleLinkClick}
-          >
-            <Brain className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-500 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <span className="font-medium">اهتماماتي</span>
-              <p className="text-xs text-gray-500 dark:text-gray-400">تخصيص المحتوى</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          </Link>
-
-          <hr className={`my-2 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
-
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleLinkClick}
-          >
-            <Settings className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 flex-shrink-0" />
-            <span>الإعدادات</span>
-          </Link>
-
-          <Link
-            href="/notifications"
-            className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleLinkClick}
-          >
-            <Bell className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-yellow-500 flex-shrink-0" />
-            <span>الإشعارات</span>
-          </Link>
+        {/* Menu Items */}
+        <div className="py-2 max-h-96 overflow-y-auto">
+          {menuItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={handleLinkClick}
+              className={`flex items-center space-x-3 rtl:space-x-reverse px-4 py-3 transition-colors ${
+                darkMode 
+                  ? 'hover:bg-gray-700 text-gray-300 hover:text-white' 
+                  : 'hover:bg-gray-50 text-gray-700 hover:text-gray-900'
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="flex-1">{item.label}</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          ))}
         </div>
 
-        {/* زر تسجيل الخروج */}
-        <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        {/* Footer */}
+        <div className={`p-4 border-t ${
+          darkMode ? 'border-gray-600' : 'border-gray-200'
+        }`}>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all w-full text-right group"
+            className={`w-full flex items-center justify-center space-x-2 rtl:space-x-reverse px-4 py-3 rounded-lg transition-colors ${
+              darkMode 
+                ? 'bg-red-600 hover:bg-red-700 text-white' 
+                : 'bg-red-500 hover:bg-red-600 text-white'
+            }`}
           >
-            <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-            <span className="font-medium">تسجيل الخروج</span>
+            <LogOut className="w-5 h-5" />
+            <span>تسجيل الخروج</span>
           </button>
         </div>
-
-        {/* مساحة إضافية للموبايل */}
-        {isMobile && <div className="h-safe-area-inset-bottom" />}
       </div>
-    </>
+    </div>
   );
 
-  return ReactDOM.createPortal(dropdownContent, document.body);
+  // استخدام Portal للموبايل فقط
+  if (isMobile && typeof document !== 'undefined') {
+    return ReactDOM.createPortal(dropdownContent, document.body);
+  }
+
+  return dropdownContent;
 }

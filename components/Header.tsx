@@ -111,25 +111,17 @@ export default function Header() {
     return () => clearInterval(interval);
   }, []);
 
-  // إغلاق القائمة عند النقر خارجها
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
-      }
-      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
-      }
-    }
+  // دالة آمنة لإغلاق القائمة
+  const handleCloseDropdown = () => {
+    setShowDropdown(false);
+  };
 
-    if (showDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showDropdown]);
+  // دالة آمنة لفتح/إغلاق القائمة
+  const handleToggleDropdown = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setShowDropdown(!showDropdown);
+  };
 
   const handleLogout = async () => {
     try {
@@ -201,63 +193,51 @@ export default function Header() {
               />
             </Link>
 
-            {/* أدوات التحكم */}
-            <div className="flex items-center gap-2">
-              {/* زر الوضع الليلي */}
-              {mounted && (
-                <button
-                  onClick={toggleDarkMode}
-                  className={`p-2 rounded-lg transition-colors ${
-                    darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                  aria-label="تبديل الوضع الليلي"
-                >
-                  {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                </button>
-              )}
+            {/* أزرار المستخدم */}
+            <div className="flex items-center space-x-2 rtl:space-x-reverse">
+              {/* زر الوضع المظلم */}
+              <button
+                onClick={toggleDarkMode}
+                className={`p-2 rounded-lg transition-colors ${
+                  darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                aria-label={darkMode ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع المظلم'}
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
 
-              {isLoading ? (
-                <div className="w-8 h-8" />
-              ) : user ? (
-                <div ref={mobileDropdownRef} className="relative">
+              {/* صورة المستخدم أو زر تسجيل الدخول */}
+              {user ? (
+                <div className="relative" ref={mobileDropdownRef}>
                   <button
                     ref={mobileButtonRef}
-                    onClick={() => setShowDropdown(!showDropdown)}
-                    className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
+                    onClick={handleToggleDropdown}
+                    className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-lg transition-colors ${
+                      darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                    }`}
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <img 
-                        src={user.avatar} 
-                        alt={user.name} 
-                        width={32} 
-                        height={32} 
-                        className="w-8 h-8 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm user-avatar"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          const parent = target.parentElement;
-                          if (parent) {
-                            // إخفاء الصورة
-                            target.style.display = 'none';
-                            // إنشاء وإظهار الدائرة البديلة
-                            const fallback = document.createElement('div');
-                            fallback.className = 'w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border-2 border-white dark:border-gray-800';
-                            fallback.textContent = getInitials(user.name);
-                            parent.appendChild(fallback);
-                          }
-                        }}
+                      <Image
+                        src={user.avatar}
+                        alt={user.name}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm border-2 border-white dark:border-gray-800">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
+                        darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
+                      }`}>
                         {getInitials(user.name)}
                       </div>
                     )}
                   </button>
 
                   {showDropdown && (
-                    <UserDropdown 
+                    <UserDropdown
                       user={user}
-                      onClose={() => setShowDropdown(false)}
+                      onClose={handleCloseDropdown}
                       onLogout={handleLogout}
                       anchorElement={mobileButtonRef.current}
                     />
@@ -266,10 +246,12 @@ export default function Header() {
               ) : (
                 <Link
                   href="/login"
-                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                  aria-label="تسجيل الدخول"
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-lg transition-colors ${
+                    darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
                 >
-                  <User className="w-5 h-5" />
+                  <LogIn className="w-5 h-5" />
+                  <span className="text-sm font-medium">دخول</span>
                 </Link>
               )}
             </div>
@@ -278,98 +260,93 @@ export default function Header() {
           {/* Desktop Layout */}
           <div className="hidden lg:flex items-center justify-between w-full">
             {/* الشعار */}
-            <Link href="/" className="flex-shrink-0 min-w-[120px]">
+            <Link href="/" className="flex-shrink-0">
               <Image 
                 src="/logo.png" 
                 alt="سبق" 
-                width={100} 
+                width={120} 
                 height={40} 
-                className="h-12 w-auto object-contain hover:opacity-80 transition-opacity mt-1"
+                className="h-10 w-auto object-contain hover:opacity-80 transition-opacity"
                 priority
               />
             </Link>
 
-            {/* التنقل الرئيسي */}
-            <nav className="flex items-center gap-8 flex-1 justify-center">
+            {/* القائمة الرئيسية */}
+            <nav className="hidden lg:flex items-center space-x-8 rtl:space-x-reverse">
               {navigationItems.map((item) => (
-                <Link 
+                <Link
                   key={item.url}
-                  href={item.url} 
-                  className={`flex items-center gap-2 transition-all font-medium text-lg ${
-                    item.highlight 
-                      ? 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 relative' 
-                      : 'text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400'
-                  } hover:font-semibold`}
-                  title={item.label === '' ? 'لحظة بلحظة' : item.label}
+                  href={item.url}
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    item.highlight
+                      ? darkMode
+                        ? 'text-blue-400 hover:bg-blue-900/20 hover:text-blue-300'
+                        : 'text-blue-600 hover:bg-blue-50 hover:text-blue-700'
+                      : darkMode
+                      ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  }`}
                 >
-                  {(item.label === '' || item.label === 'لحظة بلحظة') && (
-                    <Activity className="w-5 h-5 animate-pulse" />
+                  {item.icon && (
+                    <item.icon className={`w-4 h-4 ${item.highlight ? 'text-current' : ''}`} />
                   )}
-                  {item.icon && <item.icon className="w-5 h-5" />}
                   {item.label && <span>{item.label}</span>}
-                  {item.highlight && (
-                    <span className="absolute -top-1 -right-2 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                  {item.url === '/moment-by-moment' && newEventsCount > 0 && (
+                    <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full animate-pulse">
+                      {newEventsCount}
+                    </span>
                   )}
                 </Link>
               ))}
             </nav>
 
-            {/* أدوات التحكم - مبسطة ومتناسقة */}
-            <div className="flex items-center gap-2 min-w-[120px] justify-end">
-              {/* زر الوضع الليلي */}
-              {mounted && (
-                <button
-                  onClick={toggleDarkMode}
-                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                  aria-label="تبديل الوضع الليلي"
-                >
-                  {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                </button>
-              )}
+            {/* أزرار المستخدم */}
+            <div className="flex items-center space-x-4 rtl:space-x-reverse">
+              {/* زر الوضع المظلم */}
+              <button
+                onClick={toggleDarkMode}
+                className={`p-2 rounded-lg transition-colors ${
+                  darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                aria-label={darkMode ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع المظلم'}
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
 
-              {isLoading ? (
-                <div className="w-10 h-10" />
-              ) : user ? (
-                <div className="relative dropdown-container" ref={dropdownRef}>
+              {/* صورة المستخدم أو زر تسجيل الدخول */}
+              {user ? (
+                <div className="relative" ref={dropdownRef}>
                   <button
                     ref={desktopButtonRef}
-                    onClick={() => setShowDropdown(!showDropdown)}
-                    className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
+                    onClick={handleToggleDropdown}
+                    className={`flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-lg transition-colors ${
+                      darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                    }`}
                     aria-label="قائمة المستخدم"
                   >
                     {user.avatar ? (
-                      <img 
-                        src={user.avatar} 
-                        alt={user.name} 
-                        width={36} 
-                        height={36} 
-                        className="w-9 h-9 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm user-avatar"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          const parent = target.parentElement;
-                          if (parent) {
-                            // إخفاء الصورة
-                            target.style.display = 'none';
-                            // إنشاء وإظهار الدائرة البديلة
-                            const fallback = document.createElement('div');
-                            fallback.className = 'w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm border-2 border-white dark:border-gray-800';
-                            fallback.textContent = getInitials(user.name);
-                            parent.appendChild(fallback);
-                          }
-                        }}
+                      <Image
+                        src={user.avatar}
+                        alt={user.name}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm border-2 border-white dark:border-gray-800">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
+                        darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
+                      }`}>
                         {getInitials(user.name)}
                       </div>
                     )}
-                    {/* إزالة السهم لتقليل التشتيت */}
+                    <span className="text-sm font-medium max-w-24 truncate">{user.name}</span>
+                    <ChevronDown className="w-4 h-4" />
                   </button>
 
                   {showDropdown && (
-                    <UserDropdown 
+                    <UserDropdown
                       user={user}
-                      onClose={() => setShowDropdown(false)}
+                      onClose={handleCloseDropdown}
                       onLogout={handleLogout}
                       anchorElement={desktopButtonRef.current}
                     />
@@ -378,10 +355,12 @@ export default function Header() {
               ) : (
                 <Link
                   href="/login"
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg transition-colors ${
+                    darkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'
+                  }`}
                 >
-                  <LogIn className="w-4 h-4" />
-                  <span>تسجيل الدخول</span>
+                  <LogIn className="w-5 h-5" />
+                  <span className="text-sm font-medium">دخول</span>
                 </Link>
               )}
             </div>
@@ -390,28 +369,33 @@ export default function Header() {
 
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg z-40">
-            <nav className="px-4 py-4 space-y-2">
+          <div className={`lg:hidden border-t ${
+            darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'
+          }`}>
+            <nav className="px-2 pt-2 pb-3 space-y-1">
               {navigationItems.map((item) => (
                 <Link
                   key={item.url}
                   href={item.url}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all font-medium ${
-                    item.highlight
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'
-                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400'
-                  }`}
                   onClick={() => setShowMobileMenu(false)}
+                  className={`flex items-center space-x-3 rtl:space-x-reverse px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 ${
+                    item.highlight
+                      ? darkMode
+                        ? 'text-blue-400 hover:bg-blue-900/20 hover:text-blue-300'
+                        : 'text-blue-600 hover:bg-blue-50 hover:text-blue-700'
+                      : darkMode
+                      ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  }`}
                 >
-                  {(item.label === '' || item.label === 'لحظة بلحظة') && (
-                    <Activity className="w-5 h-5 animate-pulse" />
+                  {item.icon && (
+                    <item.icon className={`w-5 h-5 ${item.highlight ? 'text-current' : ''}`} />
                   )}
-                  {item.icon && <item.icon className="w-5 h-5" />}
-                  <span className="flex-1">
-                    {item.label === '' ? 'لحظة بلحظة' : item.label}
-                  </span>
-                  {item.highlight && (
-                    <span className="w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                  {item.label && <span>{item.label}</span>}
+                  {item.url === '/moment-by-moment' && newEventsCount > 0 && (
+                    <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full animate-pulse">
+                      {newEventsCount}
+                    </span>
                   )}
                 </Link>
               ))}
