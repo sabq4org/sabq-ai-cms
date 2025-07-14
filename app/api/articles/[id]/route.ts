@@ -30,7 +30,10 @@ export async function GET(
         data: { views: { increment: 1 } }
       }).catch((err: Error) => console.error('خطأ في تحديث المشاهدات:', err));
       
-      return NextResponse.json(cachedArticle);
+      const response = NextResponse.json(cachedArticle);
+      response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=59');
+      response.headers.set('X-Cache', 'HIT');
+      return response;
     }
     
     // استخدام include لجلب جميع البيانات المطلوبة في استعلام واحد
@@ -130,7 +133,10 @@ export async function GET(
     await cache.set(cacheKey, articleWithEnhancedData, CACHE_TTL.ARTICLES);
     console.log(`💾 تم حفظ المقال ${id} في Redis cache`);
     
-    return NextResponse.json(articleWithEnhancedData);
+    const response = NextResponse.json(articleWithEnhancedData);
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=59');
+    response.headers.set('X-Cache', 'MISS');
+    return response;
   } catch (error: any) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

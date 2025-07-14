@@ -140,6 +140,9 @@ model articles {
   published_at    DateTime?
   scheduled_for   DateTime?
   views           Int            @default(0)
+  likes           Int            @default(0)
+  shares          Int            @default(0)
+  saves           Int            @default(0)
   reading_time    Int?
   seo_title       String?
   seo_description String?
