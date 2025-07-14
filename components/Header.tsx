@@ -26,7 +26,7 @@ import {
   Search,
   Bell,
   Settings,
-  TrendingUp
+  Brain
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -54,7 +54,7 @@ export default function Header() {
     { url: '/', label: 'الرئيسية', icon: Home, highlight: false },
     { url: '/news', label: 'الأخبار', icon: Newspaper, highlight: false },
     { url: '/categories', label: 'الأقسام', icon: Folder, highlight: false },
-    { url: '/deep-analysis', label: 'عمق', icon: TrendingUp, highlight: false },
+    { url: '/deep-analysis', label: 'عمق', icon: Brain, highlight: false },
     { url: '/opinion', label: 'الرأي', icon: Edit, highlight: false },
     { 
       url: '/moment-by-moment', 
@@ -63,7 +63,7 @@ export default function Header() {
       highlight: true,
       showBadge: true,
       badgeCount: liveEventCount
-    },
+    }
   ];
 
   // جلب بيانات المستخدم
@@ -98,8 +98,8 @@ export default function Header() {
 
     fetchUserData();
     
-    // تحديث بيانات المستخدم كل 30 ثانية
-    const userInterval = setInterval(fetchUserData, 30000);
+    // تحديث بيانات المستخدم كل 10 ثوان بدلاً من 30 لحل مشكلة الدخول
+    const userInterval = setInterval(fetchUserData, 10000);
     
     return () => clearInterval(userInterval);
   }, []);
@@ -119,8 +119,8 @@ export default function Header() {
       await logout();
       setUser(null);
       setIsDropdownOpen(false);
-      toast.success('تم تسجيل الخروج بنجاح');
       router.push('/');
+      toast.success('تم تسجيل الخروج بنجاح');
     } catch (error) {
       console.error('خطأ في تسجيل الخروج:', error);
       toast.error('حدث خطأ أثناء تسجيل الخروج');
@@ -131,8 +131,8 @@ export default function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setIsSearchOpen(false);
       setSearchQuery('');
+      setIsSearchOpen(false);
     }
   };
 
@@ -164,27 +164,27 @@ export default function Header() {
           {/* الشعار الرسمي */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-              {/* اللوقو الرسمي */}
+              {/* اللوقو الرسمي - أكبر حجماً */}
               <div className="flex items-center">
                 <Image
                   src="/logo.png"
                   alt="صحيفة سبق الإلكترونية"
-                  width={120}
-                  height={40}
-                  className="h-8 w-auto"
+                  width={140}
+                  height={45}
+                  className="h-10 w-auto"
                   priority
                 />
               </div>
             </Link>
           </div>
 
-          {/* المينيو الرئيسية - Desktop */}
-          <nav className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
+          {/* المينيو الرئيسية - Desktop - مع تحسين المسافات */}
+          <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
             {navigationItems.map((item) => (
               <Link
                 key={item.url}
                 href={item.url}
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                   item.highlight
                     ? darkMode
                       ? 'text-red-400 hover:text-red-300'
@@ -205,169 +205,145 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* أدوات التحكم - Desktop */}
-          <div className="hidden md:flex items-center space-x-4 rtl:space-x-reverse">
-            {/* زر البحث */}
-            <button
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={`p-2 rounded-lg transition-colors duration-200 ${
-                darkMode
-                  ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-              aria-label="البحث"
-            >
-              <Search className="w-5 h-5" />
-            </button>
+          {/* أدوات الهيدر */}
+          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+            {/* البحث */}
+            <div className="relative">
+              {isSearchOpen ? (
+                <form onSubmit={handleSearch} className="flex items-center">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="البحث..."
+                    className={`w-64 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      darkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsSearchOpen(false)}
+                    className={`ml-2 p-1 rounded-md ${
+                      darkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                  >
+                    ×
+                  </button>
+                </form>
+              ) : (
+                <button
+                  onClick={() => setIsSearchOpen(true)}
+                  className={`p-2 rounded-md transition-colors duration-200 ${
+                    darkMode 
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-800' 
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                  }`}
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+              )}
+            </div>
 
-            {/* زر الوضع الليلي */}
+            {/* الوضع الليلي */}
             <button
               onClick={toggleDarkMode}
-              className={`p-2 rounded-lg transition-colors duration-200 ${
-                darkMode
-                  ? 'text-yellow-400 hover:text-yellow-300 hover:bg-gray-800'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              className={`p-2 rounded-md transition-colors duration-200 ${
+                darkMode 
+                  ? 'text-yellow-400 hover:text-yellow-300 hover:bg-gray-800' 
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
               }`}
-              aria-label={darkMode ? 'تبديل إلى الوضع النهاري' : 'تبديل إلى الوضع الليلي'}
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            {/* منطقة المستخدم */}
+            {/* معلومات المستخدم */}
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={handleDropdownToggle}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-lg transition-colors duration-200 ${
-                    darkMode
-                      ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-md transition-colors duration-200 ${
+                    darkMode 
+                      ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                   }`}
-                  aria-label="قائمة المستخدم"
                 >
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center flex-shrink-0">
-                    {user.avatar ? (
-                      <Image
-                        src={user.avatar}
-                        alt={user.name}
-                        width={32}
-                        height={32}
-                        className="user-avatar"
-                        priority
-                      />
-                    ) : (
-                      <User className="w-5 h-5 text-gray-600" />
-                    )}
-                  </div>
+                  {user.avatar ? (
+                    <Image
+                      src={user.avatar}
+                      alt={user.name}
+                      width={32}
+                      height={32}
+                      className="user-avatar"
+                    />
+                  ) : (
+                    <User className="w-5 h-5" />
+                  )}
+                  <span className="hidden sm:inline text-sm font-medium">{user.name}</span>
                   <ChevronDown className="w-4 h-4" />
                 </button>
 
                 {isDropdownOpen && (
                   <UserDropdown
                     user={user}
-                    onClose={handleDropdownClose}
                     onLogout={handleLogout}
-                    anchorElement={dropdownRef.current}
+                    onClose={handleDropdownClose}
                   />
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <Link
-                  href="/login"
-                  className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                    darkMode
-                      ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>تسجيل الدخول</span>
-                </Link>
-              </div>
+              <Link
+                href="/login"
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  darkMode 
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                <LogIn className="w-4 h-4" />
+                <span>تسجيل الدخول</span>
+              </Link>
             )}
-          </div>
 
-          {/* زر المينيو المحمول */}
-          <div className="md:hidden flex items-center space-x-2 rtl:space-x-reverse">
-            {/* زر الوضع الليلي - Mobile */}
-            <button
-              onClick={toggleDarkMode}
-              className={`p-2 rounded-lg transition-colors duration-200 ${
-                darkMode
-                  ? 'text-yellow-400 hover:text-yellow-300 hover:bg-gray-800'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-              aria-label={darkMode ? 'تبديل إلى الوضع النهاري' : 'تبديل إلى الوضع الليلي'}
-            >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-
+            {/* المينيو المحمول */}
             <button
               onClick={toggleMobileMenu}
-              className={`p-2 rounded-lg transition-colors duration-200 ${
-                darkMode
-                  ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              className={`md:hidden p-2 rounded-md transition-colors duration-200 ${
+                darkMode 
+                  ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-800' 
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
               }`}
-              aria-label="قائمة التنقل"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             </button>
           </div>
         </div>
-
-        {/* شريط البحث */}
-        {isSearchOpen && (
-          <div className="py-4 border-t border-gray-200 dark:border-gray-700">
-            <form onSubmit={handleSearch} className="flex items-center space-x-2 rtl:space-x-reverse">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="البحث في الأخبار..."
-                className={`flex-1 px-4 py-2 rounded-lg border transition-colors duration-200 ${
-                  darkMode
-                    ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
-                } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
-                autoFocus
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-              >
-                بحث
-              </button>
-            </form>
-          </div>
-        )}
 
         {/* المينيو المحمول */}
         {isMobileMenuOpen && (
           <div className={`md:hidden py-4 border-t ${
             darkMode ? 'border-gray-700' : 'border-gray-200'
           }`}>
-            <div className="flex flex-col space-y-2">
+            <nav className="flex flex-col space-y-2">
               {navigationItems.map((item) => (
                 <Link
                   key={item.url}
                   href={item.url}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                     item.highlight
                       ? darkMode
-                        ? 'text-red-400 hover:text-red-300 hover:bg-gray-800'
-                        : 'text-red-600 hover:text-red-700 hover:bg-gray-100'
+                        ? 'text-red-400 hover:text-red-300'
+                        : 'text-red-600 hover:text-red-700'
                       : darkMode
                       ? 'text-gray-300 hover:text-white hover:bg-gray-800'
                       : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
-                  <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <item.icon className="w-5 h-5" />
-                    {item.label && <span>{item.label}</span>}
-                  </div>
+                  <item.icon className="w-4 h-4" />
+                  {item.label && <span>{item.label}</span>}
                   {item.showBadge && item.badgeCount && item.badgeCount > 0 && (
                     <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
                       {item.badgeCount}
@@ -376,79 +352,33 @@ export default function Header() {
                 </Link>
               ))}
               
-              {/* فاصل */}
-              <div className={`my-2 border-t ${
-                darkMode ? 'border-gray-700' : 'border-gray-200'
-              }`}></div>
-              
-              {/* روابط إضافية */}
+              {/* روابط إضافية للمحمول */}
               <Link
-                href="/search"
+                href="/profile"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center space-x-3 rtl:space-x-reverse px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                  darkMode
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-800'
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  darkMode 
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
                     : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
-                <Search className="w-5 h-5" />
-                <span>البحث</span>
+                <User className="w-4 h-4" />
+                <span>الملف الشخصي</span>
               </Link>
               
-              {user ? (
-                <>
-                  <Link
-                    href="/profile"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center space-x-3 rtl:space-x-reverse px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                      darkMode
-                        ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <User className="w-5 h-5" />
-                    <span>الملف الشخصي</span>
-                  </Link>
-                  <Link
-                    href="/settings"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center space-x-3 rtl:space-x-reverse px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                      darkMode
-                        ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Settings className="w-5 h-5" />
-                    <span>الإعدادات</span>
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`flex items-center space-x-3 rtl:space-x-reverse px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 text-red-600 hover:text-red-700 ${
-                      darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-                    }`}
-                  >
-                    <LogIn className="w-5 h-5" />
-                    <span>تسجيل الخروج</span>
-                  </button>
-                </>
-              ) : (
-                <Link
-                  href="/login"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-3 rtl:space-x-reverse px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                    darkMode
-                      ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <LogIn className="w-5 h-5" />
-                  <span>تسجيل الدخول</span>
-                </Link>
-              )}
-            </div>
+              <Link
+                href="/settings"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  darkMode 
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                <span>الإعدادات</span>
+              </Link>
+            </nav>
           </div>
         )}
       </div>
