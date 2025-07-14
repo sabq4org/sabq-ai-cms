@@ -62,7 +62,23 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
   const { darkMode } = useDarkModeContext();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
-  const isMobile = window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(false);
+
+  // تحديد حجم الشاشة
+  useEffect(() => {
+    const checkMobile = () => {
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth < 768);
+      }
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   // جلب معلومات الولاء
   useEffect(() => {
@@ -118,7 +134,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
 
   // حساب موقع القائمة
   useEffect(() => {
-    if (anchorElement && !isMobile) {
+    if (anchorElement && !isMobile && typeof window !== 'undefined') {
       const rect = anchorElement.getBoundingClientRect();
       const dropdownWidth = 320;
       const dropdownHeight = 500;
@@ -153,7 +169,35 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
     }
   }, [isMounted]);
 
-  if (!isMounted) return null;
+  // إغلاق القائمة عند النقر خارجها
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        // التحقق من أن النقرة ليست على زر فتح القائمة
+        if (anchorElement && !anchorElement.contains(event.target as Node)) {
+          onClose();
+        }
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isMounted, onClose, anchorElement]);
+
+  if (!isMounted || typeof document === 'undefined') return null;
 
   const dropdownContent = (
     <>
@@ -175,6 +219,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           ${darkMode ? 'bg-gray-800' : 'bg-white'}
           shadow-2xl border ${darkMode ? 'border-gray-700' : 'border-gray-200'}
           overflow-hidden z-50 transition-all duration-200
+          ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
         `}
         style={!isMobile ? { top: position.top, left: position.left } : {}}
       >

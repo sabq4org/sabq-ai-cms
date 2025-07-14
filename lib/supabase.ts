@@ -28,32 +28,43 @@ try {
 export function getSupabaseClient() {
   if (!supabase) {
     // في حالة عدم وجود Supabase، نرجع كائن وهمي للتطوير
-    const mockQueryBuilder = {
-      select: () => mockQueryBuilder,
-      insert: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-      update: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-      delete: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-      eq: () => mockQueryBuilder,
-      neq: () => mockQueryBuilder,
-      gt: () => mockQueryBuilder,
-      gte: () => mockQueryBuilder,
-      lt: () => mockQueryBuilder,
-      lte: () => mockQueryBuilder,
-      like: () => mockQueryBuilder,
-      ilike: () => mockQueryBuilder,
-      is: () => mockQueryBuilder,
-      in: () => mockQueryBuilder,
-      contains: () => mockQueryBuilder,
-      containedBy: () => mockQueryBuilder,
-      range: () => mockQueryBuilder,
-      order: () => mockQueryBuilder,
-      limit: () => mockQueryBuilder,
-      single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-      then: (resolve: any) => resolve({ data: [], error: null })
+    const createMockQueryBuilder = (): any => {
+      const mockData: any[] = [];
+      
+      const builder: any = {
+        select: () => builder,
+        insert: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        update: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        delete: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        eq: () => builder,
+        neq: () => builder,
+        gt: () => builder,
+        gte: () => builder,
+        lt: () => builder,
+        lte: () => builder,
+        like: () => builder,
+        ilike: () => builder,
+        is: () => builder,
+        in: () => builder,
+        contains: () => builder,
+        containedBy: () => builder,
+        range: () => builder,
+        order: () => builder,
+        limit: () => builder,
+        single: () => Promise.resolve({ data: null, error: null }),
+      };
+      
+      // إضافة دعم للـ Promise
+      builder.then = (resolve: any) => {
+        resolve({ data: mockData, error: null });
+        return Promise.resolve({ data: mockData, error: null });
+      };
+      
+      return builder;
     };
 
     return {
-      from: () => mockQueryBuilder,
+      from: () => createMockQueryBuilder(),
       rpc: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
     };
   }
