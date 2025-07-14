@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -22,7 +22,6 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-
 
 interface UserData {
   id: string;
@@ -64,6 +63,31 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  // دالة آمنة لإغلاق القائمة
+  const handleClose = useCallback((event?: Event | React.MouseEvent) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    // تنظيف body styles
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.classList.remove('dropdown-open');
+    }
+    
+    // إخفاء القائمة أولاً
+    setIsVisible(false);
+    
+    // إغلاق القائمة بعد انتهاء الأنيميشن
+    setTimeout(() => {
+      onClose();
+    }, 150);
+  }, [onClose]);
+
   // تحديد حجم الشاشة
   useEffect(() => {
     const checkMobile = () => {
@@ -73,16 +97,102 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
     };
     
     checkMobile();
-    window.addEventListener('resize', checkMobile);
+    
+    const handleResize = () => checkMobile();
+    window.addEventListener('resize', handleResize, { passive: true });
     
     return () => {
-      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  // إعداد القائمة عند التحميل
+  useEffect(() => {
+    setIsMounted(true);
+    
+    return () => {
+      // تنظيف شامل عند إلغاء التحميل
+      if (typeof document !== 'undefined') {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
+        document.body.classList.remove('dropdown-open');
+      }
+      setIsMounted(false);
+    };
+  }, []);
+
+  // منع التمرير وإظهار القائمة
+  useEffect(() => {
+    if (!isMounted) return;
+
+    // إظهار القائمة
+    const timer = requestAnimationFrame(() => {
+      setIsVisible(true);
+    });
+
+    // منع التمرير للموبايل فقط
+    if (isMobile && typeof document !== 'undefined') {
+      const body = document.body;
+      const scrollY = window.scrollY;
+      
+      // حفظ الحالة الحالية
+      const originalStyles = {
+        overflow: body.style.overflow,
+        position: body.style.position,
+        top: body.style.top,
+        width: body.style.width,
+      };
+      
+      // تطبيق منع التمرير
+      body.style.overflow = 'hidden';
+      body.style.position = 'fixed';
+      body.style.top = `-${scrollY}px`;
+      body.style.width = '100%';
+      body.classList.add('dropdown-open');
+      
+      return () => {
+        // استعادة الحالة الأصلية
+        Object.assign(body.style, originalStyles);
+        body.classList.remove('dropdown-open');
+        window.scrollTo(0, scrollY);
+      };
+    }
+
+    return () => {
+      cancelAnimationFrame(timer);
+    };
+  }, [isMounted, isMobile]);
+
+  // حساب موقع القائمة
+  useEffect(() => {
+    if (anchorElement && !isMobile && typeof window !== 'undefined') {
+      const rect = anchorElement.getBoundingClientRect();
+      const dropdownWidth = 320;
+      const dropdownHeight = 500;
+      
+      let left = rect.left;
+      let top = rect.bottom + 8;
+      
+      // التحقق من تجاوز حدود الشاشة
+      if (left + dropdownWidth > window.innerWidth) {
+        left = window.innerWidth - dropdownWidth - 16;
+      }
+      
+      if (top + dropdownHeight > window.innerHeight) {
+        top = rect.top - dropdownHeight - 8;
+      }
+      
+      setPosition({ top, left });
+    }
+  }, [anchorElement, isMobile]);
 
   // جلب معلومات الولاء
   useEffect(() => {
     const fetchLoyaltyInfo = async () => {
+      if (!user?.id) return;
+      
       try {
         const response = await fetch(`/api/loyalty/user/${user.id}`);
         if (response.ok) {
@@ -127,99 +237,67 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
       }
     };
 
-    if (user?.id) {
-      fetchLoyaltyInfo();
-    }
-  }, [user]);
+    fetchLoyaltyInfo();
+  }, [user?.id]);
 
-  // حساب موقع القائمة
-  useEffect(() => {
-    if (anchorElement && !isMobile && typeof window !== 'undefined') {
-      const rect = anchorElement.getBoundingClientRect();
-      const dropdownWidth = 320;
-      const dropdownHeight = 500;
-      
-      let left = rect.left;
-      let top = rect.bottom + 8;
-      
-      // التحقق من تجاوز حدود الشاشة
-      if (left + dropdownWidth > window.innerWidth) {
-        left = window.innerWidth - dropdownWidth - 16;
-      }
-      
-      if (top + dropdownHeight > window.innerHeight) {
-        top = rect.top - dropdownHeight - 8;
-      }
-      
-      setPosition({ top, left });
-    }
-  }, [anchorElement, isMobile]);
-
-  useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
-  }, []);
-
-  // إظهار القائمة بتأثير والتحكم في overflow
-  useEffect(() => {
-    if (isMounted) {
-      requestAnimationFrame(() => {
-        setIsVisible(true);
-      });
-      
-      // منع التمرير عند فتح القائمة في الموبايل فقط
-      if (isMobile && typeof document !== 'undefined') {
-        // حفظ الحالة الأصلية لـ overflow
-        const originalOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
-        
-        // إضافة class لمنع التمرير
-        document.body.classList.add('dropdown-open');
-        
-        return () => {
-          document.body.style.overflow = originalOverflow;
-          document.body.classList.remove('dropdown-open');
-        };
-      }
-    }
-  }, [isMounted, isMobile]);
-
-  // دالة إغلاق القائمة مع تنظيف overflow
-  const handleClose = () => {
-    if (typeof document !== 'undefined') {
-      document.body.style.overflow = '';
-      document.body.classList.remove('dropdown-open');
-    }
-    onClose();
-  };
-
-  // إغلاق القائمة عند النقر خارجها
+  // معالجة الأحداث
   useEffect(() => {
     if (!isMounted) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        // التحقق من أن النقرة ليست على زر فتح القائمة
-        if (anchorElement && !anchorElement.contains(event.target as Node)) {
-          handleClose();
+      const target = event.target as Node;
+      
+      // تحقق من أن النقرة ليست داخل القائمة
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+        // تحقق من أن النقرة ليست على زر فتح القائمة
+        if (!anchorElement || !anchorElement.contains(target)) {
+          handleClose(event);
         }
       }
     };
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        handleClose();
+        handleClose(event);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
+    const handleTouchMove = (event: TouchEvent) => {
+      // منع التمرير على الموبايل
+      if (isMobile) {
+        event.preventDefault();
+      }
+    };
+
+    // إضافة المستمعين
+    document.addEventListener('mousedown', handleClickOutside, { passive: false });
+    document.addEventListener('keydown', handleEscape, { passive: false });
+    
+    if (isMobile) {
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [isMounted, anchorElement]);
+  }, [isMounted, isMobile, anchorElement, handleClose]);
+
+  // دالة معالجة النقر على الروابط
+  const handleLinkClick = useCallback((event: React.MouseEvent) => {
+    event.stopPropagation();
+    handleClose();
+  }, [handleClose]);
+
+  // دالة معالجة تسجيل الخروج
+  const handleLogout = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    onLogout();
+    handleClose();
+  }, [onLogout, handleClose]);
 
   if (!isMounted || typeof document === 'undefined') return null;
 
@@ -230,6 +308,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
         <div 
           className="fixed inset-0 bg-black/50 z-40"
           onClick={handleClose}
+          style={{ touchAction: 'none' }}
         />
       )}
       
@@ -237,15 +316,19 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
         ref={dropdownRef}
         className={`
           ${isMobile 
-            ? 'fixed inset-x-0 bottom-0 max-h-[80vh] rounded-t-2xl animate-slide-up' 
-            : 'absolute w-80 rounded-xl animate-fade-in'
+            ? 'fixed inset-x-0 bottom-0 max-h-[80vh] rounded-t-2xl' 
+            : 'absolute w-80 rounded-xl'
           } 
           ${darkMode ? 'bg-gray-800' : 'bg-white'}
           shadow-2xl border ${darkMode ? 'border-gray-700' : 'border-gray-200'}
-          overflow-hidden z-50 transition-all duration-200
-          ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
+          overflow-hidden z-50 transition-all duration-200 ease-out
+          ${isVisible 
+            ? 'opacity-100 translate-y-0 scale-100' 
+            : 'opacity-0 translate-y-2 scale-95'
+          }
         `}
         style={!isMobile ? { top: position.top, left: position.left } : {}}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* رأس القائمة - معلومات المستخدم */}
         <div className={`p-6 border-b ${darkMode ? 'border-gray-700 bg-gray-900/50' : 'border-gray-100 bg-gray-50'}`}>
@@ -329,7 +412,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/profile"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleClose}
+            onClick={handleLinkClick}
           >
             <User className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-500" />
             <div className="flex-1">
@@ -342,7 +425,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/profile/saved"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleClose}
+            onClick={handleLinkClick}
           >
             <Bookmark className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-green-500" />
             <div className="flex-1">
@@ -355,7 +438,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/profile/interactions"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleClose}
+            onClick={handleLinkClick}
           >
             <Activity className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-red-500" />
             <div className="flex-1">
@@ -368,7 +451,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/welcome/preferences"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleClose}
+            onClick={handleLinkClick}
           >
             <Brain className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-500" />
             <div className="flex-1">
@@ -383,7 +466,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/settings"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleClose}
+            onClick={handleLinkClick}
           >
             <Settings className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600" />
             <span>الإعدادات</span>
@@ -392,7 +475,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/notifications"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={handleClose}
+            onClick={handleLinkClick}
           >
             <Bell className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-yellow-500" />
             <span>الإشعارات</span>
@@ -402,10 +485,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
         {/* زر تسجيل الخروج */}
         <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <button
-            onClick={() => {
-              onLogout();
-              handleClose();
-            }}
+            onClick={handleLogout}
             className="flex items-center gap-3 px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all w-full text-right group"
           >
             <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
