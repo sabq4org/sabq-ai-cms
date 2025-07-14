@@ -24,7 +24,7 @@ export default function Footer() {
       title: 'عن سبق',
       links: [
         { label: 'من نحن', url: '/about' },
-        { label: 'سياسة الخصوصية', url: '/privacy' },
+        { label: 'سياسة الخصوصية', url: '/privacy-policy' },
         { label: 'شروط الاستخدام', url: '/terms' },
         { label: 'اتصل بنا', url: '/contact' },
         { label: 'وظائف', url: '/jobs' },
