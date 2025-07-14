@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Brain, Loader2, Grid3X3, List, Calendar, Clock, Eye, Home,
-  ArrowLeft, AlertTriangle, Filter, TrendingUp, BarChart3
+  ArrowLeft, AlertTriangle, Filter, TrendingUp, BarChart3, Lightbulb,
+  Layers, Target, Zap, BookOpen, MessageSquare, Share2
 } from 'lucide-react';
 import ArticleCard from '@/components/ArticleCard';
 import Header from '@/components/Header';
@@ -47,16 +48,42 @@ interface Article {
   keywords?: string[];
 }
 
+interface Category {
+  id: number;
+  name: string;
+  name_ar: string;
+  slug: string;
+}
+
 export default function DeepAnalysisPage() {
   const [articles, setArticles] = useState<Article[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState<'newest' | 'views'>('newest');
+  const [sortBy, setSortBy] = useState<'newest' | 'views' | 'reading_time'>('newest');
   const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState({
+    totalArticles: 0,
+    totalViews: 0,
+    avgReadingTime: 0
+  });
 
   const ITEMS_PER_PAGE = 20;
+
+  // Fetch categories
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories?active=true');
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      const data = await response.json();
+      setCategories(data.categories || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   // Fetch deep analysis articles
   const fetchArticles = async (reset = false) => {
@@ -69,10 +96,14 @@ export default function DeepAnalysisPage() {
         status: 'published',
         limit: ITEMS_PER_PAGE.toString(),
         page: currentPage.toString(),
-        sortBy: sortBy === 'views' ? 'views' : 'published_at',
+        sortBy: sortBy === 'reading_time' ? 'reading_time' : sortBy === 'views' ? 'views' : 'published_at',
         order: 'desc',
         type: 'DEEP_ANALYSIS' // Filter for deep analysis articles
       });
+
+      if (selectedCategory) {
+        params.append('category_id', selectedCategory.toString());
+      }
 
       const response = await fetch(`/api/articles?${params}`);
       if (!response.ok) throw new Error('Failed to fetch articles');
@@ -87,17 +118,32 @@ export default function DeepAnalysisPage() {
       }
       
       setHasMore((data.articles?.length || 0) === ITEMS_PER_PAGE);
+
+      // Calculate stats
+      const allArticles = reset ? data.articles || [] : [...articles, ...(data.articles || [])];
+      const totalViews = allArticles.reduce((sum: number, article: Article) => sum + (article.views || article.views_count || 0), 0);
+      const totalReadingTime = allArticles.reduce((sum: number, article: Article) => sum + (article.reading_time || 10), 0);
+      
+      setStats({
+        totalArticles: allArticles.length,
+        totalViews,
+        avgReadingTime: allArticles.length > 0 ? Math.round(totalReadingTime / allArticles.length) : 0
+      });
     } catch (error) {
       console.error('Error fetching articles:', error);
-      setError('فشل في تحميل المقالات');
+      setError('فشل في تحميل التحليلات العميقة');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
     fetchArticles(true);
-  }, [sortBy]);
+  }, [selectedCategory, sortBy]);
 
   const loadMore = () => {
     if (!loading && hasMore) {
@@ -105,6 +151,13 @@ export default function DeepAnalysisPage() {
       fetchArticles(false);
     }
   };
+
+  const getCategoryName = (categoryId: number) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category?.name || category?.name_ar || 'تحليل عميق';
+  };
+
+  const getCategoryColor = () => '#9333EA'; // Purple for deep analysis
 
   return (
     <>
@@ -133,13 +186,90 @@ export default function DeepAnalysisPage() {
               </p>
               
               {!loading && articles.length > 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {articles.length} تحليل متوفر
-                </p>
+                <div className="mt-6 inline-flex items-center gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-lg">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-1">
+                      <Layers className="w-5 h-5 text-purple-600" />
+                      {stats.totalArticles}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">تحليل</div>
+                  </div>
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600"></div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-1">
+                      <Eye className="w-5 h-5 text-purple-600" />
+                      {stats.totalViews.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">مشاهدة</div>
+                  </div>
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600"></div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-1">
+                      <Clock className="w-5 h-5 text-purple-600" />
+                      {stats.avgReadingTime}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">دقيقة قراءة</div>
+                  </div>
+                </div>
               )}
             </div>
           </div>
         </section>
+
+        {/* Features Bar */}
+        <div className="bg-purple-600 text-white py-4">
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
+            <div className="flex flex-wrap items-center justify-center gap-8 text-sm">
+              <div className="flex items-center gap-2">
+                <Lightbulb className="w-5 h-5" />
+                <span>تحليلات مدعومة بالبيانات</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5" />
+                <span>رؤى استراتيجية</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                <span>تحديثات دورية</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5" />
+                <span>نقاشات متعمقة</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Categories Filter */}
+        <div className="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
+            <div className="flex items-center gap-2 py-4 overflow-x-auto scrollbar-hide">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
+                  selectedCategory === null
+                    ? 'bg-purple-600 text-white shadow-lg'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                جميع التحليلات
+              </button>
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
+                    selectedCategory === category.id
+                      ? 'bg-purple-600 text-white shadow-lg'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {category.name || category.name_ar}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Content Section */}
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
@@ -152,7 +282,9 @@ export default function DeepAnalysisPage() {
                   {loading && page === 1 ? (
                     'جاري التحميل...'
                   ) : articles.length > 0 ? (
-                    `${articles.length} تحليل`
+                    selectedCategory ? 
+                      `${articles.length} تحليل في ${getCategoryName(selectedCategory)}` :
+                      `${articles.length} تحليل عميق`
                   ) : (
                     'لا توجد تحليلات'
                   )}
@@ -164,13 +296,14 @@ export default function DeepAnalysisPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => {
-                    setSortBy(e.target.value as 'newest' | 'views');
+                    setSortBy(e.target.value as 'newest' | 'views' | 'reading_time');
                     setPage(1);
                   }}
                   className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="newest">الأحدث</option>
-                  <option value="views">الأكثر قراءة</option>
+                  <option value="views">الأكثر مشاهدة</option>
+                  <option value="reading_time">الأطول قراءة</option>
                 </select>
 
                 {/* View Mode Toggle */}
@@ -216,17 +349,20 @@ export default function DeepAnalysisPage() {
           {loading && page === 1 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="w-12 h-12 text-purple-600 dark:text-purple-400 animate-spin mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">جاري تحميل التحليلات...</p>
+              <p className="text-gray-600 dark:text-gray-400">جاري تحميل التحليلات العميقة...</p>
             </div>
           ) : articles.length === 0 ? (
             // Empty State
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
               <Brain className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                لا توجد تحليلات
+                لا توجد تحليلات عميقة
               </h3>
               <p className="text-gray-500 dark:text-gray-400">
-                لا توجد تحليلات عميقة متاحة حالياً
+                {selectedCategory ? 
+                  `لا توجد تحليلات في قسم ${getCategoryName(selectedCategory)}` :
+                  'لا توجد تحليلات عميقة متاحة حالياً'
+                }
               </p>
             </div>
           ) : (
@@ -243,9 +379,9 @@ export default function DeepAnalysisPage() {
                       ...article,
                       category: article.category || (article.category_id ? {
                         id: article.category_id.toString(),
-                        name: article.category_name || 'تحليل عميق',
+                        name: article.category_name || getCategoryName(article.category_id),
                         slug: '',
-                        color: '#9333EA',
+                        color: getCategoryColor(),
                         icon: null
                       } : null),
                       author: article.author || (article.author_name ? {

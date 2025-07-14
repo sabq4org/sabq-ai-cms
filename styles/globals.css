@@ -402,4 +402,14 @@ body.dropdown-open {
 
 .animate-fade-in {
   animation: fade-in 0.8s ease-out;
+}
+
+/* Scrollbar hide */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
 } 
