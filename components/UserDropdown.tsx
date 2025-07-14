@@ -298,10 +298,11 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
                   alt={user.name}
                   width={56}
                   height={56}
-                  className="w-14 h-14 rounded-full object-cover"
+                  className="user-avatar-large"
+                  priority
                 />
               ) : (
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold ${
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0 ${
                   darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
                 }`}>
                   {user.name.charAt(0)}

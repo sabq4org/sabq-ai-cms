@@ -25,7 +25,8 @@ import {
   Users,
   Search,
   Bell,
-  Settings
+  Settings,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -53,6 +54,7 @@ export default function Header() {
     { url: '/', label: 'الرئيسية', icon: Home, highlight: false },
     { url: '/news', label: 'الأخبار', icon: Newspaper, highlight: false },
     { url: '/categories', label: 'الأقسام', icon: Folder, highlight: false },
+    { url: '/deep-analysis', label: 'عمق', icon: TrendingUp, highlight: false },
     { url: '/opinion', label: 'الرأي', icon: Edit, highlight: false },
     { 
       url: '/moment-by-moment', 
@@ -69,7 +71,10 @@ export default function Header() {
     const fetchUserData = async () => {
       try {
         const token = getCookie('token');
-        if (!token) return;
+        if (!token) {
+          setUser(null);
+          return;
+        }
 
         const response = await fetch('/api/auth/me', {
           headers: {
@@ -80,13 +85,23 @@ export default function Header() {
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
+        } else {
+          // إذا كان التوكن غير صالح، احذفه
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+          setUser(null);
         }
       } catch (error) {
         console.error('خطأ في جلب بيانات المستخدم:', error);
+        setUser(null);
       }
     };
 
     fetchUserData();
+    
+    // تحديث بيانات المستخدم كل 30 ثانية
+    const userInterval = setInterval(fetchUserData, 30000);
+    
+    return () => clearInterval(userInterval);
   }, []);
 
   // تحديث عداد الأحداث المباشرة
@@ -104,11 +119,11 @@ export default function Header() {
       await logout();
       setUser(null);
       setIsDropdownOpen(false);
-      router.push('/');
       toast.success('تم تسجيل الخروج بنجاح');
+      router.push('/');
     } catch (error) {
       console.error('خطأ في تسجيل الخروج:', error);
-      toast.error('حدث خطأ في تسجيل الخروج');
+      toast.error('حدث خطأ أثناء تسجيل الخروج');
     }
   };
 
@@ -146,21 +161,20 @@ export default function Header() {
     } backdrop-blur-md border-b shadow-sm`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* الشعار */}
+          {/* الشعار الرسمي */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2 rtl:space-x-reverse">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg ${
-                darkMode 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-blue-600 text-white'
-              }`}>
-                س
+            <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+              {/* اللوقو الرسمي */}
+              <div className="flex items-center">
+                <Image
+                  src="/logo.png"
+                  alt="صحيفة سبق الإلكترونية"
+                  width={120}
+                  height={40}
+                  className="h-8 w-auto"
+                  priority
+                />
               </div>
-              <span className={`text-xl font-bold ${
-                darkMode ? 'text-white' : 'text-gray-900'
-              }`}>
-                سبق
-              </span>
             </Link>
           </div>
 
@@ -231,14 +245,15 @@ export default function Header() {
                   }`}
                   aria-label="قائمة المستخدم"
                 >
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center flex-shrink-0">
                     {user.avatar ? (
                       <Image
                         src={user.avatar}
                         alt={user.name}
                         width={32}
                         height={32}
-                        className="w-full h-full object-cover"
+                        className="user-avatar"
+                        priority
                       />
                     ) : (
                       <User className="w-5 h-5 text-gray-600" />

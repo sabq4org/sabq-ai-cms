@@ -32,6 +32,29 @@ body.dropdown-open {
   overscroll-behavior: contain !important;
 }
 
+/* حماية الصور الشخصية من التمدد */
+.user-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+}
+
+.user-avatar-large {
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  max-width: 56px !important;
+  max-height: 56px !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+}
+
 /* تحسين الأداء للعناصر المتحركة */
 .dropdown-container {
   will-change: transform, opacity;
