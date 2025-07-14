@@ -65,13 +65,15 @@ interface Article {
   image_caption?: string;
   category_id: number;
   category?: {
-    id: number;
-    name_ar: string;
+    id: number | string;
+    name: string;
     name_en?: string;
-    color_hex: string;
+    color: string;
     icon?: string;
+    slug?: string;
   };
   category_name?: string;
+  category_color?: string;
   author?: string | {
     id: string;
     name: string;
@@ -470,8 +472,7 @@ export default function ArticlePage({ params }: PageProps) {
     }
   };
   const getCategoryColor = (category?: any) => {
-    if (category?.color_hex) return category.color_hex;
-    if ((category as any)?.color) return (category as any).color;
+    if (category?.color) return category.color;
     const colors = ['#1a73e8', '#ea4335', '#34a853', '#fbbc04', '#673ab7', '#e91e63'];
     const index = Math.abs(category?.id || 0) % colors.length;
     return colors[index];
@@ -873,12 +874,12 @@ export default function ArticlePage({ params }: PageProps) {
         {article.category && (
           <div className="mb-4">
             <Link 
-              href={`/categories/${article.category.name_ar?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}`}
+              href={`/categories/${article.category.slug || article.category.name?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}`}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white transition-all hover:scale-105"
               style={{ backgroundColor: getCategoryColor(article.category) }}
             >
               {article.category.icon && <span>{article.category.icon}</span>}
-              <span>{article.category.name_ar || 'غير مصنف'}</span>
+              <span>{article.category.name || 'غير مصنف'}</span>
             </Link>
           </div>
         )}
