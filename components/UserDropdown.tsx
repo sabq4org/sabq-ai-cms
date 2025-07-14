@@ -160,14 +160,38 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
     return () => setIsMounted(false);
   }, []);
 
-  // إظهار القائمة بتأثير
+  // إظهار القائمة بتأثير والتحكم في overflow
   useEffect(() => {
     if (isMounted) {
       requestAnimationFrame(() => {
         setIsVisible(true);
       });
+      
+      // منع التمرير عند فتح القائمة في الموبايل فقط
+      if (isMobile && typeof document !== 'undefined') {
+        // حفظ الحالة الأصلية لـ overflow
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        
+        // إضافة class لمنع التمرير
+        document.body.classList.add('dropdown-open');
+        
+        return () => {
+          document.body.style.overflow = originalOverflow;
+          document.body.classList.remove('dropdown-open');
+        };
+      }
     }
-  }, [isMounted]);
+  }, [isMounted, isMobile]);
+
+  // دالة إغلاق القائمة مع تنظيف overflow
+  const handleClose = () => {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = '';
+      document.body.classList.remove('dropdown-open');
+    }
+    onClose();
+  };
 
   // إغلاق القائمة عند النقر خارجها
   useEffect(() => {
@@ -177,14 +201,14 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         // التحقق من أن النقرة ليست على زر فتح القائمة
         if (anchorElement && !anchorElement.contains(event.target as Node)) {
-          onClose();
+          handleClose();
         }
       }
     };
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose();
+        handleClose();
       }
     };
 
@@ -195,7 +219,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [isMounted, onClose, anchorElement]);
+  }, [isMounted, anchorElement]);
 
   if (!isMounted || typeof document === 'undefined') return null;
 
@@ -205,7 +229,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
       {isMobile && (
         <div 
           className="fixed inset-0 bg-black/50 z-40"
-          onClick={onClose}
+          onClick={handleClose}
         />
       )}
       
@@ -257,7 +281,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className={`p-2 rounded-lg transition-colors ${
                 darkMode 
                   ? 'hover:bg-gray-700 text-gray-400' 
@@ -305,7 +329,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/profile"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={onClose}
+            onClick={handleClose}
           >
             <User className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-500" />
             <div className="flex-1">
@@ -318,7 +342,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/profile/saved"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={onClose}
+            onClick={handleClose}
           >
             <Bookmark className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-green-500" />
             <div className="flex-1">
@@ -331,7 +355,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/profile/interactions"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={onClose}
+            onClick={handleClose}
           >
             <Activity className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-red-500" />
             <div className="flex-1">
@@ -344,7 +368,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/welcome/preferences"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={onClose}
+            onClick={handleClose}
           >
             <Brain className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-500" />
             <div className="flex-1">
@@ -359,7 +383,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/settings"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={onClose}
+            onClick={handleClose}
           >
             <Settings className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600" />
             <span>الإعدادات</span>
@@ -368,7 +392,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <Link
             href="/notifications"
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-            onClick={onClose}
+            onClick={handleClose}
           >
             <Bell className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-yellow-500" />
             <span>الإشعارات</span>
@@ -380,7 +404,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <button
             onClick={() => {
               onLogout();
-              onClose();
+              handleClose();
             }}
             className="flex items-center gap-3 px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all w-full text-right group"
           >

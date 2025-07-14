@@ -89,4 +89,19 @@
 /* Safe area للأجهزة الحديثة */
 .h-safe-area-inset-bottom {
   height: env(safe-area-inset-bottom, 0);
+}
+
+/* منع التمرير عند فتح القائمة المنسدلة */
+body.dropdown-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* تعطيل التمرير السلس عند فتح القائمة على الموبايل */
+@media (max-width: 768px) {
+  body.dropdown-open {
+    touch-action: none;
+  }
 } 
