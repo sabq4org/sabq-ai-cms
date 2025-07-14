@@ -135,7 +135,9 @@ export default function ProfilePage() {
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const [userInsights, setUserInsights] = useState<UserInsights | null>(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'insights' | 'achievements' | 'timeline'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'insights' | 'achievements' | 'timeline' | 'likes' | 'saved'>('overview');
+  const [realStats, setRealStats] = useState<any>(null);
+  const [loadingStats, setLoadingStats] = useState(false);
   // منع تكرار الطلبات
   const fetchDataRef = useRef(false);
   const dataFetchedRef = useRef(false);
@@ -155,7 +157,24 @@ export default function ProfilePage() {
   // دالة محسّنة لجلب جميع البيانات بشكل متوازي
   const fetchAllDataOptimized = async () => {
     if (!user) return;
+    
     try {
+      // جلب الإحصائيات الحقيقية
+      setLoadingStats(true);
+      const statsResponse = await fetch(`/api/user/stats?userId=${user.id}`);
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        setRealStats(statsData);
+        
+        // تحديث userStats بالبيانات الحقيقية
+        setUserStats({
+          articlesRead: statsData.articlesRead,
+          interactions: statsData.likes + statsData.shares + statsData.saves,
+          shares: statsData.shares
+        });
+      }
+      setLoadingStats(false);
+
       // دالة مساعدة لإنشاء timeout signal
       const createTimeoutSignal = (ms: number) => {
         const controller = new AbortController();
@@ -425,31 +444,34 @@ export default function ProfilePage() {
           <div className="max-w-screen-xl mx-auto px-4 py-12">
             <div className="flex items-center gap-6">
               <div className="relative group">
-                {user.avatar ? (
-                  <img 
-                    src={user.avatar} 
-                    alt={user.name}
-                    className="w-20 h-20 rounded-full object-cover shadow-xl"
-                    onError={(e) => {
-                      console.error('خطأ في تحميل الصورة:', user.avatar);
-                      const target = e.currentTarget;
-                      const parent = target.parentElement;
-                      if (parent) {
-                        // إخفاء الصورة
-                        target.style.display = 'none';
-                        // إنشاء وإظهار الدائرة البديلة
-                        const fallback = document.createElement('div');
-                        fallback.className = 'w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold shadow-xl';
-                        fallback.textContent = user.name.charAt(0).toUpperCase();
-                        parent.appendChild(fallback);
-                      }
-                    }}
-                  />
-                ) : (
-                  <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold shadow-xl">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                <div className="w-20 h-20 rounded-full overflow-hidden shadow-xl bg-gray-200 dark:bg-gray-700">
+                  {user.avatar ? (
+                    <img 
+                      src={user.avatar} 
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={(e) => {
+                        console.error('خطأ في تحميل الصورة:', user.avatar);
+                        const target = e.currentTarget;
+                        const parent = target.parentElement;
+                        if (parent) {
+                          // إخفاء الصورة
+                          target.style.display = 'none';
+                          // إنشاء وإظهار الدائرة البديلة
+                          const fallback = document.createElement('div');
+                          fallback.className = 'w-full h-full bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold';
+                          fallback.textContent = user.name.charAt(0).toUpperCase();
+                          parent.appendChild(fallback);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
                 {/* زر تغيير الصورة */}
                 <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <input
@@ -569,6 +591,34 @@ export default function ProfilePage() {
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
                 )}
               </button>
+              <button
+                onClick={() => setActiveTab('likes')}
+                className={`px-6 py-4 font-medium transition-all relative ${
+                  activeTab === 'likes'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
+              >
+                <Heart className="w-4 h-4 inline-block ml-1" />
+                الإعجابات
+                {activeTab === 'likes' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('saved')}
+                className={`px-6 py-4 font-medium transition-all relative ${
+                  activeTab === 'saved'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
+              >
+                <Bookmark className="w-4 h-4 inline-block ml-1" />
+                المحفوظات
+                {activeTab === 'saved' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -622,26 +672,47 @@ export default function ProfilePage() {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">مقالات مقروءة</span>
                       <span className="font-semibold text-gray-800 dark:text-gray-100">
-                        {userInsights?.stats.totalArticlesRead || userStats.articlesRead}
+                        {realStats?.articlesRead || userInsights?.stats.totalArticlesRead || userStats.articlesRead}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">إعجابات</span>
                       <span className="font-semibold text-gray-800 dark:text-gray-100">
-                        {userInsights?.stats.totalLikes || 0}
+                        {realStats?.likes || userInsights?.stats.totalLikes || 0}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">مشاركات</span>
                       <span className="font-semibold text-gray-800 dark:text-gray-100">
-                        {userInsights?.stats.totalShares || userStats.shares}
+                        {realStats?.shares || userInsights?.stats.totalShares || userStats.shares}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">مقالات محفوظة</span>
                       <span className="font-semibold text-gray-800 dark:text-gray-100">
-                        {userInsights?.stats.totalSaves || 0}
+                        {realStats?.saves || userInsights?.stats.totalSaves || 0}
                       </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 dark:text-gray-400">سلسلة القراءة</span>
+                      <span className="font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-1">
+                        {realStats?.readingStreak || 0}
+                        <Sparkles className="w-4 h-4 text-amber-500" />
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 dark:text-gray-400">نقاط التوازن</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${realStats?.balanceScore || 0}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                          {realStats?.balanceScore || 0}%
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -731,6 +802,118 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
+                
+                {/* أوقات القراءة المفضلة */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-purple-600" />
+                    أوقات القراءة المفضلة
+                  </h3>
+                  {realStats?.readingTimes && realStats.readingTimes.length > 0 ? (
+                    <div className="space-y-3">
+                      {realStats.readingTimes.slice(0, 5).map((time: any) => {
+                        const hourLabel = time.hour < 12 ? 'صباحاً' : time.hour < 18 ? 'ظهراً' : 'مساءً';
+                        const hour12 = time.hour % 12 || 12;
+                        return (
+                          <div key={time.hour} className="flex items-center justify-between">
+                            <span className="text-gray-600 dark:text-gray-400">
+                              {hour12}:00 {hourLabel}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div 
+                                  className="bg-gradient-to-r from-purple-400 to-purple-600 h-2 rounded-full transition-all"
+                                  style={{ width: `${(time.count / Math.max(...realStats.readingTimes.map((t: any) => t.count))) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 w-8 text-right">
+                                {time.count}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Clock className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        لا توجد بيانات كافية بعد
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* الإنجازات */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <Trophy className="w-5 h-5 text-amber-600" />
+                    الإنجازات
+                  </h3>
+                  {realStats?.achievements && realStats.achievements.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {realStats.achievements.map((achievement: any) => (
+                        <div 
+                          key={achievement.id}
+                          className="text-center p-4 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-700"
+                        >
+                          <div className="text-4xl mb-2">{achievement.icon}</div>
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {achievement.name}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Trophy className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-2">
+                        لم تحصل على إنجازات بعد
+                      </p>
+                      <p className="text-gray-400 dark:text-gray-500 text-xs">
+                        اقرأ المزيد من المقالات وتفاعل معها لفتح الإنجازات
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* توزيع الاهتمامات */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-blue-600" />
+                    توزيع القراءة حسب التصنيف
+                  </h3>
+                  {realStats?.categoryDistribution && realStats.categoryDistribution.length > 0 ? (
+                    <div className="space-y-3">
+                      {realStats.categoryDistribution.map((cat: any) => (
+                        <div key={cat.name} className="space-y-1">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-700 dark:text-gray-300 font-medium">
+                              {cat.name}
+                            </span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              {cat.percentage}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full transition-all"
+                              style={{ width: `${cat.percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        ابدأ بقراءة المقالات لرؤية توزيع اهتماماتك
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 {/* المقالات المحفوظة وغير المكتملة */}
                 {userInsights && (
                   <SavedArticles 
@@ -1031,6 +1214,113 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
+          
+          {/* تبويب الإعجابات */}
+          {activeTab === 'likes' && (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {realStats?.likes > 0 ? (
+                <>
+                  <div className="col-span-full mb-4">
+                    <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-xl p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                            المقالات التي أعجبتك
+                          </h3>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            لديك {realStats.likes} إعجاب بالمقالات
+                          </p>
+                        </div>
+                        <Heart className="w-12 h-12 text-red-500" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* هنا يمكن إضافة قائمة المقالات المعجب بها */}
+                  <div className="col-span-full text-center py-8">
+                    <Link
+                      href="/profile/interactions?filter=likes"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
+                    >
+                      عرض جميع الإعجابات
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <div className="col-span-full">
+                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
+                    <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                      لم تعجب بأي مقال بعد
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      ابدأ بقراءة المقالات وأعجب بما يعجبك
+                    </p>
+                    <Link
+                      href="/"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                    >
+                      استكشف المقالات
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* تبويب المحفوظات */}
+          {activeTab === 'saved' && (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {realStats?.saves > 0 ? (
+                <>
+                  <div className="col-span-full mb-4">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                            مقالاتك المحفوظة
+                          </h3>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            لديك {realStats.saves} مقال محفوظ للقراءة لاحقاً
+                          </p>
+                        </div>
+                        <Bookmark className="w-12 h-12 text-blue-500" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* هنا يمكن إضافة قائمة المقالات المحفوظة */}
+                  <div className="col-span-full text-center py-8">
+                    <Link
+                      href="/profile/saved"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                    >
+                      عرض جميع المحفوظات
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <div className="col-span-full">
+                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
+                    <Bookmark className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                      لم تحفظ أي مقال بعد
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      احفظ المقالات المهمة لقراءتها لاحقاً
+                    </p>
+                    <Link
+                      href="/"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                    >
+                      استكشف المقالات
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
           {/* رسالة التحميل للبيانات المتقدمة */}
           {loadingInsights && activeTab !== 'overview' && (
             <div className="flex items-center justify-center py-12">
