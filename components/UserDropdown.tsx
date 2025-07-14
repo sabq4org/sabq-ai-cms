@@ -31,20 +31,6 @@ interface UserData {
   role?: string;
 }
 
-interface LoyaltyData {
-  total_points: number;
-  tier: string;
-  earned_points: number;
-  redeemed_points: number;
-}
-
-interface UserDropdownProps {
-  user: UserData;
-  onClose: () => void;
-  onLogout: () => void;
-  anchorElement?: HTMLElement | null;
-}
-
 interface LoyaltyInfo {
   level: string;
   levelIcon: any;
@@ -52,6 +38,13 @@ interface LoyaltyInfo {
   points: number;
   nextLevelPoints: number;
   progress: number;
+}
+
+interface UserDropdownProps {
+  user: UserData;
+  onClose: () => void;
+  onLogout: () => void;
+  anchorElement?: HTMLElement | null;
 }
 
 export default function UserDropdown({ user, onClose, onLogout, anchorElement }: UserDropdownProps) {
@@ -62,6 +55,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [originalScrollY, setOriginalScrollY] = useState(0);
 
   // دالة آمنة لإغلاق القائمة
   const handleClose = useCallback((event?: Event | React.MouseEvent) => {
@@ -70,23 +64,36 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
       event.stopPropagation();
     }
     
-    // تنظيف body styles
-    if (typeof document !== 'undefined') {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.body.classList.remove('dropdown-open');
-    }
-    
     // إخفاء القائمة أولاً
     setIsVisible(false);
+    
+    // تنظيف body styles بشكل آمن
+    if (typeof document !== 'undefined') {
+      const body = document.body;
+      
+      // إزالة class الخاص بالقائمة المفتوحة
+      body.classList.remove('dropdown-open');
+      
+      // استعادة overflow فقط إذا لم تكن هناك قوائم أخرى مفتوحة
+      if (!body.classList.contains('dropdown-open')) {
+        body.style.overflow = '';
+        body.style.position = '';
+        body.style.top = '';
+        body.style.width = '';
+        body.style.height = '';
+      }
+      
+      // استعادة موقع التمرير للموبايل
+      if (isMobile && originalScrollY > 0) {
+        window.scrollTo(0, originalScrollY);
+      }
+    }
     
     // إغلاق القائمة بعد انتهاء الأنيميشن
     setTimeout(() => {
       onClose();
-    }, 150);
-  }, [onClose]);
+    }, 200);
+  }, [onClose, isMobile, originalScrollY]);
 
   // تحديد حجم الشاشة
   useEffect(() => {
@@ -113,11 +120,13 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
     return () => {
       // تنظيف شامل عند إلغاء التحميل
       if (typeof document !== 'undefined') {
-        document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.width = '';
-        document.body.style.height = '';
-        document.body.classList.remove('dropdown-open');
+        const body = document.body;
+        body.classList.remove('dropdown-open');
+        body.style.overflow = '';
+        body.style.position = '';
+        body.style.top = '';
+        body.style.width = '';
+        body.style.height = '';
       }
       setIsMounted(false);
     };
@@ -127,6 +136,11 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
   useEffect(() => {
     if (!isMounted) return;
 
+    // حفظ موقع التمرير الحالي للموبايل
+    if (isMobile) {
+      setOriginalScrollY(window.scrollY);
+    }
+
     // إظهار القائمة
     const timer = requestAnimationFrame(() => {
       setIsVisible(true);
@@ -135,29 +149,14 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
     // منع التمرير للموبايل فقط
     if (isMobile && typeof document !== 'undefined') {
       const body = document.body;
-      const scrollY = window.scrollY;
-      
-      // حفظ الحالة الحالية
-      const originalStyles = {
-        overflow: body.style.overflow,
-        position: body.style.position,
-        top: body.style.top,
-        width: body.style.width,
-      };
       
       // تطبيق منع التمرير
       body.style.overflow = 'hidden';
       body.style.position = 'fixed';
-      body.style.top = `-${scrollY}px`;
+      body.style.top = `-${window.scrollY}px`;
       body.style.width = '100%';
+      body.style.height = '100%';
       body.classList.add('dropdown-open');
-      
-      return () => {
-        // استعادة الحالة الأصلية
-        Object.assign(body.style, originalStyles);
-        body.classList.remove('dropdown-open');
-        window.scrollTo(0, scrollY);
-      };
     }
 
     return () => {
@@ -335,25 +334,33 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
               {user.avatar ? (
-                <Image
-                  src={user.avatar}
-                  alt={user.name}
-                  width={56}
-                  height={56}
-                  className="rounded-full ring-2 ring-white dark:ring-gray-700 shadow-md"
-                />
+                <div className="relative w-14 h-14 flex-shrink-0">
+                  <Image
+                    src={user.avatar}
+                    alt={user.name}
+                    width={56}
+                    height={56}
+                    className="rounded-full ring-2 ring-white dark:ring-gray-700 shadow-md object-cover"
+                    style={{
+                      maxWidth: '56px',
+                      maxHeight: '56px',
+                      minWidth: '56px',
+                      minHeight: '56px'
+                    }}
+                  />
+                </div>
               ) : (
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold shadow-md ${
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold shadow-md flex-shrink-0 ${
                   darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700'
                 }`}>
                   {user.name.charAt(0)}
                 </div>
               )}
-              <div className="flex-1">
-                <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white truncate">
                   {user.name}
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                   {user.email}
                 </p>
                 {user.role && (
@@ -365,7 +372,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
             </div>
             <button
               onClick={handleClose}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
                 darkMode 
                   ? 'hover:bg-gray-700 text-gray-400' 
                   : 'hover:bg-gray-100 text-gray-500'
@@ -377,31 +384,36 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
 
           {/* بطاقة الولاء */}
           {loyaltyInfo && (
-            <div className={`p-3 rounded-xl ${
-              darkMode ? 'bg-gray-800' : 'bg-white'
-            } border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <loyaltyInfo.levelIcon className={`w-5 h-5 ${loyaltyInfo.levelColor}`} />
-                  <span className={`text-sm font-semibold ${
-                    darkMode ? 'text-white' : 'text-gray-900'
-                  }`}>
+            <div className={`p-4 rounded-lg border ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-200 bg-white'}`}>
+              <div className="flex items-center gap-3 mb-3">
+                <loyaltyInfo.levelIcon className={`w-5 h-5 ${loyaltyInfo.levelColor}`} />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 dark:text-white">
                     {loyaltyInfo.level}
-                  </span>
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {loyaltyInfo.points} نقطة
+                  </p>
                 </div>
-                <span className={`text-sm font-bold ${loyaltyInfo.levelColor}`}>
-                  {loyaltyInfo.points} نقطة
-                </span>
               </div>
+              
               {/* شريط التقدم */}
-              <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div 
-                  className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    loyaltyInfo.progress >= 100 
+                      ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' 
+                      : 'bg-gradient-to-r from-blue-400 to-blue-600'
+                  }`}
                   style={{ width: `${loyaltyInfo.progress}%` }}
                 />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
-                {loyaltyInfo.nextLevelPoints - loyaltyInfo.points} نقطة للمستوى التالي
+              
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                {loyaltyInfo.points < loyaltyInfo.nextLevelPoints 
+                  ? `${loyaltyInfo.nextLevelPoints - loyaltyInfo.points} نقطة للوصول للمستوى التالي`
+                  : 'مستوى مكتمل!'
+                }
               </p>
             </div>
           )}
@@ -414,12 +426,12 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
             onClick={handleLinkClick}
           >
-            <User className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-500" />
-            <div className="flex-1">
+            <User className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
               <span className="font-medium">ملفي الشخصي</span>
               <p className="text-xs text-gray-500 dark:text-gray-400">عرض معلوماتك الكاملة</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
           </Link>
 
           <Link
@@ -427,12 +439,12 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
             onClick={handleLinkClick}
           >
-            <Bookmark className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-green-500" />
-            <div className="flex-1">
+            <Bookmark className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-green-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
               <span className="font-medium">محفوظاتي</span>
               <p className="text-xs text-gray-500 dark:text-gray-400">الأخبار المحفوظة للقراءة لاحقاً</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
           </Link>
 
           <Link
@@ -440,12 +452,12 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
             onClick={handleLinkClick}
           >
-            <Activity className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-red-500" />
-            <div className="flex-1">
+            <Activity className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-red-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
               <span className="font-medium">تفاعلاتي</span>
               <p className="text-xs text-gray-500 dark:text-gray-400">اللايكات والمشاركات</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
           </Link>
 
           <Link
@@ -453,12 +465,12 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
             onClick={handleLinkClick}
           >
-            <Brain className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-500" />
-            <div className="flex-1">
+            <Brain className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
               <span className="font-medium">اهتماماتي</span>
               <p className="text-xs text-gray-500 dark:text-gray-400">تخصيص المحتوى</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
           </Link>
 
           <hr className={`my-2 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
@@ -468,7 +480,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
             onClick={handleLinkClick}
           >
-            <Settings className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600" />
+            <Settings className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 flex-shrink-0" />
             <span>الإعدادات</span>
           </Link>
 
@@ -477,7 +489,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
             className="flex items-center gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
             onClick={handleLinkClick}
           >
-            <Bell className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-yellow-500" />
+            <Bell className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-yellow-500 flex-shrink-0" />
             <span>الإشعارات</span>
           </Link>
         </div>
@@ -488,7 +500,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
             onClick={handleLogout}
             className="flex items-center gap-3 px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all w-full text-right group"
           >
-            <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
             <span className="font-medium">تسجيل الخروج</span>
           </button>
         </div>

@@ -67,65 +67,38 @@ export default function Header() {
   };
 
   const loadUserData = async () => {
-    console.log('[Safari Debug] Starting to load user data...');
-    
     try {
-      const userDataFromStorage = localStorage.getItem('user');
-      if (userDataFromStorage) {
-        console.log('[Safari Debug] Found user in localStorage');
-        const parsedUser = JSON.parse(userDataFromStorage);
+      // محاولة تحميل البيانات من localStorage أولاً
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
-        setIsLoading(false);
-        return;
+        console.log('[Safari Debug] Loaded user from localStorage:', parsedUser);
       }
-    } catch (error) {
-      console.error('[Safari Debug] localStorage error:', error);
-    }
-    
-    try {
-      const userCookie = getCookie('user');
-      console.log('[Safari Debug] User cookie exists:', !!userCookie);
       
-      if (userCookie) {
-        const userData = JSON.parse(userCookie);
-        console.log('[Safari Debug] Parsed user from cookie:', userData);
-        setUser(userData);
-        try {
-          localStorage.setItem('user', JSON.stringify(userData));
-        } catch (e) {
-          console.error('[Safari Debug] localStorage save error:', e);
-        }
-        setIsLoading(false);
-        return;
-      }
+      // ثم تحديث البيانات من الخادم
+      await fetchUserData();
     } catch (error) {
-      console.error('[Safari Debug] Cookie parsing error:', error);
+      console.error('[Safari Debug] Error loading user data:', error);
+      setIsLoading(false);
     }
-    
-    console.log('[Safari Debug] No cached data found, fetching from API...');
-    await fetchUserData();
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      loadUserData();
-    }, 100);
-
-    return () => clearTimeout(timer);
+    loadUserData();
   }, []);
 
-  // فحص الأحداث الجديدة
+  // التحقق من الأحداث الجديدة
   useEffect(() => {
     const checkNewEvents = async () => {
       try {
-        const response = await fetch('/api/articles?status=published&limit=10');
-        const data = await response.json();
-        
-        if (data.articles) {
-          const newEvents = data.articles.filter((article: any) => 
-            new Date(article.created_at).getTime() > Date.now() - 3600000 // آخر ساعة
-          );
-          setNewEventsCount(newEvents.length);
+        const response = await fetch('/api/dashboard/activities?limit=5');
+        if (response.ok) {
+          const data = await response.json();
+          const newCount = data.activities?.filter((event: any) => 
+            new Date(event.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+          ).length || 0;
+          setNewEventsCount(newCount);
         }
       } catch (error) {
         console.error('Error checking new events:', error);
@@ -133,141 +106,116 @@ export default function Header() {
     };
 
     checkNewEvents();
-    
-    // فحص كل 5 دقائق
-    const interval = setInterval(checkNewEvents, 300000);
-    
+    const interval = setInterval(checkNewEvents, 30000); // كل 30 ثانية
+
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      console.log('[Safari Debug] No user found after loading, retrying...');
-      const retryTimer = setTimeout(() => {
-        fetchUserData();
-      }, 1000);
-      
-      return () => clearTimeout(retryTimer);
-    }
-  }, [isLoading, user]);
-
+  // إغلاق القائمة عند النقر خارجها
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      const target = event.target as Node;
-      
-      // تجاهل النقرات على الروابط داخل القائمة
-      if ((target as HTMLElement).closest('a') || (target as HTMLElement).closest('button')) {
-        return;
-      }
-      
-      // للديسكتوب
-      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
-      
-      // للموبايل
-      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(target)) {
+      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
     }
 
-    // استخدام click بدلاً من mousedown لتجنب التداخل مع النقرات
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown]);
 
   const handleLogout = async () => {
     try {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
-        localStorage.clear();
-        sessionStorage.clear();
-        
-        document.cookie.split(";").forEach((c) => {
-          document.cookie = c
-            .replace(/^ +/, "")
-            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-        });
-        
         setUser(null);
+        localStorage.removeItem('user');
         toast.success('تم تسجيل الخروج بنجاح');
-        
-        setTimeout(() => {
-          window.location.href = '/'; // العودة للصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
-        }, 500);
+        router.push('/');
       } else {
-        toast.error('حدث خطأ في تسجيل الخروج');
+        toast.error('حدث خطأ أثناء تسجيل الخروج');
       }
     } catch (error) {
-      console.error('خطأ في تسجيل الخروج:', error);
-      toast.error('حدث خطأ في تسجيل الخروج');
+      console.error('Logout error:', error);
+      toast.error('حدث خطأ أثناء تسجيل الخروج');
     }
   };
 
   const getInitials = (name: string) => {
     return name
       .split(' ')
-      .map(n => n[0])
+      .map(word => word.charAt(0))
       .join('')
-      .slice(0, 2)
-      .toUpperCase();
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const navigationItems = [
-    { label: 'الرئيسية', url: '/', order: 1 },
-    { label: '', url: '/moment-by-moment', order: 2, highlight: true },
-    { label: 'أخبار', url: '/news', order: 3 },
-    { label: 'مقالات', url: '/opinion', order: 4 },
-    { label: 'تصنيفات', url: '/categories', order: 5 },
-    { label: 'منتدى', url: '/forum', order: 6, icon: MessageCircle },
-    { label: 'عمق', url: '/insights/deep', order: 7 },
-    { label: 'تواصل', url: '/contact', order: 8 }
+    { url: '/', label: 'الرئيسية', icon: null, highlight: false },
+    { url: '/news', label: 'الأخبار', icon: null, highlight: false },
+    { url: '/categories', label: 'الأقسام', icon: null, highlight: false },
+    { url: '/opinion', label: 'الرأي', icon: null, highlight: false },
+    { url: '/forum', label: 'المنتدى', icon: MessageCircle, highlight: true },
+    { url: '/moment-by-moment', label: '', icon: Activity, highlight: true },
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-900 shadow-lg dark:shadow-black/50 sticky top-0 z-50 transition-colors duration-300 h-16 safe-area-top">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-        <div className="flex items-center justify-between h-full">
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${
+      darkMode ? 'bg-gray-900/95 backdrop-blur-md border-gray-800' : 'bg-white/95 backdrop-blur-md border-gray-200'
+    } border-b shadow-sm`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
           {/* Mobile Layout */}
-          <div className="flex lg:hidden items-center justify-between w-full">
-            {/* زر المينيو على اليمين */}
+          <div className="lg:hidden flex items-center justify-between w-full">
+            {/* زر القائمة */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              className={`p-2 rounded-lg transition-colors ${
+                darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+              }`}
               aria-label="القائمة الرئيسية"
             >
               <Menu className="w-6 h-6" />
             </button>
 
-            {/* الشعار في المنتصف */}
+            {/* الشعار */}
             <Link href="/" className="flex-shrink-0">
               <Image 
                 src="/logo.png" 
                 alt="سبق" 
                 width={80} 
                 height={32} 
-                className="h-10 w-auto object-contain hover:opacity-80 transition-opacity mt-1"
+                className="h-8 w-auto object-contain hover:opacity-80 transition-opacity"
                 priority
               />
             </Link>
 
-            {/* أزرار التحكم على اليسار - مبسطة */}
-            <div className="flex items-center gap-1">
-              {/* زر الوضع الليلي - مخفي في الموبايل لتوفير المساحة */}
+            {/* أدوات التحكم */}
+            <div className="flex items-center gap-2">
+              {/* زر الوضع الليلي */}
               {mounted && (
                 <button
                   onClick={toggleDarkMode}
-                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg hidden sm:block"
+                  className={`p-2 rounded-lg transition-colors ${
+                    darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
                   aria-label="تبديل الوضع الليلي"
                 >
                   {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
               )}
-              
+
               {isLoading ? (
                 <div className="w-8 h-8" />
               ) : user ? (
@@ -284,7 +232,7 @@ export default function Header() {
                         alt={user.name} 
                         width={32} 
                         height={32} 
-                        className="w-8 h-8 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm"
+                        className="w-8 h-8 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm user-avatar"
                         onError={(e) => {
                           const target = e.currentTarget;
                           const parent = target.parentElement;
@@ -382,7 +330,7 @@ export default function Header() {
               {isLoading ? (
                 <div className="w-10 h-10" />
               ) : user ? (
-                <div className="relative" ref={dropdownRef}>
+                <div className="relative dropdown-container" ref={dropdownRef}>
                   <button
                     ref={desktopButtonRef}
                     onClick={() => setShowDropdown(!showDropdown)}
@@ -395,7 +343,7 @@ export default function Header() {
                         alt={user.name} 
                         width={36} 
                         height={36} 
-                        className="w-9 h-9 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm"
+                        className="w-9 h-9 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm user-avatar"
                         onError={(e) => {
                           const target = e.currentTarget;
                           const parent = target.parentElement;
@@ -467,30 +415,10 @@ export default function Header() {
                   )}
                 </Link>
               ))}
-              
-              {/* إضافة زر الوضع الليلي في قائمة الموبايل */}
-              {mounted && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setTimeout(() => {
-                      toggleDarkMode();
-                      setShowMobileMenu(false);
-                    }, 50);
-                  }}
-                  className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 w-full text-right"
-                >
-                  {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                  <span className="flex-1">
-                    {darkMode ? 'الوضع النهاري' : 'الوضع الليلي'}
-                  </span>
-                </button>
-              )}
             </nav>
           </div>
         )}
       </div>
-    </div>
+    </header>
   );
 }
