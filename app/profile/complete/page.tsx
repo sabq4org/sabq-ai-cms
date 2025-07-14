@@ -156,12 +156,12 @@ export default function CompleteProfilePage() {
               <h2 className="text-xl font-semibold text-gray-900 mb-6">المعلومات الشخصية</h2>
               <div className="text-center">
                 <div className="relative inline-block">
-                  <div className="w-24 h-24 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden">
                     {profileData.avatar ? (
-                      <Image src="/placeholder.jpg" alt="الصورة الشخصية" width={100} height={100} />
+                      <Image src="/placeholder.jpg" alt="الصورة الشخصية" width={64} height={64} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <User className="w-12 h-12 text-gray-400" />
+                        <User className="w-8 h-8 text-gray-400" />
                       </div>
                     )}
                   </div>

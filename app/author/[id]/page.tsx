@@ -225,8 +225,8 @@ const AuthorProfilePage = () => {
                 <Image 
                   src={author.avatar || '/default-avatar.png'} 
                   alt={author.name} 
-                  width={120} 
-                  height={120}
+                  width={80} 
+                  height={80}
                   className="rounded-full border-4 border-white shadow-xl"
                 />
                 <div className={`absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-r ${writerClubColors[author.club]} flex items-center justify-center border-4 border-white`}>

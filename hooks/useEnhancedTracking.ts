@@ -165,11 +165,21 @@ export function useEnhancedTracking(options: UseEnhancedTrackingOptions = {}) {
   }, [trackEvent]);
 
   const onLike = useCallback(async (articleId: string, isLiked: boolean) => {
-    return trackEvent(isLiked ? 'like' : 'unlike', articleId, { isLiked });
+    // نتتبع الحدث كـ 'like' مع metadata يحدد الحالة
+    if (isLiked) {
+      return trackEvent('like', articleId, { isLiked: true });
+    }
+    // لا نتتبع إلغاء الإعجاب كحدث منفصل
+    return { success: true };
   }, [trackEvent]);
 
   const onSave = useCallback(async (articleId: string, isSaved: boolean) => {
-    return trackEvent(isSaved ? 'save' : 'unsave', articleId, { isSaved });
+    // نتتبع الحدث كـ 'save' مع metadata يحدد الحالة
+    if (isSaved) {
+      return trackEvent('save', articleId, { isSaved: true });
+    }
+    // لا نتتبع إلغاء الحفظ كحدث منفصل
+    return { success: true };
   }, [trackEvent]);
 
   const onShare = useCallback(async (articleId: string, platform?: string) => {

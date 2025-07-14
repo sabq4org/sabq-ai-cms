@@ -505,7 +505,7 @@ export default function OpinionPage() {
                       : ''
                   }`}
                 >
-                  <div className={`relative w-20 h-20 sm:w-24 sm:h-24 mb-2 bg-transparent ${
+                  <div className={`relative w-16 h-16 sm:w-20 sm:h-20 mb-2 bg-transparent ${
                     selectedAuthor === author.id 
                       ? 'ring-4 ring-blue-400/50 dark:ring-blue-300/50' 
                       : ''
@@ -513,8 +513,8 @@ export default function OpinionPage() {
                     <CloudImage
                       src={author.avatar}
                       alt={author.name}
-                      width={96}
-                      height={96}
+                      width={64}
+                      height={64}
                       className={`w-full h-full rounded-full object-cover transition-all ${
                         selectedAuthor === author.id 
                           ? 'border-3 border-blue-500' 
@@ -614,8 +614,8 @@ export default function OpinionPage() {
                         <CloudImage
                           src={author.avatar}
                           alt={author.name}
-                          width={80}
-                          height={80}
+                          width={64}
+                          height={64}
                           className="rounded-full"
                           fallbackType="author"
                         />

@@ -429,7 +429,7 @@ export default function ProfilePage() {
                   <img 
                     src={user.avatar} 
                     alt={user.name}
-                    className="w-32 h-32 rounded-full object-cover shadow-xl"
+                    className="w-20 h-20 rounded-full object-cover shadow-xl"
                     onError={(e) => {
                       console.error('خطأ في تحميل الصورة:', user.avatar);
                       const target = e.currentTarget;
@@ -439,14 +439,14 @@ export default function ProfilePage() {
                         target.style.display = 'none';
                         // إنشاء وإظهار الدائرة البديلة
                         const fallback = document.createElement('div');
-                        fallback.className = 'w-32 h-32 bg-white/20 rounded-full flex items-center justify-center text-5xl font-bold shadow-xl';
+                        fallback.className = 'w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold shadow-xl';
                         fallback.textContent = user.name.charAt(0).toUpperCase();
                         parent.appendChild(fallback);
                       }
                     }}
                   />
                 ) : (
-                  <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center text-5xl font-bold shadow-xl">
+                  <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold shadow-xl">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                 )}
