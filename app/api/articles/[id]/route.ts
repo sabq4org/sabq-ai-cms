@@ -28,7 +28,7 @@ export async function GET(
           ]
         },
         data: { views: { increment: 1 } }
-      }).catch(err => console.error('خطأ في تحديث المشاهدات:', err));
+      }).catch((err: Error) => console.error('خطأ في تحديث المشاهدات:', err));
       
       return NextResponse.json(cachedArticle);
     }
@@ -85,7 +85,7 @@ export async function GET(
     // دمج الكلمات المفتاحية من seo_keywords إذا كانت موجودة
     if (dbArticle.seo_keywords) {
       if (typeof dbArticle.seo_keywords === 'string') {
-        const seoKeywords = dbArticle.seo_keywords.split(',').map(k => k.trim()).filter(k => k);
+        const seoKeywords = dbArticle.seo_keywords.split(',').map((k: string) => k.trim()).filter((k: string) => k);
         keywords = [...new Set([...keywords, ...seoKeywords])];
       }
     }
@@ -124,14 +124,14 @@ export async function GET(
     prisma.articles.update({
       where: { id: dbArticle.id },
       data: { views: { increment: 1 } }
-    }).catch(err => console.error('خطأ في تحديث المشاهدات:', err));
+    }).catch((err: Error) => console.error('خطأ في تحديث المشاهدات:', err));
     
     // حفظ في Redis cache
     await cache.set(cacheKey, articleWithEnhancedData, CACHE_TTL.ARTICLES);
     console.log(`💾 تم حفظ المقال ${id} في Redis cache`);
     
     return NextResponse.json(articleWithEnhancedData);
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -253,7 +253,7 @@ export async function DELETE(
     const { id } = await params;
     await prisma.articles.delete({ where: { id } });
     return NextResponse.json({ message: 'Article deleted successfully' });
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json({ error: 'Failed to delete article' }, { status: 500 });
   }
 }

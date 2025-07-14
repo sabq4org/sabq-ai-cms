@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     });
 
     // جلب بيانات المقالات المرتبطة
-    const articleIds = deepAnalyses.map(da => da.article_id);
+    const articleIds = deepAnalyses.map((da: any) => da.article_id);
     const articles = await prisma.articles.findMany({
       where: {
         id: {
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     });
 
     // جلب بيانات المؤلفين
-    const authorIds = articles.map(a => a.author_id).filter(Boolean);
+    const authorIds = articles.map((a: any) => a.author_id).filter(Boolean);
     const authors = await prisma.users.findMany({
       where: {
         id: {
@@ -61,15 +61,15 @@ export async function GET(request: NextRequest) {
     });
 
     // إنشاء خريطة للمؤلفين
-    const authorsMap = new Map(authors.map(a => [a.id, a]));
+    const authorsMap = new Map(authors.map((a: any) => [a.id, a]));
 
     // دمج البيانات
-    const articlesMap = new Map(articles.map(a => [a.id, {
+    const articlesMap = new Map(articles.map((a: any) => [a.id, {
       ...a,
       author: authorsMap.get(a.author_id)
     }]));
     
-    const enrichedAnalyses = deepAnalyses.map(analysis => ({
+    const enrichedAnalyses = deepAnalyses.map((analysis: any) => ({
       ...analysis,
       article: articlesMap.get(analysis.article_id)
     }));

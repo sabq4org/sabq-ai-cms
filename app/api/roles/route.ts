@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     
     // حساب عدد المستخدمين لكل دور
     const rolesWithCount = await Promise.all(
-      roles.map(async (role) => {
+      roles.map(async (role: any) => {
         const userCount = await prisma.users.count({
           where: {
             role: role.name

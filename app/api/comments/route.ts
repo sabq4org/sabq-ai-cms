@@ -391,7 +391,7 @@ export async function POST(request: NextRequest) {
         SET comments_count = comments_count + 1,
             last_comment_at = NOW()
         WHERE id = ${articleId}
-      `.catch(error => {
+      `.catch((error: Error) => {
         console.error('Error updating article comment count:', error);
       });
     }

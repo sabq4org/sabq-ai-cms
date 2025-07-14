@@ -189,7 +189,7 @@ export async function GET(request: NextRequest) {
     });
     
     // تحويل البيانات مع دمج metadata
-    const categoriesWithMeta = categories.map(category => {
+    const categoriesWithMeta = categories.map((category: any) => {
       const metadata = category.metadata || {};
       
       return {
@@ -215,7 +215,7 @@ export async function GET(request: NextRequest) {
     });
     
     console.log('✅ Fetched categories with cover images:', 
-      categoriesWithMeta.filter(cat => cat.cover_image).map(cat => ({
+      categoriesWithMeta.filter((cat: any) => cat.cover_image).map((cat: any) => ({
         id: cat.id,
         name: cat.name,
         cover_image: cat.cover_image

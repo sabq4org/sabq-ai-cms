@@ -57,8 +57,8 @@ export async function GET(request: NextRequest) {
     ])
     
     // جلب معلومات المؤلفين والتصنيفات
-    const authorIds = [...new Set(articles.map(a => a.author_id).filter(Boolean))]
-    const categoryIds = [...new Set(articles.map(a => a.category_id).filter(Boolean))]
+    const authorIds = [...new Set(articles.map((a: any) => a.author_id).filter(Boolean))]
+    const categoryIds = [...new Set(articles.map((a: any) => a.category_id).filter(Boolean))]
     
     const [authors, categories] = await Promise.all([
       authorIds.length > 0 ? prisma.users.findMany({
@@ -78,16 +78,16 @@ export async function GET(request: NextRequest) {
     ])
     
     // دمج البيانات
-    const authorsMap = new Map(authors.map(a => [a.id, a]))
-    const categoriesMap = new Map(categories.map(c => [c.id, c]))
+    const authorsMap = new Map(authors.map((a: any) => [a.id, a]))
+    const categoriesMap = new Map(categories.map((c: any) => [c.id, c]))
     
-    const enrichedArticles = articles.map(article => ({
+    const enrichedArticles = articles.map((article: any) => ({
       ...article,
       author: article.author_id ? authorsMap.get(article.author_id) : null,
       category: article.category_id ? categoriesMap.get(article.category_id) : null,
-      author_name: article.author_id ? authorsMap.get(article.author_id)?.name : null,
-      category_name: article.category_id ? categoriesMap.get(article.category_id)?.name : null,
-      category_color: article.category_id ? categoriesMap.get(article.category_id)?.color : null
+      author_name: article.author_id ? (authorsMap.get(article.author_id) as any)?.name : null,
+      category_name: article.category_id ? (categoriesMap.get(article.category_id) as any)?.name : null,
+      category_color: article.category_id ? (categoriesMap.get(article.category_id) as any)?.color : null
     }))
     
     const responseData = {

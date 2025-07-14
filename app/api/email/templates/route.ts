@@ -57,8 +57,8 @@ export async function GET(request: NextRequest) {
     
     const jobsCountMap = new Map(
       jobsCounts
-        .filter((jc) => jc.template_id !== null)
-        .map((jc) => [jc.template_id as string, jc._count.template_id])
+        .filter((jc: any) => jc.template_id !== null)
+        .map((jc: any) => [jc.template_id as string, jc._count.template_id])
     );
     const templatesWithCounts = templates.map((t: { id: string }) => ({
       ...t,

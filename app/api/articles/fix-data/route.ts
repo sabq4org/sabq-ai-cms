@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     })
     
     // التحقق من وجود المؤلفين
-    const authorIds = [...new Set(articlesWithoutAuthor.map(a => a.author_id).filter(Boolean))]
+    const authorIds = [...new Set(articlesWithoutAuthor.map((a: any) => a.author_id).filter(Boolean))]
     const existingAuthors = await prisma.users.findMany({
       where: {
         id: { in: authorIds }
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       select: { id: true }
     })
     
-    const existingAuthorIds = new Set(existingAuthors.map(a => a.id))
+    const existingAuthorIds = new Set(existingAuthors.map((a: any) => a.id))
     const defaultAuthor = await prisma.users.findFirst({
       where: {
         OR: [

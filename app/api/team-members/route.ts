@@ -20,7 +20,7 @@ export async function GET() {
     });
     
     // تحويل البيانات للتوافق مع الواجهة
-    const formattedMembers = members.map(member => ({
+    const formattedMembers = members.map((member: any) => ({
       id: member.id,
       name: member.name || member.email.split('@')[0],
       email: member.email,

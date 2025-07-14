@@ -41,10 +41,10 @@ export async function GET(request: NextRequest) {
     
     // جلب الأدوار لعرض الأسماء بالعربية
     const roles = await prisma.roles.findMany();
-    const rolesMap = new Map(roles.map(role => [role.name, role.display_name || role.name]));
+    const rolesMap = new Map(roles.map((role: any) => [role.name, role.display_name || role.name]));
     
     // تحويل البيانات للتوافق مع الواجهة
-    const authorsWithRoles = users.map(user => ({
+    const authorsWithRoles = users.map((user: any) => ({
       id: user.id,
       name: user.name || user.email.split('@')[0],
       email: user.email,
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       createdAt: user.created_at.toISOString()
     }));
     
-    console.log(`✅ تم العثور على ${authorsWithRoles.length} مستخدم:`, authorsWithRoles.map(a => `${a.name} (${a.roleDisplayName})`));
+    console.log(`✅ تم العثور على ${authorsWithRoles.length} مستخدم:`, authorsWithRoles.map((a: any) => `${a.name} (${a.roleDisplayName})`));
     
     return NextResponse.json({
       success: true,
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     
     // التحقق من صحة الدور
     const roles = await prisma.roles.findMany();
-    const validRole = roles.find(r => r.id === body.roleId);
+    const validRole = roles.find((r: any) => r.id === body.roleId);
     if (!validRole) {
       return NextResponse.json({
         success: false,
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     
     // التحقق من عدم تكرار البريد الإلكتروني
     const users = await prisma.users.findMany();
-    const emailExists = users.some(user => 
+    const emailExists = users.some((user: any) => 
       user.email.toLowerCase() === body.email.toLowerCase()
     );
     
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     });
     
     // إرجاع المراسل الجديد مع معلومات الدور
-    const role = roles.find(r => r.id === newAuthor.role);
+    const role = roles.find((r: any) => r.id === newAuthor.role);
     const authorWithRole = {
       id: newAuthor.id,
       name: newAuthor.name || newAuthor.email.split('@')[0],

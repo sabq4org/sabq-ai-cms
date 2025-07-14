@@ -33,10 +33,10 @@ export async function GET(request: NextRequest) {
   try {
     // قراءة البيانات من الملفات
     const [logsData, usersData, articlesData, categoriesData] = await Promise.all([
-      fs.readFile(LOGS_FILE, 'utf-8').then(data => JSON.parse(data)).catch(() => ({ logs: [] })),
-      fs.readFile(USERS_FILE, 'utf-8').then(data => JSON.parse(data)).catch(() => ({ users: [] })),
-      fs.readFile(ARTICLES_FILE, 'utf-8').then(data => JSON.parse(data)).catch(() => ({ articles: [] })),
-      fs.readFile(CATEGORIES_FILE, 'utf-8').then(data => JSON.parse(data)).catch(() => ({ categories: [] }))
+      fs.readFile(LOGS_FILE, 'utf-8').then(data => JSON.parse(data)).catch((_err: Error) => ({ logs: [] })),
+      fs.readFile(USERS_FILE, 'utf-8').then(data => JSON.parse(data)).catch((_err: Error) => ({ users: [] })),
+      fs.readFile(ARTICLES_FILE, 'utf-8').then(data => JSON.parse(data)).catch((_err: Error) => ({ articles: [] })),
+      fs.readFile(CATEGORIES_FILE, 'utf-8').then(data => JSON.parse(data)).catch((_err: Error) => ({ categories: [] }))
     ]);
 
     const logs = logsData.logs || [];

@@ -22,11 +22,11 @@ export async function GET(
     });
 
     // فلترة المقالات بناءً على الكلمة المفتاحية
-    const filteredArticles = allArticles.filter(article => {
+    const filteredArticles = allArticles.filter((article: any) => {
       // البحث في seo_keywords
       if (article.seo_keywords) {
-        const keywords = article.seo_keywords.split(',').map(k => k.trim());
-        if (keywords.some(k => k.toLowerCase() === tag.toLowerCase())) {
+        const keywords = article.seo_keywords.split(',').map((k: string) => k.trim());
+        if (keywords.some((k: string) => k.toLowerCase() === tag.toLowerCase())) {
           return true;
         }
       }
@@ -49,16 +49,16 @@ export async function GET(
     const total = filteredArticles.length;
 
     // جلب معلومات التصنيفات
-    const categoryIds = [...new Set(paginatedArticles.map(a => a.category_id).filter(id => id !== null))] as string[];
+    const categoryIds = [...new Set(paginatedArticles.map((a: any) => a.category_id).filter((id: any) => id !== null))] as string[];
     const categories = categoryIds.length > 0 ? await prisma.categories.findMany({
       where: { id: { in: categoryIds } }
     }) : [];
 
     // إنشاء خريطة للتصنيفات
-    const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
+    const categoryMap = new Map(categories.map((cat: any) => [cat.id, cat]));
 
     // تنسيق البيانات
-    const formattedArticles = paginatedArticles.map(article => {
+    const formattedArticles = paginatedArticles.map((article: any) => {
       const category = article.category_id ? categoryMap.get(article.category_id) : null;
       
       // استخراج الكلمات المفتاحية من كلا المصدرين
@@ -66,7 +66,7 @@ export async function GET(
       
       // من seo_keywords
       if (article.seo_keywords) {
-        keywords = article.seo_keywords.split(',').map(k => k.trim()).filter(k => k);
+        keywords = article.seo_keywords.split(',').map((k: string) => k.trim()).filter((k: string) => k);
       }
       
       // من metadata.keywords
@@ -91,11 +91,11 @@ export async function GET(
           email: ''
         },
         category: category ? {
-          id: category.id,
-          name: category.name,
-          slug: category.slug,
-          color: category.color,
-          icon: category.icon
+          id: (category as any).id,
+          name: (category as any).name,
+          slug: (category as any).slug,
+          color: (category as any).color,
+          icon: (category as any).icon
         } : null,
         category_id: article.category_id ? parseInt(article.category_id) : 0,
         views: article.views,
