@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
+// Build: 2025-01-16-17-30
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
+  generateBuildId: async () => {
+    // Custom build ID to force rebuild
+    return '2025-01-16-17-30'
+  },
   images: {
     domains: [
       'localhost',
