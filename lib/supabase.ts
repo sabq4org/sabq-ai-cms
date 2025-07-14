@@ -28,18 +28,32 @@ try {
 export function getSupabaseClient() {
   if (!supabase) {
     // في حالة عدم وجود Supabase، نرجع كائن وهمي للتطوير
+    const mockQueryBuilder = {
+      select: () => mockQueryBuilder,
+      insert: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+      update: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+      delete: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+      eq: () => mockQueryBuilder,
+      neq: () => mockQueryBuilder,
+      gt: () => mockQueryBuilder,
+      gte: () => mockQueryBuilder,
+      lt: () => mockQueryBuilder,
+      lte: () => mockQueryBuilder,
+      like: () => mockQueryBuilder,
+      ilike: () => mockQueryBuilder,
+      is: () => mockQueryBuilder,
+      in: () => mockQueryBuilder,
+      contains: () => mockQueryBuilder,
+      containedBy: () => mockQueryBuilder,
+      range: () => mockQueryBuilder,
+      order: () => mockQueryBuilder,
+      limit: () => mockQueryBuilder,
+      single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+      then: (resolve: any) => resolve({ data: [], error: null })
+    };
+
     return {
-      from: () => ({
-        select: () => Promise.resolve({ data: [], error: null }),
-        insert: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-        update: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-        delete: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-        eq: () => ({
-          select: () => Promise.resolve({ data: [], error: null }),
-          single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-        }),
-        single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-      }),
+      from: () => mockQueryBuilder,
       rpc: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
     };
   }
