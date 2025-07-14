@@ -24,11 +24,26 @@ export default function MobileLayout({
 }: MobileLayoutProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // إضافة timeout للتأكد من عدم البقاء في حالة التحميل
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // 2 ثانية كحد أقصى
+    
+    return () => clearTimeout(timeout);
+  }, []);
 
   useEffect(() => {
     // فحص نوع الجهاز
     const checkDevice = () => {
-      const userAgent = navigator.userAgent;
+      // التحقق من وجود window
+      if (typeof window === 'undefined') {
+        setIsLoading(false);
+        return;
+      }
+      
+      const userAgent = navigator.userAgent || '';
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
       const isSmallScreen = window.innerWidth <= 768;
       setIsMobile(isMobileDevice || isSmallScreen);

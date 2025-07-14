@@ -1386,9 +1386,5 @@ export default function Page() {
     fetchStats();
   }, []);
 
-  return (
-    <MobileLayout showHeader={false} showFooter={false}>
-      <NewspaperHomePage stats={stats} />
-    </MobileLayout>
-  );
+  return <NewspaperHomePage stats={stats} />;
 }

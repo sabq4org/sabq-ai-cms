@@ -6,12 +6,9 @@ import Image from 'next/image';
 import { Metadata } from 'next'
 import './globals.css'
 
-import '@/styles/tiptap-editor.css'
-import '@/styles/deep-analysis.css'
 import '@/styles/fix-layout.css'
 import '@/styles/dashboard-enhanced.css'
-import '@/styles/opinion.css'
-import '@/styles/forum-timeline.css'
+import '@/styles/article-card.css'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
 import toast, { Toaster } from "react-hot-toast"
 import { cn } from '@/lib/utils'

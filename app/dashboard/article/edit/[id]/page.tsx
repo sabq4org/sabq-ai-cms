@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Save, ArrowLeft, Upload, Loader2, Eye, Sparkles, Plus, FileText, Image as ImageIcon, User, Tag, Globe, Zap, Palette, Link2, Search, Clock, TrendingUp, BookOpen, Hash, Type, Target, Lightbulb, Info, Star, Send, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { toast } from 'react-hot-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
 import { useTheme } from '@/contexts/ThemeContext';

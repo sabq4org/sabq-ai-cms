@@ -964,9 +964,9 @@ export default function ArticlePage({ params }: PageProps) {
               ).filter(k => k).map((keyword, index) => (
                 <Link
                   key={index}
-                  href={`/search?q=${encodeURIComponent(keyword)}`}
+                  href={`/tags/${encodeURIComponent(keyword)}`}
                   className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200"
-                  title={`البحث عن: ${keyword}`}
+                  title={`عرض جميع المقالات المرتبطة بـ: ${keyword}`}
                 >
                   <Hash className="w-3 h-3" />
                   <span>{keyword}</span>

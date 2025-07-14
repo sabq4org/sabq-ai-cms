@@ -93,8 +93,14 @@ export async function PATCH(
       delete updates.is_breaking;
     }
 
-    // تجاهل الكلمات المفتاحية مؤقتاً لتجنب الخطأ
+    // معالجة الكلمات المفتاحية
+    let keywordsToSave = null;
     if (updates.keywords) {
+      keywordsToSave = updates.keywords;
+      // حفظ الكلمات في seo_keywords كنص
+      updates.seo_keywords = Array.isArray(updates.keywords) 
+        ? updates.keywords.join(', ') 
+        : updates.keywords;
       delete updates.keywords;
     }
 
@@ -108,6 +114,14 @@ export async function PATCH(
       ...updateData,
       updated_at: new Date(),
     };
+
+    // إضافة الكلمات المفتاحية إلى metadata
+    if (keywordsToSave) {
+      dataToUpdate.metadata = {
+        ...(updateData.metadata || {}),
+        keywords: keywordsToSave
+      };
+    }
 
     if (category_id) {
       dataToUpdate.categories = {
@@ -225,6 +239,7 @@ export async function PUT(
       featured_image_alt: body.featured_image_alt || null,
       seo_title: body.seo_title || body.title,
       seo_description: body.seo_description || excerpt,
+      seo_keywords: body.keywords ? (Array.isArray(body.keywords) ? body.keywords.join(', ') : body.keywords) : body.seo_keywords || null,
       metadata: metadata,
       breaking: is_breaking,
       featured: is_featured,
