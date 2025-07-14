@@ -142,6 +142,12 @@ export default function EditCategoryPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     
+    console.log('📸 Selected file:', {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    });
+    
     // التحقق من نوع الملف
     if (!file.type.startsWith('image/')) {
       setErrors({ ...errors, cover_image: 'يرجى اختيار ملف صورة صحيح' });
@@ -178,31 +184,30 @@ export default function EditCategoryPage() {
       
       const formData = new FormData();
       formData.append('file', imageFile);
-      formData.append('upload_preset', 'simple_upload'); // استخدام preset بسيط
-      formData.append('folder', 'categories');
+      formData.append('type', 'categories'); // نوع الرفع للتصنيفات
       
-      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb';
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: 'POST',
-          body: formData
-        }
-      );
+      console.log('📤 إرسال طلب رفع الصورة...');
       
-      if (!response.ok) {
-        throw new Error('فشل رفع الصورة');
-      }
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
       
       const data = await response.json();
-      console.log('✅ Upload successful:', data.secure_url);
+      console.log('📨 استجابة رفع الصورة:', data);
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'فشل رفع الصورة');
+      }
+      
+      console.log('✅ Upload successful:', data.url);
       
       toast.success('تم رفع الصورة بنجاح ✅', { id: 'upload-image' });
       
-      return data.secure_url;
+      return data.url;
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('فشل في رفع الصورة', { id: 'upload-image' });
+      toast.error('فشل في رفع الصورة: ' + (error instanceof Error ? error.message : 'خطأ غير معروف'), { id: 'upload-image' });
       return null;
     } finally {
       setUploading(false);
@@ -213,6 +218,14 @@ export default function EditCategoryPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('🔄 بدء حفظ التعديلات...');
+    console.log('📷 حالة الصورة:', {
+      hasNewFile: !!imageFile,
+      currentPreview: imagePreview,
+      currentCoverImage: category?.cover_image,
+      fileName: imageFile?.name
+    });
+    
     if (!category) return;
     
     try {
@@ -221,12 +234,15 @@ export default function EditCategoryPage() {
       // رفع الصورة أولاً إذا كان هناك ملف جديد
       let coverImageUrl = category.cover_image;
       if (imageFile) {
+        console.log('📤 بدء رفع الصورة الجديدة...');
         const uploadedUrl = await uploadImage();
         if (uploadedUrl) {
           coverImageUrl = uploadedUrl;
-          console.log('📸 New image uploaded:', uploadedUrl);
+          console.log('✅ تم رفع الصورة بنجاح:', uploadedUrl);
         } else {
+          console.error('❌ فشل رفع الصورة');
           toast.error('فشل رفع الصورة - يرجى المحاولة مرة أخرى');
+          setSaving(false);
           return;
         }
       }
@@ -255,7 +271,7 @@ export default function EditCategoryPage() {
         og_type: category.og_type || 'website'
       };
       
-      console.log('📤 Sending update with data:', {
+      console.log('📤 إرسال البيانات للتحديث:', {
         id: updateData.id,
         name: updateData.name,
         color: updateData.color,
@@ -272,13 +288,14 @@ export default function EditCategoryPage() {
       });
       
       const result = await response.json();
+      console.log('📨 نتيجة الاستجابة:', result);
       
       if (result.success) {
         toast.success('تم تحديث التصنيف بنجاح');
         
         // التحقق من وجود الصورة في النتيجة
-        if (result.data?.cover_image) {
-          console.log('✅ Cover image saved:', result.data.cover_image);
+        if (result.data?.metadata?.cover_image || result.data?.cover_image) {
+          console.log('✅ تم حفظ صورة الغلاف:', result.data?.metadata?.cover_image || result.data?.cover_image);
           toast.success('تم حفظ صورة الغلاف بنجاح', { duration: 3000 });
         }
         
@@ -290,7 +307,7 @@ export default function EditCategoryPage() {
         throw new Error(result.error || 'فشل في تحديث التصنيف');
       }
     } catch (error) {
-      console.error('Error saving category:', error);
+      console.error('❌ خطأ في حفظ التصنيف:', error);
       toast.error(error instanceof Error ? error.message : 'حدث خطأ في حفظ التصنيف');
     } finally {
       setSaving(false);

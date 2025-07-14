@@ -90,6 +90,9 @@ export async function POST(request: NextRequest) {
           case 'analysis':
             folder = 'sabq-cms/analysis';
             break;
+          case 'categories':
+            folder = 'sabq-cms/categories';
+            break;
           default:
             folder = 'sabq-cms/general';
         }
