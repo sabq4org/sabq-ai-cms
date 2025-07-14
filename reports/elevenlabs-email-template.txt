@@ -1,0 +1,39 @@
+Subject: API Error - missing_permissions for Arabic TTS Generation
+
+Hello ElevenLabs Support,
+
+We are experiencing a "missing_permissions" error when trying to generate Arabic text-to-speech audio through your API.
+
+Error message:
+{
+  "detail": {
+    "status": "missing_permissions",
+    "message": "Insufficient permissions to perform this action"
+  }
+}
+
+Our setup:
+- API Key: Stored in ELEVENLABS_API_KEY environment variable
+- Voice ID: EXAVITQu4vr4xnSDxMaL
+- Model: eleven_multilingual_v2
+- Language: Arabic
+- Platform: SABQ AI CMS (Arabic News Platform)
+
+We need help understanding:
+1. What permissions are required for TTS generation?
+2. Does our subscription support Arabic language?
+3. Is the voice ID correct and active?
+
+This feature is critical for accessibility on our Arabic news platform. We expect to generate 1000-2000 audio files monthly.
+
+Please advise on how to resolve this issue.
+
+Thank you,
+SABQ AI CMS Team
+
+---
+
+للاستخدام الداخلي:
+- يمكن إرسال هذه الرسالة إلى: support@elevenlabs.io
+- أو من خلال نموذج الدعم على موقعهم: https://elevenlabs.io/support
+- تأكد من تضمين رقم الحساب أو البريد الإلكتروني المسجل إذا كان متاحاً 
