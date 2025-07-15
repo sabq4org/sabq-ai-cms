@@ -43,6 +43,8 @@ const nextConfig = {
       'react-hot-toast',
       '@tanstack/react-query'
     ],
+    // إصلاح مشاكل HMR
+    serverComponentsExternalPackages: ['prisma', '@prisma/client'],
   },
   // منع حفظ الصور محلياً
   webpack: (config, { dev, isServer }) => {
@@ -58,6 +60,15 @@ const nextConfig = {
       { module: /node_modules/ },
       (warning) => warning.message.includes('expected pattern'),
     ];
+    // حل مشكلة "ENOENT pack.gz" بتعطيل الكاش في وضع التطوير
+    if (dev) {
+      config.cache = false;
+      // إصلاح مشاكل HMR في Next.js 15
+      config.watchOptions = {
+        ignored: /node_modules/,
+        poll: 1000,
+      };
+    }
     return config;
   },
   // إضافة headers للتخزين المؤقت
@@ -102,14 +113,6 @@ const nextConfig = {
   },
 }
 
-/**
- * حل مشكلة "ENOENT pack.gz" بتعطيل الكاش في وضع التطوير
- */
-nextConfig.webpack = (config, { dev, isServer }) => {
-  if (dev) {
-    config.cache = false;
-  }
-  return config;
-};
+
 
 module.exports = nextConfig 
