@@ -94,6 +94,25 @@ export async function GET(request: NextRequest) {
         totalViews: 98000,
         isActive: true,
         isVerified: true
+      },
+      {
+        id: 'mubarak-al-ati',
+        name: 'مبارك آل عاتي',
+        avatar: 'https://www2.0zz0.com/2025/07/15/20/855793733.png',
+        specialization: 'محلل سياسي',
+        club: 'platinum',
+        bio: 'محلل سياسي متخصص في الشؤون الداخلية والخارجية، خبير في تحليل السياسات والقرارات الحكومية',
+        articleCount: 67,
+        totalViews: 145000,
+        isActive: true,
+        isVerified: true,
+        author_name: 'مبارك آل عاتي',
+        author_avatar: 'https://www2.0zz0.com/2025/07/15/20/855793733.png',
+        author_slug: 'mubarak-al-ati',
+        audio_sample: '/audio/mubarak-al-ati-intro.mp3', // ملف صوتي تعريفي
+        years_of_experience: 15,
+        total_articles: 67,
+        followers_count: 8500
       }
     ];
     

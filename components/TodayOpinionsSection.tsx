@@ -60,6 +60,7 @@ interface OpinionArticle {
   is_featured?: boolean;
   is_trending?: boolean;
   author_slug?: string;
+  audio_url?: string; // ملف صوتي للكاتب
 }
 
 interface TodayOpinionsSectionProps {
@@ -199,8 +200,27 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
             reading_time: 6,
             views_count: 4500,
             likes_count: 320,
-            comments_count: 45,
-            is_trending: true
+            comments_count: 45
+          },
+          {
+            id: 'mubarak-analysis-1',
+            title: 'تحولات السياسة الخارجية السعودية في عهد الرؤية',
+            author_name: 'مبارك آل عاتي',
+            author_avatar: 'https://www2.0zz0.com/2025/07/15/20/855793733.png',
+            author_club: 'platinum',
+            author_specialization: 'محلل سياسي',
+            excerpt: 'شهدت السياسة الخارجية السعودية تطوراً استراتيجياً جذرياً في إطار رؤية 2030، مما عزز مكانة المملكة إقليمياً وعالمياً...',
+            ai_summary: 'يحلل الكاتب التحولات الاستراتيجية في السياسة الخارجية السعودية والدبلوماسية النشطة التي تتبعها المملكة لترسيخ دورها القيادي في المنطقة والعالم.',
+            featured_image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80',
+            published_at: new Date(Date.now() - 1800000).toISOString(), // 30 دقيقة مضت - مقال حديث
+            reading_time: 12,
+            views_count: 15800,
+            likes_count: 950,
+            comments_count: 187,
+            is_featured: true,
+            is_trending: true,
+            author_slug: 'mubarak-al-ati',
+            audio_url: '/audio/mubarak-al-ati-intro.mp3'
           }
         ];
 
