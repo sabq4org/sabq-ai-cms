@@ -12,6 +12,7 @@ import AchievementBadges from '@/components/profile/AchievementBadges';
 import ReadingTimeline from '@/components/profile/ReadingTimeline';
 import SavedArticles from '@/components/profile/SavedArticles';
 import LikedArticles from '@/components/profile/LikedArticles';
+import LikedArticlesTab from '@/components/profile/LikedArticlesTab';
 import SavedArticlesTab from '@/components/profile/SavedArticlesTab';
 import { Crown, Heart, 
   Edit2, X, Star, TrendingUp,
@@ -1271,7 +1272,7 @@ export default function ProfilePage() {
           
           {/* تبويب الإعجابات */}
           {activeTab === 'likes' && user && (
-            <LikedArticles userId={user.id} darkMode={darkMode} />
+            <LikedArticlesTab userId={user.id} darkMode={darkMode} />
           )}
           
           {/* تبويب المحفوظات */}
