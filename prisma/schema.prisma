@@ -126,41 +126,41 @@ model article_keywords {
 }
 
 model articles {
-  id              String         @id
-  title           String         @db.VarChar(500)
-  slug            String         @unique @db.VarChar(500)
-  content         String
-  excerpt         String?
-  author_id       String
-  category_id     String?
-  status          String         @default("draft")
-  featured        Boolean        @default(false)
-  breaking        Boolean        @default(false)
-  featured_image  String?
-  published_at    DateTime?
-  scheduled_for   DateTime?
-  views           Int            @default(0)
-  likes           Int            @default(0)
-  shares          Int            @default(0)
-  saves           Int            @default(0)
-  reading_time    Int?
-  seo_title       String?
-  seo_description String?
-  seo_keywords    String?
-  social_image    String?
-  allow_comments  Boolean        @default(true)
-  metadata        Json?
-  audio_summary_url String?      // رابط الملف الصوتي للموجز
-  created_at      DateTime       @default(now())
-  updated_at      DateTime
-  categories      categories?    @relation(fields: [category_id], references: [id])
-  interactions    interactions[]
+  id                String                  @id
+  title             String                  @db.VarChar(500)
+  slug              String                  @unique @db.VarChar(500)
+  content           String
+  excerpt           String?
+  author_id         String
+  category_id       String?
+  status            String                  @default("draft")
+  featured          Boolean                 @default(false)
+  breaking          Boolean                 @default(false)
+  featured_image    String?
+  published_at      DateTime?
+  scheduled_for     DateTime?
+  views             Int                     @default(0)
+  likes             Int                     @default(0)
+  shares            Int                     @default(0)
+  saves             Int                     @default(0)
+  reading_time      Int?
+  seo_title         String?
+  seo_description   String?
+  seo_keywords      String?
+  social_image      String?
+  allow_comments    Boolean                 @default(true)
+  metadata          Json?
+  audio_summary_url String? // رابط الملف الصوتي للموجز
+  created_at        DateTime                @default(now())
+  updated_at        DateTime
+  categories        categories?             @relation(fields: [category_id], references: [id])
+  interactions      interactions[]
+  reading_sessions  user_reading_sessions[]
 
   @@index([author_id])
   @@index([category_id])
   @@index([slug])
   @@index([status, published_at])
-  @@map("articles")
   @@index([status, published_at(sort: Desc)], map: "idx_articles_status_published_desc")
   @@index([category_id, status, published_at(sort: Desc)], map: "idx_articles_category_status_published")
   @@index([author_id, status, published_at(sort: Desc)], map: "idx_articles_author_status_published")
@@ -168,6 +168,7 @@ model articles {
   @@index([breaking, status, published_at(sort: Desc)], map: "idx_articles_breaking_status_published")
   @@index([created_at(sort: Desc)], map: "idx_articles_created_desc")
   @@index([views(sort: Desc)], map: "idx_articles_views_desc")
+  @@map("articles")
 }
 
 model categories {
@@ -653,20 +654,24 @@ model user_roles {
 }
 
 model users {
-  id                 String         @id
-  email              String         @unique
+  id                 String                  @id
+  email              String                  @unique
   password_hash      String?
   name               String?
   avatar             String?
-  role               String         @default("user")
-  is_admin           Boolean        @default(false)
-  is_verified        Boolean        @default(false)
+  role               String                  @default("user")
+  is_admin           Boolean                 @default(false)
+  is_verified        Boolean                 @default(false)
   verification_token String?
   reset_token        String?
   reset_token_expiry DateTime?
-  created_at         DateTime       @default(now())
+  created_at         DateTime                @default(now())
   updated_at         DateTime
   interactions       interactions[]
+  reading_sessions   user_reading_sessions[]
+  insights           user_insights?
+  similar_to         user_similar_readers[]  @relation("UserSimilarReaders")
+  similar_from       user_similar_readers[]  @relation("SimilarUserReaders")
 
   @@index([email])
   @@index([role])
@@ -695,6 +700,82 @@ model was_news {
   @@index([news_DT])
   @@index([is_imported])
   @@index([created_at])
+}
+
+// ========== User Journey & Reading Analytics Tables ==========
+
+model user_reading_sessions {
+  id               String    @id
+  user_id          String
+  article_id       String
+  started_at       DateTime  @default(now())
+  ended_at         DateTime?
+  duration_seconds Int?
+  read_percentage  Float? // نسبة المقال المقروء
+  scroll_depth     Float? // عمق التمرير
+  device_type      String? // mobile, tablet, desktop
+  time_of_day      Int? // ساعة اليوم (0-23)
+  created_at       DateTime  @default(now())
+
+  users    users    @relation(fields: [user_id], references: [id])
+  articles articles @relation(fields: [article_id], references: [id])
+
+  @@index([user_id])
+  @@index([article_id])
+  @@index([started_at])
+  @@index([time_of_day])
+}
+
+model user_insights {
+  id      String @id
+  user_id String @unique
+
+  // إحصائيات القراءة
+  total_reads        Int    @default(0)
+  total_saved        Int    @default(0)
+  total_interactions Int    @default(0)
+  avg_read_time      Float? // متوسط وقت القراءة بالدقائق
+
+  // تحليل السلوك
+  preferred_reading_time String? // "صباحًا", "ظهرًا", "مساءً", "ليلاً"
+  reader_type            String? // "قارئ تحليلي", "قارئ سريع", "قارئ متوازن"
+  diversity_score        Float? // نسبة التنوع في التصنيفات (0-100)
+
+  // تفضيلات المحتوى
+  preferred_categories    Json? // [{category_id, count, percentage}]
+  preferred_article_types Json? // {"تحليلية": 60, "مختصرة": 40}
+  avg_article_length      Int? // متوسط طول المقالات المقروءة
+
+  // نشاط الأسبوع
+  weekly_reads   Int       @default(0)
+  weekly_streak  Int       @default(0) // عدد أيام القراءة المتتالية
+  last_read_date DateTime?
+
+  // التحديثات
+  calculated_at DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  users users @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([updated_at])
+}
+
+model user_similar_readers {
+  id                String   @id
+  user_id           String
+  similar_user_id   String
+  similarity_score  Float // درجة التشابه (0-1)
+  common_categories Json? // التصنيفات المشتركة
+  calculated_at     DateTime @default(now())
+
+  user         users @relation("UserSimilarReaders", fields: [user_id], references: [id])
+  similar_user users @relation("SimilarUserReaders", fields: [similar_user_id], references: [id])
+
+  @@unique([user_id, similar_user_id])
+  @@index([user_id])
+  @@index([similar_user_id])
+  @@index([similarity_score])
 }
 
 enum EmailJob_status {

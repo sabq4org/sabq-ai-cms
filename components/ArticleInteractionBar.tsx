@@ -80,11 +80,28 @@ export default function ArticleInteractionBar({
 
     // تحديث في قاعدة البيانات
     try {
-      await fetch(`/api/articles/${articleId}/like`, {
+      const userId = localStorage.getItem('user_id');
+      if (!userId || userId === 'anonymous') {
+        toast.error('يجب تسجيل الدخول للإعجاب');
+        setLiked(!newLiked);
+        setLikes(prev => !newLiked ? prev + 1 : Math.max(0, prev - 1));
+        return;
+      }
+
+      const response = await fetch('/api/interactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ liked: newLiked })
+        body: JSON.stringify({ 
+          userId,
+          articleId,
+          type: 'like',
+          action: newLiked ? 'add' : 'remove'
+        })
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to update like');
+      }
     } catch (error) {
       // إرجاع الحالة في حالة الفشل
       setLiked(!newLiked);
@@ -102,15 +119,27 @@ export default function ArticleInteractionBar({
 
     // تحديث في قاعدة البيانات
     try {
-      await fetch('/api/bookmarks', {
+      const userId = localStorage.getItem('user_id');
+      if (!userId || userId === 'anonymous') {
+        toast.error('يجب تسجيل الدخول للحفظ');
+        setSaved(!newSaved);
+        return;
+      }
+
+      const response = await fetch('/api/interactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: localStorage.getItem('user_id'),
-          itemId: articleId,
-          itemType: 'article'
+          userId,
+          articleId,
+          type: 'save',
+          action: newSaved ? 'add' : 'remove'
         })
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to update save');
+      }
 
       toast.success(newSaved ? 'تم حفظ المقال' : 'تم إلغاء الحفظ', {
         icon: newSaved ? '📑' : '🗑️'

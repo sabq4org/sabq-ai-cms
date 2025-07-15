@@ -16,7 +16,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams?.get('callbackUrl') || 
                      searchParams?.get('redirectTo') || 
-                     searchParams?.get('returnTo');
+                     searchParams?.get('returnTo') ||
+                     searchParams?.get('redirect');
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',

@@ -26,7 +26,8 @@ import {
   Search,
   Bell,
   Settings,
-  Brain
+  Brain,
+  Target
 } from 'lucide-react';
 
 export default function Header() {
@@ -316,6 +317,19 @@ export default function Header() {
               >
                 <User className="w-4 h-4" />
                 <span>الملف الشخصي</span>
+              </Link>
+              
+              <Link
+                href="/my-journey"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  darkMode 
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                <Target className="w-4 h-4" />
+                <span>رحلتك المعرفية</span>
               </Link>
               
               <Link

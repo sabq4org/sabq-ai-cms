@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Award,
   Crown,
-  Trophy
+  Trophy,
+  Target
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
@@ -240,6 +241,7 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
 
   const menuItems = [
     { icon: User, label: 'الملف الشخصي', href: '/profile' },
+    { icon: Target, label: 'رحلتك المعرفية', href: '/my-journey' },
     { icon: Settings, label: 'الإعدادات', href: '/settings' },
   ];
 
