@@ -183,23 +183,48 @@ export default function EditArticlePage() {
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/categories?active=true');
+      if (!response.ok) {
+        console.error('فشل في جلب التصنيفات:', response.status);
+        toast.error('فشل في تحميل التصنيفات');
+        return;
+      }
       const data = await response.json();
-      const categoriesData = data.categories || data.data || [];
+      console.log('Categories API response:', data);
+      
+      const categoriesData = data.data || data.categories || [];
       setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+      
+      if (categoriesData.length === 0) {
+        toast('لا توجد تصنيفات متاحة', { icon: '⚠️' });
+      }
     } catch (error) {
       console.error('خطأ في تحميل التصنيفات:', error);
+      toast.error('حدث خطأ في تحميل التصنيفات');
       setCategories([]);
     }
   };
   const fetchAuthors = async () => {
     try {
-      const response = await fetch('/api/authors?role=correspondent,editor,author');
+      const response = await fetch('/api/team-members');
+      if (!response.ok) {
+        console.error('فشل في جلب المراسلين:', response.status);
+        toast.error('فشل في تحميل قائمة المراسلين');
+        return;
+      }
       const data = await response.json();
-      // التأكد من أن البيانات في شكل مصفوفة
-      setAuthors(Array.isArray(data.data) ? data.data : []);
+      console.log('Authors API response:', data);
+      
+      // معالجة البيانات من API team-members
+      const authorsData = data.data || data.members || [];
+      setAuthors(Array.isArray(authorsData) ? authorsData : []);
+      
+      if (authorsData.length === 0) {
+        toast('لا يوجد مراسلين متاحين', { icon: '⚠️' });
+      }
     } catch (error) {
       console.error('خطأ في تحميل المراسلين:', error);
-      setAuthors([]); // تعيين مصفوفة فارغة في حالة الخطأ
+      toast.error('حدث خطأ في تحميل قائمة المراسلين');
+      setAuthors([]);
     }
   };
   // رفع الصورة البارزة
