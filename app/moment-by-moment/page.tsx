@@ -128,7 +128,7 @@ export default function MomentByMomentPage() {
     <>
       <Header />
       
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800" suppressHydrationWarning>
         {/* Hero Section */}
         <section className="relative py-16 bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <div className="absolute inset-0 overflow-hidden">
@@ -142,16 +142,16 @@ export default function MomentByMomentPage() {
                 <Radio className="w-10 h-10 text-white" />
               </div>
               
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white" suppressHydrationWarning>
                 لحظة بلحظة
               </h1>
               
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-2" suppressHydrationWarning>
                 تابع الأحداث العاجلة والتحديثات المباشرة أولاً بأول
               </p>
               
               {mounted && !loading && articles.length > 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-500 dark:text-gray-400" suppressHydrationWarning>
                   {articles.length} تحديث مباشر
                 </p>
               )}
@@ -173,7 +173,7 @@ export default function MomentByMomentPage() {
         </section>
 
         {/* Live Toggle Bar */}
-        <div className="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700" suppressHydrationWarning>
           <div className="max-w-7xl mx-auto px-4 md:px-6">
             <div className="flex items-center justify-between py-4">
               <div className="flex items-center gap-4">
