@@ -9,17 +9,10 @@ import {
   Settings, 
   LogOut, 
   X, 
-  Heart, 
-  Bell, 
   ChevronRight,
   Award,
-  Star,
   Crown,
-  Trophy,
-  Bookmark,
-  Activity,
-  Brain,
-  MessageSquare
+  Trophy
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
@@ -247,12 +240,6 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
 
   const menuItems = [
     { icon: User, label: 'الملف الشخصي', href: '/profile' },
-    { icon: Heart, label: 'المفضلة', href: '/profile/favorites' },
-    { icon: Bookmark, label: 'المحفوظات', href: '/profile/bookmarks' },
-    { icon: Bell, label: 'الإشعارات', href: '/profile/notifications' },
-    { icon: Activity, label: 'النشاط', href: '/profile/activity' },
-    { icon: Brain, label: 'التحليلات العميقة', href: '/profile/deep-analysis' },
-    { icon: MessageSquare, label: 'التعليقات', href: '/profile/comments' },
     { icon: Settings, label: 'الإعدادات', href: '/settings' },
   ];
 
