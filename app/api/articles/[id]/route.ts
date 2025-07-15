@@ -214,6 +214,12 @@ export async function PATCH(
     });
 
     console.log('✅ [API] تم تحديث المقال بنجاح:', articleId);
+    
+    // مسح الكاش بعد التحديث
+    console.log('🧹 مسح الكاش بعد تحديث المقال...');
+    await cache.del(`article:${articleId}`);
+    await cache.clearPattern('articles:*');
+    
     return NextResponse.json(updatedArticle);
 
   } catch (error: any) {

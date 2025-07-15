@@ -448,6 +448,15 @@ export async function POST(request: NextRequest) {
       isSmartDraft: (metadata as any)?.isSmartDraft
     })
 
+    // مسح الكاش عند إنشاء مقال جديد
+    if (status === 'published') {
+      console.log('🧹 مسح الكاش بعد نشر المقال...');
+      await cache.clearPattern('articles:*');
+      if (category_id) {
+        await cache.clearPattern(`articles:*category_id*${category_id}*`);
+      }
+    }
+
     // توليد الصوت تلقائياً إذا كان المقال منشوراً وله موجز
     if (status === 'published' && article.excerpt && process.env.ELEVENLABS_API_KEY) {
       try {
