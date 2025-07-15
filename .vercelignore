@@ -1,52 +1,69 @@
-# Vercel ignore file
-# هذا الملف يحدد ما يجب على Vercel تجاهله أثناء البناء
-
 # Git
 .git
+.github
 .gitignore
 
 # Development files
-__dev__
-*.log
-*.DS_Store
-
-# Test files
-*.test.ts
-*.test.js
-*.spec.ts
-*.spec.js
-__tests__
-
-# Documentation
-*.md
-docs/
-reports/
-
-# Scripts and configs
-scripts/
 .env.local
 .env.development
 .env.test
 
-# Backup files
-backups/
-*.backup
-*.save
-*.broken
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# SPA API (not needed for main deployment)
-spa-api/
+# Testing
+coverage
+.nyc_output
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env*.local
+
+# Backups
+*.backup
+*-backup.*
+*.bak
+backups/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Scripts (optional)
+scripts/test-*
+scripts/backup-*
 
 # Data files
+data/*.json
 data/exports/
+data/backups/
+
+# Cache
+.cache
+*.cache
 
 # Temporary files
-temp/
 tmp/
+temp/
 *.tmp
+*.temp
 
-# IDE files
+# IDE
 .vscode/
 .idea/
 
-# لا نتجاهل lib/generated لأن Vercel يحتاج لتوليدها
+# Reports (optional)
+reports/
