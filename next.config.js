@@ -26,7 +26,8 @@ const nextConfig = {
       'platform-lookaside.fbsbx.com',
       'pbs.twimg.com',
       'sabq-ai-cms.b-cdn.net',
-      'sabq-cdn.b-cdn.net'
+      'sabq-cdn.b-cdn.net',
+      'www2.0zz0.com'
     ],
     // تحسينات الصور
     formats: ['image/avif', 'image/webp'],
