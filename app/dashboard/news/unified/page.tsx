@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,6 +51,12 @@ export default function UnifiedNewsCreatePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [isAILoading, setIsAILoading] = useState(false);
+  
+  // حالة رسائل النجاح والخطأ
+  const [message, setMessage] = useState<{
+    type: 'success' | 'error' | null;
+    text: string;
+  }>({ type: null, text: '' });
   
   // تتبع اكتمال المقال
   const [completionScore, setCompletionScore] = useState(0);
@@ -180,27 +186,40 @@ export default function UnifiedNewsCreatePage() {
   
   // حفظ المقال
   const handleSave = async (status: 'draft' | 'published') => {
+    // مسح الرسائل السابقة
+    setMessage({ type: null, text: '' });
+    
     // التحقق من الحقول المطلوبة للنشر
     if (status === 'published') {
       if (!formData.title.trim()) {
-        toast.error('يرجى إدخال عنوان الخبر');
+        const errorMsg = 'يرجى إدخال عنوان الخبر';
+        toast.error(errorMsg);
+        setMessage({ type: 'error', text: errorMsg });
         return;
       }
       if (!formData.excerpt.trim()) {
-        toast.error('يرجى إدخال موجز الخبر');
+        const errorMsg = 'يرجى إدخال موجز الخبر';
+        toast.error(errorMsg);
+        setMessage({ type: 'error', text: errorMsg });
         return;
       }
       if (!formData.authorId) {
-        toast.error('يرجى اختيار المراسل');
+        const errorMsg = 'يرجى اختيار المراسل';
+        toast.error(errorMsg);
+        setMessage({ type: 'error', text: errorMsg });
         return;
       }
       if (!formData.categoryId) {
-        toast.error('يرجى اختيار التصنيف');
+        const errorMsg = 'يرجى اختيار التصنيف';
+        toast.error(errorMsg);
+        setMessage({ type: 'error', text: errorMsg });
         return;
       }
       const content = editorRef.current ? editorRef.current.getHTML() : formData.content;
       if (!content || content === '<p></p>') {
-        toast.error('يرجى كتابة محتوى الخبر');
+        const errorMsg = 'يرجى كتابة محتوى الخبر';
+        toast.error(errorMsg);
+        setMessage({ type: 'error', text: errorMsg });
         return;
       }
     }
@@ -215,7 +234,7 @@ export default function UnifiedNewsCreatePage() {
         subtitle: formData.subtitle,
         author_id: formData.authorId || null,
         category_id: formData.categoryId || null,
-        featured_image: formData.featuredImage,
+        featured_image: formData.featuredImage || null,
         is_featured: formData.isFeatured,
         is_breaking: formData.isBreaking,
         keywords: formData.keywords,
@@ -225,6 +244,11 @@ export default function UnifiedNewsCreatePage() {
         published_at: status === 'published' ? new Date().toISOString() : null,
         type: 'news' // تحديد النوع كخبر
       };
+      
+      console.log('Saving article with data:', {
+        ...articleData,
+        content: articleData.content.substring(0, 100) + '...' // عرض جزء من المحتوى فقط
+      });
       
       if (formData.publishType === 'scheduled' && formData.scheduledDate) {
         articleData.scheduled_for = formData.scheduledDate;
@@ -236,21 +260,42 @@ export default function UnifiedNewsCreatePage() {
         body: JSON.stringify(articleData)
       });
       
+      const data = await response.json();
+      console.log('Save response:', data); // للتشخيص
+      
       if (response.ok) {
-        const data = await response.json();
-        toast.success(status === 'published' ? 'تم نشر الخبر بنجاح' : 'تم حفظ المسودة');
+        const articleId = data.article?.id || data.id;
+        let successMessage = status === 'published' ? 'تم نشر الخبر بنجاح' : 'تم حفظ المسودة';
+        if (articleId) {
+          successMessage += ` (رقم الخبر: ${articleId})`;
+        }
         
-        // الانتقال إلى قائمة الأخبار
+        toast.success(successMessage);
+        setMessage({ type: 'success', text: successMessage });
+        
+        // مسح ذاكرة التخزين المؤقت للتأكد من ظهور الخبر
+        try {
+          await fetch('/api/cache/clear', { method: 'POST' });
+          console.log('Cache cleared successfully');
+        } catch (cacheError) {
+          console.error('Cache clear error:', cacheError);
+        }
+        
+        // الانتقال إلى قائمة الأخبار بعد فترة قصيرة
         setTimeout(() => {
           router.push('/dashboard/news');
-        }, 1500);
+        }, 2000);
       } else {
-        const data = await response.json();
-        toast.error(data.error || 'فشل في حفظ الخبر');
+        const errorMessage = data.error || 'فشل في حفظ الخبر';
+        console.error('Save error response:', data);
+        toast.error(errorMessage);
+        setMessage({ type: 'error', text: errorMessage });
       }
     } catch (error) {
       console.error('Save error:', error);
-      toast.error('حدث خطأ في حفظ الخبر');
+      const errorMessage = 'حدث خطأ في حفظ الخبر';
+      toast.error(errorMessage);
+      setMessage({ type: 'error', text: errorMessage });
     } finally {
       setSaving(false);
     }
@@ -357,8 +402,17 @@ export default function UnifiedNewsCreatePage() {
               size="sm"
               className="gap-2"
             >
-              <Save className="w-4 h-4" />
-              حفظ مسودة
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  جاري الحفظ...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  حفظ مسودة
+                </>
+              )}
             </Button>
             
             <Button
@@ -366,12 +420,43 @@ export default function UnifiedNewsCreatePage() {
               disabled={saving || completionScore < 60}
               className="gap-2 bg-green-600 hover:bg-green-700"
             >
-              <Send className="w-4 h-4" />
-              نشر الخبر
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  جاري النشر...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  نشر الخبر
+                </>
+              )}
             </Button>
           </div>
         </div>
       </div>
+      
+      {/* رسالة النجاح أو الخطأ */}
+      {message.type && (
+        <Alert className={cn(
+          "mb-4",
+          message.type === 'success' 
+            ? "border-green-200 bg-green-50 dark:bg-green-900/20" 
+            : "border-red-200 bg-red-50 dark:bg-red-900/20"
+        )}>
+          {message.type === 'success' ? (
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          ) : (
+            <AlertCircle className="h-4 w-4 text-red-600" />
+          )}
+          <AlertDescription className={cn(
+            "text-sm font-medium",
+            message.type === 'success' ? "text-green-800" : "text-red-800"
+          )}>
+            {message.text}
+          </AlertDescription>
+        </Alert>
+      )}
       
       {/* المحتوى الرئيسي */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -771,6 +856,31 @@ export default function UnifiedNewsCreatePage() {
           )}
         </div>
       </div>
+      
+      {/* Toaster للرسائل */}
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 5000,
+          style: {
+            background: darkMode ? '#1f2937' : '#fff',
+            color: darkMode ? '#f3f4f6' : '#1f2937',
+            border: darkMode ? '1px solid #374151' : '1px solid #e5e7eb',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     </div>
   );
 } 
