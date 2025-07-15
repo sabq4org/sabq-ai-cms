@@ -376,6 +376,8 @@ export async function POST(request: NextRequest) {
       author_name,
       status = 'draft',
       featured_image,
+      keywords,
+      seo_keywords,
       metadata = {}
     } = body
 
@@ -408,6 +410,7 @@ export async function POST(request: NextRequest) {
           aiEditor: (metadata as any)?.aiEditor || false,
           author_name: finalAuthorName // حفظ اسم المؤلف في metadata
         },
+        seo_keywords: keywords || seo_keywords || null, // حفظ الكلمات المفتاحية
         author_id: finalAuthorId, // استخدام معرف المؤلف النهائي
         slug: generateSlug(title),
         views: 0,
