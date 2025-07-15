@@ -140,6 +140,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'insights' | 'achievements' | 'timeline' | 'likes' | 'saved'>('overview');
   const [realStats, setRealStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   // منع تكرار الطلبات
   const fetchDataRef = useRef(false);
   const dataFetchedRef = useRef(false);
@@ -149,6 +150,43 @@ export default function ProfilePage() {
       checkAuth();
     }
   }, []);
+
+  useEffect(() => {
+    // تتبع الوضع المظلم
+    const checkDarkMode = () => {
+      setDarkMode(document.documentElement.classList.contains('dark'));
+    };
+    
+    checkDarkMode();
+    
+    // مراقبة تغييرات الوضع المظلم
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    // تتبع الوضع المظلم
+    const checkDarkMode = () => {
+      setDarkMode(document.documentElement.classList.contains('dark'));
+    };
+    
+    checkDarkMode();
+    
+    // مراقبة تغييرات الوضع المظلم
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     if (user && !dataFetchedRef.current) {
       dataFetchedRef.current = true;
@@ -1219,12 +1257,12 @@ export default function ProfilePage() {
           
           {/* تبويب الإعجابات */}
           {activeTab === 'likes' && user && (
-            <LikedArticles userId={user.id} darkMode={false} />
+            <LikedArticles userId={user.id} darkMode={darkMode} />
           )}
           
           {/* تبويب المحفوظات */}
           {activeTab === 'saved' && user && (
-            <SavedArticlesTab userId={user.id} darkMode={false} />
+            <SavedArticlesTab userId={user.id} darkMode={darkMode} />
           )}
           
           {/* رسالة التحميل للبيانات المتقدمة */}
