@@ -4,6 +4,7 @@
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
+  serverExternalPackages: ['prisma', '@prisma/client'],
   generateBuildId: async () => {
     // Custom build ID to force rebuild - Updated
     return 'v2-' + Date.now().toString()
@@ -43,8 +44,8 @@ const nextConfig = {
       'react-hot-toast',
       '@tanstack/react-query'
     ],
-    // إصلاح مشاكل HMR
-    serverComponentsExternalPackages: ['prisma', '@prisma/client'],
+    // إصلاح مشاكل HMR - تم نقل إلى serverExternalPackages
+    // serverComponentsExternalPackages: ['prisma', '@prisma/client'],
   },
   // منع حفظ الصور محلياً
   webpack: (config, { dev, isServer }) => {
@@ -75,7 +76,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
+        source: '/:path*\\.(svg|jpg|jpeg|png|gif|ico|webp|avif)',
         headers: [
           {
             key: 'Cache-Control',
