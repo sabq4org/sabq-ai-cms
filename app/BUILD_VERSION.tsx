@@ -2,7 +2,7 @@
 // Force Vercel Rebuild - v0.2.1
 // Last Updated: 2025-07-15
 
-export const BUILD_VERSION = '0.2.1';
+export const BUILD_VERSION = '0.2.2';
 export const BUILD_DATE = new Date().toISOString();
 export const BUILD_ID = `v2-${Date.now()}`;
 
