@@ -86,5 +86,5 @@
       "destination": "/api/sitemap"
     }
   ],
-  "regions": ["iad1", "lhr1", "sin1", "syd1"]
+  "regions": ["iad1", "lhr1", "sin1"]
 }
