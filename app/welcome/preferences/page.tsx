@@ -3,8 +3,14 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 import { Heart, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { 
+  normalizeUserInterests, 
+  mapInterestsToCategories, 
+  categorySlugToId,
+  getCategoryInfo 
+} from '@/lib/interests-mapping';
 interface Category {
   id: string;
   name: string;
@@ -36,13 +42,30 @@ export default function PreferencesPage() {
           if (response.ok) {
             const data = await response.json();
             if (data.success && data.categoryIds && data.categoryIds.length > 0) {
-              setSelectedCategoryIds(data.categoryIds);
-              console.log('تم تحميل الاهتمامات المحفوظة:', data.categoryIds, 'من:', data.source);
+              // تحويل IDs إلى slugs ثم تطبيق الـ mapping
+              const categoryIds = data.categoryIds.map((id: string) => {
+                // إذا كان ID رقمي، تحويله إلى slug
+                if (/^\d+$/.test(id)) {
+                  const categoryInfo = getCategoryInfo(id);
+                  return categoryInfo.id;
+                }
+                return id;
+              });
+              
+              // تطبيق التنظيف والـ mapping
+              const normalizedInterests = normalizeUserInterests(categoryIds);
+              const finalIds = normalizedInterests.map(slug => categorySlugToId(slug));
+              
+              setSelectedCategoryIds(finalIds);
+              console.log('تم تحميل وتحويل الاهتمامات المحفوظة:', finalIds);
             } else {
               // إذا لم نجد في قاعدة البيانات، نحاول من localStorage
               if (user.interests && Array.isArray(user.interests)) {
-                setSelectedCategoryIds(user.interests);
-                console.log('تم تحميل الاهتمامات من localStorage:', user.interests);
+                // تطبيق الـ mapping على الاهتمامات من localStorage
+                const normalizedInterests = normalizeUserInterests(user.interests);
+                const finalIds = normalizedInterests.map(slug => categorySlugToId(slug));
+                setSelectedCategoryIds(finalIds);
+                console.log('تم تحميل وتحويل الاهتمامات من localStorage:', finalIds);
               }
             }
           }
@@ -52,86 +75,94 @@ export default function PreferencesPage() {
       console.error('خطأ في تحميل الاهتمامات:', error);
     }
   };
-  // التصنيفات الافتراضية كـ fallback
+  
+  // خريطة ربط الاهتمامات المبسطة بالتصنيفات الفعلية
+  const interestMapping: { [key: string]: string } = {
+    'health': 'misc',      // الصحة -> منوعات
+    'travel': 'misc',      // السفر -> منوعات  
+    'entertainment': 'misc' // الترفيه -> منوعات
+  };
+
+  // التصنيفات الافتراضية مطابقة للنظام الفعلي
   const defaultCategories: Category[] = [
     {
       id: '1',
-      name: 'السياسة',
-      name_ar: 'السياسة',
-      slug: 'politics',
-      description: 'آخر الأخبار السياسية المحلية والدولية',
-      color: '#DC2626',
-      icon: '🏛️',
-      is_active: true
-    },
-    {
-      id: '2',
-      name: 'الاقتصاد',
-      name_ar: 'الاقتصاد',
-      slug: 'economy',
-      description: 'أخبار الأسواق والأعمال والاقتصاد',
-      color: '#10B981',
-      icon: '💰',
-      is_active: true
-    },
-    {
-      id: '3',
-      name: 'الرياضة',
-      name_ar: 'الرياضة',
-      slug: 'sports',
-      description: 'آخر أخبار الرياضة المحلية والعالمية',
-      color: '#3B82F6',
-      icon: '⚽',
-      is_active: true
-    },
-    {
-      id: '4',
-      name: 'التقنية',
-      name_ar: 'التقنية',
+      name: 'تقنية',
+      name_ar: 'تقنية',
       slug: 'technology',
-      description: 'أحدث التطورات التقنية والابتكارات',
+      description: 'أخبار وتطورات التقنية والذكاء الاصطناعي',
       color: '#8B5CF6',
       icon: '💻',
       is_active: true
     },
     {
+      id: '2',
+      name: 'رياضة',
+      name_ar: 'رياضة',
+      slug: 'sports',
+      description: 'أخبار رياضية محلية وعالمية',
+      color: '#F59E0B',
+      icon: '⚽',
+      is_active: true
+    },
+    {
+      id: '3',
+      name: 'اقتصاد',
+      name_ar: 'اقتصاد',
+      slug: 'economy',
+      description: 'تقارير السوق والمال والأعمال والطاقة',
+      color: '#10B981',
+      icon: '💰',
+      is_active: true
+    },
+    {
+      id: '4',
+      name: 'سياسة',
+      name_ar: 'سياسة',
+      slug: 'politics',
+      description: 'مستجدات السياسة المحلية والدولية وتحليلاتها',
+      color: '#EF4444',
+      icon: '🏛️',
+      is_active: true
+    },
+    {
       id: '5',
-      name: 'الصحة',
-      name_ar: 'الصحة',
-      slug: 'health',
-      description: 'نصائح صحية وأخبار طبية',
-      color: '#EC4899',
-      icon: '🏥',
+      name: 'محليات',
+      name_ar: 'محليات',
+      slug: 'local',
+      description: 'أخبار المناطق والمدن السعودية',
+      color: '#3B82F6',
+      icon: '🗺️',
       is_active: true
     },
     {
       id: '6',
-      name: 'الثقافة',
-      name_ar: 'الثقافة',
+      name: 'ثقافة ومجتمع',
+      name_ar: 'ثقافة ومجتمع',
       slug: 'culture',
-      description: 'الفنون والآداب والثقافة',
-      color: '#F59E0B',
+      description: 'فعاليات ثقافية، مناسبات، قضايا اجتماعية',
+      color: '#EC4899',
       icon: '🎭',
       is_active: true
     },
     {
       id: '7',
-      name: 'الترفيه',
-      name_ar: 'الترفيه',
-      slug: 'entertainment',
-      description: 'أخبار المشاهير والسينما والترفيه',
-      color: '#6366F1',
-      icon: '🎬',
+      name: 'مقالات رأي',
+      name_ar: 'مقالات رأي',
+      slug: 'opinion',
+      description: 'تحليلات ووجهات نظر كتاب الرأي',
+      color: '#7C3AED',
+      icon: '✍️',
       is_active: true
     },
     {
       id: '8',
-      name: 'السفر',
-      name_ar: 'السفر',
-      slug: 'travel',
-      description: 'وجهات سياحية ونصائح السفر',
-      color: '#06B6D4',
-      icon: '✈️',
+      name: 'منوعات',
+      name_ar: 'منوعات',
+      slug: 'misc',
+      description: 'أخبار خفيفة، صحة، سفر، ترفيه وأحداث متنوعة',
+      color: '#6B7280',
+      icon: '🎉',
       is_active: true
     }
   ];

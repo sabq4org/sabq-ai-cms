@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { 
+  normalizeUserInterests, 
+  mapInterestsToCategories, 
+  categorySlugToId 
+} from '@/lib/interests-mapping';
 
 // دالة مساعدة لإضافة CORS headers
 function addCorsHeaders(response: NextResponse): NextResponse {
@@ -50,15 +55,25 @@ export async function POST(request: NextRequest) {
       }, 400);
     }
 
+    // تطبيق نظام الـ mapping لتحويل الاهتمامات القديمة إلى تصنيفات فعلية
+    const normalizedInterests = normalizeUserInterests(categoryIds);
+    const finalCategoryIds = normalizedInterests.map(slug => categorySlugToId(slug));
+    
+    console.log('🔄 تحويل الاهتمامات:', {
+      original: categoryIds,
+      normalized: normalizedInterests,
+      final: finalCategoryIds
+    });
+
     // التحقق من عدد التصنيفات
-    if (categoryIds.length === 0) {
+    if (finalCategoryIds.length === 0) {
       return corsResponse({
         success: false,
         error: 'يجب اختيار تصنيف واحد على الأقل'
       }, 400);
     }
 
-    if (categoryIds.length > 10) {
+    if (finalCategoryIds.length > 10) {
       return corsResponse({
         success: false,
         error: 'لا يمكن اختيار أكثر من 10 تصنيفات'
@@ -95,7 +110,7 @@ export async function POST(request: NextRequest) {
 
       // حفظ أو تحديث التفضيلات في جدول user_preferences
       const preferenceData = {
-        interests: categoryIds,
+        interests: finalCategoryIds,
         interests_updated_at: new Date().toISOString(),
         interests_source: source
       };
@@ -121,7 +136,7 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      console.log('✅ تم حفظ تفضيلات المستخدم:', { userId, categoryIds });
+      console.log('✅ تم حفظ تفضيلات المستخدم:', { userId, finalCategoryIds });
 
       // حفظ نشاط في سجل النشاطات
       try {
@@ -131,8 +146,10 @@ export async function POST(request: NextRequest) {
             user_id: userId,
             action: 'update_preferences',
             metadata: {
-              categoryIds,
-              count: categoryIds.length,
+              originalCategories: categoryIds,
+              finalCategories: finalCategoryIds,
+              normalizedInterests: normalizedInterests,
+              count: finalCategoryIds.length,
               source
             },
             created_at: new Date()

@@ -11,10 +11,7 @@
   overflow: hidden;
 }
 
-.category-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
+/* تم إزالة تأثير hover */
 
 .category-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -92,9 +89,7 @@
   border-bottom: none;
 }
 
-.topic-item:hover {
-  background-color: #f9fafb;
-}
+/* تم إزالة تأثير hover للموضوعات */
 
 .topic-title {
   flex: 1;
@@ -159,9 +154,7 @@
   border-color: #374151;
 }
 
-.dark .topic-item:hover {
-  background-color: #374151;
-}
+/* تم إزالة تأثير hover للموضوعات في الوضع الداكن */
 
 .dark .topic-title {
   color: #d1d5db;
@@ -256,9 +249,7 @@
   transition: all 0.3s ease;
 }
 
-.article-card:hover {
-  transform: translateY(-4px);
-}
+/* تم إزالة تأثير hover للمقالات */
 
 /* دعم الوضع الداكن */
 @media (prefers-color-scheme: dark) {

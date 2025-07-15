@@ -460,14 +460,14 @@ export default function CategoriesPage() {
                         href={`/categories/${categorySlug}`}
                         className="group"
                       >
-                        <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl overflow-hidden transition-all duration-300 h-64">
+                        <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden h-64">
                           {/* Background Image */}
                           <div className="absolute inset-0">
                             <Image 
                               src={imageSrc} 
                               alt={category.name_ar}
                               fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-300"
+                              className="object-cover"
                               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
@@ -527,7 +527,7 @@ export default function CategoriesPage() {
                         href={`/categories/${categorySlug}`}
                         className="block"
                       >
-                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 p-6 transition-all duration-300">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                           <div className="flex items-center gap-4">
                             {/* Icon */}
                             <div className={`w-16 h-16 ${data.bgColor} rounded-xl flex items-center justify-center shadow-md`}>

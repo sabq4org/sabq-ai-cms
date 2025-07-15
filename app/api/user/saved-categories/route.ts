@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { 
+  normalizeUserInterests, 
+  categorySlugToId,
+  getCategoryInfo 
+} from '@/lib/interests-mapping';
 
 // دالة مساعدة لإضافة CORS headers
 function addCorsHeaders(response: NextResponse): NextResponse {
@@ -69,12 +74,24 @@ export async function GET(request: NextRequest) {
       const preferenceData = preference.value as any || {};
       const categoryIds = preferenceData.interests || [];
       
-      console.log('✅ تم العثور على التفضيلات في user_preferences:', categoryIds);
+      // تطبيق نظام الـ mapping لتحويل الاهتمامات القديمة
+      const normalizedInterests = normalizeUserInterests(categoryIds);
+      const finalCategoryIds = normalizedInterests.map(slug => categorySlugToId(slug));
+      
+      console.log('✅ تم العثور على التفضيلات وتحويلها:', {
+        original: categoryIds,
+        normalized: normalizedInterests,
+        final: finalCategoryIds
+      });
       
       return corsResponse({
         success: true,
-        categoryIds,
-        source: 'user_preferences'
+        categoryIds: finalCategoryIds,
+        source: 'user_preferences',
+        mapping: {
+          original: categoryIds,
+          normalized: normalizedInterests
+        }
       });
     }
 
