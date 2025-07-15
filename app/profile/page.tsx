@@ -11,6 +11,8 @@ import ReadingInsights from '@/components/profile/ReadingInsights';
 import AchievementBadges from '@/components/profile/AchievementBadges';
 import ReadingTimeline from '@/components/profile/ReadingTimeline';
 import SavedArticles from '@/components/profile/SavedArticles';
+import LikedArticles from '@/components/profile/LikedArticles';
+import SavedArticlesTab from '@/components/profile/SavedArticlesTab';
 import { Crown, Heart, 
   Edit2, X, Star, TrendingUp,
   Calendar, Activity, BookOpen, Share2, ChevronRight, Zap, Eye,
@@ -1216,109 +1218,13 @@ export default function ProfilePage() {
           )}
           
           {/* تبويب الإعجابات */}
-          {activeTab === 'likes' && (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {realStats?.likes > 0 ? (
-                <>
-                  <div className="col-span-full mb-4">
-                    <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-xl p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
-                            المقالات التي أعجبتك
-                          </h3>
-                          <p className="text-gray-600 dark:text-gray-400">
-                            لديك {realStats.likes} إعجاب بالمقالات
-                          </p>
-                        </div>
-                        <Heart className="w-12 h-12 text-red-500" />
-                      </div>
-                    </div>
-                  </div>
-                  {/* هنا يمكن إضافة قائمة المقالات المعجب بها */}
-                  <div className="col-span-full text-center py-8">
-                    <Link
-                      href="/profile/interactions?filter=likes"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
-                    >
-                      عرض جميع الإعجابات
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </>
-              ) : (
-                <div className="col-span-full">
-                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
-                    <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                      لم تعجب بأي مقال بعد
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
-                      ابدأ بقراءة المقالات وأعجب بما يعجبك
-                    </p>
-                    <Link
-                      href="/"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-                    >
-                      استكشف المقالات
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
+          {activeTab === 'likes' && user && (
+            <LikedArticles userId={user.id} darkMode={false} />
           )}
           
           {/* تبويب المحفوظات */}
-          {activeTab === 'saved' && (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {realStats?.saves > 0 ? (
-                <>
-                  <div className="col-span-full mb-4">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
-                            مقالاتك المحفوظة
-                          </h3>
-                          <p className="text-gray-600 dark:text-gray-400">
-                            لديك {realStats.saves} مقال محفوظ للقراءة لاحقاً
-                          </p>
-                        </div>
-                        <Bookmark className="w-12 h-12 text-blue-500" />
-                      </div>
-                    </div>
-                  </div>
-                  {/* هنا يمكن إضافة قائمة المقالات المحفوظة */}
-                  <div className="col-span-full text-center py-8">
-                    <Link
-                      href="/profile/saved"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-                    >
-                      عرض جميع المحفوظات
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </>
-              ) : (
-                <div className="col-span-full">
-                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
-                    <Bookmark className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                      لم تحفظ أي مقال بعد
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
-                      احفظ المقالات المهمة لقراءتها لاحقاً
-                    </p>
-                    <Link
-                      href="/"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-                    >
-                      استكشف المقالات
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
+          {activeTab === 'saved' && user && (
+            <SavedArticlesTab userId={user.id} darkMode={false} />
           )}
           
           {/* رسالة التحميل للبيانات المتقدمة */}

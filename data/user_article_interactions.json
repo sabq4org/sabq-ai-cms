@@ -4605,6 +4605,14 @@
       "timestamp": "2025-07-15T06:04:01.923Z",
       "source": "article_page",
       "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
+    },
+    {
+      "user_id": "0f107dd1-bfb7-4fac-b664-6587e6fc9a1e",
+      "article_id": "07c8827c-d64e-44c8-9aa3-471e395d909e",
+      "interaction_type": "view",
+      "timestamp": "2025-07-15T06:14:02.303Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
     }
   ]
 }

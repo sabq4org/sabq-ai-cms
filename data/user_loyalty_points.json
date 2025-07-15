@@ -694,5 +694,21 @@
         "timestamp": "2025-07-15T06:04:02.069Z"
       }
     ]
+  },
+  "0f107dd1-bfb7-4fac-b664-6587e6fc9a1e": {
+    "user_id": "0f107dd1-bfb7-4fac-b664-6587e6fc9a1e",
+    "total_points": 1,
+    "earned_points": 1,
+    "redeemed_points": 0,
+    "history": [
+      {
+        "points": 1,
+        "action": "view على المقال",
+        "details": {
+          "article_id": "07c8827c-d64e-44c8-9aa3-471e395d909e"
+        },
+        "timestamp": "2025-07-15T06:14:02.583Z"
+      }
+    ]
   }
 }

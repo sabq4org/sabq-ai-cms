@@ -178,15 +178,28 @@ export default function PreferencesPage() {
     fetchUserInterests();
   }, []);
   const handleCategoryToggle = (categoryId: string) => {
-    setSelectedCategoryIds(prev => 
-      prev.includes(categoryId) 
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    );
+    setSelectedCategoryIds(prev => {
+      if (prev.includes(categoryId)) {
+        // إزالة التصنيف
+        return prev.filter(id => id !== categoryId);
+      } else {
+        // إضافة التصنيف مع التحقق من الحد الأقصى
+        if (prev.length >= 10) {
+          toast.error('لا يمكن اختيار أكثر من 10 تصنيفات');
+          return prev;
+        }
+        return [...prev, categoryId];
+      }
+    });
   };
   const handleSubmit = async () => {
     if (selectedCategoryIds.length < 1) {
       toast.error('اختر اهتماماً واحداً على الأقل');
+      return;
+    }
+    
+    if (selectedCategoryIds.length > 10) {
+      toast.error('لا يمكن اختيار أكثر من 10 تصنيفات');
       return;
     }
     setLoading(true);
@@ -368,8 +381,13 @@ export default function PreferencesPage() {
             <p className="text-sm text-gray-500">
               {selectedCategoryIds.length === 0 
                 ? 'لم تختر أي تصنيف بعد' 
-                : `اخترت ${selectedCategoryIds.length} من ${categories.length} تصنيف`}
+                : `اخترت ${selectedCategoryIds.filter(id => categories.some(cat => cat.id === id)).length} من ${categories.length} تصنيف`}
             </p>
+            {selectedCategoryIds.length > 0 && (
+              <p className="text-xs text-blue-600 mt-1">
+                الحد الأقصى: 10 تصنيفات
+              </p>
+            )}
           </div>
           <div className="flex gap-4 justify-center">
             <button
