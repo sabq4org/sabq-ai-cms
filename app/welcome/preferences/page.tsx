@@ -25,6 +25,7 @@ export default function PreferencesPage() {
   const [loading, setLoading] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [hasExistingInterests, setHasExistingInterests] = useState(false);
 
 
 
@@ -36,6 +37,36 @@ export default function PreferencesPage() {
       setUser(parsedUser);
     }
   }, []);
+
+  // جلب الاهتمامات المحفوظة سابقاً عند تحميل الصفحة
+  useEffect(() => {
+    const fetchSavedInterests = async () => {
+      if (!user?.id) return;
+      
+      try {
+        console.log('🔍 جلب الاهتمامات المحفوظة للمستخدم:', user.id);
+        
+        const response = await fetch(`/api/user/saved-categories?userId=${user.id}`);
+        const result = await response.json();
+        
+        if (result.success && result.categoryIds && result.categoryIds.length > 0) {
+          console.log('✅ تم جلب الاهتمامات المحفوظة:', result.categoryIds);
+          setSelectedCategoryIds(result.categoryIds);
+          setHasExistingInterests(true);
+          toast.success(`تم تحميل ${result.categoryIds.length} اهتمام محفوظ مسبقاً`);
+        } else {
+          console.log('ℹ️ لا توجد اهتمامات محفوظة مسبقاً');
+          setHasExistingInterests(false);
+        }
+        
+      } catch (error) {
+        console.error('خطأ في جلب الاهتمامات المحفوظة:', error);
+        // لا نظهر رسالة خطأ هنا لأنه قد يكون المستخدم جديد
+      }
+    };
+
+    fetchSavedInterests();
+  }, [user]);
 
   // جلب التصنيفات من API أو ملف JSON
   useEffect(() => {
@@ -164,7 +195,7 @@ export default function PreferencesPage() {
         }
       }
 
-      toast.success('تم حفظ اهتماماتك بنجاح! 🎉');
+      toast.success(hasExistingInterests ? 'تم تحديث اهتماماتك بنجاح! ✨' : 'تم حفظ اهتماماتك بنجاح! 🎉');
       
       // انتظار ثانية ثم التوجيه لصفحة التجربة المخصصة
       setTimeout(() => {
@@ -207,14 +238,32 @@ export default function PreferencesPage() {
               </div>
               
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                اختر اهتماماتك
+                {hasExistingInterests ? 'عدّل اهتماماتك' : 'اختر اهتماماتك'}
               </h1>
               
               <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
-                اختر من <span className="font-bold text-blue-600">{categories.length}</span> تصنيفات لنقدم لك محتوى مخصص يناسب اهتماماتك
-                <br />
-                <span className="text-lg text-gray-500">يمكنك اختيار من 3 إلى {Math.min(10, categories.length)} تصنيفات</span>
+                {hasExistingInterests ? (
+                  <>
+                    عدّل اهتماماتك من <span className="font-bold text-blue-600">{categories.length}</span> تصنيف متاح
+                    <br />
+                    <span className="text-lg text-gray-500">يمكنك اختيار من 3 إلى {Math.min(10, categories.length)} تصنيفات</span>
+                  </>
+                ) : (
+                  <>
+                    اختر من <span className="font-bold text-blue-600">{categories.length}</span> تصنيفات لنقدم لك محتوى مخصص يناسب اهتماماتك
+                    <br />
+                    <span className="text-lg text-gray-500">يمكنك اختيار من 3 إلى {Math.min(10, categories.length)} تصنيفات</span>
+                  </>
+                )}
               </p>
+              
+              {/* ملاحظة الاهتمامات المحفوظة مسبقاً */}
+              {hasExistingInterests && (
+                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm">
+                  <span className="w-2 h-2 bg-green-600 rounded-full"></span>
+                  تم تحميل اختياراتك السابقة - يمكنك تعديلها الآن
+                </div>
+              )}
             </div>
 
             {/* شبكة التصنيفات */}
@@ -331,11 +380,11 @@ export default function PreferencesPage() {
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    جاري الحفظ...
+                    {hasExistingInterests ? 'جاري التحديث...' : 'جاري الحفظ...'}
                   </>
                 ) : (
                   <>
-                    احفظ اهتماماتي
+                    {hasExistingInterests ? 'تحديث اهتماماتي' : 'احفظ اهتماماتي'}
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}
