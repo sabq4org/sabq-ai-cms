@@ -128,11 +128,14 @@ function MobileFooter() {
             <a href="/about" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600">
               من نحن
             </a>
-            <a href="/contact" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600">
-              اتصل بنا
+            <a href="/user-guide" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600">
+              دليل المستخدم
             </a>
-            <a href="/privacy" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600">
+            <a href="/privacy-policy" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600">
               الخصوصية
+            </a>
+            <a href="/terms-of-use" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600">
+              الشروط
             </a>
           </div>
           

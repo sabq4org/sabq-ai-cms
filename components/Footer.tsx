@@ -25,9 +25,9 @@ export default function Footer() {
       links: [
         { label: 'من نحن', url: '/about' },
         { label: 'سياسة الخصوصية', url: '/privacy-policy' },
-        { label: 'شروط الاستخدام', url: '/terms' },
+        { label: 'شروط الاستخدام', url: '/terms-of-use' },
+        { label: 'دليل المستخدم', url: '/user-guide' },
         { label: 'اتصل بنا', url: '/contact' },
-        { label: 'وظائف', url: '/jobs' },
       ],
     },
     {

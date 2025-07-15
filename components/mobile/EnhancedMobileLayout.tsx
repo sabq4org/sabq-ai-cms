@@ -39,9 +39,9 @@ export default function EnhancedMobileLayout({
           <div className="footer-content">
             <div className="footer-links">
               <a href="/about" className="footer-link">حول سبق</a>
-              <a href="/contact" className="footer-link">اتصل بنا</a>
-              <a href="/privacy" className="footer-link">سياسة الخصوصية</a>
-              <a href="/terms" className="footer-link">شروط الاستخدام</a>
+              <a href="/user-guide" className="footer-link">دليل المستخدم</a>
+              <a href="/privacy-policy" className="footer-link">سياسة الخصوصية</a>
+              <a href="/terms-of-use" className="footer-link">شروط الاستخدام</a>
             </div>
             <div className="footer-copyright">
               <p>© 2024 صحيفة سبق الإلكترونية. جميع الحقوق محفوظة.</p>
