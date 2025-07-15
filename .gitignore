@@ -42,6 +42,7 @@ production.env
 
 # vercel
 .vercel
+vercel-deploy-trigger-*.txt
 
 # digitalocean
 .do/deploy.template.yaml
