@@ -17,8 +17,7 @@ import {
   Save, Send, Eye, Clock, Image as ImageIcon, Upload, X, 
   Tag, User, Calendar, AlertCircle, CheckCircle, Loader2,
   Sparkles, FileText, Settings, Search, Plus, Trash2,
-  Globe, TrendingUp, BookOpen, ChevronRight, Home, Zap,
-  Star, CheckSquare
+  Globe, TrendingUp, BookOpen, ChevronRight, Home, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -41,7 +40,7 @@ interface Author {
   role?: string;
 }
 
-export default function UnifiedNewsCreatePageEnhanced() {
+export default function UnifiedNewsCreatePage() {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
   const editorRef = useRef<any>(null);
@@ -106,54 +105,78 @@ export default function UnifiedNewsCreatePageEnhanced() {
     calculateCompletion();
   }, [formData, calculateCompletion]);
   
-  // جلب البيانات الأولية
+  // تحميل البيانات الأساسية
   useEffect(() => {
-    fetchInitialData();
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        
+        // تحميل بيانات متوازية
+        const [categoriesRes, authorsRes] = await Promise.all([
+          fetch('/api/categories?active=true'),
+          fetch('/api/team-members')
+        ]);
+        
+        // معالجة التصنيفات
+        if (categoriesRes.ok) {
+          const data = await categoriesRes.json();
+          const categoriesData = data.data || data.categories || [];
+          setCategories(categoriesData);
+          
+          if (categoriesData.length === 0) {
+            toast('لا توجد تصنيفات متاحة', { icon: '⚠️' });
+          }
+        } else {
+          toast.error('فشل في تحميل التصنيفات');
+        }
+        
+        // معالجة المؤلفين
+        if (authorsRes.ok) {
+          const data = await authorsRes.json();
+          const authorsData = data.data || data.members || [];
+          setAuthors(authorsData);
+          
+          if (authorsData.length === 0) {
+            toast('لا يوجد مراسلين متاحين', { icon: '⚠️' });
+          }
+        } else {
+          toast.error('فشل في تحميل قائمة المراسلين');
+        }
+        
+      } catch (error) {
+        console.error('Error loading data:', error);
+        toast.error('حدث خطأ في تحميل البيانات');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
   }, []);
-  
-  const fetchInitialData = async () => {
-    try {
-      const [categoriesRes, authorsRes] = await Promise.all([
-        fetch('/api/categories'),
-        fetch('/api/team-members')
-      ]);
-      
-      const [categoriesData, authorsData] = await Promise.all([
-        categoriesRes.json(),
-        authorsRes.json()
-      ]);
-      
-      setCategories(categoriesData.data || categoriesData.categories || []);
-      setAuthors(authorsData.data || authorsData.members || []);
-    } catch (error) {
-      console.error('Error fetching initial data:', error);
-      toast.error('حدث خطأ في تحميل البيانات');
-    } finally {
-      setLoading(false);
-    }
-  };
   
   // رفع الصورة
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    const formData = new FormData();
-    formData.append('file', file);
+    const formDataUpload = new FormData();
+    formDataUpload.append('file', file);
     
     try {
       toast.loading('جاري رفع الصورة...', { id: 'upload' });
-      const response = await fetch('/api/upload-image', {
+      
+      const response = await fetch('/api/upload', {
         method: 'POST',
-        body: formData
+        body: formDataUpload
       });
       
       const data = await response.json();
-      if (data.url) {
+      
+      if (response.ok) {
         setFormData(prev => ({ ...prev, featuredImage: data.url }));
         toast.success('تم رفع الصورة بنجاح', { id: 'upload' });
       } else {
-        toast.error('فشل رفع الصورة', { id: 'upload' });
+        toast.error(data.error || 'فشل في رفع الصورة', { id: 'upload' });
       }
     } catch (error) {
       console.error('Upload error:', error);
@@ -215,13 +238,17 @@ export default function UnifiedNewsCreatePageEnhanced() {
         is_featured: formData.isFeatured,
         is_breaking: formData.isBreaking,
         keywords: formData.keywords,
-        seo_keywords: formData.keywords.join(', '),
         seo_title: formData.seoTitle || formData.title,
         seo_description: formData.seoDescription || formData.excerpt,
         status,
         published_at: status === 'published' ? new Date().toISOString() : null,
-        type: 'news'
+        type: 'news' // تحديد النوع كخبر
       };
+      
+      console.log('Saving article with data:', {
+        ...articleData,
+        content: articleData.content.substring(0, 100) + '...' // عرض جزء من المحتوى فقط
+      });
       
       if (formData.publishType === 'scheduled' && formData.scheduledDate) {
         articleData.scheduled_for = formData.scheduledDate;
@@ -234,6 +261,7 @@ export default function UnifiedNewsCreatePageEnhanced() {
       });
       
       const data = await response.json();
+      console.log('Save response:', data); // للتشخيص
       
       if (response.ok) {
         const articleId = data.article?.id || data.id;
@@ -245,19 +273,21 @@ export default function UnifiedNewsCreatePageEnhanced() {
         toast.success(successMessage);
         setMessage({ type: 'success', text: successMessage });
         
-        // مسح ذاكرة التخزين المؤقت
+        // مسح ذاكرة التخزين المؤقت للتأكد من ظهور الخبر
         try {
           await fetch('/api/cache/clear', { method: 'POST' });
+          console.log('Cache cleared successfully');
         } catch (cacheError) {
           console.error('Cache clear error:', cacheError);
         }
         
-        // الانتقال إلى قائمة الأخبار
+        // الانتقال إلى قائمة الأخبار بعد فترة قصيرة
         setTimeout(() => {
           router.push('/dashboard/news');
         }, 2000);
       } else {
         const errorMessage = data.error || 'فشل في حفظ الخبر';
+        console.error('Save error response:', data);
         toast.error(errorMessage);
         setMessage({ type: 'error', text: errorMessage });
       }
@@ -325,71 +355,6 @@ export default function UnifiedNewsCreatePageEnhanced() {
     }
   };
   
-  // مكون أزرار النشر القابل لإعادة الاستخدام
-  const PublishButtons = ({ position = 'top' }: { position?: 'top' | 'bottom' }) => (
-    <div className="flex gap-3">
-      <Button
-        onClick={() => handleSave('draft')}
-        disabled={saving}
-        variant="outline"
-        size={position === 'bottom' ? 'default' : 'sm'}
-        className={cn(
-          "gap-2",
-          darkMode ? "bg-gray-700 hover:bg-gray-600 text-white border-gray-600" : "bg-white hover:bg-gray-50"
-        )}
-      >
-        {saving ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            جاري الحفظ...
-          </>
-        ) : (
-          <>
-            <Save className="w-4 h-4" />
-            حفظ مسودة
-          </>
-        )}
-      </Button>
-      
-      <Button
-        onClick={() => {}}
-        disabled={saving}
-        variant="outline"
-        size={position === 'bottom' ? 'default' : 'sm'}
-        className={cn(
-          "gap-2",
-          darkMode ? "bg-blue-700 hover:bg-blue-600 text-white border-blue-600" : "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
-        )}
-      >
-        <CheckSquare className="w-4 h-4" />
-        طلب مراجعة
-      </Button>
-      
-      <Button
-        onClick={() => handleSave('published')}
-        disabled={saving || completionScore < 60}
-        size={position === 'bottom' ? 'default' : 'sm'}
-        className={cn(
-          "gap-2",
-          darkMode ? "bg-green-700 hover:bg-green-600" : "bg-green-600 hover:bg-green-700",
-          "text-white"
-        )}
-      >
-        {saving ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            جاري النشر...
-          </>
-        ) : (
-          <>
-            <Send className="w-4 h-4" />
-            نشر فوري
-          </>
-        )}
-      </Button>
-    </div>
-  );
-  
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -422,13 +387,52 @@ export default function UnifiedNewsCreatePageEnhanced() {
           <h1 className="text-2xl font-bold">خبر جديد</h1>
         </div>
         
+        {/* شريط التقدم */}
         <div className="flex items-center gap-4">
           <div className="w-32">
             <Progress value={completionScore} className="h-2" />
             <p className="text-xs text-gray-500 mt-1">{completionScore}% مكتمل</p>
           </div>
           
-          <PublishButtons position="top" />
+          <div className="flex gap-2">
+            <Button
+              onClick={() => handleSave('draft')}
+              disabled={saving}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  جاري الحفظ...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  حفظ مسودة
+                </>
+              )}
+            </Button>
+            
+            <Button
+              onClick={() => handleSave('published')}
+              disabled={saving || completionScore < 60}
+              className="gap-2 bg-green-600 hover:bg-green-700"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  جاري النشر...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  نشر الخبر
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
       
@@ -595,76 +599,13 @@ export default function UnifiedNewsCreatePageEnhanced() {
               </div>
             </CardContent>
           </Card>
-          
-          {/* أزرار النشر في الأسفل */}
-          <div className="flex justify-center pt-6 pb-4">
-            <PublishButtons position="bottom" />
-          </div>
         </div>
         
         {/* القسم الجانبي (25%) */}
         <div className="space-y-4">
-          {/* نوع الخبر */}
-          <Card className={cn(
-            "shadow-sm",
-            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-blue-50 border-blue-200'
-          )}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">نوع الخبر</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <label className={cn(
-                "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
-                formData.isBreaking
-                  ? darkMode ? "bg-red-900/50 border-2 border-red-500" : "bg-red-100 border-2 border-red-500"
-                  : darkMode ? "bg-gray-700 hover:bg-gray-600 border-2 border-transparent" : "bg-white hover:bg-gray-50 border-2 border-gray-200"
-              )}>
-                <input
-                  type="checkbox"
-                  checked={formData.isBreaking}
-                  onChange={(e) => setFormData(prev => ({ ...prev, isBreaking: e.target.checked }))}
-                  className="sr-only"
-                />
-                <Zap className={cn(
-                  "w-5 h-5",
-                  formData.isBreaking ? "text-red-500" : "text-gray-400"
-                )} />
-                <span className={cn(
-                  "font-medium",
-                  formData.isBreaking ? "text-red-700 dark:text-red-300" : ""
-                )}>خبر عاجل</span>
-              </label>
-              
-              <label className={cn(
-                "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
-                formData.isFeatured
-                  ? darkMode ? "bg-yellow-900/50 border-2 border-yellow-500" : "bg-yellow-100 border-2 border-yellow-500"
-                  : darkMode ? "bg-gray-700 hover:bg-gray-600 border-2 border-transparent" : "bg-white hover:bg-gray-50 border-2 border-gray-200"
-              )}>
-                <input
-                  type="checkbox"
-                  checked={formData.isFeatured}
-                  onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
-                  className="sr-only"
-                />
-                <Star className={cn(
-                  "w-5 h-5",
-                  formData.isFeatured ? "text-yellow-500" : "text-gray-400"
-                )} />
-                <span className={cn(
-                  "font-medium",
-                  formData.isFeatured ? "text-yellow-700 dark:text-yellow-300" : ""
-                )}>خبر مميز</span>
-              </label>
-            </CardContent>
-          </Card>
-          
           {/* معلومات أساسية */}
-          <Card className={cn(
-            "shadow-sm",
-            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
-          )}>
-            <CardHeader className="pb-3">
+          <Card className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+            <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <Settings className="w-4 h-4" />
                 الإعدادات
@@ -682,7 +623,7 @@ export default function UnifiedNewsCreatePageEnhanced() {
                   value={formData.authorId}
                   onChange={(e) => setFormData(prev => ({ ...prev, authorId: e.target.value }))}
                   className={cn(
-                    "w-full p-2 rounded-md text-sm border",
+                    "w-full p-2 rounded-md text-sm",
                     darkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"
                   )}
                 >
@@ -693,6 +634,9 @@ export default function UnifiedNewsCreatePageEnhanced() {
                     </option>
                   ))}
                 </select>
+                {authors.length === 0 && (
+                  <p className="text-xs text-red-500 mt-1">لا يوجد مراسلين متاحين</p>
+                )}
               </div>
               
               {/* التصنيف */}
@@ -706,7 +650,7 @@ export default function UnifiedNewsCreatePageEnhanced() {
                   value={formData.categoryId}
                   onChange={(e) => setFormData(prev => ({ ...prev, categoryId: e.target.value }))}
                   className={cn(
-                    "w-full p-2 rounded-md text-sm border",
+                    "w-full p-2 rounded-md text-sm",
                     darkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-300"
                   )}
                 >
@@ -717,92 +661,44 @@ export default function UnifiedNewsCreatePageEnhanced() {
                     </option>
                   ))}
                 </select>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* طريقة النشر */}
-          <Card className={cn(
-            "shadow-sm",
-            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-green-50 border-green-200'
-          )}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                طريقة النشر
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <label className={cn(
-                  "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
-                  formData.publishType === 'now'
-                    ? darkMode ? "bg-green-900/50 border-2 border-green-500" : "bg-green-100 border-2 border-green-500"
-                    : darkMode ? "bg-gray-700 hover:bg-gray-600 border-2 border-transparent" : "bg-white hover:bg-gray-50 border-2 border-gray-200"
-                )}>
-                  <input
-                    type="radio"
-                    name="publish-type"
-                    value="now"
-                    checked={formData.publishType === 'now'}
-                    onChange={() => setFormData(prev => ({ ...prev, publishType: 'now' }))}
-                    className="text-green-600"
-                  />
-                  <CheckCircle className={cn(
-                    "w-5 h-5",
-                    formData.publishType === 'now' ? "text-green-600" : "text-gray-400"
-                  )} />
-                  <span className="font-medium">نشر فوري</span>
-                </label>
-                
-                <label className={cn(
-                  "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
-                  formData.publishType === 'scheduled'
-                    ? darkMode ? "bg-blue-900/50 border-2 border-blue-500" : "bg-blue-100 border-2 border-blue-500"
-                    : darkMode ? "bg-gray-700 hover:bg-gray-600 border-2 border-transparent" : "bg-white hover:bg-gray-50 border-2 border-gray-200"
-                )}>
-                  <input
-                    type="radio"
-                    name="publish-type"
-                    value="scheduled"
-                    checked={formData.publishType === 'scheduled'}
-                    onChange={() => setFormData(prev => ({ ...prev, publishType: 'scheduled' }))}
-                    className="text-blue-600"
-                  />
-                  <Clock className={cn(
-                    "w-5 h-5",
-                    formData.publishType === 'scheduled' ? "text-blue-600" : "text-gray-400"
-                  )} />
-                  <span className="font-medium">مجدول</span>
-                </label>
-                
-                {formData.publishType === 'scheduled' && (
-                  <div className="mt-3">
-                    <Label htmlFor="scheduled-date" className="text-sm mb-2">
-                      التاريخ والوقت
-                    </Label>
-                    <Input
-                      id="scheduled-date"
-                      type="datetime-local"
-                      value={formData.scheduledDate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, scheduledDate: e.target.value }))}
-                      className={cn(
-                        "text-sm",
-                        darkMode ? "bg-gray-700 border-gray-600" : ""
-                      )}
-                    />
-                  </div>
+                {categories.length === 0 && (
+                  <p className="text-xs text-red-500 mt-1">لا توجد تصنيفات متاحة</p>
                 )}
+              </div>
+              
+              {/* حالة الخبر */}
+              <div>
+                <Label className="text-sm mb-2">الحالة</Label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.isBreaking}
+                      onChange={(e) => setFormData(prev => ({ ...prev, isBreaking: e.target.checked }))}
+                      className="rounded"
+                    />
+                    <span className="text-sm flex items-center gap-1">
+                      <Zap className="w-3 h-3 text-red-500" />
+                      خبر عاجل
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.isFeatured}
+                      onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
+                      className="rounded"
+                    />
+                    <span className="text-sm">خبر مميز</span>
+                  </label>
+                </div>
               </div>
             </CardContent>
           </Card>
           
           {/* الكلمات المفتاحية */}
-          <Card className={cn(
-            "shadow-sm",
-            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-purple-50 border-purple-200'
-          )}>
-            <CardHeader className="pb-3">
+          <Card className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+            <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <Tag className="w-4 h-4" />
                 الكلمات المفتاحية
@@ -834,17 +730,7 @@ export default function UnifiedNewsCreatePageEnhanced() {
                       darkMode ? "bg-gray-700 border-gray-600" : ""
                     )}
                   />
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => {
-                      const input = document.querySelector('input[placeholder="أضف كلمة..."]') as HTMLInputElement;
-                      if (input.value) {
-                        addKeyword(input.value);
-                        input.value = '';
-                      }
-                    }}
-                  >
+                  <Button size="sm" variant="outline">
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -868,11 +754,8 @@ export default function UnifiedNewsCreatePageEnhanced() {
           </Card>
           
           {/* SEO */}
-          <Card className={cn(
-            "shadow-sm",
-            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-orange-50 border-orange-200'
-          )}>
-            <CardHeader className="pb-3">
+          <Card className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+            <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <Search className="w-4 h-4" />
                 تحسين محركات البحث
@@ -909,6 +792,55 @@ export default function UnifiedNewsCreatePageEnhanced() {
                     darkMode ? "bg-gray-700 border-gray-600" : ""
                   )}
                 />
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* الجدولة */}
+          <Card className={darkMode ? 'bg-gray-800 border-gray-700' : ''}>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                النشر
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="publish-type"
+                      value="now"
+                      checked={formData.publishType === 'now'}
+                      onChange={(e) => setFormData(prev => ({ ...prev, publishType: 'now' }))}
+                    />
+                    <span className="text-sm">نشر فوري</span>
+                  </label>
+                </div>
+                <div>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="publish-type"
+                      value="scheduled"
+                      checked={formData.publishType === 'scheduled'}
+                      onChange={(e) => setFormData(prev => ({ ...prev, publishType: 'scheduled' }))}
+                    />
+                    <span className="text-sm">جدولة</span>
+                  </label>
+                </div>
+                {formData.publishType === 'scheduled' && (
+                  <Input
+                    type="datetime-local"
+                    value={formData.scheduledDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, scheduledDate: e.target.value }))}
+                    className={cn(
+                      "text-sm",
+                      darkMode ? "bg-gray-700 border-gray-600" : ""
+                    )}
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
