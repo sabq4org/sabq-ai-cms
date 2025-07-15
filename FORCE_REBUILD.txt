@@ -1,0 +1,6 @@
+FORCE VERCEL REBUILD
+Version: 0.2.0
+Date: 2025-01-16T19:00:00Z
+Method: Pull Request
+
+This file forces a rebuild through PR merge. 
