@@ -343,6 +343,9 @@ export async function GET(request: NextRequest) {
     console.log(`⏱️ إجمالي وقت معالجة الطلب: ${duration.toFixed(2)}ms`);
     
     // حفظ البيانات في Redis للطلبات المستقبلية
+    // استخدام مدة كاش ذكية: دقيقة واحدة للأخبار العادية
+    // للأخبار العاجلة: استخدم 30 ثانية فقط
+    // TODO: تطبيق نظام الكاش الذكي من lib/cache-config.ts
     await cache.set(cacheKey, responseData, CACHE_TTL.ARTICLES)
     
     return corsResponse(responseData, 200)
