@@ -231,7 +231,7 @@ export default function ProfilePage() {
         fetch('/api/categories').then(res => res.ok ? res.json() : null).catch(() => null),
         // الاهتمامات - للمستخدمين المسجلين فقط
         (!user.id.startsWith('guest-') ? 
-          fetch(`/api/user/saved-categories?userId=${user.id}`, {
+          fetch(`/api/user/interests?userId=${user.id}`, {
             signal: createTimeoutSignal(3000)
           }).then(res => res.ok ? res.json() : null).catch(() => null) 
           : Promise.resolve(null)),
@@ -261,10 +261,24 @@ export default function ProfilePage() {
         userPreferences: user.preferences,
         userInterests: user.interests
       });
-      // 1. أولاً جرب من API الاهتمامات
-      if (interestsResult.status === 'fulfilled' && interestsResult.value?.success && interestsResult.value?.categoryIds?.length > 0) {
-        userCategoryIds = interestsResult.value.categoryIds;
-        console.log('✅ تم جلب الاهتمامات من API:', userCategoryIds);
+      // 1. أولاً جرب من API الاهتمامات الجديد
+      if (interestsResult.status === 'fulfilled' && interestsResult.value?.success && interestsResult.value?.data?.categoryIds?.length > 0) {
+        const categoryIds = interestsResult.value.data.categoryIds;
+        userCategoryIds = categoryIds.map((id: any) => String(id)); // تحويل إلى string للتوافق
+        console.log('✅ تم جلب الاهتمامات من API الجديد:', userCategoryIds);
+        
+        // إذا كانت هناك بيانات تصنيفات جاهزة من API، استخدمها مباشرة
+        if (interestsResult.value.data.categories && Array.isArray(interestsResult.value.data.categories)) {
+          const userCategories = interestsResult.value.data.categories.map((cat: any) => ({
+            category_id: String(cat.id),
+            category_name: cat.name_ar || cat.name,
+            category_icon: cat.icon || '📌',
+            category_color: cat.color_hex || cat.color || '#6B7280'
+          }));
+          console.log('✅ تم استخدام بيانات التصنيفات الجاهزة من API:', userCategories);
+          setPreferences(userCategories);
+          return; // انتهى، لا نحتاج لمعالجة إضافية
+        }
       }
       // 2. إذا لم نجد، جرب من localStorage preferences
       else if (user.preferences && user.preferences.length > 0) {

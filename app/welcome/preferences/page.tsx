@@ -1,248 +1,110 @@
 'use client';
 
-import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-hot-toast';
-import { Heart, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import { 
-  normalizeUserInterests, 
-  mapInterestsToCategories, 
-  categorySlugToId,
-  getCategoryInfo 
-} from '@/lib/interests-mapping';
+import toast from 'react-hot-toast';
+import Header from '@/components/Header';
+import { Settings, ArrowRight, Check } from 'lucide-react';
+
 interface Category {
-  id: string;
-  name: string;
-  name_ar?: string;
-  name_en?: string;
-  slug: string;
+  id: number;
+  name_ar: string;
+  name_en: string;
   description: string;
-  color: string;
+  slug: string;
+  color_hex: string;
   icon: string;
+  position: number;
   is_active: boolean;
 }
+
 export default function PreferencesPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  // جلب الاهتمامات المحفوظة للمستخدم
-  const fetchUserInterests = async () => {
-    try {
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        const user = JSON.parse(userData);
-        const userId = user.id;
-        if (userId) {
-          // جلب التصنيفات المحفوظة من قاعدة البيانات
-          const response = await fetch(`/api/user/saved-categories?userId=${userId}`);
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.categoryIds && data.categoryIds.length > 0) {
-              // تحويل IDs إلى slugs ثم تطبيق الـ mapping
-              const categoryIds = data.categoryIds.map((id: string) => {
-                // إذا كان ID رقمي، تحويله إلى slug
-                if (/^\d+$/.test(id)) {
-                  const categoryInfo = getCategoryInfo(id);
-                  return categoryInfo.id;
-                }
-                return id;
-              });
-              
-              // تطبيق التنظيف والـ mapping
-              const normalizedInterests = normalizeUserInterests(categoryIds);
-              const finalIds = normalizedInterests.map(slug => categorySlugToId(slug));
-              
-              setSelectedCategoryIds(finalIds);
-              console.log('تم تحميل وتحويل الاهتمامات المحفوظة:', finalIds);
-            } else {
-              // إذا لم نجد في قاعدة البيانات، نحاول من localStorage
-              if (user.interests && Array.isArray(user.interests)) {
-                // تطبيق الـ mapping على الاهتمامات من localStorage
-                const normalizedInterests = normalizeUserInterests(user.interests);
-                const finalIds = normalizedInterests.map(slug => categorySlugToId(slug));
-                setSelectedCategoryIds(finalIds);
-                console.log('تم تحميل وتحويل الاهتمامات من localStorage:', finalIds);
-              }
-            }
+  const [user, setUser] = useState<any>(null);
+
+  // جلب المستخدم الحالي
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+    }
+  }, []);
+
+  // جلب التصنيفات من API أو ملف JSON
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        
+        // محاولة جلب من API أولاً
+        let response = await fetch('/api/categories');
+        let result;
+        
+        if (response.ok) {
+          result = await response.json();
+          if (result.success && result.data) {
+            setCategories(result.data);
+            return;
           }
         }
-      }
-    } catch (error) {
-      console.error('خطأ في تحميل الاهتمامات:', error);
-    }
-  };
-  
-  // خريطة ربط الاهتمامات المبسطة بالتصنيفات الفعلية
-  const interestMapping: { [key: string]: string } = {
-    'health': 'misc',      // الصحة -> منوعات
-    'travel': 'misc',      // السفر -> منوعات  
-    'entertainment': 'misc' // الترفيه -> منوعات
-  };
-
-  // التصنيفات الافتراضية مطابقة للنظام الفعلي
-  const defaultCategories: Category[] = [
-    {
-      id: '1',
-      name: 'تقنية',
-      name_ar: 'تقنية',
-      slug: 'technology',
-      description: 'أخبار وتطورات التقنية والذكاء الاصطناعي',
-      color: '#8B5CF6',
-      icon: '💻',
-      is_active: true
-    },
-    {
-      id: '2',
-      name: 'رياضة',
-      name_ar: 'رياضة',
-      slug: 'sports',
-      description: 'أخبار رياضية محلية وعالمية',
-      color: '#F59E0B',
-      icon: '⚽',
-      is_active: true
-    },
-    {
-      id: '3',
-      name: 'اقتصاد',
-      name_ar: 'اقتصاد',
-      slug: 'economy',
-      description: 'تقارير السوق والمال والأعمال والطاقة',
-      color: '#10B981',
-      icon: '💰',
-      is_active: true
-    },
-    {
-      id: '4',
-      name: 'سياسة',
-      name_ar: 'سياسة',
-      slug: 'politics',
-      description: 'مستجدات السياسة المحلية والدولية وتحليلاتها',
-      color: '#EF4444',
-      icon: '🏛️',
-      is_active: true
-    },
-    {
-      id: '5',
-      name: 'محليات',
-      name_ar: 'محليات',
-      slug: 'local',
-      description: 'أخبار المناطق والمدن السعودية',
-      color: '#3B82F6',
-      icon: '🗺️',
-      is_active: true
-    },
-    {
-      id: '6',
-      name: 'ثقافة ومجتمع',
-      name_ar: 'ثقافة ومجتمع',
-      slug: 'culture',
-      description: 'فعاليات ثقافية، مناسبات، قضايا اجتماعية',
-      color: '#EC4899',
-      icon: '🎭',
-      is_active: true
-    },
-    {
-      id: '7',
-      name: 'مقالات رأي',
-      name_ar: 'مقالات رأي',
-      slug: 'opinion',
-      description: 'تحليلات ووجهات نظر كتاب الرأي',
-      color: '#7C3AED',
-      icon: '✍️',
-      is_active: true
-    },
-    {
-      id: '8',
-      name: 'منوعات',
-      name_ar: 'منوعات',
-      slug: 'misc',
-      description: 'أخبار خفيفة، صحة، سفر، ترفيه وأحداث متنوعة',
-      color: '#6B7280',
-      icon: '🎉',
-      is_active: true
-    }
-  ];
-
-  // جلب التصنيفات من قاعدة البيانات
-  const fetchCategories = async () => {
-    setLoadingCategories(true);
-    setError(null);
-    try {
-      const response = await fetch('/api/categories?sortBy=displayOrder');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log('API Response:', data); // للتشخيص
-      
-      if (data.success && data.categories && Array.isArray(data.categories)) {
-        const activeCategories = data.categories.filter((cat: any) => cat.is_active);
-        setCategories(activeCategories.length > 0 ? activeCategories : defaultCategories);
-        if (activeCategories.length === 0) {
-          console.log('استخدام التصنيفات الافتراضية');
+        
+        // إذا فشل API، جلب من ملف JSON
+        response = await fetch('/data/categories.json');
+        result = await response.json();
+        
+        if (result.categories) {
+          setCategories(result.categories);
+        } else {
+          throw new Error('فشل في جلب التصنيفات');
         }
-      } else if (Array.isArray(data)) {
-        // في حال كانت البيانات مصفوفة مباشرة
-        const activeCategories = data.filter((cat: any) => cat.is_active || cat.isActive);
-        setCategories(activeCategories.length > 0 ? activeCategories : defaultCategories);
-      } else {
-        // استخدام التصنيفات الافتراضية
-        console.log('استخدام التصنيفات الافتراضية بسبب صيغة البيانات');
-        setCategories(defaultCategories);
+        
+      } catch (error) {
+        console.error('خطأ في جلب التصنيفات:', error);
+        toast.error('فشل في تحميل التصنيفات');
+      } finally {
+        setLoadingCategories(false);
       }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      console.log('استخدام التصنيفات الافتراضية بسبب خطأ في الشبكة');
-      setCategories(defaultCategories);
-      // لا نظهر رسالة خطأ للمستخدم إذا كان لدينا تصنيفات افتراضية
-    } finally {
-      setLoadingCategories(false);
-    }
-  };
-  useEffect(() => {
-    // تحميل التصنيفات والاهتمامات المحفوظة
+    };
+
     fetchCategories();
-    fetchUserInterests();
   }, []);
-  const handleCategoryToggle = (categoryId: string) => {
+
+  // معالجة اختيار/إلغاء اختيار التصنيف
+  const handleCategoryToggle = (categoryId: number) => {
     setSelectedCategoryIds(prev => {
       if (prev.includes(categoryId)) {
-        // إزالة التصنيف
         return prev.filter(id => id !== categoryId);
       } else {
-        // إضافة التصنيف مع التحقق من الحد الأقصى
-        if (prev.length >= 10) {
-          toast.error('لا يمكن اختيار أكثر من 10 تصنيفات');
+        if (prev.length >= 5) {
+          toast.error('يمكنك اختيار 5 اهتمامات كحد أقصى');
           return prev;
         }
         return [...prev, categoryId];
       }
     });
   };
+
+  // حفظ الاهتمامات
   const handleSubmit = async () => {
-    if (selectedCategoryIds.length < 1) {
-      toast.error('اختر اهتماماً واحداً على الأقل');
+    if (selectedCategoryIds.length === 0) {
+      toast.error('يرجى اختيار اهتمام واحد على الأقل');
       return;
     }
-    
-    if (selectedCategoryIds.length > 10) {
-      toast.error('لا يمكن اختيار أكثر من 10 تصنيفات');
-      return;
-    }
+
     setLoading(true);
+    
     try {
-      // حفظ الاهتمامات في localStorage
-      const userData = localStorage.getItem('user');
-      let userId = 'guest-' + Date.now();
-      if (userData) {
-        const user = JSON.parse(userData);
-        userId = user.id || userId;
-      } else {
+      // الحصول على معرف المستخدم
+      let userId = user?.id;
+      
+      if (!userId) {
         // إنشاء مستخدم ضيف إذا لم يكن موجود
+        userId = 'guest-' + Date.now();
         const guestUser = {
           id: userId,
           name: 'ضيف',
@@ -250,9 +112,11 @@ export default function PreferencesPage() {
           interests: selectedCategoryIds
         };
         localStorage.setItem('user', JSON.stringify(guestUser));
+        setUser(guestUser);
       }
-      // حفظ في قاعدة البيانات عبر API
-      const response = await fetch('/api/user/preferences', {
+
+      // حفظ الاهتمامات في قاعدة البيانات
+      const response = await fetch('/api/user/interests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -260,38 +124,51 @@ export default function PreferencesPage() {
         body: JSON.stringify({
           userId: userId,
           categoryIds: selectedCategoryIds,
-          source: 'manual'
+          source: 'onboarding'
         }),
       });
+
       const result = await response.json();
+
       if (!response.ok || !result.success) {
-        throw new Error(result.error || 'فشل حفظ التفضيلات');
+        throw new Error(result.error || 'فشل حفظ الاهتمامات');
       }
+
       // تحديث localStorage بالاهتمامات
       const currentUserData = localStorage.getItem('user');
       if (currentUserData) {
-        const user = JSON.parse(currentUserData);
-        user.interests = selectedCategoryIds;
-        user.preferences = selectedCategoryIds; // للتوافق مع الإصدارات السابقة
-        localStorage.setItem('user', JSON.stringify(user));
-        console.log('✅ تم تحديث localStorage بالاهتمامات:', selectedCategoryIds);
-      } else {
-        // إنشاء مستخدم جديد إذا لم يكن موجود
-        const guestUser = {
-          id: userId,
-          name: 'ضيف',
-          email: null,
-          interests: selectedCategoryIds,
-          preferences: selectedCategoryIds
-        };
-        localStorage.setItem('user', JSON.stringify(guestUser));
-        console.log('✅ تم إنشاء مستخدم جديد في localStorage:', guestUser);
+        const updatedUser = JSON.parse(currentUserData);
+        updatedUser.interests = selectedCategoryIds;
+        updatedUser.categoryIds = selectedCategoryIds;
+        localStorage.setItem('user', JSON.stringify(updatedUser));
       }
+
+      // منح نقاط الولاء للمستخدمين المسجلين
+      if (userId && !userId.startsWith('guest-')) {
+        try {
+          await fetch('/api/loyalty', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId,
+              action: 'complete_interests',
+              points: 5,
+              description: 'إتمام اختيار الاهتمامات'
+            })
+          });
+        } catch (loyaltyError) {
+          console.error('خطأ في منح نقاط الولاء:', loyaltyError);
+          // لا نوقف العملية بسبب خطأ النقاط
+        }
+      }
+
       toast.success('تم حفظ اهتماماتك بنجاح! 🎉');
-      // الانتقال للصفحة التالية بعد ثانية
+      
+      // انتظار ثانية ثم التوجيه
       setTimeout(() => {
-        router.push('/welcome/feed');
+        router.push('/');
       }, 1000);
+
     } catch (error) {
       console.error('Error saving preferences:', error);
       toast.error('حدث خطأ في حفظ الاهتمامات. يرجى المحاولة مرة أخرى.');
@@ -299,151 +176,187 @@ export default function PreferencesPage() {
       setLoading(false);
     }
   };
-  // حالة التحميل
+
   if (loadingCategories) {
     return (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري تحميل التصنيفات...</p>
-        </div>
-      </div>
-    );
-  }
-  // حالة الخطأ
-  if (error) {
-    return (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-            <AlertCircle className="w-8 h-8 text-red-600" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">حدث خطأ</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => router.push('/')}
-              className="px-6 py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
-            >
-              تخطي
-            </button>
-            <button
-              onClick={fetchCategories}
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              إعادة المحاولة
-            </button>
+      <>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">جاري تحميل التصنيفات...</p>
           </div>
         </div>
-      </div>
+      </>
     );
   }
-  // حالة عدم وجود تصنيفات
-  if (categories.length === 0) {
-    return (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-            <Heart className="w-8 h-8 text-gray-400" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">لا توجد تصنيفات متاحة</h2>
-          <p className="text-gray-600 mb-6">نعمل على إضافة تصنيفات جديدة قريباً</p>
-          <button
-            onClick={() => router.push('/')}
-            className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-          >
-            المتابعة كزائر
-          </button>
-        </div>
-      </div>
-    );
-  }
+
   return (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
-      <div className="relative z-10 max-w-5xl mx-auto pt-20">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg mb-6">
-            <Heart className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">مرحباً بك في رحلتك الذكية!</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            اختر التصنيفات التي تهمك لنقدم لك محتوى مخصصاً يناسب اهتماماتك
-          </p>
-        </div>
-        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl p-8 border">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">اختر اهتماماتك</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {categories.map((category) => {
-              const isSelected = selectedCategoryIds.includes(category.id);
-              return (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategoryToggle(category.id)}
-                  className={`relative p-6 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
-                    isSelected 
-                      ? 'border-blue-500 shadow-lg' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  style={isSelected ? { borderColor: category.color || '#3B82F6' } : {}}
-                >
-                  {isSelected && (
-                    <div className="absolute inset-0 opacity-10 rounded-2xl" style={{ backgroundColor: category.color }}></div>
-                  )}
-                  <div className="relative z-10 flex flex-col items-center">
-                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg" style={{ backgroundColor: category.color || '#3B82F6' }}>
-                      <span className="text-3xl">{category.icon || '📁'}</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-800 mb-1">{category.name || category.name_ar}</h3>
-                    {category.description && (
-                      <p className="text-xs text-gray-500 text-center mt-1 line-clamp-2">{category.description}</p>
-                    )}
-                    {isSelected && (
-                      <div className="absolute top-3 right-3">
-                        <CheckCircle className="w-6 h-6" style={{ color: category.color || '#3B82F6' }} />
-                      </div>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          <div className="text-center mb-6">
-            <p className="text-sm text-gray-500">
-              {selectedCategoryIds.length === 0 
-                ? 'لم تختر أي تصنيف بعد' 
-                : `اخترت ${selectedCategoryIds.filter(id => categories.some(cat => cat.id === id)).length} من ${categories.length} تصنيف`}
-            </p>
-            {selectedCategoryIds.length > 0 && (
-              <p className="text-xs text-blue-600 mt-1">
-                الحد الأقصى: 10 تصنيفات
+    <>
+      <Header />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-4xl mx-auto">
+            
+            {/* العنوان الرئيسي */}
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full">
+                <Settings className="w-10 h-10 text-white" />
+              </div>
+              
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                اختر اهتماماتك
+              </h1>
+              
+              <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
+                اختر من <span className="font-bold text-blue-600">{categories.length}</span> تصنيف لنقدم لك محتوى مخصص يناسب اهتماماتك
+                <br />
+                <span className="text-lg text-gray-500">يمكنك اختيار حتى 5 تصنيفات</span>
               </p>
-            )}
-          </div>
-          <div className="flex gap-4 justify-center">
-            <button
-              onClick={() => router.push('/')}
-              className="px-6 py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
-            >
-              تخطي الآن
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={selectedCategoryIds.length === 0 || loading}
-              className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  جارٍ الحفظ...
-                </>
-              ) : (
-                `حفظ الاهتمامات (${selectedCategoryIds.length})`
+            </div>
+
+            {/* شبكة التصنيفات */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12">
+              {categories
+                .filter(category => category.is_active)
+                .sort((a, b) => a.position - b.position)
+                .map((category) => {
+                  const isSelected = selectedCategoryIds.includes(category.id);
+                  
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => handleCategoryToggle(category.id)}
+                      className={`relative p-6 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50 shadow-lg scale-105'
+                          : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
+                      }`}
+                    >
+                      {/* علامة الاختيار */}
+                      {isSelected && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                          <Check className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      
+                      {/* محتوى التصنيف */}
+                      <div className="text-center">
+                        <div 
+                          className="text-4xl mb-3"
+                          style={{ color: category.color_hex }}
+                        >
+                          {category.icon}
+                        </div>
+                        
+                        <h3 className="font-bold text-lg text-gray-900 mb-2">
+                          {category.name_ar}
+                        </h3>
+                        
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                          {category.description}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+            </div>
+
+            {/* معلومات الاختيار */}
+            <div className="bg-white rounded-2xl p-6 mb-8 shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">
+                    اختياراتك الحالية
+                  </h3>
+                  <p className="text-gray-600">
+                    {selectedCategoryIds.length} من 5 تصنيفات
+                  </p>
+                </div>
+                
+                <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className={`w-3 h-3 rounded-full ${
+                        index < selectedCategoryIds.length
+                          ? 'bg-blue-600'
+                          : 'bg-gray-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              {/* عرض التصنيفات المختارة */}
+              {selectedCategoryIds.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCategoryIds.map(categoryId => {
+                      const category = categories.find(c => c.id === categoryId);
+                      if (!category) return null;
+                      
+                      return (
+                        <span
+                          key={categoryId}
+                          className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                          style={{ 
+                            backgroundColor: category.color_hex + '20',
+                            color: category.color_hex 
+                          }}
+                        >
+                          <span>{category.icon}</span>
+                          {category.name_ar}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
+
+            {/* أزرار التحكم */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={handleSubmit}
+                disabled={selectedCategoryIds.length === 0 || loading}
+                className={`flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg transition-all transform ${
+                  selectedCategoryIds.length === 0 || loading
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 hover:scale-105 shadow-lg'
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    جاري الحفظ...
+                  </>
+                ) : (
+                  <>
+                    احفظ اهتماماتي
+                    <ArrowRight className="w-5 h-5" />
+                  </>
+                )}
+              </button>
+              
+              <button
+                onClick={() => router.push('/')}
+                className="px-8 py-4 rounded-xl font-bold text-lg border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all"
+              >
+                تخطي الآن
+              </button>
+            </div>
+
+            {/* ملاحظة */}
+            <div className="text-center mt-8">
+              <p className="text-sm text-gray-500">
+                💡 يمكنك تغيير اهتماماتك في أي وقت من خلال صفحة الملف الشخصي
+              </p>
+            </div>
+
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
