@@ -398,6 +398,37 @@ export default function NewsManagementPage() {
           darkMode ? 'text-gray-300' : 'text-gray-600'
         }`}>منصة متكاملة لإدارة ونشر المحتوى الإخباري مع أدوات تحليل الأداء وتتبع التفاعل</p>
       </div>
+      
+      {/* شريط معلومات الواجهة الجديدة */}
+      <div className={`p-4 rounded-lg border mb-6 ${
+        darkMode 
+          ? "bg-blue-900/20 border-blue-700" 
+          : "bg-blue-50 border-blue-200"
+      }`}>
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-blue-600/20">
+            <Zap className="w-5 h-5 text-blue-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className={`font-semibold mb-1 ${
+              darkMode ? "text-blue-300" : "text-blue-900"
+            }`}>
+              جرّب الواجهة الموحدة الجديدة لإنشاء الأخبار! ✨
+            </h3>
+            <p className={`text-sm ${
+              darkMode ? "text-blue-400" : "text-blue-700"
+            }`}>
+              دمج كل الخطوات في صفحة واحدة - أسرع بـ 70% وأسهل في الاستخدام
+            </p>
+          </div>
+          <Link
+            href="/dashboard/news/unified"
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            جرب الآن
+          </Link>
+        </div>
+      </div>
       {/* قسم النظام التحريري */}
       <div className="mb-6 sm:mb-8">
         <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
@@ -427,6 +458,14 @@ export default function NewsManagementPage() {
                 <BarChart3 className="w-4 h-4" />
                 <span className="hidden sm:inline">تحليلات متقدمة</span>
                 <span className="sm:hidden">تحليلات</span>
+              </Link>
+              <Link 
+                href="/dashboard/news/unified"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm animate-pulse"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span className="hidden sm:inline">واجهة موحدة</span>
+                <span className="sm:hidden">جديد!</span>
               </Link>
               <Link 
                 href="/dashboard/news/create"
