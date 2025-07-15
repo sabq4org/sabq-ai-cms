@@ -126,40 +126,38 @@ export default function UserGuidePage() {
             </div>
 
             {/* خطوات الاستخدام */}
-            <div className="space-y-16 mb-20">
+            <div className="grid gap-12 mb-20">
               {steps.map((step, index) => (
-                <div key={index} className={`flex flex-col lg:flex-row items-center gap-12 ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
+                <div key={index} className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
                   
-                  {/* رقم الخطوة والأيقونة */}
-                  <div className="flex-shrink-0 text-center">
-                    <div className="relative">
-                      <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center mb-4">
+                  {/* رأس الخطوة */}
+                  <div className="flex items-center gap-6 mb-6">
+                    <div className="relative flex-shrink-0">
+                      <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white">
                         {step.icon}
-                        <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-800 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                          {step.number}
-                        </div>
                       </div>
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-800 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                        {step.number}
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                        {step.title}
+                      </h3>
+                      <p className="text-lg text-gray-600 dark:text-gray-400">
+                        {step.description}
+                      </p>
                     </div>
                   </div>
 
-                  {/* محتوى الخطوة */}
-                  <div className="flex-1 text-center lg:text-left">
-                    <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                      {step.title}
-                    </h3>
-                    <p className="text-xl text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-                      {step.description}
-                    </p>
-                    
-                    {/* مزايا الخطوة */}
-                    <div className="space-y-3">
-                      {step.features.map((feature, featureIndex) => (
-                        <div key={featureIndex} className="flex items-center gap-3 text-lg text-gray-600 dark:text-gray-400">
-                          <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                          <span>{feature}</span>
-                        </div>
-                      ))}
-                    </div>
+                  {/* مزايا الخطوة */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {step.features.map((feature, featureIndex) => (
+                      <div key={featureIndex} className="flex items-center gap-3 text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+                        <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
                   </div>
 
                 </div>
