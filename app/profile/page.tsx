@@ -17,7 +17,7 @@ import SavedArticlesTab from '@/components/profile/SavedArticlesTab';
 import { Crown, Heart, 
   Edit2, X, Star, TrendingUp,
   Calendar, Activity, BookOpen, Share2, ChevronRight, Zap, Eye,
-  MessageCircle, Bookmark, Camera, Brain, Trophy, Clock, Sparkles, Target, Lock, ChevronDown
+  MessageCircle, Bookmark, Camera, Brain, Trophy, Clock, Sparkles, Target, Lock, ChevronDown, ArrowRight
 } from 'lucide-react';
 // المكونات الجديدة
 interface UserProfile {
@@ -35,6 +35,7 @@ interface UserProfile {
   isVerified?: boolean;
   preferences?: any[];
   interests?: string[];
+  categoryIds?: string[]; // إضافة دعم لـ categoryIds
 }
 interface LoyaltyData {
   total_points: number;
@@ -50,7 +51,7 @@ interface Activity {
   description: string;
 }
 interface UserPreference {
-  category_id: number;
+  category_id: string; // تغيير من number إلى string ليتوافق مع IDs الحقيقية
   category_name: string;
   category_icon: string;
   category_color: string;
@@ -152,6 +153,32 @@ export default function ProfilePage() {
     }
   }, []);
 
+  // إضافة listener لتحديث الاهتمامات عند العودة للصفحة
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        // عندما يعود المستخدم للصفحة، نحدث الاهتمامات
+        console.log('👁️ الصفحة أصبحت مرئية - تحديث الاهتمامات');
+        fetchUserInterestsImmediately();
+      }
+    };
+
+    const handleFocus = () => {
+      if (user) {
+        console.log('🔄 تم التركيز على الصفحة - تحديث الاهتمامات');
+        fetchUserInterestsImmediately();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user]);
+
   useEffect(() => {
     // تتبع الوضع المظلم
     const checkDarkMode = () => {
@@ -191,10 +218,85 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user && !dataFetchedRef.current) {
       dataFetchedRef.current = true;
-      // جلب جميع البيانات بشكل متوازي
+      // جلب الاهتمامات فوراً دون انتظار
+      fetchUserInterestsImmediately();
+      // ثم جلب باقي البيانات
       fetchAllDataOptimized();
     }
   }, [user]);
+
+  // دالة مخصصة لجلب الاهتمامات فوراً
+  const fetchUserInterestsImmediately = async () => {
+    if (!user) return;
+
+    try {
+      console.log('🚀 جلب الاهتمامات فوراً للمستخدم:', user.id);
+      
+      // جلب الاهتمامات والتصنيفات بشكل متوازي
+      const [interestsRes, categoriesRes] = await Promise.allSettled([
+        fetch(`/api/user/interests?userId=${user.id}`),
+        fetch('/api/categories')
+      ]);
+
+      let userCategoryIds: string[] = [];
+      let allCategories: any[] = [];
+
+      // معالجة نتيجة الاهتمامات
+      if (interestsRes.status === 'fulfilled' && interestsRes.value.ok) {
+        const interestsData = await interestsRes.value.json();
+        if (interestsData.success && interestsData.data?.categoryIds) {
+          userCategoryIds = interestsData.data.categoryIds.map((id: any) => String(id));
+          console.log('✅ تم جلب الاهتمامات من API:', userCategoryIds);
+        }
+      }
+
+      // معالجة نتيجة التصنيفات
+      if (categoriesRes.status === 'fulfilled' && categoriesRes.value.ok) {
+        const categoriesData = await categoriesRes.value.json();
+        allCategories = categoriesData.data || categoriesData.categories || [];
+      }
+
+      // إذا لم نجد اهتمامات من API، نحاول من localStorage
+      if (userCategoryIds.length === 0) {
+        userCategoryIds = user.categoryIds || user.interests || [];
+        console.log('📱 استخدام الاهتمامات من localStorage:', userCategoryIds);
+      }
+
+      // تحويل IDs إلى بيانات التصنيفات
+      if (userCategoryIds.length > 0 && allCategories.length > 0) {
+        const userCategories = allCategories
+          .filter((cat: any) => userCategoryIds.includes(cat.id))
+          .map((cat: any) => ({
+            category_id: cat.id,
+            category_name: cat.name || cat.name_ar,
+            category_icon: cat.icon || '📌',
+            category_color: cat.color || cat.color_hex || '#6B7280'
+          }));
+
+                 console.log('🎯 تم عرض الاهتمامات فوراً:', userCategories);
+         setPreferences(userCategories);
+         // إظهار رسالة نجاح مع عدد الاهتمامات
+         toast.success(`✅ تم تحديث ${userCategories.length} من اهتماماتك`, { duration: 2000 });
+      } else if (userCategoryIds.length === 0) {
+        console.log('❓ لم يتم العثور على اهتمامات للمستخدم');
+        setPreferences([]);
+      }
+
+    } catch (error) {
+      console.error('❌ خطأ في جلب الاهتمامات فوراً:', error);
+      // fallback: استخدام البيانات من localStorage
+      const userCategoryIds = user.categoryIds || user.interests || [];
+      if (userCategoryIds.length > 0) {
+        const fallbackPreferences = userCategoryIds.map((id: string) => ({
+          category_id: id,
+          category_name: 'اهتمام محفوظ',
+          category_icon: '📌',
+          category_color: '#6B7280'
+        }));
+        setPreferences(fallbackPreferences);
+      }
+    }
+  };
   // دالة محسّنة لجلب جميع البيانات بشكل متوازي
   const fetchAllDataOptimized = async () => {
     if (!user) return;
@@ -781,13 +883,26 @@ export default function ProfilePage() {
                       <Heart className="w-5 h-5 text-red-500" />
                       اهتماماتي
                     </h3>
-                    <Link
-                      href="/welcome/preferences"
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1 text-sm"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                      تعديل
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          fetchUserInterestsImmediately();
+                          toast.success('جاري تحديث الاهتمامات...', { duration: 1000 });
+                        }}
+                        className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium flex items-center gap-1 text-sm transition-colors"
+                        title="تحديث الاهتمامات"
+                      >
+                        <ArrowRight className="w-4 h-4 transform rotate-180" />
+                        تحديث
+                      </button>
+                      <Link
+                        href="/welcome/preferences"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1 text-sm"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                        تعديل
+                      </Link>
+                    </div>
                   </div>
                   {preferences.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">

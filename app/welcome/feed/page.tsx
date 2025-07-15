@@ -1,57 +1,58 @@
 'use client';
 
-import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { 
-  Heart, Star, TrendingUp, Clock, User, Share2, 
+  Heart, Star, TrendingUp, 
   BookOpen, Zap, ArrowRight, Gift, Award, Target,
-  Sparkles, Trophy, Calendar, Eye
+  Sparkles, Trophy, Calendar, Share2
 } from 'lucide-react';
 interface UserData {
   id: string;
   name: string;
   interests: string[];
+  categoryIds?: string[];
 }
-interface Article {
+
+interface Category {
   id: string;
-  title: string;
-  excerpt: string;
-  category: string;
-  category_id: number;
-  featured_image: string;
-  published_at: string;
-  author: {
-    name: string;
-  };
-  views: number;
-  reading_time: number;
+  name_ar: string;
+  name_en?: string;
+  description: string;
+  slug: string;
+  color_hex: string;
+  icon: string;
+  position: number;
+  is_active: boolean;
 }
-const interestMap: { [key: string]: { name: string; color: string; icon: any } } = {
-  'tech': { name: 'تقنية', color: 'from-blue-500 to-cyan-500', icon: Zap },
-  'business': { name: 'اقتصاد', color: 'from-green-500 to-emerald-500', icon: TrendingUp },
-  'sports': { name: 'رياضة', color: 'from-orange-500 to-red-500', icon: Trophy },
-  'culture': { name: 'ثقافة', color: 'from-purple-500 to-pink-500', icon: BookOpen },
-  'health': { name: 'صحة', color: 'from-pink-500 to-rose-500', icon: Heart },
-  'international': { name: 'دولي', color: 'from-indigo-500 to-blue-500', icon: Target }
-};
+// ===== ملاحظة مهمة =====
+// تم حذف قسم المقالات المخصصة نهائياً بناءً على طلب المستخدم
+// الصفحة تعرض فقط: الترحيب + الاهتمامات + نقاط الولاء + النصائح
+// لا توجد مقالات مقترحة أو مخصصة في هذه الصفحة
 export default function WelcomeFeedPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
-  const [recommendedArticles, setRecommendedArticles] = useState<Article[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [userCategories, setUserCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [loyaltyPoints, setLoyaltyPoints] = useState(5); // النقاط المكتسبة من الاهتمامات
   useEffect(() => {
-    const loadUserData = () => {
+    const loadUserData = async () => {
       try {
         const userData = localStorage.getItem('user');
         if (userData) {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
-          // جلب المقالات المقترحة بناءً على الاهتمامات
-          fetchRecommendedArticles(parsedUser.interests);
+          
+          // جلب التصنيفات من API
+          await fetchCategories();
+          
+          // استخدام categoryIds إذا كانت متوفرة، وإلا استخدم interests
+          const userCategoryIds = parsedUser.categoryIds || parsedUser.interests || [];
+          // تم إلغاء جلب المقالات المقترحة حسب طلب المستخدم
+          console.log('🚫 تم إلغاء جلب المقالات المقترحة');
         } else {
           // إذا لم توجد بيانات المستخدم، توجيه للصفحة الرئيسية
           router.push('/');
@@ -63,68 +64,40 @@ export default function WelcomeFeedPage() {
     };
     loadUserData();
   }, [router]);
-  const fetchRecommendedArticles = async (interests: string[]) => {
+
+  const fetchCategories = async () => {
     try {
-      setLoading(true);
-      // جلب المقالات من التصنيفات المختارة
-      const promises = interests.slice(0, 3).map(async (interest) => {
-        const categoryId = getCategoryId(interest);
-        const response = await fetch(`/api/articles?category_id=${categoryId}&limit=2&status=published&sort=published_at&order=desc`);
-        if (response.ok) {
-          const data = await response.json();
-          return data.articles || [];
+      const response = await fetch('/api/categories');
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          setCategories(result.data);
+          return result.data;
         }
-        return [];
-      });
-      const results = await Promise.all(promises);
-      const allArticles = results.flat();
-      setRecommendedArticles(allArticles);
+      }
     } catch (error) {
-      console.error('خطأ في جلب المقالات المقترحة:', error);
-    } finally {
-      setLoading(false);
+      console.error('خطأ في جلب التصنيفات:', error);
     }
+    return [];
   };
-  const getCategoryId = (interest: string) => {
-    const mapping: { [key: string]: number } = {
-      'tech': 1,
-      'business': 2,
-      'sports': 3,
-      'culture': 4,
-      'health': 5,
-      'international': 6
-    };
-    return mapping[interest] || 1;
-  };
+
+  // تحديث useEffect ليعيد ضبط userCategories بعد جلب التصنيفات
+  useEffect(() => {
+    if (categories.length > 0 && user?.categoryIds) {
+      const matchedCategories = categories.filter(cat => 
+        user.categoryIds?.includes(cat.id) || user.interests?.includes(cat.id)
+      );
+      setUserCategories(matchedCategories);
+    }
+  }, [categories, user]);
+
+  // ===== تم حذف جميع دوال ومراجع المقالات المخصصة نهائياً =====
+  
   const handleStartReading = () => {
     toast.success('مرحباً بك في صحيفة سبق! 🎉');
     router.push('/');
   };
-  const handleArticleClick = async (articleId: string) => {
-    // تسجيل التفاعل
-    if (user?.id) {
-      try {
-        await fetch('/api/interactions/track', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: user.id,
-            articleId: articleId,
-            interactionType: 'view',
-            metadata: {
-              source: 'welcome_feed',
-              timestamp: new Date().toISOString()
-            }
-          }),
-        });
-      } catch (error) {
-        console.error('خطأ في تسجيل التفاعل:', error);
-      }
-    }
-    router.push(`/article/${articleId}`);
-  };
+
   if (loading || !user) {
     return (
   <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
@@ -172,85 +145,29 @@ export default function WelcomeFeedPage() {
             التصنيفات التي اخترتها لعرض المحتوى الأنسب لك
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            {user.interests.map((interest) => {
-              const interestData = interestMap[interest];
-              if (!interestData) return null;
-              const Icon = interestData.icon;
-              return (
-  <div
-                  key={interest}
-                  className={`flex items-center gap-3 px-6 py-3 bg-gradient-to-r ${interestData.color} text-white rounded-full shadow-lg transform hover:scale-105 transition-all duration-300`}
+            {userCategories.length > 0 ? (
+              userCategories.map((category) => (
+                <div
+                  key={category.id}
+                  className="flex items-center gap-3 px-6 py-3 text-white rounded-full shadow-lg transform hover:scale-105 transition-all duration-300"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${category.color_hex}, ${category.color_hex}dd)`
+                  }}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{interestData.name}</span>
+                  <span className="text-lg">{category.icon}</span>
+                  <span className="font-medium">{category.name_ar}</span>
                 </div>
-              );
-            })}
+              ))
+            ) : (
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
+                <p className="text-gray-600 dark:text-gray-400">
+                  لم يتم اختيار اهتمامات بعد
+                </p>
+              </div>
+            )}
           </div>
         </div>
-        {/* المقالات المقترحة */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">مقالات مخصصة لك</h2>
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-            مقالات مختارة من فريق التحرير والذكاء الاصطناعي بناءً على اهتماماتك
-          </p>
-          {recommendedArticles.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendedArticles.map((article) => (
-                <div
-                  key={article.id}
-                  onClick={() => handleArticleClick(article.id)}
-                  className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
-                >
-                  {article.featured_image && (
-                    <div className="aspect-video overflow-hidden">
-                      <Image src="/placeholder.jpg" alt="" width={100} height={100} />
-                    </div>
-                  )}
-                  <div className="p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">
-                        {typeof article.category === 'string' ? article.category : ((article.category as any)?.name_ar || (article.category as any)?.name || 'عام')}
-                      </span>
-                      <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400 text-xs">
-                        <Clock className="w-3 h-3" />
-                        <span>{article.reading_time || 3} دقائق</span>
-                      </div>
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 line-clamp-2">
-                      {article.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
-                      {article.excerpt}
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                      <div className="flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        <span>{article.author?.name}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-3 h-3" />
-                        <span>{article.views || 0}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-12 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
-              <div className="flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mx-auto mb-4">
-                <BookOpen className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">
-                لا توجد مقالات الآن
-              </p>
-              <p className="text-gray-500 dark:text-gray-500 text-sm">
-                سيتم ترشيح مقالات لك قريبًا بناءً على اهتماماتك
-              </p>
-            </div>
-          )}
-        </div>
+        {/* تم حذف قسم المقالات المقترحة حسب طلب المستخدم */}
         {/* إحصائيات وتحفيز */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">

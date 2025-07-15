@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { 
-  normalizeUserInterests, 
-  mapInterestsToCategories, 
-  categorySlugToId 
-} from '@/lib/interests-mapping';
+// تم حذف جميع imports من interests-mapping لأنها مدمرة
+// import { normalizeUserInterests, mapInterestsToCategories, categorySlugToId } from '@/lib/interests-mapping';
 
 // دالة مساعدة لإضافة CORS headers
 function addCorsHeaders(response: NextResponse): NextResponse {
@@ -55,25 +52,22 @@ export async function POST(request: NextRequest) {
       }, 400);
     }
 
-    // تطبيق نظام الـ mapping لتحويل الاهتمامات القديمة إلى تصنيفات فعلية
-    const normalizedInterests = normalizeUserInterests(categoryIds);
-    const finalCategoryIds = normalizedInterests.map(slug => categorySlugToId(slug));
+    // استخدام الاهتمامات المحفوظة مباشرة بدون تحويل مدمر
+    const validCategoryIds = categoryIds.map((id: any) => String(id).trim()).filter((id: string) => id && id.length > 0);
     
-    console.log('🔄 تحويل الاهتمامات:', {
-      original: categoryIds,
-      normalized: normalizedInterests,
-      final: finalCategoryIds
+    console.log('✅ حفظ الاهتمامات مباشرة:', {
+      categoryIds: validCategoryIds
     });
 
     // التحقق من عدد التصنيفات
-    if (finalCategoryIds.length === 0) {
+    if (validCategoryIds.length === 0) {
       return corsResponse({
         success: false,
         error: 'يجب اختيار تصنيف واحد على الأقل'
       }, 400);
     }
 
-    if (finalCategoryIds.length > 10) {
+    if (validCategoryIds.length > 10) {
       return corsResponse({
         success: false,
         error: 'لا يمكن اختيار أكثر من 10 تصنيفات'
@@ -110,7 +104,7 @@ export async function POST(request: NextRequest) {
 
       // حفظ أو تحديث التفضيلات في جدول user_preferences
       const preferenceData = {
-        interests: finalCategoryIds,
+        interests: validCategoryIds,
         interests_updated_at: new Date().toISOString(),
         interests_source: source
       };
@@ -136,7 +130,7 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      console.log('✅ تم حفظ تفضيلات المستخدم:', { userId, finalCategoryIds });
+      console.log('✅ تم حفظ تفضيلات المستخدم:', { userId, validCategoryIds });
 
       // حفظ نشاط في سجل النشاطات
       try {
@@ -147,9 +141,9 @@ export async function POST(request: NextRequest) {
             action: 'update_preferences',
             metadata: {
               originalCategories: categoryIds,
-              finalCategories: finalCategoryIds,
-              normalizedInterests: normalizedInterests,
-              count: finalCategoryIds.length,
+              finalCategories: validCategoryIds,
+              // normalizedInterests removed
+              count: validCategoryIds.length,
               source
             },
             created_at: new Date()

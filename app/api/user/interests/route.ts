@@ -36,19 +36,19 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    let categoryIds: number[] = [];
+    let categoryIds: string[] = [];
 
     if (userPreference && userPreference.value) {
       const preferenceData = userPreference.value as any;
       
-             // التعامل مع صيغ مختلفة للبيانات
-       if (Array.isArray(preferenceData)) {
-         categoryIds = preferenceData.map((id: any) => parseInt(String(id))).filter((id: number) => !isNaN(id));
-       } else if (preferenceData.interests && Array.isArray(preferenceData.interests)) {
-         categoryIds = preferenceData.interests.map((id: any) => parseInt(String(id))).filter((id: number) => !isNaN(id));
-       } else if (preferenceData.categoryIds && Array.isArray(preferenceData.categoryIds)) {
-         categoryIds = preferenceData.categoryIds.map((id: any) => parseInt(String(id))).filter((id: number) => !isNaN(id));
-       }
+      // التعامل مع صيغ مختلفة للبيانات
+      if (Array.isArray(preferenceData)) {
+        categoryIds = preferenceData.map((id: any) => String(id).trim()).filter((id: string) => id && id.length > 0);
+      } else if (preferenceData.interests && Array.isArray(preferenceData.interests)) {
+        categoryIds = preferenceData.interests.map((id: any) => String(id).trim()).filter((id: string) => id && id.length > 0);
+      } else if (preferenceData.categoryIds && Array.isArray(preferenceData.categoryIds)) {
+        categoryIds = preferenceData.categoryIds.map((id: any) => String(id).trim()).filter((id: string) => id && id.length > 0);
+      }
     }
 
     // جلب معلومات التصنيفات
@@ -56,17 +56,17 @@ export async function GET(request: NextRequest) {
     if (categoryIds.length > 0) {
       try {
         // محاولة جلب من قاعدة البيانات أولاً
-                 const dbCategories = await prisma.categories.findMany({
-           where: {
-             id: { in: categoryIds.map((id: number) => String(id)) },
-             is_active: true
-           },
-           orderBy: { display_order: 'asc' }
-         });
+        const dbCategories = await prisma.categories.findMany({
+          where: {
+            id: { in: categoryIds },
+            is_active: true
+          },
+          orderBy: { display_order: 'asc' }
+        });
 
         if (dbCategories.length > 0) {
           categories = dbCategories.map((cat: any) => ({
-            id: parseInt(cat.id) || cat.id,
+            id: cat.id,
             name: cat.name,
             name_ar: cat.name,
             name_en: cat.name_en || '',
@@ -101,8 +101,8 @@ export async function GET(request: NextRequest) {
         }
       } catch (dbError) {
         console.error('خطأ في جلب التصنيفات:', dbError);
-                 // إرجاع معرفات فقط في حالة الخطأ
-         categories = categoryIds.map((id: number) => ({ id, name: `تصنيف ${id}` }));
+        // إرجاع معرفات فقط في حالة الخطأ
+        categories = categoryIds.map((id: string) => ({ id, name: `تصنيف ${id}` }));
       }
     }
 
@@ -144,33 +144,35 @@ export async function POST(request: NextRequest) {
       }, 400);
     }
 
-         // تحويل جميع المعرفات إلى أرقام
-     const numericCategoryIds = categoryIds.map((id: any) => parseInt(String(id))).filter((id: number) => !isNaN(id));
+         // تنظيف وتحويل المعرفات إلى strings صحيحة
+     const validCategoryIds = categoryIds
+       .map((id: any) => String(id).trim())
+       .filter((id: string) => id && id.length > 0);
 
-    if (numericCategoryIds.length === 0) {
+    if (validCategoryIds.length < 3) {
       return corsResponse({
         success: false,
-        error: 'يجب اختيار تصنيف واحد على الأقل'
+        error: 'الرجاء اختيار 3 تصنيفات على الأقل لإكمال تخصيص تجربتك'
       }, 400);
     }
 
-    if (numericCategoryIds.length > 5) {
+    if (validCategoryIds.length > 10) {
       return corsResponse({
         success: false,
-        error: 'لا يمكن اختيار أكثر من 5 تصنيفات'
+        error: 'لا يمكن اختيار أكثر من 10 تصنيفات'
       }, 400);
     }
 
     try {
       // للمستخدمين الضيوف، نحفظ في localStorage فقط
       if (userId.startsWith('guest-')) {
-        console.log('💾 حفظ تفضيلات الضيف:', { userId, categoryIds: numericCategoryIds });
+        console.log('💾 حفظ تفضيلات الضيف:', { userId, categoryIds: validCategoryIds });
         return corsResponse({
           success: true,
           message: 'تم حفظ التفضيلات للمستخدم الضيف',
           data: {
             userId,
-            categoryIds: numericCategoryIds,
+            categoryIds: validCategoryIds,
             source
           }
         });
@@ -178,8 +180,8 @@ export async function POST(request: NextRequest) {
 
       // للمستخدمين المسجلين، نحفظ في قاعدة البيانات
       const preferenceData = {
-        interests: numericCategoryIds,
-        categoryIds: numericCategoryIds,
+        interests: validCategoryIds,
+        categoryIds: validCategoryIds,
         interests_updated_at: new Date().toISOString(),
         interests_source: source
       };
@@ -205,7 +207,7 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      console.log('✅ تم حفظ تفضيلات المستخدم:', { userId, categoryIds: numericCategoryIds });
+      console.log('✅ تم حفظ تفضيلات المستخدم:', { userId, categoryIds: validCategoryIds });
 
       // حفظ نشاط في سجل النشاطات
       try {
@@ -215,8 +217,8 @@ export async function POST(request: NextRequest) {
             user_id: userId,
             action: 'update_interests',
             metadata: {
-              categoryIds: numericCategoryIds,
-              count: numericCategoryIds.length,
+              categoryIds: validCategoryIds,
+              count: validCategoryIds.length,
               source
             },
             created_at: new Date()
@@ -232,9 +234,9 @@ export async function POST(request: NextRequest) {
         message: 'تم حفظ الاهتمامات بنجاح',
         data: {
           userId,
-          categoryIds: numericCategoryIds,
+          categoryIds: validCategoryIds,
           source,
-          count: numericCategoryIds.length
+          count: validCategoryIds.length
         }
       });
 
@@ -246,7 +248,7 @@ export async function POST(request: NextRequest) {
         return corsResponse({
           success: true,
           message: 'تم حفظ التفضيلات محلياً',
-          data: { userId, categoryIds: numericCategoryIds, source }
+          data: { userId, categoryIds: validCategoryIds, source }
         });
       }
       

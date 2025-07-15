@@ -7,7 +7,7 @@ import Header from '@/components/Header';
 import { Settings, ArrowRight, Check } from 'lucide-react';
 
 interface Category {
-  id: number;
+  id: string;
   name_ar: string;
   name_en: string;
   description: string;
@@ -21,10 +21,12 @@ interface Category {
 export default function PreferencesPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [user, setUser] = useState<any>(null);
+
+
 
   // جلب المستخدم الحالي
   useEffect(() => {
@@ -75,13 +77,13 @@ export default function PreferencesPage() {
   }, []);
 
   // معالجة اختيار/إلغاء اختيار التصنيف
-  const handleCategoryToggle = (categoryId: number) => {
+  const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategoryIds(prev => {
       if (prev.includes(categoryId)) {
         return prev.filter(id => id !== categoryId);
       } else {
-        if (prev.length >= 5) {
-          toast.error('يمكنك اختيار 5 اهتمامات كحد أقصى');
+        if (prev.length >= 10) {
+          toast.error('يمكنك اختيار 10 اهتمامات كحد أقصى');
           return prev;
         }
         return [...prev, categoryId];
@@ -91,8 +93,8 @@ export default function PreferencesPage() {
 
   // حفظ الاهتمامات
   const handleSubmit = async () => {
-    if (selectedCategoryIds.length === 0) {
-      toast.error('يرجى اختيار اهتمام واحد على الأقل');
+    if (selectedCategoryIds.length < 3) {
+      toast.error('الرجاء اختيار 3 تصنيفات على الأقل لإكمال تخصيص تجربتك');
       return;
     }
 
@@ -164,9 +166,9 @@ export default function PreferencesPage() {
 
       toast.success('تم حفظ اهتماماتك بنجاح! 🎉');
       
-      // انتظار ثانية ثم التوجيه
+      // انتظار ثانية ثم التوجيه لصفحة التجربة المخصصة
       setTimeout(() => {
-        router.push('/');
+        router.push('/welcome/feed');
       }, 1000);
 
     } catch (error) {
@@ -209,9 +211,9 @@ export default function PreferencesPage() {
               </h1>
               
               <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
-                اختر من <span className="font-bold text-blue-600">{categories.length}</span> تصنيف لنقدم لك محتوى مخصص يناسب اهتماماتك
+                اختر من <span className="font-bold text-blue-600">{categories.length}</span> تصنيفات لنقدم لك محتوى مخصص يناسب اهتماماتك
                 <br />
-                <span className="text-lg text-gray-500">يمكنك اختيار حتى 5 تصنيفات</span>
+                <span className="text-lg text-gray-500">يمكنك اختيار من 3 إلى {Math.min(10, categories.length)} تصنيفات</span>
               </p>
             </div>
 
@@ -270,12 +272,12 @@ export default function PreferencesPage() {
                     اختياراتك الحالية
                   </h3>
                   <p className="text-gray-600">
-                    {selectedCategoryIds.length} من 5 تصنيفات
+                    {selectedCategoryIds.length} من {categories.length} تصنيفات
                   </p>
                 </div>
                 
                 <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                  {Array.from({ length: 5 }).map((_, index) => (
+                  {Array.from({ length: categories.length }).map((_, index) => (
                     <div
                       key={index}
                       className={`w-3 h-3 rounded-full ${
