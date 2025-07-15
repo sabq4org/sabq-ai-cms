@@ -316,7 +316,7 @@ export default function UsersPage() {
               <Image src="/placeholder.jpg" alt="" width={100} height={100} />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium">
-                {user.name.charAt(0)}
+                                  {user.name ? user.name.charAt(0).toUpperCase() : user.email ? user.email.charAt(0).toUpperCase() : '؟'}
               </div>
             )}
             <div className="mr-3">
@@ -975,7 +975,7 @@ export default function UsersPage() {
                     <Image src="/placeholder.jpg" alt="" width={100} height={100} />
                   ) : (
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-2xl font-bold">
-                      {selectedUser.name.charAt(0)}
+                      {selectedUser.name ? selectedUser.name.charAt(0).toUpperCase() : selectedUser.email ? selectedUser.email.charAt(0).toUpperCase() : '؟'}
                     </div>
                   )}
                   <div>

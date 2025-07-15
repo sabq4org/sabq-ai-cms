@@ -305,14 +305,14 @@ export default function UserDropdown({ user, onClose, onLogout, anchorElement }:
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0 ${
                   darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
                 }`}>
-                  {user.name.charAt(0)}
+                  {user.name ? user.name.charAt(0).toUpperCase() : user.email ? user.email.charAt(0).toUpperCase() : '؟'}
                 </div>
               )}
               <div>
                 <h3 className={`font-semibold ${
                   darkMode ? 'text-white' : 'text-gray-900'
                 }`}>
-                  {user.name}
+                  {user.name || user.email?.split('@')[0] || 'مستخدم'}
                 </h3>
                 <p className={`text-sm ${
                   darkMode ? 'text-gray-400' : 'text-gray-600'

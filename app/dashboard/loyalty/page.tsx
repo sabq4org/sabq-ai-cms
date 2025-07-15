@@ -601,7 +601,7 @@ export default function LoyaltyPage() {
                                   ) : (
                                     <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                                       <span className="text-white font-semibold text-sm">
-                                        {user.name.charAt(0)}
+                                        {user.name ? user.name.charAt(0).toUpperCase() : user.email ? user.email.charAt(0).toUpperCase() : '؟'}
                                       </span>
                                     </div>
                                   )}
@@ -685,7 +685,7 @@ export default function LoyaltyPage() {
                                 ) : (
                                   <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                                     <span className="text-white font-semibold text-sm">
-                                      {(user.name || formatUserName(user.user_id)).charAt(0)}
+                                      {user.name ? user.name.charAt(0).toUpperCase() : user.email ? user.email.charAt(0).toUpperCase() : formatUserName(user.user_id).charAt(0).toUpperCase()}
                                     </span>
                                   </div>
                                 )}

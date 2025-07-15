@@ -4597,6 +4597,14 @@
       "timestamp": "2025-07-14T17:34:29.905Z",
       "source": "article_page",
       "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+    },
+    {
+      "user_id": "guest-1752559439142-8ouv",
+      "article_id": "07c8827c-d64e-44c8-9aa3-471e395d909e",
+      "interaction_type": "view",
+      "timestamp": "2025-07-15T06:04:01.923Z",
+      "source": "article_page",
+      "device": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
     }
   ]
 }

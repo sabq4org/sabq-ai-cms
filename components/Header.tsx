@@ -233,7 +233,7 @@ export default function Header() {
                   ) : (
                     <User className="w-5 h-5" />
                   )}
-                  <span className="hidden sm:inline text-sm font-medium">{user.name}</span>
+                  <span className="hidden sm:inline text-sm font-medium">{user.name || user.email?.split('@')[0] || 'مستخدم'}</span>
                   <ChevronDown className="w-4 h-4" />
                 </button>
 
