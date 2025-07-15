@@ -18,7 +18,7 @@ import {
   Tag, User, Calendar, AlertCircle, CheckCircle, Loader2,
   Sparkles, FileText, Settings, Search, Plus, Trash2,
   Globe, TrendingUp, BookOpen, ChevronRight, Home, Zap,
-  Star, CheckSquare, Schedule
+  Star, CheckSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -295,7 +295,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           <>
             {formData.publishType === 'scheduled' ? (
               <>
-                <Schedule className="w-4 h-4" />
+                <Calendar className="w-4 h-4" />
                 جدولة النشر
               </>
             ) : (
@@ -652,7 +652,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                       onChange={() => setFormData(prev => ({ ...prev, publishType: 'scheduled' }))}
                       className="text-blue-600 scale-110"
                     />
-                    <Schedule className={cn(
+                    <Calendar className={cn(
                       "w-5 h-5",
                       formData.publishType === 'scheduled' ? "text-blue-600" : "text-slate-400"
                     )} />
