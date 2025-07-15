@@ -142,8 +142,8 @@ export default function CreateArticlePage() {
         if (authorsRes.ok) {
           const authorsData = await authorsRes.json();
           setAuthors(authorsData.members || []);
-        }
-      } catch (error) {
+      }
+    } catch (error) {
         console.error('Error loading initial data:', error);
       }
     };
@@ -249,20 +249,20 @@ export default function CreateArticlePage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className={`text-2xl md:text-3xl font-bold mb-2 transition-colors duration-300 ${
-              darkMode ? 'text-white' : 'text-gray-800'
+          darkMode ? 'text-white' : 'text-gray-800'
             }`}>
               إنشاء مقال جديد
             </h1>
             <p className={`text-sm md:text-base transition-colors duration-300 ${
-              darkMode ? 'text-gray-300' : 'text-gray-600'
+          darkMode ? 'text-gray-300' : 'text-gray-600'
             }`}>
               أنشئ محتوى احترافي خطوة بخطوة
             </p>
-          </div>
+            </div>
 
           {/* أزرار سريعة */}
-          <div className="flex gap-2">
-            <button
+                    <div className="flex gap-2">
+                            <button
               onClick={() => handleSubmit('draft')}
               className={`px-4 py-2 rounded-lg text-sm transition-all duration-200 ${
                 darkMode 
@@ -272,10 +272,10 @@ export default function CreateArticlePage() {
             >
               <Save className="w-4 h-4 inline ml-2" />
               حفظ كمسودة
-            </button>
-          </div>
-        </div>
-      </div>
+                            </button>
+                        </div>
+                      </div>
+                  </div>
 
       {/* Wizard Component */}
       <div className="max-w-6xl mx-auto">
@@ -285,8 +285,8 @@ export default function CreateArticlePage() {
         >
           {renderStepContent}
         </ArticleWizard>
-      </div>
-
+                    </div>
+                    
       {/* شريط مساعد AI عائم */}
       <div className={`fixed bottom-6 left-6 p-4 rounded-xl shadow-lg transition-all duration-300 ${
         darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
@@ -294,10 +294,10 @@ export default function CreateArticlePage() {
         <div className="flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg">
             <Sparkles className="w-5 h-5 text-white" />
-          </div>
-          <div>
+                      </div>
+                  <div>
             <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-              مساعد الذكاء الاصطناعي
+                  مساعد الذكاء الاصطناعي
             </p>
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               متاح لمساعدتك في كل خطوة

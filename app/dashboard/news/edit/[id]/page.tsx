@@ -145,7 +145,7 @@ export default function EditArticlePage() {
           const article = data.article;
           
           // تحديث البيانات
-          setFormData({
+        setFormData({
             title: article.title || '',
             subtitle: article.subtitle || '',
             excerpt: article.excerpt || '',
@@ -249,7 +249,7 @@ export default function EditArticlePage() {
 
       if (response.ok) {
         toast.success(status === 'draft' ? 'تم حفظ المسودة بنجاح' : 'تم تحديث المقال بنجاح');
-        router.push('/dashboard/news');
+      router.push('/dashboard/news');
       } else {
         const data = await response.json();
         throw new Error(data.error || 'فشل في حفظ المقال');
@@ -342,23 +342,23 @@ export default function EditArticlePage() {
       {/* رأس الصفحة المبسط */}
       <div className="max-w-6xl mx-auto mb-8">
         <div className="flex items-center justify-between">
-          <div>
+                <div>
             <h1 className={`text-2xl md:text-3xl font-bold mb-2 transition-colors duration-300 ${
               darkMode ? 'text-white' : 'text-gray-800'
             }`}>
-              تعديل المقال
-            </h1>
+                    تعديل المقال
+                  </h1>
             <p className={`text-sm md:text-base transition-colors duration-300 ${
               darkMode ? 'text-gray-300' : 'text-gray-600'
             }`}>
               قم بتحديث المقال خطوة بخطوة
             </p>
-          </div>
-
+            </div>
+            
           {/* أزرار سريعة */}
           <div className="flex gap-2">
-            <button
-              onClick={() => router.push('/dashboard/news')}
+              <button
+                onClick={() => router.push('/dashboard/news')}
               className={`px-4 py-2 rounded-lg text-sm transition-all duration-200 ${
                 darkMode 
                   ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
@@ -367,8 +367,8 @@ export default function EditArticlePage() {
             >
               <X className="w-4 h-4 inline ml-2" />
               إلغاء
-            </button>
-            <button
+              </button>
+              <button
               onClick={() => handleSubmit('draft')}
               className={`px-4 py-2 rounded-lg text-sm transition-all duration-200 ${
                 darkMode 
@@ -378,10 +378,10 @@ export default function EditArticlePage() {
             >
               <Save className="w-4 h-4 inline ml-2" />
               حفظ كمسودة
-            </button>
+                </button>
           </div>
         </div>
-      </div>
+        </div>
 
       {/* Wizard Component */}
       <div className="max-w-6xl mx-auto">
@@ -391,26 +391,26 @@ export default function EditArticlePage() {
         >
           {renderStepContent}
         </ArticleWizard>
-      </div>
-
+                        </div>
+                        
       {/* شريط مساعد AI عائم */}
       <div className={`fixed bottom-6 left-6 p-4 rounded-xl shadow-lg transition-all duration-300 ${
         darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
       } max-w-xs`}>
-        <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg">
             <Sparkles className="w-5 h-5 text-white" />
-          </div>
-          <div>
+                        </div>
+                        <div>
             <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               مساعد الذكاء الاصطناعي
             </p>
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               متاح لمساعدتك في كل خطوة
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                        </div>
   );
 }
