@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+// import prisma from '@/lib/prisma'; // تعطيل الاستيراد المشترك
+import { PrismaClient } from '@prisma/client'; // استيراد مباشر
 
 
 
@@ -99,6 +100,7 @@ function normalizeMetadata(md: any): any {
 
 // GET: جلب جميع الفئات
 export async function GET(request: NextRequest) {
+  const prisma = new PrismaClient(); // إنشاء نسخة جديدة هنا
   try {
     // =================================================
     // تشخيص المشكلة: استخدام استعلام بسيط جدًا
@@ -131,6 +133,7 @@ export async function GET(request: NextRequest) {
 
 // POST: إنشاء فئة جديدة
 export async function POST(request: NextRequest) {
+  const prisma = new PrismaClient();
   try {
     const body = await request.json();
     
@@ -242,6 +245,7 @@ export async function POST(request: NextRequest) {
 
 // PUT: تحديث فئة
 export async function PUT(request: NextRequest) {
+  const prisma = new PrismaClient();
   try {
     const body = await request.json();
     
@@ -400,6 +404,7 @@ export async function PUT(request: NextRequest) {
 
 // DELETE: حذف فئة
 export async function DELETE(request: NextRequest) {
+  const prisma = new PrismaClient();
   try {
     const body = await request.json();
     const ids = body.ids || [];
