@@ -7,29 +7,14 @@ let aiSettings: any = null;
 async function loadSettingsFromDB() {
   if (aiSettings) return aiSettings;
   try {
-    const row = await prisma.site_settings.findUnique({
+    const row = await prisma.site_settings.findFirst({
       where: { section: 'ai' }
     });
     if (row) {
       aiSettings = row.data as any;
     }
-  } catch (err) {
-    console.error('DB load error for AI settings:', err);
-  }
-  if (!aiSettings) {
-    aiSettings = {
-      openai: {
-        apiKey: process.env.OPENAI_API_KEY || '',
-        model: 'gpt-4',
-        maxTokens: 2000,
-        temperature: 0.7
-      },
-      features: {
-        aiEditor: true,
-        analytics: true,
-        notifications: true
-      }
-    };
+  } catch (error) {
+    console.error('Error loading AI settings from DB:', error);
   }
   return aiSettings;
 }
@@ -52,24 +37,43 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const updates = await request.json();
     
-    const current = await loadSettingsFromDB();
-    // دمج القيم
-    aiSettings = { ...current, ...body };
+    // تحديث الإعدادات المحلية
+    if (!aiSettings) {
+      await loadSettingsFromDB();
+    }
+    
+    aiSettings = {
+      ...aiSettings,
+      ...updates,
+      updated_at: new Date().toISOString()
+    };
 
     // حفظ في قاعدة البيانات
-    await prisma.site_settings.upsert({
-      where: { section: 'ai' },
-      update: { data: aiSettings, updated_at: new Date() },
-      create: {
-        id: `ai-${Date.now()}`,
-        section: 'ai',
-        data: aiSettings,
-        created_at: new Date(),
-        updated_at: new Date()
-      }
+    const existingSettings = await prisma.site_settings.findFirst({
+      where: { section: 'ai' }
     });
+
+    if (existingSettings) {
+      await prisma.site_settings.update({
+        where: { id: existingSettings.id },
+        data: { 
+          data: aiSettings, 
+          updated_at: new Date() 
+        }
+      });
+    } else {
+      await prisma.site_settings.create({
+        data: {
+          id: `ai-${Date.now()}`,
+          section: 'ai',
+          data: aiSettings,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      });
+    }
 
     // تحديث env للمسار الحالي
     if (aiSettings.openai?.apiKey) {
