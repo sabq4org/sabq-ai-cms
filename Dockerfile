@@ -25,15 +25,23 @@ COPY . .
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-ENV DATABASE_URL=postgresql://user:pass@localhost:5432/db?schema=public
+# Use a placeholder DATABASE_URL for Prisma generation
+ENV DATABASE_URL="postgresql://user:password@host:5432/db?schema=public"
 ENV NODE_OPTIONS="--openssl-legacy-provider"
 
-# Generate Prisma Client
-RUN npx prisma generate
+# Create the directory for Prisma Client
+RUN mkdir -p lib/generated
 
-# Verify Prisma Client generation
-RUN echo "Checking Prisma Client..." && \
-    ls -la lib/generated/prisma/ || echo "Prisma client directory not found!"
+# Generate Prisma Client with more verbose output
+RUN echo "🔧 Generating Prisma Client..." && \
+    npx prisma generate --generator client && \
+    echo "✅ Prisma Client generated"
+
+# Verify Prisma Client generation and check for daily_doses
+RUN echo "📋 Checking Prisma Client..." && \
+    ls -la lib/generated/prisma/ && \
+    echo "🔍 Checking for daily_doses model..." && \
+    grep -r "daily_doses" lib/generated/prisma/ || echo "⚠️ daily_doses not found in generated client"
 
 # Build Next.js application
 RUN npm run build
