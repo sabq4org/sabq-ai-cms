@@ -1,80 +1,73 @@
-# Multi-stage build للحصول على حجم أصغر
-FROM node:20-alpine AS deps
-# تثبيت libc6-compat مطلوب للألبين
+# Use the official Node.js image
+FROM node:18-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# نسخ ملفات التبعيات
-COPY package.json package-lock.json ./
-COPY prisma ./prisma/
-# نسخ السكريبتات المطلوبة لـ postinstall
-COPY scripts ./scripts/
-# إنشاء مجلد lib/generated المطلوب لـ Prisma
-RUN mkdir -p lib/generated
+# Install dependencies based on the preferred package manager
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
-# تثبيت التبعيات مع إصلاح مشاكل التبعيات
-# نحتاج لتثبيت كل التبعيات أولاً لتشغيل postinstall
-RUN npm install --legacy-peer-deps
-# بعد تشغيل postinstall، نحذف devDependencies
-RUN npm prune --production
-
-# مرحلة البناء
-FROM node:20-alpine AS builder
+# Rebuild the source code only when needed
+FROM base AS builder
 WORKDIR /app
-
-# نسخ التبعيات من المرحلة السابقة
 COPY --from=deps /app/node_modules ./node_modules
-# نسخ السكريبتات أولاً
-COPY scripts ./scripts
 COPY . .
 
-# متغيرات البيئة للبناء
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+# Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV DATABASE_URL=postgresql://user:pass@localhost:5432/db?schema=public
 
-# إضافة DATABASE_URL مؤقت للبناء إذا لم يكن موجوداً
-ENV DATABASE_URL=${DATABASE_URL:-mysql://build:build@localhost:3306/build?ssl={"rejectUnauthorized":false}}
+# Generate Prisma Client
+RUN npx prisma generate
 
-# تشغيل سكريبت التحضير للبناء على DigitalOcean
-RUN node scripts/digitalocean-build.js || echo "No build script found, continuing..."
+# Verify Prisma Client generation
+RUN echo "Checking Prisma Client..." && \
+    ls -la lib/generated/prisma/ || echo "Prisma client directory not found!"
 
-# توليد Prisma Client مع fallback
-RUN npx prisma generate || node scripts/fix-prisma-generation.js || echo "Prisma generation failed, using fallback"
-
-# البناء
+# Build Next.js application
 RUN npm run build
 
-# مرحلة الإنتاج
-FROM node:20-alpine AS runner
+# Production image, copy all the files and run next
+FROM base AS runner
 WORKDIR /app
 
-# إنشاء مستخدم غير root
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# نسخ الملفات الضرورية فقط
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
 
-# نسخ ملفات Next.js
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# نسخ Prisma
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Copy Prisma files
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/lib/generated ./lib/generated
 
-# التبديل للمستخدم غير root
 USER nextjs
 
-# المنفذ
 EXPOSE 3000
 
-# متغيرات البيئة
 ENV PORT=3000
-ENV NODE_ENV=production
 
-# البدء
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 CMD ["node", "server.js"] 

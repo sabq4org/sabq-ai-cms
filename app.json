@@ -1,0 +1,35 @@
+{
+  "name": "sabq-ai-cms",
+  "displayName": "Sabq AI CMS",
+  "version": "0.2.2",
+  "description": "نظام إدارة المحتوى الذكي لسبق",
+  "repository": "https://github.com/sabq4org/sabq-ai-cms",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
+    "start": "npm start",
+    "build": "npm run build:do"
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "professional-xs"
+    }
+  },
+  "addons": [],
+  "env": {
+    "NODE_ENV": {
+      "value": "production"
+    },
+    "APP_VERSION": {
+      "value": "0.2.2"
+    }
+  }
+} 

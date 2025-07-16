@@ -10,6 +10,7 @@ services:
   instance_count: 1
   instance_size_slug: professional-xs
   name: web
+  dockerfile_path: Dockerfile
   build_command: npm run build:do
   run_command: npm start
   envs:
@@ -30,4 +31,8 @@ services:
   - key: PORT
     value: "3000"
   - key: PRISMA_CLI_BINARY_TARGETS
-    value: '["debian-openssl-3.0.x"]' 
+    value: '["debian-openssl-3.0.x"]'
+  - key: APP_VERSION
+    value: "0.2.2"
+  - key: APP_NAME
+    value: "sabq-ai-cms" 

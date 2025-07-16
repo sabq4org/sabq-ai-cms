@@ -1,0 +1,48 @@
+spec:
+  name: sabq-ai-cms
+  region: fra
+  services:
+  - name: web
+    git:
+      branch: main
+      repo_url: https://github.com/sabq4org/sabq-ai-cms.git
+    source_dir: /
+    environment_slug: node-js
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: professional-xs
+    
+    # Custom build command that ensures Prisma is generated
+    build_command: |
+      echo "🚀 Starting DigitalOcean build..."
+      echo "📦 Installing dependencies..."
+      npm ci
+      echo "🔧 Generating Prisma Client..."
+      npx prisma generate
+      echo "🏗️ Building Next.js app..."
+      npm run build
+      echo "✅ Build complete!"
+    
+    run_command: npm start
+    
+    envs:
+    - key: NODE_ENV
+      value: production
+    - key: DATABASE_URL
+      type: SECRET
+    - key: JWT_SECRET
+      type: SECRET
+    - key: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      value: dybhezmvb
+    - key: NEXT_PUBLIC_CLOUDINARY_API_KEY
+      value: "559894124915114"
+    - key: CLOUDINARY_API_SECRET
+      type: SECRET
+    - key: NEXTAUTH_SECRET
+      type: SECRET
+    - key: PORT
+      value: "3000"
+    - key: PRISMA_CLI_BINARY_TARGETS
+      value: '["debian-openssl-3.0.x"]'
+    - key: APP_VERSION
+      value: "0.2.2" 
