@@ -12,9 +12,9 @@ import {
 } from 'lucide-react';
 
 interface Category {
-  id: number;
+  id: string | number;
   name: string;
-  name_ar: string;
+  name_ar?: string;
   slug: string;
   description?: string;
   icon?: string;
@@ -23,7 +23,11 @@ interface Category {
   articles_count?: number;
   is_active: boolean;
   metadata?: {
+    name_ar?: string;
+    name_en?: string;
     cover_image?: string;
+    icon?: string;
+    color_hex?: string;
     [key: string]: any;
   };
 }
@@ -197,7 +201,38 @@ export default function CategoriesPage() {
         const data = await response.json();
         if (data.success) {
           const categoriesData = data.categories || data.data || [];
-          const activeCategories = categoriesData.filter((cat: Category) => cat.is_active);
+          
+          // تسجيل البيانات للتشخيص
+          console.log('بيانات التصنيفات المستلمة:', categoriesData);
+          
+          // تحويل البيانات للتأكد من وجود name_ar في المكان الصحيح
+          const normalizedCategories = categoriesData.map((cat: any) => {
+            const normalized = { ...cat };
+            // إذا كان name_ar في metadata، انقله للمستوى الرئيسي
+            if (!normalized.name_ar && normalized.metadata?.name_ar) {
+              normalized.name_ar = normalized.metadata.name_ar;
+            }
+            // إذا لم يكن هناك name_ar على الإطلاق، استخدم name
+            if (!normalized.name_ar && normalized.name) {
+              normalized.name_ar = normalized.name;
+            }
+            return normalized;
+          });
+          
+          // تسجيل تحذير للتصنيفات بدون أسماء
+          const invalidCategories = normalizedCategories.filter((cat: Category) => !cat.name_ar && !cat.name);
+          if (invalidCategories.length > 0) {
+            console.warn('تصنيفات بدون أسماء بعد التطبيع:', invalidCategories);
+          }
+          
+          // فلترة التصنيفات النشطة والتحقق من وجود البيانات المطلوبة
+          const activeCategories = normalizedCategories
+            .filter((cat: Category) => cat && typeof cat === 'object') // التأكد من أنه كائن صالح
+            .filter((cat: Category) => {
+              return cat.is_active && (cat.name_ar || cat.name);
+            });
+          
+          console.log('التصنيفات النشطة بعد الفلترة:', activeCategories);
           setCategories(activeCategories);
         } else {
           setError(data.message || 'فشل في تحميل التصنيفات');
@@ -216,19 +251,81 @@ export default function CategoriesPage() {
     }
   };
 
-  const filteredCategories = categories
-    .filter(category =>
-      category.name_ar.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (sortBy === 'name') {
-        return a.name_ar.localeCompare(b.name_ar);
-      } else {
-        return (b.articles_count || 0) - (a.articles_count || 0);
-      }
-    });
+  const filteredCategories = React.useMemo(() => {
+    // التحقق من وجود البيانات أولاً
+    if (!categories || !Array.isArray(categories) || categories.length === 0) {
+      return [];
+    }
+    
+    return categories
+      .filter(category => {
+        // التحقق من وجود الكائن أولاً
+        if (!category || typeof category !== 'object') {
+          console.warn('تصنيف غير صالح:', category);
+          return false;
+        }
+        
+        // الحصول على الاسم العربي من المكان المناسب
+        let categoryNameAr = '';
+        try {
+          categoryNameAr = category.name_ar || category.metadata?.name_ar || category.name || '';
+        } catch (e) {
+          console.error('خطأ في الوصول لاسم التصنيف:', e, category);
+          return false;
+        }
+        
+        if (!categoryNameAr) return false;
+        
+        // التحقق من أن categoryNameAr هو string قبل استخدام toLowerCase
+        if (typeof categoryNameAr !== 'string') {
+          console.warn('اسم التصنيف ليس نصاً:', categoryNameAr, category);
+          return false;
+        }
+        
+        // التحقق من searchTerm أيضاً
+        const searchValue = searchTerm || '';
+        if (typeof searchValue !== 'string') {
+          return true; // إرجاع جميع التصنيفات إذا لم يكن هناك نص بحث صالح
+        }
+        
+        try {
+          return categoryNameAr.toLowerCase().includes(searchValue.toLowerCase());
+        } catch (e) {
+          console.error('خطأ في المقارنة:', e, categoryNameAr, searchValue);
+          return false;
+        }
+      })
+      .sort((a, b) => {
+        try {
+          if (sortBy === 'name') {
+            // الحصول على الأسماء من المكان المناسب
+            const nameA = a?.name_ar || a?.metadata?.name_ar || a?.name || '';
+            const nameB = b?.name_ar || b?.metadata?.name_ar || b?.name || '';
+            return String(nameA).localeCompare(String(nameB));
+          } else {
+            return (b?.articles_count || 0) - (a?.articles_count || 0);
+          }
+        } catch (e) {
+          console.error('خطأ في الترتيب:', e);
+          return 0;
+        }
+      });
+  }, [categories, searchTerm, sortBy]);
 
   const getCategoryData = (name: string) => {
+    // التأكد من وجود الاسم
+    if (!name) {
+      return {
+        icon: Tag,
+        color: 'gray',
+        bgColor: 'bg-gray-500',
+        hoverColor: 'hover:bg-gray-600',
+        lightBg: 'bg-gray-50',
+        darkBg: 'dark:bg-gray-900/20',
+        image: 'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?auto=format&fit=crop&w=800&q=80'
+      };
+    }
+    
     // البحث المباشر في البيانات المعرفة
     const directMatch = categoryData[name as keyof typeof categoryData];
     if (directMatch) return directMatch;
@@ -289,7 +386,9 @@ export default function CategoriesPage() {
       return coverImage;
     }
     
-    const categoryData = getCategoryData(category.name_ar);
+    // الحصول على الاسم العربي من المكان المناسب
+    const categoryNameAr = category.name_ar || category.metadata?.name_ar || category.name || '';
+    const categoryData = getCategoryData(categoryNameAr);
     return categoryData.image;
   };
 
@@ -449,8 +548,9 @@ export default function CategoriesPage() {
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {filteredCategories.map((category) => {
-                    const categorySlug = category.slug || category.name_ar.toLowerCase().replace(/\s+/g, '-');
-                    const data = getCategoryData(category.name_ar);
+                    const categoryName = category.name_ar || category.metadata?.name_ar || category.name || '';
+                    const categorySlug = category.slug || (categoryName ? String(categoryName).toLowerCase().replace(/\s+/g, '-') : '');
+                    const data = getCategoryData(categoryName);
                     const Icon = data.icon;
                     const imageSrc = getCategoryImage(category);
                     
@@ -465,7 +565,7 @@ export default function CategoriesPage() {
                           <div className="absolute inset-0">
                             <Image 
                               src={imageSrc} 
-                              alt={category.name_ar}
+                              alt={categoryName}
                               fill
                               className="object-cover"
                               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -477,14 +577,14 @@ export default function CategoriesPage() {
                           <div className="relative p-6 h-full flex flex-col justify-end">
                             <div className="flex items-center gap-3 mb-3">
                               <div className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-md">
-                                {category.icon ? (
-                                  <span className="text-xl">{category.icon}</span>
-                                ) : (
-                                  <Icon className={`w-5 h-5 ${data.bgColor.replace('bg-', 'text-')}`} />
-                                )}
+                                                              {category.icon || category.metadata?.icon ? (
+                                <span className="text-xl">{category.icon || category.metadata?.icon}</span>
+                              ) : (
+                                <Icon className={`w-5 h-5 ${data.bgColor.replace('bg-', 'text-')}`} />
+                              )}
                               </div>
                               <h3 className="text-xl font-bold text-white">
-                                {category.name_ar}
+                                {categoryName}
                               </h3>
                             </div>
                             
@@ -517,8 +617,9 @@ export default function CategoriesPage() {
                 // List View
                 <div className="space-y-4">
                   {filteredCategories.map((category) => {
-                    const categorySlug = category.slug || category.name_ar.toLowerCase().replace(/\s+/g, '-');
-                    const data = getCategoryData(category.name_ar);
+                    const categoryName = category.name_ar || category.metadata?.name_ar || category.name || '';
+                    const categorySlug = category.slug || categoryName.toLowerCase().replace(/\s+/g, '-');
+                    const data = getCategoryData(categoryName);
                     const Icon = data.icon;
                     
                     return (
@@ -531,8 +632,8 @@ export default function CategoriesPage() {
                           <div className="flex items-center gap-4">
                             {/* Icon */}
                             <div className={`w-16 h-16 ${data.bgColor} rounded-xl flex items-center justify-center shadow-md`}>
-                              {category.icon ? (
-                                <span className="text-2xl text-white">{category.icon}</span>
+                              {category.icon || category.metadata?.icon ? (
+                                <span className="text-2xl text-white">{category.icon || category.metadata?.icon}</span>
                               ) : (
                                 <Icon className="w-8 h-8 text-white" />
                               )}
@@ -541,7 +642,7 @@ export default function CategoriesPage() {
                             {/* Content */}
                             <div className="flex-1">
                               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-                                {category.name_ar}
+                                {categoryName}
                               </h3>
                               {(() => {
                                 let desc = category.description;

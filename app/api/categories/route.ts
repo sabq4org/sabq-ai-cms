@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import prisma from '@/lib/prisma'; // تعطيل الاستيراد المشترك
-import { PrismaClient } from '@prisma/client'; // استيراد مباشر
+import prisma from '@/lib/prisma'; // استخدام singleton
+// import { PrismaClient } from '@prisma/client'; // استيراد مباشر
 
 
 
@@ -100,48 +100,116 @@ function normalizeMetadata(md: any): any {
 
 // GET: جلب جميع الفئات
 export async function GET(request: NextRequest) {
-  const prisma = new PrismaClient(); // إنشاء نسخة جديدة هنا
   try {
-    // =================================================
-    // تشخيص المشكلة: استخدام استعلام بسيط جدًا
-    // =================================================
-    const categories = await prisma.categories.findMany({
-      take: 10, // جلب 10 فقط للاختبار
-    });
-
-    return corsResponse({
-      success: true,
-      message: "Test query successful",
-      data: categories,
-    });
-    // =================================================
-    // نهاية كود التشخيص - الكود الأصلي أدناه معطل
-    // =================================================
-/*
     // التأكد من وجود URL صحيح
     if (!request.url) {
-      return NextResponse.json(
-        { error: 'Invalid request URL' },
-        { status: 400 }
-      );
+      return corsResponse({
+        success: false,
+        error: 'Invalid request URL'
+      }, 400);
     }
     
     const { searchParams } = new URL(request.url);
     
-// ... (الكود الأصلي معطل بالكامل)
-*/
+    // معاملات الفلترة
+    const isActive = searchParams.get('is_active') || searchParams.get('active');
+    const parentId = searchParams.get('parent_id');
+    const slug = searchParams.get('slug');
+    const limit = searchParams.get('limit');
+    
+    // بناء شروط البحث
+    const where: any = {};
+    
+    if (isActive !== null && isActive !== '') {
+      where.is_active = isActive === 'true';
+    }
+    
+    if (parentId !== null && parentId !== '') {
+      where.parent_id = parentId === 'null' ? null : parentId;
+    }
+    
+    if (slug) {
+      where.slug = slug;
+    }
+    
+    // جلب الفئات مع عدد المقالات
+    const categories = await prisma.categories.findMany({
+      where,
+      orderBy: [
+        { display_order: 'asc' },
+        { name: 'asc' }
+      ],
+      ...(limit && { take: parseInt(limit) })
+    });
+    
+    // جلب عدد المقالات لكل فئة
+    const categoriesWithCount = await Promise.all(
+      categories.map(async (category) => {
+        const articlesCount = await prisma.articles.count({
+          where: {
+            category_id: category.id,
+            status: 'published'
+          }
+        });
+        
+        // معالجة metadata
+        let parsedMetadata: any = {};
+        if (category.metadata && typeof category.metadata === 'object') {
+          parsedMetadata = normalizeMetadata(category.metadata);
+        }
+        
+        // استخراج البيانات من metadata أو استخدام القيم الافتراضية
+        const name_ar = parsedMetadata.name_ar || category.name || '';
+        const name_en = parsedMetadata.name_en || category.name_en || '';
+        const description_ar = parsedMetadata.ar || category.description || '';
+        const description_en = parsedMetadata.en || '';
+        const color_hex = parsedMetadata.color_hex || category.color || '#6B7280';
+        const icon = parsedMetadata.icon || category.icon || '📁';
+        const cover_image = parsedMetadata.cover_image || '';
+        
+        return {
+          id: category.id,
+          name: category.name || name_ar,
+          name_ar: name_ar,
+          name_en: name_en,
+          slug: category.slug,
+          description: description_ar,
+          description_en: description_en,
+          color: color_hex,
+          color_hex: color_hex,
+          icon: icon,
+          cover_image: cover_image,
+          parent_id: category.parent_id,
+          display_order: category.display_order,
+          is_active: category.is_active,
+          articles_count: articlesCount,
+          created_at: category.created_at,
+          updated_at: category.updated_at,
+          metadata: parsedMetadata
+        };
+      })
+    );
+    
+    return corsResponse({
+      success: true,
+      data: categoriesWithCount,
+      categories: categoriesWithCount, // للتوافق مع الكود القديم
+      total: categoriesWithCount.length
+    });
+    
   } catch (error) {
     console.error('خطأ في جلب الفئات:', error);
     return corsResponse({
       success: false,
-      error: 'حدث خطأ في جلب الفئات'
+      error: 'حدث خطأ في جلب الفئات',
+      message: error instanceof Error ? error.message : 'خطأ غير معروف'
     }, 500);
   }
 }
 
 // POST: إنشاء فئة جديدة
 export async function POST(request: NextRequest) {
-  const prisma = new PrismaClient();
+  // استخدام prisma singleton
   try {
     const body = await request.json();
     
@@ -253,7 +321,7 @@ export async function POST(request: NextRequest) {
 
 // PUT: تحديث فئة
 export async function PUT(request: NextRequest) {
-  const prisma = new PrismaClient();
+  // استخدام prisma singleton
   try {
     const body = await request.json();
     
@@ -412,7 +480,7 @@ export async function PUT(request: NextRequest) {
 
 // DELETE: حذف فئة
 export async function DELETE(request: NextRequest) {
-  const prisma = new PrismaClient();
+  // استخدام prisma singleton
   try {
     const body = await request.json();
     const ids = body.ids || [];

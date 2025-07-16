@@ -43,4 +43,15 @@ services:
   - key: NEXT_TELEMETRY_DISABLED
     value: "1"
   - key: SKIP_EMAIL_VERIFICATION
-    value: "true" 
+    value: "true"
+  # DigitalOcean Spaces Configuration
+  - key: DO_SPACES_KEY
+    type: SECRET
+  - key: DO_SPACES_SECRET
+    type: SECRET
+  - key: DO_SPACES_REGION
+    value: fra1
+  - key: DO_SPACES_BUCKET
+    value: sabq-ai-spaces
+  - key: DO_SPACES_ENDPOINT
+    value: https://fra1.digitaloceanspaces.com 
