@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Newspaper, Loader2, Grid3X3, List, Calendar, Clock, Eye, Home,
-  ArrowLeft, AlertTriangle, Filter, TrendingUp
+  ArrowLeft, AlertTriangle, Filter, TrendingUp, Heart, Bookmark, 
+  Share2, MessageSquare, Layers
 } from 'lucide-react';
 import ArticleCard from '@/components/ArticleCard';
 import Header from '@/components/Header';
@@ -61,6 +62,15 @@ interface Category {
   is_active?: boolean;
 }
 
+interface NewsStats {
+  totalArticles: number;
+  totalLikes: number;
+  totalViews: number;
+  totalSaves: number;
+  totalShares?: number;
+  totalComments?: number;
+}
+
 export default function NewsPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -71,6 +81,8 @@ export default function NewsPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'newest' | 'views'>('newest');
   const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<NewsStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
 
   const ITEMS_PER_PAGE = 20;
 
@@ -84,6 +96,30 @@ export default function NewsPage() {
     } catch (error) {
       console.error('Error fetching categories:', error);
       setError('فشل في تحميل التصنيفات');
+    }
+  };
+
+  // Fetch stats
+  const fetchStats = async () => {
+    try {
+      setStatsLoading(true);
+      const params = new URLSearchParams();
+      if (selectedCategory) {
+        params.append('category_id', selectedCategory.toString());
+      }
+      
+      const response = await fetch(`/api/news/stats?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      const data = await response.json();
+      
+      if (data.success && data.stats) {
+        setStats(data.stats);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      // لا نظهر خطأ للمستخدم في حالة فشل الإحصائيات
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -133,6 +169,7 @@ export default function NewsPage() {
 
   useEffect(() => {
     fetchArticles(true);
+    fetchStats();
   }, [selectedCategory, sortBy]);
 
   const loadMore = () => {
@@ -178,13 +215,70 @@ export default function NewsPage() {
                 تابع أحدث الأخبار والتطورات
               </p>
               
-              {!loading && articles.length > 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {selectedCategory ? 
-                    `${getCategoryName(selectedCategory)} - ${articles.length} خبر` :
-                    `جميع الأخبار - ${articles.length} خبر`
-                  }
-                </p>
+              {/* إحصائيات الأخبار */}
+              {stats && !statsLoading && (
+                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 shadow-lg">
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <Newspaper className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalArticles}</div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">خبر</div>
+                  </div>
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {stats.totalViews > 999 ? `${(stats.totalViews / 1000).toFixed(1)}k` : stats.totalViews}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">مشاهدة</div>
+                  </div>
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <Heart className="w-5 h-5 text-red-600 dark:text-red-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalLikes}</div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">إعجاب</div>
+                  </div>
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <Bookmark className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalSaves}</div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">حفظ</div>
+                  </div>
+                  
+                  {stats.totalShares !== undefined && stats.totalShares > 0 && (
+                    <>
+                      <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                      <div className="text-center px-2">
+                        <div className="flex items-center gap-2">
+                          <Share2 className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                          <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalShares}</div>
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">مشاركة</div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+              
+              {/* Loading indicator for stats */}
+              {statsLoading && (
+                <div className="mt-6 inline-flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">جاري تحميل الإحصائيات...</span>
+                </div>
               )}
             </div>
           </div>
