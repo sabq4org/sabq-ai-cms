@@ -29,7 +29,7 @@ export async function GET(
 ) {
   try {
     const { categorySlug } = await context.params;
-    const category = await prisma.categories.findUnique({
+    const category = await prisma.categories.findFirst({
       where: { slug: categorySlug }
     });
 
