@@ -47,15 +47,15 @@ model EmailLog {
 model EmailProviderConfig {
   id              String                   @id
   type            EmailProviderConfig_type @default(smtp)
-  sender_name     String                   @db.VarChar(255)
-  sender_email    String                   @db.VarChar(255)
+  sender_name     String
+  sender_email    String
   api_key         String?
-  host            String?                  @db.VarChar(255)
+  host            String?
   port            Int?
-  username        String?                  @db.VarChar(255)
+  username        String?
   password        String?
   footer_html     String?
-  unsubscribe_url String?                  @db.VarChar(500)
+  unsubscribe_url String?
   created_at      DateTime                 @default(now())
   updated_at      DateTime
 }
@@ -125,6 +125,7 @@ model article_keywords {
   @@index([keyword_id])
 }
 
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model articles {
   id                String                  @id
   title             String                  @db.VarChar(500)
@@ -140,9 +141,6 @@ model articles {
   published_at      DateTime?
   scheduled_for     DateTime?
   views             Int                     @default(0)
-  likes             Int                     @default(0)
-  shares            Int                     @default(0)
-  saves             Int                     @default(0)
   reading_time      Int?
   seo_title         String?
   seo_description   String?
@@ -150,9 +148,12 @@ model articles {
   social_image      String?
   allow_comments    Boolean                 @default(true)
   metadata          Json?
-  audio_summary_url String? // رابط الملف الصوتي للموجز
   created_at        DateTime                @default(now())
   updated_at        DateTime
+  audio_summary_url String?
+  likes             Int                     @default(0)
+  saves             Int                     @default(0)
+  shares            Int                     @default(0)
   categories        categories?             @relation(fields: [category_id], references: [id])
   interactions      interactions[]
   reading_sessions  user_reading_sessions[]
@@ -162,12 +163,7 @@ model articles {
   @@index([slug])
   @@index([status, published_at])
   @@index([status, published_at(sort: Desc)], map: "idx_articles_status_published_desc")
-  @@index([category_id, status, published_at(sort: Desc)], map: "idx_articles_category_status_published")
-  @@index([author_id, status, published_at(sort: Desc)], map: "idx_articles_author_status_published")
-  @@index([featured, status, published_at(sort: Desc)], map: "idx_articles_featured_status_published")
-  @@index([breaking, status, published_at(sort: Desc)], map: "idx_articles_breaking_status_published")
-  @@index([created_at(sort: Desc)], map: "idx_articles_created_desc")
-  @@index([views(sort: Desc)], map: "idx_articles_views_desc")
+  @@index([created_at(sort: Desc)], map: "idx_articles_created_at")
   @@map("articles")
 }
 
@@ -189,6 +185,7 @@ model categories {
 
   @@index([parent_id])
   @@index([slug])
+  @@index([slug], map: "idx_categories_slug")
 }
 
 model comments {
@@ -668,13 +665,15 @@ model users {
   created_at         DateTime                @default(now())
   updated_at         DateTime
   interactions       interactions[]
-  reading_sessions   user_reading_sessions[]
   insights           user_insights?
-  similar_to         user_similar_readers[]  @relation("UserSimilarReaders")
+  reading_sessions   user_reading_sessions[]
   similar_from       user_similar_readers[]  @relation("SimilarUserReaders")
+  similar_to         user_similar_readers[]  @relation("UserSimilarReaders")
 
   @@index([email])
   @@index([role])
+  @@index([email], map: "idx_users_email")
+  @@index([role], map: "idx_users_role")
 }
 
 model was_news {
@@ -702,80 +701,65 @@ model was_news {
   @@index([created_at])
 }
 
-// ========== User Journey & Reading Analytics Tables ==========
-
 model user_reading_sessions {
-  id               String    @id
-  user_id          String
-  article_id       String
-  started_at       DateTime  @default(now())
-  ended_at         DateTime?
+  id               String    @id @db.VarChar(36)
+  user_id          String    @db.VarChar(36)
+  article_id       String    @db.VarChar(36)
+  started_at       DateTime? @default(now()) @db.Timestamptz(6)
+  ended_at         DateTime? @db.Timestamptz(6)
   duration_seconds Int?
-  read_percentage  Float? // نسبة المقال المقروء
-  scroll_depth     Float? // عمق التمرير
-  device_type      String? // mobile, tablet, desktop
-  time_of_day      Int? // ساعة اليوم (0-23)
-  created_at       DateTime  @default(now())
+  read_percentage  Float?
+  scroll_depth     Float?
+  device_type      String?   @db.VarChar(50)
+  time_of_day      Int?
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+  articles         articles  @relation(fields: [article_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  users    users    @relation(fields: [user_id], references: [id])
-  articles articles @relation(fields: [article_id], references: [id])
-
-  @@index([user_id])
-  @@index([article_id])
-  @@index([started_at])
-  @@index([time_of_day])
+  @@index([article_id], map: "idx_user_reading_sessions_article_id")
+  @@index([started_at], map: "idx_user_reading_sessions_started_at")
+  @@index([time_of_day], map: "idx_user_reading_sessions_time_of_day")
+  @@index([user_id], map: "idx_user_reading_sessions_user_id")
 }
 
 model user_insights {
-  id      String @id
-  user_id String @unique
+  id                      String    @id @db.VarChar(36)
+  user_id                 String    @unique @db.VarChar(36)
+  total_reads             Int?      @default(0)
+  total_saved             Int?      @default(0)
+  total_interactions      Int?      @default(0)
+  avg_read_time           Float?
+  preferred_reading_time  String?   @db.VarChar(50)
+  reader_type             String?   @db.VarChar(50)
+  diversity_score         Float?
+  preferred_categories    Json?
+  preferred_article_types Json?
+  avg_article_length      Int?
+  weekly_reads            Int?      @default(0)
+  weekly_streak           Int?      @default(0)
+  last_read_date          DateTime? @db.Timestamptz(6)
+  calculated_at           DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
+  users                   users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  // إحصائيات القراءة
-  total_reads        Int    @default(0)
-  total_saved        Int    @default(0)
-  total_interactions Int    @default(0)
-  avg_read_time      Float? // متوسط وقت القراءة بالدقائق
-
-  // تحليل السلوك
-  preferred_reading_time String? // "صباحًا", "ظهرًا", "مساءً", "ليلاً"
-  reader_type            String? // "قارئ تحليلي", "قارئ سريع", "قارئ متوازن"
-  diversity_score        Float? // نسبة التنوع في التصنيفات (0-100)
-
-  // تفضيلات المحتوى
-  preferred_categories    Json? // [{category_id, count, percentage}]
-  preferred_article_types Json? // {"تحليلية": 60, "مختصرة": 40}
-  avg_article_length      Int? // متوسط طول المقالات المقروءة
-
-  // نشاط الأسبوع
-  weekly_reads   Int       @default(0)
-  weekly_streak  Int       @default(0) // عدد أيام القراءة المتتالية
-  last_read_date DateTime?
-
-  // التحديثات
-  calculated_at DateTime @default(now())
-  updated_at    DateTime @updatedAt
-
-  users users @relation(fields: [user_id], references: [id])
-
-  @@index([user_id])
-  @@index([updated_at])
+  @@index([updated_at], map: "idx_user_insights_updated_at")
+  @@index([user_id], map: "idx_user_insights_user_id")
 }
 
 model user_similar_readers {
-  id                String   @id
-  user_id           String
-  similar_user_id   String
-  similarity_score  Float // درجة التشابه (0-1)
-  common_categories Json? // التصنيفات المشتركة
-  calculated_at     DateTime @default(now())
-
-  user         users @relation("UserSimilarReaders", fields: [user_id], references: [id])
-  similar_user users @relation("SimilarUserReaders", fields: [similar_user_id], references: [id])
+  id                String    @id @db.VarChar(36)
+  user_id           String    @db.VarChar(36)
+  similar_user_id   String    @db.VarChar(36)
+  similarity_score  Float?
+  common_categories Json?
+  calculated_at     DateTime? @default(now()) @db.Timestamptz(6)
+  similar_user      users     @relation("SimilarUserReaders", fields: [similar_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user              users     @relation("UserSimilarReaders", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([user_id, similar_user_id])
-  @@index([user_id])
-  @@index([similar_user_id])
-  @@index([similarity_score])
+  @@index([similar_user_id], map: "idx_user_similar_readers_similar_user_id")
+  @@index([similarity_score], map: "idx_user_similar_readers_similarity_score")
+  @@index([user_id], map: "idx_user_similar_readers_user_id")
 }
 
 enum EmailJob_status {
