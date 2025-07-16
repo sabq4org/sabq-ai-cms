@@ -16,7 +16,7 @@ spec:
     build_command: |
       echo "🚀 Starting DigitalOcean build..."
       echo "📦 Installing dependencies..."
-      npm ci
+      npm install --legacy-peer-deps
       echo "🔧 Generating Prisma Client..."
       npx prisma generate
       echo "🏗️ Building Next.js app..."
@@ -45,4 +45,6 @@ spec:
     - key: PRISMA_CLI_BINARY_TARGETS
       value: '["debian-openssl-3.0.x"]'
     - key: APP_VERSION
-      value: "0.2.2" 
+      value: "0.2.2"
+    - key: NODE_OPTIONS
+      value: "--openssl-legacy-provider" 
