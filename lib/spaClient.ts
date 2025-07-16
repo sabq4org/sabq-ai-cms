@@ -161,10 +161,12 @@ export async function getAllPriorities() {
   return data;
 }
 
-export default {
+const spaClient = {
   getNextNews,
   getBaskets,
   getStatus,
   getAllClassifications,
   getAllPriorities,
 };
+
+export default spaClient;
