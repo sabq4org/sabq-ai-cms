@@ -133,6 +133,14 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // TODO: إضافة التحقق من صلاحيات الإدارة
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

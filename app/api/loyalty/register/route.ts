@@ -347,6 +347,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const userId = parseInt(searchParams.get('userId') || '0');
     

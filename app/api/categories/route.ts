@@ -118,6 +118,14 @@ export async function GET(request: NextRequest) {
     // نهاية كود التشخيص - الكود الأصلي أدناه معطل
     // =================================================
 /*
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     
 // ... (الكود الأصلي معطل بالكامل)

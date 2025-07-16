@@ -613,6 +613,13 @@ export async function GET(request: NextRequest) {
   try {
     await ensureDataFiles();
     
+    if (!request.url) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const url = new URL(request.url);
     const userId = url.searchParams.get('userId');
     const articleId = url.searchParams.get('articleId');

@@ -16,6 +16,14 @@ function corsResponse(data: any, status: number = 200) {
 // GET: جلب المقالات المحفوظة
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const page = parseInt(searchParams.get('page') || '1');
@@ -218,6 +226,14 @@ export async function POST(request: NextRequest) {
 // DELETE: إزالة مقال من المحفوظات
 export async function DELETE(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const articleId = searchParams.get('articleId');

@@ -31,6 +31,14 @@ async function getUserRole(userId: string): Promise<string> {
 // جلب التعليقات لمقال معين
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const articleId = searchParams.get('article_id');
     const status = searchParams.get('status') || 'approved';

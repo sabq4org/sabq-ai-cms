@@ -184,6 +184,14 @@ export async function POST(request: NextRequest) {
 // GET: جلب تفضيلات المستخدم
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 

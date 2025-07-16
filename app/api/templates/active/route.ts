@@ -7,6 +7,13 @@ export const runtime = 'nodejs';
 // GET /api/templates/active
 export async function GET(request: NextRequest) {
   try {
+    if (!request.url) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') as TemplateType
     const categoryId = searchParams.get('category_id')

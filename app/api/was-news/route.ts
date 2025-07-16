@@ -100,7 +100,15 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
+    const { searchParams } = new URL(request.url);
   const action = searchParams.get('action');
 
   if (action === 'saved') {

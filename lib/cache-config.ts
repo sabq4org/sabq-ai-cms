@@ -98,6 +98,10 @@ export function shouldBypassCache(request: Request, metadata?: any): boolean {
   }
   
   // تجاوز الكاش إذا طُلب ذلك
+  if (!request.url) {
+    return false;
+  }
+  
   const url = new URL(request.url);
   if (url.searchParams.get('nocache') === 'true' || 
       url.searchParams.get('refresh') === 'true') {

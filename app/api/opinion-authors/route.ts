@@ -16,6 +16,14 @@ import { getCurrentUser } from '@/app/lib/auth';
 // GET - جلب جميع كتّاب الرأي
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const isActive = searchParams.get('isActive');
     
@@ -169,6 +177,14 @@ export async function PUT(request: NextRequest) {
       );
     }
     
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     
@@ -200,6 +216,14 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      );
+    }
+    
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
       );
     }
     

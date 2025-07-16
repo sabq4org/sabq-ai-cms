@@ -16,6 +16,14 @@ export async function OPTIONS() {
 // GET: جلب تفاعلات المستخدم مع مقال معين
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const articleId = searchParams.get('articleId');
@@ -213,6 +221,14 @@ export async function POST(request: NextRequest) {
 // DELETE: حذف تفاعل
 export async function DELETE(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const articleId = searchParams.get('articleId');

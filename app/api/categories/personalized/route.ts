@@ -23,6 +23,14 @@ export const runtime = 'nodejs';
 // GET: جلب التصنيفات المخصصة للمستخدم
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const limit = parseInt(searchParams.get('limit') || '6');

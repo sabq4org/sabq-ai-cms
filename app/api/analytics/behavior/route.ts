@@ -13,6 +13,14 @@ import prisma from '@/lib/prisma';
 // جلب تحليلات سلوك المستخدم
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const period = searchParams.get('period') || '7d'; // 7d, 30d, 90d, all
@@ -52,6 +60,13 @@ export async function GET(request: NextRequest) {
           user_id: userId,
           type: 'view',
           created_at: { gte: startDate }
+        },
+        include: {
+          article: {
+            include: {
+              category: true
+            }
+          }
         }
       }),
       

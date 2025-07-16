@@ -81,6 +81,14 @@ export async function POST(request: NextRequest) {
 // GET all user saved items with pagination
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
@@ -133,6 +141,14 @@ export async function GET(request: NextRequest) {
 // DELETE a specific saved item by its interaction ID
 export async function DELETE(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const interactionId = searchParams.get('interactionId');
     const userId = searchParams.get('userId');

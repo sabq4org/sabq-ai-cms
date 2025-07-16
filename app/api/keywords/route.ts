@@ -38,6 +38,14 @@ async function saveKeywords(keywords: Keyword[]) {
 // GET: ?search=name
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const q = searchParams.get('search') || '';
     const keywords = await loadKeywords();
@@ -76,6 +84,14 @@ export async function POST(request: NextRequest) {
 // PUT: /api/keywords?id=kw-id  body { name, usageCount }
 export async function PUT(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const body = await request.json();
@@ -95,6 +111,14 @@ export async function PUT(request: NextRequest) {
 // DELETE: /api/keywords?id=kw-id
 export async function DELETE(request: NextRequest) {
   try {
+    // التأكد من وجود URL صحيح
+    if (!request.url) {
+      return NextResponse.json(
+        { error: 'Invalid request URL' },
+        { status: 400 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const keywords = await loadKeywords();
