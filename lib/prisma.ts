@@ -26,7 +26,13 @@ if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma
 
 // تكوين connection pool محسّن
 if (process.env.DATABASE_URL) {
-  const url = new URL(process.env.DATABASE_URL)
+  // تنظيف قيمة DATABASE_URL من أي أجزاء إضافية
+  let cleanUrl = process.env.DATABASE_URL;
+  if (cleanUrl.includes('=')) {
+    cleanUrl = cleanUrl.split('=')[1].replace(/"/g, '');
+  }
+
+  const url = new URL(cleanUrl);
   
   // إضافة معاملات تحسين الأداء
   url.searchParams.set('connection_limit', '10')
