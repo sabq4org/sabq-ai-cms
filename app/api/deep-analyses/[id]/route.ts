@@ -172,13 +172,14 @@ export async function PUT(
       where: { id },
       create: {
         id,
-        article_id: id,
+        article_id: id, // افترض أن معرف المقال هو نفسه معرف التحليل
         ai_summary: body.summary || body.title,
         key_topics: body.tags || [],
         tags: body.tags || [],
         sentiment: 'neutral',
         engagement_score: body.qualityScore || 0,
         metadata: body,
+        analyzed_at: new Date(), // <-- إضافة الحقل المطلوب
         updated_at: new Date()
       },
       update: {
@@ -187,7 +188,8 @@ export async function PUT(
         tags: body.tags || [],
         engagement_score: body.qualityScore || 0,
         metadata: body,
-        updated_at: new Date()
+        updated_at: new Date(),
+        // يمكن إضافة analyzed_at هنا أيضاً إذا كان منطقياً تحديثه
       }
     });
     
