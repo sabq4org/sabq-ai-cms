@@ -17,7 +17,12 @@ export async function GET(request: NextRequest) {
     // إنشاء شرط الفلترة
     const where: any = { status: 'published' };
     if (categoryId) {
-      where.category_id = parseInt(categoryId);
+      // دعم category_id كرقم أو نص
+      if (!isNaN(Number(categoryId))) {
+        where.category_id = parseInt(categoryId);
+      } else {
+        where.category_id = categoryId;
+      }
     }
     
     // جلب معرفات المقالات أولاً
@@ -29,20 +34,11 @@ export async function GET(request: NextRequest) {
     // جلب الإحصائيات الأساسية
     const [
       totalArticles,
-      totalLikes,
       totalViews,
-      totalSaves
+      interactions
     ] = await Promise.all([
       // عدد الأخبار
       prisma.articles.count({ where }),
-      
-      // إجمالي الإعجابات
-      prisma.interactions.count({
-        where: {
-          type: 'like',
-          article_id: { in: articleIds }
-        }
-      }),
       
       // إجمالي المشاهدات من حقل views في المقالات
       prisma.articles.aggregate({
@@ -50,23 +46,17 @@ export async function GET(request: NextRequest) {
         where
       }),
       
-      // إجمالي مرات الحفظ
-      prisma.interactions.count({
-        where: {
-          type: 'save',
-          article_id: { in: articleIds }
-        }
-      })
+      // جلب جميع التفاعلات دفعة واحدة
+      articleIds.length > 0 
+        ? prisma.interactions.groupBy({
+            by: ['type'],
+            _count: true,
+            where: {
+              article_id: { in: articleIds }
+            }
+          })
+        : []
     ]);
-    
-    // جلب إحصائيات التفاعلات الإضافية
-    const interactions = await prisma.interactions.groupBy({
-      by: ['type'],
-      _count: true,
-      where: {
-        article_id: { in: articleIds }
-      }
-    });
     
     // تحويل النتائج إلى كائن سهل الاستخدام
     const interactionCounts = interactions.reduce((acc: any, curr) => {
@@ -75,17 +65,28 @@ export async function GET(request: NextRequest) {
     }, {});
     
     // جلب الأخبار الأكثر تفاعلاً (اختياري)
-    const topArticles = await prisma.articles.findMany({
-      where,
-      orderBy: { views: 'desc' },
-      take: 5,
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        views: true
-      }
-    });
+    const topArticles = articleIds.length > 0 
+      ? await prisma.articles.findMany({
+          where,
+          orderBy: { views: 'desc' },
+          take: 5,
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            views: true
+          }
+        })
+      : [];
+    
+    // إضافة بعض السجلات للتشخيص في بيئة التطوير
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📊 إحصائيات الأخبار:');
+      console.log(`- التصنيف: ${categoryId || 'الكل'}`);
+      console.log(`- عدد المقالات: ${totalArticles}`);
+      console.log(`- عدد معرفات المقالات: ${articleIds.length}`);
+      console.log(`- التفاعلات:`, interactionCounts);
+    }
     
     return NextResponse.json({
       success: true,
@@ -97,7 +98,13 @@ export async function GET(request: NextRequest) {
         totalShares: interactionCounts.share || 0,
         totalComments: interactionCounts.comment || 0
       },
-      topArticles
+      topArticles,
+      // معلومات إضافية للتشخيص
+      debug: process.env.NODE_ENV === 'development' ? {
+        categoryId,
+        whereClause: where,
+        articleCount: articleIds.length
+      } : undefined
     });
     
   } catch (error) {
@@ -105,7 +112,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false,
-        error: 'فشل في جلب إحصائيات الأخبار' 
+        error: 'فشل في جلب إحصائيات الأخبار',
+        details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
       },
       { status: 500 }
     );
