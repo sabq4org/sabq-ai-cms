@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         status: 'published'
       },
       include: {
-        categories: {
+        category: {
           select: {
             id: true,
             name: true,

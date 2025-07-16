@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
         description,
         permissions: JSON.stringify(permissions),
         is_system: false,
+        created_at: new Date(),
         updated_at: new Date()
       }
     });

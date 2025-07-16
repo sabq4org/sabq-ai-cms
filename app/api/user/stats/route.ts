@@ -31,9 +31,9 @@ export async function GET(request: Request) {
       prisma.interactions.findMany({
         where: { user_id: userId },
         include: {
-          articles: {
+          article: {
             include: {
-              categories: true
+              category: true
             }
           }
         }
@@ -76,8 +76,8 @@ export async function GET(request: Request) {
     // توزيع التصنيفات
     const categoryCount: Record<string, number> = {}
     interactions.forEach((interaction: any) => {
-      if (interaction.articles?.categories?.name) {
-        const catName = interaction.articles.categories.name
+      if (interaction.article?.category?.name) {
+        const catName = interaction.article.category.name
         categoryCount[catName] = (categoryCount[catName] || 0) + 1
       }
     })

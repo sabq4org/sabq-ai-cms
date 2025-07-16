@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         }
       },
       include: {
-        categories: {
+        category: {
           select: {
             id: true,
             name: true,

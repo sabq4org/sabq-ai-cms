@@ -9,51 +9,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model EmailJob {
-  id            String          @id
-  template_id   String?
-  scheduled_at  DateTime?
-  started_at    DateTime?
-  completed_at  DateTime?
-  status        EmailJob_status @default(queued)
-  target_filter Json?
-  metadata      Json?
-  stats         Json?
-  created_at    DateTime        @default(now())
-  updated_at    DateTime
-
-  @@index([status, scheduled_at])
-}
-
-model EmailLog {
-  id              String          @id
-  job_id          String?
-  subscriber_id   String
-  provider_msg_id String?
-  message_id      String?
-  status          EmailLog_status @default(pending)
-  error           String?         @db.Text
-  opened_at       DateTime?
-  clicked_at      DateTime?
-  unsubscribed_at DateTime?
-  meta            Json?
-  event_at        DateTime        @default(now())
-
-  @@index([status])
-  @@index([subscriber_id])
-}
-
-model EmailTemplate {
-  id           String   @id
-  name         String   @db.VarChar(255)
-  subject      String   @db.VarChar(500)
-  html_content String   @db.Text
-  text_content String?  @db.Text
-  metadata     Json?
-  created_at   DateTime @default(now())
-  updated_at   DateTime
-}
-
 model users {
   id                 String   @id
   email              String   @unique
@@ -80,7 +35,7 @@ model users {
 model categories {
   id            String   @id
   name          String
-  slug          String   @unique
+  slug          String
   description   String?
   display_order Int
   is_active     Boolean
@@ -205,7 +160,7 @@ model activity_logs {
 
 model roles {
   id           String   @id
-  name         String   @unique @db.VarChar(100)
+  name         String   @db.VarChar(100)
   slug         String?
   display_name String?
   description  String?
@@ -222,9 +177,6 @@ model user_preferences {
   value      Json
   created_at DateTime @db.Timestamp(6)
   updated_at DateTime @db.Timestamp(6)
-
-  @@unique([user_id, key])
-  @@index([user_id])
 }
 
 model user_roles {
@@ -379,7 +331,7 @@ model user_reading_sessions {
 
 model user_insights {
   id                      String    @id @db.VarChar(36)
-  user_id                 String    @unique @db.VarChar(36)
+  user_id                 String    @db.VarChar(36)
   total_reads             Int?
   total_saved             Int?
   total_interactions      Int?
@@ -443,99 +395,4 @@ enum interactions_type {
   share
   comment
   view
-}
-
-model Subscriber {
-  id          String            @id
-  email       String            @unique
-  name        String?           @db.VarChar(255)
-  status      Subscriber_status @default(active)
-  preferences Json?
-  metadata    Json?
-  created_at  DateTime          @default(now())
-  updated_at  DateTime
-}
-
-model daily_doses {
-  id          String             @id
-  period      daily_doses_period
-  title       String             @db.VarChar(500)
-  subtitle    String             @db.VarChar(500)
-  date        DateTime           @db.Date
-  status      daily_doses_status @default(draft)
-  publishedAt DateTime?
-  views       Int                @default(0)
-  metadata    Json?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime
-
-  @@unique([date, period])
-  @@index([date])
-  @@index([period])
-  @@index([status])
-}
-
-model dose_contents {
-  id           String                    @id
-  doseId       String
-  articleId    String?
-  contentType  dose_contents_contentType
-  title        String                    @db.VarChar(500)
-  summary      String                    @db.Text
-  audioUrl     String?                   @db.Text
-  imageUrl     String?                   @db.Text
-  displayOrder Int                       @default(0)
-  metadata     Json?
-  createdAt    DateTime                  @default(now())
-
-  @@index([articleId])
-  @@index([doseId])
-}
-
-enum daily_doses_period {
-  morning
-  afternoon
-  evening
-  night
-}
-
-enum daily_doses_status {
-  draft
-  published
-  scheduled
-  archived
-}
-
-enum dose_contents_contentType {
-  article
-  weather
-  quote
-  tip
-  audio
-  analysis
-}
-
-enum Subscriber_status {
-  active
-  inactive
-  unsubscribed
-}
-
-enum EmailJob_status {
-  queued
-  sending
-  completed
-  cancelled
-  failed
-}
-
-enum EmailLog_status {
-  pending
-  sent
-  delivered
-  bounced
-  opened
-  clicked
-  unsubscribed
-  failed
 } 

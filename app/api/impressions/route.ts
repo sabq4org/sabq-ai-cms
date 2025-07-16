@@ -313,6 +313,7 @@ async function updateReadingHistory(
               user_id: userId,
               key: 'interests',
               value: currentInterests,
+              created_at: new Date(),
               updated_at: new Date()
             }
           });

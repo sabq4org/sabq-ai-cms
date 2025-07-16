@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     const interactions = await prisma.interactions.findMany({
       where: { user_id: user_id },
       include: {
-        articles: {
+        article: {
           select: {
             id: true,
             title: true,

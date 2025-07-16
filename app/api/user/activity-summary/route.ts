@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
       },
       take: 5,
       include: {
-        articles: {
+        article: {
           select: {
             id: true,
             title: true,

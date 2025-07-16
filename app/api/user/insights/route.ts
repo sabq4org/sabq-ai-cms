@@ -41,7 +41,9 @@ export async function GET(request: NextRequest) {
       userInsights = await calculateUserInsights(userId);
     } else {
       // تحديث التحليلات إذا كانت قديمة (أكثر من 24 ساعة)
-      const hoursSinceUpdate = (Date.now() - userInsights.updated_at.getTime()) / (1000 * 60 * 60);
+      const hoursSinceUpdate = userInsights.updated_at 
+        ? (Date.now() - userInsights.updated_at.getTime()) / (1000 * 60 * 60)
+        : 999; // إذا لم يكن هناك تاريخ تحديث، اعتبرها قديمة
       if (hoursSinceUpdate > 24) {
         userInsights = await calculateUserInsights(userId);
       }
@@ -81,14 +83,19 @@ async function calculateUserInsights(userId: string) {
 
   // جلب جلسات القراءة
   const readingSessions = await prisma.user_reading_sessions.findMany({
-    where: { user_id: userId },
-    include: {
-      articles: {
-        select: {
-          category_id: true,
-          content: true
-        }
-      }
+    where: { user_id: userId }
+  });
+
+  // جلب معرفات المقالات المقروءة
+  const articleIds = readingSessions.map(s => s.article_id);
+  
+  // جلب تفاصيل المقالات
+  const articles = await prisma.articles.findMany({
+    where: { id: { in: articleIds } },
+    select: {
+      id: true,
+      category_id: true,
+      content: true
     }
   });
 
@@ -119,10 +126,12 @@ async function calculateUserInsights(userId: string) {
   // حساب التنوع
   const diversityScore = calculateDiversityScore(categoryStats);
 
-  // تحليل نوع القارئ
-  const articleLengths = readingSessions.map(s => 
-    s.articles.content ? s.articles.content.length : 0
-  );
+  // تحليل نوع القارئ - إنشاء map للمقالات
+  const articlesMap = new Map(articles.map(a => [a.id, a]));
+  const articleLengths = readingSessions.map(s => {
+    const article = articlesMap.get(s.article_id);
+    return article?.content ? article.content.length : 0;
+  });
   const avgArticleLength = articleLengths.length > 0
     ? articleLengths.reduce((sum, len) => sum + len, 0) / articleLengths.length
     : 0;
@@ -131,7 +140,7 @@ async function calculateUserInsights(userId: string) {
 
   // حساب نشاط الأسبوع
   const weeklyReads = readingSessions.filter(s => 
-    s.started_at > oneWeekAgo
+    s.started_at && s.started_at > oneWeekAgo
   ).length;
 
   const weeklyStreak = calculateWeeklyStreak(readingSessions);
