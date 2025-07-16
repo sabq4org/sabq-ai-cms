@@ -4,59 +4,51 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Radio, Loader2, Grid3X3, List, Calendar, Clock, Eye, Home,
-  ArrowLeft, AlertTriangle, Filter, TrendingUp, Activity, Zap
+  ArrowLeft, AlertTriangle, Filter, TrendingUp, Activity, Zap,
+  Newspaper, FileText, FolderOpen, Hash
 } from 'lucide-react';
-import ArticleCard from '@/components/ArticleCard';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { formatDistanceToNow } from 'date-fns';
+import { ar } from 'date-fns/locale';
 
-interface Article {
+interface TimelineItem {
   id: string;
+  type: 'news' | 'article' | 'category';
   title: string;
-  slug: string;
-  excerpt?: string;
-  summary?: string;
-  content?: string;
-  featured_image?: string;
-  author?: {
-    id: string;
-    name: string;
-    email: string;
-  } | null;
-  author_name?: string;
-  author_id?: string;
+  slug?: string;
+  excerpt?: string | null;
+  image?: string | null;
   category?: {
     id: string;
     name: string;
     slug: string;
     color: string | null;
-    icon: string | null;
   } | null;
-  category_id: number;
-  category_name?: string;
-  views?: number;
-  views_count?: number;
-  reading_time?: number;
-  published_at?: string;
-  created_at: string;
-  featured?: boolean;
-  is_featured?: boolean;
-  breaking?: boolean;
-  is_breaking?: boolean;
-  metadata?: any;
-  keywords?: string[];
+  author?: {
+    id: string;
+    name: string;
+  } | null;
+  timestamp: string;
+  tag: string;
+  label: string;
+  color: string;
+  categoryData?: {
+    color: string | null;
+    icon: string | null;
+  };
 }
 
 export default function MomentByMomentPage() {
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState<'newest' | 'views'>('newest');
+  const [viewMode, setViewMode] = useState<'timeline' | 'grid'>('timeline');
   const [error, setError] = useState<string | null>(null);
   const [isLive, setIsLive] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [filter, setFilter] = useState<'all' | 'news' | 'articles' | 'categories'>('all');
 
   const ITEMS_PER_PAGE = 20;
 
@@ -65,62 +57,115 @@ export default function MomentByMomentPage() {
     setMounted(true);
   }, []);
 
-  // Fetch live updates
-  const fetchArticles = async (reset = false) => {
+  // Fetch timeline items
+  const fetchTimeline = async (reset = false) => {
     try {
       setLoading(true);
       setError(null);
       
       const currentPage = reset ? 1 : page;
       const params = new URLSearchParams({
-        status: 'published',
-        limit: ITEMS_PER_PAGE.toString(),
         page: currentPage.toString(),
-        sortBy: sortBy === 'views' ? 'views' : 'published_at',
-        order: 'desc',
-        breaking: 'true' // Filter for breaking/live news
+        limit: ITEMS_PER_PAGE.toString()
       });
 
-      const response = await fetch(`/api/articles?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch articles');
+      const response = await fetch(`/api/timeline?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch timeline');
       
       const data = await response.json();
       
       if (reset) {
-        setArticles(data.articles || []);
+        setTimelineItems(data.items || []);
         setPage(1);
       } else {
-        setArticles(prev => [...prev, ...(data.articles || [])]);
+        setTimelineItems(prev => [...prev, ...(data.items || [])]);
       }
       
-      setHasMore((data.articles?.length || 0) === ITEMS_PER_PAGE);
+      setHasMore(data.pagination?.hasMore || false);
     } catch (error) {
-      console.error('Error fetching articles:', error);
-      setError('فشل في تحميل التحديثات المباشرة');
+      console.error('Error fetching timeline:', error);
+      setError('فشل في تحميل الخط الزمني');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchArticles(true);
-  }, [sortBy]);
+    fetchTimeline(true);
+  }, []);
 
   // Auto-refresh for live updates
   useEffect(() => {
     if (isLive) {
       const interval = setInterval(() => {
-        fetchArticles(true);
+        fetchTimeline(true);
       }, 30000); // Refresh every 30 seconds
 
       return () => clearInterval(interval);
     }
-  }, [isLive, sortBy]);
+  }, [isLive]);
 
   const loadMore = () => {
     if (!loading && hasMore) {
       setPage(prev => prev + 1);
-      fetchArticles(false);
+      fetchTimeline(false);
+    }
+  };
+
+  // Filter timeline items
+  const filteredItems = timelineItems.filter(item => {
+    if (filter === 'all') return true;
+    if (filter === 'news') return item.type === 'news';
+    if (filter === 'articles') return item.type === 'article';
+    if (filter === 'categories') return item.type === 'category';
+    return true;
+  });
+
+  // Get icon for timeline item
+  const getItemIcon = (type: string) => {
+    switch (type) {
+      case 'news':
+        return <Newspaper className="w-5 h-5" />;
+      case 'article':
+        return <FileText className="w-5 h-5" />;
+      case 'category':
+        return <FolderOpen className="w-5 h-5" />;
+      default:
+        return <Hash className="w-5 h-5" />;
+    }
+  };
+
+  // Get color classes for timeline item
+  const getItemColorClasses = (color: string) => {
+    switch (color) {
+      case 'green':
+        return {
+          bg: 'bg-green-100 dark:bg-green-900/30',
+          border: 'border-green-500',
+          text: 'text-green-700 dark:text-green-300',
+          badge: 'bg-green-500'
+        };
+      case 'orange':
+        return {
+          bg: 'bg-orange-100 dark:bg-orange-900/30',
+          border: 'border-orange-500',
+          text: 'text-orange-700 dark:text-orange-300',
+          badge: 'bg-orange-500'
+        };
+      case 'blue':
+        return {
+          bg: 'bg-blue-100 dark:bg-blue-900/30',
+          border: 'border-blue-500',
+          text: 'text-blue-700 dark:text-blue-300',
+          badge: 'bg-blue-500'
+        };
+      default:
+        return {
+          bg: 'bg-gray-100 dark:bg-gray-800',
+          border: 'border-gray-400',
+          text: 'text-gray-700 dark:text-gray-300',
+          badge: 'bg-gray-500'
+        };
     }
   };
 
@@ -147,12 +192,12 @@ export default function MomentByMomentPage() {
               </h1>
               
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-2" suppressHydrationWarning>
-                تابع الأحداث العاجلة والتحديثات المباشرة أولاً بأول
+                تابع جميع الأحداث والتحديثات في مكان واحد
               </p>
               
-              {mounted && !loading && articles.length > 0 && (
+              {mounted && !loading && filteredItems.length > 0 && (
                 <p className="text-sm text-gray-500 dark:text-gray-400" suppressHydrationWarning>
-                  {articles.length} تحديث مباشر
+                  {filteredItems.length} حدث
                 </p>
               )}
 
@@ -164,7 +209,7 @@ export default function MomentByMomentPage() {
                     <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
                   </div>
                   <span className="text-sm font-medium text-red-600 dark:text-red-400">
-                    بث مباشر
+                    متابعة مباشرة
                   </span>
                 </div>
               )}
@@ -172,11 +217,12 @@ export default function MomentByMomentPage() {
           </div>
         </section>
 
-        {/* Live Toggle Bar */}
+        {/* Controls Bar */}
         <div className="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700" suppressHydrationWarning>
           <div className="max-w-7xl mx-auto px-4 md:px-6">
             <div className="flex items-center justify-between py-4">
               <div className="flex items-center gap-4">
+                {/* Live Toggle */}
                 <button
                   onClick={() => setIsLive(!isLive)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
@@ -189,90 +235,82 @@ export default function MomentByMomentPage() {
                   {isLive ? 'التحديث التلقائي مفعّل' : 'التحديث التلقائي معطّل'}
                 </button>
 
-                {isLive && (
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    يتم التحديث كل 30 ثانية
-                  </span>
-                )}
+                {/* Filter Buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setFilter('all')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      filter === 'all'
+                        ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                    }`}
+                  >
+                    الكل
+                  </button>
+                  <button
+                    onClick={() => setFilter('news')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      filter === 'news'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                    }`}
+                  >
+                    أخبار
+                  </button>
+                  <button
+                    onClick={() => setFilter('articles')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      filter === 'articles'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                    }`}
+                  >
+                    مقالات
+                  </button>
+                  <button
+                    onClick={() => setFilter('categories')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      filter === 'categories'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                    }`}
+                  >
+                    تصنيفات
+                  </button>
+                </div>
               </div>
 
-              {mounted && (
-                <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-yellow-500" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    آخر تحديث: الآن
-                  </span>
-                </div>
-              )}
+              {/* View Mode Toggle */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setViewMode('timeline')}
+                  className={`p-2 rounded transition-colors ${
+                    viewMode === 'timeline' 
+                      ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' 
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
+                  title="عرض خط زمني"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded transition-colors ${
+                    viewMode === 'grid' 
+                      ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' 
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
+                  title="عرض شبكي"
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Content Section */}
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
-          {/* Results Count & Controls */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Radio className="w-5 h-5 text-red-600 dark:text-red-400" />
-                <span className="text-gray-700 dark:text-gray-300 font-medium" suppressHydrationWarning>
-                  {mounted ? (
-                    loading && page === 1 ? (
-                      'جاري التحميل...'
-                    ) : articles.length > 0 ? (
-                      `${articles.length} تحديث مباشر`
-                    ) : (
-                      'لا توجد تحديثات'
-                    )
-                  ) : (
-                    'جاري التحميل...'
-                  )}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                {/* Sort Options */}
-                <select
-                  value={sortBy}
-                  onChange={(e) => {
-                    setSortBy(e.target.value as 'newest' | 'views');
-                    setPage(1);
-                  }}
-                  className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-                >
-                  <option value="newest">الأحدث</option>
-                  <option value="views">الأكثر مشاهدة</option>
-                </select>
-
-                {/* View Mode Toggle */}
-                <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded transition-colors ${
-                      viewMode === 'grid' 
-                        ? 'bg-white dark:bg-gray-600 shadow-sm text-red-600 dark:text-red-400' 
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                    }`}
-                    title="عرض شبكي"
-                  >
-                    <Grid3X3 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded transition-colors ${
-                      viewMode === 'list' 
-                        ? 'bg-white dark:bg-gray-600 shadow-sm text-red-600 dark:text-red-400' 
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                    }`}
-                    title="عرض قائمة"
-                  >
-                    <List className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Error State */}
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-6">
@@ -287,51 +325,149 @@ export default function MomentByMomentPage() {
           {loading && page === 1 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="w-12 h-12 text-red-600 dark:text-red-400 animate-spin mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">جاري تحميل التحديثات المباشرة...</p>
+              <p className="text-gray-600 dark:text-gray-400">جاري تحميل الخط الزمني...</p>
             </div>
-          ) : articles.length === 0 ? (
+          ) : filteredItems.length === 0 ? (
             // Empty State
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
               <Radio className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                لا توجد تحديثات مباشرة
+                لا توجد أحداث
               </h3>
               <p className="text-gray-500 dark:text-gray-400">
-                لا توجد أخبار عاجلة أو تحديثات مباشرة في الوقت الحالي
+                لا توجد أحداث مطابقة للفلتر المحدد
               </p>
             </div>
           ) : (
             <>
-              {/* Articles Grid/List */}
-              <div className={viewMode === 'grid' 
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6' 
-                : 'space-y-4'
-              }>
-                {articles.map((article) => (
-                  <ArticleCard
-                    key={article.id}
-                    article={{
-                      ...article,
-                      category: article.category || (article.category_id ? {
-                        id: article.category_id.toString(),
-                        name: article.category_name || 'عاجل',
-                        slug: '',
-                        color: '#EF4444',
-                        icon: null
-                      } : null),
-                      author: article.author || (article.author_name ? {
-                        id: article.author_id || '',
-                        name: article.author_name,
-                        email: ''
-                      } : null),
-                      views: article.views || article.views_count || 0,
-                      featured: article.featured || article.is_featured || false,
-                      breaking: true // All articles here are breaking news
-                    }}
-                    viewMode={viewMode}
-                  />
-                ))}
-              </div>
+              {/* Timeline/Grid View */}
+              {viewMode === 'timeline' ? (
+                // Timeline View
+                <div className="relative">
+                  {/* Timeline Line */}
+                  <div className="absolute right-6 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700 hidden md:block" />
+                  
+                  <div className="space-y-8">
+                    {filteredItems.map((item, index) => {
+                      const colors = getItemColorClasses(item.color);
+                      const timeAgo = formatDistanceToNow(new Date(item.timestamp), {
+                        locale: ar,
+                        addSuffix: true
+                      });
+                      
+                      return (
+                        <div key={item.id} className="relative flex items-start gap-4">
+                          {/* Timeline Dot */}
+                          <div className="hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-white dark:bg-gray-800 border-4 border-gray-200 dark:border-gray-700 z-10">
+                            <div className={`w-6 h-6 rounded-full ${colors.badge}`} />
+                          </div>
+                          
+                          {/* Content Card */}
+                          <div className={`flex-1 ${colors.bg} rounded-xl p-6 border-r-4 ${colors.border}`}>
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <span className="text-2xl">{item.tag}</span>
+                                <span className={`font-semibold ${colors.text}`}>
+                                  {item.label}
+                                </span>
+                              </div>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                {timeAgo}
+                              </span>
+                            </div>
+                            
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                              {item.title}
+                            </h3>
+                            
+                            {item.excerpt && (
+                              <p className="text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                                {item.excerpt}
+                              </p>
+                            )}
+                            
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4 text-sm">
+                                {item.category && (
+                                  <span className="text-gray-500 dark:text-gray-400">
+                                    {item.category.name}
+                                  </span>
+                                )}
+                                {item.author && (
+                                  <span className="text-gray-500 dark:text-gray-400">
+                                    {item.author.name}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {(item.type === 'news' || item.type === 'article') && item.slug && (
+                                <Link 
+                                  href={`/article/${item.slug}`}
+                                  className={`text-sm font-medium ${colors.text} hover:underline`}
+                                >
+                                  اقرأ المزيد ←
+                                </Link>
+                              )}
+                              
+                              {item.type === 'category' && item.slug && (
+                                <Link 
+                                  href={`/categories/${item.slug}`}
+                                  className={`text-sm font-medium ${colors.text} hover:underline`}
+                                >
+                                  استكشف التصنيف ←
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                // Grid View
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredItems.map(item => {
+                    const colors = getItemColorClasses(item.color);
+                    const timeAgo = formatDistanceToNow(new Date(item.timestamp), {
+                      locale: ar,
+                      addSuffix: true
+                    });
+                    
+                    return (
+                      <div 
+                        key={item.id} 
+                        className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-shadow`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">{item.tag}</span>
+                            <span className={`text-sm font-semibold ${colors.text}`}>
+                              {item.label}
+                            </span>
+                          </div>
+                          {getItemIcon(item.type)}
+                        </div>
+                        
+                        <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+                          {item.title}
+                        </h3>
+                        
+                        {item.excerpt && (
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
+                            {item.excerpt}
+                          </p>
+                        )}
+                        
+                        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                          <span>{timeAgo}</span>
+                          {item.category && <span>{item.category.name}</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
               {/* Load More */}
               {hasMore && (
