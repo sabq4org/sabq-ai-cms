@@ -29,6 +29,7 @@ model users {
   comments           comments[]
   loyalty_points     loyalty_points[]
   activity_logs      activity_logs[]
+  interactions       interactions[]
 }
 
 model categories {
@@ -84,6 +85,7 @@ model articles {
   category          categories?       @relation(fields: [category_id], references: [id])
   comments          comments[]
   deep_analyses     deep_analyses[]
+  interactions      interactions[]
   @@map("articles")
 }
 
@@ -354,4 +356,28 @@ model user_similar_readers {
   similarity_score  Float?
   common_categories Json?
   calculated_at     DateTime? @db.Timestamptz(6)
+}
+
+model interactions {
+  id         String            @id @db.VarChar(36)
+  user_id    String            @db.VarChar(36)
+  article_id String            @db.VarChar(36)
+  type       interactions_type
+  created_at DateTime          @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  article    articles          @relation(fields: [article_id], references: [id])
+  user       users             @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, article_id, type])
+  @@index([article_id])
+  @@index([user_id])
+}
+
+enum interactions_type {
+  like
+  save
+  share
+  comment
+  view
 } 

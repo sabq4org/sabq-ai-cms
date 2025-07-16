@@ -46,20 +46,20 @@ export async function GET(request: NextRequest) {
       impressions,
       interactions
     ] = await Promise.all([
-      // الانطباعات - استخدام user_reading_sessions
-      prisma.user_reading_sessions.findMany({
+      // الانطباعات - استخدام Interaction بدلاً من impression
+      prisma.interactions.findMany({
         where: {
           user_id: userId,
+          type: 'view',
           created_at: { gte: startDate }
         }
       }),
       
-      // التفاعلات - استخدام activity_logs
-      prisma.activity_logs.findMany({
+      // التفاعلات
+      prisma.interactions.findMany({
         where: {
           user_id: userId,
-          created_at: { gte: startDate },
-          entity_type: 'article'
+          created_at: { gte: startDate }
         }
       })
     ]);
@@ -106,18 +106,8 @@ function analyzeInteractions(interactions: any[]) {
   };
   
   interactions.forEach(interaction => {
-    // تحليل activity_logs بناءً على action
-    const action = interaction.action?.toLowerCase();
-    if (action === 'liked' || action === 'like') {
-      breakdown.like++;
-    } else if (action === 'saved' || action === 'save') {
-      breakdown.save++;
-    } else if (action === 'shared' || action === 'share') {
-      breakdown.share++;
-    } else if (action === 'commented' || action === 'comment') {
-      breakdown.comment++;
-    } else if (action === 'viewed' || action === 'view') {
-      breakdown.view++;
+    if (breakdown.hasOwnProperty(interaction.type)) {
+      breakdown[interaction.type as keyof typeof breakdown]++;
     }
   });
   
@@ -130,11 +120,6 @@ function analyzeCategoryPreferences(impressions: any[]) {
     articles: Set<string>;
   }> = {};
   
-  // مؤقتاً: إرجاع مصفوفة فارغة حتى نصلح العلاقات
-  // TODO: إضافة includes للمقالات والفئات في الاستعلام الأساسي
-  return [];
-  
-  /*
   impressions.forEach(impression => {
     const category = impression.article?.category;
     if (!category) return;
@@ -159,7 +144,6 @@ function analyzeCategoryPreferences(impressions: any[]) {
   }));
   
   return result.sort((a, b) => b.impressions - a.impressions);
-  */
 }
 
  
