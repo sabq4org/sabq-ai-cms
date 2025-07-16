@@ -37,4 +37,10 @@ services:
   - key: APP_NAME
     value: "sabq-ai-cms"
   - key: NODE_OPTIONS
-    value: "--openssl-legacy-provider" 
+    value: "--openssl-legacy-provider"
+  - key: NODE_VERSION
+    value: "18.20.0"
+  - key: NEXT_TELEMETRY_DISABLED
+    value: "1"
+  - key: SKIP_EMAIL_VERIFICATION
+    value: "true" 

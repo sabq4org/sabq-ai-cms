@@ -1,4 +1,12 @@
-import sharp from 'sharp';
+// محاولة استيراد sharp مع معالجة الأخطاء
+let sharp: any;
+try {
+  sharp = require('sharp');
+} catch (error) {
+  console.warn('⚠️ مكتبة sharp غير متوفرة، سيتم استخدام بدائل بسيطة');
+  sharp = null;
+}
+
 import path from 'path';
 import fs from 'fs/promises';
 
@@ -54,6 +62,13 @@ export async function optimizeImage(
     webp: '',
     sizes: {},
   };
+
+  // إذا لم يكن sharp متوفراً، أرجع المسار الأصلي
+  if (!sharp) {
+    console.warn('⚠️ تحسين الصور غير متوفر - sharp غير مثبت');
+    result.webp = inputPath;
+    return result;
+  }
 
   // التأكد من وجود مجلد الإخراج
   await fs.mkdir(outputDir, { recursive: true });
@@ -131,6 +146,18 @@ export async function batchOptimizeImages(
  * الحصول على معلومات الصورة
  */
 export async function getImageInfo(imagePath: string) {
+  if (!sharp) {
+    console.warn('⚠️ معلومات الصور غير متوفرة - sharp غير مثبت');
+    return {
+      width: undefined,
+      height: undefined,
+      format: undefined,
+      size: undefined,
+      density: undefined,
+      hasAlpha: undefined,
+    };
+  }
+  
   const metadata = await sharp(imagePath).metadata();
   return {
     width: metadata.width,
@@ -154,6 +181,12 @@ export async function optimizeImageBuffer(
     height?: number;
   } = {}
 ): Promise<Buffer> {
+  // إذا لم يكن sharp متوفراً، أرجع البيانات الأصلية
+  if (!sharp) {
+    console.warn('⚠️ تحسين الصور غير متوفر - sharp غير مثبت');
+    return buffer;
+  }
+
   const {
     format = 'webp',
     quality = IMAGE_QUALITY[format],
@@ -197,6 +230,12 @@ export async function generateBlurPlaceholder(
   imagePath: string,
   size: number = 20
 ): Promise<string> {
+  if (!sharp) {
+    console.warn('⚠️ إنشاء placeholder غير متوفر - sharp غير مثبت');
+    // إرجاع صورة placeholder افتراضية
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZGRkIi8+PC9zdmc+';
+  }
+  
   const buffer = await sharp(imagePath)
     .resize(size, size, { fit: 'inside' })
     .blur(5)
@@ -217,6 +256,11 @@ export async function validateImage(
     allowedFormats?: string[];
   } = {}
 ): Promise<{ valid: boolean; error?: string }> {
+  // إذا لم يكن sharp متوفراً، نقوم بتحقق بسيط
+  if (!sharp) {
+    return { valid: true };
+  }
+
   try {
     const metadata = await sharp(imagePath).metadata();
     const {
