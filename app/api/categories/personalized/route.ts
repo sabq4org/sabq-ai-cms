@@ -41,12 +41,10 @@ export async function GET(request: NextRequest) {
     });
 
     // جلب اهتمامات المستخدم من UserPreference
-    const userInterestPreference = await prisma.user_preferences.findUnique({
+    const userInterestPreference = await prisma.user_preferences.findFirst({
       where: {
-        user_id_key: {
-          user_id: userId,
-          key: 'interests'
-        }
+        user_id: userId,
+        key: 'interests'
       }
     });
     
