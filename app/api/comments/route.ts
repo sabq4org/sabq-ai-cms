@@ -349,6 +349,7 @@ export async function POST(request: NextRequest) {
         parent_id: parentId,
         content: processedContent,
         status: commentStatus,
+        likes: 0,
         created_at: new Date(),
         updated_at: new Date(),
         metadata: {
