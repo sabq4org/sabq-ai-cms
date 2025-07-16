@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // البحث عن المستخدم في قاعدة البيانات
-    const user = await prisma.users.findUnique({
+    const user = await prisma.users.findFirst({
       where: { email: email.toLowerCase() },
       select: {
         id: true,

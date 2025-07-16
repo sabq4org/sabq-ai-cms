@@ -121,6 +121,8 @@ export async function POST(request: NextRequest) {
         role: body.roleId,
         is_verified: body.isVerified ?? false,
         avatar: body.avatar,
+        is_admin: false,
+        created_at: new Date(),
         updated_at: new Date()
       }
     });
