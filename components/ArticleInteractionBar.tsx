@@ -184,6 +184,29 @@ export default function ArticleInteractionBar({
     }
   };
 
+  // جلب حالة التفاعلات عند تحميل المكون
+  useEffect(() => {
+    const fetchInteractions = async () => {
+      const userId = localStorage.getItem('user_id');
+      if (!userId || userId === 'anonymous') return;
+
+      try {
+        const response = await fetch(`/api/interactions?userId=${userId}&articleId=${articleId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setLiked(data.data.liked || false);
+            setSaved(data.data.saved || false);
+          }
+        }
+      } catch (error) {
+        console.error('خطأ في جلب التفاعلات:', error);
+      }
+    };
+
+    fetchInteractions();
+  }, [articleId]);
+
   // عرض معلومات الجلسة في وضع التطوير
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {

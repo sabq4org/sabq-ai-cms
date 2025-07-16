@@ -66,15 +66,18 @@ function LoginForm() {
         toast.success(data.message || 'تم تسجيل الدخول بنجاح');
         
         // تحديد مسار إعادة التوجيه
-        const redirectPath = data.user?.is_admin ? '/dashboard' : '/';
+        // إعطاء الأولوية لـ callbackUrl إذا كان موجوداً
+        let redirectPath = '/';
+        
+        if (callbackUrl) {
+          redirectPath = callbackUrl;
+        } else if (data.user?.is_admin) {
+          redirectPath = '/dashboard';
+        }
         
         // استخدام router.push بدلاً من window.location للحفاظ على حالة التطبيق
         setTimeout(() => {
-          if (callbackUrl) {
-            router.push(callbackUrl);
-          } else {
-            router.push(redirectPath);
-          }
+          router.push(redirectPath);
         }, 500);
       } else {
         toast.error(data.error || 'حدث خطأ في تسجيل الدخول');
