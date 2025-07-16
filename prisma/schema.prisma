@@ -10,80 +10,23 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model EmailJob {
-  id            String          @id
-  template_id   String?
-  scheduled_at  DateTime?
-  started_at    DateTime?
-  completed_at  DateTime?
-  status        EmailJob_status @default(queued)
-  target_filter Json?
-  metadata      Json?
-  stats         Json?
-  created_at    DateTime        @default(now())
-  updated_at    DateTime
-
-  @@index([status, scheduled_at])
-}
-
-model EmailLog {
-  id              String          @id
-  job_id          String?
-  subscriber_id   String
-  provider_msg_id String?
-  message_id      String?
-  status          EmailLog_status @default(pending)
-  error           String?
-  opened_at       DateTime?
-  clicked_at      DateTime?
-  unsubscribed_at DateTime?
-  meta            Json?
-  event_at        DateTime        @default(now())
-
-  @@index([status])
-  @@index([subscriber_id])
-}
-
-model EmailProviderConfig {
-  id              String                   @id
-  type            EmailProviderConfig_type @default(smtp)
-  sender_name     String
-  sender_email    String
-  api_key         String?
-  host            String?
-  port            Int?
-  username        String?
-  password        String?
-  footer_html     String?
-  unsubscribe_url String?
-  created_at      DateTime                 @default(now())
-  updated_at      DateTime
-}
-
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model EmailTemplate {
-  id           String   @id
+  id           String
   name         String   @db.VarChar(255)
   subject      String   @db.VarChar(500)
   html_content String
   text_content String?
   metadata     Json?
-  created_at   DateTime @default(now())
-  updated_at   DateTime
+  created_at   DateTime @db.Timestamp(6)
+  updated_at   DateTime @db.Timestamp(6)
+
+  @@ignore
 }
 
-model Subscriber {
-  id          String            @id
-  email       String            @unique
-  name        String?           @db.VarChar(255)
-  status      Subscriber_status @default(active)
-  preferences Json?
-  metadata    Json?
-  created_at  DateTime          @default(now())
-  updated_at  DateTime
-}
-
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model activity_logs {
-  id          String   @id
+  id          String
   user_id     String?
   action      String
   entity_type String?
@@ -93,413 +36,268 @@ model activity_logs {
   metadata    Json?
   ip_address  String?  @db.VarChar(45)
   user_agent  String?
-  created_at  DateTime @default(now())
+  created_at  DateTime @db.Timestamp(6)
 
-  @@index([action])
-  @@index([entity_type, entity_id])
-  @@index([user_id])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model analytics_data {
-  id           String   @id
+  id           String
   date         DateTime @db.Date
   metric_name  String   @db.VarChar(100)
-  metric_value Decimal  @db.Decimal(15, 2)
+  metric_value Decimal  @db.Decimal
   dimensions   Json?
   metadata     Json?
-  created_at   DateTime @default(now())
+  created_at   DateTime @db.Timestamp(6)
 
-  @@unique([date, metric_name])
-  @@index([date])
-  @@index([metric_name])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model article_keywords {
-  id         String   @id
+  id         String
   article_id String
   keyword_id String
-  created_at DateTime @default(now())
+  created_at DateTime @db.Timestamp(6)
 
-  @@unique([article_id, keyword_id])
-  @@index([article_id])
-  @@index([keyword_id])
+  @@ignore
 }
 
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model articles {
-  id                String                  @id
-  title             String                  @db.VarChar(500)
-  slug              String                  @unique @db.VarChar(500)
+  id                String
+  title             String    @db.VarChar(500)
+  slug              String    @db.VarChar(500)
   content           String
   excerpt           String?
   author_id         String
   category_id       String?
-  status            String                  @default("draft")
-  featured          Boolean                 @default(false)
-  breaking          Boolean                 @default(false)
+  status            String
+  featured          Boolean
+  breaking          Boolean
   featured_image    String?
-  published_at      DateTime?
-  scheduled_for     DateTime?
-  views             Int                     @default(0)
+  published_at      DateTime? @db.Timestamp(6)
+  scheduled_for     DateTime? @db.Timestamp(6)
+  views             Int
   reading_time      Int?
   seo_title         String?
   seo_description   String?
   seo_keywords      String?
   social_image      String?
-  allow_comments    Boolean                 @default(true)
+  allow_comments    Boolean
   metadata          Json?
-  created_at        DateTime                @default(now())
-  updated_at        DateTime
+  created_at        DateTime  @db.Timestamp(6)
+  updated_at        DateTime  @db.Timestamp(6)
   audio_summary_url String?
-  likes             Int                     @default(0)
-  saves             Int                     @default(0)
-  shares            Int                     @default(0)
-  categories        categories?             @relation(fields: [category_id], references: [id])
-  interactions      interactions[]
-  reading_sessions  user_reading_sessions[]
+  likes             Int
+  saves             Int
+  shares            Int
 
-  @@index([author_id])
-  @@index([category_id])
-  @@index([slug])
-  @@index([status, published_at])
-  @@index([status, published_at(sort: Desc)], map: "idx_articles_status_published_desc")
-  @@index([created_at(sort: Desc)], map: "idx_articles_created_at")
   @@map("articles")
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model categories {
-  id            String     @id
-  name          String     @unique
-  slug          String     @unique
+  id            String
+  name          String
+  slug          String
   description   String?
-  display_order Int        @default(0)
-  is_active     Boolean    @default(true)
-  color         String?    @db.VarChar(50)
-  icon          String?    @db.VarChar(50)
+  display_order Int
+  is_active     Boolean
+  color         String?  @db.VarChar(50)
+  icon          String?  @db.VarChar(50)
   metadata      Json?
   name_en       String?
   parent_id     String?
-  created_at    DateTime   @default(now())
-  updated_at    DateTime
-  articles      articles[]
+  created_at    DateTime @db.Timestamp(6)
+  updated_at    DateTime @db.Timestamp(6)
 
-  @@index([parent_id])
-  @@index([slug])
-  @@index([slug], map: "idx_categories_slug")
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model comments {
-  id         String   @id
+  id         String
   article_id String
   user_id    String?
   parent_id  String?
   content    String
-  status     String   @default("pending")
-  likes      Int      @default(0)
+  status     String
+  likes      Int
   metadata   Json?
-  created_at DateTime @default(now())
-  updated_at DateTime
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
 
-  @@index([article_id])
-  @@index([parent_id])
-  @@index([status])
-  @@index([user_id])
+  @@ignore
 }
 
-model daily_doses {
-  id          String             @id
-  period      daily_doses_period
-  title       String             @db.VarChar(500)
-  subtitle    String             @db.VarChar(500)
-  date        DateTime           @db.Date
-  status      daily_doses_status @default(draft)
-  publishedAt DateTime?
-  views       Int                @default(0)
-  metadata    Json?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime
-
-  @@unique([date, period])
-  @@index([date])
-  @@index([period])
-  @@index([status])
-}
-
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model deep_analyses {
-  id                  String   @id
-  article_id          String   @unique
+  id                  String
+  article_id          String
   ai_summary          String?
   key_topics          Json?
   tags                Json?
   sentiment           String?
-  readability_score   Decimal? @db.Decimal(5, 2)
+  readability_score   Decimal? @db.Decimal
   engagement_score    Int?
   suggested_headlines Json?
   related_articles    Json?
   metadata            Json?
-  analyzed_at         DateTime @default(now())
-  updated_at          DateTime
+  analyzed_at         DateTime @db.Timestamp(6)
+  updated_at          DateTime @db.Timestamp(6)
 
-  @@index([article_id])
+  @@ignore
 }
 
-model dose_contents {
-  id           String                    @id
-  doseId       String
-  articleId    String?
-  contentType  dose_contents_contentType
-  title        String                    @db.VarChar(500)
-  summary      String
-  audioUrl     String?
-  imageUrl     String?
-  displayOrder Int                       @default(0)
-  metadata     Json?
-  createdAt    DateTime                  @default(now())
-
-  @@index([articleId])
-  @@index([doseId])
-}
-
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model email_verification_codes {
-  id         String    @id
+  id         String
   email      String    @db.VarChar(255)
   code       String    @db.VarChar(6)
   user_id    String?
-  expires_at DateTime
-  used_at    DateTime?
-  created_at DateTime  @default(now())
+  expires_at DateTime  @db.Timestamp(6)
+  used_at    DateTime? @db.Timestamp(6)
+  created_at DateTime  @db.Timestamp(6)
 
-  @@index([code])
-  @@index([email])
-  @@index([expires_at])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model forum_badges {
-  id           String    @id
+  id           String
   name         String    @db.VarChar(255)
   name_ar      String    @db.VarChar(255)
   description  String?
   icon         String?   @db.VarChar(50)
   color        String?   @db.VarChar(50)
   requirements Json?
-  points       Int?      @default(0)
-  is_active    Boolean?  @default(true)
-  created_at   DateTime? @default(now())
-  updated_at   DateTime? @default(now())
+  points       Int?
+  is_active    Boolean?
+  created_at   DateTime? @db.Timestamp(6)
+  updated_at   DateTime? @db.Timestamp(6)
+
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model forum_categories {
-  id            String    @id
+  id            String
   name          String    @db.VarChar(255)
   name_ar       String    @db.VarChar(255)
-  slug          String    @unique(map: "slug") @db.VarChar(255)
+  slug          String    @db.VarChar(255)
   description   String?
   icon          String?   @db.VarChar(50)
   color         String?   @db.VarChar(50)
-  display_order Int?      @default(0)
-  is_active     Boolean?  @default(true)
-  created_at    DateTime? @default(now())
-  updated_at    DateTime? @default(now())
+  display_order Int?
+  is_active     Boolean?
+  created_at    DateTime? @db.Timestamp(6)
+  updated_at    DateTime? @db.Timestamp(6)
 
-  @@index([display_order])
-  @@index([slug])
+  @@ignore
 }
 
-model forum_follows {
-  id          String                    @id
-  user_id     String
-  target_type forum_follows_target_type
-  target_id   String
-  created_at  DateTime?                 @default(now())
-
-  @@unique([user_id, target_type, target_id])
-  @@index([target_type, target_id])
-  @@index([user_id])
-}
-
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model forum_notifications {
-  id          String    @id
+  id          String
   user_id     String
   type        String    @db.VarChar(50)
   target_type String?   @db.VarChar(50)
   target_id   String?
   data        Json?
-  is_read     Boolean?  @default(false)
-  created_at  DateTime? @default(now())
+  is_read     Boolean?
+  created_at  DateTime? @db.Timestamp(6)
 
-  @@index([created_at])
-  @@index([user_id, is_read])
+  @@ignore
 }
 
-model forum_replies {
-  id          String                @id
-  topic_id    String
-  parent_id   String?
-  author_id   String
-  content     String
-  is_accepted Boolean?              @default(false)
-  status      forum_replies_status? @default(active)
-  edited_at   DateTime?
-  edited_by   String?
-  created_at  DateTime?             @default(now())
-  updated_at  DateTime?             @default(now())
-
-  @@index([author_id])
-  @@index([created_at])
-  @@index([parent_id])
-  @@index([topic_id])
-}
-
-model forum_reports {
-  id          String                    @id
-  reporter_id String
-  target_type forum_reports_target_type
-  target_id   String
-  reason      String                    @db.VarChar(255)
-  description String?
-  status      forum_reports_status?     @default(pending)
-  resolved_by String?
-  resolved_at DateTime?
-  created_at  DateTime?                 @default(now())
-
-  @@index([reporter_id])
-  @@index([status])
-  @@index([target_type, target_id])
-}
-
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model forum_reputation {
-  id          String    @id
+  id          String
   user_id     String
-  points      Int?      @default(0)
+  points      Int?
   action_type String    @db.VarChar(50)
   target_type String?   @db.VarChar(50)
   target_id   String?
   description String?
-  created_at  DateTime? @default(now())
+  created_at  DateTime? @db.Timestamp(6)
 
-  @@index([created_at])
-  @@index([user_id])
+  @@ignore
 }
 
-model forum_topics {
-  id            String               @id
-  title         String               @db.VarChar(500)
-  content       String
-  author_id     String
-  category_id   String
-  is_pinned     Boolean?             @default(false)
-  is_locked     Boolean?             @default(false)
-  is_featured   Boolean?             @default(false)
-  status        forum_topics_status? @default(active)
-  views         Int?                 @default(0)
-  last_reply_at DateTime?
-  last_reply_by String?
-  created_at    DateTime?            @default(now())
-  updated_at    DateTime?            @default(now())
-
-  @@index([author_id])
-  @@index([category_id])
-  @@index([last_reply_at])
-  @@index([status, created_at])
-}
-
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model forum_user_badges {
-  id        String    @id
+  id        String
   user_id   String
   badge_id  String
-  earned_at DateTime? @default(now())
+  earned_at DateTime? @db.Timestamp(6)
 
-  @@unique([user_id, badge_id])
-  @@index([badge_id])
-  @@index([user_id])
+  @@ignore
 }
 
-model forum_votes {
-  id          String                  @id
-  user_id     String
-  target_type forum_votes_target_type
-  target_id   String
-  vote_type   forum_votes_vote_type
-  created_at  DateTime?               @default(now())
-
-  @@unique([user_id, target_type, target_id])
-  @@index([target_type, target_id])
-  @@index([user_id])
-}
-
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model home_blocks_config {
-  id            String   @id
+  id            String
   block_type    String   @db.VarChar(50)
   title         String   @db.VarChar(255)
   subtitle      String?  @db.VarChar(255)
   settings      Json
-  display_order Int      @default(0)
-  is_active     Boolean  @default(true)
-  created_at    DateTime @default(now())
-  updated_at    DateTime
+  display_order Int
+  is_active     Boolean
+  created_at    DateTime @db.Timestamp(6)
+  updated_at    DateTime @db.Timestamp(6)
 
-  @@index([block_type])
-  @@index([display_order])
-  @@index([is_active])
+  @@ignore
 }
 
-model interactions {
-  id         String            @id
-  user_id    String
-  article_id String
-  type       interactions_type
-  created_at DateTime          @default(now())
-  articles   articles          @relation(fields: [article_id], references: [id])
-  users      users             @relation(fields: [user_id], references: [id])
-
-  @@unique([user_id, article_id, type])
-  @@index([article_id])
-  @@index([user_id])
-}
-
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model keywords {
-  id         String   @id
-  name       String   @unique
-  slug       String   @unique
-  count      Int      @default(0)
-  created_at DateTime @default(now())
+  id         String
+  name       String
+  slug       String
+  count      Int
+  created_at DateTime @db.Timestamp(6)
 
-  @@index([slug])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model loyalty_points {
-  id             String   @id
+  id             String
   user_id        String
   points         Int
   action         String   @db.VarChar(100)
   reference_id   String?
   reference_type String?
   metadata       Json?
-  created_at     DateTime @default(now())
+  created_at     DateTime @db.Timestamp(6)
 
-  @@index([user_id])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model messages {
-  id            String    @id
+  id            String
   from_user_id  String?
   to_user_id    String?
   email         String
   subject       String?   @db.VarChar(500)
   message       String
-  status        String    @default("unread")
-  replied_at    DateTime?
+  status        String
+  replied_at    DateTime? @db.Timestamp(6)
   reply_content String?
   metadata      Json?
-  created_at    DateTime  @default(now())
+  created_at    DateTime  @db.Timestamp(6)
 
-  @@index([from_user_id])
-  @@index([status])
-  @@index([to_user_id])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model timeline_events {
-  id             String   @id
+  id             String
   event_type     String   @db.VarChar(50)
   entity_type    String   @db.VarChar(50)
   entity_id      String?
@@ -513,221 +311,208 @@ model timeline_events {
   category_name  String?  @db.VarChar(255)
   category_color String?  @db.VarChar(50)
   metadata       Json?
-  is_important   Boolean  @default(false)
-  created_at     DateTime @default(now())
+  is_important   Boolean
+  created_at     DateTime @db.Timestamp(6)
 
-  @@index([event_type])
-  @@index([entity_type, entity_id])
-  @@index([user_id])
-  @@index([created_at])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model password_reset_tokens {
-  id         String    @id
+  id         String
   user_id    String
-  token      String    @unique @db.VarChar(255)
-  expires_at DateTime
-  used_at    DateTime?
-  created_at DateTime  @default(now())
+  token      String    @db.VarChar(255)
+  expires_at DateTime  @db.Timestamp(6)
+  used_at    DateTime? @db.Timestamp(6)
+  created_at DateTime  @db.Timestamp(6)
 
-  @@index([expires_at])
-  @@index([token])
-  @@index([user_id])
+  @@ignore
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model roles {
-  id           String   @id
-  name         String   @unique @db.VarChar(100)
-  slug         String?  @unique
+  id           String
+  name         String   @db.VarChar(100)
+  slug         String?
   display_name String?
   description  String?
   permissions  Json?
-  is_system    Boolean  @default(false)
-  created_at   DateTime @default(now())
-  updated_at   DateTime
+  is_system    Boolean
+  created_at   DateTime @db.Timestamp(6)
+  updated_at   DateTime @db.Timestamp(6)
+
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model site_settings {
-  id         String   @id
-  section    String   @unique @db.VarChar(50)
+  id         String
+  section    String   @db.VarChar(50)
   data       Json
-  created_at DateTime @default(now())
-  updated_at DateTime
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
 
-  @@index([section])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model smart_blocks {
-  id            String    @id
+  id            String
   name          String    @db.VarChar(255)
   type          String    @db.VarChar(50)
   config        Json
   ai_config     Json?
   display_rules Json?
-  is_active     Boolean   @default(true)
-  last_updated  DateTime?
+  is_active     Boolean
+  last_updated  DateTime? @db.Timestamp(6)
   performance   Json?
-  created_at    DateTime  @default(now())
-  updated_at    DateTime
+  created_at    DateTime  @db.Timestamp(6)
+  updated_at    DateTime  @db.Timestamp(6)
 
-  @@index([is_active])
-  @@index([type])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model team_members {
-  id            String   @id
+  id            String
   name          String   @db.VarChar(255)
   role          String   @db.VarChar(100)
   department    String?  @db.VarChar(100)
   bio           String?
   avatar        String?
-  email         String?  @unique @db.VarChar(255)
+  email         String?  @db.VarChar(255)
   phone         String?  @db.VarChar(50)
   social_links  Json?
-  is_active     Boolean  @default(true)
-  display_order Int      @default(0)
-  created_at    DateTime @default(now())
-  updated_at    DateTime
+  is_active     Boolean
+  display_order Int
+  created_at    DateTime @db.Timestamp(6)
+  updated_at    DateTime @db.Timestamp(6)
 
-  @@index([department])
-  @@index([is_active])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model template_previews {
-  id          String   @id
+  id          String
   template_id String
   title       String   @db.VarChar(500)
   content     String
   metadata    Json?
-  created_at  DateTime @default(now())
+  created_at  DateTime @db.Timestamp(6)
 
-  @@index([template_id])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model templates {
-  id           String   @id
+  id           String
   name         String   @db.VarChar(255)
-  slug         String   @unique @db.VarChar(255)
+  slug         String   @db.VarChar(255)
   description  String?
   category     String   @db.VarChar(50)
   content      Json
   variables    Json?
   preview_data Json?
-  is_active    Boolean  @default(true)
-  usage_count  Int      @default(0)
+  is_active    Boolean
+  usage_count  Int
   created_by   String?
-  created_at   DateTime @default(now())
-  updated_at   DateTime
+  created_at   DateTime @db.Timestamp(6)
+  updated_at   DateTime @db.Timestamp(6)
 
-  @@index([category])
-  @@index([is_active])
-  @@index([slug])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model user_preferences {
-  id         String   @id
+  id         String
   user_id    String
   key        String
   value      Json
-  created_at DateTime @default(now())
-  updated_at DateTime
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
 
-  @@unique([user_id, key])
-  @@index([user_id])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model user_roles {
-  id         String    @id
+  id         String
   user_id    String
   role_id    String
   granted_by String?
-  granted_at DateTime  @default(now())
-  expires_at DateTime?
+  granted_at DateTime  @db.Timestamp(6)
+  expires_at DateTime? @db.Timestamp(6)
 
-  @@unique([user_id, role_id])
-  @@index([role_id])
-  @@index([user_id])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model users {
-  id                 String                  @id
-  email              String                  @unique
+  id                 String
+  email              String
   password_hash      String?
   name               String?
   avatar             String?
-  role               String                  @default("user")
-  is_admin           Boolean                 @default(false)
-  is_verified        Boolean                 @default(false)
+  role               String
+  is_admin           Boolean
+  is_verified        Boolean
   verification_token String?
   reset_token        String?
-  reset_token_expiry DateTime?
-  created_at         DateTime                @default(now())
-  updated_at         DateTime
-  interactions       interactions[]
-  insights           user_insights?
-  reading_sessions   user_reading_sessions[]
-  similar_from       user_similar_readers[]  @relation("SimilarUserReaders")
-  similar_to         user_similar_readers[]  @relation("UserSimilarReaders")
+  reset_token_expiry DateTime? @db.Timestamp(6)
+  created_at         DateTime  @db.Timestamp(6)
+  updated_at         DateTime  @db.Timestamp(6)
 
-  @@index([email])
-  @@index([role])
-  @@index([email], map: "idx_users_email")
-  @@index([role], map: "idx_users_role")
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model was_news {
-  id               String   @id @default(uuid())
-  news_NUM         Int      @unique
-  news_DT          DateTime
+  id               String   @default(uuid())
+  news_NUM         Int
+  news_DT          DateTime @db.Timestamp(6)
   news_basket_CD   Int
   news_class_CD    Int
   news_priority_CD Int
-  is_Report        Boolean  @default(false)
+  is_Report        Boolean
   title_TXT        String
   story_TXT        String?
   media            Json?
   royalType        Int?
   keywords         Json?
   related_news_CD  Int?
-  is_imported      Boolean  @default(false)
+  is_imported      Boolean
   imported_to_id   String?
-  created_at       DateTime @default(now())
-  updated_at       DateTime @default(now())
+  created_at       DateTime @db.Timestamp(6)
+  updated_at       DateTime @db.Timestamp(6)
 
-  @@index([news_basket_CD])
-  @@index([news_DT])
-  @@index([is_imported])
-  @@index([created_at])
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model user_reading_sessions {
-  id               String    @id @db.VarChar(36)
+  id               String    @db.VarChar(36)
   user_id          String    @db.VarChar(36)
   article_id       String    @db.VarChar(36)
-  started_at       DateTime? @default(now()) @db.Timestamptz(6)
+  started_at       DateTime? @db.Timestamptz(6)
   ended_at         DateTime? @db.Timestamptz(6)
   duration_seconds Int?
   read_percentage  Float?
   scroll_depth     Float?
   device_type      String?   @db.VarChar(50)
   time_of_day      Int?
-  created_at       DateTime? @default(now()) @db.Timestamptz(6)
-  articles         articles  @relation(fields: [article_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users            users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  created_at       DateTime? @db.Timestamptz(6)
 
-  @@index([article_id], map: "idx_user_reading_sessions_article_id")
-  @@index([started_at], map: "idx_user_reading_sessions_started_at")
-  @@index([time_of_day], map: "idx_user_reading_sessions_time_of_day")
-  @@index([user_id], map: "idx_user_reading_sessions_user_id")
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model user_insights {
-  id                      String    @id @db.VarChar(36)
-  user_id                 String    @unique @db.VarChar(36)
-  total_reads             Int?      @default(0)
-  total_saved             Int?      @default(0)
-  total_interactions      Int?      @default(0)
+  id                      String    @db.VarChar(36)
+  user_id                 String    @db.VarChar(36)
+  total_reads             Int?
+  total_saved             Int?
+  total_interactions      Int?
   avg_read_time           Float?
   preferred_reading_time  String?   @db.VarChar(50)
   reader_type             String?   @db.VarChar(50)
@@ -735,133 +520,23 @@ model user_insights {
   preferred_categories    Json?
   preferred_article_types Json?
   avg_article_length      Int?
-  weekly_reads            Int?      @default(0)
-  weekly_streak           Int?      @default(0)
+  weekly_reads            Int?
+  weekly_streak           Int?
   last_read_date          DateTime? @db.Timestamptz(6)
-  calculated_at           DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at              DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
-  users                   users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  calculated_at           DateTime? @db.Timestamptz(6)
+  updated_at              DateTime? @updatedAt @db.Timestamptz(6)
 
-  @@index([updated_at], map: "idx_user_insights_updated_at")
-  @@index([user_id], map: "idx_user_insights_user_id")
+  @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model user_similar_readers {
-  id                String    @id @db.VarChar(36)
+  id                String    @db.VarChar(36)
   user_id           String    @db.VarChar(36)
   similar_user_id   String    @db.VarChar(36)
   similarity_score  Float?
   common_categories Json?
-  calculated_at     DateTime? @default(now()) @db.Timestamptz(6)
-  similar_user      users     @relation("SimilarUserReaders", fields: [similar_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user              users     @relation("UserSimilarReaders", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  calculated_at     DateTime? @db.Timestamptz(6)
 
-  @@unique([user_id, similar_user_id])
-  @@index([similar_user_id], map: "idx_user_similar_readers_similar_user_id")
-  @@index([similarity_score], map: "idx_user_similar_readers_similarity_score")
-  @@index([user_id], map: "idx_user_similar_readers_user_id")
-}
-
-enum EmailJob_status {
-  queued
-  sending
-  completed
-  cancelled
-  failed
-}
-
-enum EmailLog_status {
-  pending
-  sent
-  delivered
-  bounced
-  opened
-  clicked
-  unsubscribed
-  failed
-}
-
-enum EmailProviderConfig_type {
-  smtp
-  sendgrid
-  mailgun
-  ses
-}
-
-enum Subscriber_status {
-  active
-  inactive
-  unsubscribed
-}
-
-enum daily_doses_period {
-  morning
-  afternoon
-  evening
-  night
-}
-
-enum daily_doses_status {
-  draft
-  published
-  scheduled
-  archived
-}
-
-enum dose_contents_contentType {
-  article
-  weather
-  quote
-  tip
-  audio
-  analysis
-}
-
-enum forum_follows_target_type {
-  topic
-  user
-  category
-}
-
-enum forum_replies_status {
-  active
-  pending
-  hidden
-  deleted
-}
-
-enum forum_reports_status {
-  pending
-  resolved
-  dismissed
-}
-
-enum forum_reports_target_type {
-  topic
-  reply
-}
-
-enum forum_topics_status {
-  active
-  pending
-  hidden
-  deleted
-}
-
-enum forum_votes_target_type {
-  topic
-  reply
-}
-
-enum forum_votes_vote_type {
-  like
-  dislike
-}
-
-enum interactions_type {
-  like
-  save
-  share
-  comment
-  view
+  @@ignore
 }
