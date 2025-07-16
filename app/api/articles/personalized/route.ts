@@ -23,12 +23,10 @@ export async function GET(request: NextRequest) {
     }
 
     // جلب اهتمامات المستخدم المحفوظة
-    const savedPreference = await prisma.user_preferences.findUnique({
+    const savedPreference = await prisma.user_preferences.findFirst({
       where: {
-        user_id_key: {
-          user_id: userId,
-          key: 'selected_categories'
-        }
+        user_id: userId,
+        key: 'selected_categories'
       }
     });
 
@@ -85,7 +83,7 @@ export async function GET(request: NextRequest) {
         category_id: { in: categoryIds }
       },
       include: {
-        categories: { select: { id: true, name: true, slug: true } }
+        category: { select: { id: true, name: true, slug: true } }
       },
       orderBy: [
         { featured: 'desc' },

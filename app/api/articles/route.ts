@@ -220,7 +220,7 @@ export async function GET(request: NextRequest) {
           seo_title: true,
           seo_description: true,
           // العلاقات
-          categories: {
+          category: {
             select: {
               id: true,
               name: true,
@@ -279,7 +279,7 @@ export async function GET(request: NextRequest) {
                         'غير محدد'
       
       // التصنيف يأتي مباشرة من include
-      const category = article.categories || null
+      const category = article.category || null
       
       return {
         ...article,
@@ -415,7 +415,14 @@ export async function POST(request: NextRequest) {
         slug: generateSlug(title),
         views: 0,
         reading_time: Math.ceil(content.split(' ').length / 200), // تقدير وقت القراءة
-        updated_at: new Date()
+        updated_at: new Date(),
+        featured: false,
+        breaking: false,
+        allow_comments: true,
+        created_at: new Date(),
+        likes: 0,
+        saves: 0,
+        shares: 0
       }
     })
 
@@ -437,7 +444,8 @@ export async function POST(request: NextRequest) {
               featured_image: featured_image,
               is_breaking: (metadata as any)?.is_breaking || false
             },
-            created_at: new Date()
+            created_at: new Date(),
+            is_important: false
           }
         })
         console.log('✅ تم إضافة الحدث إلى timeline_events')

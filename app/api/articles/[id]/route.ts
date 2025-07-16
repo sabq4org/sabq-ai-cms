@@ -45,7 +45,7 @@ export async function GET(
         ]
       },
       include: {
-        categories: {
+        category: {
           select: {
             id: true,
             name: true,
@@ -118,9 +118,9 @@ export async function GET(
       },
       author_name: author?.name || (dbArticle.metadata as any)?.author_name || 'غير محدد',
       // إضافة بيانات التصنيف
-      category: dbArticle.categories || null,
-      category_name: dbArticle.categories?.name || 'غير مصنف',
-      category_color: dbArticle.categories?.color || '#6B7280'
+      category: dbArticle.category || null,
+      category_name: dbArticle.category?.name || 'غير مصنف',
+      category_color: dbArticle.category?.color || '#6B7280'
     };
     
     // زيادة عدد المشاهدات بشكل غير متزامن
@@ -202,7 +202,7 @@ export async function PATCH(
     }
 
     if (category_id) {
-      dataToUpdate.categories = {
+      dataToUpdate.category = {
         connect: { id: category_id },
       };
     }
@@ -337,7 +337,7 @@ export async function PUT(
 
     // معالجة category_id
     if (body.category_id) {
-      updateData.categories = {
+      updateData.category = {
         connect: { id: body.category_id }
       };
     }
