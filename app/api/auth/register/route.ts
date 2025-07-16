@@ -97,7 +97,8 @@ export async function POST(request: Request) {
         id: `lp-${crypto.randomUUID()}`,
         user_id: newUser.id,
         points: 50,
-        action: 'registration_bonus'
+        action: 'registration_bonus',
+        created_at: new Date()
       }
     });
 
