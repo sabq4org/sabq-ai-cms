@@ -7,7 +7,7 @@ let aiSettings: any = null;
 async function loadSettingsFromDB() {
   if (aiSettings) return aiSettings;
   try {
-    const row = await prisma.site_settings.findUnique({
+    const row = await prisma.site_settings.findFirst({
       where: { section: 'ai' }
     });
     if (row) {
@@ -59,17 +59,29 @@ export async function POST(request: NextRequest) {
     aiSettings = { ...current, ...body };
 
     // حفظ في قاعدة البيانات
-    await prisma.site_settings.upsert({
-      where: { section: 'ai' },
-      update: { data: aiSettings, updated_at: new Date() },
-      create: {
-        id: `ai-${Date.now()}`,
-        section: 'ai',
-        data: aiSettings,
-        created_at: new Date(),
-        updated_at: new Date()
-      }
+    const existingSettings = await prisma.site_settings.findFirst({
+      where: { section: 'ai' }
     });
+
+    if (existingSettings) {
+      await prisma.site_settings.update({
+        where: { id: existingSettings.id },
+        data: { 
+          data: aiSettings, 
+          updated_at: new Date() 
+        }
+      });
+    } else {
+      await prisma.site_settings.create({
+        data: {
+          id: `ai-${Date.now()}`,
+          section: 'ai',
+          data: aiSettings,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      });
+    }
 
     // تحديث env للمسار الحالي
     if (aiSettings.openai?.apiKey) {

@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 // دالة لجلب إعدادات AI من قاعدة البيانات
 async function getAISettings() {
   try {
-    const settings = await prisma.site_settings.findUnique({
+    const settings = await prisma.site_settings.findFirst({
       where: { section: 'ai' }
     });
     if (settings) {
