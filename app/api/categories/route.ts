@@ -269,7 +269,7 @@ export async function POST(request: NextRequest) {
     }
     
     // التحقق من عدم تكرار الـ slug
-    const existingCategory = await prisma.categories.findUnique({
+    const existingCategory = await prisma.categories.findFirst({
       where: { slug: categorySlug }
     });
     
