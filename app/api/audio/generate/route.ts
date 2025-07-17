@@ -5,31 +5,47 @@ import path from 'path';
 
 // معرفات الأصوات المتاحة في ElevenLabs
 const VOICE_IDS = {
-  bradford: 'LGwrqKPCFGTmTzJQSMhH', // رجالي عميق
-  rachel: '21m00Tcm4TlvDq8ikWAM', // نسائي واضح
-  arabic_male: 'g5i5w0JqE7tN1zo8vZPx', // عربي رجالي احترافي
-  arabic_female: 'XB0fDUnXU5powFXDhCwa', // عربي نسائي
-  adam: 'pNInz6obpgDQGcFmaJgB', // رجالي شاب
-  antoni: 'ErXwobaYiN019PkySvjV', // رجالي ودود
-  arnold: 'VR6AewLTigWG4xSOukaG', // رجالي قوي
-  bella: 'EXAVITQu4vr4xnSDxMaL', // نسائي ناعم
-  domi: 'AZnzlk1XvdvUeBnXmlld', // نسائي نشيط
-  elli: 'MF3mGyEYCl7XYWbV9V6O', // نسائي شاب
-  josh: 'TxGEqnHWrfWFTfGW9XjX', // رجالي عميق
-  sam: 'yoZ06aMxZJJ28mfd3POQ', // محايد
+  // الأصوات الإنجليزية الافتراضية المتاحة مجانًا
+  rachel: '21m00Tcm4TlvDq8ikWAM', // Rachel - نسائي واضح
+  domi: 'AZnzlk1XvdvUeBnXmlld', // Domi - نسائي نشيط
+  bella: 'EXAVITQu4vr4xnSDxMaL', // Bella - نسائي ناعم
+  antoni: 'ErXwobaYiN019PkySvjV', // Antoni - رجالي ودود
+  elli: 'MF3mGyEYCl7XYWbV9V6O', // Elli - نسائي شاب
+  josh: 'TxGEqnHWrfWFTfGW9XjX', // Josh - رجالي عميق
+  arnold: 'VR6AewLTigWG4xSOukaG', // Arnold - رجالي قوي
+  adam: 'pNInz6obpgDQGcFmaJgB', // Adam - رجالي شاب
+  sam: 'yoZ06aMxZJJ28mfd3POQ', // Sam - محايد
+  
+  // أصوات أخرى قد تكون متاحة
+  clyde: 'n8TWbmNgNErEQxqTvzVq', // Clyde - رجالي حماسي
+  nicole: 'piTKgcLEGmPE4e6mEKli', // Nicole - نسائي محترف
+  
+  // الأصوات العربية (استخدم الأصوات الإنجليزية مؤقتًا)
+  arabic_male: 'TxGEqnHWrfWFTfGW9XjX', // Josh كبديل مؤقت للصوت العربي الرجالي
+  arabic_female: '21m00Tcm4TlvDq8ikWAM', // Rachel كبديل مؤقت للصوت العربي النسائي
+  bradford: 'pNInz6obpgDQGcFmaJgB', // Adam كصوت افتراضي
 } as const;
 
 export async function POST(req: NextRequest) {
+  // نقل تعريف المتغيرات خارج try لتكون متاحة في catch
+  let body: any;
+  let optimizedText: string = '';
+  let selectedVoiceId: string = '';
+  let apiKey: string | undefined;
+  let voice: string = 'bradford';
+  let filename: string = 'daily-news';
+  let language: string = 'arabic';
+  
   try {
     console.log('🎙️ بدء توليد الصوت...');
     
-    const body = await req.json();
-    const { 
-      summary, 
-      voice = 'bradford', 
-      filename = 'daily-news',
-      language = 'arabic'
-    } = body;
+    body = await req.json();
+    const { summary } = body;
+    
+    // تعيين القيم من body مع القيم الافتراضية
+    voice = body.voice || 'bradford';
+    filename = body.filename || 'daily-news';
+    language = body.language || 'arabic';
 
     // التحقق من صحة البيانات
     if (!summary || typeof summary !== 'string') {
@@ -47,10 +63,10 @@ export async function POST(req: NextRequest) {
     }
 
     // اختيار الصوت المناسب
-    const selectedVoiceId = VOICE_IDS[voice as keyof typeof VOICE_IDS] || VOICE_IDS.bradford;
+    selectedVoiceId = VOICE_IDS[voice as keyof typeof VOICE_IDS] || VOICE_IDS.bradford;
 
     // التحقق من مفتاح ElevenLabs
-    const apiKey = process.env.ELEVENLABS_API_KEY;
+    apiKey = process.env.ELEVENLABS_API_KEY;
     if (!apiKey || apiKey.startsWith('sk_demo')) {
       console.log('⚠️ وضع تجريبي - إرجاع ملف صوتي نموذجي');
       
@@ -80,7 +96,7 @@ export async function POST(req: NextRequest) {
     console.log(`🔊 استخدام الصوت: ${voice} (${selectedVoiceId})`);
 
     // تحسين النص للقراءة الصوتية
-    const optimizedText = summary
+    optimizedText = summary
       .replace(/<[^>]*>/g, '') // إزالة HTML tags
       .replace(/\./g, '. ') // تحسين التوقف
       .replace(/،/g, '، ')
@@ -177,28 +193,127 @@ export async function POST(req: NextRequest) {
       message: error.message,
       status: error.response?.status,
       statusText: error.response?.statusText,
-      data: error.response?.data ? Buffer.from(error.response.data).toString('utf8').substring(0, 200) : 'No data'
+      data: error.response?.data
     });
-
-    // معالجة أخطاء محددة
-    let errorMessage = 'Failed to generate audio';
-    let errorDetails = 'خطأ غير معروف في توليد الصوت';
-
+    
+    // معالجة أخطاء ElevenLabs المحددة
+    if (error.response?.status === 404 && error.response?.data?.detail?.status === 'voice_not_found') {
+      // محاولة استخدام صوت احتياطي
+      console.log('⚠️ الصوت المطلوب غير موجود، محاولة استخدام صوت احتياطي...');
+      
+      try {
+        // استخدام صوت Adam كصوت احتياطي
+        const fallbackVoiceId = VOICE_IDS.adam; // Adam - صوت افتراضي موثوق
+        console.log(`🔄 استخدام الصوت الاحتياطي: Adam (${fallbackVoiceId})`);
+        
+        const fallbackResponse = await axios.post(
+          `https://api.elevenlabs.io/v1/text-to-speech/${fallbackVoiceId}`,
+          {
+            text: optimizedText,
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.75,
+              style: 0.3,
+              use_speaker_boost: true
+            }
+          },
+          {
+            headers: {
+              'xi-api-key': apiKey,
+              'Content-Type': 'application/json',
+              'Accept': 'audio/mpeg'
+            },
+            responseType: 'arraybuffer',
+            timeout: 30000
+          }
+        );
+        
+        console.log(`✅ تم توليد الصوت بالصوت الاحتياطي، الحجم: ${fallbackResponse.data.byteLength} بايت`);
+        
+        // حفظ الملف الصوتي
+        const outputPath = path.join(process.cwd(), 'public', 'audio');
+        if (!fs.existsSync(outputPath)) {
+          fs.mkdirSync(outputPath, { recursive: true });
+        }
+        
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const outputFile = path.join(outputPath, `${filename}-${timestamp}.mp3`);
+        const publicUrl = `/audio/${filename}-${timestamp}.mp3`;
+        
+        fs.writeFileSync(outputFile, fallbackResponse.data);
+        console.log(`💾 تم حفظ الملف بالصوت الاحتياطي: ${outputFile}`);
+        
+        // حفظ في JSON للأرشيف
+        const archiveData = {
+          id: timestamp,
+          title: `نشرة ${new Date().toLocaleDateString('ar-SA')}`,
+          url: publicUrl,
+          size: fallbackResponse.data.byteLength,
+          voice: `${voice} (تم استخدام Adam كبديل)`,
+          text_preview: optimizedText.substring(0, 200) + '...',
+          created_at: new Date().toISOString(),
+          is_daily: body.is_daily || false,
+          fallback_used: true
+        };
+        
+        const archivePath = path.join(process.cwd(), 'data', 'audio-archive.json');
+        let archive: any[] = [];
+        
+        if (fs.existsSync(archivePath)) {
+          try {
+            const content = fs.readFileSync(archivePath, 'utf-8');
+            archive = JSON.parse(content);
+          } catch (e) {
+            console.error('خطأ في قراءة ملف الأرشيف:', e);
+          }
+        }
+        
+        archive.unshift(archiveData);
+        archive = archive.slice(0, 50); // حفظ آخر 50 ملف فقط
+        
+        fs.writeFileSync(archivePath, JSON.stringify(archive, null, 2));
+        
+        return NextResponse.json({
+          success: true,
+          url: publicUrl,
+          filename: outputFile.split('/').pop() || 'output.mp3',
+          size: fallbackResponse.data.byteLength,
+          duration_estimate: Math.round(optimizedText.length / 3) + ' ثانية',
+          voice_used: `${voice} (استُخدم Adam كبديل)`,
+          voice_id: fallbackVoiceId,
+          text_length: optimizedText.length,
+          message: '✅ تم توليد الصوت بنجاح باستخدام صوت احتياطي',
+          warning: 'الصوت المطلوب غير متاح، تم استخدام صوت احتياطي',
+          archive_saved: true
+        });
+        
+      } catch (fallbackError: any) {
+        console.error('❌ فشل حتى مع الصوت الاحتياطي:', fallbackError.message);
+      }
+    }
+    
+    let errorMessage = 'حدث خطأ في توليد الصوت';
+    let errorDetails = error.message;
+    
     if (error.response?.status === 401) {
-      errorMessage = 'Invalid ElevenLabs API key';
-      errorDetails = 'مفتاح ElevenLabs غير صحيح أو منتهي الصلاحية';
+      errorMessage = 'مفتاح API غير صالح';
+      errorDetails = 'يرجى التحقق من صحة مفتاح ElevenLabs';
+    } else if (error.response?.status === 403) {
+      errorMessage = 'الوصول مرفوض';
+      errorDetails = 'ليس لديك صلاحية لاستخدام هذه الخدمة';
+    } else if (error.response?.status === 404) {
+      errorMessage = 'الصوت المطلوب غير موجود';
+      errorDetails = `معرف الصوت "${selectedVoiceId}" غير صالح أو تم حذفه`;
     } else if (error.response?.status === 429) {
-      errorMessage = 'Rate limit exceeded';
-      errorDetails = 'تم تجاوز حد الاستخدام، يرجى الانتظار قليلاً';
+      errorMessage = 'تجاوزت حد الاستخدام';
+      errorDetails = 'لقد تجاوزت الحد المسموح من الطلبات أو الأحرف';
     } else if (error.response?.status === 422) {
-      errorMessage = 'Invalid request data';
-      errorDetails = 'بيانات الطلب غير صحيحة، تحقق من النص أو الصوت المحدد';
-    } else if (error.code === 'ENOTFOUND') {
-      errorMessage = 'Network connection failed';
-      errorDetails = 'فشل الاتصال بخدمة ElevenLabs، تحقق من الإنترنت';
-    } else if (error.code === 'ENOENT') {
-      errorMessage = 'File system error';
-      errorDetails = 'خطأ في نظام الملفات، تحقق من الصلاحيات';
+      errorMessage = 'النص غير صالح';
+      errorDetails = 'النص المرسل يحتوي على محتوى غير مقبول';
+    } else if (error.code === 'ECONNABORTED') {
+      errorMessage = 'انتهت مهلة الطلب';
+      errorDetails = 'استغرق توليد الصوت وقتاً طويلاً جداً';
     }
 
     return NextResponse.json({
