@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import dynamic from 'next/dynamic';
+import FeaturedImageUpload from '@/components/FeaturedImageUpload'; // تم إضافة هذا الاستيراد
 import { 
   Save, Send, Eye, Clock, Image as ImageIcon, Upload, X, 
   Tag, User, Calendar, AlertCircle, CheckCircle, Loader2,
@@ -112,26 +113,73 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
     const loadInitialData = async () => {
       try {
         setLoading(true);
+        console.log('🔄 بدء تحميل البيانات...');
         
-        // تحميل التصنيفات
-        const categoriesResponse = await fetch('/api/categories');
+        // تحميل التصنيفات والكتّاب بشكل متوازي
+        const [categoriesResponse, authorsResponse] = await Promise.all([
+          fetch('/api/categories'),
+          fetch('/api/team-members')
+        ]);
+        
+        let loadedCategories = [];
+        let loadedAuthors = [];
+        let defaultCategoryId = '';
+        let defaultAuthorId = '';
+        
+        // معالجة التصنيفات
         if (categoriesResponse.ok) {
           const categoriesData = await categoriesResponse.json();
-          setCategories(categoriesData.categories || []);
+          loadedCategories = categoriesData.categories || [];
+          setCategories(loadedCategories);
+          console.log(`📂 تم جلب ${loadedCategories.length} تصنيف`);
+          
+          if (loadedCategories.length > 0) {
+            defaultCategoryId = loadedCategories[0].id;
+            console.log(`🎯 تصنيف افتراضي: ${loadedCategories[0].name} (${defaultCategoryId})`);
+          }
+        } else {
+          console.log('❌ فشل في تحميل التصنيفات');
         }
         
-        // تحميل المؤلفين
-        const authorsResponse = await fetch('/api/authors');
+        // معالجة الكتّاب
         if (authorsResponse.ok) {
           const authorsData = await authorsResponse.json();
-          setAuthors(authorsData.authors || []);
+          loadedAuthors = authorsData.data || [];
+          setAuthors(loadedAuthors);
+          console.log(`👥 تم جلب ${loadedAuthors.length} كاتب`);
+          
+          if (loadedAuthors.length > 0) {
+            defaultAuthorId = loadedAuthors[0].id;
+            console.log(`👤 كاتب افتراضي: ${loadedAuthors[0].name} (${defaultAuthorId})`);
+          }
+        } else {
+          console.log('❌ فشل في تحميل الكتّاب');
+        }
+        
+        // تعيين القيم الافتراضية دفعة واحدة باستخدام البيانات المحملة
+        if (defaultCategoryId || defaultAuthorId) {
+          setFormData(prev => {
+            const updated = {
+              ...prev,
+              ...(defaultCategoryId && { categoryId: defaultCategoryId }),
+              ...(defaultAuthorId && { authorId: defaultAuthorId })
+            };
+            console.log('✅ تم تعيين القيم الافتراضية:', {
+              categoryId: updated.categoryId,
+              authorId: updated.authorId,
+              categoriesCount: loadedCategories.length,
+              authorsCount: loadedAuthors.length
+            });
+            return updated;
+          });
         }
         
       } catch (error) {
-        console.error('خطأ في تحميل البيانات:', error);
+        console.error('❌ خطأ في تحميل البيانات الأولية:', error);
         toast.error('فشل في تحميل البيانات الأولية');
       } finally {
         setLoading(false);
+        console.log('✅ انتهى تحميل البيانات');
       }
     };
     
@@ -140,22 +188,109 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
 
   // حفظ المقال
   const handleSave = async (status: 'draft' | 'published') => {
+    console.log('🚀 بدء حفظ المقال:', { status, title: formData.title });
     try {
       setSaving(true);
       
-      if (!formData.title || !formData.content) {
+      // الحصول على المحتوى من المحرر أولاً
+      let editorContent = '';
+      if (editorRef.current?.getHTML) {
+        editorContent = editorRef.current.getHTML() || '';
+      }
+      
+      // إذا لم نحصل على محتوى من المحرر، استخدم النص العادي كـ HTML
+      if (!editorContent && formData.content) {
+        editorContent = `<p>${formData.content}</p>`;
+      }
+      
+      // التحقق من وجود العنوان والمحتوى
+      if (!formData.title || (!editorContent && !formData.content)) {
         toast.error('يرجى إدخال العنوان والمحتوى على الأقل');
         return;
       }
       
+      // تحقق إضافي لضمان وجود محتوى فعلي وليس فقط HTML فارغ
+      const contentText = editorContent.replace(/<[^>]*>/g, '').trim();
+      if (!formData.title.trim()) {
+        toast.error('يرجى إدخال عنوان للمقال');
+        return;
+      }
+      
+      if (!contentText && !formData.content.trim()) {
+        toast.error('يرجى إدخال محتوى للمقال');
+        return;
+      }
+      
+      console.log('📝 محتوى المحرر:', {
+        hasEditor: !!editorRef.current,
+        hasGetHTML: !!editorRef.current?.getHTML,
+        editorContent: typeof editorContent,
+        preview: editorContent?.substring(0, 100),
+        length: editorContent?.length,
+        fallbackContent: formData.content
+      });
+      
+      // تحويل المصفوفة إلى نص
+      const keywordsString = Array.isArray(formData.keywords) 
+        ? formData.keywords.join(', ') 
+        : formData.keywords;
+      
+      console.log('📊 البيانات قبل الإرسال:', {
+        title: formData.title,
+        categoryId: formData.categoryId,
+        authorId: formData.authorId,
+        featuredImage: formData.featuredImage || 'فارغة',
+        contentLength: editorContent?.length || 0
+      });
+      
       const articleData = {
-        ...formData,
-        content: editorRef.current?.getContent() || formData.content,
+        title: formData.title,
+        subtitle: formData.subtitle,
+        excerpt: formData.excerpt,
+        content: editorContent, // HTML من المحرر
+        featured_image: formData.featuredImage || null,
+        keywords: keywordsString, // كنص مفصول بفواصل
+        seo_title: formData.seoTitle,
+        seo_description: formData.seoDescription,
+        category_id: formData.categoryId,
+        author_id: formData.authorId,
+        featured: formData.isFeatured,
+        breaking: formData.isBreaking,
         status,
         ...(status === 'published' && formData.publishType === 'scheduled' && formData.scheduledDate && {
           scheduled_for: formData.scheduledDate
         })
       };
+      
+      console.log('📤 البيانات التي سترسل:', {
+        title: articleData.title,
+        contentLength: articleData.content?.length,
+        featured_image: articleData.featured_image,
+        category_id: articleData.category_id,
+        author_id: articleData.author_id,
+        status: articleData.status
+      });
+      
+      // تحقق نهائي وإجباري قبل الإرسال
+      console.log('🔍 فحص البيانات النهائية قبل الإرسال:', {
+        'articleData.category_id': articleData.category_id,
+        'articleData.featured_image': articleData.featured_image ? 'موجودة' : 'غير موجودة',
+        'articleData.author_id': articleData.author_id,
+        'articleData.title': articleData.title,
+        'articleData.content length': articleData.content?.length || 0
+      });
+      
+      if (!articleData.category_id) {
+        console.error('❌ خطأ: لا يوجد معرف تصنيف! المقال لن يُنشر بدون تصنيف.');
+        toast.error('خطأ: يجب اختيار تصنيف للمقال');
+        return;
+      }
+      
+      if (!articleData.featured_image) {
+        console.warn('⚠️ تحذير: لا توجد صورة مميزة - سيتم النشر بدونها');
+      } else {
+        console.log('✅ صورة مميزة موجودة');
+      }
       
       const response = await fetch('/api/articles', {
         method: 'POST',
@@ -165,29 +300,36 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       
       if (response.ok) {
         const result = await response.json();
+        console.log('✅ استجابة الخادم:', result);
+        
         setMessage({
           type: 'success',
           text: status === 'draft' 
-            ? 'تم حفظ المسودة بنجاح' 
+            ? '💾 تم حفظ المسودة بنجاح' 
             : formData.publishType === 'scheduled' 
-              ? 'تم جدولة المقال للنشر بنجاح'
-              : 'تم نشر المقال بنجاح'
+              ? '📅 تم جدولة المقال للنشر بنجاح'
+              : '🎉 تم نشر المقال بنجاح!'
         });
         
         setTimeout(() => {
           router.push('/dashboard/news');
         }, 1500);
       } else {
-        throw new Error('فشل في الحفظ');
+        const errorData = await response.json();
+        console.error('❌ خطأ من الخادم:', errorData);
+        throw new Error(errorData.error || 'فشل في الحفظ');
       }
       
     } catch (error) {
-      console.error('خطأ في الحفظ:', error);
+      console.error('❌ خطأ في حفظ المقال:', error);
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ أثناء الحفظ';
       setMessage({
         type: 'error',
-        text: 'حدث خطأ أثناء الحفظ'
+        text: errorMessage
       });
+      toast.error(errorMessage);
     } finally {
+      console.log('🔄 انتهاء عملية الحفظ');
       setSaving(false);
     }
   };
@@ -240,7 +382,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
   const PublishButtons = ({ position = 'top' }: { position?: 'top' | 'bottom' }) => (
     <div className="flex gap-3">
       <Button
-        onClick={() => handleSave('draft')}
+        onClick={() => {
+          console.log('🖱️ تم الضغط على زر حفظ مسودة!');
+          handleSave('draft');
+        }}
         disabled={saving}
         variant="outline"
         size={position === 'bottom' ? 'lg' : 'sm'}
@@ -263,7 +408,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       </Button>
       
       <Button
-        onClick={() => {}}
+        onClick={() => {
+          console.log('🖱️ تم الضغط على زر طلب مراجعة!');
+          handleSave('draft');
+        }}
         disabled={saving}
         variant="outline"
         size={position === 'bottom' ? 'lg' : 'sm'}
@@ -277,8 +425,17 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       </Button>
       
       <Button
-        onClick={() => handleSave('published')}
-        disabled={saving || completionScore < 60}
+        onClick={() => {
+          console.log('🖱️ تم الضغط على زر النشر الفوري!');
+          
+          if (completionScore < 60) {
+            toast.error(`المقال غير مكتمل بما يكفي للنشر (${completionScore}%). يرجى إكمال البيانات المطلوبة.`);
+            return;
+          }
+          
+          handleSave('published');
+        }}
+        disabled={saving}
         size={position === 'bottom' ? 'lg' : 'sm'}
         className={cn(
           "gap-2 shadow-md hover:shadow-lg transition-all",
@@ -352,9 +509,15 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="w-32">
+            <div className="w-40">
               <Progress value={completionScore} className="h-2" />
-              <p className="text-xs text-slate-500 mt-1">{completionScore}% مكتمل</p>
+              <p className={cn(
+                "text-xs mt-1",
+                completionScore >= 60 ? "text-emerald-600" : "text-orange-600"
+              )}>
+                {completionScore}% مكتمل
+                {completionScore < 60 && " (60% مطلوب للنشر)"}
+              </p>
             </div>
             
             <PublishButtons position="top" />
@@ -705,37 +868,11 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <Input
-                    placeholder="رابط الصورة"
-                    value={formData.featuredImage}
-                    onChange={(e) => setFormData(prev => ({ ...prev, featuredImage: e.target.value }))}
-                    className={cn(
-                      "shadow-sm",
-                      darkMode ? "bg-slate-700 border-slate-600" : "bg-white border-slate-200"
-                    )}
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={cn(
-                      "w-full gap-2 shadow-sm",
-                      darkMode ? "bg-slate-700 hover:bg-slate-600" : "bg-white hover:bg-slate-50"
-                    )}
-                  >
-                    <Upload className="w-4 h-4" />
-                    رفع صورة
-                  </Button>
-                  {formData.featuredImage && (
-                    <div className="mt-3">
-                      <img
-                        src={formData.featuredImage}
-                        alt="معاينة"
-                        className="w-full h-32 object-cover rounded-lg shadow-md"
-                      />
-                    </div>
-                  )}
-                </div>
+                <FeaturedImageUpload 
+                  value={formData.featuredImage} 
+                  onChange={(url) => setFormData(prev => ({ ...prev, featuredImage: url }))} 
+                  darkMode={darkMode}
+                />
               </CardContent>
             </Card>
             
@@ -845,4 +982,4 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       />
     </div>
   );
-} 
+}

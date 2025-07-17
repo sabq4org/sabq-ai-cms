@@ -17,10 +17,38 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
   const [showUrlInput, setShowUrlInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const handleUploadClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('🖱️ تم النقر على زر رفع الصورة');
+    console.log('📂 fileInputRef.current:', fileInputRef.current);
+    
+    if (fileInputRef.current) {
+      console.log('✅ fileInputRef موجود، محاولة فتح حوار الملف...');
+      try {
+        // استخدام setTimeout لضمان تنفيذ click بعد انتهاء event bubbling
+        setTimeout(() => {
+          if (fileInputRef.current) {
+            fileInputRef.current.click();
+            console.log('📁 تم استدعاء click() بنجاح');
+          }
+        }, 10);
+      } catch (error) {
+        console.error('❌ خطأ في استدعاء click():', error);
+      }
+    } else {
+      console.error('❌ fileInputRef.current غير موجود!');
+    }
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('📁 تم تحديد ملف:', e.target.files);
     const file = e.target.files?.[0];
     if (!file) return;
 
+    console.log('📋 معلومات الملف:', { name: file.name, size: file.size, type: file.type });
+    
     // التحقق من نوع الملف
     if (!file.type.startsWith('image/')) {
       setUploadError('يرجى اختيار ملف صورة صالح');
@@ -37,6 +65,7 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
     setUploadError(null);
 
     try {
+      console.log('📤 بدء رفع الصورة...');
       // إنشاء FormData
       const formData = new FormData();
       formData.append('file', file);
@@ -48,21 +77,25 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
         body: formData
       });
 
+      console.log('🌐 استجابة الخادم:', response.status, response.statusText);
+
       if (!response.ok) {
         throw new Error('فشل رفع الصورة');
       }
 
       const data = await response.json();
+      console.log('📊 بيانات الاستجابة:', data);
       
       // تحديث قيمة URL - إصلاح الوصول إلى البيانات الصحيحة
-      if (data.success && data.data && data.data.url) {
-        onChange(data.data.url);
+      if (data.success && data.url) {
+        console.log('✅ تم الرفع بنجاح، URL:', data.url);
+        onChange(data.url);
       } else {
         throw new Error(data.error || 'فشل في الحصول على رابط الصورة');
       }
       
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('❌ خطأ في رفع الصورة:', error);
       const errorMessage = error instanceof Error ? error.message : 'حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى.';
       setUploadError(errorMessage);
     } finally {
@@ -83,10 +116,6 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
   };
 
   return (

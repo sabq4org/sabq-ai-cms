@@ -49,6 +49,107 @@ function handleOptions(): NextResponse {
   });
 }
 
+// دالة لاستخراج النص من JSON الخاص بـ Tiptap
+function extractTextFromTiptap(content: any): string {
+  if (!content || !content.content) return '';
+  
+  let text = '';
+  
+  function extractFromNode(node: any): string {
+    let nodeText = '';
+    
+    if (node.text) {
+      nodeText += node.text;
+    }
+    
+    if (node.content && Array.isArray(node.content)) {
+      for (const child of node.content) {
+        nodeText += extractFromNode(child);
+      }
+    }
+    
+    return nodeText;
+  }
+  
+  for (const node of content.content) {
+    text += extractFromNode(node) + ' ';
+  }
+  
+  return text.trim();
+}
+
+// دالة لتحويل JSON من Tiptap إلى HTML
+function convertTiptapToHTML(content: any): string {
+  if (!content || !content.content) return '';
+  
+  function nodeToHTML(node: any): string {
+    // إذا كان النود يحتوي على نص
+    if (node.text) {
+      let text = node.text;
+      
+      // تطبيق التنسيقات
+      if (node.marks) {
+        for (const mark of node.marks) {
+          switch (mark.type) {
+            case 'bold':
+              text = `<strong>${text}</strong>`;
+              break;
+            case 'italic':
+              text = `<em>${text}</em>`;
+              break;
+            case 'underline':
+              text = `<u>${text}</u>`;
+              break;
+            case 'link':
+              text = `<a href="${mark.attrs?.href || '#'}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+              break;
+          }
+        }
+      }
+      
+      return text;
+    }
+    
+    // تحويل النودات بناءً على النوع
+    let html = '';
+    let children = '';
+    
+    if (node.content && Array.isArray(node.content)) {
+      children = node.content.map(nodeToHTML).join('');
+    }
+    
+    switch (node.type) {
+      case 'doc':
+        return children;
+      case 'paragraph':
+        return `<p>${children}</p>`;
+      case 'heading':
+        const level = node.attrs?.level || 1;
+        return `<h${level}>${children}</h${level}>`;
+      case 'bulletList':
+        return `<ul>${children}</ul>`;
+      case 'orderedList':
+        return `<ol>${children}</ol>`;
+      case 'listItem':
+        return `<li>${children}</li>`;
+      case 'blockquote':
+        return `<blockquote>${children}</blockquote>`;
+      case 'codeBlock':
+        return `<pre><code>${children}</code></pre>`;
+      case 'hardBreak':
+        return '<br>';
+      case 'image':
+        const src = node.attrs?.src || '';
+        const alt = node.attrs?.alt || '';
+        return `<img src="${src}" alt="${alt}" />`;
+      default:
+        return children;
+    }
+  }
+  
+  return nodeToHTML(content);
+}
+
 // معالجة طلبات OPTIONS للـ CORS
 export async function OPTIONS() {
   return handleOptions();
@@ -363,10 +464,17 @@ export async function GET(request: NextRequest) {
 // إنشاء مقال جديد
 export async function POST(request: NextRequest) {
   try {
-    // التحقق من صلاحيات المستخدم
-    const authCheck = await checkUserPermissions(request);
+    console.log('📝 بدء معالجة طلب إنشاء مقال جديد...');
     
     const body = await request.json()
+    console.log('📋 بيانات المقال المستلمة:', {
+      title: body.title?.substring(0, 50),
+      hasContent: !!body.content,
+      status: body.status,
+      author_id: body.author_id,
+      category_id: body.category_id
+    });
+    
     const {
       title,
       content,
@@ -383,48 +491,219 @@ export async function POST(request: NextRequest) {
 
     // التحقق من البيانات المطلوبة
     if (!title || !content) {
+      console.log('❌ بيانات ناقصة: العنوان أو المحتوى مفقود');
       return NextResponse.json(
         { success: false, error: 'العنوان والمحتوى مطلوبان' },
         { status: 400 }
       )
     }
     
-    // استخدام معرف المستخدم الحالي إذا لم يتم تحديد author_id
-    const finalAuthorId = author_id || (authCheck.valid ? authCheck.user?.id : null) || 'default-author-id'
-    const finalAuthorName = author_name || (authCheck.valid ? authCheck.user?.name : null) || 'غير محدد'
+    // تحويل البيانات إلى string وتنظيفها
+    const cleanTitle = String(title).trim();
+    
+    // معالجة المحتوى: تحويل JSON من Tiptap إلى HTML
+    let cleanContent = '';
+    if (typeof content === 'string') {
+      cleanContent = content.trim();
+    } else if (typeof content === 'object' && content) {
+      // تحويل Tiptap JSON إلى HTML
+      cleanContent = convertTiptapToHTML(content);
+    } else {
+      cleanContent = String(content || '').trim();
+    }
+    
+    // استخراج النص من المحتوى للـ excerpt
+    let textContent = '';
+    if (typeof content === 'object' && content?.content) {
+      // استخراج النص من Tiptap JSON
+      textContent = extractTextFromTiptap(content);
+    } else {
+      textContent = cleanContent.replace(/<[^>]*>/g, ''); // إزالة HTML tags
+    }
+    
+    const cleanExcerpt = excerpt ? String(excerpt).trim() : textContent.substring(0, 200) + '...';
+    
+    // تحويل keywords إلى string إذا كان array
+    const cleanKeywords = keywords ? 
+                         (Array.isArray(keywords) ? keywords.join(', ') : String(keywords)) :
+                         (seo_keywords ? 
+                           (Array.isArray(seo_keywords) ? seo_keywords.join(', ') : String(seo_keywords)) : 
+                           null);
+    
+    console.log('🧹 البيانات بعد التنظيف:', {
+      titleLength: cleanTitle.length,
+      contentLength: cleanContent.length,
+      contentType: typeof cleanContent,
+      contentPreview: cleanContent.substring(0, 100),
+      excerptLength: cleanExcerpt.length,
+      textContentLength: textContent.length,
+      keywordsType: typeof cleanKeywords,
+      keywords: cleanKeywords,
+      originalKeywords: keywords,
+      originalSeoKeywords: seo_keywords,
+      featured_image: featured_image
+    });
+
+    // التحقق من البيانات بعد التنظيف
+    if (!cleanTitle || !cleanContent) {
+      console.log('❌ بيانات فارغة بعد التنظيف');
+      return NextResponse.json(
+        { success: false, error: 'العنوان والمحتوى لا يمكن أن يكونا فارغين' },
+        { status: 400 }
+      )
+    }
+    
+    // البحث عن مستخدم افتراضي أو استخدام المصادقة
+    let finalAuthorId = null;
+    let finalAuthorName = 'مؤلف افتراضي';
+    
+    // التحقق من المصادقة أولاً
+    try {
+      const authCheck = await checkUserPermissions(request);
+      if (authCheck.valid && authCheck.user) {
+        finalAuthorId = authCheck.user.id;
+        finalAuthorName = authCheck.user.name || authCheck.user.email || 'مستخدم';
+        console.log('✅ تم التحقق من المصادقة بنجاح:', { finalAuthorId, finalAuthorName });
+      }
+    } catch (authError) {
+      console.log('⚠️ تعذر التحقق من المصادقة:', authError);
+    }
+    
+    // إذا لم نحصل على مستخدم من المصادقة، نبحث عن مستخدم افتراضي
+    if (!finalAuthorId) {
+      try {
+        // اختبار الاتصال مع Prisma أولاً
+        console.log('🔗 اختبار اتصال Prisma...');
+        await prisma.$connect();
+        console.log('✅ تم الاتصال بـ Prisma بنجاح');
+        
+        // البحث عن admin user كمؤلف افتراضي
+        console.log('🔍 البحث عن مستخدم افتراضي...');
+        const defaultUser = await prisma.users.findFirst({
+          where: {
+            OR: [
+              { email: 'admin@sabq.ai' },
+              { role: 'admin' },
+              { is_admin: true }
+            ]
+          }
+        });
+        
+        if (defaultUser) {
+          finalAuthorId = defaultUser.id;
+          finalAuthorName = defaultUser.name || defaultUser.email || 'المدير';
+          console.log('📝 تم استخدام المستخدم الافتراضي:', { finalAuthorId, finalAuthorName });
+        } else {
+          console.log('❌ لم يتم العثور على مستخدم افتراضي');
+          return NextResponse.json(
+            { success: false, error: 'لم يتم العثور على مؤلف صالح للمقال' },
+            { status: 400 }
+          );
+        }
+      } catch (userError) {
+        console.error('❌ خطأ في البحث عن المستخدم الافتراضي:', userError);
+        console.error('📊 تفاصيل الخطأ:', JSON.stringify(userError, null, 2));
+        
+        // استخدام مؤلف افتراضي ثابت كحل أخير
+        finalAuthorId = 'user-admin-001';
+        finalAuthorName = 'المدير الافتراضي';
+        console.log('🔄 استخدام مؤلف افتراضي ثابت:', { finalAuthorId, finalAuthorName });
+      }
+    }
+    
+    // استخدام القيم المرسلة إذا كانت متوفرة وصحيحة
+    if (author_id) {
+      // التحقق من وجود المؤلف في قاعدة البيانات
+      try {
+        console.log('🔍 التحقق من المؤلف المحدد:', author_id);
+        const authorExists = await prisma.users.findUnique({
+          where: { id: author_id }
+        });
+        if (authorExists) {
+          finalAuthorId = author_id;
+          finalAuthorName = author_name || authorExists.name || authorExists.email || 'مؤلف';
+          console.log('✅ تم العثور على المؤلف المحدد:', { finalAuthorId, finalAuthorName });
+        } else {
+          console.log('⚠️ المؤلف المحدد غير موجود في قاعدة البيانات');
+        }
+      } catch (authorError) {
+        console.log('⚠️ خطأ في التحقق من المؤلف المحدد:', authorError);
+        console.log('🔄 سيتم استخدام المؤلف الافتراضي');
+      }
+    }
+
+    console.log('👤 معلومات المؤلف النهائية:', { finalAuthorId, finalAuthorName });
+    
+    // التأكد من وجود مؤلف صالح
+    if (!finalAuthorId) {
+      console.error('❌ لا يوجد مؤلف صالح للمقال');
+      return NextResponse.json(
+        { success: false, error: 'لا يمكن إنشاء المقال بدون مؤلف صالح' },
+        { status: 400 }
+      );
+    }
+
+    // إنشاء معرف فريد للمقال
+    const articleId = crypto.randomUUID();
+    const slug = generateSlug(cleanTitle);
+    
+    console.log('🆔 معرف المقال الجديد:', articleId);
+    console.log('🔗 رابط المقال (slug):', slug);
 
     // إنشاء المقال في قاعدة البيانات البعيدة
+    console.log('💾 محاولة حفظ المقال في قاعدة البيانات...');
+    
+    const articleData = {
+      id: articleId,
+      title: cleanTitle,
+      content: cleanContent,
+      excerpt: cleanExcerpt,
+      category_id: category_id || null,
+      status: String(status),
+      featured_image: featured_image || null,
+      metadata: {
+        ...metadata,
+        createdAt: new Date().toISOString(),
+        isSmartDraft: (metadata as any)?.isSmartDraft || false,
+        aiEditor: (metadata as any)?.aiEditor || false,
+        author_name: finalAuthorName
+      },
+      seo_keywords: cleanKeywords || null,
+      author_id: finalAuthorId,
+      slug: slug,
+      views: 0,
+      reading_time: Math.max(1, Math.ceil(textContent.split(' ').length / 200)), // تأكد من أن وقت القراءة لا يقل عن دقيقة واحدة
+      updated_at: new Date(),
+      featured: false,
+      breaking: false,
+      allow_comments: true,
+      created_at: new Date(),
+      likes: 0,
+      saves: 0,
+      shares: 0
+    };
+
+    console.log('📊 بيانات المقال النهائية:', {
+      id: articleData.id,
+      title: articleData.title.substring(0, 50),
+      content: typeof articleData.content + ' - ' + articleData.content.substring(0, 100),
+      status: articleData.status,
+      author_id: articleData.author_id,
+      category_id: articleData.category_id,
+      slug: articleData.slug,
+      seo_keywords: typeof articleData.seo_keywords + ' - ' + articleData.seo_keywords,
+      featured_image: articleData.featured_image
+    });
+
     const article = await prisma.articles.create({
-      data: {
-        id: crypto.randomUUID(),
-        title: String(title),
-        content: String(content),
-        excerpt: excerpt ? String(excerpt) : content.substring(0, 200) + '...',
-        category_id: category_id || null,
-        status: String(status),
-        featured_image: featured_image || null,
-        metadata: {
-          ...metadata,
-          createdAt: new Date().toISOString(),
-          isSmartDraft: (metadata as any)?.isSmartDraft || false,
-          aiEditor: (metadata as any)?.aiEditor || false,
-          author_name: finalAuthorName // حفظ اسم المؤلف في metadata
-        },
-        seo_keywords: keywords || seo_keywords || null, // حفظ الكلمات المفتاحية
-        author_id: finalAuthorId, // استخدام معرف المؤلف النهائي
-        slug: generateSlug(title),
-        views: 0,
-        reading_time: Math.ceil(content.split(' ').length / 200), // تقدير وقت القراءة
-        updated_at: new Date(),
-        featured: false,
-        breaking: false,
-        allow_comments: true,
-        created_at: new Date(),
-        likes: 0,
-        saves: 0,
-        shares: 0
-      }
-    })
+      data: articleData
+    });
+
+    console.log('✅ تم إنشاء المقال بنجاح:', {
+      id: article.id,
+      title: article.title,
+      status: article.status
+    });
 
     // إضافة حدث إلى timeline_events عند نشر المقال
     if (status === 'published') {
@@ -435,8 +714,8 @@ export async function POST(request: NextRequest) {
             event_type: 'article_published',
             entity_type: 'article',
             entity_id: article.id,
-            title: `مقال جديد: ${title}`,
-            description: excerpt || content.substring(0, 100) + '...',
+            title: `مقال جديد: ${cleanTitle}`,
+            description: cleanExcerpt,
             user_id: finalAuthorId || null,
             author_name: finalAuthorName,
             metadata: {
@@ -451,47 +730,19 @@ export async function POST(request: NextRequest) {
         console.log('✅ تم إضافة الحدث إلى timeline_events')
       } catch (error) {
         console.error('⚠️ فشل إضافة الحدث إلى timeline_events:', error)
-        // لا نريد أن نفشل العملية بالكامل إذا فشل إضافة الحدث
       }
     }
-
-    console.log('✅ تم إنشاء المقال:', {
-      id: article.id,
-      title: article.title,
-      status: article.status,
-      isSmartDraft: (metadata as any)?.isSmartDraft
-    })
 
     // مسح الكاش عند إنشاء مقال جديد
     if (status === 'published') {
-      console.log('🧹 مسح الكاش بعد نشر المقال...');
-      await cache.clearPattern('articles:*');
-      if (category_id) {
-        await cache.clearPattern(`articles:*category_id*${category_id}*`);
-      }
-    }
-
-    // توليد الصوت تلقائياً إذا كان المقال منشوراً وله موجز
-    if (status === 'published' && article.excerpt && process.env.ELEVENLABS_API_KEY) {
       try {
-        console.log('🎙️ بدء توليد الصوت للموجز...')
-        const baseUrl = process.env.NEXTAUTH_URL || `https://${request.headers.get('host')}` || 'http://localhost:3000';
-        const audioResponse = await fetch(`${baseUrl}/api/voice-summary?articleId=${article.id}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (audioResponse.ok) {
-          const audioData = await audioResponse.json();
-          if (audioData.success) {
-            console.log('✅ تم توليد الصوت بنجاح:', audioData.audioUrl);
-          }
+        console.log('🧹 مسح الكاش بعد نشر المقال...');
+        await cache.clearPattern('articles:*');
+        if (category_id) {
+          await cache.clearPattern(`articles:*category_id*${category_id}*`);
         }
-      } catch (audioError) {
-        console.error('⚠️ فشل توليد الصوت (لكن المقال تم حفظه):', audioError);
-        // لا نريد أن نفشل العملية بالكامل إذا فشل توليد الصوت
+      } catch (cacheError) {
+        console.error('⚠️ فشل مسح الكاش:', cacheError);
       }
     }
 
@@ -501,13 +752,18 @@ export async function POST(request: NextRequest) {
       message: 'تم حفظ المقال بنجاح'
     })
   } catch (error) {
-    console.error('❌ خطأ في إنشاء المقال:', error)
+    console.error('❌ خطأ تفصيلي في إنشاء المقال:', {
+      message: error instanceof Error ? error.message : 'خطأ غير معروف',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
     
     return NextResponse.json(
       { 
         success: false, 
         error: 'خطأ في حفظ المقال',
-        details: error instanceof Error ? error.message : 'خطأ غير معروف'
+        details: error instanceof Error ? error.message : 'خطأ غير معروف',
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     )
@@ -516,13 +772,17 @@ export async function POST(request: NextRequest) {
 
 // دوال مساعدة
 function generateSlug(title: string): string {
-  return title
+  const baseSlug = title
     .toLowerCase()
     .replace(/[^\u0600-\u06FF\w\s-]/g, '') // إزالة الأحرف غير المسموحة
     .replace(/\s+/g, '-') // استبدال المسافات بشرطة
     .replace(/-+/g, '-') // إزالة الشرطات المتكررة
     .trim()
-    .substring(0, 100) // تحديد الطول
+    .substring(0, 90); // تقليل الطول لإفساح مجال للـ timestamp
+  
+  // إضافة timestamp مختصر لضمان الفرادة
+  const timestamp = Date.now().toString().slice(-6); // آخر 6 أرقام
+  return `${baseSlug}-${timestamp}`;
 }
 
 function calculateReadingTime(content: string): number {
