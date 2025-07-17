@@ -97,32 +97,12 @@ export async function POST(request: NextRequest) {
             folder = 'sabq-cms/general';
         }
 
-        console.log('🔄 تحسين الصورة...');
-        
-        // تحويل الملف إلى Buffer
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        
-        // تحسين الصورة وتحويلها إلى WebP
-        const optimizedBuffer = await optimizeImageBuffer(buffer, {
-          format: 'webp',
-          quality: 85,
-          width: 1920, // الحد الأقصى للعرض
-          height: 1080, // الحد الأقصى للارتفاع
-        });
-        
-        // إنشاء ملف جديد محسّن
-        const optimizedFile = new File([optimizedBuffer], 
-          file.name.replace(/\.[^/.]+$/, '.webp'), 
-          { type: 'image/webp' }
-        );
+        console.log('📤 رفع الصورة إلى Cloudinary...');
 
-        console.log('📤 رفع الصورة المحسنة إلى Cloudinary...');
-
-        // رفع الصورة المحسنة إلى Cloudinary
-        const result = await uploadToCloudinary(optimizedFile, {
+        // رفع الصورة مباشرة إلى Cloudinary بدون تحسين مؤقتاً
+        const result = await uploadToCloudinary(file, {
           folder,
-          fileName: optimizedFile.name
+          fileName: file.name
         });
 
         console.log('✅ تم رفع الصورة المحسنة إلى Cloudinary بنجاح:', result.url);
@@ -151,7 +131,11 @@ export async function POST(request: NextRequest) {
         });
 
       } catch (uploadError) {
-        console.error('❌ خطأ في رفع الملف إلى Cloudinary:', uploadError);
+        console.error('❌ خطأ تفصيلي في رفع الملف إلى Cloudinary:', {
+          message: uploadError instanceof Error ? uploadError.message : 'خطأ غير معروف',
+          stack: uploadError instanceof Error ? uploadError.stack : undefined,
+          error: uploadError
+        });
         
         // تسجيل الفشل
         await logUploadAttempt({

@@ -72,7 +72,7 @@ export default function TiptapEditorWithSmartLinks({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [suggestedLinks, setSuggestedLinks] = useState<SmartLink[]>([]);
   const [smartLinksEnabled, setSmartLinksEnabled] = useState(true);
-  const analyzeTimeoutRef = useRef<NodeJS.Timeout>();
+  const analyzeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // دالة تحليل النص باستخدام API
   const analyzeText = useCallback(async (text: string): Promise<SmartLink[]> => {

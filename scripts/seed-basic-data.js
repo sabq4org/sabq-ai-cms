@@ -11,40 +11,64 @@ async function seedBasicData() {
     console.log('\n📝 إضافة الأدوار...');
     const roles = [
       { 
+        id: 'role-admin-001',
         name: 'admin', 
         display_name: 'مدير النظام',
         description: 'صلاحيات كاملة على النظام',
-        permissions: JSON.stringify(['all'])
+        permissions: JSON.stringify(['all']),
+        is_system: true,
+        created_at: new Date(),
+        updated_at: new Date()
       },
       { 
+        id: 'role-editor-001',
         name: 'editor', 
         display_name: 'محرر',
         description: 'إضافة وتعديل المحتوى',
-        permissions: JSON.stringify(['create_article', 'edit_article', 'delete_article', 'manage_comments'])
+        permissions: JSON.stringify(['create_article', 'edit_article', 'delete_article', 'manage_comments']),
+        is_system: true,
+        created_at: new Date(),
+        updated_at: new Date()
       },
       { 
+        id: 'role-author-001',
         name: 'author', 
         display_name: 'كاتب',
         description: 'كتابة المقالات والآراء',
-        permissions: JSON.stringify(['create_article', 'edit_own_article'])
+        permissions: JSON.stringify(['create_article', 'edit_own_article']),
+        is_system: true,
+        created_at: new Date(),
+        updated_at: new Date()
       },
       { 
+        id: 'role-correspondent-001',
         name: 'correspondent', 
         display_name: 'مراسل',
         description: 'إرسال الأخبار من الميدان',
-        permissions: JSON.stringify(['create_news', 'edit_own_news'])
+        permissions: JSON.stringify(['create_news', 'edit_own_news']),
+        is_system: true,
+        created_at: new Date(),
+        updated_at: new Date()
       },
       { 
+        id: 'role-moderator-001',
         name: 'moderator', 
         display_name: 'مشرف',
         description: 'إدارة التعليقات والمحتوى',
-        permissions: JSON.stringify(['manage_comments', 'moderate_content'])
+        permissions: JSON.stringify(['manage_comments', 'moderate_content']),
+        is_system: true,
+        created_at: new Date(),
+        updated_at: new Date()
       },
       { 
+        id: 'role-user-001',
         name: 'user', 
         display_name: 'مستخدم',
         description: 'مستخدم عادي',
-        permissions: JSON.stringify(['read', 'comment'])
+        permissions: JSON.stringify(['read', 'comment']),
+        is_system: false,
+        created_at: new Date(),
+        updated_at: new Date()
       }
     ];
 
