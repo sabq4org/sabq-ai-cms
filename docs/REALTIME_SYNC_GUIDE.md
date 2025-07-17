@@ -50,7 +50,7 @@ NEXT_PUBLIC_PUSHER_CLUSTER=eu
 // app/api/sync/broadcast/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import Pusher from 'pusher';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID!,

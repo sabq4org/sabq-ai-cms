@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { cache as redisCache, CACHE_TTL } from '@/lib/redis-improved';
 import ArticleContent from './article-content';
 import { unstable_cache } from 'next/cache';
