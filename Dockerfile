@@ -83,18 +83,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/lib/generated ./lib/generated
 
-# Create a simple start script
-RUN echo '#!/bin/sh\n\
-if [ -f ".next/standalone/server.js" ]; then\n\
-  echo "Starting standalone server..."\n\
-  cd .next/standalone && node server.js\n\
-elif [ -f "node_modules/next/dist/bin/next" ]; then\n\
-  echo "Starting with next start..."\n\
-  node node_modules/next/dist/bin/next start\n\
-else\n\
-  echo "Starting with npm start..."\n\
-  npm start\n\
-fi' > start.sh && chmod +x start.sh
+# Copy start script
+COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
 
 USER nextjs
 
