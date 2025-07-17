@@ -688,6 +688,8 @@ export async function POST(request: NextRequest) {
       views: 0,
       reading_time: Math.max(1, Math.ceil(textContent.split(' ').length / 200)), // تأكد من أن وقت القراءة لا يقل عن دقيقة واحدة
       updated_at: new Date(),
+      // إضافة published_at للمقالات المنشورة فوراً
+      published_at: status === 'published' ? new Date() : null,
       featured: false,
       breaking: false,
       allow_comments: true,

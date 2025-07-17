@@ -21,19 +21,53 @@
   },
   "headers": [
     {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "s-maxage=120, stale-while-revalidate=300"
+        },
+        {
+          "key": "CDN-Cache-Control",
+          "value": "max-age=120"
+        },
+        {
+          "key": "Vercel-CDN-Cache-Control",
+          "value": "max-age=120"
+        }
+      ]
+    },
+    {
       "source": "/article/:id",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "s-maxage=3600, stale-while-revalidate=7200"
+          "value": "s-maxage=600, stale-while-revalidate=1200"
         },
         {
           "key": "CDN-Cache-Control",
-          "value": "max-age=3600"
+          "value": "max-age=600"
         },
         {
           "key": "Vercel-CDN-Cache-Control",
-          "value": "max-age=3600"
+          "value": "max-age=600"
+        }
+      ]
+    },
+    {
+      "source": "/api/articles",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "s-maxage=60, stale-while-revalidate=300"
+        },
+        {
+          "key": "CDN-Cache-Control", 
+          "value": "max-age=60"
+        },
+        {
+          "key": "Vercel-CDN-Cache-Control",
+          "value": "max-age=60"
         }
       ]
     },
@@ -42,15 +76,15 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "s-maxage=1800, stale-while-revalidate=3600"
+          "value": "s-maxage=300, stale-while-revalidate=600"
         },
         {
           "key": "CDN-Cache-Control", 
-          "value": "max-age=1800"
+          "value": "max-age=300"
         },
         {
           "key": "Vercel-CDN-Cache-Control",
-          "value": "max-age=1800"
+          "value": "max-age=300"
         }
       ]
     },

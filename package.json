@@ -18,6 +18,8 @@
     "build:server": "prisma generate && next build",
     "vercel-build": "node scripts/ensure-prisma-generation.js && next build",
     "test-build": "node scripts/test-build.js",
+    "clear:cache": "node scripts/clear-cache-now.js",
+    "clear:production": "node scripts/clear-production-cache.js",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
