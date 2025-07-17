@@ -48,8 +48,8 @@ export default function PodcastBlock() {
   const fetchLatestPodcast = async () => {
     try {
       setError(false);
-      // جلب آخر نشرة يومية من الأرشيف
-      const res = await fetch('/api/audio/archive?daily=true&latest=true');
+      // جلب آخر نشرة منشورة من الأرشيف
+      const res = await fetch('/api/audio/archive?published=true&latest=true');
       
       if (!res.ok) {
         throw new Error('Failed to fetch podcast');
@@ -227,7 +227,7 @@ export default function PodcastBlock() {
       // 4. تحديث البيانات المحلية
       if (data.success) {
         // جلب البيانات المحدثة من الأرشيف
-        const archiveRes = await fetch('/api/audio/archive?daily=true&latest=true');
+        const archiveRes = await fetch('/api/audio/archive?published=true&latest=true');
         const archiveData = await archiveRes.json();
         
         if (archiveData.success && archiveData.podcast) {

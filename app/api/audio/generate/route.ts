@@ -5,11 +5,19 @@ import path from 'path';
 
 // معرفات الأصوات المتاحة في ElevenLabs
 const VOICE_IDS = {
-  bradford: 'pNInz6obpgDQGcFmaJgB', // Adam - صوت رجالي عميق (Bradford equivalent)
-  rachel: '21m00Tcm4TlvDq8ikWAM',   // Rachel - صوت نسائي واضح
-  arabic_male: 'EXAVITQu4vr4xnSDxMaL', // صوت رجالي عربي احترافي
-  arabic_female: 'AZnzlk1XvdvUeBnXmlld' // صوت نسائي عربي
-};
+  bradford: 'LGwrqKPCFGTmTzJQSMhH', // رجالي عميق
+  rachel: '21m00Tcm4TlvDq8ikWAM', // نسائي واضح
+  arabic_male: 'g5i5w0JqE7tN1zo8vZPx', // عربي رجالي احترافي
+  arabic_female: 'XB0fDUnXU5powFXDhCwa', // عربي نسائي
+  adam: 'pNInz6obpgDQGcFmaJgB', // رجالي شاب
+  antoni: 'ErXwobaYiN019PkySvjV', // رجالي ودود
+  arnold: 'VR6AewLTigWG4xSOukaG', // رجالي قوي
+  bella: 'EXAVITQu4vr4xnSDxMaL', // نسائي ناعم
+  domi: 'AZnzlk1XvdvUeBnXmlld', // نسائي نشيط
+  elli: 'MF3mGyEYCl7XYWbV9V6O', // نسائي شاب
+  josh: 'TxGEqnHWrfWFTfGW9XjX', // رجالي عميق
+  sam: 'yoZ06aMxZJJ28mfd3POQ', // محايد
+} as const;
 
 export async function POST(req: NextRequest) {
   try {

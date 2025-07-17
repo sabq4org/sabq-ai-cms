@@ -4,13 +4,14 @@ import path from 'path';
 
 const PODCASTS_FILE = path.join(process.cwd(), 'data', 'audio-podcasts.json');
 
-// تحديث حالة النشرة اليومية
+// تحديث حالة نشر النشرة
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { is_daily } = await request.json();
+    const body = await request.json();
+    const { is_published, is_daily } = body;
     
     // قراءة الملف الحالي
     const data = await fs.readFile(PODCASTS_FILE, 'utf-8');
@@ -27,7 +28,12 @@ export async function POST(
     }
     
     // تحديث حالة النشرة
-    podcasts[podcastIndex].is_daily = is_daily;
+    if (is_published !== undefined) {
+      podcasts[podcastIndex].is_published = is_published;
+    }
+    if (is_daily !== undefined) {
+      podcasts[podcastIndex].is_daily = is_daily;
+    }
     
     // حفظ التغييرات
     await fs.writeFile(

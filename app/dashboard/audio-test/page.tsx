@@ -327,10 +327,22 @@ export default function AudioTestPage() {
                   onChange={(e) => setVoice(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="bradford">Bradford (رجالي عميق)</option>
-                  <option value="rachel">Rachel (نسائي واضح)</option>
-                  <option value="arabic_male">عربي رجالي</option>
-                  <option value="arabic_female">عربي نسائي</option>
+                  <optgroup label="أصوات عربية">
+                    <option value="arabic_male">عربي رجالي احترافي</option>
+                    <option value="arabic_female">عربي نسائي واضح</option>
+                  </optgroup>
+                  <optgroup label="أصوات إنجليزية">
+                    <option value="bradford">Bradford (رجالي عميق)</option>
+                    <option value="rachel">Rachel (نسائي واضح)</option>
+                    <option value="adam">Adam (رجالي شاب)</option>
+                    <option value="antoni">Antoni (رجالي ودود)</option>
+                    <option value="arnold">Arnold (رجالي قوي)</option>
+                    <option value="bella">Bella (نسائي ناعم)</option>
+                    <option value="domi">Domi (نسائي نشيط)</option>
+                    <option value="elli">Elli (نسائي شاب)</option>
+                    <option value="josh">Josh (رجالي عميق)</option>
+                    <option value="sam">Sam (محايد)</option>
+                  </optgroup>
                 </select>
               </div>
 
@@ -360,21 +372,21 @@ export default function AudioTestPage() {
             </div>
 
             {/* خيار النشرة اليومية */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
               <div className="flex items-center space-x-3 space-x-reverse">
                 <input
                   type="checkbox"
                   id="is-daily"
                   checked={isDaily}
                   onChange={(e) => setIsDaily(e.target.checked)}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500"
                 />
                 <label htmlFor="is-daily" className="text-base font-medium cursor-pointer">
-                  ✅ حفظ كنشرة يومية (ستظهر في الصفحة الرئيسية)
+                  📌 وضع علامة كنشرة يومية (للمراجعة)
                 </label>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mr-8">
-                عند تفعيل هذا الخيار، ستظهر النشرة مباشرة في بلوك "النشرة الصوتية اليومية" بالصفحة الرئيسية
+                ستُحفظ النشرة بعلامة "نشرة يومية" في الأرشيف. يمكنك مراجعتها ونشرها لاحقاً من صفحة الأرشيف
               </p>
             </div>
 

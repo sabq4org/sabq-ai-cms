@@ -18,7 +18,9 @@ import {
   MoreVertical,
   Share2,
   RefreshCw,
-  Home
+  Home,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -38,6 +40,7 @@ interface AudioFile {
   title?: string;
   description?: string;
   is_daily?: boolean; // Added for daily status
+  is_published?: boolean; // Added for published status
 }
 
 export default function AudioArchivePage() {
@@ -71,7 +74,8 @@ export default function AudioArchivePage() {
           type: 'news' as const,
           title: `النشرة الصوتية - ${new Date(p.created_at).toLocaleDateString('ar-SA')}`,
           description: `صوت: ${p.voice} - الحجم: ${Math.round(p.size / 1024)} KB`,
-          is_daily: p.is_daily // Assuming is_daily is returned from the API
+          is_daily: p.is_daily, // Assuming is_daily is returned from the API
+          is_published: p.is_published // Assuming is_published is returned from the API
         }));
         
         setAudioFiles(formattedFiles);
@@ -199,21 +203,21 @@ export default function AudioArchivePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ is_daily: !audioFile.is_daily }),
+        body: JSON.stringify({ is_published: !audioFile.is_published }),
       });
       const data = await response.json();
 
       if (data.success) {
         setAudioFiles(prev => prev.map(file => 
-          file.id === audioFile.id ? { ...file, is_daily: !audioFile.is_daily } : file
+          file.id === audioFile.id ? { ...file, is_published: !audioFile.is_published } : file
         ));
-        alert('تم تغيير حالة النشرة اليومية بنجاح!');
+        alert(audioFile.is_published ? 'تم إلغاء نشر النشرة من الصفحة الرئيسية' : 'تم نشر النشرة في الصفحة الرئيسية بنجاح!');
       } else {
-        alert('فشل في تغيير حالة النشرة اليومية.');
+        alert('فشل في تغيير حالة النشرة.');
       }
     } catch (error) {
-      console.error('خطأ في تغيير حالة النشرة اليومية:', error);
-      alert('خطأ في تغيير حالة النشرة اليومية.');
+      console.error('خطأ في تغيير حالة النشرة:', error);
+      alert('خطأ في تغيير حالة النشرة.');
     }
   };
 
@@ -368,14 +372,14 @@ export default function AudioArchivePage() {
                           onClick={() => toggleDailyStatus(audioFile)}
                           className="text-yellow-600"
                         >
-                          {audioFile.is_daily ? (
+                          {audioFile.is_published ? (
                             <>
-                              <Home className="w-4 h-4 mr-2" />
-                              إلغاء نشر في الرئيسية
+                              <Eye className="w-4 h-4 mr-2" />
+                              منشورة في الرئيسية
                             </>
                           ) : (
                             <>
-                              <Home className="w-4 h-4 mr-2" />
+                              <EyeOff className="w-4 h-4 mr-2" />
                               نشر في الرئيسية
                             </>
                           )}

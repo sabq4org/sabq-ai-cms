@@ -23,15 +23,19 @@ export async function GET(request: NextRequest) {
     // التحقق من معامل is_daily
     const url = new URL(request.url);
     const isDailyOnly = url.searchParams.get('daily') === 'true';
+    const publishedOnly = url.searchParams.get('published') === 'true';
     const latest = url.searchParams.get('latest') === 'true';
     
     const data = await fs.readFile(PODCASTS_FILE, 'utf-8');
     const { podcasts } = JSON.parse(data);
     
-    // فلترة النشرات اليومية إذا طُلب ذلك
+    // فلترة النشرات اليومية أو المنشورة
     let filteredPodcasts = podcasts;
     if (isDailyOnly) {
       filteredPodcasts = podcasts.filter((p: any) => p.is_daily === true);
+    }
+    if (publishedOnly) {
+      filteredPodcasts = podcasts.filter((p: any) => p.is_published === true);
     }
     
     // ترتيب حسب التاريخ الأحدث
@@ -39,12 +43,11 @@ export async function GET(request: NextRequest) {
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
 
-    // إرجاع آخر نشرة يومية فقط إذا طُلب ذلك
-    if (latest && isDailyOnly) {
-      const latestDaily = filteredPodcasts[0] || null;
-      return NextResponse.json({ 
+    // إرجاع آخر نشرة منشورة فقط إذا طُلب ذلك
+    if (latest && filteredPodcasts.length > 0) {
+      return NextResponse.json({
         success: true,
-        podcast: latestDaily
+        podcast: filteredPodcasts[0]
       });
     }
 
