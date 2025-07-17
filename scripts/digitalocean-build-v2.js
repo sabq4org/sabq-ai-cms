@@ -43,12 +43,7 @@ fs.mkdirSync('lib/generated', { recursive: true });
 
 // 4. Generate Prisma Client
 console.log('🗄️ Generating Prisma Client...');
-const prismaGenerated = runCommand('npx prisma generate', {
-  env: {
-    ...process.env,
-    PRISMA_CLI_BINARY_TARGETS: '["debian-openssl-3.0.x", "darwin-arm64", "linux-musl-openssl-3.0.x"]'
-  }
-});
+const prismaGenerated = runCommand('npx prisma generate');
 
 if (!prismaGenerated) {
   console.error('❌ Prisma generation failed!');
