@@ -2,8 +2,9 @@
 
 import Image from 'next/image';
 import React, { useState, useRef } from 'react';
-import { Upload, Image as ImageIcon, X, Link, Loader } from 'lucide-react';
+import { Upload, Image as ImageIcon, X, Link, Loader, CheckCircle, AlertCircle } from 'lucide-react';
 import { getDefaultImageUrl } from '@/lib/cloudinary';
+import toast from 'react-hot-toast';
 
 interface FeaturedImageUploadProps {
   value: string;
@@ -15,6 +16,7 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [showUrlInput, setShowUrlInput] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUploadClick = (e: React.MouseEvent) => {
@@ -22,21 +24,10 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
     e.stopPropagation();
     
     console.log('🖱️ تم النقر على زر رفع الصورة');
-    console.log('📂 fileInputRef.current:', fileInputRef.current);
     
     if (fileInputRef.current) {
-      console.log('✅ fileInputRef موجود، محاولة فتح حوار الملف...');
-      try {
-        // استخدام setTimeout لضمان تنفيذ click بعد انتهاء event bubbling
-        setTimeout(() => {
-          if (fileInputRef.current) {
-            fileInputRef.current.click();
-            console.log('📁 تم استدعاء click() بنجاح');
-          }
-        }, 10);
-      } catch (error) {
-        console.error('❌ خطأ في استدعاء click():', error);
-      }
+      console.log('✅ fileInputRef موجود، فتح حوار الملف...');
+      fileInputRef.current.click();
     } else {
       console.error('❌ fileInputRef.current غير موجود!');
     }
@@ -47,75 +38,138 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
     const file = e.target.files?.[0];
     if (!file) return;
 
-    console.log('📋 معلومات الملف:', { name: file.name, size: file.size, type: file.type });
+    console.log('📋 معلومات الملف:', { 
+      name: file.name, 
+      size: file.size, 
+      type: file.type 
+    });
     
     // التحقق من نوع الملف
     if (!file.type.startsWith('image/')) {
-      setUploadError('يرجى اختيار ملف صورة صالح');
+      const error = 'يرجى اختيار ملف صورة صالح';
+      setUploadError(error);
+      toast.error(error);
       return;
     }
 
     // التحقق من حجم الملف (5MB كحد أقصى)
     if (file.size > 5 * 1024 * 1024) {
-      setUploadError('حجم الصورة يجب أن يكون أقل من 5MB');
+      const error = 'حجم الصورة يجب أن يكون أقل من 5MB';
+      setUploadError(error);
+      toast.error(error);
       return;
     }
 
     setUploading(true);
     setUploadError(null);
+    
+    // عرض toast للتحميل
+    const uploadToast = toast.loading('🔄 جاري رفع الصورة...', {
+      duration: 30000 // 30 ثانية للتحميل
+    });
 
     try {
       console.log('📤 بدء رفع الصورة...');
+      
       // إنشاء FormData
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'featured');
 
+      console.log('🌐 إرسال طلب الرفع...');
+      
       // رفع الصورة إلى API
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
 
-      console.log('🌐 استجابة الخادم:', response.status, response.statusText);
+      console.log('📡 استجابة الخادم:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
 
       if (!response.ok) {
-        throw new Error('فشل رفع الصورة');
+        throw new Error(`فشل رفع الصورة: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
       console.log('📊 بيانات الاستجابة:', data);
       
-      // تحديث قيمة URL - إصلاح الوصول إلى البيانات الصحيحة
+      // التحقق من نجاح العملية والحصول على URL
       if (data.success && data.url) {
         console.log('✅ تم الرفع بنجاح، URL:', data.url);
+        
+        // تحديث الحالة
         onChange(data.url);
+        setImageLoaded(false); // إعادة تعيين حالة التحميل
+        
+        // إظهار رسالة نجاح
+        toast.success('✅ تم رفع الصورة بنجاح!', { 
+          id: uploadToast,
+          duration: 3000 
+        });
+        
+        console.log('📸 تم حفظ رابط الصورة:', data.url);
       } else {
         throw new Error(data.error || 'فشل في الحصول على رابط الصورة');
       }
       
     } catch (error) {
       console.error('❌ خطأ في رفع الصورة:', error);
-      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى.';
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ أثناء رفع الصورة';
       setUploadError(errorMessage);
+      
+      // إظهار رسالة خطأ
+      toast.error(`❌ ${errorMessage}`, { 
+        id: uploadToast,
+        duration: 5000 
+      });
     } finally {
       setUploading(false);
+      
+      // إعادة تعيين قيمة input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
   const handleUrlSubmit = (url: string) => {
     if (url.trim()) {
+      console.log('🔗 إدخال رابط صورة:', url.trim());
       onChange(url.trim());
       setShowUrlInput(false);
+      setImageLoaded(false);
+      toast.success('✅ تم حفظ رابط الصورة');
     }
   };
 
   const handleRemoveImage = () => {
+    console.log('🗑️ حذف الصورة');
     onChange('');
     setShowUrlInput(false);
+    setImageLoaded(false);
+    setUploadError(null);
+    
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    
+    toast.success('✅ تم حذف الصورة');
+  };
+
+  const handleImageLoad = () => {
+    console.log('🖼️ تم تحميل الصورة بنجاح');
+    setImageLoaded(true);
+    setUploadError(null);
+  };
+
+  const handleImageError = () => {
+    console.error('❌ فشل في تحميل الصورة:', value);
+    setImageLoaded(false);
+    setUploadError('فشل في تحميل الصورة');
   };
 
   return (
@@ -182,73 +236,100 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
           </div>
 
           <p className={`text-xs mt-3 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-            JPG, PNG, GIF, WebP, AVIF, SVG (أقصى حجم: 5MB)
+            JPG, PNG, GIF, WebP (أقصى حجم: 5MB)
           </p>
 
           {uploadError && (
-            <div className={`mt-3 text-sm p-2 rounded ${
+            <div className={`mt-3 text-sm p-3 rounded-lg flex items-center gap-2 ${
               darkMode 
-                ? 'bg-red-900/50 text-red-300' 
-                : 'bg-red-50 text-red-600'
+                ? 'bg-red-900/50 text-red-300 border border-red-700' 
+                : 'bg-red-50 text-red-600 border border-red-200'
             }`}>
-              {uploadError}
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{uploadError}</span>
             </div>
           )}
         </div>
       ) : (
-        <div className="relative group">
-          <Image 
-            src={value || "/placeholder.jpg"} 
-            alt="صورة بارزة" 
-            width={300} 
-            height={200}
-            className="w-full h-48 object-cover rounded-xl"
-            onError={(e) => {
-              console.error('خطأ في تحميل الصورة:', {
-                src: e.currentTarget.src,
-                alt: e.currentTarget.alt
-              });
-              // استخدام صورة افتراضية من Cloudinary
-              e.currentTarget.src = getDefaultImageUrl('article');
-            }}
-          />
+        <div className="space-y-3">
+          {/* معاينة الصورة */}
+          <div className="relative group">
+            <Image 
+              src={value} 
+              alt="صورة بارزة" 
+              width={300} 
+              height={200}
+              className="w-full h-48 object-cover rounded-xl"
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+              priority
+            />
+            
+            {/* حالة التحميل */}
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+                <Loader className="w-8 h-8 animate-spin text-gray-400" />
+              </div>
+            )}
+            
+            {/* مؤشر نجاح التحميل */}
+            {imageLoaded && (
+              <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full">
+                <CheckCircle className="w-4 h-4" />
+              </div>
+            )}
+            
+            {/* أزرار التحكم */}
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={handleUploadClick}
+                disabled={uploading}
+                className="p-2 bg-white/90 hover:bg-white text-gray-700 rounded-lg transition-colors"
+                title="تغيير الصورة"
+              >
+                {uploading ? (
+                  <Loader className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Upload className="w-5 h-5" />
+                )}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setShowUrlInput(true)}
+                className="p-2 bg-white/90 hover:bg-white text-gray-700 rounded-lg transition-colors"
+                title="تغيير الرابط"
+              >
+                <Link className="w-5 h-5" />
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="p-2 bg-red-500/90 hover:bg-red-500 text-white rounded-lg transition-colors"
+                title="حذف الصورة"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
           
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={handleUploadClick}
-              disabled={uploading}
-              className="p-2 bg-white/90 hover:bg-white text-gray-700 rounded-lg transition-colors"
-              title="تغيير الصورة"
-            >
-              {uploading ? (
-                <Loader className="w-5 h-5 animate-spin" />
-              ) : (
-                <Upload className="w-5 h-5" />
-              )}
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => setShowUrlInput(true)}
-              className="p-2 bg-white/90 hover:bg-white text-gray-700 rounded-lg transition-colors"
-              title="تغيير الرابط"
-            >
-              <Link className="w-5 h-5" />
-            </button>
-            
-            <button
-              type="button"
-              onClick={handleRemoveImage}
-              className="p-2 bg-red-500/90 hover:bg-red-500 text-white rounded-lg transition-colors"
-              title="حذف الصورة"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          {/* معلومات الصورة */}
+          <div className={`text-xs px-3 py-2 rounded-lg ${
+            darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600'
+          }`}>
+            <div className="flex items-center justify-between">
+              <span>🔗 رابط الصورة:</span>
+              <span className="font-mono text-xs truncate max-w-xs" title={value}>
+                {value.length > 50 ? `...${value.slice(-47)}` : value}
+              </span>
+            </div>
           </div>
         </div>
       )}
 
+      {/* نموذج إدخال الرابط */}
       {showUrlInput && (
         <div className={`p-4 rounded-lg border ${
           darkMode 
