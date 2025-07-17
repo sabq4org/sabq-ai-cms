@@ -45,8 +45,8 @@ RUN echo "🔧 Generating Prisma Client..." && \
 
 # Build Next.js application using the new build script
 RUN echo "🏗️ Building Next.js application..." && \
-    chmod +x scripts/digitalocean-build-v3.js && \
-    node scripts/digitalocean-build-v3.js
+    chmod +x scripts/digitalocean-build-v4.js && \
+    node scripts/digitalocean-build-v4.js
 
 # Verify build output
 RUN echo "📁 Verifying build output..." && \
@@ -85,6 +85,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/lib/generated ./lib/generated
 
 # Copy start script
 COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
+RUN chmod +x ./start.sh
 
 USER nextjs
 
