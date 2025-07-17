@@ -1,6 +1,18 @@
 {
   "podcasts": [
     {
+      "id": "podcast-1752763473494-bca3enkfh",
+      "filename": "daily-news-2025-07-17T14-44-32-213Z.mp3",
+      "url": "/audio/daily-news-2025-07-17T14-44-32-213Z.mp3",
+      "size": 535032,
+      "duration": "25 ثانية",
+      "voice": "bradford",
+      "text_length": 375,
+      "is_daily": false,
+      "created_at": "2025-07-17T14:44:33.494Z",
+      "created_by": "user"
+    },
+    {
       "id": "podcast-1752762621026-erbjatxnn",
       "filename": "daily-news-2025-07-17T14-30-21-004Z.mp3",
       "url": "/audio/daily-news-2025-07-17T14-30-21-004Z.mp3",

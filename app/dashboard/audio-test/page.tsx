@@ -334,6 +334,25 @@ export default function AudioTestPage() {
               </div>
             </div>
 
+            {/* خيار النشرة اليومية */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+              <div className="flex items-center space-x-3 space-x-reverse">
+                <input
+                  type="checkbox"
+                  id="is-daily"
+                  checked={isDaily}
+                  onChange={(e) => setIsDaily(e.target.checked)}
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="is-daily" className="text-base font-medium cursor-pointer">
+                  ✅ حفظ كنشرة يومية (ستظهر في الصفحة الرئيسية)
+                </label>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mr-8">
+                عند تفعيل هذا الخيار، ستظهر النشرة مباشرة في بلوك "النشرة الصوتية اليومية" بالصفحة الرئيسية
+              </p>
+            </div>
+
             {/* زر التوليد */}
             <div className="space-y-3">
               <Button 
@@ -382,42 +401,7 @@ export default function AudioTestPage() {
           </CardContent>
         </Card>
 
-        {/* إعدادات التوليد */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>إعدادات التوليد</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                اختر الصوت
-              </label>
-              <select
-                value={voice}
-                onChange={(e) => setVoice(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="bradford">Bradford (رجالي إنجليزي)</option>
-                <option value="rachel">Rachel (نسائي إنجليزي)</option>
-                <option value="arabic_male">رجالي عربي احترافي</option>
-                <option value="arabic_female">نسائي عربي</option>
-              </select>
-            </div>
-            
-            <div className="flex items-center space-x-3 space-x-reverse">
-              <input
-                type="checkbox"
-                id="is-daily"
-                checked={isDaily}
-                onChange={(e) => setIsDaily(e.target.checked)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <label htmlFor="is-daily" className="text-sm font-medium">
-                حفظ كنشرة يومية (ستظهر في الصفحة الرئيسية)
-              </label>
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* رسائل الخطأ */}
         {error && (

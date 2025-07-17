@@ -159,23 +159,49 @@ export default function PodcastBlock() {
     });
     
     try {
-      // 1. جلب آخر الأخبار
-      toast.loading('📰 جلب آخر الأخبار...', { id: loadingToast });
-      const articlesRes = await fetch('/api/articles?limit=5&sort=created_at&order=desc');
-      if (!articlesRes.ok) throw new Error('فشل جلب الأخبار');
+      let newsText = '';
       
-      const articlesData = await articlesRes.json();
-      const articles = articlesData.articles || [];
-      
-      if (articles.length === 0) {
-        throw new Error('لا توجد أخبار جديدة لتوليد النشرة');
+      try {
+        // 1. محاولة جلب آخر الأخبار
+        toast.loading('📰 جلب آخر الأخبار...', { id: loadingToast });
+        const articlesRes = await fetch('/api/articles?limit=5&sort=created_at&order=desc');
+        
+        if (articlesRes.ok) {
+          const articlesData = await articlesRes.json();
+          const articles = articlesData.articles || [];
+          
+          if (articles.length > 0) {
+            // إنشاء نص من العناوين والملخصات
+            newsText = `أهلاً بكم في النشرة الصوتية اليومية لصحيفة سبق. إليكم أهم الأخبار:\n\n`;
+            newsText += articles.map((article: any, index: number) => {
+              const title = article.title || 'خبر بدون عنوان';
+              const excerpt = article.excerpt || article.summary || '';
+              return `الخبر ${index + 1}: ${title}. ${excerpt}`;
+            }).join('\n\n');
+            newsText += '\n\nكانت هذه نشرتكم الصوتية اليومية. شكراً لاستماعكم.';
+          }
+        }
+      } catch (fetchError) {
+        console.error('خطأ في جلب المقالات:', fetchError);
       }
       
-      // 2. إنشاء ملخص الأخبار
-      toast.loading('✍️ إنشاء ملخص الأخبار...', { id: loadingToast });
-      const newsText = articles.map((article: any, index: number) => 
-        `الخبر ${index + 1}: ${article.title}. ${article.excerpt || ''}`
-      ).join('\n\n');
+      // 2. إذا فشل جلب الأخبار، استخدم نص تجريبي
+      if (!newsText) {
+        toast.loading('✍️ إنشاء نشرة تجريبية...', { id: loadingToast });
+        newsText = `
+          أهلاً بكم في النشرة الصوتية اليومية لصحيفة سبق.
+          
+          نعتذر عن عدم توفر الأخبار في الوقت الحالي، لكن إليكم نشرة تجريبية:
+          
+          الخبر الأول: المملكة العربية السعودية تواصل تقدمها في مجال التحول الرقمي وتحقق إنجازات نوعية في مشاريع الذكاء الاصطناعي.
+          
+          الخبر الثاني: نمو ملحوظ في قطاع السياحة السعودي مع استقبال ملايين الزوار في الربع الأول من العام.
+          
+          الخبر الثالث: إطلاق مبادرات جديدة لدعم رواد الأعمال والمشاريع الناشئة في المملكة.
+          
+          كانت هذه نشرتكم الصوتية التجريبية. شكراً لاستماعكم.
+        `.trim();
+      }
       
       // 3. توليد الصوت
       toast.loading('🔊 تحويل النص إلى صوت...', { id: loadingToast });
