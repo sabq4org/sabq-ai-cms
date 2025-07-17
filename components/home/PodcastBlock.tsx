@@ -438,21 +438,56 @@ export default function PodcastBlock() {
               className="hidden"
             />
 
-            <div className="flex items-center gap-4 mb-4">
-              {/* زر التشغيل */}
+            {/* زر التشغيل الرئيسي */}
+            <div className="mb-6">
               <button
                 onClick={togglePlay}
-                className="bg-red-600 hover:bg-red-700 text-white p-4 rounded-full transition-colors shadow-lg"
+                className={`
+                  relative w-20 h-20 mx-auto flex items-center justify-center
+                  bg-gradient-to-br from-blue-500 to-blue-600 
+                  hover:from-blue-600 hover:to-blue-700
+                  text-white rounded-full
+                  shadow-xl hover:shadow-2xl
+                  transform transition-all duration-300
+                  hover:scale-110 active:scale-95
+                  group
+                  ${isPlaying ? 'animate-pulse' : ''}
+                `}
+                disabled={!podcast?.link}
                 aria-label={isPlaying ? 'إيقاف' : 'تشغيل'}
               >
-                {isPlaying ? (
-                  <Pause className="w-6 h-6" />
-                ) : (
-                  <Play className="w-6 h-6 mr-0.5" />
-                )}
+                {/* خلفية متحركة */}
+                <div className={`
+                  absolute inset-0 rounded-full
+                  bg-gradient-to-br from-blue-400 to-blue-600
+                  opacity-50 blur-xl
+                  ${isPlaying ? 'animate-ping' : ''}
+                `} />
+                
+                {/* الأيقونة */}
+                <div className="relative z-10">
+                  {isPlaying ? (
+                    <Pause className="w-8 h-8 fill-white" />
+                  ) : (
+                    <Play className="w-8 h-8 fill-white mr-1" />
+                  )}
+                </div>
+                
+                {/* حلقة خارجية */}
+                <div className={`
+                  absolute inset-0 rounded-full border-2 border-white/30
+                  ${isPlaying ? 'animate-spin-slow' : ''}
+                `} />
               </button>
+              
+              {/* النص التوضيحي */}
+              <p className="text-center mt-3 text-sm text-gray-600 dark:text-gray-400">
+                {isPlaying ? 'جارٍ التشغيل...' : 'اضغط للاستماع'}
+              </p>
+            </div>
 
-              {/* معلومات النشرة */}
+            {/* معلومات النشرة */}
+            <div className="flex items-center gap-4 mb-4">
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
                   نشرة أخبار اليوم

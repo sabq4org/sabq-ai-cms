@@ -17,7 +17,8 @@ import {
   Trash2,
   MoreVertical,
   Share2,
-  RefreshCw
+  RefreshCw,
+  Home
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -36,6 +37,7 @@ interface AudioFile {
   type: 'news' | 'summary' | 'manual';
   title?: string;
   description?: string;
+  is_daily?: boolean; // Added for daily status
 }
 
 export default function AudioArchivePage() {
@@ -68,7 +70,8 @@ export default function AudioArchivePage() {
           createdAt: p.created_at,
           type: 'news' as const,
           title: `النشرة الصوتية - ${new Date(p.created_at).toLocaleDateString('ar-SA')}`,
-          description: `صوت: ${p.voice} - الحجم: ${Math.round(p.size / 1024)} KB`
+          description: `صوت: ${p.voice} - الحجم: ${Math.round(p.size / 1024)} KB`,
+          is_daily: p.is_daily // Assuming is_daily is returned from the API
         }));
         
         setAudioFiles(formattedFiles);
@@ -188,6 +191,32 @@ export default function AudioArchivePage() {
     }
   };
 
+  // تغيير حالة النشرة اليومية
+  const toggleDailyStatus = async (audioFile: AudioFile) => {
+    try {
+      const response = await fetch(`/api/audio/archive/${audioFile.id}/daily`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_daily: !audioFile.is_daily }),
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setAudioFiles(prev => prev.map(file => 
+          file.id === audioFile.id ? { ...file, is_daily: !audioFile.is_daily } : file
+        ));
+        alert('تم تغيير حالة النشرة اليومية بنجاح!');
+      } else {
+        alert('فشل في تغيير حالة النشرة اليومية.');
+      }
+    } catch (error) {
+      console.error('خطأ في تغيير حالة النشرة اليومية:', error);
+      alert('خطأ في تغيير حالة النشرة اليومية.');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* رأس الصفحة */}
@@ -301,7 +330,7 @@ export default function AudioArchivePage() {
                   </div>
                   
                   {/* أزرار التحكم */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap gap-2 mt-4">
                     <Button
                       onClick={() => togglePlay(audioFile)}
                       size="sm"
@@ -334,6 +363,22 @@ export default function AudioArchivePage() {
                         <DropdownMenuItem onClick={() => shareAudioFile(audioFile)}>
                           <Share2 className="w-4 h-4 mr-2" />
                           مشاركة
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => toggleDailyStatus(audioFile)}
+                          className="text-yellow-600"
+                        >
+                          {audioFile.is_daily ? (
+                            <>
+                              <Home className="w-4 h-4 mr-2" />
+                              إلغاء نشر في الرئيسية
+                            </>
+                          ) : (
+                            <>
+                              <Home className="w-4 h-4 mr-2" />
+                              نشر في الرئيسية
+                            </>
+                          )}
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => deleteAudioFile(audioFile.id)}
