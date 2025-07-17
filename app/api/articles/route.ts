@@ -553,6 +553,20 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    // كشف المقالات التجريبية وتسجيلها
+    const testKeywords = ['اختبار', 'تجريبي', 'test', 'TEST', 'مقال اختبار'];
+    const isTestArticle = testKeywords.some(keyword => 
+      cleanTitle.includes(keyword) || cleanContent.includes(keyword) || cleanContent.includes('محتوى تجريبي')
+    );
+    
+    if (isTestArticle) {
+      console.log('⚠️ تحذير: يتم إنشاء مقال تجريبي:', {
+        title: cleanTitle.substring(0, 50),
+        isTest: true,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
     // البحث عن مستخدم افتراضي أو استخدام المصادقة
     let finalAuthorId = null;
     let finalAuthorName = 'مؤلف افتراضي';
