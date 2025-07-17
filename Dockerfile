@@ -32,6 +32,10 @@ ENV NODE_OPTIONS="--openssl-legacy-provider"
 # Create the directory for Prisma Client
 RUN mkdir -p lib/generated
 
+# Prepare Prisma schema for production
+RUN echo "🚀 Preparing Prisma schema for production..." && \
+    node scripts/prepare-prisma-for-production.js
+
 # Generate Prisma Client with more verbose output
 RUN echo "🔧 Generating Prisma Client..." && \
     npx prisma generate --generator client && \

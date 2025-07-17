@@ -398,8 +398,8 @@ export default function PodcastBlock() {
       <div className="bg-gradient-to-r from-red-600 to-red-700 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-white/20 p-2 rounded-lg">
-              <Headphones className="w-6 h-6 text-white" />
+            <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
+              <Headphones className="w-6 h-6 text-white drop-shadow-sm" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">النشرة الصوتية اليومية</h3>
@@ -444,8 +444,8 @@ export default function PodcastBlock() {
                 onClick={togglePlay}
                 className={`
                   relative w-20 h-20 mx-auto flex items-center justify-center
-                  bg-gradient-to-br from-blue-500 to-blue-600 
-                  hover:from-blue-600 hover:to-blue-700
+                  bg-gradient-to-br from-red-500 to-red-600 
+                  hover:from-red-600 hover:to-red-700
                   text-white rounded-full
                   shadow-xl hover:shadow-2xl
                   transform transition-all duration-300
@@ -459,7 +459,7 @@ export default function PodcastBlock() {
                 {/* خلفية متحركة */}
                 <div className={`
                   absolute inset-0 rounded-full
-                  bg-gradient-to-br from-blue-400 to-blue-600
+                  bg-gradient-to-br from-red-400 to-red-600
                   opacity-50 blur-xl
                   ${isPlaying ? 'animate-ping' : ''}
                 `} />
@@ -467,9 +467,9 @@ export default function PodcastBlock() {
                 {/* الأيقونة */}
                 <div className="relative z-10">
                   {isPlaying ? (
-                    <Pause className="w-8 h-8 fill-white" />
+                    <Pause className="w-8 h-8 text-white fill-white drop-shadow-md" />
                   ) : (
-                    <Play className="w-8 h-8 fill-white mr-1" />
+                    <Play className="w-8 h-8 text-white fill-white mr-1 drop-shadow-md" />
                   )}
                 </div>
                 
@@ -574,32 +574,13 @@ export default function PodcastBlock() {
               لا توجد نشرة صوتية متاحة
             </h4>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              اضغط على الزر أدناه لتوليد نشرة صوتية جديدة من آخر الأخبار
+              يتم تحديث النشرة الصوتية بشكل دوري تلقائياً
             </p>
           </div>
         )}
 
         {/* أزرار التحكم */}
         <div className="space-y-3">
-          {/* زر توليد نشرة جديدة */}
-          <button
-            onClick={generateNewPodcast}
-            disabled={generating || checkingStatus}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            {generating ? (
-              <>
-                <RefreshCw className="w-5 h-5 animate-spin" />
-                جاري توليد النشرة...
-              </>
-            ) : (
-              <>
-                <Mic className="w-5 h-5" />
-                توليد نشرة جديدة
-              </>
-            )}
-          </button>
-
           {/* زر فحص الحالة */}
           <button
             onClick={checkServiceStatus}
@@ -650,7 +631,7 @@ export default function PodcastBlock() {
               <div className="flex gap-2">
                 <button
                   onClick={togglePlay}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center gap-2"
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center gap-2 shadow-sm"
                 >
                   {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                   {isPlaying ? 'إيقاف' : 'تشغيل'}
@@ -659,7 +640,7 @@ export default function PodcastBlock() {
                 <a
                   href={podcast.link}
                   download
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center gap-2"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center gap-2 shadow-sm"
                 >
                   <Download className="w-4 h-4" />
                   تحميل
@@ -667,7 +648,7 @@ export default function PodcastBlock() {
                 
                 <button
                   onClick={shareLink}
-                  className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center"
+                  className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center shadow-sm"
                 >
                   <Share2 className="w-4 h-4" />
                 </button>
