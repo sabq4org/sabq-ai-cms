@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     await ensureFile();
     
     const body = await request.json();
-    const { filename, url, size, duration, voice, text_length, is_daily } = body;
+    const { filename, url, size, duration, voice, text_length, is_daily, is_published } = body;
 
     // قراءة البيانات الحالية
     const data = await fs.readFile(PODCASTS_FILE, 'utf-8');
@@ -86,6 +86,7 @@ export async function POST(request: NextRequest) {
       voice,
       text_length,
       is_daily: is_daily || false,
+      is_published: is_published || false, // إضافة حقل is_published
       created_at: new Date().toISOString(),
       created_by: 'user'
     };

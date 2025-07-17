@@ -108,7 +108,9 @@ export default function AudioTestPage() {
             size: data.size,
             duration: data.duration_estimate,
             voice: data.voice_used,
-            text_length: data.text_length
+            text_length: data.text_length,
+            is_daily: isDaily, // إضافة علامة النشرة اليومية
+            is_published: isDaily // النشرة اليومية تكون منشورة تلقائياً
           })
         });
         console.log('📚 تم حفظ النشرة في الأرشيف');
@@ -382,11 +384,11 @@ export default function AudioTestPage() {
                   className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500"
                 />
                 <label htmlFor="is-daily" className="text-base font-medium cursor-pointer">
-                  📌 وضع علامة كنشرة يومية (للمراجعة)
+                  📌 حفظ كنشرة يومية (ستظهر في الصفحة الرئيسية)
                 </label>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mr-8">
-                ستُحفظ النشرة بعلامة "نشرة يومية" في الأرشيف. يمكنك مراجعتها ونشرها لاحقاً من صفحة الأرشيف
+                ستظهر النشرة مباشرة في بلوك "النشرة الصوتية اليومية" في الصفحة الرئيسية
               </p>
             </div>
 

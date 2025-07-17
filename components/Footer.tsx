@@ -33,6 +33,7 @@ export default function Footer() {
     {
       title: 'خدماتنا',
       links: [
+        { label: '🔁 نظام الولاء', url: '/loyalty-program' },
         { label: 'إعلانات تجارية', url: '/ads' },
         { label: 'الاشتراكات', url: '/subscriptions' },
         { label: 'النشرة البريدية', url: '/newsletter' },
@@ -157,6 +158,16 @@ export default function Footer() {
               {React.cloneElement(social.icon, { className: "w-4 h-4" })}
             </a>
           ))}
+        </div>
+
+        {/* رابط نظام الولاء للموبايل */}
+        <div className="mb-4 px-3">
+          <Link 
+            href="/loyalty-program" 
+            className="block w-full p-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-colors"
+          >
+            🔁 اكتشف نظام الولاء الجديد
+          </Link>
         </div>
 
         {/* حقوق النشر */}

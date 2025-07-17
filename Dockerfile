@@ -27,7 +27,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 # Use a placeholder DATABASE_URL for Prisma generation
 ENV DATABASE_URL="postgresql://user:password@host:5432/db?schema=public"
-ENV NODE_OPTIONS="--openssl-legacy-provider"
+ENV JWT_SECRET="build-time-secret"
+ENV NEXTAUTH_SECRET="build-time-secret"
+ENV NEXTAUTH_URL="http://localhost:3000"
 
 # Create the directory for Prisma Client
 RUN mkdir -p lib/generated
@@ -41,32 +43,18 @@ RUN echo "🔧 Generating Prisma Client..." && \
     npx prisma generate --generator client && \
     echo "✅ Prisma Client generated"
 
-# Verify Prisma Client generation and check for daily_doses
-RUN echo "📋 Checking Prisma Client..." && \
-    ls -la lib/generated/prisma/ && \
-    echo "🔍 Checking for daily_doses model..." && \
-    grep -r "daily_doses" lib/generated/prisma/ || echo "⚠️ daily_doses not found in generated client"
-
-# Build Next.js application using the fixed build script
+# Build Next.js application using the new build script
 RUN echo "🏗️ Building Next.js application..." && \
-    node scripts/digitalocean-build-fix.js || \
-    (echo "❌ Build failed, trying direct build..." && npm run build)
+    chmod +x scripts/digitalocean-build-v2.js && \
+    node scripts/digitalocean-build-v2.js
 
 # Verify build output
-RUN echo "📁 Checking build output..." && \
-    ls -la .next/ || echo "❌ .next directory not found" && \
-    echo "📁 Checking for standalone..." && \
-    ls -la .next/standalone/ || echo "⚠️ standalone directory not found, creating fallback..."
-
-# Create fallback standalone if not exists
-RUN if [ ! -d ".next/standalone" ]; then \
-      echo "🔧 Creating fallback standalone directory..." && \
-      mkdir -p .next/standalone && \
-      cp -r node_modules .next/standalone/ && \
-      cp -r public .next/standalone/ && \
-      cp package.json .next/standalone/ && \
-      echo "const { createServer } = require('http'); const { parse } = require('url'); const next = require('next'); const port = parseInt(process.env.PORT, 10) || 3000; const dev = false; const app = next({ dev, dir: '.' }); const handle = app.getRequestHandler(); app.prepare().then(() => { createServer((req, res) => { const parsedUrl = parse(req.url, true); handle(req, res, parsedUrl); }).listen(port, (err) => { if (err) throw err; console.log(\`> Ready on http://localhost:\${port}\`); }); });" > .next/standalone/server.js; \
-    fi
+RUN echo "📁 Verifying build output..." && \
+    ls -la && \
+    echo "📁 .next directory:" && \
+    ls -la .next/ || echo "❌ .next not found" && \
+    echo "📁 .next/standalone directory:" && \
+    ls -la .next/standalone/ || echo "⚠️ standalone not found"
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -78,20 +66,35 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy public directory
 COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy the entire app (fallback approach)
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
 
 # Copy Prisma files
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/lib/generated ./lib/generated
+
+# Create a simple start script
+RUN echo '#!/bin/sh\n\
+if [ -f ".next/standalone/server.js" ]; then\n\
+  echo "Starting standalone server..."\n\
+  cd .next/standalone && node server.js\n\
+elif [ -f "node_modules/next/dist/bin/next" ]; then\n\
+  echo "Starting with next start..."\n\
+  node node_modules/next/dist/bin/next start\n\
+else\n\
+  echo "Starting with npm start..."\n\
+  npm start\n\
+fi' > start.sh && chmod +x start.sh
 
 USER nextjs
 
@@ -99,6 +102,5 @@ EXPOSE 3000
 
 ENV PORT=3000
 
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
-CMD ["node", "server.js"] 
+# Use the start script
+CMD ["./start.sh"] 

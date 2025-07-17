@@ -162,7 +162,8 @@ export async function POST(req: NextRequest) {
           duration: Math.ceil(optimizedText.length / 15) + ' ثانية',
           voice: voice,
           text_length: optimizedText.length,
-          is_daily: body.is_daily === true // إضافة علامة للنشرة اليومية
+          is_daily: body.is_daily === true, // إضافة علامة للنشرة اليومية
+          is_published: body.is_daily === true // النشرة اليومية تكون منشورة تلقائياً
         })
       });
 
@@ -254,6 +255,7 @@ export async function POST(req: NextRequest) {
           text_preview: optimizedText.substring(0, 200) + '...',
           created_at: new Date().toISOString(),
           is_daily: body.is_daily || false,
+          is_published: body.is_daily === true, // النشرة اليومية تكون منشورة تلقائياً
           fallback_used: true
         };
         

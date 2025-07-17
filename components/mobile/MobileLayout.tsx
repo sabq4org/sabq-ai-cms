@@ -128,6 +128,9 @@ function MobileFooter() {
             <a href="/about" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600">
               من نحن
             </a>
+            <a href="/loyalty-program" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600">
+              🔁 نظام الولاء
+            </a>
             <a href="/user-guide" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600">
               دليل المستخدم
             </a>
