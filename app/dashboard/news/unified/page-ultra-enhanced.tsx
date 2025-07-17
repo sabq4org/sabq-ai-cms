@@ -121,10 +121,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         }
         
         // تحميل المؤلفين
-        const authorsResponse = await fetch('/api/authors');
+        const authorsResponse = await fetch('/api/team-members');
         if (authorsResponse.ok) {
           const authorsData = await authorsResponse.json();
-          setAuthors(authorsData.authors || []);
+          setAuthors(authorsData.data || []);
         }
         
       } catch (error) {

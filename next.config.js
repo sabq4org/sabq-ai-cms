@@ -10,24 +10,75 @@ const nextConfig = {
     return 'v2-' + Date.now().toString()
   },
   images: {
-    domains: [
-      'localhost',
-      'res.cloudinary.com',
-      'images.unsplash.com',
-      'picsum.photos',
-      'placeholder.com',
-      'via.placeholder.com',
-      'dummyimage.com',
-      'placehold.co',
-      'loremflickr.com',
-      'cloudflare-ipfs.com',
-      'avatars.githubusercontent.com',
-      'lh3.googleusercontent.com',
-      'platform-lookaside.fbsbx.com',
-      'pbs.twimg.com',
-      'sabq-ai-cms.b-cdn.net',
-      'sabq-cdn.b-cdn.net',
-      'www2.0zz0.com'
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'dummyimage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'loremflickr.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cloudflare-ipfs.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'platform-lookaside.fbsbx.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pbs.twimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sabq-ai-cms.b-cdn.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sabq-cdn.b-cdn.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www2.0zz0.com',
+      }
     ],
     // تحسينات الصور
     formats: ['image/avif', 'image/webp'],
