@@ -38,6 +38,9 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
+    // اختيار الصوت المناسب
+    const selectedVoiceId = VOICE_IDS[voice as keyof typeof VOICE_IDS] || VOICE_IDS.bradford;
+
     // التحقق من مفتاح ElevenLabs
     const apiKey = process.env.ELEVENLABS_API_KEY;
     if (!apiKey || apiKey.startsWith('sk_demo')) {
@@ -66,9 +69,6 @@ export async function POST(req: NextRequest) {
         notice: 'لتوليد صوت حقيقي، يرجى إضافة مفتاح ElevenLabs صحيح'
       });
     }
-
-    // اختيار الصوت المناسب
-    const selectedVoiceId = VOICE_IDS[voice as keyof typeof VOICE_IDS] || VOICE_IDS.bradford;
     console.log(`🔊 استخدام الصوت: ${voice} (${selectedVoiceId})`);
 
     // تحسين النص للقراءة الصوتية
@@ -123,6 +123,33 @@ export async function POST(req: NextRequest) {
     // حفظ الملف الصوتي
     fs.writeFileSync(outputFile, response.data);
     console.log(`💾 تم حفظ الملف: ${outputFile}`);
+
+    // حفظ النشرة في الأرشيف
+    try {
+      const archiveResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/audio/archive`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filename: `${filename}-${timestamp}.mp3`,
+          url: publicUrl,
+          size: response.data.byteLength,
+          duration: Math.ceil(optimizedText.length / 15) + ' ثانية',
+          voice: voice,
+          text_length: optimizedText.length,
+          is_daily: body.is_daily === true // إضافة علامة للنشرة اليومية
+        })
+      });
+
+      if (!archiveResponse.ok) {
+        console.error('⚠️ فشل حفظ النشرة في الأرشيف');
+      } else {
+        console.log('✅ تم حفظ النشرة في الأرشيف');
+      }
+    } catch (archiveError) {
+      console.error('⚠️ خطأ في حفظ الأرشيف:', archiveError);
+    }
 
     // إرجاع معلومات مفصلة
     return NextResponse.json({

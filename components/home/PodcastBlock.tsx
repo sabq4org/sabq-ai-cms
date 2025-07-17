@@ -48,7 +48,8 @@ export default function PodcastBlock() {
   const fetchLatestPodcast = async () => {
     try {
       setError(false);
-      const res = await fetch('/api/generate-podcast');
+      // جلب آخر نشرة يومية من الأرشيف
+      const res = await fetch('/api/audio/archive?daily=true&latest=true');
       
       if (!res.ok) {
         throw new Error('Failed to fetch podcast');
@@ -56,11 +57,11 @@ export default function PodcastBlock() {
       
       const data = await res.json();
       
-      if (data.success && data.lastPodcast) {
+      if (data.success && data.podcast) {
         setPodcast({
-          link: data.lastPodcast.link,
-          timestamp: data.lastPodcast.createdAt,
-          duration: 3
+          link: data.podcast.url,
+          timestamp: data.podcast.created_at,
+          duration: parseInt(data.podcast.duration) || 3
         });
       }
     } catch (err) {
@@ -151,40 +152,71 @@ export default function PodcastBlock() {
 
   const generateNewPodcast = async () => {
     setGenerating(true);
-    setError(false);
     
-    // إشعار بدء التوليد
-    toast.loading('جاري توليد النشرة الصوتية...', {
-      id: 'podcast-generation',
-      duration: 10000
+    // إشعار البداية
+    const loadingToast = toast.loading('🎙️ جارٍ توليد النشرة الصوتية...', {
+      duration: 0,
     });
-
+    
     try {
-      const res = await fetch('/api/generate-podcast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ count: 5 })
-      });
+      // 1. جلب آخر الأخبار
+      toast.loading('📰 جلب آخر الأخبار...', { id: loadingToast });
+      const articlesRes = await fetch('/api/articles?limit=5&sort=created_at&order=desc');
+      if (!articlesRes.ok) throw new Error('فشل جلب الأخبار');
       
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+      const articlesData = await articlesRes.json();
+      const articles = articlesData.articles || [];
+      
+      if (articles.length === 0) {
+        throw new Error('لا توجد أخبار جديدة لتوليد النشرة');
       }
       
-      const data = await res.json();
+      // 2. إنشاء ملخص الأخبار
+      toast.loading('✍️ إنشاء ملخص الأخبار...', { id: loadingToast });
+      const newsText = articles.map((article: any, index: number) => 
+        `الخبر ${index + 1}: ${article.title}. ${article.excerpt || ''}`
+      ).join('\n\n');
       
-      if (data.success && data.link) {
-        // نجح التوليد
-        setPodcast({
-          link: data.link,
-          timestamp: new Date().toISOString(),
-          duration: data.duration || 3
-        });
+      // 3. توليد الصوت
+      toast.loading('🔊 تحويل النص إلى صوت...', { id: loadingToast });
+      const audioRes = await fetch('/api/audio/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          summary: newsText,
+          voice: 'arabic_male',
+          filename: 'daily-podcast',
+          language: 'arabic',
+          is_daily: true // إضافة علامة النشرة اليومية
+        })
+      });
+      
+      if (!audioRes.ok) {
+        const error = await audioRes.json();
+        throw new Error(error.details || error.error || 'فشل توليد الصوت');
+      }
+      
+      const data = await audioRes.json();
+      
+      // 4. تحديث البيانات المحلية
+      if (data.success) {
+        // جلب البيانات المحدثة من الأرشيف
+        const archiveRes = await fetch('/api/audio/archive?daily=true&latest=true');
+        const archiveData = await archiveRes.json();
         
-        // إشعار النجاح مع رابط التحميل
+        if (archiveData.success && archiveData.podcast) {
+          setPodcast({
+            link: archiveData.podcast.url,
+            timestamp: archiveData.podcast.created_at,
+            duration: parseInt(archiveData.podcast.duration) || 3
+          });
+        }
+        
+        // إشعارات النجاح
+        toast.dismiss(loadingToast);
         toast.success('✅ تم توليد النشرة الصوتية بنجاح!', {
-          id: 'podcast-generation',
-          duration: 5000
+          duration: 5000,
+          icon: '🎉'
         });
         
         // إشعار إضافي مع خيارات
@@ -194,7 +226,7 @@ export default function PodcastBlock() {
               <CheckCircle className="w-6 h-6 text-green-600" />
               <div>
                 <h3 className="font-semibold text-gray-800">النشرة جاهزة!</h3>
-                <p className="text-sm text-gray-600">المدة: {data.duration || 3} دقائق تقريباً</p>
+                <p className="text-sm text-gray-600">المدة: {data.duration_estimate || '3 دقائق'}</p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -208,7 +240,7 @@ export default function PodcastBlock() {
                 🎵 تشغيل
               </button>
               <a
-                href={data.link}
+                href={data.url}
                 download
                 onClick={() => toast.dismiss(t.id)}
                 className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700 text-center"
@@ -225,51 +257,18 @@ export default function PodcastBlock() {
       } else {
         throw new Error(data.error || 'فشل في توليد النشرة');
       }
-    } catch (err: any) {
-      console.error('❌ خطأ في توليد النشرة:', err);
-      setError(true);
+    } catch (error: any) {
+      console.error('خطأ في توليد النشرة:', error);
+      toast.dismiss(loadingToast);
       
-      // إشعار الخطأ مع تفاصيل
-      toast.error(`❌ فشل في توليد النشرة\n${err.message || 'حدث خطأ غير متوقع'}`, {
-        id: 'podcast-generation',
-        duration: 6000
-      });
-      
-      // إشعار إضافي للمساعدة
-      toast.custom((t) => (
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-red-200 max-w-md">
-          <div className="flex items-center gap-3 mb-3">
-            <AlertCircle className="w-6 h-6 text-red-600" />
-            <div>
-              <h3 className="font-semibold text-gray-800">فشل التوليد</h3>
-              <p className="text-sm text-gray-600">{err.message}</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                checkServiceStatus();
-                toast.dismiss(t.id);
-              }}
-              className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700"
-            >
-              🔍 فحص الحالة
-            </button>
-            <button
-              onClick={() => {
-                generateNewPodcast();
-                toast.dismiss(t.id);
-              }}
-              className="flex-1 bg-gray-600 text-white py-2 px-3 rounded text-sm hover:bg-gray-700"
-            >
-              🔄 إعادة المحاولة
-            </button>
-          </div>
-        </div>
-      ), {
-        duration: 10000,
-        position: 'top-center'
-      });
+      // إشعار الخطأ مع التفاصيل
+      toast.error(
+        <div>
+          <p className="font-semibold">❌ فشل توليد النشرة</p>
+          <p className="text-sm mt-1">{error.message}</p>
+        </div>,
+        { duration: 6000 }
+      );
     } finally {
       setGenerating(false);
     }

@@ -53,46 +53,33 @@ export default function AudioArchivePage() {
   const fetchAudioFiles = async () => {
     setLoading(true);
     try {
-      // محاكاة البيانات لعدم وجود API حقيقي بعد
-      const mockData: AudioFile[] = [
-        {
-          id: '1',
-          filename: 'news_summary_2025_01_17_14_30.mp3',
-          url: '/public/audio/news_summary_2025_01_17_14_30.mp3',
-          size: 2400000, // 2.4 MB
-          duration: '3:45',
-          createdAt: '2025-01-17T14:30:00Z',
-          type: 'news',
-          title: 'ملخص أخبار اليوم',
-          description: 'نشرة إخبارية تحتوي على أهم 5 أخبار اليوم'
-        },
-        {
-          id: '2', 
-          filename: 'custom_audio_test.mp3',
-          url: '/public/audio/custom_audio_test.mp3',
-          size: 1800000, // 1.8 MB
-          duration: '2:20',
-          createdAt: '2025-01-17T13:15:00Z',
-          type: 'manual',
-          title: 'نشرة صوتية مخصصة',
-          description: 'نشرة صوتية تم إنشاؤها من نص مخصص'
-        },
-        {
-          id: '3',
-          filename: 'article_summary_12345.mp3', 
-          url: '/public/audio/article_summary_12345.mp3',
-          size: 1200000, // 1.2 MB
-          duration: '1:55',
-          createdAt: '2025-01-17T12:00:00Z',
-          type: 'summary',
-          title: 'ملخص المقال: تطورات الذكاء الاصطناعي',
-          description: 'ملخص صوتي لمقال عن أحدث تطورات الذكاء الاصطناعي'
-        }
-      ];
+      // جلب النشرات من API
+      const response = await fetch('/api/audio/archive');
+      const data = await response.json();
       
-      setAudioFiles(mockData);
+      if (data.success && data.podcasts) {
+        // تحويل البيانات للتنسيق المطلوب
+        const formattedFiles: AudioFile[] = data.podcasts.map((p: any) => ({
+          id: p.id,
+          filename: p.filename,
+          url: p.url,
+          size: p.size,
+          duration: p.duration,
+          createdAt: p.created_at,
+          type: 'news' as const,
+          title: `النشرة الصوتية - ${new Date(p.created_at).toLocaleDateString('ar-SA')}`,
+          description: `صوت: ${p.voice} - الحجم: ${Math.round(p.size / 1024)} KB`
+        }));
+        
+        setAudioFiles(formattedFiles);
+      } else {
+        // في حالة عدم وجود بيانات
+        setAudioFiles([]);
+      }
     } catch (error) {
       console.error('خطأ في جلب الملفات الصوتية:', error);
+      // عرض بيانات فارغة في حالة الخطأ
+      setAudioFiles([]);
     } finally {
       setLoading(false);
     }

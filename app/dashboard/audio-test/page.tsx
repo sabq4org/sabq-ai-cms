@@ -20,6 +20,7 @@ export default function AudioTestPage() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [apiStatus, setApiStatus] = useState<any>(null);
+  const [isDaily, setIsDaily] = useState(false); // إضافة حالة للنشرة اليومية
 
   // اختبار حالة الـ API
   const checkApiStatus = async () => {
@@ -82,7 +83,8 @@ export default function AudioTestPage() {
           summary: summary.trim(),
           voice,
           filename,
-          language
+          language,
+          is_daily: isDaily // إرسال علامة النشرة اليومية
         })
       });
 
@@ -94,6 +96,25 @@ export default function AudioTestPage() {
 
       setResult(data);
       console.log('✅ نشرة صوتية جاهزة:', data.url);
+      
+      // حفظ في الأرشيف
+      try {
+        await fetch('/api/audio/archive', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: data.filename,
+            url: data.url,
+            size: data.size,
+            duration: data.duration_estimate,
+            voice: data.voice_used,
+            text_length: data.text_length
+          })
+        });
+        console.log('📚 تم حفظ النشرة في الأرشيف');
+      } catch (error) {
+        console.error('⚠️ فشل حفظ النشرة في الأرشيف:', error);
+      }
       
       // إشعار النجاح مع خيارات
       toast.custom((t) => (
@@ -186,7 +207,12 @@ export default function AudioTestPage() {
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 اختبار اتصال API وحالة المفاتيح
               </p>
-              <Button onClick={checkApiStatus} variant="outline">
+              <Button 
+                onClick={checkApiStatus} 
+                variant="outline"
+                className="font-bold bg-blue-50 hover:bg-blue-100 border-blue-300"
+              >
+                <Activity className="w-4 h-4 mr-2" />
                 فحص الحالة
               </Button>
             </div>
@@ -313,7 +339,7 @@ export default function AudioTestPage() {
               <Button 
                 onClick={generateAudio} 
                 disabled={isLoading || !summary.trim()}
-                className="w-full bg-red-600 hover:bg-red-700"
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                 size="lg"
               >
                 {isLoading ? (
@@ -352,6 +378,43 @@ export default function AudioTestPage() {
                 <Activity className="w-4 h-4 mr-2" />
                 فحص حالة خدمة ElevenLabs
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* إعدادات التوليد */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>إعدادات التوليد</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                اختر الصوت
+              </label>
+              <select
+                value={voice}
+                onChange={(e) => setVoice(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="bradford">Bradford (رجالي إنجليزي)</option>
+                <option value="rachel">Rachel (نسائي إنجليزي)</option>
+                <option value="arabic_male">رجالي عربي احترافي</option>
+                <option value="arabic_female">نسائي عربي</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center space-x-3 space-x-reverse">
+              <input
+                type="checkbox"
+                id="is-daily"
+                checked={isDaily}
+                onChange={(e) => setIsDaily(e.target.checked)}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="is-daily" className="text-sm font-medium">
+                حفظ كنشرة يومية (ستظهر في الصفحة الرئيسية)
+              </label>
             </div>
           </CardContent>
         </Card>
@@ -403,51 +466,84 @@ export default function AudioTestPage() {
 
         {/* نتائج التوليد */}
         {result && (
-          <Card className="border-green-200 bg-green-50">
+          <Card className="border-green-500 bg-green-50 dark:bg-green-900/20 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-green-800 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
-                تم توليد النشرة بنجاح!
+              <CardTitle className="text-green-800 dark:text-green-400 flex items-center gap-2 text-xl">
+                <CheckCircle className="w-6 h-6" />
+                تم توليد النشرة بنجاح! 🎉
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm bg-white dark:bg-gray-800 p-4 rounded-lg">
                 <div>
-                  <p className="font-medium text-green-800">اسم الملف:</p>
-                  <p className="text-green-700">{result.filename}</p>
+                  <p className="font-medium text-gray-600 dark:text-gray-400">اسم الملف:</p>
+                  <p className="text-gray-800 dark:text-gray-200 font-mono text-xs">{result.filename}</p>
                 </div>
                 <div>
-                  <p className="font-medium text-green-800">الحجم:</p>
-                  <p className="text-green-700">{Math.round(result.size / 1024)} KB</p>
+                  <p className="font-medium text-gray-600 dark:text-gray-400">الحجم:</p>
+                  <p className="text-gray-800 dark:text-gray-200 font-bold">{Math.round(result.size / 1024)} KB</p>
                 </div>
                 <div>
-                  <p className="font-medium text-green-800">المدة المتوقعة:</p>
-                  <p className="text-green-700">{result.duration_estimate}</p>
+                  <p className="font-medium text-gray-600 dark:text-gray-400">المدة المتوقعة:</p>
+                  <p className="text-gray-800 dark:text-gray-200 font-bold">{result.duration_estimate}</p>
                 </div>
                 <div>
-                  <p className="font-medium text-green-800">الصوت المستخدم:</p>
-                  <p className="text-green-700">{result.voice_used}</p>
+                  <p className="font-medium text-gray-600 dark:text-gray-400">الصوت المستخدم:</p>
+                  <p className="text-gray-800 dark:text-gray-200 font-bold">{result.voice_used}</p>
                 </div>
               </div>
 
-              <div className="flex gap-2">
-                <Button onClick={() => playAudio(result.url)} className="flex-1">
-                  <Play className="w-4 h-4 mr-2" />
-                  تشغيل
+              {/* أزرار التحكم */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <Button 
+                  onClick={() => playAudio(result.url)} 
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
+                  size="lg"
+                >
+                  <Play className="w-5 h-5 mr-2" />
+                  تشغيل النشرة
                 </Button>
+                
                 <a 
                   href={result.url} 
-                  download
-                  className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  download={result.filename}
+                  className="inline-flex items-center justify-center px-6 py-3 border-2 border-green-600 rounded-md text-base font-bold text-green-600 bg-white hover:bg-green-50 transition-colors"
                 >
-                  <Download className="w-4 h-4 mr-2" />
-                  تحميل
+                  <Download className="w-5 h-5 mr-2" />
+                  تحميل الملف
                 </a>
+                
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.origin + result.url);
+                    toast.success('تم نسخ الرابط!');
+                  }}
+                  variant="outline"
+                  size="lg"
+                  className="border-2 border-gray-300 font-bold"
+                >
+                  <Activity className="w-5 h-5 mr-2" />
+                  نسخ الرابط
+                </Button>
               </div>
 
-              <div className="text-xs text-green-700 bg-green-100 p-3 rounded">
-                <p className="font-medium">رابط الملف:</p>
-                <p className="break-all font-mono">{window.location.origin + result.url}</p>
+              {/* دليل النشر */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg space-y-3">
+                <p className="font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                  <Activity className="w-5 h-5" />
+                  كيفية نشر النشرة في الصفحة الرئيسية:
+                </p>
+                <ol className="space-y-2 text-sm text-blue-700 dark:text-blue-200 mr-6">
+                  <li>1. انسخ رابط الملف باستخدام زر "نسخ الرابط"</li>
+                  <li>2. اذهب إلى الصفحة الرئيسية</li>
+                  <li>3. في بلوك "النشرة الصوتية اليومية"، الصق الرابط</li>
+                  <li>4. اضغط على زر النشر</li>
+                </ol>
+              </div>
+
+              <div className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-3 rounded font-mono">
+                <p className="font-bold mb-1">رابط الملف:</p>
+                <p className="break-all select-all">{window.location.origin + result.url}</p>
               </div>
             </CardContent>
           </Card>
