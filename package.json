@@ -61,7 +61,9 @@
     "migrate:prod": "node scripts/migrate-production.js",
     "backup": "node scripts/auto-backup.js",
     "backup:daily": "node scripts/auto-backup.js && echo 'نسخة احتياطية يومية تمت بنجاح'",
-    "db:ping": "node scripts/db-ping.js"
+    "db:ping": "node scripts/db-ping.js",
+    "check:env": "node scripts/check-env-vars.js",
+    "check:do": "node scripts/check-env-vars.js && echo '✅ جاهز للنشر في DigitalOcean!'"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.840.0",
