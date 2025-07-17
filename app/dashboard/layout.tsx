@@ -34,7 +34,9 @@ import {
   MessageCircle,
   Globe,
   Layers,
-  Newspaper
+  Newspaper,
+  Volume2,
+  FileAudio
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -708,6 +710,54 @@ export default function DashboardLayout({
                       <FileText className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
                     <span className="text-sm lg:text-base font-medium">القوالب</span>
+                  </Link>
+
+                  <Link href="/dashboard/audio-test" 
+                    onClick={() => setSidebarOpen(false)}
+                    className={`group flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+                    darkMode 
+                      ? 'text-gray-300 hover:bg-gradient-to-r hover:from-red-900/30 hover:to-pink-900/30 hover:text-red-300' 
+                      : 'text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 hover:text-red-700'
+                  }`}>
+                    <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-red-900/40 group-hover:bg-red-500 group-hover:text-white' 
+                        : 'bg-red-100 group-hover:bg-red-500 group-hover:text-white'
+                    }`}>
+                      <Volume2 className="w-4 h-4 lg:w-5 lg:h-5" />
+                    </div>
+                    <span className="text-sm lg:text-base font-medium">اختبار الصوت</span>
+                    <div className={`px-2 py-1 rounded-full text-xs font-bold transition-all ${
+                      darkMode 
+                        ? 'bg-red-900/40 text-red-300 group-hover:bg-red-500 group-hover:text-white' 
+                        : 'bg-red-100 text-red-700 group-hover:bg-red-500 group-hover:text-white'
+                    }`}>
+                      محسن
+                    </div>
+                  </Link>
+
+                  <Link href="/dashboard/audio-archive" 
+                    onClick={() => setSidebarOpen(false)}
+                    className={`group flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
+                    darkMode 
+                      ? 'text-gray-300 hover:bg-gradient-to-r hover:from-indigo-900/30 hover:to-purple-900/30 hover:text-indigo-300' 
+                      : 'text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-700'
+                  }`}>
+                    <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                      darkMode 
+                        ? 'bg-indigo-900/40 group-hover:bg-indigo-500 group-hover:text-white' 
+                        : 'bg-indigo-100 group-hover:bg-indigo-500 group-hover:text-white'
+                    }`}>
+                      <FileAudio className="w-4 h-4 lg:w-5 lg:h-5" />
+                    </div>
+                    <span className="text-sm lg:text-base font-medium">أرشيف النشرات</span>
+                    <div className={`px-2 py-1 rounded-full text-xs font-bold transition-all ${
+                      darkMode 
+                        ? 'bg-indigo-900/40 text-indigo-300 group-hover:bg-indigo-500 group-hover:text-white' 
+                        : 'bg-indigo-100 text-indigo-700 group-hover:bg-indigo-500 group-hover:text-white'
+                    }`}>
+                      جديد
+                    </div>
                   </Link>
 
                   <Link href="/dashboard/messages" 

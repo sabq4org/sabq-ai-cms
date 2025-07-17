@@ -7,8 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertCircle, CheckCircle, Loader2, Volume2, Download, Play } from 'lucide-react';
+import { AlertCircle, CheckCircle, Loader2, Volume2, Download, Play, Activity } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function AudioTestPage() {
   const [summary, setSummary] = useState('');
@@ -22,12 +23,33 @@ export default function AudioTestPage() {
 
   // اختبار حالة الـ API
   const checkApiStatus = async () => {
+    const toastId = toast.loading('🔍 جاري فحص حالة الخدمة...');
     try {
-      const response = await fetch('/api/audio/generate');
+      const response = await fetch('/api/audio/status');
       const data = await response.json();
       setApiStatus(data);
+      
+      if (data.success) {
+        toast.success(
+          <div className="text-right">
+            <p className="font-bold">✅ الخدمة تعمل بنجاح!</p>
+            <p className="text-sm mt-1">الأصوات المتاحة: {data.voices?.total_voices || 0}</p>
+            <p className="text-sm">الحصة المتبقية: {data.usage?.characters?.remaining || 0} حرف</p>
+          </div>,
+          { id: toastId, duration: 5000 }
+        );
+      } else {
+        toast.error(
+          <div className="text-right">
+            <p className="font-bold">❌ خطأ في الخدمة</p>
+            <p className="text-sm mt-1">{data.error || data.message}</p>
+          </div>,
+          { id: toastId, duration: 5000 }
+        );
+      }
     } catch (err) {
       setApiStatus({ status: 'error', message: 'فشل في الاتصال بالـ API' });
+      toast.error('فشل في الاتصال بالخدمة', { id: toastId });
     }
   };
 
@@ -35,12 +57,20 @@ export default function AudioTestPage() {
   const generateAudio = async () => {
     if (!summary.trim()) {
       setError('يرجى إدخال نص الملخص');
+      toast.error('يرجى إدخال نص الملخص أولاً');
       return;
     }
 
     setIsLoading(true);
     setError(null);
     setResult(null);
+    
+    const toastId = toast.loading(
+      <div className="text-right">
+        <p className="font-bold">🎙️ جاري توليد النشرة الصوتية...</p>
+        <p className="text-sm">الصوت: {voice === 'bradford' ? 'Bradford' : 'Rachel'}</p>
+      </div>
+    );
 
     try {
       const response = await fetch('/api/audio/generate', {
@@ -64,9 +94,57 @@ export default function AudioTestPage() {
 
       setResult(data);
       console.log('✅ نشرة صوتية جاهزة:', data.url);
+      
+      // إشعار النجاح مع خيارات
+      toast.custom((t) => (
+        <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} bg-white shadow-xl rounded-lg p-4 text-right max-w-md`}>
+          <div className="flex items-start gap-3">
+            <CheckCircle className="text-green-500 w-6 h-6 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="font-bold text-gray-900">✅ تم توليد النشرة بنجاح!</p>
+              <p className="text-sm text-gray-600 mt-1">الحجم: {(data.size / 1024).toFixed(1)} KB</p>
+              <p className="text-sm text-gray-600">المدة: {data.duration_estimate}</p>
+              <div className="flex gap-2 mt-3">
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => {
+                    playAudio(data.url);
+                    toast.dismiss(t.id);
+                  }}
+                  className="flex items-center gap-1"
+                >
+                  <Play className="w-4 h-4" />
+                  تشغيل
+                </Button>
+                <a href={data.url} download={data.filename}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex items-center gap-1"
+                  >
+                    <Download className="w-4 h-4" />
+                    تحميل
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      ), { id: toastId, duration: 10000 });
+      
     } catch (err: any) {
       setError(err.message || 'فشل في توليد الصوت');
       console.error('❌ خطأ:', err);
+      
+      // إشعار الخطأ
+      toast.error(
+        <div className="text-right">
+          <p className="font-bold">❌ فشل توليد النشرة</p>
+          <p className="text-sm mt-1">{err.message || 'حدث خطأ غير متوقع'}</p>
+        </div>,
+        { id: toastId, duration: 5000 }
+      );
     } finally {
       setIsLoading(false);
     }
@@ -122,11 +200,43 @@ export default function AudioTestPage() {
                 )}
                 <AlertDescription>
                   <div className="space-y-2">
-                    <p className="font-medium">{apiStatus.message}</p>
-                    <div className="text-xs space-y-1">
-                      <p>🔑 مفتاح API: {apiStatus.api_key_configured ? '✅ مُعرَّف' : '❌ غير مُعرَّف'}</p>
-                      <p>🎵 الأصوات المتاحة: {apiStatus.available_voices?.join(', ')}</p>
-                    </div>
+                    <p className="font-medium">{apiStatus.message || apiStatus.error}</p>
+                    {apiStatus.success && (
+                      <>
+                        <div className="text-xs space-y-1">
+                          <p>🔑 مفتاح API: ✅ صالح</p>
+                          <p>🎵 الأصوات المتاحة: {apiStatus.voices?.total_voices || 0}</p>
+                          <p>📊 Bradford: {apiStatus.voices?.bradford_available ? '✅ متاح' : '❌ غير متاح'}</p>
+                          <p>📊 Rachel: {apiStatus.voices?.rachel_available ? '✅ متاح' : '❌ غير متاح'}</p>
+                        </div>
+                        <div className="bg-white/50 rounded p-2 mt-2">
+                          <p className="text-xs font-medium">استخدام الحصة:</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex-1 bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`h-2 rounded-full transition-all ${
+                                  apiStatus.usage?.characters?.percentage < 80 ? 'bg-green-500' :
+                                  apiStatus.usage?.characters?.percentage < 90 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
+                                style={{ width: `${apiStatus.usage?.characters?.percentage || 0}%` }}
+                              />
+                            </div>
+                            <span className="text-xs font-medium">{apiStatus.usage?.characters?.percentage || 0}%</span>
+                          </div>
+                          <p className="text-xs mt-1 text-slate-600">
+                            {apiStatus.usage?.characters?.used || 0} / {apiStatus.usage?.characters?.limit || 0} حرف
+                          </p>
+                        </div>
+                      </>
+                    )}
+                    {apiStatus.troubleshooting && (
+                      <div className="text-xs space-y-1 pt-2 border-t">
+                        <p className="font-medium">اقتراحات لحل المشكلة:</p>
+                        {apiStatus.troubleshooting.map((tip: string, i: number) => (
+                          <p key={i}>• {tip}</p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </AlertDescription>
               </Alert>
@@ -199,24 +309,50 @@ export default function AudioTestPage() {
             </div>
 
             {/* زر التوليد */}
-            <Button 
-              onClick={generateAudio} 
-              disabled={isLoading || !summary.trim()}
-              className="w-full"
-              size="lg"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  جاري التوليد...
-                </>
-              ) : (
-                <>
-                  <Volume2 className="w-4 h-4 mr-2" />
-                  توليد النشرة الصوتية
-                </>
-              )}
-            </Button>
+            <div className="space-y-3">
+              <Button 
+                onClick={generateAudio} 
+                disabled={isLoading || !summary.trim()}
+                className="w-full bg-red-600 hover:bg-red-700"
+                size="lg"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    جاري التوليد...
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="w-4 h-4 mr-2" />
+                    توليد النشرة الصوتية
+                  </>
+                )}
+              </Button>
+              
+              {/* زر فحص حالة الخدمة */}
+              <Button 
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/audio/status');
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                      alert(`✅ ${data.message}\n\n🎙️ الأصوات المتاحة: ${data.voices?.total_voices || 0}\n📊 الاستخدام: ${data.usage?.characters?.percentage || 0}%`);
+                    } else {
+                      alert(`❌ ${data.error}\n\nالتفاصيل: ${data.details || 'غير متوفرة'}`);
+                    }
+                  } catch (err) {
+                    alert('❌ فشل في فحص حالة الخدمة');
+                  }
+                }}
+                variant="outline"
+                className="w-full"
+                size="sm"
+              >
+                <Activity className="w-4 h-4 mr-2" />
+                فحص حالة خدمة ElevenLabs
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -228,6 +364,41 @@ export default function AudioTestPage() {
               {error}
             </AlertDescription>
           </Alert>
+        )}
+
+        {/* نموذج تجريبي */}
+        {!result && (
+          <Card className="border-blue-200 bg-blue-50">
+            <CardHeader>
+              <CardTitle className="text-blue-800 flex items-center gap-2">
+                <Volume2 className="w-5 h-5" />
+                نموذج صوتي تجريبي
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-blue-700">
+                جرب الاستماع إلى نموذج من النشرات الصوتية المُنتجة بواسطة ElevenLabs:
+              </p>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => playAudio('/audio/daily-news-2025-07-17T13-02-46-229Z.mp3')} 
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  تشغيل النموذج
+                </Button>
+                <a 
+                  href="/audio/daily-news-2025-07-17T13-02-46-229Z.mp3" 
+                  download="نموذج-نشرة-صوتية.mp3"
+                  className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-blue-300 rounded-md text-sm font-medium text-blue-700 bg-white hover:bg-blue-50"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  تحميل النموذج
+                </a>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* نتائج التوليد */}
@@ -306,6 +477,15 @@ export default function AudioTestPage() {
         </Card>
 
       </div>
+      <Toaster 
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: '#333',
+            color: '#fff',
+          },
+        }}
+      />
     </div>
   );
 } 

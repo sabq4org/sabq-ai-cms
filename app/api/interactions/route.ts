@@ -13,7 +13,7 @@ export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
-// GET: جلب تفاعلات المستخدم مع مقال معين
+// GET: جلب تفاعلات المستخدم مع مقال معين أو جميع التفاعلات للتشخيص
 export async function GET(request: NextRequest) {
   try {
     // التأكد من وجود URL صحيح
@@ -27,21 +27,47 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const articleId = searchParams.get('articleId');
+    const all = searchParams.get('all');
 
+    // إذا كان طلب لجلب جميع التفاعلات (للتشخيص)
+    if (all === 'true') {
+      console.log('🔍 جلب جميع التفاعلات للتشخيص...');
+      
+      const interactions = await prisma.interactions.findMany({
+        orderBy: { created_at: 'desc' },
+        take: 100 // آخر 100 تفاعل
+      });
+      
+      console.log(`📊 تم جلب ${interactions.length} تفاعل`);
+      
+      return NextResponse.json({
+        success: true,
+        interactions,
+        total: interactions.length,
+        message: `تم جلب ${interactions.length} تفاعل من قاعدة البيانات`
+      }, { headers: corsHeaders });
+    }
+
+    // جلب تفاعلات مستخدم محدد مع مقال محدد
     if (!userId || !articleId) {
       return NextResponse.json(
-        { error: 'معرف المستخدم والمقال مطلوبان' },
+        { error: 'معرف المستخدم والمقال مطلوبان (أو استخدم all=true لجلب جميع التفاعلات)' },
         { status: 400, headers: corsHeaders }
       );
     }
+
+    console.log(`🔍 جلب تفاعلات المستخدم ${userId} مع المقال ${articleId}...`);
 
     // جلب جميع التفاعلات للمستخدم مع هذا المقال
     const interactions = await prisma.interactions.findMany({
       where: {
         user_id: userId,
         article_id: articleId
-      }
+      },
+      orderBy: { created_at: 'desc' }
     });
+
+    console.log(`📊 تم العثور على ${interactions.length} تفاعل للمستخدم مع هذا المقال`);
 
     // تحويل التفاعلات إلى كائن للسهولة
     const interactionState = {
@@ -51,16 +77,23 @@ export async function GET(request: NextRequest) {
       viewed: interactions.some(i => i.type === 'view')
     };
 
+    console.log('📋 حالة التفاعلات:', interactionState);
+
     return NextResponse.json({
       success: true,
       data: interactionState,
-      interactions: interactions
+      interactions: interactions,
+      totalInteractions: interactions.length
     }, { headers: corsHeaders });
 
-  } catch (error) {
-    console.error('Error fetching interactions:', error);
+  } catch (error: any) {
+    console.error('❌ خطأ في جلب التفاعلات:', error);
     return NextResponse.json(
-      { success: false, error: 'حدث خطأ في جلب التفاعلات' },
+      { 
+        success: false, 
+        error: 'حدث خطأ في جلب التفاعلات',
+        details: error.message
+      },
       { status: 500, headers: corsHeaders }
     );
   }
@@ -72,8 +105,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userId, articleId, type, action = 'add' } = body;
 
+    console.log('🎯 معالجة تفاعل جديد:', { userId, articleId, type, action });
+
     // التحقق من البيانات المطلوبة
     if (!userId || !articleId || !type) {
+      console.log('❌ بيانات مفقودة:', { userId: !!userId, articleId: !!articleId, type: !!type });
       return NextResponse.json(
         { 
           success: false, 
@@ -86,6 +122,7 @@ export async function POST(request: NextRequest) {
     // التحقق من نوع التفاعل
     const validTypes = ['like', 'save', 'share', 'comment', 'view'];
     if (!validTypes.includes(type)) {
+      console.log('❌ نوع تفاعل غير صالح:', type);
       return NextResponse.json(
         { 
           success: false, 
@@ -95,20 +132,60 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // التحقق من وجود المستخدم والمقال
+    const userExists = await prisma.users.findUnique({ where: { id: userId } });
+    if (!userExists) {
+      console.log('❌ المستخدم غير موجود:', userId);
+      return NextResponse.json(
+        { success: false, error: 'المستخدم غير موجود' },
+        { status: 404, headers: corsHeaders }
+      );
+    }
+
+    const articleExists = await prisma.articles.findUnique({ where: { id: articleId } });
+    if (!articleExists) {
+      console.log('❌ المقال غير موجود:', articleId);
+      return NextResponse.json(
+        { success: false, error: 'المقال غير موجود' },
+        { status: 404, headers: corsHeaders }
+      );
+    }
+
+    console.log('✅ تم التحقق من وجود المستخدم والمقال');
+
+    // التحقق من التفاعل الموجود مسبقاً
+    const existingInteraction = await prisma.interactions.findFirst({
+      where: {
+        user_id: userId,
+        article_id: articleId,
+        type: type as any
+      }
+    });
+
+    console.log('🔍 التفاعل الموجود:', existingInteraction ? 'نعم' : 'لا');
+
     // معالجة التفاعل بناءً على الإجراء
     if (action === 'remove') {
-      // حذف التفاعل إذا كان موجوداً
-      await prisma.interactions.deleteMany({
-        where: {
-          user_id: userId,
-          article_id: articleId,
-          type: type as any
-        }
+      if (!existingInteraction) {
+        console.log('⚠️ لا يوجد تفاعل للحذف');
+        return NextResponse.json({
+          success: false,
+          message: 'لا يوجد تفاعل للحذف',
+          action: 'not_found'
+        }, { headers: corsHeaders });
+      }
+
+      // حذف التفاعل
+      console.log('🗑️ حذف التفاعل الموجود...');
+      await prisma.interactions.delete({
+        where: { id: existingInteraction.id }
       });
 
       // تحديث عدادات المقال
       if (type === 'like' || type === 'save' || type === 'share') {
         const updateField = type === 'save' ? 'saves' : `${type}s`;
+        console.log(`📉 تقليل عداد ${updateField} للمقال`);
+        
         await prisma.articles.update({
           where: { id: articleId },
           data: {
@@ -119,38 +196,75 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      // إزالة نقاط الولاء (اختياري)
+      const pointsMap = {
+        like: 10,
+        save: 15,
+        share: 20,
+        comment: 25,
+        view: 1
+      };
+
+      const points = pointsMap[type as keyof typeof pointsMap] || 0;
+      if (points > 0 && userId !== 'anonymous') {
+        console.log(`🏆 إزالة ${points} نقطة ولاء`);
+        
+        await prisma.loyalty_points.create({
+          data: {
+            id: `loyalty-removal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            user_id: userId,
+            points: -points, // نقاط سالبة للإزالة
+            action: `remove_${type}_article`,
+            reference_id: articleId,
+            reference_type: 'article',
+            metadata: {
+              interaction_id: existingInteraction.id,
+              timestamp: new Date().toISOString(),
+              action: 'removed'
+            }
+          }
+        });
+      }
+
+      console.log('✅ تم حذف التفاعل بنجاح');
       return NextResponse.json({
         success: true,
         message: `تم إلغاء ${type === 'like' ? 'الإعجاب' : type === 'save' ? 'الحفظ' : 'التفاعل'}`,
-        action: 'removed'
+        action: 'removed',
+        points_deducted: -points
       }, { headers: corsHeaders });
 
-    } else {
-      // إضافة التفاعل
-      try {
-        // استخدام upsert لتجنب التكرار
-        const interaction = await prisma.interactions.upsert({
-          where: {
-            user_id_article_id_type: {
-              user_id: userId,
-              article_id: articleId,
-              type: type as any
-            }
-          },
-          update: {
-            created_at: new Date() // تحديث وقت التفاعل
-          },
-          create: {
-            id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            user_id: userId,
-            article_id: articleId,
-            type: type as any
-          }
-        });
+    } else if (action === 'add') {
+      if (existingInteraction) {
+        console.log('⚠️ التفاعل موجود مسبقاً');
+        return NextResponse.json({
+          success: true,
+          message: `${type === 'like' ? 'الإعجاب' : type === 'save' ? 'الحفظ' : 'التفاعل'} موجود مسبقاً`,
+          action: 'already_exists',
+          data: existingInteraction
+        }, { headers: corsHeaders });
+      }
+      // إضافة التفاعل الجديد
+      console.log('➕ إضافة تفاعل جديد...');
+      
+      const interactionId = `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      const interaction = await prisma.interactions.create({
+        data: {
+          id: interactionId,
+          user_id: userId,
+          article_id: articleId,
+          type: type as any
+        }
+      });
+
+             console.log('✅ تم إنشاء التفاعل:', interaction.id);
 
         // تحديث عدادات المقال
         if (type === 'like' || type === 'save' || type === 'share' || type === 'view') {
           const updateField = type === 'save' ? 'saves' : type === 'view' ? 'views' : `${type}s`;
+          console.log(`📈 زيادة عداد ${updateField} للمقال`);
+          
           await prisma.articles.update({
             where: { id: articleId },
             data: {
@@ -172,6 +286,8 @@ export async function POST(request: NextRequest) {
 
         const points = pointsMap[type as keyof typeof pointsMap] || 0;
         if (points > 0 && userId !== 'anonymous') {
+          console.log(`🏆 منح ${points} نقطة ولاء`);
+          
           await prisma.loyalty_points.create({
             data: {
               id: `loyalty-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -188,6 +304,7 @@ export async function POST(request: NextRequest) {
           });
         }
 
+        console.log('✅ تم إضافة التفاعل بنجاح');
         return NextResponse.json({
           success: true,
           message: `تم ${type === 'like' ? 'الإعجاب' : type === 'save' ? 'الحفظ' : 'التفاعل'} بنجاح`,
@@ -196,17 +313,13 @@ export async function POST(request: NextRequest) {
           data: interaction
         }, { headers: corsHeaders });
 
-      } catch (error: any) {
-        // إذا كان التفاعل موجوداً بالفعل، اعتبره نجاحاً
-        if (error.code === 'P2002') {
-          return NextResponse.json({
-            success: true,
-            message: 'التفاعل موجود بالفعل',
-            action: 'exists'
-          }, { headers: corsHeaders });
-        }
-        throw error;
-      }
+    } else {
+      // إجراء غير معروف
+      console.log('❌ إجراء غير معروف:', action);
+      return NextResponse.json({
+        success: false,
+        error: 'إجراء غير معروف. استخدم add أو remove'
+      }, { status: 400, headers: corsHeaders });
     }
 
   } catch (error) {

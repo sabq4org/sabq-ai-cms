@@ -1,12 +1,24 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Download, Volume2, Headphones, Clock, Mic, RefreshCw, Share2 } from 'lucide-react';
+import { Play, Pause, Download, Volume2, Headphones, Clock, Mic, RefreshCw, Share2, CheckCircle, AlertCircle, Activity } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 interface PodcastData {
   link: string;
   timestamp: string;
   duration: number;
+}
+
+interface ServiceStatus {
+  success: boolean;
+  status: string;
+  message?: string;
+  error?: string;
+  connection?: any;
+  voices?: any;
+  usage?: any;
+  service_health?: any;
 }
 
 export default function PodcastBlock() {
@@ -18,6 +30,9 @@ export default function PodcastBlock() {
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [serviceStatus, setServiceStatus] = useState<ServiceStatus | null>(null);
+  const [checkingStatus, setCheckingStatus] = useState(false);
+  const [showStatusDetails, setShowStatusDetails] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -56,8 +71,94 @@ export default function PodcastBlock() {
     }
   };
 
+  // فحص حالة خدمة ElevenLabs
+  const checkServiceStatus = async () => {
+    setCheckingStatus(true);
+    
+    try {
+      const response = await fetch('/api/audio/status');
+      const data = await response.json();
+      
+      setServiceStatus(data);
+      
+      if (data.success) {
+        toast.success(`✅ ${data.message}`, { duration: 4000 });
+        
+        // عرض تفاصيل الخدمة
+        toast.custom((t) => (
+          <div className="bg-white p-4 rounded-lg shadow-lg border border-green-200 max-w-md">
+            <div className="flex items-center gap-3 mb-3">
+              <Activity className="w-6 h-6 text-green-600" />
+              <div>
+                <h3 className="font-semibold text-gray-800">حالة الخدمة</h3>
+                <p className="text-sm text-green-600">تعمل بنجاح</p>
+              </div>
+            </div>
+            {data.voices && (
+              <div className="text-sm text-gray-600 mb-2">
+                <p>🎙️ الأصوات: {data.voices.total_voices} متاح</p>
+                <p>📊 Bradford: {data.voices.bradford_available ? '✅ متاح' : '❌ غير متاح'}</p>
+              </div>
+            )}
+            {data.usage && (
+              <div className="text-sm text-gray-600">
+                <p>📈 الاستخدام: {data.usage.characters.percentage}% ({data.usage.characters.used}/{data.usage.characters.limit})</p>
+              </div>
+            )}
+          </div>
+        ), {
+          duration: 6000,
+          position: 'top-center'
+        });
+      } else {
+        toast.error(`❌ ${data.error}`, { duration: 6000 });
+        
+        toast.custom((t) => (
+          <div className="bg-white p-4 rounded-lg shadow-lg border border-red-200 max-w-md">
+            <div className="flex items-center gap-3 mb-3">
+              <AlertCircle className="w-6 h-6 text-red-600" />
+              <div>
+                <h3 className="font-semibold text-gray-800">مشكلة في الخدمة</h3>
+                <p className="text-sm text-red-600">{data.error}</p>
+              </div>
+            </div>
+            {data.details && (
+              <p className="text-xs text-gray-500 mb-2">{data.details}</p>
+            )}
+            {data.troubleshooting && (
+              <div className="text-xs text-gray-600">
+                <p className="font-semibold mb-1">خطوات الحل:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  {data.troubleshooting.map((step: string, index: number) => (
+                    <li key={index}>{step}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ), {
+          duration: 10000,
+          position: 'top-center'
+        });
+      }
+    } catch (error: any) {
+      console.error('❌ خطأ في فحص الحالة:', error);
+      toast.error('❌ فشل في فحص حالة الخدمة', { duration: 4000 });
+    } finally {
+      setCheckingStatus(false);
+    }
+  };
+
   const generateNewPodcast = async () => {
     setGenerating(true);
+    setError(false);
+    
+    // إشعار بدء التوليد
+    toast.loading('جاري توليد النشرة الصوتية...', {
+      id: 'podcast-generation',
+      duration: 10000
+    });
+
     try {
       const res = await fetch('/api/generate-podcast', {
         method: 'POST',
@@ -65,19 +166,110 @@ export default function PodcastBlock() {
         body: JSON.stringify({ count: 5 })
       });
       
-      if (!res.ok) throw new Error('Failed to generate');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+      }
       
       const data = await res.json();
-      if (data.success) {
+      
+      if (data.success && data.link) {
+        // نجح التوليد
         setPodcast({
           link: data.link,
           timestamp: new Date().toISOString(),
           duration: data.duration || 3
         });
+        
+        // إشعار النجاح مع رابط التحميل
+        toast.success('✅ تم توليد النشرة الصوتية بنجاح!', {
+          id: 'podcast-generation',
+          duration: 5000
+        });
+        
+        // إشعار إضافي مع خيارات
+        toast.custom((t) => (
+          <div className="bg-white p-4 rounded-lg shadow-lg border border-green-200 max-w-md">
+            <div className="flex items-center gap-3 mb-3">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+              <div>
+                <h3 className="font-semibold text-gray-800">النشرة جاهزة!</h3>
+                <p className="text-sm text-gray-600">المدة: {data.duration || 3} دقائق تقريباً</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  togglePlay();
+                  toast.dismiss(t.id);
+                }}
+                className="flex-1 bg-green-600 text-white py-2 px-3 rounded text-sm hover:bg-green-700"
+              >
+                🎵 تشغيل
+              </button>
+              <a
+                href={data.link}
+                download
+                onClick={() => toast.dismiss(t.id)}
+                className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700 text-center"
+              >
+                📥 تحميل
+              </a>
+            </div>
+          </div>
+        ), {
+          duration: 8000,
+          position: 'top-center'
+        });
+        
+      } else {
+        throw new Error(data.error || 'فشل في توليد النشرة');
       }
-    } catch (err) {
-      console.error('Error generating podcast:', err);
-      alert('حدث خطأ في توليد النشرة. تأكد من إعدادات API.');
+    } catch (err: any) {
+      console.error('❌ خطأ في توليد النشرة:', err);
+      setError(true);
+      
+      // إشعار الخطأ مع تفاصيل
+      toast.error(`❌ فشل في توليد النشرة\n${err.message || 'حدث خطأ غير متوقع'}`, {
+        id: 'podcast-generation',
+        duration: 6000
+      });
+      
+      // إشعار إضافي للمساعدة
+      toast.custom((t) => (
+        <div className="bg-white p-4 rounded-lg shadow-lg border border-red-200 max-w-md">
+          <div className="flex items-center gap-3 mb-3">
+            <AlertCircle className="w-6 h-6 text-red-600" />
+            <div>
+              <h3 className="font-semibold text-gray-800">فشل التوليد</h3>
+              <p className="text-sm text-gray-600">{err.message}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                checkServiceStatus();
+                toast.dismiss(t.id);
+              }}
+              className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700"
+            >
+              🔍 فحص الحالة
+            </button>
+            <button
+              onClick={() => {
+                generateNewPodcast();
+                toast.dismiss(t.id);
+              }}
+              className="flex-1 bg-gray-600 text-white py-2 px-3 rounded text-sm hover:bg-gray-700"
+            >
+              🔄 إعادة المحاولة
+            </button>
+          </div>
+        </div>
+      ), {
+        duration: 10000,
+        position: 'top-center'
+      });
     } finally {
       setGenerating(false);
     }
@@ -114,6 +306,16 @@ export default function PodcastBlock() {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    if (diffInHours < 1) return 'منذ دقائق';
+    if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
+    return `منذ ${Math.floor(diffInHours / 24)} يوم`;
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -317,24 +519,108 @@ export default function PodcastBlock() {
           </div>
         )}
 
-        {/* زر توليد نشرة جديدة */}
-        <button
-          onClick={generateNewPodcast}
-          disabled={generating}
-          className="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-        >
-          {generating ? (
-            <>
-              <RefreshCw className="w-5 h-5 animate-spin" />
-              جاري توليد النشرة...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="w-5 h-5" />
-              توليد نشرة جديدة
-            </>
+        {/* أزرار التحكم */}
+        <div className="space-y-3">
+          {/* زر توليد نشرة جديدة */}
+          <button
+            onClick={generateNewPodcast}
+            disabled={generating || checkingStatus}
+            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            {generating ? (
+              <>
+                <RefreshCw className="w-5 h-5 animate-spin" />
+                جاري توليد النشرة...
+              </>
+            ) : (
+              <>
+                <Mic className="w-5 h-5" />
+                توليد نشرة جديدة
+              </>
+            )}
+          </button>
+
+          {/* زر فحص الحالة */}
+          <button
+            onClick={checkServiceStatus}
+            disabled={checkingStatus || generating}
+            className="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            {checkingStatus ? (
+              <>
+                <Activity className="w-4 h-4 animate-pulse" />
+                جاري فحص الحالة...
+              </>
+            ) : serviceStatus ? (
+              serviceStatus.success ? (
+                <>
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  الخدمة تعمل بنجاح
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="w-4 h-4 text-red-600" />
+                  مشكلة في الخدمة
+                </>
+              )
+            ) : (
+              <>
+                <Activity className="w-4 h-4" />
+                فحص حالة الخدمة
+              </>
+            )}
+          </button>
+
+          {/* عرض النشرة الناتجة مع روابط التحميل */}
+          {podcast && (
+            <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                    النشرة جاهزة للاستماع
+                  </span>
+                </div>
+                <span className="text-xs text-green-600 dark:text-green-400">
+                  {formatRelativeTime(podcast.timestamp)}
+                </span>
+              </div>
+              
+              {/* أزرار التشغيل والتحميل */}
+              <div className="flex gap-2">
+                <button
+                  onClick={togglePlay}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  {isPlaying ? 'إيقاف' : 'تشغيل'}
+                </button>
+                
+                <a
+                  href={podcast.link}
+                  download
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  تحميل
+                </a>
+                
+                <button
+                  onClick={shareLink}
+                  className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+              </div>
+              
+              {/* معلومات النشرة */}
+              <div className="mt-2 text-xs text-green-700 dark:text-green-300">
+                <p>🎵 المدة: {podcast.duration} دقائق تقريباً</p>
+                <p>🔗 الرابط المباشر: <span className="font-mono bg-green-100 dark:bg-green-800 px-1 rounded">{podcast.link}</span></p>
+              </div>
+            </div>
           )}
-        </button>
+        </div>
       </div>
     </div>
   );

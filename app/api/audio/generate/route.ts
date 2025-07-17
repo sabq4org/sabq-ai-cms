@@ -40,12 +40,31 @@ export async function POST(req: NextRequest) {
 
     // التحقق من مفتاح ElevenLabs
     const apiKey = process.env.ELEVENLABS_API_KEY;
-    if (!apiKey) {
-      console.error('❌ مفتاح ElevenLabs غير موجود');
-      return NextResponse.json({ 
-        error: 'ElevenLabs API key not configured',
-        details: 'مفتاح ElevenLabs غير مُعرَّف في متغيرات البيئة'
-      }, { status: 500 });
+    if (!apiKey || apiKey.startsWith('sk_demo')) {
+      console.log('⚠️ وضع تجريبي - إرجاع ملف صوتي نموذجي');
+      
+      // في الوضع التجريبي، نرجع ملف صوتي موجود مسبقاً
+      const demoFiles = [
+        '/audio/daily-news-2025-07-17T13-02-46-229Z.mp3',
+        '/audio/daily-news-2025-07-17T13-01-36-470Z.mp3',
+        '/audio/test-news-2025-07-17T12-44-46-842Z.mp3'
+      ];
+      
+      const randomFile = demoFiles[Math.floor(Math.random() * demoFiles.length)];
+      
+      return NextResponse.json({
+        success: true,
+        demo_mode: true,
+        url: randomFile,
+        filename: randomFile.split('/').pop() || 'demo.mp3',
+        size: 1258496, // حجم تقريبي
+        duration_estimate: '90 ثانية',
+        voice_used: voice,
+        voice_id: selectedVoiceId,
+        text_length: summary.length,
+        message: '🎯 وضع تجريبي - تم إرجاع ملف صوتي نموذجي',
+        notice: 'لتوليد صوت حقيقي، يرجى إضافة مفتاح ElevenLabs صحيح'
+      });
     }
 
     // اختيار الصوت المناسب
