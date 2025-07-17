@@ -45,8 +45,8 @@ RUN echo "🔧 Generating Prisma Client..." && \
 
 # Build Next.js application using the new build script
 RUN echo "🏗️ Building Next.js application..." && \
-    chmod +x scripts/digitalocean-build-v4.js && \
-    node scripts/digitalocean-build-v4.js
+    chmod +x scripts/digitalocean-build-v5.js && \
+    node scripts/digitalocean-build-v5.js
 
 # Verify build output
 RUN echo "📁 Verifying build output..." && \
