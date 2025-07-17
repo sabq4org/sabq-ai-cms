@@ -3,10 +3,10 @@ import prisma from '@/lib/prisma';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const { is_published } = await request.json();
 
     const newsletter = await prisma.audioNewsletter.update({

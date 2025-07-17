@@ -7,9 +7,10 @@ const PODCASTS_FILE = path.join(process.cwd(), 'data', 'audio-podcasts.json');
 // تحديث حالة نشر النشرة
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const body = await request.json();
     const { is_published, is_daily } = body;
     
@@ -18,7 +19,7 @@ export async function POST(
     const { podcasts } = JSON.parse(data);
     
     // البحث عن النشرة وتحديثها
-    const podcastIndex = podcasts.findIndex((p: any) => p.id === params.id);
+    const podcastIndex = podcasts.findIndex((p: any) => p.id === id);
     
     if (podcastIndex === -1) {
       return NextResponse.json(
