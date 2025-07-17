@@ -398,15 +398,17 @@ export default function PodcastBlock() {
       <div className="bg-gradient-to-r from-red-600 to-red-700 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
-              <Headphones className="w-6 h-6 text-white drop-shadow-sm" />
+            <div className="bg-gray-800/30 backdrop-blur-sm p-3 rounded-lg">
+              <Headphones className="w-7 h-7 text-white drop-shadow-lg" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">النشرة الصوتية اليومية</h3>
-              <p className="text-white/80 text-sm">آخر تحديث: {podcast ? formatTimestamp(podcast.timestamp) : 'لا توجد نشرة'}</p>
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                🟥 النشرة اليومية الصباحية
+              </h3>
+              <p className="text-white/90 text-sm">آخر تحديث: {podcast ? formatTimestamp(podcast.timestamp) : 'لا توجد نشرة'}</p>
             </div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full">
+          <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
             <span className="text-xs text-white font-medium flex items-center gap-1">
               <Mic className="w-3 h-3" />
               بالذكاء الاصطناعي
@@ -443,11 +445,11 @@ export default function PodcastBlock() {
               <button
                 onClick={togglePlay}
                 className={`
-                  relative w-20 h-20 mx-auto flex items-center justify-center
-                  bg-gradient-to-br from-red-500 to-red-600 
-                  hover:from-red-600 hover:to-red-700
+                  relative w-24 h-24 mx-auto flex items-center justify-center
+                  bg-gradient-to-br from-blue-500 to-blue-700 
+                  hover:from-blue-600 hover:to-blue-800
                   text-white rounded-full
-                  shadow-xl hover:shadow-2xl
+                  shadow-2xl hover:shadow-3xl
                   transform transition-all duration-300
                   hover:scale-110 active:scale-95
                   group
@@ -459,68 +461,73 @@ export default function PodcastBlock() {
                 {/* خلفية متحركة */}
                 <div className={`
                   absolute inset-0 rounded-full
-                  bg-gradient-to-br from-red-400 to-red-600
-                  opacity-50 blur-xl
+                  bg-gradient-to-br from-blue-400 to-blue-700
+                  opacity-60 blur-2xl
                   ${isPlaying ? 'animate-ping' : ''}
                 `} />
+                
+                {/* دائرة داخلية */}
+                <div className="absolute inset-2 rounded-full bg-white/10 backdrop-blur-sm" />
                 
                 {/* الأيقونة */}
                 <div className="relative z-10">
                   {isPlaying ? (
-                    <Pause className="w-8 h-8 text-white fill-white drop-shadow-md" />
+                    <Pause className="w-10 h-10 text-white fill-white drop-shadow-lg" />
                   ) : (
-                    <Play className="w-8 h-8 text-white fill-white mr-1 drop-shadow-md" />
+                    <Play className="w-10 h-10 text-white fill-white mr-1 drop-shadow-lg" />
                   )}
                 </div>
                 
                 {/* حلقة خارجية */}
                 <div className={`
-                  absolute inset-0 rounded-full border-2 border-white/30
+                  absolute inset-0 rounded-full border-3 border-white/40
                   ${isPlaying ? 'animate-spin-slow' : ''}
                 `} />
               </button>
               
               {/* النص التوضيحي */}
-              <p className="text-center mt-3 text-sm text-gray-600 dark:text-gray-400">
-                {isPlaying ? 'جارٍ التشغيل...' : 'اضغط للاستماع'}
+              <p className="text-center mt-4 text-base font-medium text-gray-700 dark:text-gray-300">
+                {isPlaying ? '🎵 جارٍ التشغيل...' : '▶️ اضغط للاستماع'}
               </p>
             </div>
 
             {/* معلومات النشرة */}
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                  نشرة أخبار اليوم
-                </h4>
-                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    {formatTime(duration || podcast.duration * 60)}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Volume2 className="w-4 h-4" />
-                    صوت عالي الجودة
-                  </span>
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-bold text-gray-900 dark:text-white text-lg mb-1">
+                    نشرة أخبار اليوم الصباحية
+                  </h4>
+                  <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <span className="font-medium">{formatTime(duration || podcast.duration * 60)}</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Volume2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      <span className="font-medium">صوت عالي الجودة</span>
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {/* أزرار التحكم */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={shareLink}
-                  className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
-                  aria-label="مشاركة"
-                >
-                  <Share2 className="w-5 h-5" />
-                </button>
-                <a
-                  href={podcast.link}
-                  download
-                  className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
-                  aria-label="تحميل"
-                >
-                  <Download className="w-5 h-5" />
-                </a>
+                {/* أزرار التحكم */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={shareLink}
+                    className="p-2.5 bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-500 rounded-lg transition-colors shadow-sm"
+                    aria-label="مشاركة"
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </button>
+                  <a
+                    href={podcast.link}
+                    download
+                    className="p-2.5 bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-500 rounded-lg transition-colors shadow-sm"
+                    aria-label="تحميل"
+                  >
+                    <Download className="w-5 h-5" />
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -528,15 +535,15 @@ export default function PodcastBlock() {
             {(isPlaying || progress > 0) && (
               <div className="mb-4">
                 <div 
-                  className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer overflow-hidden"
+                  className="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer overflow-hidden shadow-inner"
                   onClick={handleProgressClick}
                 >
                   <div 
-                    className="absolute inset-y-0 left-0 bg-red-600 rounded-full transition-all duration-100"
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-100 shadow-sm"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex justify-between mt-2 text-sm font-medium text-gray-600 dark:text-gray-400">
                   <span>{formatTime(currentTime)}</span>
                   <span>{formatTime(duration)}</span>
                 </div>
@@ -544,7 +551,7 @@ export default function PodcastBlock() {
             )}
 
             {/* الوصف */}
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center">
               استمع لملخص أهم الأخبار والأحداث في دقائق معدودة، مُعد بتقنية الذكاء الاصطناعي لتوفير وقتك وإبقائك على اطلاع دائم.
             </p>
 
@@ -554,7 +561,7 @@ export default function PodcastBlock() {
                 {[...Array(20)].map((_, i) => (
                   <div
                     key={i}
-                    className="w-1 bg-red-400 rounded-full animate-pulse"
+                    className="w-1 bg-gradient-to-t from-blue-400 to-blue-600 rounded-full animate-pulse"
                     style={{
                       height: Math.random() * 24 + 8 + 'px',
                       animationDelay: i * 0.1 + 's'
@@ -567,101 +574,19 @@ export default function PodcastBlock() {
         ) : (
           /* حالة عدم وجود نشرة */
           <div className="text-center py-8">
-            <div className="bg-gray-100 dark:bg-gray-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Headphones className="w-10 h-10 text-gray-400 dark:text-gray-500" />
+            <div className="bg-blue-100 dark:bg-blue-900/20 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <Headphones className="w-12 h-12 text-blue-600 dark:text-blue-400" />
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              لا توجد نشرة صوتية متاحة
+            <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              لا توجد نشرة صوتية متاحة حالياً
             </h4>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              يتم تحديث النشرة الصوتية بشكل دوري تلقائياً
+              يتم تحديث النشرة الصوتية الصباحية بشكل يومي تلقائياً
             </p>
           </div>
         )}
 
-        {/* أزرار التحكم */}
-        <div className="space-y-3">
-          {/* زر فحص الحالة */}
-          <button
-            onClick={checkServiceStatus}
-            disabled={checkingStatus || generating}
-            className="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            {checkingStatus ? (
-              <>
-                <Activity className="w-4 h-4 animate-pulse" />
-                جاري فحص الحالة...
-              </>
-            ) : serviceStatus ? (
-              serviceStatus.success ? (
-                <>
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  الخدمة تعمل بنجاح
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="w-4 h-4 text-red-600" />
-                  مشكلة في الخدمة
-                </>
-              )
-            ) : (
-              <>
-                <Activity className="w-4 h-4" />
-                فحص حالة الخدمة
-              </>
-            )}
-          </button>
-
-          {/* عرض النشرة الناتجة مع روابط التحميل */}
-          {podcast && (
-            <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                    النشرة جاهزة للاستماع
-                  </span>
-                </div>
-                <span className="text-xs text-green-600 dark:text-green-400">
-                  {formatRelativeTime(podcast.timestamp)}
-                </span>
-              </div>
-              
-              {/* أزرار التشغيل والتحميل */}
-              <div className="flex gap-2">
-                <button
-                  onClick={togglePlay}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center gap-2 shadow-sm"
-                >
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                  {isPlaying ? 'إيقاف' : 'تشغيل'}
-                </button>
-                
-                <a
-                  href={podcast.link}
-                  download
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center gap-2 shadow-sm"
-                >
-                  <Download className="w-4 h-4" />
-                  تحميل
-                </a>
-                
-                <button
-                  onClick={shareLink}
-                  className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center shadow-sm"
-                >
-                  <Share2 className="w-4 h-4" />
-                </button>
-              </div>
-              
-              {/* معلومات النشرة */}
-              <div className="mt-2 text-xs text-green-700 dark:text-green-300">
-                <p>🎵 المدة: {podcast.duration} دقائق تقريباً</p>
-                <p>🔗 الرابط المباشر: <span className="font-mono bg-green-100 dark:bg-green-800 px-1 rounded">{podcast.link}</span></p>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* إزالة أزرار التحكم وزر توليد النشرة */}
       </div>
     </div>
   );
