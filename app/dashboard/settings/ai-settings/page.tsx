@@ -60,46 +60,82 @@ export default function AISettingsPage() {
   useEffect(() => {
     loadSettings();
   }, []);
+  
   const loadSettings = async () => {
     try {
+      // جلب الإعدادات من API أولاً
+      const response = await fetch('/api/settings/ai');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          setSettings({
+            openai: data.data.openai || {
+              apiKey: '',
+              model: 'gpt-4',
+              maxTokens: 2000,
+              temperature: 0.7
+            },
+            features: data.data.features || {
+              aiEditor: true,
+              analytics: true,
+              notifications: true
+            }
+          });
+          console.log('✅ تم تحميل الإعدادات من قاعدة البيانات');
+          return;
+        }
+      }
+      
+      // في حالة فشل API، استخدم localStorage كـ fallback
       const savedSettings = localStorage.getItem('sabq-ai-settings');
       if (savedSettings) {
         setSettings(JSON.parse(savedSettings));
+        console.log('⚠️ تم تحميل الإعدادات من التخزين المحلي');
       }
     } catch (error) {
       console.error('خطأ في تحميل الإعدادات:', error);
+      // محاولة جلب من localStorage في حالة الخطأ
+      try {
+        const savedSettings = localStorage.getItem('sabq-ai-settings');
+        if (savedSettings) {
+          setSettings(JSON.parse(savedSettings));
+        }
+      } catch (localError) {
+        console.error('خطأ في تحميل الإعدادات المحلية:', localError);
+      }
     }
   };
   const saveSettings = async () => {
     setIsLoading(true);
     try {
-      localStorage.setItem('sabq-ai-settings', JSON.stringify(settings));
-      // إرسال إلى API لتحديث متغيرات البيئة
+      // إرسال إلى API لحفظ في قاعدة البيانات
       const response = await fetch('/api/settings/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
       });
-      if (response.ok) {
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // حفظ نسخة احتياطية في localStorage
+        localStorage.setItem('sabq-ai-settings', JSON.stringify(settings));
+        
         toast({
-          title: "نجح",
-          description: "تم حفظ إعدادات الذكاء الاصطناعي بنجاح",
+          title: "✅ نجح الحفظ",
+          description: "تم حفظ إعدادات الذكاء الاصطناعي في قاعدة البيانات بنجاح",
           variant: "default"
         });
       } else {
-        toast({
-          title: "تحذير",
-          description: "تم الحفظ محلياً - تأكد من إعداد API",
-          variant: "destructive"
-        });
+        throw new Error(data.error || 'فشل في حفظ الإعدادات');
       }
     } catch (error) {
+      console.error('خطأ في حفظ الإعدادات:', error);
       toast({
-        title: "خطأ",
-        description: "خطأ في حفظ الإعدادات",
+        title: "❌ خطأ",
+        description: "فشل في حفظ الإعدادات في قاعدة البيانات. يرجى المحاولة مرة أخرى.",
         variant: "destructive"
       });
-      console.error('خطأ في حفظ الإعدادات:', error);
     } finally {
       setIsLoading(false);
     }

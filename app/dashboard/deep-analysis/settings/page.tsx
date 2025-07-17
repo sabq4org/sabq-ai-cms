@@ -120,13 +120,27 @@ export default function DeepAnalysisSettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // حفظ الإعدادات في localStorage
-      localStorage.setItem('deepAnalysisSettings', JSON.stringify(settings));
-      // في الإنتاج، سيتم إرسال الإعدادات إلى API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('تم حفظ الإعدادات بنجاح');
+      // حفظ في قاعدة البيانات عبر API
+      const response = await fetch('/api/settings/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deep_analysis: settings
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // حفظ نسخة احتياطية في localStorage
+        localStorage.setItem('deepAnalysisSettings', JSON.stringify(settings));
+        toast.success('✅ تم حفظ إعدادات التحليل العميق في قاعدة البيانات بنجاح');
+      } else {
+        throw new Error(data.error || 'فشل في حفظ الإعدادات');
+      }
     } catch (error) {
-      toast.error('حدث خطأ أثناء حفظ الإعدادات');
+      console.error('خطأ في حفظ الإعدادات:', error);
+      toast.error('❌ حدث خطأ أثناء حفظ الإعدادات في قاعدة البيانات');
     } finally {
       setSaving(false);
     }

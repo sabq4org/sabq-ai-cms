@@ -15,6 +15,7 @@ import { Providers } from './providers'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeScript } from './theme-script'
 import BuildVersion from './BUILD_VERSION'
+import ChunkErrorBoundary from './ChunkErrorBoundary'
 // تحميل article-card.css في النهاية لتجنب التعارضات
 import '@/styles/article-card.css'
 
@@ -137,6 +138,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <script src="/chunk-error-handler.js" defer />
       </head>
       <body className={cn(
         ibmPlexSansArabic.variable,
@@ -148,7 +150,9 @@ export default function RootLayout({
         <BuildVersion />
         <Providers>
           <AuthProvider>
-            {children}
+            <ChunkErrorBoundary>
+              {children}
+            </ChunkErrorBoundary>
           </AuthProvider>
         </Providers>
       </body>

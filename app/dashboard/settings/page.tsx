@@ -304,22 +304,54 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // حفظ الإعدادات في localStorage
-      const settings = {
-        siteName,
-        siteDescription,
-        logoUrl,
-        updatedAt: new Date().toISOString()
+      // جمع جميع الإعدادات
+      const allSettings = {
+        identity: identitySettings,
+        seo: seoSettings,
+        social: socialSettings,
+        ai: aiSettings,
+        security: securitySettings,
+        backup: backupSettings,
+        general: {
+          siteName,
+          siteDescription,
+          logoUrl,
+          updatedAt: new Date().toISOString()
+        }
       };
-      localStorage.setItem('siteSettings', JSON.stringify(settings));
-      // تحديث الصفحة لتطبيق التغييرات
-      toast.success('تم حفظ الإعدادات بنجاح');
-      // إعادة تحميل الصفحة بعد ثانية
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      
+      // حفظ في قاعدة البيانات
+      const response = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(allSettings)
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // حفظ نسخة احتياطية في localStorage
+        localStorage.setItem('siteSettings', JSON.stringify(allSettings.general));
+        localStorage.setItem('settings_identity', JSON.stringify(identitySettings));
+        localStorage.setItem('settings_seo', JSON.stringify(seoSettings));
+        localStorage.setItem('settings_social', JSON.stringify(socialSettings));
+        localStorage.setItem('settings_ai', JSON.stringify(aiSettings));
+        localStorage.setItem('settings_security', JSON.stringify(securitySettings));
+        localStorage.setItem('settings_backup', JSON.stringify(backupSettings));
+        
+        toast.success('✅ تم حفظ جميع الإعدادات في قاعدة البيانات بنجاح');
+        showSuccess();
+        
+        // إعادة تحميل الصفحة بعد ثانية لتطبيق التغييرات
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        throw new Error(data.error || 'فشل في حفظ الإعدادات');
+      }
     } catch (error) {
-      toast.error('حدث خطأ أثناء حفظ الإعدادات');
+      console.error('خطأ في حفظ الإعدادات:', error);
+      toast.error('❌ حدث خطأ أثناء حفظ الإعدادات في قاعدة البيانات');
     } finally {
       setIsLoading(false);
     }

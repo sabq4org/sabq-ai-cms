@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
-import prisma from '@/lib/prisma'
+import { prisma, ensureConnection } from '@/lib/prisma'
 import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved'
 
 import { filterTestContent, rejectTestContent } from '@/lib/data-protection'
@@ -162,6 +162,9 @@ export async function GET(request: NextRequest) {
   const endTimer = perfMonitor.startTimer('api_articles_get');
   
   try {
+    // التحقق من اتصال قاعدة البيانات
+    await ensureConnection();
+    
     console.log('🔍 بدء معالجة طلب المقالات...')
     const { searchParams } = new URL(request.url)
     
@@ -464,6 +467,9 @@ export async function GET(request: NextRequest) {
 // إنشاء مقال جديد
 export async function POST(request: NextRequest) {
   try {
+    // التحقق من اتصال قاعدة البيانات
+    await ensureConnection();
+    
     console.log('📝 بدء معالجة طلب إنشاء مقال جديد...');
     
     const body = await request.json()
@@ -874,6 +880,9 @@ async function checkUserPermissions(request: NextRequest, requireDelete: boolean
 // DELETE: حذف مقالات (حذف ناعم) - محمي بالمصادقة
 export async function DELETE(request: NextRequest) {
   try {
+    // التحقق من اتصال قاعدة البيانات
+    await ensureConnection();
+    
     // التحقق من صلاحيات المستخدم للحذف
     const authCheck = await checkUserPermissions(request, true);
     if (!authCheck.valid) {

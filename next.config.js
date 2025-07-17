@@ -9,6 +9,11 @@ const nextConfig = {
     // Custom build ID to force rebuild - Updated
     return 'v2-' + Date.now().toString()
   },
+  // حل مشكلة chunk loading errors
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 10,
+  },
   images: {
     remotePatterns: [
       {
@@ -89,6 +94,10 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   experimental: {
+    // تحسين أداء التحميل
+    optimizeCss: true,
+    // تمكين إعادة المحاولة التلقائية
+    fallbackNodePolyfills: false,
     webpackBuildWorker: true,
     optimizePackageImports: [
       '@mui/material',
@@ -120,6 +129,62 @@ const nextConfig = {
       config.watchOptions = {
         ignored: /node_modules/,
         poll: 1000,
+      };
+      // إضافة إعدادات إضافية لحل مشاكل webpack
+      config.optimization = {
+        ...config.optimization,
+        runtimeChunk: 'single',
+        moduleIds: 'deterministic',
+      };
+    }
+    // إصلاح مشاكل chunk loading في الإنتاج
+    if (!dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            framework: {
+              chunks: 'all',
+              name: 'framework',
+              test: /(?<!node_modules.*)[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
+              priority: 40,
+              enforce: true,
+            },
+            lib: {
+              test(module) {
+                return module.size() > 160000 &&
+                  /node_modules[\\/]/.test(module.identifier());
+              },
+              name(module) {
+                const hash = require('crypto').createHash('sha1');
+                hash.update(module.identifier());
+                return hash.digest('hex').substring(0, 8);
+              },
+              priority: 30,
+              minChunks: 1,
+              reuseExistingChunk: true,
+            },
+            commons: {
+              name: 'commons',
+              minChunks: 2,
+              priority: 20,
+            },
+          },
+        },
+        runtimeChunk: {
+          name: 'runtime',
+        },
+      };
+    }
+    // إصلاح مشاكل React Server Components
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'react/jsx-runtime': require.resolve('react/jsx-runtime'),
+        'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
       };
     }
     return config;
