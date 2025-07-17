@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 // import { checkUserPermissions } from '@/lib/auth'; // الدالة غير موجودة حالياً
 
 export async function GET(request: NextRequest) {

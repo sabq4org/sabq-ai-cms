@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { handleOptions, corsResponse } from '@/lib/cors';
 import OpenAI from 'openai';
 

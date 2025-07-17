@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma'; // استخدام singleton
+import { prisma } from '@/lib/prisma'; // استخدام singleton
 // import { PrismaClient } from '@prisma/client'; // استيراد مباشر
 
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateDeepAnalysis, initializeOpenAI } from '@/lib/services/deepAnalysisService';
 import { GenerateAnalysisRequest } from '@/types/deep-analysis';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 // دالة لجلب إعدادات AI من قاعدة البيانات
 async function getAISettings() {

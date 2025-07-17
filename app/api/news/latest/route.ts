@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 import { cache } from '@/lib/redis'
 import { CACHE_KEYS, CACHE_TTL } from '@/lib/redis'
 

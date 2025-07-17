@@ -1,5 +1,5 @@
 import { unstable_cache } from 'next/cache';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 // تخزين مؤقت للمقالات
 export const getCachedArticles = unstable_cache(
