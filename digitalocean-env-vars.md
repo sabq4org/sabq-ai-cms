@@ -1,11 +1,14 @@
 # متغيرات البيئة المطلوبة لـ DigitalOcean App Platform
 
-## 1. قاعدة البيانات (مطلوب - استخدم المنفذ الصحيح)
+## تحديث مهم: 17 يوليو 2025
+تأكد من إضافة جميع هذه المتغيرات في DigitalOcean App Settings
+
+## 1. قاعدة البيانات (مطلوب)
 ```
 DATABASE_URL=postgresql://doadmin:AVNS_Br4uKMaWR6wxTIpZ7xj@private-db-sabq-ai-1755-do-user-23559731-0.m.db.ondigitalocean.com:25060/sabq_app_pool?sslmode=require
 ```
 
-## 2. متغيرات Supabase (حقيقية)
+## 2. متغيرات Supabase (مطلوبة للبناء)
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://uopckyrdhlvsxnvcobbw.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcGNreXJkaGx2c3hudmNvYmJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDYxNDksImV4cCI6MjA2NzM4MjE0OX0.CcFv-usNHho5NZD_HiGLVT9wF-CYCyv9xwaNEcvDRa4
@@ -24,54 +27,51 @@ NEXTAUTH_URL=https://sabq-ai-cms-ckg9d.ondigitalocean.app
 ```
 NEXT_PUBLIC_APP_URL=https://sabq-ai-cms-ckg9d.ondigitalocean.app
 NEXT_PUBLIC_API_URL=https://sabq-ai-cms-ckg9d.ondigitalocean.app/api
-NEXT_PUBLIC_SITE_URL=https://sabq-ai-cms-ckg9d.ondigitalocean.app
-NEXT_PUBLIC_SITE_NAME=صحيفة سبق الإلكترونية
+NODE_ENV=production
 ```
 
-## 5. متغيرات Cloudinary (مطلوب للصور)
+## 5. متغيرات Cloudinary (اختياري - للصور)
 ```
-CLOUDINARY_CLOUD_NAME=dybhezmvb
-CLOUDINARY_API_KEY=559894124915114
-CLOUDINARY_API_SECRET=vuiA8rLNm7dqLv7B9f2xoqClm6E
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dybhezmvb
-NEXT_PUBLIC_CLOUDINARY_API_KEY=559894124915114
+CLOUDINARY_API_KEY=559894124915114
+CLOUDINARY_API_SECRET=[احصل عليه من Cloudinary]
 ```
 
 ## 6. متغيرات البريد الإلكتروني (اختياري)
 ```
-SMTP_HOST=mail.jur3a.ai
-SMTP_PORT=465
-SMTP_USER=noreplay@jur3a.ai
-SMTP_PASS=oFWD[H,A8~8;iw7(
-SMTP_SECURE=true
-EMAIL_FROM_NAME=سبق
-EMAIL_FROM_ADDRESS=sabqai@sabq.ai
+EMAIL_HOST=mail.jur3a.ai
+EMAIL_PORT=465
+EMAIL_USER=noreplay@jur3a.ai
+EMAIL_PASSWORD=[كلمة المرور]
+EMAIL_FROM=noreplay@jur3a.ai
+EMAIL_SECURE=true
 ```
 
-## 7. متغيرات البيئة (مطلوب)
+## 7. متغيرات الذكاء الاصطناعي (اختياري)
 ```
-NODE_ENV=production
-SKIP_EMAIL_VERIFICATION=true
-ENABLE_DB_PROTECTION=true
-```
-
-## 8. متغيرات إضافية
-```
-API_SECRET_KEY=X9yZ1aC3eF5gH7jK9mN2pQ4rS6tV8wX0yZ1aC3eF5gH7j
+OPENAI_API_KEY=[مفتاح OpenAI API]
+ELEVENLABS_API_KEY=[مفتاح ElevenLabs API]
 ```
 
-## كيفية الإضافة في DigitalOcean:
+## 8. متغيرات النظام
+```
+PORT=8080
+SKIP_ENV_VALIDATION=1
+NEXT_TELEMETRY_DISABLED=1
+```
 
-1. اذهب إلى [DigitalOcean Dashboard](https://cloud.digitalocean.com)
-2. افتح تطبيقك `sabq-ai-cms`
-3. اذهب إلى **Settings** > **App-Level Environment Variables**
-4. اضغط **Edit**
-5. أضف كل متغير من القائمة أعلاه
-6. اضغط **Save**
+## خطوات الإضافة في DigitalOcean:
+
+1. افتح [DigitalOcean Dashboard](https://cloud.digitalocean.com)
+2. اختر التطبيق: `sabq-ai-cms`
+3. اذهب إلى: Settings > App-Level Environment Variables
+4. انقر على "Edit" 
+5. أضف كل متغير بالضغط على "Add Variable"
+6. احفظ التغييرات بالضغط على "Save"
+7. انتظر إعادة النشر التلقائي
 
 ## ملاحظات مهمة:
-
-- استخدم `private-` في عنوان قاعدة البيانات للاتصال الداخلي في DigitalOcean
-- تأكد من أن DATABASE_URL يستخدم المنفذ 25060 وليس 5432
-- متغيرات Supabase الآن حقيقية وستعمل بشكل صحيح
-- سيبدأ النشر تلقائياً بعد حفظ المتغيرات 
+- تأكد من إضافة المتغيرات بدون علامات التنصيص
+- لا تضع مسافات زائدة قبل أو بعد القيم
+- متغيرات Supabase مطلوبة حتى لو لم تكن تستخدمها حالياً
+- بعد إضافة المتغيرات، سيبدأ النشر تلقائياً 
