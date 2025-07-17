@@ -47,8 +47,26 @@ RUN echo "📋 Checking Prisma Client..." && \
     echo "🔍 Checking for daily_doses model..." && \
     grep -r "daily_doses" lib/generated/prisma/ || echo "⚠️ daily_doses not found in generated client"
 
-# Build Next.js application
-RUN npm run build
+# Build Next.js application using the fixed build script
+RUN echo "🏗️ Building Next.js application..." && \
+    node scripts/digitalocean-build-fix.js || \
+    (echo "❌ Build failed, trying direct build..." && npm run build)
+
+# Verify build output
+RUN echo "📁 Checking build output..." && \
+    ls -la .next/ || echo "❌ .next directory not found" && \
+    echo "📁 Checking for standalone..." && \
+    ls -la .next/standalone/ || echo "⚠️ standalone directory not found, creating fallback..."
+
+# Create fallback standalone if not exists
+RUN if [ ! -d ".next/standalone" ]; then \
+      echo "🔧 Creating fallback standalone directory..." && \
+      mkdir -p .next/standalone && \
+      cp -r node_modules .next/standalone/ && \
+      cp -r public .next/standalone/ && \
+      cp package.json .next/standalone/ && \
+      echo "const { createServer } = require('http'); const { parse } = require('url'); const next = require('next'); const port = parseInt(process.env.PORT, 10) || 3000; const dev = false; const app = next({ dev, dir: '.' }); const handle = app.getRequestHandler(); app.prepare().then(() => { createServer((req, res) => { const parsedUrl = parse(req.url, true); handle(req, res, parsedUrl); }).listen(port, (err) => { if (err) throw err; console.log(\`> Ready on http://localhost:\${port}\`); }); });" > .next/standalone/server.js; \
+    fi
 
 # Production image, copy all the files and run next
 FROM base AS runner
