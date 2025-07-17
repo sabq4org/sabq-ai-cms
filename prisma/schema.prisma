@@ -820,3 +820,26 @@ model LinkAnalytics {
   @@index([event_type])
   @@index([timestamp])
 }
+
+// النشرات الصوتية
+model AudioNewsletter {
+  id              String   @id @default(uuid())
+  title           String
+  content         String   @db.Text
+  audioUrl        String
+  duration        Int      // بالثواني
+  voice_id        String
+  voice_name      String
+  language        String   @default("ar")
+  category        String?
+  is_published    Boolean  @default(false)
+  is_featured     Boolean  @default(false)
+  play_count      Int      @default(0)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("audio_newsletters")
+  @@index([is_published])
+  @@index([is_featured])
+  @@index([created_at])
+}

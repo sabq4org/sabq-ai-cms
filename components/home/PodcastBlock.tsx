@@ -48,8 +48,8 @@ export default function PodcastBlock() {
   const fetchLatestPodcast = async () => {
     try {
       setError(false);
-      // جلب آخر نشرة منشورة من الأرشيف
-      const res = await fetch('/api/audio/archive?published=true&latest=true');
+      // جلب آخر نشرة مميزة من النشرات الصوتية
+      const res = await fetch('/api/audio/newsletters/featured');
       
       if (!res.ok) {
         throw new Error('Failed to fetch podcast');
@@ -57,11 +57,11 @@ export default function PodcastBlock() {
       
       const data = await res.json();
       
-      if (data.success && data.podcast) {
+      if (data.success && data.newsletter) {
         setPodcast({
-          link: data.podcast.url,
-          timestamp: data.podcast.created_at,
-          duration: parseInt(data.podcast.duration) || 3
+          link: data.newsletter.audioUrl,
+          timestamp: data.newsletter.created_at,
+          duration: data.newsletter.duration || 3
         });
       }
     } catch (err) {
