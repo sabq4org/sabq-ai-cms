@@ -16,6 +16,7 @@ import { Share2, Eye, Clock, Calendar,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
   Play, Pause, Volume2, CheckCircle, Sparkles
 } from 'lucide-react';
+import ArticleInteractions from '@/components/article/ArticleInteractions';
 
 // نوع البيانات
 interface Article {
@@ -28,6 +29,9 @@ interface Article {
   keywords?: string[];
   seo_keywords?: string | string[];
   author?: { name: string; avatar?: string };
+  likes?: number;
+  saves?: number;
+  shares?: number;
   author_id?: string;
   category?: { name: string; slug: string; color?: string; icon?: string };
   category_id?: string;
@@ -365,55 +369,16 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
           )}
 
           {/* شريط التفاعل */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
-            {/* أزرار التفاعل */}
-            <div className="flex items-center gap-2">
-              {/* زر الإعجاب */}
-              <button
-                onClick={handleLike}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-                  interaction.liked
-                    ? 'text-red-500 bg-red-50 dark:bg-red-900/30 scale-105'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Heart className={`w-5 h-5 transition-all ${interaction.liked ? 'fill-current scale-110' : ''}`} />
-                <span className="font-medium">{interaction.likesCount}</span>
-              </button>
-
-              {/* زر الحفظ */}
-              <button
-                onClick={handleSave}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-                  interaction.saved
-                    ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 scale-105'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
-              >
-                {interaction.saved ? (
-                  <>
-                    <CheckCircle className="w-5 h-5 fill-current" />
-                    <span className="font-medium">تم الحفظ</span>
-                  </>
-                ) : (
-                  <>
-                    <Bookmark className="w-5 h-5" />
-                    <span className="font-medium">حفظ</span>
-                  </>
-                )}
-                {interaction.savesCount > 0 && (
-                  <span className="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-full">
-                    {interaction.savesCount}
-                  </span>
-                )}
-              </button>
-
-              {/* زر المشاركة */}
-              <button className="flex items-center gap-2 px-4 py-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
-                <Share2 className="w-5 h-5" />
-                <span className="font-medium">مشاركة</span>
-              </button>
-            </div>
+          <div className="mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <ArticleInteractions 
+              articleId={article.id}
+              initialStats={{
+                likes: article.likes || interaction.likesCount || 0,
+                saves: article.saves || interaction.savesCount || 0,
+                shares: article.shares || 0,
+                views: article.views || 0
+              }}
+            />
           </div>
 
           {/* الكلمات المفتاحية */}

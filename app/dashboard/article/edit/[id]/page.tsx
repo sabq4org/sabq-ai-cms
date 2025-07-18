@@ -115,7 +115,9 @@ export default function EditArticlePage() {
         setArticleLoading(true);
         const res = await fetch(`/api/articles/${articleId}`);
         if (!res.ok) {
-          throw new Error('فشل في جلب المقال');
+          const errorData = await res.json().catch(() => null);
+          const errorMessage = errorData?.error || res.statusText || 'خطأ غير معروف';
+          throw new Error(`فشل في جلب المقال: ${res.status} - ${errorMessage}`);
         }
         const articleData = await res.json();
         // تحويل البيانات إلى تنسيق النموذج

@@ -382,8 +382,8 @@ export async function GET(request: NextRequest) {
                         (author?.email ? author.email.split('@')[0] : null) ||
                         'غير محدد'
       
-      // التصنيف يأتي مباشرة من include
-      const category = article.category || null
+      // التصنيف يأتي مباشرة من include - الحقل اسمه categories وليس category
+      const category = article.categories || null
       
       return {
         ...article,
