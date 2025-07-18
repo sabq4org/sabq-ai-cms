@@ -24,7 +24,7 @@ import InteractiveArticle from '@/components/InteractiveArticle';
 import TodayOpinionsSection from '@/components/TodayOpinionsSection';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import MobileArticleCard from '@/components/mobile/MobileArticleCard';
-import MobileNewsCard from '@/components/mobile/MobileNewsCard';
+import EnhancedMobileNewsCard from '@/components/mobile/EnhancedMobileNewsCard';
 import MobileStatsBar from '@/components/mobile/MobileStatsBar';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -566,24 +566,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       
       {/* شريط الإحصائيات للموبايل */}
       {isMobile && (
-        <MobileStatsBar 
-          stats={articles && categories ? {
-            articlesCount: articlesLoading ? null : articles.length,
-            categoriesCount: categoriesLoading ? null : categories.length,
-            todayArticles: articlesLoading ? null : articles.filter(a => {
-              const today = new Date();
-              const articleDate = new Date(a.published_at || a.created_at);
-              return articleDate.toDateString() === today.toDateString();
-            }).length,
-            loading: articlesLoading || categoriesLoading
-          } : {
-            articlesCount: null,
-            categoriesCount: null,
-            todayArticles: null,
-            loading: true
-          }}
-          darkMode={darkMode}
-        />
+        <MobileStatsBar darkMode={darkMode} />
       )}
       
       {/* عرض جميع البلوكات الذكية */}
@@ -993,7 +976,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
                   <div className="space-y-3">
                     {personalizedArticles.slice(0, 10).map((news) => (
                       <div key={news.id} className="relative">
-                        <MobileNewsCard news={news} darkMode={darkMode} />
+                        <EnhancedMobileNewsCard news={news} darkMode={darkMode} />
                         {/* شارة "مخصص لك" */}
                         <div className="absolute top-2 left-2 z-10">
                           <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-bold bg-purple-500/90 text-white">
@@ -1031,7 +1014,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
                   // عرض الموبايل - قائمة عمودية
                   <div className="space-y-3">
                     {articles.slice(0, 10).map((news) => (
-                      <MobileNewsCard key={news.id} news={news} darkMode={darkMode} />
+                      <EnhancedMobileNewsCard key={news.id} news={news} darkMode={darkMode} variant="full-width" />
                     ))}
                   </div>
                 ) : (

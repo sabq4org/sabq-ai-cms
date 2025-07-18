@@ -1,32 +1,62 @@
 'use client';
 
-import React from 'react';
-import { Newspaper, Tag, Users, Clock, TrendingUp, Calendar } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Newspaper, Tag, Calendar, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+
+interface StatsData {
+  totalArticles: number;
+  totalCategories: number;
+  todayArticles: number;
+  dailyChange: number;
+  dailyChangePercentage: number;
+  trend: 'up' | 'down' | 'stable';
+  activeUsers: number;
+  lastUpdated: string;
+}
 
 interface MobileStatsBarProps {
-  stats: {
-    articlesCount: number | null;
-    categoriesCount: number | null;
-    todayArticles?: number | null;
-    activeUsers?: number | null;
-    coveragePercentage?: number | null;
-    loading?: boolean;
-  };
   darkMode: boolean;
 }
 
-export default function MobileStatsBar({ stats, darkMode }: MobileStatsBarProps) {
-  // التحقق من أن stats موجود قبل الاستخدام
-  if (!stats) {
-    return (
-      <div className={`w-full py-3 px-4 ${darkMode ? 'bg-gray-800/50' : 'bg-white/80'} backdrop-blur-sm border-b border-gray-200 dark:border-gray-700`}>
-        <div className="animate-pulse flex justify-between items-center">
-          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
-          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
-          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
-        </div>
-      </div>
-    );
+export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
+  const [stats, setStats] = useState<StatsData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+    // تحديث كل 5 دقائق
+    const interval = setInterval(fetchStats, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/stats/summary');
+      const data = await response.json();
+      
+      if (data.success) {
+        setStats(data);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTrendIcon = (trend: string) => {
+    switch (trend) {
+      case 'up':
+        return <TrendingUp className="w-3 h-3 text-green-500" />;
+      case 'down':
+        return <TrendingDown className="w-3 h-3 text-red-500" />;
+      default:
+        return <Minus className="w-3 h-3 text-gray-500" />;
+    }
+  };
+
+  if (!stats && !loading) {
+    return null;
   }
 
   return (
@@ -50,10 +80,10 @@ export default function MobileStatsBar({ stats, darkMode }: MobileStatsBarProps)
               المقالات
             </p>
             <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              {stats.loading || stats.articlesCount === null ? (
+              {loading ? (
                 <span className="inline-block w-12 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
               ) : (
-                stats.articlesCount.toLocaleString()
+                stats?.totalArticles.toLocaleString()
               )}
             </p>
           </div>
@@ -73,16 +103,16 @@ export default function MobileStatsBar({ stats, darkMode }: MobileStatsBarProps)
               التصنيفات
             </p>
             <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              {stats.loading || stats.categoriesCount === null ? (
+              {loading ? (
                 <span className="inline-block w-8 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
               ) : (
-                stats.categoriesCount
+                stats?.totalCategories
               )}
             </p>
           </div>
         </div>
 
-        {/* مقالات اليوم */}
+        {/* مقالات اليوم مع مؤشر التغيير */}
         <div className="flex items-center gap-2">
           <div className={`p-1.5 rounded-lg ${
             darkMode ? 'bg-green-900/30' : 'bg-green-100'
@@ -95,13 +125,25 @@ export default function MobileStatsBar({ stats, darkMode }: MobileStatsBarProps)
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               مقالات اليوم
             </p>
-            <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              {stats.loading || stats.todayArticles === null ? (
-                <span className="inline-block w-8 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
-              ) : (
-                stats.todayArticles || 0
+            <div className="flex items-center gap-1">
+              <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {loading ? (
+                  <span className="inline-block w-8 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
+                ) : (
+                  stats?.todayArticles || 0
+                )}
+              </p>
+              {!loading && stats && stats.trend !== 'stable' && (
+                <div className="flex items-center gap-0.5">
+                  {getTrendIcon(stats.trend)}
+                  <span className={`text-xs ${
+                    stats.trend === 'up' ? 'text-green-500' : 'text-red-500'
+                  }`}>
+                    {Math.abs(stats.dailyChangePercentage)}%
+                  </span>
+                </div>
               )}
-            </p>
+            </div>
           </div>
         </div>
       </div>
