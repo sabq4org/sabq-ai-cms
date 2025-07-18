@@ -674,6 +674,10 @@ model users {
   updated_at         DateTime
   interactions       interactions[]
 
+  // البرامج الصوتية
+  created_programs  audio_programs[]  @relation("program_creator")
+  created_episodes  audio_episodes[]  @relation("episode_creator")
+
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
   @@index([email])
@@ -703,6 +707,82 @@ model was_news {
   @@index([is_imported])
   @@index([news_DT])
   @@index([news_basket_CD])
+}
+
+// ========== نظام البرامج الصوتية ==========
+
+// جدول البرامج الصوتية
+model audio_programs {
+  id                String            @id @default(cuid())
+  name              String
+  description       String?
+  short_description String?
+  logo_url          String?
+  thumbnail_url     String?
+  preferred_duration Int?             // بالدقائق
+  voice_model       String            @default("bradford")
+  display_position  String            @default("header") // header, homepage_card, sidebar
+  display_order     Int               @default(0)
+  status            String            @default("active") // active, paused, inactive
+  slug              String            @unique
+  settings          Json?             // إعدادات إضافية
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+  created_by        String?
+  
+  // العلاقات
+  episodes          audio_episodes[]
+  creator           users?            @relation("program_creator", fields: [created_by], references: [id])
+  
+  @@index([slug])
+  @@index([status])
+}
+
+// جدول حلقات البرامج
+model audio_episodes {
+  id                String            @id @default(cuid())
+  program_id        String
+  episode_number    Int?
+  title             String
+  content           String            @db.Text // النص المراد تحويله
+  audio_url         String?           // رابط الملف الصوتي بعد التوليد
+  duration          Int?              // مدة الحلقة بالثواني
+  voice_model       String            @default("bradford")
+  scheduled_at      DateTime?         // موعد النشر المجدول
+  published_at      DateTime?         // وقت النشر الفعلي
+  status            String            @default("draft") // draft, scheduled, processing, published, failed
+  generation_status String            @default("pending") // pending, generating, completed, failed
+  views             Int               @default(0)
+  metadata          Json?             // بيانات إضافية
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+  created_by        String?
+  
+  // العلاقات
+  program           audio_programs    @relation(fields: [program_id], references: [id], onDelete: Cascade)
+  creator           users?            @relation("episode_creator", fields: [created_by], references: [id])
+  
+  @@index([program_id])
+  @@index([scheduled_at])
+  @@index([status])
+}
+
+// جدول جدولة المهام الصوتية
+model audio_scheduled_jobs {
+  id                String            @id @default(cuid())
+  episode_id        String
+  job_type          String            // generate_audio, publish_episode
+  scheduled_for     DateTime
+  status            String            @default("pending") // pending, processing, completed, failed
+  attempts          Int               @default(0)
+  last_attempt_at   DateTime?
+  error_message     String?
+  completed_at      DateTime?
+  created_at        DateTime          @default(now())
+  
+  @@index([episode_id])
+  @@index([scheduled_for])
+  @@index([status])
 }
 
 enum EmailJob_status {
