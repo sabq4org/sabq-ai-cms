@@ -1,62 +1,96 @@
-# متغيرات البيئة النهائية لـ DigitalOcean
+# متغيرات البيئة المطلوبة لـ DigitalOcean
 
-## المتغيرات المطلوبة (REQUIRED)
+## المتغيرات الأساسية
 
-### 1. قاعدة البيانات
+### 1. DATABASE_URL
 ```
-DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
-```
-
-### 2. المصادقة
-```
-NEXTAUTH_URL=https://YOUR-APP-NAME.ondigitalocean.app
-NEXTAUTH_SECRET=PddNqvCDoV4JqU1/KSiuE9Vy/CUqu7NXyjjuoeqyym4=
+DATABASE_URL=postgresql://postgres.[project]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true
 ```
 
-### 3. Cloudinary (مطلوب للصور)
+### 2. NEXTAUTH_URL
+```
+NEXTAUTH_URL=https://your-app.ondigitalocean.app
+```
+
+### 3. NEXTAUTH_SECRET
+```
+NEXTAUTH_SECRET=your-nextauth-secret-here
+```
+
+### 4. NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 ```
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dybhezmvb
-CLOUDINARY_API_KEY=your-cloudinary-api-key
-CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 ```
 
-### 4. البيئة
+### 5. NEXT_PUBLIC_CLOUDINARY_API_KEY
+```
+NEXT_PUBLIC_CLOUDINARY_API_KEY=559894124915114
+```
+
+### 6. NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+```
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=sabq_preset
+```
+
+### 7. NEXT_PUBLIC_SITE_URL
+```
+NEXT_PUBLIC_SITE_URL=https://your-app.ondigitalocean.app
+```
+
+### 8. NEXT_PUBLIC_API_URL
+```
+NEXT_PUBLIC_API_URL=https://your-app.ondigitalocean.app
+```
+
+### 9. NEXT_PUBLIC_APP_URL
+```
+NEXT_PUBLIC_APP_URL=https://your-app.ondigitalocean.app
+```
+
+### 10. NEXT_PUBLIC_BASE_URL
+```
+NEXT_PUBLIC_BASE_URL=https://your-app.ondigitalocean.app
+```
+
+### 11. NEXT_PUBLIC_SUPABASE_URL
+```
+NEXT_PUBLIC_SUPABASE_URL=https://ogmzxtfxmuztpvlvxuzr.supabase.co
+```
+
+### 12. NEXT_PUBLIC_SUPABASE_ANON_KEY
+```
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
+### 13. NODE_ENV
 ```
 NODE_ENV=production
-PORT=3000
-```
-
-## المتغيرات الاختيارية (OPTIONAL)
-
-### 5. البريد الإلكتروني
-```
-EMAIL_HOST=mail.jur3a.ai
-EMAIL_PORT=465
-EMAIL_USER=noreplay@jur3a.ai
-EMAIL_PASSWORD=your-email-password
-EMAIL_FROM=noreplay@jur3a.ai
-```
-
-### 6. Redis (اختياري)
-```
-REDIS_URL=redis://your-redis-url
-```
-
-### 7. OpenAI (للذكاء الاصطناعي)
-```
-OPENAI_API_KEY=your-openai-api-key
 ```
 
 ## ملاحظات مهمة
 
-1. **متغيرات NEXT_PUBLIC_**: يجب إضافتها قبل البناء لأنها تُضمن في الكود
-2. **DATABASE_URL**: احصل عليه من Supabase Dashboard
-3. **NEXTAUTH_URL**: استخدم رابط التطبيق الكامل من DigitalOcean
-4. **NEXTAUTH_SECRET**: يمكن توليد مفتاح جديد باستخدام: `openssl rand -base64 32`
+1. **استبدل القيم**: غيّر `your-app.ondigitalocean.app` إلى رابط تطبيقك الفعلي
+2. **Force Rebuild**: بعد إضافة المتغيرات، اضغط "Force Rebuild and Deploy" وليس مجرد "Redeploy"
+3. **التحقق**: بعد النشر، افتح `/api/check-env` للتأكد من عمل المتغيرات
+4. **الأولوية**: هذه أهم المتغيرات المطلوبة لعمل التطبيق بشكل صحيح
 
-## خطوات الإضافة في DigitalOcean
+## التحقق بعد النشر
 
-1. اذهب إلى **App Settings** → **Environment Variables**
-2. أضف كل متغير بالضغط على **Add Variable**
-3. اختر **Encrypt** للمتغيرات الحساسة (كلمات المرور والمفاتيح السرية)
-4. احفظ وأعد النشر (Deploy) 
+قم بزيارة:
+```
+https://your-app.ondigitalocean.app/api/check-env
+```
+
+يجب أن تظهر:
+```json
+{
+  "status": "ok",
+  "cloudinary": {
+    "cloudName": "dybhezmvb",
+    "isConfigured": true
+  },
+  "site": {
+    "url": "https://your-app.ondigitalocean.app"
+  }
+}
+``` 
