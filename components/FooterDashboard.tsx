@@ -143,7 +143,12 @@ export default function FooterDashboard() {
       const response = await fetch(`/api/user/insights?userId=${userId}`);
       if (response.ok) {
         const data = await response.json();
-        setInsights(data);
+        // التحقق من وجود البيانات قبل تعيينها
+        if (data && typeof data === 'object') {
+          setInsights(data);
+        } else {
+          console.warn('No insights data received');
+        }
       } else {
         // في حالة فشل API، استخدم البيانات التجريبية
         setInsights(demoInsights);

@@ -52,17 +52,34 @@ export default function PodcastBlock() {
       const res = await fetch('/api/audio/newsletters/featured');
       
       if (!res.ok) {
-        throw new Error('Failed to fetch podcast');
+        console.error('Failed to fetch podcast:', res.status, res.statusText);
+        setError(true);
+        return;
       }
       
       const data = await res.json();
       
-      if (data.success && data.newsletter) {
-        setPodcast({
-          link: data.newsletter.url || data.newsletter.audioUrl,
-          timestamp: data.newsletter.created_at,
-          duration: data.newsletter.duration || 3
-        });
+      // التحقق من وجود البيانات بشكل آمن
+      if (data?.success && data?.newsletter) {
+        const newsletter = data.newsletter;
+        const link = newsletter?.url || newsletter?.audioUrl;
+        const timestamp = newsletter?.created_at;
+        const duration = newsletter?.duration || 3;
+        
+        // التحقق من البيانات المطلوبة
+        if (link && timestamp) {
+          setPodcast({
+            link,
+            timestamp,
+            duration
+          });
+        } else {
+          console.warn('Newsletter data incomplete:', newsletter);
+          setError(true);
+        }
+      } else {
+        console.log('No newsletter available');
+        // لا نعتبرها خطأ، فقط لا توجد نشرة
       }
     } catch (err) {
       console.error('Error fetching podcast:', err);

@@ -62,7 +62,17 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
       const data = await response.json();
       console.log(`[SmartSlot] البلوكات المستلمة للموضع ${position}:`, data);
       
-      const activeBlocks = data.filter((block: SmartBlock) => block.status === 'active');
+      // فلترة البلوكات النشطة وإستبعاد البودكاست مؤقتاً لمنع الأخطاء
+      const activeBlocks = data.filter((block: SmartBlock) => {
+        // استبعاد بلوك البودكاست أو النشرة الصوتية مؤقتاً
+        if (block.name?.includes('نشرة صوتية') || 
+            block.name?.includes('بودكاست') ||
+            block.name?.toLowerCase().includes('podcast')) {
+          console.warn(`[SmartSlot] تم تجاهل بلوك البودكاست مؤقتاً: ${block.name}`);
+          return false;
+        }
+        return block.status === 'active';
+      });
       console.log(`[SmartSlot] البلوكات النشطة:`, activeBlocks);
       
       // ترتيب البلوكات حسب قيمة order
