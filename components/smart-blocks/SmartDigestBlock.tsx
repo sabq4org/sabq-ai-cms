@@ -51,16 +51,46 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
   const [dose, setDose] = useState<DailyDose | null>(null);
   const [loading, setLoading] = useState(true);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // جلب الجرعة الحالية
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
     
     const fetchData = async () => {
       // تأخير بسيط لمنع التحديث السريع جداً
       await new Promise(resolve => setTimeout(resolve, 100));
       
       if (!mounted) return;
+      
+      // إضافة timeout لمنع التعليق
+      timeoutId = setTimeout(() => {
+        if (mounted && loading) {
+          console.warn('SmartDigestBlock: Timeout reached, using fallback data');
+          setDose({
+            id: 'timeout-fallback',
+            period: 'evening',
+            title: 'جرعتك اليومية',
+            subtitle: 'محتوى مختار بعناية لك',  
+            date: new Date().toISOString(),
+            status: 'published',
+            views: 0,
+            contents: [
+              {
+                id: '1',
+                contentType: 'article',
+                title: 'أخبار اليوم',
+                summary: 'تابع آخر الأخبار والمستجدات',
+                imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800',
+                displayOrder: 0
+              }
+            ]
+          });
+          setLoading(false);
+          setError('تأخر في تحميل البيانات');
+        }
+      }, 5000); // 5 ثواني كحد أقصى
       
       try {
         const url = forceTimeSlot 
@@ -72,6 +102,7 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: AbortSignal.timeout(4000) // 4 ثواني timeout للـ fetch
         });
         
         if (!mounted) return;
@@ -86,6 +117,7 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
         
         setDose(data);
         setLoading(false);
+        setError(null);
       } catch (error) {
         console.error('Error fetching daily dose:', error);
         
@@ -127,6 +159,9 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
           ]
         });
         setLoading(false);
+        setError('استخدام محتوى محلي');
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
       }
     };
     
@@ -134,6 +169,7 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
     
     return () => {
       mounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [forceTimeSlot]);
 

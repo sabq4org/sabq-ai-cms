@@ -1,26 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { handleOptions, corsResponse } from '@/lib/cors';
 import OpenAI from 'openai';
-
-
-
-
-
-
-
-
-
-
-
-// محاولة استيراد prisma مع fallback
-let prisma: any;
-try {
-  const prismaModule = require('@/lib/prisma');
-  prisma = prismaModule.prisma || prismaModule.default;
-} catch (error) {
-  console.warn('Prisma not available, using fallback mode');
-  prisma = null;
-}
+import { prisma, ensureConnection } from '@/lib/prisma';
 
 // معالجة طلبات OPTIONS للـ CORS
 export async function OPTIONS() {
@@ -125,9 +106,10 @@ export async function GET(request: NextRequest) {
   const period = searchParams.get('period') || getCurrentPeriod();
   
   try {
-    // التحقق من وجود prisma
-    if (!prisma || !prisma.daily_doses) {
-      console.warn('Prisma not initialized, returning mock data');
+    // التأكد من الاتصال بقاعدة البيانات أولاً
+    const connected = await ensureConnection();
+    if (!connected) {
+      console.warn('Database connection failed, returning mock data');
       throw new Error('Database not available');
     }
     
