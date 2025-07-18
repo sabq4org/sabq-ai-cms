@@ -9,6 +9,10 @@ const nextConfig = {
     // Custom build ID to force rebuild - Updated
     return 'v2-' + Date.now().toString()
   },
+  experimental: {
+    optimizePackageImports: ['react', 'react-dom'],
+    serverComponentsExternalPackages: ['prisma', '@prisma/client'],
+  },
   // حل مشكلة chunk loading errors
   onDemandEntries: {
     maxInactiveAge: 25 * 1000,
@@ -179,14 +183,8 @@ const nextConfig = {
         },
       };
     }
-    // إصلاح مشاكل React Server Components
-    if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'react/jsx-runtime': require.resolve('react/jsx-runtime'),
-        'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
-      };
-    }
+    // إزالة alias المخصّص لـ react/jsx-runtime الذي كان يسبّب تعارضًا مع Next.js
+    // يُترك Next.js يضبط alias الخاص به تلقائيًا لضمان استخدام نسخة React المدمجة
     return config;
   },
   // إضافة headers للتخزين المؤقت
