@@ -34,7 +34,7 @@ async function getCategories() {
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
-    const res = await fetch(`${baseUrl}/api/categories?is_active=true`, {
+    const res = await fetch(`${baseUrl}/api/categories`, {
       cache: 'no-store'
     });
     
@@ -43,8 +43,8 @@ async function getCategories() {
       return [];
     }
     
-    const json = await res.json();
-    return Array.isArray(json) ? json : (json.data ?? []);
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error('خطأ في جلب التصنيفات من الخادم:', error);
     return [];
@@ -53,34 +53,52 @@ async function getCategories() {
 
 async function getStats() {
   try {
-    return {
-      activeReaders: 1234567,
-      dailyArticles: 52341,
-      loading: false
-    };
+    const headersList = await headers();
+    const host = headersList.get('host') || 'localhost:3000';
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+    
+    const res = await fetch(`${baseUrl}/api/news/stats`, { cache: 'no-store' });
+    if (res.ok) {
+      return await res.json();
+    }
   } catch (error) {
     console.error('خطأ في جلب الإحصائيات:', error);
-    return {
-      activeReaders: null,
-      dailyArticles: null,
-      loading: false
-    };
   }
+  return null;
 }
 
 export default async function Page() {
-  // جلب جميع البيانات في الخادم
-  const [articles, categories, stats] = await Promise.all([
-    getArticles(),
-    getCategories(),
-    getStats()
-  ]);
+  try {
+    // جلب جميع البيانات في الخادم
+    const [articles, categories, stats] = await Promise.all([
+      getArticles(),
+      getCategories(),
+      getStats()
+    ]);
 
-  return (
-    <PageClient 
-      initialArticles={articles}
-      initialCategories={categories}
-      initialStats={stats}
-    />
-  );
+    return (
+      <PageClient 
+        initialArticles={articles}
+        initialCategories={categories}
+        initialStats={stats}
+      />
+    );
+  } catch (error) {
+    console.error('خطأ في تحميل الصفحة الرئيسية:', error);
+    
+    // صفحة خطأ بسيطة
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '48px', marginBottom: '20px' }}>صحيفة سبق الإلكترونية</h1>
+        <p style={{ fontSize: '24px', color: '#666' }}>عذراً، حدث خطأ في تحميل الصفحة</p>
+        <p style={{ marginTop: '20px' }}>
+          <a href="/news" style={{ color: '#1e40af', textDecoration: 'underline' }}>
+            انتقل إلى صفحة الأخبار
+          </a>
+        </p>
+
+      </div>
+    );
+  }
 } 
