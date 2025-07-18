@@ -69,6 +69,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<'not_found' | 'not_published' | 'server_error' | null>(null);
 
   // جلب المقال
   useEffect(() => {
@@ -88,14 +89,15 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
         
         if (response.status === 404) {
           setError('عذراً، المقال المطلوب غير موجود');
+          setErrorType('not_found');
+        } else if (response.status === 403 && errorData.code === 'ARTICLE_NOT_PUBLISHED') {
+          setError('هذه المقالة في وضع التحرير ولا يمكن عرضها للعامة');
+          setErrorType('not_published');
         } else {
           setError('حدث خطأ في جلب المقال');
+          setErrorType('server_error');
         }
         
-        // إظهار رسالة خطأ بدلاً من التوجيه المباشر
-        setTimeout(() => {
-          router.push('/');
-        }, 3000);
         return;
       }
       
@@ -114,10 +116,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     } catch (error) {
       console.error('خطأ في جلب المقال:', error);
       setError('حدث خطأ في الاتصال بالخادم');
-      // إظهار رسالة خطأ بدلاً من التوجيه المباشر
-      setTimeout(() => {
-        router.push('/');
-      }, 3000);
+      setErrorType('server_error');
     } finally {
       setLoading(false);
     }
@@ -211,18 +210,53 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
   if (loading || error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
+        <div className="text-center p-8 max-w-md">
           {error ? (
             <>
               <div className="mb-4">
-                <X className="w-16 h-16 text-red-500 mx-auto" />
+                {errorType === 'not_published' ? (
+                  <div className="w-20 h-20 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto">
+                    <Clock className="w-10 h-10 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                ) : (
+                  <X className="w-16 h-16 text-red-500 mx-auto" />
+                )}
               </div>
-              <p className="text-lg font-semibold mb-2 text-red-600 dark:text-red-400">
+              <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
+                {errorType === 'not_found' && 'المقال غير موجود'}
+                {errorType === 'not_published' && 'المقال قيد التحرير'}
+                {errorType === 'server_error' && 'حدث خطأ'}
+              </h2>
+              <p className="text-lg mb-6 text-gray-600 dark:text-gray-400">
                 {error}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                سيتم توجيهك للصفحة الرئيسية...
-              </p>
+              
+              {/* رسالة إضافية للمقالات غير المنشورة */}
+              {errorType === 'not_published' && (
+                <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    هذه المقالة في وضع المسودة ولم يتم نشرها بعد. 
+                    إذا كنت محرراً، يرجى تسجيل الدخول لعرض المقالة.
+                  </p>
+                </div>
+              )}
+              
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => router.push('/')}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                >
+                  العودة للرئيسية
+                </button>
+                {errorType === 'not_published' && (
+                  <button
+                    onClick={() => router.push('/login?redirect=' + encodeURIComponent(window.location.pathname))}
+                    className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
+                  >
+                    تسجيل الدخول
+                  </button>
+                )}
+              </div>
             </>
           ) : (
             <>

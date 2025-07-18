@@ -12,11 +12,23 @@ export async function GET(
   try {
     const { id } = await params;
     
-    // محاولة جلب من Redis cache أولاً
+    // التحقق من هوية المستخدم للسماح بعرض المسودات للمحررين
+    const authHeader = request.headers.get('Authorization');
+    let isEditor = false;
+    
+    // يمكنك إضافة منطق التحقق من المستخدم هنا
+    // مؤقتاً، سنتحقق من وجود cookie للمستخدم
+    const cookieHeader = request.headers.get('cookie');
+    if (cookieHeader && cookieHeader.includes('user=')) {
+      // هنا يمكن إضافة تحقق أكثر تفصيلاً من صلاحيات المستخدم
+      isEditor = true;
+    }
+    
+    // محاولة جلب من Redis cache أولاً (فقط للمقالات المنشورة)
     const cacheKey = `article:${id}`;
     const cachedArticle = await cache.get(cacheKey);
     
-    if (cachedArticle) {
+    if (cachedArticle && (cachedArticle as any).status === 'published') {
       console.log(`✅ تم جلب المقال ${id} من Redis cache`);
       
       // زيادة عدد المشاهدات بشكل غير متزامن
@@ -59,7 +71,27 @@ export async function GET(
     });
     
     if (!dbArticle) {
-      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+      return NextResponse.json({ 
+        error: 'Article not found',
+        message: 'المقال المطلوب غير موجود',
+        code: 'ARTICLE_NOT_FOUND'
+      }, { status: 404 });
+    }
+    
+    // التحقق من حالة المقال
+    if (dbArticle.status !== 'published' && !isEditor) {
+      return NextResponse.json({ 
+        error: 'Article not published',
+        message: 'هذه المقالة غير منشورة',
+        code: 'ARTICLE_NOT_PUBLISHED',
+        status: dbArticle.status,
+        articleTitle: dbArticle.title // للمساعدة في التشخيص
+      }, { status: 403 });
+    }
+    
+    // إضافة تحذير للمحررين عند عرض مسودة
+    if (dbArticle.status !== 'published' && isEditor) {
+      console.log(`⚠️ المحرر يعرض مقال غير منشور: ${dbArticle.title} (${dbArticle.status})`);
     }
     
     // جلب بيانات المؤلف
@@ -129,9 +161,11 @@ export async function GET(
       data: { views: { increment: 1 } }
     }).catch((err: Error) => console.error('خطأ في تحديث المشاهدات:', err));
     
-    // حفظ في Redis cache
-    await cache.set(cacheKey, articleWithEnhancedData, CACHE_TTL.ARTICLES);
-    console.log(`💾 تم حفظ المقال ${id} في Redis cache`);
+    // حفظ في Redis cache فقط إذا كان المقال منشوراً
+    if (dbArticle.status === 'published') {
+      await cache.set(cacheKey, articleWithEnhancedData, CACHE_TTL.ARTICLES);
+      console.log(`💾 تم حفظ المقال ${id} في Redis cache`);
+    }
     
     const response = NextResponse.json(articleWithEnhancedData);
     response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=59');
