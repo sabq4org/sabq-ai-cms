@@ -1,47 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import fs from 'fs/promises';
+import path from 'path';
+
+// مسار ملف حفظ البيانات
+const PODCASTS_FILE = path.join(process.cwd(), 'data', 'audio-podcasts.json');
+
+// التأكد من وجود الملف
+async function ensureFile() {
+  try {
+    await fs.access(PODCASTS_FILE);
+  } catch {
+    await fs.mkdir(path.dirname(PODCASTS_FILE), { recursive: true });
+    await fs.writeFile(PODCASTS_FILE, JSON.stringify({ podcasts: [] }));
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
-    // الحصول على آخر نشرة مميزة ومنشورة
-    const newsletter = await prisma.audioNewsletter.findFirst({
-      where: {
-        is_published: true,
-        is_featured: true
-      },
-      orderBy: {
-        created_at: 'desc'
-      }
-    });
-
-    if (!newsletter) {
-      // إذا لم توجد نشرة مميزة، احصل على آخر نشرة منشورة
-      const latestNewsletter = await prisma.audioNewsletter.findFirst({
-        where: {
-          is_published: true
-        },
-        orderBy: {
-          created_at: 'desc'
-        }
-      });
-
+    await ensureFile();
+    
+    // قراءة البيانات من الملف
+    const data = await fs.readFile(PODCASTS_FILE, 'utf-8');
+    const { podcasts } = JSON.parse(data);
+    
+    // البحث عن آخر نشرة يومية منشورة
+    const featuredNewsletter = podcasts.find((p: any) => 
+      p.is_daily === true && p.is_published === true
+    );
+    
+    if (!featuredNewsletter) {
+      // إذا لم توجد نشرة يومية، احصل على آخر نشرة منشورة
+      const latestNewsletter = podcasts.find((p: any) => 
+        p.is_published === true
+      );
+      
       return NextResponse.json({
         success: true,
-        newsletter: latestNewsletter
+        newsletter: latestNewsletter || null
       });
     }
 
-    // زيادة عداد التشغيل
-    await prisma.audioNewsletter.update({
-      where: { id: newsletter.id },
-      data: {
-        play_count: { increment: 1 }
-      }
-    });
+    // زيادة عداد التشغيل (اختياري - يمكن إضافته لاحقاً)
+    // يمكن تحديث الملف هنا إذا أردت زيادة عداد التشغيل
 
     return NextResponse.json({
       success: true,
-      newsletter
+      newsletter: featuredNewsletter
     });
   } catch (error) {
     console.error('Error fetching featured newsletter:', error);

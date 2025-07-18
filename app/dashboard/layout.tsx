@@ -712,7 +712,7 @@ export default function DashboardLayout({
                     <span className="text-sm lg:text-base font-medium">القوالب</span>
                   </Link>
 
-                  <Link href="/dashboard/audio-enhance" 
+                  <Link href="/dashboard/audio-test" 
                     onClick={() => setSidebarOpen(false)}
                     className={`group flex items-center gap-3 lg:gap-4 px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl transition-all duration-300 hover:shadow-md hover:translate-x-1 ${
                     darkMode 
@@ -726,13 +726,13 @@ export default function DashboardLayout({
                     }`}>
                       <Volume2 className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
-                    <span className="text-sm lg:text-base font-medium">تحسين الصوت</span>
+                    <span className="text-sm lg:text-base font-medium">النشرات الصوتية</span>
                     <div className={`px-2 py-1 rounded-full text-xs font-bold transition-all ${
                       darkMode 
                         ? 'bg-red-900/40 text-red-300 group-hover:bg-red-500 group-hover:text-white' 
                         : 'bg-red-100 text-red-700 group-hover:bg-red-500 group-hover:text-white'
                     }`}>
-                      جديد
+                      12 صوت
                     </div>
                   </Link>
 

@@ -324,7 +324,7 @@ export async function GET(request: NextRequest) {
           seo_title: true,
           seo_description: true,
           // العلاقات
-          category: {
+          categories: {
             select: {
               id: true,
               name: true,

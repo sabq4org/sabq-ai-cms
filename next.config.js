@@ -3,7 +3,7 @@
 // Version: 0.2.0
 const nextConfig = {
   output: 'standalone',
-  reactStrictMode: true,
+  reactStrictMode: false,
   serverExternalPackages: ['prisma', '@prisma/client'],
   generateBuildId: async () => {
     // Custom build ID to force rebuild - Updated

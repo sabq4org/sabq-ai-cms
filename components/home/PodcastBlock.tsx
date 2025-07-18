@@ -59,7 +59,7 @@ export default function PodcastBlock() {
       
       if (data.success && data.newsletter) {
         setPodcast({
-          link: data.newsletter.audioUrl,
+          link: data.newsletter.url || data.newsletter.audioUrl,
           timestamp: data.newsletter.created_at,
           duration: data.newsletter.duration || 3
         });
