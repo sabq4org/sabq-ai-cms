@@ -17,10 +17,7 @@ import {
   Trash2,
   MoreVertical,
   Share2,
-  RefreshCw,
-  Home,
-  Eye,
-  EyeOff
+  RefreshCw
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -39,8 +36,6 @@ interface AudioFile {
   type: 'news' | 'summary' | 'manual';
   title?: string;
   description?: string;
-  is_daily?: boolean; // Added for daily status
-  is_published?: boolean; // Added for published status
 }
 
 export default function AudioArchivePage() {
@@ -58,35 +53,46 @@ export default function AudioArchivePage() {
   const fetchAudioFiles = async () => {
     setLoading(true);
     try {
-      // جلب النشرات من API
-      const response = await fetch('/api/audio/archive');
-      const data = await response.json();
+      // محاكاة البيانات لعدم وجود API حقيقي بعد
+      const mockData: AudioFile[] = [
+        {
+          id: '1',
+          filename: 'news_summary_2025_01_17_14_30.mp3',
+          url: '/public/audio/news_summary_2025_01_17_14_30.mp3',
+          size: 2400000, // 2.4 MB
+          duration: '3:45',
+          createdAt: '2025-01-17T14:30:00Z',
+          type: 'news',
+          title: 'ملخص أخبار اليوم',
+          description: 'نشرة إخبارية تحتوي على أهم 5 أخبار اليوم'
+        },
+        {
+          id: '2', 
+          filename: 'custom_audio_test.mp3',
+          url: '/public/audio/custom_audio_test.mp3',
+          size: 1800000, // 1.8 MB
+          duration: '2:20',
+          createdAt: '2025-01-17T13:15:00Z',
+          type: 'manual',
+          title: 'نشرة صوتية مخصصة',
+          description: 'نشرة صوتية تم إنشاؤها من نص مخصص'
+        },
+        {
+          id: '3',
+          filename: 'article_summary_12345.mp3', 
+          url: '/public/audio/article_summary_12345.mp3',
+          size: 1200000, // 1.2 MB
+          duration: '1:55',
+          createdAt: '2025-01-17T12:00:00Z',
+          type: 'summary',
+          title: 'ملخص المقال: تطورات الذكاء الاصطناعي',
+          description: 'ملخص صوتي لمقال عن أحدث تطورات الذكاء الاصطناعي'
+        }
+      ];
       
-      if (data.success && data.podcasts) {
-        // تحويل البيانات للتنسيق المطلوب
-        const formattedFiles: AudioFile[] = data.podcasts.map((p: any) => ({
-          id: p.id,
-          filename: p.filename,
-          url: p.url,
-          size: p.size,
-          duration: p.duration,
-          createdAt: p.created_at,
-          type: 'news' as const,
-          title: `النشرة الصوتية - ${new Date(p.created_at).toLocaleDateString('ar-SA')}`,
-          description: `صوت: ${p.voice} - الحجم: ${Math.round(p.size / 1024)} KB`,
-          is_daily: p.is_daily, // Assuming is_daily is returned from the API
-          is_published: p.is_published // Assuming is_published is returned from the API
-        }));
-        
-        setAudioFiles(formattedFiles);
-      } else {
-        // في حالة عدم وجود بيانات
-        setAudioFiles([]);
-      }
+      setAudioFiles(mockData);
     } catch (error) {
       console.error('خطأ في جلب الملفات الصوتية:', error);
-      // عرض بيانات فارغة في حالة الخطأ
-      setAudioFiles([]);
     } finally {
       setLoading(false);
     }
@@ -192,32 +198,6 @@ export default function AudioArchivePage() {
       case 'summary': return 'bg-green-100 text-green-800';
       case 'manual': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  // تغيير حالة النشرة اليومية
-  const toggleDailyStatus = async (audioFile: AudioFile) => {
-    try {
-      const response = await fetch(`/api/audio/archive/${audioFile.id}/daily`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ is_published: !audioFile.is_published }),
-      });
-      const data = await response.json();
-
-      if (data.success) {
-        setAudioFiles(prev => prev.map(file => 
-          file.id === audioFile.id ? { ...file, is_published: !audioFile.is_published } : file
-        ));
-        alert(audioFile.is_published ? 'تم إلغاء نشر النشرة من الصفحة الرئيسية' : 'تم نشر النشرة في الصفحة الرئيسية بنجاح!');
-      } else {
-        alert('فشل في تغيير حالة النشرة.');
-      }
-    } catch (error) {
-      console.error('خطأ في تغيير حالة النشرة:', error);
-      alert('خطأ في تغيير حالة النشرة.');
     }
   };
 
@@ -334,7 +314,7 @@ export default function AudioArchivePage() {
                   </div>
                   
                   {/* أزرار التحكم */}
-                  <div className="flex flex-wrap gap-2 mt-4">
+                  <div className="flex items-center gap-2">
                     <Button
                       onClick={() => togglePlay(audioFile)}
                       size="sm"
@@ -367,22 +347,6 @@ export default function AudioArchivePage() {
                         <DropdownMenuItem onClick={() => shareAudioFile(audioFile)}>
                           <Share2 className="w-4 h-4 mr-2" />
                           مشاركة
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => toggleDailyStatus(audioFile)}
-                          className="text-yellow-600"
-                        >
-                          {audioFile.is_published ? (
-                            <>
-                              <Eye className="w-4 h-4 mr-2" />
-                              منشورة في الرئيسية
-                            </>
-                          ) : (
-                            <>
-                              <EyeOff className="w-4 h-4 mr-2" />
-                              نشر في الرئيسية
-                            </>
-                          )}
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => deleteAudioFile(audioFile.id)}

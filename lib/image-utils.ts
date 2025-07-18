@@ -5,7 +5,7 @@
 
 // Cloudinary configuration
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/sabq/image/upload';
-const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'sabq';
+const CLOUDINARY_CLOUD_NAME = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME : 'sabq';
 
 // Fallback images
 const FALLBACK_IMAGES = {

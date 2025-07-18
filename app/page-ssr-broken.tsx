@@ -19,7 +19,7 @@ const getCachedArticles = unstable_cache(
           published_at: true,
           views: true,
           reading_time: true,
-          is_breaking: true,
+          breaking: true,
           category: {
             select: {
               name: true,

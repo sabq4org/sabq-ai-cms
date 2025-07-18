@@ -190,7 +190,7 @@ export async function GET(request: NextRequest) {
     const articles = await prisma.articles.findMany({
       where: {
         status: 'published',
-        publishedAt: {
+        published_at: {
           gte: since
         }
       },
@@ -198,9 +198,9 @@ export async function GET(request: NextRequest) {
         id: true,
         title: true,
         excerpt: true,
-        featuredImage: true,
+        featured_image: true,
         views: true,
-        publishedAt: true,
+                  published_at: true,
         category: {
           select: {
             name: true,
@@ -215,7 +215,7 @@ export async function GET(request: NextRequest) {
       },
       orderBy: [
         { views: 'desc' },
-        { publishedAt: 'desc' }
+        { published_at: 'desc' }
       ],
       take: 5 // تقليل عدد المقالات
     });
@@ -231,7 +231,7 @@ export async function GET(request: NextRequest) {
         contentType: 'article',
         title: article.title,
         summary: article.excerpt || '',
-        imageUrl: article.featuredImage,
+        imageUrl: article.featured_image,
         displayOrder: index
       });
     }

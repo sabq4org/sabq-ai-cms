@@ -9,10 +9,7 @@ const nextConfig = {
     // Custom build ID to force rebuild - Updated
     return 'v2-' + Date.now().toString()
   },
-  experimental: {
-    optimizePackageImports: ['react', 'react-dom'],
-    serverComponentsExternalPackages: ['prisma', '@prisma/client'],
-  },
+
   // حل مشكلة chunk loading errors
   onDemandEntries: {
     maxInactiveAge: 25 * 1000,
