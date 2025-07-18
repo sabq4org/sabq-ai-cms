@@ -31,6 +31,23 @@ export async function GET(request: NextRequest) {
     // محاولة الحصول على التوكن من الكوكيز أو من Authorization header
     let token = request.cookies.get('auth-token')?.value;
     
+    // إذا لم يوجد في الكوكيز، جرب cookie بإسم 'user'
+    if (!token) {
+      const userCookie = request.cookies.get('user')?.value;
+      if (userCookie) {
+        try {
+          // فك تشفير URL encoding
+          const decodedCookie = decodeURIComponent(userCookie);
+          const userObject = JSON.parse(decodedCookie);
+          if (userObject.id) {
+            token = userCookie; // استخدم المعرف من cookie
+          }
+        } catch (e) {
+          console.log('فشل في تحليل user cookie:', e);
+        }
+      }
+    }
+    
     // إذا لم يوجد في الكوكيز، جرب من Authorization header
     if (!token) {
       const authHeader = request.headers.get('authorization');
@@ -49,12 +66,24 @@ export async function GET(request: NextRequest) {
     // التحقق من صحة التوكن
     let decoded: any;
     try {
+      // محاولة فك تشفير JWT أولاً
       decoded = jwt.verify(token, JWT_SECRET);
     } catch (error) {
-      return corsResponse(
-        { success: false, error: 'جلسة غير صالحة' },
-        401
-      );
+      // إذا فشل JWT، جرب تحليل JSON من user cookie
+      try {
+        const decodedCookie = decodeURIComponent(token);
+        const userObject = JSON.parse(decodedCookie);
+        if (userObject.id) {
+          decoded = userObject;
+        } else {
+          throw new Error('لا يحتوي على معرف مستخدم');
+        }
+      } catch (jsonError) {
+        return corsResponse(
+          { success: false, error: 'جلسة غير صالحة' },
+          401
+        );
+      }
     }
 
     // البحث عن المستخدم في قاعدة البيانات

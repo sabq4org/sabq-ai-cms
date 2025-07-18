@@ -16,6 +16,19 @@ interface MobileStatsBarProps {
 }
 
 export default function MobileStatsBar({ stats, darkMode }: MobileStatsBarProps) {
+  // التحقق من أن stats موجود قبل الاستخدام
+  if (!stats) {
+    return (
+      <div className={`w-full py-3 px-4 ${darkMode ? 'bg-gray-800/50' : 'bg-white/80'} backdrop-blur-sm border-b border-gray-200 dark:border-gray-700`}>
+        <div className="animate-pulse flex justify-between items-center">
+          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`w-full py-3 px-4 ${
       darkMode 

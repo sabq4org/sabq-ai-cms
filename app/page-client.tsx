@@ -567,7 +567,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       {/* شريط الإحصائيات للموبايل */}
       {isMobile && (
         <MobileStatsBar 
-          stats={{
+          stats={articles && categories ? {
             articlesCount: articlesLoading ? null : articles.length,
             categoriesCount: categoriesLoading ? null : categories.length,
             todayArticles: articlesLoading ? null : articles.filter(a => {
@@ -576,6 +576,11 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
               return articleDate.toDateString() === today.toDateString();
             }).length,
             loading: articlesLoading || categoriesLoading
+          } : {
+            articlesCount: null,
+            categoriesCount: null,
+            todayArticles: null,
+            loading: true
           }}
           darkMode={darkMode}
         />
