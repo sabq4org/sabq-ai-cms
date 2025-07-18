@@ -155,22 +155,18 @@ async function getInteractionStats(userId: string, timeFilter: any) {
 async function getReadingStats(userId: string, timeFilter: any) {
   try {
     // إحصائيات جلسات القراءة
-    const sessions = await prisma.reading_sessions?.aggregate({
+    const sessions = await prisma.user_reading_sessions?.aggregate({
       where: {
         user_id: userId,
-        start_time: timeFilter
+        started_at: timeFilter
       },
       _count: { id: true },
       _sum: {
-        total_duration: true,
-        active_duration: true,
-        words_read: true
+        duration_seconds: true
       },
       _avg: {
-        engagement_score: true,
-        reading_progress: true,
         scroll_depth: true,
-        reading_speed: true
+        read_percentage: true
       }
     })
 
@@ -190,11 +186,11 @@ async function getReadingStats(userId: string, timeFilter: any) {
     }
 
     // عدد المقالات المكتملة
-    const completedArticles = await prisma.reading_sessions?.count({
+    const completedArticles = await prisma.user_reading_sessions?.count({
       where: {
         user_id: userId,
-        start_time: timeFilter,
-        completed: true
+        started_at: timeFilter,
+        read_percentage: { gte: 90 }
       }
     }) || 0
 
@@ -203,13 +199,13 @@ async function getReadingStats(userId: string, timeFilter: any) {
 
     return {
       totalSessions,
-      totalReadingTime: sessions._sum.total_duration || 0,
-      totalActiveTime: sessions._sum.active_duration || 0,
-      wordsRead: sessions._sum.words_read || 0,
-      avgEngagement: Math.round(sessions._avg.engagement_score || 0),
-      avgProgress: Math.round((sessions._avg.reading_progress || 0) * 100),
+      totalReadingTime: sessions._sum.duration_seconds || 0,
+      totalActiveTime: sessions._sum.duration_seconds || 0,
+      wordsRead: sessions._sum/*words_read removed*/ || 0,
+      avgEngagement: Math.round(sessions._avg.scroll_depth || 0),
+      avgProgress: Math.round((sessions._avg.read_percentage || 0) * 100),
       avgScrollDepth: Math.round((sessions._avg.scroll_depth || 0) * 100),
-      avgReadingSpeed: Math.round(sessions._avg.reading_speed || 0),
+      avgReadingSpeed: 0, // reading_speed field not available
       completedArticles,
       completionRate
     }
@@ -307,9 +303,9 @@ async function getTopCategories(userId: string, timeFilter: any) {
         type: { in: ['like', 'save', 'view'] }
       },
       include: {
-        article: {
+        articles: {
           include: {
-            category: true
+            categories: true
           }
         }
       }
@@ -319,7 +315,7 @@ async function getTopCategories(userId: string, timeFilter: any) {
     const categoryStats: Record<string, { name: string, count: number, types: Record<string, number> }> = {}
 
     interactions.forEach(interaction => {
-      const category = interaction.article.category
+      const category = interaction.articles.categories
       if (!category) return
 
       if (!categoryStats[category.id]) {
@@ -348,16 +344,16 @@ async function getTopCategories(userId: string, timeFilter: any) {
 async function getReadingPatterns(userId: string, timeFilter: any) {
   try {
     // أنماط القراءة حسب الوقت والجهاز
-    const patterns = await prisma.reading_sessions?.findMany({
+    const patterns = await prisma.user_reading_sessions?.findMany({
       where: {
         user_id: userId,
-        start_time: timeFilter
+        started_at: timeFilter
       },
       select: {
-        start_time: true,
+        started_at: true,
         device_type: true,
-        total_duration: true,
-        engagement_score: true
+        duration_seconds: true,
+        scroll_depth: true
       }
     })
 
@@ -369,8 +365,9 @@ async function getReadingPatterns(userId: string, timeFilter: any) {
     const weeklyPattern = Array(7).fill(0)
 
     patterns.forEach(session => {
-      const hour = session.start_time.getHours()
-      const day = session.start_time.getDay()
+      if (!session.started_at) return
+      const hour = session.started_at.getHours()
+      const day = session.started_at.getDay()
       const device = session.device_type || 'unknown'
 
       hourlyPattern[hour]++
@@ -530,24 +527,26 @@ async function calculateDaysSinceJoined(userId: string): Promise<number> {
 async function calculateReadingStreak(userId: string): Promise<number> {
   try {
     // حساب سلسلة القراءة اليومية
-    const recentSessions = await prisma.reading_sessions?.findMany({
+    const recentSessions = await prisma.user_reading_sessions?.findMany({
       where: {
         user_id: userId,
-        start_time: {
+        started_at: {
           gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // آخر 30 يوم
         }
       },
-      select: { start_time: true },
-      orderBy: { start_time: 'desc' }
+      select: { started_at: true },
+      orderBy: { started_at: 'desc' }
     })
 
     if (!recentSessions || recentSessions.length === 0) return 0
 
     // تجميع الجلسات حسب اليوم
     const dailySessions = new Set(
-      recentSessions.map(session => 
-        session.start_time.toISOString().split('T')[0]
-      )
+      recentSessions
+        .filter(session => session.started_at)
+        .map(session => 
+          session.started_at!.toISOString().split('T')[0]
+        )
     )
 
     const sortedDays = Array.from(dailySessions).sort().reverse()

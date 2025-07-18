@@ -197,8 +197,7 @@ export async function GET(request: NextRequest) {
       },
       select: {
         type: true,
-        created_at: true,
-        metadata: true
+        created_at: true
       }
     })
 
@@ -250,19 +249,7 @@ async function createInteraction(data: {
       id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       user_id: data.userId,
       article_id: data.articleId,
-      type: data.type as any,
-      device_type: deviceInfo.deviceType,
-      source: determineSource(data.referrer),
-      session_id: `session-${Date.now()}`,
-      ip_address: data.ip,
-      user_agent: data.userAgent,
-      referrer: data.referrer || undefined,
-      metadata: {
-        ...data.metadata,
-        timestamp: new Date().toISOString(),
-        browser: deviceInfo.browser,
-        os: deviceInfo.os
-      }
+      type: data.type as any
     }
   })
 }

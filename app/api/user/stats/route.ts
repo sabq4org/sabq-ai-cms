@@ -38,9 +38,9 @@ export async function GET(request: Request) {
       prisma.interactions.findMany({
         where: { user_id: userId },
         include: {
-          article: {
+          articles: {
             include: {
-              category: true
+              categories: true
             }
           }
         }

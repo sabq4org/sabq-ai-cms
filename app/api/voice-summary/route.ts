@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
         title: true,
         excerpt: true,
         audio_summary_url: true,
-        category: {
+        categories: {
           select: {
             name: true
           }
@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
     // 3. اختيار الصوت المناسب
     let selectedVoice: string;
          if (voiceType === 'auto') {
-       selectedVoice = selectVoiceForContent(article.excerpt, article.category?.name);
+       selectedVoice = selectVoiceForContent(article.excerpt, article.categories?.name);
      } else if (voiceType === 'male') {
       selectedVoice = VOICE_OPTIONS.male_1.id;
     } else if (voiceType === 'female') {
@@ -153,7 +153,7 @@ export async function GET(request: NextRequest) {
       selectedVoice = voiceType;
     }
 
-         console.log(`🔊 استخدام الصوت: ${selectedVoice} للفئة: ${article.category?.name || 'غير محدد'}`);
+         console.log(`🔊 استخدام الصوت: ${selectedVoice} للفئة: ${article.categories?.name || 'غير محدد'}`);
 
      // 4. تحسين النص للقراءة الصوتية
     const optimizedText = optimizeTextForTTS(article.excerpt);

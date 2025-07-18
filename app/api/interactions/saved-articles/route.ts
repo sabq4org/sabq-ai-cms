@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
         status: 'published'
       },
       include: {
-        category: {
+        categories: {
           select: {
             id: true,
             name: true,

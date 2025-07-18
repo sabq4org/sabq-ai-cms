@@ -20,15 +20,10 @@ const getCachedArticles = unstable_cache(
           views: true,
           reading_time: true,
           breaking: true,
-          category: {
+          categories: {
             select: {
               name: true,
               slug: true
-            }
-          },
-          author: {
-            select: {
-              name: true
             }
           }
         },
@@ -40,8 +35,8 @@ const getCachedArticles = unstable_cache(
       return articles.map(article => ({
         ...article,
         views_count: article.views,
-        category_name: article.category?.name || null,
-        author_name: article.author?.name || null
+        category_name: article.categories?.name || null,
+        author_name: null
       }));
     } catch (error) {
       console.error('Error fetching articles:', error);

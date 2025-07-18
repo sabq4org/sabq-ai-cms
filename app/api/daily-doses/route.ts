@@ -143,20 +143,8 @@ export async function GET(request: NextRequest) {
           if (content.articleId) {
             const article = await prisma.articles.findUnique({
               where: { id: content.articleId },
-              select: {
-                id: true,
-                slug: true,
-                category: {
-                  select: {
-                    name: true,
-                    slug: true
-                  }
-                },
-                author: {
-                  select: {
-                    name: true
-                  }
-                }
+              include: {
+                categories: true
               }
             });
             return {
@@ -164,8 +152,8 @@ export async function GET(request: NextRequest) {
               article: article ? {
                 id: article.id,
                 slug: article.slug,
-                category: article.category,
-                author: article.author
+                category: article.categories,
+                author_name: article.author_id // سنحتاج لجلب اسم المؤلف بطريقة مختلفة
               } : undefined
             };
           }
@@ -187,37 +175,24 @@ export async function GET(request: NextRequest) {
     const since = new Date();
     since.setHours(since.getHours() - hoursAgo);
 
+    // جلب المقالات المفيدة والمختارة
     const articles = await prisma.articles.findMany({
       where: {
-        status: 'published',
-        published_at: {
-          gte: since
-        }
+        OR: [
+          { metadata: { path: ['is_useful'], equals: true } },
+          { metadata: { path: ['is_featured'], equals: true } },
+          { featured: true }
+        ],
+        status: 'published'
       },
-      select: {
-        id: true,
-        title: true,
-        excerpt: true,
-        featured_image: true,
-        views: true,
-                  published_at: true,
-        category: {
-          select: {
-            name: true,
-            slug: true
-          }
-        },
-        author: {
-          select: {
-            name: true
-          }
-        }
+      include: {
+        categories: true
       },
       orderBy: [
-        { views: 'desc' },
+        { featured: 'desc' },
         { published_at: 'desc' }
       ],
-      take: 5 // تقليل عدد المقالات
+      take: 20
     });
 
     // إنشاء محتوى الجرعة بسرعة بدون تحليل الذكاء الاصطناعي

@@ -9,7 +9,7 @@ export async function DELETE(
   try {
     const { id } = await context.params;
 
-    await prisma.audioNewsletter.delete({
+    await prisma.audio_newsletters.delete({
       where: { id }
     });
 

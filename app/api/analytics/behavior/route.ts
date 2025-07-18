@@ -62,9 +62,9 @@ export async function GET(request: NextRequest) {
           created_at: { gte: startDate }
         },
         include: {
-          article: {
+          articles: {
             include: {
-              category: true
+              categories: true
             }
           }
         }

@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
         }
       },
       include: {
-        category: {
+        categories: {
           select: {
             id: true,
             name: true,
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
           }
         },
         include: {
-          category: {
+          categories: {
             select: {
               id: true,
               name: true,
@@ -179,7 +179,7 @@ function determineRecommendationReason(article: any, userInsights: any): string 
   if (userInsights.preferred_categories) {
     const categories = userInsights.preferred_categories as any[];
     const topCategory = categories[0];
-    if (topCategory && topCategory.category_id === article.category_id) {
+    if (topCategory && topCategory.category_id === article.categories_id) {
       return `من تصنيفك المفضل: ${article.categories?.name}`;
     }
   }

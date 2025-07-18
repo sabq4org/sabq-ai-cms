@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
         category_id: { in: categoryIds }
       },
       include: {
-        category: { select: { id: true, name: true, slug: true } }
+        categories: { select: { id: true, name: true, slug: true } }
       },
       orderBy: [
         { featured: 'desc' },

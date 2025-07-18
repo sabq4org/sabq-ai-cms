@@ -45,7 +45,7 @@ export async function GET(
         ]
       },
       include: {
-        category: {
+        categories: {
           select: {
             id: true,
             name: true,
@@ -118,9 +118,9 @@ export async function GET(
       },
       author_name: author?.name || (dbArticle.metadata as any)?.author_name || 'غير محدد',
       // إضافة بيانات التصنيف
-      category: dbArticle.category || null,
-      category_name: dbArticle.category?.name || 'غير مصنف',
-      category_color: dbArticle.category?.color || '#6B7280'
+      category: dbArticle.categories || null,
+      category_name: dbArticle.categories?.name || 'غير مصنف',
+      category_color: dbArticle.categories?.color || '#6B7280'
     };
     
     // زيادة عدد المشاهدات بشكل غير متزامن
@@ -138,7 +138,11 @@ export async function GET(
     response.headers.set('X-Cache', 'MISS');
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('❌ خطأ في جلب المقال:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error.message || 'Unknown error'
+    }, { status: 500 });
   }
 }
 

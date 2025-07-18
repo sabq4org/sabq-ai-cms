@@ -64,6 +64,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // جلب المقال
   useEffect(() => {
@@ -73,12 +74,29 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
   const fetchArticle = async (id: string) => {
     try {
       setLoading(true);
+      console.log('جاري جلب المقال:', id);
       const response = await fetch(`/api/articles/${id}`);
+      
       if (!response.ok) {
-        router.push('/');
+        console.error('فشل جلب المقال:', response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('تفاصيل الخطأ:', errorData);
+        
+        if (response.status === 404) {
+          setError('عذراً، المقال المطلوب غير موجود');
+        } else {
+          setError('حدث خطأ في جلب المقال');
+        }
+        
+        // إظهار رسالة خطأ بدلاً من التوجيه المباشر
+        setTimeout(() => {
+          router.push('/');
+        }, 3000);
         return;
       }
+      
       const data = await response.json();
+      console.log('تم جلب المقال بنجاح:', data.title);
       setArticle(data);
       
       // تحديث عدادات التفاعل
@@ -90,8 +108,12 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
         }));
       }
     } catch (error) {
-      console.error('Error fetching article:', error);
-      router.push('/');
+      console.error('خطأ في جلب المقال:', error);
+      setError('حدث خطأ في الاتصال بالخادم');
+      // إظهار رسالة خطأ بدلاً من التوجيه المباشر
+      setTimeout(() => {
+        router.push('/');
+      }, 3000);
     } finally {
       setLoading(false);
     }
@@ -182,12 +204,28 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     return [];
   };
 
-  if (loading) {
+  if (loading || error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
-          <p className="text-gray-500">جاري تحميل المقال...</p>
+          {error ? (
+            <>
+              <div className="mb-4">
+                <X className="w-16 h-16 text-red-500 mx-auto" />
+              </div>
+              <p className="text-lg font-semibold mb-2 text-red-600 dark:text-red-400">
+                {error}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                سيتم توجيهك للصفحة الرئيسية...
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+              <p className="text-gray-500">جاري تحميل المقال...</p>
+            </>
+          )}
         </div>
       </div>
     );

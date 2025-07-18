@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     // إنشاء النشرة في قاعدة البيانات
-    const newsletter = await prisma.audioNewsletter.create({
+    const newsletter = await prisma.audio_newsletters.create({
       data: {
         id: uuidv4(),
         title,
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // إذا كانت النشرة مميزة، قم بإلغاء تمييز النشرات الأخرى
     if (is_featured) {
-      await prisma.audioNewsletter.updateMany({
+      await prisma.audio_newsletters.updateMany({
         where: {
           id: { not: newsletter.id },
           is_featured: true

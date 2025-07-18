@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
         is_featured: Boolean(topic.is_featured),
         created_at: topic.created_at,
         last_reply_at: topic.last_reply_at,
-        category: {
+        categories: {
           id: topic.category_id,
           name: topic.category_name,
           slug: topic.category_slug,

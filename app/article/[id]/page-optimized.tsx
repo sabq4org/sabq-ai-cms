@@ -48,7 +48,7 @@ const getArticleData = cache(async (id: string): Promise<FormattedArticle | null
       ]
     },
     include: {
-      category: {
+      categories: {
         select: {
           id: true,
           name: true,
@@ -83,7 +83,7 @@ const getArticleData = cache(async (id: string): Promise<FormattedArticle | null
   // تحضير البيانات
   const formattedArticle: FormattedArticle = {
     ...article,
-    category: article.category || null,
+    category: article.categories || null,
     author: author,
     stats: {
       views: article.views || 0,

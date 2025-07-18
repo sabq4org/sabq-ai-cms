@@ -67,50 +67,37 @@ export async function POST(request: NextRequest) {
       id: sessionId,
       user_id: userId,
       article_id: articleId,
-      session_id: sessionId,
-      start_time: startTime ? new Date(startTime) : new Date(),
-      end_time: endTime ? new Date(endTime) : null,
-      total_duration: totalDuration || 0,
-      active_duration: activeDuration || 0,
-      idle_time: idleTime || 0,
-      scroll_depth: scrollDepth || 0,
-      reading_progress: readingProgress || 0,
-      words_read: wordsRead,
-      reading_speed: calculateReadingSpeed(totalDuration, readingProgress),
+      started_at: startTime ? new Date(startTime) : new Date(),
+      ended_at: endTime ? new Date(endTime) : null,
+      duration_seconds: Math.round(totalDuration / 1000), // تحويل من ميلي ثانية إلى ثانية
+      read_percentage: Math.round(readingProgress * 100), // تحويل إلى نسبة مئوية
+      scroll_depth: scrollDepth,
       device_type: deviceType || 'unknown',
-      screen_size: screenSize || undefined,
-      browser: browser || undefined,
-      operating_system: operatingSystem || undefined,
-      ip_address: ip,
-      source: source || 'direct',
-      referrer: referrer || undefined,
-      clicks_count: clicksCount || 0,
-      scrolls_count: scrollsCount || 0,
-      engagement_score: engagementScore,
-      completed: completed || false,
-      metadata: metadata || {}
-    }
+      time_of_day: new Date(startTime).getHours()
+    };
 
     // استخدام upsert لتحديث الجلسة الموجودة أو إنشاء جديدة
-    const session = await prisma.reading_sessions.upsert({
+    const session = await prisma.user_reading_sessions.upsert({
       where: { id: sessionId },
       update: {
-        end_time: sessionData.end_time,
-        total_duration: sessionData.total_duration,
-        active_duration: sessionData.active_duration,
-        idle_time: sessionData.idle_time,
-        scroll_depth: sessionData.scroll_depth,
-        reading_progress: sessionData.reading_progress,
-        words_read: sessionData.words_read,
-        reading_speed: sessionData.reading_speed,
-        clicks_count: sessionData.clicks_count,
-        scrolls_count: sessionData.scrolls_count,
-        engagement_score: sessionData.engagement_score,
-        completed: sessionData.completed,
-        metadata: sessionData.metadata
+        ended_at: sessionData.ended_at,
+        duration_seconds: sessionData.duration_seconds,
+        read_percentage: Math.round((sessionData.read_percentage || 0) * 100),
+        scroll_depth: sessionData.scroll_depth
       },
-      create: sessionData
-    })
+      create: {
+        id: sessionId,
+        user_id: sessionData.user_id,
+        article_id: sessionData.article_id,
+        started_at: sessionData.started_at,
+        ended_at: sessionData.ended_at,
+        duration_seconds: sessionData.duration_seconds,
+        read_percentage: Math.round((sessionData.read_percentage || 0) * 100),
+        scroll_depth: sessionData.scroll_depth,
+        device_type: sessionData.device_type,
+        time_of_day: new Date(sessionData.started_at).getHours()
+      }
+    });
 
     // تحديث إحصائيات المقال
     if (completed) {
@@ -144,41 +131,13 @@ export async function POST(request: NextRequest) {
         }
       },
       update: {
-        duration: totalDuration,
-        scroll_depth: scrollDepth,
-        reading_progress: readingProgress,
-        device_type: deviceType,
-        source: source,
-        session_id: sessionId,
-        ip_address: ip,
-        user_agent: userAgent,
-        referrer: referrer,
-        metadata: {
-          sessionId,
-          completed,
-          engagementScore,
-          lastUpdated: new Date().toISOString()
-        }
+        // interactions table only has basic fields
       },
       create: {
         id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         user_id: userId,
         article_id: articleId,
-        type: 'view',
-        duration: totalDuration,
-        scroll_depth: scrollDepth,
-        reading_progress: readingProgress,
-        device_type: deviceType,
-        source: source,
-        session_id: sessionId,
-        ip_address: ip,
-        user_agent: userAgent,
-        referrer: referrer,
-        metadata: {
-          sessionId,
-          completed,
-          engagementScore
-        }
+        type: 'view'
       }
     })
 
@@ -195,8 +154,7 @@ export async function POST(request: NextRequest) {
       data: {
         sessionId: session.id,
         engagementScore,
-        completed: session.completed,
-        readingProgress: session.reading_progress
+        readingProgress: session.read_percentage
       }
     })
 
@@ -222,30 +180,18 @@ export async function GET(request: NextRequest) {
     if (articleId) whereClause.article_id = articleId
 
     // جلب الجلسات
-    const sessions = await prisma.reading_sessions.findMany({
+    const sessions = await prisma.user_reading_sessions.findMany({
       where: whereClause,
-      orderBy: { start_time: 'desc' },
+      orderBy: { started_at: 'desc' },
       take: limit,
       select: {
         id: true,
-        session_id: true,
-        start_time: true,
-        end_time: true,
-        total_duration: true,
-        active_duration: true,
+        started_at: true,
+        ended_at: true,
+        duration_seconds: true,
         scroll_depth: true,
-        reading_progress: true,
-        engagement_score: true,
-        completed: true,
-        device_type: true,
-        source: true,
-        article: {
-          select: {
-            id: true,
-            title: true,
-            slug: true
-          }
-        }
+        read_percentage: true,
+        device_type: true
       }
     })
 
@@ -383,33 +329,31 @@ async function calculateUserReadingStats(userId?: string) {
   if (!userId) return null
 
   try {
-    const stats = await prisma.reading_sessions.aggregate({
+    const stats = await prisma.user_reading_sessions.aggregate({
       where: { user_id: userId },
       _count: { id: true },
       _sum: {
-        total_duration: true,
-        active_duration: true
+        duration_seconds: true
       },
       _avg: {
-        engagement_score: true,
-        reading_progress: true,
-        scroll_depth: true
+        scroll_depth: true,
+        read_percentage: true
       }
     })
 
-    const completedReads = await prisma.reading_sessions.count({
+    const completedReads = await prisma.user_reading_sessions.count({
       where: {
         user_id: userId,
-        completed: true
+        read_percentage: { gte: 90 }
       }
     })
 
     return {
       totalSessions: stats._count.id,
-      totalReadingTime: stats._sum.total_duration || 0,
-      totalActiveTime: stats._sum.active_duration || 0,
-      avgEngagement: Math.round(stats._avg.engagement_score || 0),
-      avgProgress: Math.round((stats._avg.reading_progress || 0) * 100),
+      totalReadingTime: stats._sum.duration_seconds || 0,
+      totalActiveTime: stats._sum.duration_seconds || 0,
+      avgEngagement: Math.round(stats._avg.scroll_depth || 0),
+      avgProgress: Math.round((stats._avg.read_percentage || 0) * 100),
       avgScrollDepth: Math.round((stats._avg.scroll_depth || 0) * 100),
       completedReads,
       completionRate: stats._count.id > 0 ? Math.round((completedReads / stats._count.id) * 100) : 0

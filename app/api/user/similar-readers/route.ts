@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
         }
       },
       include: {
-        category: {
+        categories: {
           select: {
             id: true,
             name: true,
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
       id: article.id,
       title: article.title,
       url: `/articles/${article.slug || article.id}`,
-      category: article.category?.name || 'عام',
+      category: article.categories?.name || 'عام',
       excerpt: article.excerpt,
       featured_image: article.featured_image,
       published_at: article.published_at,

@@ -14,18 +14,12 @@ export async function GET(request: NextRequest) {
         status: 'published'
       },
       include: {
-        category: {
+        categories: {
           select: {
             id: true,
             name: true,
             slug: true,
             color: true
-          }
-        },
-        author: {
-          select: {
-            id: true,
-            name: true
           }
         }
       },
@@ -68,9 +62,9 @@ export async function GET(request: NextRequest) {
     for (const article of articles) {
       // تحديد نوع المقال بناءً على الفئة أو البيانات الوصفية
       const isOpinion = 
-        article.category?.name === 'رأي' || 
-        article.category?.name === 'Opinion' ||
-        article.category?.slug === 'opinion' ||
+        article.categories?.name === 'رأي' || 
+        article.categories?.name === 'Opinion' ||
+        article.categories?.slug === 'opinion' ||
         (article.metadata && typeof article.metadata === 'object' && 
          'type' in article.metadata && (article.metadata as any).type === 'opinion');
       
@@ -91,8 +85,8 @@ export async function GET(request: NextRequest) {
         slug: item.slug,
         excerpt: item.excerpt,
         image: item.featured_image,
-        category: item.category,
-        author: item.author,
+        category: item.categories,
+        author: null,
         timestamp: item.published_at || item.created_at,
         tag: '📢',
         label: 'خبر جديد',
@@ -107,8 +101,8 @@ export async function GET(request: NextRequest) {
         slug: item.slug,
         excerpt: item.excerpt,
         image: item.featured_image,
-        category: item.category,
-        author: item.author,
+        category: item.categories,
+        author: null,
         timestamp: item.published_at || item.created_at,
         tag: '📝',
         label: 'مقال جديد',

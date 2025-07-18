@@ -43,10 +43,26 @@ model EmailLog {
   @@index([subscriber_id])
 }
 
+model EmailProviderConfig {
+  id              String                   @id
+  type            EmailProviderConfig_type @default(smtp)
+  sender_name     String
+  sender_email    String
+  api_key         String?
+  host            String?
+  port            Int?
+  username        String?
+  password        String?
+  footer_html     String?
+  unsubscribe_url String?
+  created_at      DateTime                 @default(now())
+  updated_at      DateTime
+}
+
 model EmailTemplate {
   id           String   @id
-  name         String
-  subject      String
+  name         String   @db.VarChar(255)
+  subject      String   @db.VarChar(500)
   html_content String
   text_content String?
   metadata     Json?
@@ -54,138 +70,15 @@ model EmailTemplate {
   updated_at   DateTime
 }
 
-model users {
-  id                 String   @id
-  email              String   @unique
-  password_hash      String?
-  name               String?
-  avatar             String?
-  role               String
-  is_admin           Boolean  @default(false)
-  is_verified        Boolean  @default(false)
-  verification_token String?
-  reset_token        String?
-  reset_token_expiry DateTime?
-  created_at         DateTime  @default(now())
-  updated_at         DateTime  @updatedAt
-
-  // علاقات
-  articles           articles[]
-  comments           comments[]
-  loyalty_points     loyalty_points[]
-  activity_logs      activity_logs[]
-  interactions       interactions[]
-  reading_sessions   reading_sessions[]
-}
-
-model categories {
-  id            String   @id
-  name          String
-  slug          String   @unique
-  description   String?
-  display_order Int
-  is_active     Boolean
-  color         String?
-  icon          String?
-  metadata      Json?
-  name_en       String?
-  parent_id     String?
-  created_at    DateTime
-  updated_at    DateTime
-
-  // علاقات
-  articles      articles[]
-}
-
-model articles {
-  id                String    @id
-  title             String
-  slug              String
-  content           String
-  excerpt           String?
-  author_id         String
-  category_id       String?
-  status            String
-  featured          Boolean
-  breaking          Boolean
-  featured_image    String?
-  published_at      DateTime?
-  scheduled_for     DateTime?
-  views             Int
-  reading_time      Int?
-  seo_title         String?
-  seo_description   String?
-  seo_keywords      String?
-  social_image      String?
-  allow_comments    Boolean
-  metadata          Json?
-  created_at        DateTime
-  updated_at        DateTime
-  audio_summary_url String?
-  likes             Int
-  saves             Int
-  shares            Int
-
-  // علاقات
-  author            users             @relation(fields: [author_id], references: [id])
-  category          categories?       @relation(fields: [category_id], references: [id])
-  comments          comments[]
-  deep_analyses     deep_analyses[]
-  interactions      interactions[]
-  reading_sessions  reading_sessions[]
-  @@map("articles")
-}
-
-model comments {
-  id         String   @id
-  article_id String
-  user_id    String?
-  parent_id  String?
-  content    String
-  status     String
-  likes      Int
-  metadata   Json?
-  created_at DateTime
-  updated_at DateTime
-
-  // علاقات
-  article    articles? @relation(fields: [article_id], references: [id])
-  user       users?    @relation(fields: [user_id], references: [id])
-  parent     comments? @relation("CommentReplies", fields: [parent_id], references: [id])
-  replies    comments[] @relation("CommentReplies")
-}
-
-model loyalty_points {
-  id             String   @id
-  user_id        String
-  points         Int
-  action         String
-  reference_id   String?
-  reference_type String?
-  metadata       Json?
-  created_at     DateTime @default(now())
-
-  // علاقات
-  user           users    @relation(fields: [user_id], references: [id])
-}
-
-model deep_analyses {
-  id                  String   @id
-  article_id          String
-  ai_summary          String?
-  key_topics          Json?
-  tags                Json?
-  sentiment           String?
-  readability_score   Decimal?
-  engagement_score    Int?
-  suggested_headlines Json?
-  related_articles    Json?
-  metadata            Json?
-  analyzed_at         DateTime
-  updated_at          DateTime
-
-  // علاقات
-  article             articles @relation(fields: [article_id], references: [id])
+model Subscriber {
+  id          String            @id
+  email       String            @unique
+  name        String?           @db.VarChar(255)
+  status      Subscriber_status @default(active)
+  preferences Json?
+  metadata    Json?
+  created_at  DateTime          @default(now())
+  updated_at  DateTime
 }
 
 model activity_logs {
@@ -197,345 +90,126 @@ model activity_logs {
   old_value   Json?
   new_value   Json?
   metadata    Json?
-  ip_address  String?
+  ip_address  String?  @db.VarChar(45)
   user_agent  String?
-  created_at  DateTime
-
-  // علاقات
-  user        users?   @relation(fields: [user_id], references: [id])
+  created_at  DateTime @default(now())
 }
 
-model roles {
+model analytics_data {
   id           String   @id
-  name         String   @unique
-  slug         String?
-  display_name String?
-  description  String?
-  permissions  Json?
-  is_system    Boolean
-  created_at   DateTime
-  updated_at   DateTime
+  date         DateTime @db.Date
+  metric_name  String   @db.VarChar(100)
+  metric_value Decimal  @db.Decimal(15, 2)
+  dimensions   Json?
+  metadata     Json?
+  created_at   DateTime @default(now())
+
+  @@unique([date, metric_name])
+  @@index([date])
+  @@index([metric_name])
 }
 
-model user_preferences {
+model article_keywords {
   id         String   @id
-  user_id    String
-  key        String
-  value      Json
-  created_at DateTime
-  updated_at DateTime
-
-  @@unique([user_id, key])
-  @@index([user_id])
-}
-
-model user_roles {
-  id         String    @id
-  user_id    String
-  role_id    String
-  granted_by String?
-  granted_at DateTime
-  expires_at DateTime?
-}
-
-model keywords {
-  id         String   @id
-  name       String
-  slug       String
-  count      Int
-  created_at DateTime
-}
-
-model messages {
-  id            String    @id
-  from_user_id  String?
-  to_user_id    String?
-  email         String
-  subject       String?
-  message       String
-  status        String
-  replied_at    DateTime?
-  reply_content String?
-  metadata      Json?
-  created_at    DateTime
-}
-
-model timeline_events {
-  id             String   @id
-  event_type     String
-  entity_type    String
-  entity_id      String?
-  title          String
-  description    String?
-  icon           String?
-  url            String?
-  user_id        String?
-  author_name    String?
-  author_avatar  String?
-  category_name  String?
-  category_color String?
-  metadata       Json?
-  is_important   Boolean
-  created_at     DateTime
-}
-
-model team_members {
-  id            String   @id
-  name          String
-  role          String
-  department    String?
-  bio           String?
-  avatar        String?
-  email         String?
-  phone         String?
-  social_links  Json?
-  is_active     Boolean
-  display_order Int
-  created_at    DateTime
-  updated_at    DateTime
-}
-
-model smart_blocks {
-  id            String    @id
-  name          String
-  type          String
-  config        Json
-  ai_config     Json?
-  display_rules Json?
-  is_active     Boolean
-  last_updated  DateTime?
-  performance   Json?
-  created_at    DateTime
-  updated_at    DateTime
-}
-
-model home_blocks_config {
-  id            String   @id
-  block_type    String
-  title         String
-  subtitle      String?
-  settings      Json
-  display_order Int
-  is_active     Boolean
-  created_at    DateTime
-  updated_at    DateTime
-}
-
-model site_settings {
-  id         String   @id
-  section    String
-  data       Json
-  created_at DateTime
-  updated_at DateTime
-}
-
-model templates {
-  id           String   @id
-  name         String
-  slug         String
-  description  String?
-  category     String
-  content      Json
-  variables    Json?
-  preview_data Json?
-  is_active    Boolean
-  usage_count  Int
-  created_by   String?
-  created_at   DateTime
-  updated_at   DateTime
-}
-
-model was_news {
-  id               String   @id @default(uuid())
-  news_NUM         Int
-  news_DT          DateTime
-  news_basket_CD   Int
-  news_class_CD    Int
-  news_priority_CD Int
-  is_Report        Boolean
-  title_TXT        String
-  story_TXT        String?
-  media            Json?
-  royalType        Int?
-  keywords         Json?
-  related_news_CD  Int?
-  is_imported      Boolean
-  imported_to_id   String?
-  created_at       DateTime
-  updated_at       DateTime
-}
-
-model user_reading_sessions {
-  id               String    @id
-  user_id          String
-  article_id       String
-  started_at       DateTime?
-  ended_at         DateTime?
-  duration_seconds Int?
-  read_percentage  Float?
-  scroll_depth     Float?
-  device_type      String?
-  time_of_day      Int?
-  created_at       DateTime?
-}
-
-model user_insights {
-  id                      String    @id
-  user_id                 String    @unique
-  total_reads             Int?
-  total_saved             Int?
-  total_interactions      Int?
-  avg_read_time           Float?
-  preferred_reading_time  String?
-  reader_type             String?
-  diversity_score         Float?
-  preferred_categories    Json?
-  preferred_article_types Json?
-  avg_article_length      Int?
-  weekly_reads            Int?
-  weekly_streak           Int?
-  last_read_date          DateTime?
-  calculated_at           DateTime?
-  updated_at              DateTime? @updatedAt
-}
-
-model user_similar_readers {
-  id                String    @id
-  user_id           String
-  similar_user_id   String
-  similarity_score  Float?
-  common_categories Json?
-  calculated_at     DateTime?
-}
-
-// جدول رموز التحقق من البريد الإلكتروني
-model email_verification_codes {
-  id         String   @id
-  email      String
-  code       String
-  user_id    String?
-  expires_at DateTime
-  used_at    DateTime?
+  article_id String
+  keyword_id String
   created_at DateTime @default(now())
 
-  @@index([email])
-  @@index([code])
-  @@index([expires_at])
+  @@unique([article_id, keyword_id])
+  @@index([article_id])
+  @@index([keyword_id])
 }
 
-model interactions {
-  id         String            @id
-  user_id    String
-  article_id String
-  type       interactions_type
-  created_at DateTime          @default(now())
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model articles {
+  id                String         @id
+  title             String         @db.VarChar(500)
+  slug              String         @db.VarChar(500)
+  content           String
+  excerpt           String?
+  author_id         String
+  category_id       String?
+  status            String         @default("draft")
+  featured          Boolean        @default(false)
+  breaking          Boolean        @default(false)
+  featured_image    String?
+  published_at      DateTime?
+  scheduled_for     DateTime?
+  views             Int            @default(0)
+  reading_time      Int?
+  seo_title         String?
+  seo_description   String?
+  seo_keywords      String?
+  social_image      String?
+  allow_comments    Boolean        @default(true)
+  metadata          Json?
+  created_at        DateTime       @default(now())
+  updated_at        DateTime
+  audio_summary_url String?
+  likes             Int            @default(0)
+  saves             Int            @default(0)
+  shares            Int            @default(0)
+  categories        categories?    @relation(fields: [category_id], references: [id])
+  interactions      interactions[]
+}
 
-  // بيانات تفصيلية للتفاعل
-  duration       Int?          // مدة البقاء بالثواني
-  scroll_depth   Float?        // نسبة التمرير (0.0 - 1.0)
-  reading_progress Float?      // نسبة القراءة المكتملة (0.0 - 1.0)
-  device_type    String?        // mobile, desktop, tablet
-  source         String?        // home, search, direct, social
-  session_id     String?        // معرف الجلسة
-  ip_address     String?        // عنوان IP
-  user_agent     String?        // معلومات المتصفح
-  referrer       String?        // الموقع المُحيل
-  metadata       Json?         // بيانات إضافية
+model audio_newsletters {
+  id           String   @id
+  title        String
+  content      String
+  audioUrl     String
+  duration     Int
+  voice_id     String
+  voice_name   String
+  language     String   @default("ar")
+  category     String?
+  is_published Boolean  @default(false)
+  is_featured  Boolean  @default(false)
+  play_count   Int      @default(0)
+  created_at   DateTime @default(now()) @db.Timestamp(6)
+  updated_at   DateTime @default(now()) @db.Timestamp(6)
 
-  // Relations
-  article    articles          @relation(fields: [article_id], references: [id])
-  user       users             @relation(fields: [user_id], references: [id])
-
-  @@unique([user_id, article_id, type])
-  @@index([article_id])
-  @@index([user_id])
   @@index([created_at])
-  @@index([device_type])
-  @@index([source])
+  @@index([is_featured])
+  @@index([is_published])
 }
 
-enum interactions_type {
-  like
-  save
-  share
-  comment
-  view
-  reading_session  // جلسة قراءة مفصلة
+model categories {
+  id            String     @id
+  name          String
+  slug          String     @unique
+  description   String?
+  display_order Int        @default(0)
+  is_active     Boolean    @default(true)
+  color         String?    @db.VarChar(50)
+  icon          String?    @db.VarChar(50)
+  metadata      Json?
+  name_en       String?
+  parent_id     String?
+  created_at    DateTime   @default(now())
+  updated_at    DateTime
+  articles      articles[]
 }
 
-// نموذج جلسات القراءة التفصيلية
-model reading_sessions {
-  id               String   @id
-  user_id          String
-  article_id       String
-  session_id       String
-
-  // تفاصيل الجلسة
-  start_time       DateTime @default(now())
-  end_time         DateTime?
-  total_duration   Int?     // إجمالي الوقت بالثواني
-  active_duration  Int?     // الوقت النشط (بدون خمول)
-  idle_time        Int?     // وقت الخمول
-
-  // تفاصيل القراءة
-  scroll_depth     Float?   // أقصى نسبة تمرير
-  reading_progress Float?   // نسبة القراءة المكتملة
-  words_read       Int?     // عدد الكلمات المقروءة تقريباً
-  reading_speed    Int?     // سرعة القراءة (كلمة/دقيقة)
-
-  // معلومات الجهاز والمتصفح
-  device_type      String?
-  screen_size      String?   // 1920x1080
-  browser          String?
-  operating_system String?
-
-  // معلومات الموقع والمصدر
-  ip_address       String?
-  country          String?
-  city             String?
-  referrer         String?
-  source           String?
-
-  // سلوكيات التفاعل
-  clicks_count     Int?     @default(0) // عدد النقرات
-  scrolls_count    Int?     @default(0) // عدد مرات التمرير
-  copy_events      Int?     @default(0) // نسخ النص
-  share_events     Int?     @default(0) // مشاركات
-
-  // بيانات إضافية
-  engagement_score Float?   // نقاط التفاعل المحسوبة
-  completed        Boolean? @default(false) // هل أكمل القراءة
-  metadata         Json?    // بيانات إضافية
-
-  // Relations
-  article          articles @relation(fields: [article_id], references: [id])
-  user             users    @relation(fields: [user_id], references: [id])
-
-  @@index([user_id])
-  @@index([article_id])
-  @@index([session_id])
-  @@index([start_time])
-  @@index([device_type])
-  @@index([completed])
-}
-
-model Subscriber {
-  id          String            @id
-  email       String            @unique
-  name        String?
-  status      Subscriber_status @default(active)
-  preferences Json?
-  metadata    Json?
-  created_at  DateTime          @default(now())
-  updated_at  DateTime
+model comments {
+  id         String   @id
+  article_id String
+  user_id    String?
+  parent_id  String?
+  content    String
+  status     String   @default("pending")
+  likes      Int      @default(0)
+  metadata   Json?
+  created_at DateTime @default(now())
+  updated_at DateTime
 }
 
 model daily_doses {
   id          String             @id
   period      daily_doses_period
-  title       String
-  subtitle    String
-  date        DateTime
+  title       String             @db.VarChar(500)
+  subtitle    String             @db.VarChar(500)
+  date        DateTime           @db.Date
   status      daily_doses_status @default(draft)
   publishedAt DateTime?
   views       Int                @default(0)
@@ -549,12 +223,28 @@ model daily_doses {
   @@index([status])
 }
 
+model deep_analyses {
+  id                  String   @id
+  article_id          String
+  ai_summary          String?
+  key_topics          Json?
+  tags                Json?
+  sentiment           String?
+  readability_score   Decimal? @db.Decimal(5, 2)
+  engagement_score    Int?
+  suggested_headlines Json?
+  related_articles    Json?
+  metadata            Json?
+  analyzed_at         DateTime @default(now())
+  updated_at          DateTime
+}
+
 model dose_contents {
   id           String                    @id
   doseId       String
   articleId    String?
   contentType  dose_contents_contentType
-  title        String
+  title        String                    @db.VarChar(500)
   summary      String
   audioUrl     String?
   imageUrl     String?
@@ -564,6 +254,487 @@ model dose_contents {
 
   @@index([articleId])
   @@index([doseId])
+}
+
+model email_verification_codes {
+  id         String    @id
+  email      String    @db.VarChar(255)
+  code       String    @db.VarChar(6)
+  user_id    String?
+  expires_at DateTime
+  used_at    DateTime?
+  created_at DateTime  @default(now())
+
+  @@index([code])
+  @@index([email])
+  @@index([expires_at])
+}
+
+model forum_badges {
+  id           String    @id
+  name         String    @db.VarChar(255)
+  name_ar      String    @db.VarChar(255)
+  description  String?
+  icon         String?   @db.VarChar(50)
+  color        String?   @db.VarChar(50)
+  requirements Json?
+  points       Int?      @default(0)
+  is_active    Boolean?  @default(true)
+  created_at   DateTime? @default(now())
+  updated_at   DateTime? @default(now())
+}
+
+model forum_categories {
+  id            String    @id
+  name          String    @db.VarChar(255)
+  name_ar       String    @db.VarChar(255)
+  slug          String    @unique(map: "slug") @db.VarChar(255)
+  description   String?
+  icon          String?   @db.VarChar(50)
+  color         String?   @db.VarChar(50)
+  display_order Int?      @default(0)
+  is_active     Boolean?  @default(true)
+  created_at    DateTime? @default(now())
+  updated_at    DateTime? @default(now())
+
+  @@index([display_order])
+  @@index([slug])
+}
+
+model forum_follows {
+  id          String                    @id
+  user_id     String
+  target_type forum_follows_target_type
+  target_id   String
+  created_at  DateTime?                 @default(now())
+
+  @@unique([user_id, target_type, target_id])
+  @@index([target_type, target_id])
+  @@index([user_id])
+}
+
+model forum_notifications {
+  id          String    @id
+  user_id     String
+  type        String    @db.VarChar(50)
+  target_type String?   @db.VarChar(50)
+  target_id   String?
+  data        Json?
+  is_read     Boolean?  @default(false)
+  created_at  DateTime? @default(now())
+
+  @@index([created_at])
+  @@index([user_id, is_read])
+}
+
+model forum_replies {
+  id          String                @id
+  topic_id    String
+  parent_id   String?
+  author_id   String
+  content     String
+  is_accepted Boolean?              @default(false)
+  status      forum_replies_status? @default(active)
+  edited_at   DateTime?
+  edited_by   String?
+  created_at  DateTime?             @default(now())
+  updated_at  DateTime?             @default(now())
+
+  @@index([author_id])
+  @@index([created_at])
+  @@index([parent_id])
+  @@index([topic_id])
+}
+
+model forum_reports {
+  id          String                    @id
+  reporter_id String
+  target_type forum_reports_target_type
+  target_id   String
+  reason      String                    @db.VarChar(255)
+  description String?
+  status      forum_reports_status?     @default(pending)
+  resolved_by String?
+  resolved_at DateTime?
+  created_at  DateTime?                 @default(now())
+
+  @@index([reporter_id])
+  @@index([status])
+  @@index([target_type, target_id])
+}
+
+model forum_reputation {
+  id          String    @id
+  user_id     String
+  points      Int?      @default(0)
+  action_type String    @db.VarChar(50)
+  target_type String?   @db.VarChar(50)
+  target_id   String?
+  description String?
+  created_at  DateTime? @default(now())
+
+  @@index([created_at])
+  @@index([user_id])
+}
+
+model forum_topics {
+  id            String               @id
+  title         String               @db.VarChar(500)
+  content       String
+  author_id     String
+  category_id   String
+  is_pinned     Boolean?             @default(false)
+  is_locked     Boolean?             @default(false)
+  is_featured   Boolean?             @default(false)
+  status        forum_topics_status? @default(active)
+  views         Int?                 @default(0)
+  last_reply_at DateTime?
+  last_reply_by String?
+  created_at    DateTime?            @default(now())
+  updated_at    DateTime?            @default(now())
+
+  @@index([author_id])
+  @@index([category_id])
+  @@index([last_reply_at])
+  @@index([status, created_at])
+}
+
+model forum_user_badges {
+  id        String    @id
+  user_id   String
+  badge_id  String
+  earned_at DateTime? @default(now())
+
+  @@unique([user_id, badge_id])
+  @@index([badge_id])
+  @@index([user_id])
+}
+
+model forum_votes {
+  id          String                  @id
+  user_id     String
+  target_type forum_votes_target_type
+  target_id   String
+  vote_type   forum_votes_vote_type
+  created_at  DateTime?               @default(now())
+
+  @@unique([user_id, target_type, target_id])
+  @@index([target_type, target_id])
+  @@index([user_id])
+}
+
+model home_blocks_config {
+  id            String   @id
+  block_type    String   @db.VarChar(50)
+  title         String   @db.VarChar(255)
+  subtitle      String?  @db.VarChar(255)
+  settings      Json
+  display_order Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+}
+
+model interactions {
+  id         String            @id
+  user_id    String
+  article_id String
+  type       interactions_type
+  created_at DateTime          @default(now())
+  articles   articles          @relation(fields: [article_id], references: [id])
+  users      users             @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, article_id, type])
+  @@index([article_id])
+  @@index([user_id])
+}
+
+model keywords {
+  id         String   @id
+  name       String
+  slug       String
+  count      Int      @default(0)
+  created_at DateTime @default(now())
+}
+
+model loyalty_points {
+  id             String   @id
+  user_id        String
+  points         Int
+  action         String   @db.VarChar(100)
+  reference_id   String?
+  reference_type String?
+  metadata       Json?
+  created_at     DateTime @default(now())
+}
+
+model messages {
+  id            String    @id
+  from_user_id  String?
+  to_user_id    String?
+  email         String
+  subject       String?   @db.VarChar(500)
+  message       String
+  status        String    @default("unread")
+  replied_at    DateTime?
+  reply_content String?
+  metadata      Json?
+  created_at    DateTime  @default(now())
+}
+
+model password_reset_tokens {
+  id         String    @id
+  user_id    String
+  token      String    @unique @db.VarChar(255)
+  expires_at DateTime
+  used_at    DateTime?
+  created_at DateTime  @default(now())
+
+  @@index([expires_at])
+  @@index([token])
+  @@index([user_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model roles {
+  id           String   @id
+  name         String   @unique @db.VarChar(100)
+  slug         String?
+  display_name String?
+  description  String?
+  permissions  Json?
+  is_system    Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime
+}
+
+model site_settings {
+  id         String   @id
+  section    String   @db.VarChar(50)
+  data       Json
+  created_at DateTime @default(now())
+  updated_at DateTime
+}
+
+model smart_blocks {
+  id            String    @id
+  name          String    @db.VarChar(255)
+  type          String    @db.VarChar(50)
+  config        Json
+  ai_config     Json?
+  display_rules Json?
+  is_active     Boolean   @default(true)
+  last_updated  DateTime?
+  performance   Json?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime
+}
+
+model team_members {
+  id            String   @id
+  name          String   @db.VarChar(255)
+  role          String   @db.VarChar(100)
+  department    String?  @db.VarChar(100)
+  bio           String?
+  avatar        String?
+  email         String?  @db.VarChar(255)
+  phone         String?  @db.VarChar(50)
+  social_links  Json?
+  is_active     Boolean  @default(true)
+  display_order Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+}
+
+model template_previews {
+  id          String   @id
+  template_id String
+  title       String   @db.VarChar(500)
+  content     String
+  metadata    Json?
+  created_at  DateTime @default(now())
+
+  @@index([template_id])
+}
+
+model templates {
+  id           String   @id
+  name         String   @db.VarChar(255)
+  slug         String   @db.VarChar(255)
+  description  String?
+  category     String   @db.VarChar(50)
+  content      Json
+  variables    Json?
+  preview_data Json?
+  is_active    Boolean  @default(true)
+  usage_count  Int      @default(0)
+  created_by   String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime
+}
+
+model timeline_events {
+  id             String   @id
+  event_type     String   @db.VarChar(50)
+  entity_type    String   @db.VarChar(50)
+  entity_id      String?
+  title          String   @db.VarChar(500)
+  description    String?
+  icon           String?  @db.VarChar(50)
+  url            String?  @db.VarChar(500)
+  user_id        String?
+  author_name    String?  @db.VarChar(255)
+  author_avatar  String?
+  category_name  String?  @db.VarChar(255)
+  category_color String?  @db.VarChar(50)
+  metadata       Json?
+  is_important   Boolean  @default(false)
+  created_at     DateTime @default(now())
+}
+
+model user_insights {
+  id                      String    @id @db.VarChar(36)
+  user_id                 String    @unique @db.VarChar(36)
+  total_reads             Int?      @default(0)
+  total_saved             Int?      @default(0)
+  total_interactions      Int?      @default(0)
+  avg_read_time           Float?
+  preferred_reading_time  String?   @db.VarChar(50)
+  reader_type             String?   @db.VarChar(50)
+  diversity_score         Float?
+  preferred_categories    Json?
+  preferred_article_types Json?
+  avg_article_length      Int?
+  weekly_reads            Int?      @default(0)
+  weekly_streak           Int?      @default(0)
+  last_read_date          DateTime? @db.Timestamptz(6)
+  calculated_at           DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model user_preferences {
+  id         String   @id
+  user_id    String
+  key        String
+  value      Json
+  created_at DateTime @default(now())
+  updated_at DateTime
+
+  @@unique([user_id, key])
+  @@index([user_id])
+}
+
+model user_reading_sessions {
+  id               String    @id @db.VarChar(36)
+  user_id          String    @db.VarChar(36)
+  article_id       String    @db.VarChar(36)
+  started_at       DateTime? @default(now()) @db.Timestamptz(6)
+  ended_at         DateTime? @db.Timestamptz(6)
+  duration_seconds Int?
+  read_percentage  Float?
+  scroll_depth     Float?
+  device_type      String?   @db.VarChar(50)
+  time_of_day      Int?
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model user_roles {
+  id         String    @id
+  user_id    String
+  role_id    String
+  granted_by String?
+  granted_at DateTime  @default(now())
+  expires_at DateTime?
+}
+
+model user_similar_readers {
+  id                String    @id @db.VarChar(36)
+  user_id           String    @db.VarChar(36)
+  similar_user_id   String    @db.VarChar(36)
+  similarity_score  Float?
+  common_categories Json?
+  calculated_at     DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@unique([user_id, similar_user_id])
+}
+
+model users {
+  id                 String         @id
+  email              String         @unique
+  password_hash      String?
+  name               String?
+  avatar             String?
+  role               String         @default("user")
+  is_admin           Boolean        @default(false)
+  is_verified        Boolean        @default(false)
+  verification_token String?
+  reset_token        String?
+  reset_token_expiry DateTime?
+  created_at         DateTime       @default(now())
+  updated_at         DateTime
+  interactions       interactions[]
+
+  @@index([email], map: "idx_users_email")
+  @@index([role], map: "idx_users_role")
+  @@index([email])
+  @@index([role])
+}
+
+model was_news {
+  id               String   @id
+  news_NUM         Int      @unique
+  news_DT          DateTime
+  news_basket_CD   Int
+  news_class_CD    Int
+  news_priority_CD Int
+  is_Report        Boolean  @default(false)
+  title_TXT        String
+  story_TXT        String?
+  media            Json?
+  royalType        Int?
+  keywords         Json?
+  related_news_CD  Int?
+  is_imported      Boolean  @default(false)
+  imported_to_id   String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @default(now())
+
+  @@index([created_at])
+  @@index([is_imported])
+  @@index([news_DT])
+  @@index([news_basket_CD])
+}
+
+enum EmailJob_status {
+  queued
+  sending
+  completed
+  cancelled
+  failed
+}
+
+enum EmailLog_status {
+  pending
+  sent
+  delivered
+  bounced
+  opened
+  clicked
+  unsubscribed
+  failed
+}
+
+enum EmailProviderConfig_type {
+  smtp
+  sendgrid
+  mailgun
+  ses
+}
+
+enum Subscriber_status {
+  active
+  inactive
+  unsubscribed
 }
 
 enum daily_doses_period {
@@ -589,257 +760,52 @@ enum dose_contents_contentType {
   analysis
 }
 
-enum Subscriber_status {
+enum forum_follows_target_type {
+  topic
+  user
+  category
+}
+
+enum forum_replies_status {
   active
-  inactive
-  unsubscribed
-}
-
-enum EmailJob_status {
-  queued
-  sending
-  completed
-  cancelled
-  failed
-}
-
-enum EmailLog_status {
   pending
-  sent
-  delivered
-  bounced
-  opened
-  clicked
-  unsubscribed
-  failed
+  hidden
+  deleted
 }
 
-// =====================================
-// نظام الروابط الذكية - Smart Links
-// =====================================
-
-// جدول أنواع الكيانات
-model EntityTypes {
-  id           String   @id @default(cuid())
-  name         String   @unique // person, organization, project, term, location, event
-  name_ar      String   // شخص، مؤسسة، مشروع، مصطلح، موقع، حدث
-  description  String?
-  icon         String?  // emoji أو icon name
-  color        String?  // لون مميز للنوع
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-
-  // Relations
-  entities     SmartEntities[]
-
-  @@map("entity_types")
+enum forum_reports_status {
+  pending
+  resolved
+  dismissed
 }
 
-// جدول الكيانات الذكية الرئيسي
-model SmartEntities {
-  id               String   @id @default(cuid())
-  name             String   // الاسم الأساسي
-  name_ar          String?  // الاسم بالعربية
-  name_en          String?  // الاسم بالإنجليزية
-  aliases          Json?    // أسماء بديلة ["ولي العهد", "محمد بن سلمان", "الأمير محمد"]
-
-  // نوع الكيان
-  entity_type_id   String
-  entity_type      EntityTypes @relation(fields: [entity_type_id], references: [id])
-
-  // معلومات إضافية
-  description      String?  // وصف مختصر
-  full_bio         String?  // السيرة الكاملة
-  image_url        String?  // صورة الكيان
-
-  // روابط خارجية
-  wikipedia_url    String?
-  twitter_handle   String?
-  linkedin_url     String?
-  instagram_handle String?
-  official_website String?
-
-  // معلومات التصنيف
-  category         String?  // تصنيف فرعي
-  importance_score Int      @default(1) // 1-10 للترتيب حسب الأهمية
-  is_active        Boolean  @default(true)
-
-  // تواريخ
-  birth_date       DateTime?
-  start_date       DateTime? // تاريخ بداية المشروع/المنصب
-  end_date         DateTime? // تاريخ النهاية
-
-  // موقع جغرافي
-  location         String?
-  country          String?  @default("SA")
-  region           String?
-
-  // معلومات SEO
-  slug             String?  @unique
-  seo_keywords     String?
-
-  // الشعبية والتفاعل
-  mention_count    Int      @default(0) // عدد مرات الذكر في المقالات
-  click_count      Int      @default(0) // عدد النقرات على الروابط
-  last_mentioned   DateTime?
-
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-
-  // Relations
-  source_links     EntityLinks[] @relation("SourceEntity")
-  target_links     EntityLinks[] @relation("TargetEntity")
-  smart_links      SmartArticleLinks[]
-
-  @@map("smart_entities")
-  @@index([entity_type_id])
-  @@index([importance_score])
-  @@index([mention_count])
+enum forum_reports_target_type {
+  topic
+  reply
 }
 
-// جدول الروابط بين الكيانات (علاقات)
-model EntityLinks {
-  id                String   @id @default(cuid())
-  source_entity_id  String
-  target_entity_id  String
-  relationship_type String   // works_at, member_of, located_in, part_of, etc.
-  relationship_ar   String?  // يعمل في، عضو في، يقع في، جزء من
-  strength          Int      @default(1) // قوة العلاقة 1-10
-  is_active         Boolean  @default(true)
-
-  source_entity     SmartEntities @relation("SourceEntity", fields: [source_entity_id], references: [id])
-  target_entity     SmartEntities @relation("TargetEntity", fields: [target_entity_id], references: [id])
-
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
-
-  @@map("entity_links")
-  @@unique([source_entity_id, target_entity_id, relationship_type])
+enum forum_topics_status {
+  active
+  pending
+  hidden
+  deleted
 }
 
-// جدول الروابط الذكية في المقالات
-model SmartArticleLinks {
-  id              String   @id @default(cuid())
-  article_id      String   // معرف المقال
-  entity_id       String
-
-  // معلومات الرابط في النص
-  matched_text    String   // النص الذي تم ربطه
-  context_before  String?  // السياق قبل الكلمة
-  context_after   String?  // السياق بعد الكلمة
-  position        Int      // موقع الرابط في النص
-  confidence      Float    @default(1.0) // مستوى الثقة في الربط
-
-  // نوع الرابط
-  link_type       String   // entity, tooltip, modal, external
-  target_url      String?  // الرابط المستهدف
-  tooltip_content String?  // محتوى tooltip
-
-  // حالة الرابط
-  is_approved     Boolean  @default(false) // موافقة المحرر
-  is_active       Boolean  @default(true)
-  auto_generated  Boolean  @default(true)  // تم إنشاؤه تلقائياً
-
-  // إحصائيات
-  clicks          Int      @default(0)
-  impressions     Int      @default(0)
-  last_clicked    DateTime?
-
-  entity          SmartEntities @relation(fields: [entity_id], references: [id])
-
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-
-  @@map("smart_article_links")
-  @@index([article_id])
-  @@index([entity_id])
-  @@index([is_approved])
+enum forum_votes_target_type {
+  topic
+  reply
 }
 
-// جدول المصطلحات والتعاريف
-model SmartTerms {
-  id              String   @id @default(cuid())
-  term            String   @unique
-  term_ar         String?
-  term_en         String?
-
-  definition      String   // التعريف المختصر
-  detailed_def    String?  // التعريف المفصل
-  example         String?  // مثال على الاستخدام
-
-  category        String?  // اقتصادي، سياسي، تقني، طبي
-  difficulty      String   @default("medium") // easy, medium, hard
-
-  // مرادفات
-  synonyms        Json?    // ["الناتج المحلي", "GDP", "إجمالي الناتج المحلي"]
-
-  // روابط خارجية
-  reference_url   String?
-  wikipedia_url   String?
-
-  usage_count     Int      @default(0)
-  is_active       Boolean  @default(true)
-
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-
-  @@map("smart_terms")
-  @@index([category])
-  @@index([usage_count])
+enum forum_votes_vote_type {
+  like
+  dislike
 }
 
-// جدول تتبع أداء الروابط الذكية
-model LinkAnalytics {
-  id              String   @id @default(cuid())
-  link_id         String?  // معرف الرابط الذكي
-  article_id      String
-  entity_id       String?
-
-  // نوع الحدث
-  event_type      String   // click, impression, hover, copy
-
-  // معلومات المستخدم (مجهولة)
-  user_agent      String?
-  ip_hash         String?  // hash للـ IP
-  session_id      String?
-
-  // معلومات السياق
-  referrer        String?
-  time_on_page    Int?     // بالثواني
-  scroll_depth    Float?   // 0.0 - 1.0
-
-  // معلومات الجهاز
-  device_type     String?  // mobile, desktop, tablet
-  browser_type    String?
-
-  timestamp       DateTime @default(now())
-
-  @@map("link_analytics")
-  @@index([article_id])
-  @@index([entity_id])
-  @@index([event_type])
-  @@index([timestamp])
-}
-
-// النشرات الصوتية
-model AudioNewsletter {
-  id              String   @id @default(uuid())
-  title           String
-  content         String   // إزالة @db.Text للتوافق مع SQLite
-  audioUrl        String
-  duration        Int      // بالثواني
-  voice_id        String
-  voice_name      String
-  language        String   @default("ar")
-  category        String?
-  is_published    Boolean  @default(false)
-  is_featured     Boolean  @default(false)
-  play_count      Int      @default(0)
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-
-  @@map("audio_newsletters")
-  @@index([is_published])
-  @@index([is_featured])
-  @@index([created_at])
+enum interactions_type {
+  like
+  save
+  share
+  comment
+  view
+  reading_session
 }

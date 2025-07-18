@@ -297,7 +297,7 @@ interface NewspaperHomePageProps {
   };
 }
 
-function NewspaperHomePage({ stats, initialArticles = [], initialCategories = [] }: NewspaperHomePageProps & { initialArticles?: any[], initialCategories?: any[] }): React.ReactElement {
+function NewspaperHomePage({ stats }: NewspaperHomePageProps): React.ReactElement {
   const { isLoggedIn, userId, user } = useAuth();
   const { darkMode } = useDarkModeContext();
   const [isMobile, setIsMobile] = useState(false);
@@ -326,7 +326,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
   const [deepInsights, setDeepInsights] = useState<any[]>([]);
   const [deepInsightsLoading, setDeepInsightsLoading] = useState<boolean>(false);
   // التصنيفات
-  const [categories, setCategories] = useState<any[]>(initialCategories);
+  const [categories, setCategories] = useState<any[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string | number | null>(null);
   const [categoryArticles, setCategoryArticles] = useState<any[]>([]);
@@ -337,7 +337,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
   const [personalizedLoading, setPersonalizedLoading] = useState<boolean>(false);
   const [userInterests, setUserInterests] = useState<any[]>([]);
   const [showPersonalized, setShowPersonalized] = useState<boolean>(false);
-  const [articles, setArticles] = useState<any[]>(initialArticles);
+  const [articles, setArticles] = useState<any[]>([]);
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
   // دوال مؤقتة
   const handleInterestClick = (interestId: string) => {
@@ -499,14 +499,8 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
         setCategoriesLoading(false);
       }
     };
-    
-    // جلب التصنيفات فقط إذا لم تكن هناك تصنيفات أولية
-    if (initialCategories.length === 0) {
-      fetchCategories();
-    } else {
-      setCategoriesLoading(false);
-    }
-  }, [initialCategories]);
+    fetchCategories();
+  }, []);
   // =============================
   // جلب المقالات الأحدث (للاستخدام في البلوكات لاحقاً)
   useEffect(() => {
@@ -528,14 +522,8 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
         setArticlesLoading(false);
       }
     };
-    
-    // جلب المقالات فقط إذا لم تكن هناك مقالات أولية
-    if (initialArticles.length === 0) {
-      fetchArticles();
-    } else {
-      setArticlesLoading(false);
-    }
-  }, [initialArticles]);
+    fetchArticles();
+  }, []);
   // دالة اختيار التصنيف
   const handleCategoryClick = async (categoryId: number | string) => {
     setSelectedCategory(categoryId);
@@ -1365,35 +1353,38 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
   );
 }
 // Export with client-side wrapper to ensure ThemeProvider is available
-export default function PageClient({ 
-  initialArticles = [], 
-  initialCategories = [],
-  initialStats = {
-    activeReaders: null,
-    dailyArticles: null,
-    loading: false
-  }
-}: { 
-  initialArticles?: any[],
-  initialCategories?: any[],
-  initialStats?: {
+export default function Page() {
+  const [stats, setStats] = useState<{
     activeReaders: number | null;
     dailyArticles: number | null;
     loading: boolean;
-  }
-}) {
-  const [stats, setStats] = useState(initialStats);
+  }>({
+    activeReaders: null,
+    dailyArticles: null,
+    loading: true
+  });
 
-  // استخدام الإحصائيات الأولية
+  // جلب الإحصائيات الحقيقية
   useEffect(() => {
-    if (initialStats.loading === false) {
-      setStats(initialStats);
-    }
-  }, [initialStats]);
+    const fetchStats = async () => {
+      try {
+        // محاكاة جلب البيانات من API
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // في الواقع، ستستبدل هذا بـ fetch حقيقي
+        setStats({
+          activeReaders: 1234567, // من API
+          dailyArticles: 52341,   // من API
+          loading: false
+        });
+      } catch (error) {
+        console.error('خطأ في جلب الإحصائيات:', error);
+        setStats(prev => ({ ...prev, loading: false }));
+      }
+    };
 
-  return <NewspaperHomePage 
-    stats={stats} 
-    initialArticles={initialArticles}
-    initialCategories={initialCategories}
-  />;
+    fetchStats();
+  }, []);
+
+  return <NewspaperHomePage stats={stats} />;
 }

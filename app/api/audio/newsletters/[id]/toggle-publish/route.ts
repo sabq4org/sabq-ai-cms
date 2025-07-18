@@ -9,7 +9,7 @@ export async function PATCH(
     const { id } = await context.params;
     const { is_published } = await request.json();
 
-    const newsletter = await prisma.audioNewsletter.update({
+    const newsletter = await prisma.audio_newsletters.update({
       where: { id },
       data: { is_published }
     });

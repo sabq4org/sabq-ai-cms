@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
           title: result.title,
           content: highlightSearchTerm(result.content, query),
           url: `/forum/topic/${result.id}`,
-          category: {
+          categories: {
             name: result.category_name,
             slug: result.category_slug,
             color: result.category_color
@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
           content: highlightSearchTerm(result.content, query),
           topicTitle: result.topic_title,
           url: `/forum/topic/${result.topic_id}#reply-${result.id}`,
-          category: {
+          categories: {
             name: result.category_name,
             slug: result.category_slug,
             color: result.category_color

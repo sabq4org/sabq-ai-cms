@@ -53,39 +53,32 @@ export async function GET(request: NextRequest) {
     const articlesData = await prisma.articles.findMany({
       where: { id: { in: articleIds } },
       include: {
-        category: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
+        categories: true
       }
     })
 
     // دمج البيانات
     let articles = interactions
       .map(interaction => {
-        const article = articlesData.find(a => a.id === interaction.article_id)
+        const article = articlesData.find(a => a.id === interaction.articles_id)
         if (!article) return null
 
         return {
           ...article,
           interaction_date: interaction.created_at.toISOString(),
           interaction_type: interaction.type,
-          reading_progress: interaction.reading_progress || 0,
+          reading_progress: 0, // Not available in interactions table
           
           // تحويل التاريخات لـ strings
           created_at: article.created_at.toISOString(),
           published_at: article.published_at?.toISOString(),
           
           // معلومات التصنيف
-          category_name: article.category?.name,
+          category_name: article.categories?.name,
           category_id: article.category_id ? parseInt(article.category_id) : 0,
           
           // معلومات الكاتب
-          author_name: article.author?.name
+          author_name: null
         }
       })
       .filter(Boolean) as any[]
@@ -204,7 +197,7 @@ export async function POST(request: NextRequest) {
     const interactions = await prisma.interactions.findMany({
       where: { user_id: userId },
       include: {
-        article: {
+        articles: {
           select: {
             id: true,
             title: true,

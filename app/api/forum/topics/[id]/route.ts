@@ -86,7 +86,7 @@ export async function GET(
       created_at: topic.created_at,
       updated_at: topic.updated_at,
       last_reply_at: topic.last_reply_at,
-      category: {
+      categories: {
         id: topic.category_id,
         name: topic.category_name,
         slug: topic.category_slug,
