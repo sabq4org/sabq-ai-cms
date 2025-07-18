@@ -34,7 +34,9 @@ async function getCategories() {
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
-    const res = await fetch(`${baseUrl}/api/categories`, {
+    console.log('🔍 جلب التصنيفات من:', `${baseUrl}/api/categories?is_active=true`);
+    
+    const res = await fetch(`${baseUrl}/api/categories?is_active=true`, {
       next: { revalidate: 300 } // إعادة التحقق كل 5 دقائق للتصنيفات
     });
     
@@ -44,7 +46,12 @@ async function getCategories() {
     }
     
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    
+    // API يُرجع { success: true, data: [...], categories: [...] }
+    const categories = Array.isArray(data) ? data : (data.data || data.categories || []);
+    console.log('✅ التصنيفات المُستلمة:', categories.length);
+    
+    return categories;
   } catch (error) {
     console.error('خطأ في جلب التصنيفات من الخادم:', error);
     return [];

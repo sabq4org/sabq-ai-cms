@@ -298,6 +298,9 @@ interface NewspaperHomePageProps {
 }
 
 function NewspaperHomePage({ stats, initialArticles = [], initialCategories = [] }: NewspaperHomePageProps & { initialArticles?: any[], initialCategories?: any[] }): React.ReactElement {
+  // سجل التصنيفات الأولية عند تحميل المكون
+  console.log('🎯 التصنيفات الأولية المُستلمة من الخادم:', initialCategories.length);
+  
   const { isLoggedIn, userId, user } = useAuth();
   const { darkMode } = useDarkModeContext();
   const [isMobile, setIsMobile] = useState(false);
@@ -327,7 +330,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
   const [deepInsightsLoading, setDeepInsightsLoading] = useState<boolean>(false);
   // التصنيفات
   const [categories, setCategories] = useState<any[]>(initialCategories);
-  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
+  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(initialCategories.length === 0);
   const [selectedCategory, setSelectedCategory] = useState<string | number | null>(null);
   const [categoryArticles, setCategoryArticles] = useState<any[]>([]);
   const [categoryArticlesLoading, setCategoryArticlesLoading] = useState<boolean>(false);
@@ -485,10 +488,12 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
     const fetchCategories = async () => {
       try {
         setCategoriesLoading(true);
+        console.log('🔄 جلب التصنيفات من العميل...');
         const res = await fetch('/api/categories?is_active=true');
         const json = await res.json();
         // 💡 FIX: The API returns { data: [...] } or just [...]
         const list = Array.isArray(json) ? json : (json.data ?? json.categories ?? []);
+        console.log('✅ التصنيفات المُحدثة من العميل:', list.length);
         setCategories(list);
         if (list.length === 0) {
           console.warn("No categories were fetched from the API.");
@@ -502,8 +507,10 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
     
     // جلب التصنيفات فقط إذا لم تكن هناك تصنيفات أولية
     if (initialCategories.length === 0) {
+      console.log('⚠️ لا توجد تصنيفات أولية، جاري الجلب من العميل...');
       fetchCategories();
     } else {
+      console.log('✅ استخدام التصنيفات الأولية:', initialCategories.length);
       setCategoriesLoading(false);
     }
   }, [initialCategories]);
