@@ -67,6 +67,21 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 NODE_ENV=production
 ```
 
+### 14. CLOUDINARY_API_KEY (مطلوب للملفات الصوتية)
+```
+CLOUDINARY_API_KEY=559894124915114
+```
+
+### 15. CLOUDINARY_API_SECRET (مطلوب للملفات الصوتية)
+```
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+```
+
+### 16. ELEVENLABS_API_KEY (للنشرات الصوتية)
+```
+ELEVENLABS_API_KEY=your-elevenlabs-api-key
+```
+
 ## ملاحظات مهمة
 
 1. **استبدل القيم**: غيّر `your-app.ondigitalocean.app` إلى رابط تطبيقك الفعلي

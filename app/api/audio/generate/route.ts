@@ -132,21 +132,69 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ تم توليد الصوت بنجاح، الحجم: ${response.data.byteLength} بايت`);
 
-    // إنشاء مجلد الصوت إذا لم يكن موجوداً
-    const outputPath = path.join(process.cwd(), 'public', 'audio');
-    if (!fs.existsSync(outputPath)) {
-      fs.mkdirSync(outputPath, { recursive: true });
-      console.log('📁 تم إنشاء مجلد الصوت');
-    }
+    // تحديد استراتيجية الحفظ بناءً على البيئة
+    let publicUrl: string;
+    let filename_with_timestamp: string;
 
-    // تسمية الملف مع الطابع الزمني لتجنب التكرار
+    // إنشاء اسم الملف مع الطابع الزمني
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const outputFile = path.join(outputPath, `${filename}-${timestamp}.mp3`);
-    const publicUrl = `/audio/${filename}-${timestamp}.mp3`;
+    filename_with_timestamp = `${filename}-${timestamp}.mp3`;
 
-    // حفظ الملف الصوتي
-    fs.writeFileSync(outputFile, response.data);
-    console.log(`💾 تم حفظ الملف: ${outputFile}`);
+    if (process.env.NODE_ENV === 'production') {
+      // في بيئة الإنتاج، استخدم Cloudinary أو Base64
+      console.log('🌐 بيئة الإنتاج - استخدام Cloudinary...');
+      
+      try {
+        // محاولة رفع إلى Cloudinary
+        const cloudinary = require('cloudinary').v2;
+        
+        cloudinary.config({
+          cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb',
+          api_key: process.env.CLOUDINARY_API_KEY,
+          api_secret: process.env.CLOUDINARY_API_SECRET,
+        });
+
+        // رفع الملف الصوتي إلى Cloudinary
+        const uploadResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              resource_type: "auto",
+              folder: "sabq-audio",
+              public_id: filename_with_timestamp.replace('.mp3', ''),
+              format: "mp3"
+            },
+            (error: any, result: any) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(Buffer.from(response.data));
+        });
+
+        publicUrl = (uploadResult as any).secure_url;
+        console.log(`✅ تم رفع الملف إلى Cloudinary: ${publicUrl}`);
+        
+      } catch (cloudinaryError) {
+        console.error('⚠️ فشل الرفع إلى Cloudinary:', cloudinaryError);
+        // استخدام Base64 كبديل
+        publicUrl = `data:audio/mpeg;base64,${Buffer.from(response.data).toString('base64')}`;
+        console.log('📄 استخدام Base64 كبديل');
+      }
+      
+    } else {
+      // في بيئة التطوير، حفظ محلي كما هو
+      console.log('💻 بيئة التطوير - حفظ محلي...');
+      
+      const outputPath = path.join(process.cwd(), 'public', 'audio');
+      if (!fs.existsSync(outputPath)) {
+        fs.mkdirSync(outputPath, { recursive: true });
+        console.log('📁 تم إنشاء مجلد الصوت');
+      }
+
+      const outputFile = path.join(outputPath, filename_with_timestamp);
+      fs.writeFileSync(outputFile, response.data);
+      publicUrl = `/audio/${filename_with_timestamp}`;
+      console.log(`💾 تم حفظ الملف محلياً: ${outputFile}`);
+    }
 
     // حفظ النشرة في الأرشيف
     try {
@@ -156,7 +204,7 @@ export async function POST(req: NextRequest) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          filename: `${filename}-${timestamp}.mp3`,
+          filename: filename_with_timestamp,
           url: publicUrl,
           size: response.data.byteLength,
           duration: Math.ceil(optimizedText.length / 15) + ' ثانية',
@@ -180,7 +228,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       url: publicUrl,
-      filename: `${filename}-${timestamp}.mp3`,
+      filename: filename_with_timestamp,
       size: response.data.byteLength,
       duration_estimate: Math.ceil(optimizedText.length / 15) + ' ثانية', // تقدير: 15 حرف/ثانية
       voice_used: voice,
