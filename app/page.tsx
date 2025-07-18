@@ -10,7 +10,7 @@ async function getArticles() {
     const baseUrl = `${protocol}://${host}`;
     
     const res = await fetch(`${baseUrl}/api/articles?status=published&limit=12&sortBy=published_at&order=desc`, {
-      cache: 'no-store' // لضمان جلب أحدث البيانات
+      next: { revalidate: 60 } // إعادة التحقق كل دقيقة
     });
     
     if (!res.ok) {
@@ -35,7 +35,7 @@ async function getCategories() {
     const baseUrl = `${protocol}://${host}`;
     
     const res = await fetch(`${baseUrl}/api/categories`, {
-      cache: 'no-store'
+      next: { revalidate: 300 } // إعادة التحقق كل 5 دقائق للتصنيفات
     });
     
     if (!res.ok) {
@@ -58,7 +58,9 @@ async function getStats() {
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
-    const res = await fetch(`${baseUrl}/api/news/stats`, { cache: 'no-store' });
+    const res = await fetch(`${baseUrl}/api/news/stats`, { 
+      next: { revalidate: 60 } // إعادة التحقق كل دقيقة للإحصائيات
+    });
     if (res.ok) {
       return await res.json();
     }
