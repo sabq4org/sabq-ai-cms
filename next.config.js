@@ -10,6 +10,12 @@ const nextConfig = {
     return 'v2-' + Date.now().toString()
   },
 
+  // تمرير متغيرات البيئة للكلاينت
+  env: {
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb',
+    NEXT_PUBLIC_CLOUDINARY_API_KEY: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY || '559894124915114',
+  },
+
   // حل مشكلة chunk loading errors
   onDemandEntries: {
     maxInactiveAge: 25 * 1000,

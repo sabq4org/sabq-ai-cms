@@ -3,8 +3,8 @@
 
 // تكوين Cloudinary من متغيرات البيئة
 const cloudinaryConfig = {
-  cloud_name: typeof window !== 'undefined' && process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME : 'dybhezmvb',
-  api_key: typeof window !== 'undefined' && process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY ? process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY : '559894124915114',
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb',
+  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY || '559894124915114',
 };
 
 // دالة تنظيف أسماء الملفات
@@ -198,10 +198,10 @@ export const getValidImageUrl = (imageUrl?: string, fallbackTitle?: string, type
   // إذا كان الرابط هو publicId بدون بروتوكول (مثلاً sabq-cms/featured/xyz)
   if (!imageUrl.startsWith('http') && !imageUrl.startsWith('https')) {
     // إنشاء رابط كامل إلى Cloudinary
-    const cloudName = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME : 'dybhezmvb';
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb';
     return `https://res.cloudinary.com/${cloudName}/image/upload/${imageUrl}`;
   }
   
   // إذا كان الرابط كامل (يبدأ بـ http أو https)، استخدمه كما هو
   return imageUrl;
-}; 
+};
