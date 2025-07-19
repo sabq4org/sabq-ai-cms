@@ -165,23 +165,23 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
     );
   }
 
-  // Grid View - مطابق تماماً لتصميم صفحة التصنيف
+  // Grid View - محسن ليتطابق مع الواجهة الرئيسية
   return (
     <Link href={getArticleLink(article)} className="group block">
-      <article className={`article-card h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 ${
+      <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform group-hover:scale-[1.02] ${
         isBreaking 
           ? 'bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800'
           : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'
       }`}>
-        {/* صورة المقال */}
-        <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
+        {/* صورة المقال - محسنة للموبايل */}
+        <div className="relative h-40 sm:h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
           {article.featured_image ? (
             <Image
               src={imageUrl}
               alt={article.title || 'صورة المقال'}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-500"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               priority={false}
               unoptimized={article.featured_image.includes('cloudinary.com')}
               onError={(e) => {
@@ -191,32 +191,14 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-              <Newspaper className="w-16 h-16 text-gray-400 dark:text-gray-600" />
+              <Newspaper className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 dark:text-gray-600" />
             </div>
           )}
           
-          {/* معلومات أسفل الصورة */}
-          <div className="absolute bottom-3 right-3 left-3 flex gap-2">
-            {/* وقت القراءة */}
-            {article.reading_time && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
-                <Clock className="w-3 h-3" />
-                {article.reading_time} دقيقة
-              </span>
-            )}
-            {/* اسم الكاتب */}
-            {authorName && authorName !== 'غير محدد' && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
-                <User className="w-3 h-3" />
-                {authorName}
-              </span>
-            )}
-          </div>
-          
           {/* شارة عاجل */}
           {isBreaking && (
-            <div className="absolute top-3 right-3">
-              <span className="urgent-badge inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white backdrop-blur-sm">
+            <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+              <span className="urgent-badge inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold bg-red-500 text-white backdrop-blur-sm">
                 <Zap className="w-3 h-3" />
                 عاجل
               </span>
@@ -225,8 +207,8 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
           
           {/* شارة مميز */}
           {isFeatured && (
-            <div className="absolute top-3 left-3">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white backdrop-blur-sm">
+            <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
+              <span className="inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white backdrop-blur-sm">
                 <Sparkles className="w-3 h-3" />
                 مميز
               </span>
@@ -234,49 +216,55 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
           )}
         </div>
         
-        {/* محتوى البطاقة */}
-        <div className="p-5">
+        {/* محتوى البطاقة - محسن للموبايل */}
+        <div className="p-4 sm:p-5">
           {/* العنوان */}
-          <h4 className={`font-bold text-[15px] leading-[1.4] mb-3 line-clamp-3 ${
+          <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 ${
             isBreaking 
               ? 'text-red-700 dark:text-red-400' 
               : 'text-gray-900 dark:text-white'
-          } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors`}>
+          } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors`} title={article.title}>
             {article.title}
           </h4>
           
           {/* الملخص */}
           {summary && (
-            <p className="text-[13px] leading-relaxed mb-4 line-clamp-2 text-gray-600 dark:text-gray-400">
+            <p className="text-sm mb-4 line-clamp-2 text-gray-600 dark:text-gray-400 leading-relaxed">
               {summary}
             </p>
           )}
           
-          {/* التفاصيل السفلية */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+          {/* التفاصيل السفلية - محسنة للموبايل */}
+          <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
             {/* المعلومات */}
             <div className="flex flex-col gap-1">
               {/* التاريخ */}
-              <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
+              <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 sm:gap-2">
+                <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                 {formatDate(article.published_at || article.created_at)}
               </div>
-              {/* المشاهدات */}
-              <div className="flex items-center gap-3 text-xs">
+              {/* الكاتب والمشاهدات */}
+              <div className="flex items-center gap-2 sm:gap-3 text-xs">
+                {authorName && authorName !== 'غير محدد' && (
+                  <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                    <User className="w-3 h-3" />
+                    {authorName}
+                  </span>
+                )}
                 <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                   <Eye className="w-3 h-3" />
                   {viewsCount > 0 ? viewsCount.toLocaleString('ar-SA') : 'جديد'}
                 </span>
-                {likesCount > 0 && (
+                {article.reading_time && (
                   <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                    <Heart className="w-3 h-3" />
-                    {likesCount.toLocaleString('ar-SA')}
+                    <Clock className="w-3 h-3" />
+                    {article.reading_time} د
                   </span>
                 )}
               </div>
             </div>
             {/* زر القراءة */}
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 transition-all">
               <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
           </div>

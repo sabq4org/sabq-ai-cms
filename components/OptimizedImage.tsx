@@ -26,7 +26,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   className = '',
   fallbackSrc,
   lazy = true,
-  quality = 75,
+  quality = 80, // تحسين جودة أفضل
   priority = false,
   onLoad,
   onError

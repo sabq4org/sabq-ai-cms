@@ -376,9 +376,24 @@ export default function MomentByMomentPage() {
                               </span>
                             </div>
                             
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                              {item.title}
-                            </h3>
+                            {/* عنوان قابل للنقر */}
+                            {(item.type === 'news' || item.type === 'article') && item.slug ? (
+                              <Link href={`/article/${item.slug}`}>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 hover:text-red-600 dark:hover:text-red-400 cursor-pointer transition-colors">
+                                  {item.title}
+                                </h3>
+                              </Link>
+                            ) : item.type === 'category' && item.slug ? (
+                              <Link href={`/categories/${item.slug}`}>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 hover:text-red-600 dark:hover:text-red-400 cursor-pointer transition-colors">
+                                  {item.title}
+                                </h3>
+                              </Link>
+                            ) : (
+                              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                {item.title}
+                              </h3>
+                            )}
                             
                             {item.excerpt && (
                               <p className="text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
@@ -435,34 +450,103 @@ export default function MomentByMomentPage() {
                     });
                     
                     return (
-                      <div 
-                        key={item.id} 
-                        className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-shadow`}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl">{item.tag}</span>
-                            <span className={`text-sm font-semibold ${colors.text}`}>
-                              {item.label}
-                            </span>
+                      <div key={item.id}>
+                        {(item.type === 'news' || item.type === 'article') && item.slug ? (
+                          <Link href={`/article/${item.slug}`}>
+                            <div className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer`}>
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xl">{item.tag}</span>
+                                  <span className={`text-sm font-semibold ${colors.text}`}>
+                                    {item.label}
+                                  </span>
+                                </div>
+                                {getItemIcon(item.type)}
+                              </div>
+                              
+                              <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
+                                {item.title}
+                              </h3>
+                              
+                              {item.excerpt && (
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
+                                  {item.excerpt}
+                                </p>
+                              )}
+                              
+                              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span>{timeAgo}</span>
+                                <div className="flex items-center gap-2">
+                                  {item.category && <span>{item.category.name}</span>}
+                                  <span className={`text-xs font-medium ${colors.text}`}>
+                                    ←
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        ) : item.type === 'category' && item.slug ? (
+                          <Link href={`/categories/${item.slug}`}>
+                            <div className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer`}>
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xl">{item.tag}</span>
+                                  <span className={`text-sm font-semibold ${colors.text}`}>
+                                    {item.label}
+                                  </span>
+                                </div>
+                                {getItemIcon(item.type)}
+                              </div>
+                              
+                              <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
+                                {item.title}
+                              </h3>
+                              
+                              {item.excerpt && (
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
+                                  {item.excerpt}
+                                </p>
+                              )}
+                              
+                              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span>{timeAgo}</span>
+                                <div className="flex items-center gap-2">
+                                  {item.category && <span>{item.category.name}</span>}
+                                  <span className={`text-xs font-medium ${colors.text}`}>
+                                    ←
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        ) : (
+                          <div className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-shadow`}>
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">{item.tag}</span>
+                                <span className={`text-sm font-semibold ${colors.text}`}>
+                                  {item.label}
+                                </span>
+                              </div>
+                              {getItemIcon(item.type)}
+                            </div>
+                            
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+                              {item.title}
+                            </h3>
+                            
+                            {item.excerpt && (
+                              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
+                                {item.excerpt}
+                              </p>
+                            )}
+                            
+                            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                              <span>{timeAgo}</span>
+                              {item.category && <span>{item.category.name}</span>}
+                            </div>
                           </div>
-                          {getItemIcon(item.type)}
-                        </div>
-                        
-                        <h3 className="font-bold text-gray-900 dark:text-white mb-2">
-                          {item.title}
-                        </h3>
-                        
-                        {item.excerpt && (
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
-                            {item.excerpt}
-                          </p>
                         )}
-                        
-                        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                          <span>{timeAgo}</span>
-                          {item.category && <span>{item.category.name}</span>}
-                        </div>
                       </div>
                     );
                   })}

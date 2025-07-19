@@ -107,106 +107,96 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
 
   return (
     <div className={`
-      relative overflow-hidden rounded-2xl transition-all duration-300 group
+      relative overflow-hidden rounded-xl sm:rounded-2xl transition-all duration-300 group
       ${darkMode 
         ? 'bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-purple-500/30' 
         : 'bg-white/80 backdrop-blur-sm shadow-sm border border-gray-100 hover:shadow-xl hover:border-purple-200'
       } 
       ${viewMode === 'list' ? 'flex' : ''}
-      hover:transform hover:scale-[1.02]
+      hover:transform hover:scale-[1.01] sm:hover:scale-[1.02]
     `}>
-      {/* صورة مميزة محسنة */}
-      <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-72 flex-shrink-0' : 'h-48'}`}>
-        <Link href={analysisUrl} className="block w-full h-full">
-          <Image 
-            src={analysis.featuredImage || generatePlaceholderImage(analysis.title)} 
-            alt={analysis.title}
-            width={400}
-            height={300}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-        </Link>
-        
-        {/* تدرج علوي */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
-        
-        {/* شارة التحليل العميق - محسنة */}
-        <div className="absolute top-3 right-3">
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-lg backdrop-blur-sm">
-            <Brain className="w-3.5 h-3.5" />
-            <span>تحليل عميق</span>
+        {/* صورة مميزة محسنة للموبايل */}
+        <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-72 flex-shrink-0' : 'h-40 sm:h-48'}`}>
+          <Link href={analysisUrl} className="block w-full h-full">
+            <Image 
+              src={analysis.featuredImage || generatePlaceholderImage(analysis.title)} 
+              alt={analysis.title}
+              width={400}
+              height={300}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+          </Link>
+          
+          {/* تدرج علوي */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
+          
+          {/* شارة التحليل العميق - محسنة مع أيقونة الدماغ البشري */}
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+            <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs font-medium flex items-center gap-1 sm:gap-1.5 shadow-lg backdrop-blur-sm">
+              <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">🧠 تحليل عميق</span>
+              <span className="sm:hidden">🧠</span>
+            </div>
           </div>
-        </div>
 
-        {/* نسبة الجودة - محسنة */}
-        <div className="absolute bottom-3 left-3">
-          <div className={`
-            bg-gradient-to-r ${getQualityColor(analysis.qualityScore)}
-            text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-sm
-          `}>
-            <BarChart3 className="w-3.5 h-3.5" />
-            {analysis.qualityScore}%
+          {/* نسبة الجودة - محسنة للموبايل */}
+          <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3">
+            <div className={`
+              bg-gradient-to-r ${getQualityColor(analysis.qualityScore)}
+              text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg backdrop-blur-sm
+            `}>
+              <BarChart3 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              {analysis.qualityScore}%
+            </div>
           </div>
-        </div>
 
-        {/* أيقونة عرض سريع - محسنة */}
-        <Link 
-          href={analysisUrl}
-          className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-sm"
-        >
-          <div className="bg-white/90 text-gray-800 p-3 rounded-full shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-300">
-            <ArrowUpRight className="w-5 h-5" />
-          </div>
-        </Link>
-      </div>
-
-      {/* محتوى البطاقة - محسن */}
-      <div className={`p-5 ${viewMode === 'list' ? 'flex-1' : ''} flex flex-col`}>
-        {/* التصنيفات - محسنة */}
-        <div className="flex flex-wrap gap-2 mb-4">
+          {/* أيقونة عرض سريع - محسنة */}
+          <Link 
+            href={analysisUrl}
+            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-sm"
+          >
+            <div className="bg-white/90 text-gray-800 p-2 sm:p-3 rounded-full shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-300">
+              <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+          </Link>
+        </div>      {/* محتوى البطاقة - محسن للموبايل ليشبه بطاقات الأخبار */}
+      <div className={`p-4 sm:p-5 ${viewMode === 'list' ? 'flex-1' : ''} flex flex-col`}>
+        {/* التصنيفات - محسنة للموبايل */}
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
           {analysis.categories.slice(0, 2).map((category, index) => (
             <span 
               key={index}
               className={`
-                text-xs px-3 py-1.5 rounded-full font-medium transition-colors
+                text-xs px-2 py-1 sm:px-3 sm:py-1.5 rounded-full font-medium transition-colors flex items-center gap-1
                 ${darkMode 
                   ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50' 
                   : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
                 }
               `}
             >
+              <Brain className="w-3 h-3" />
               {typeof category === 'string' ? category : ((category as any).name_ar || (category as any).name || 'عام')}
             </span>
           ))}
         </div>
 
-        {/* العنوان - محسن للرؤية */}
+        {/* العنوان - محسن للموبايل ليشبه بطاقات الأخبار */}
         <Link href={analysisUrl}>
           <h3 className={`
-            text-xl font-bold mb-3 transition-colors cursor-pointer leading-tight
+            text-base sm:text-lg lg:text-xl font-bold mb-2 sm:mb-3 transition-colors cursor-pointer leading-snug
             ${darkMode ? 'text-white hover:text-purple-300' : 'text-gray-900 hover:text-purple-700'}
             ${viewMode === 'list' ? 'line-clamp-3' : 'line-clamp-2'}
-            min-h-[3.5rem]
+            min-h-[2.8rem] sm:min-h-[3.5rem]
           `}
           title={analysis.title}
-          style={{
-            display: '-webkit-box',
-            WebkitLineClamp: viewMode === 'list' ? 3 : 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            lineHeight: '1.3',
-            fontSize: '1.1rem',
-            fontWeight: '700'
-          }}
           >
             {analysis.title}
           </h3>
         </Link>
 
-        {/* الملخص - محسن */}
+        {/* الملخص - محسن للموبايل */}
         <p className={`
-          text-sm line-clamp-2 mb-4 flex-grow leading-relaxed
+          text-sm sm:text-base line-clamp-2 mb-3 sm:mb-4 flex-grow leading-relaxed
           ${darkMode ? 'text-gray-300' : 'text-gray-600'}
         `}
         title={analysis.summary}
@@ -214,9 +204,10 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           {analysis.summary}
         </p>
 
-        {/* الوسوم - تصميم جديد */}
+        {/* الوسوم - تصميم محسن للموبايل */}
         {analysis.tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-4">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+            <Brain className="w-3 h-3 sm:w-4 sm:h-4 text-purple-500 hidden sm:block" />
             {visibleTags.map((tag, index) => (
               <span 
                 key={index}
@@ -252,40 +243,40 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           </div>
         )}
 
-        {/* معلومات أسفل البطاقة - محسنة */}
+        {/* معلومات أسفل البطاقة - محسنة للموبايل */}
         <div className={`
-          flex items-center justify-between text-xs pt-4 border-t
+          flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 text-xs pt-3 sm:pt-4 border-t
           ${darkMode ? 'border-gray-700/50 text-gray-400' : 'border-gray-100 text-gray-500'}
         `}>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 opacity-60" />
-                              <span>{formatDateShort(analysis.publishedAt || analysis.createdAt)}</span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="flex items-center gap-1 sm:gap-1.5">
+              <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-60" />
+              <span>{formatDateShort(analysis.publishedAt || analysis.createdAt)}</span>
             </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 opacity-60" />
+            <span className="flex items-center gap-1 sm:gap-1.5">
+              <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-60" />
               {analysis.readingTime} د
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5">
-              <Eye className="w-3.5 h-3.5 opacity-60" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="flex items-center gap-1 sm:gap-1.5">
+              <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-60" />
               <span>{analysis.views > 999 ? `${(analysis.views / 1000).toFixed(1)}k` : analysis.views}</span>
             </span>
             {analysis.likes > 0 && (
-              <span className="flex items-center gap-1.5">
-                <Heart className="w-3.5 h-3.5 opacity-60" />
+              <span className="flex items-center gap-1 sm:gap-1.5">
+                <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-60" />
                 {analysis.likes}
               </span>
             )}
           </div>
         </div>
 
-        {/* زر عرض مختصر - تصميم جديد */}
+        {/* زر عرض مختصر - محسن للموبايل */}
         <Link 
           href={analysisUrl}
           className={`
-            absolute bottom-4 left-4 p-2 rounded-full transition-all opacity-0 group-hover:opacity-100
+            absolute bottom-3 left-3 sm:bottom-4 sm:left-4 p-1.5 sm:p-2 rounded-full transition-all opacity-0 group-hover:opacity-100
             ${darkMode 
               ? 'bg-purple-600 hover:bg-purple-700 text-white' 
               : 'bg-purple-600 hover:bg-purple-700 text-white'
@@ -294,7 +285,7 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           `}
           title="عرض التحليل الكامل"
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
         </Link>
       </div>
     </div>

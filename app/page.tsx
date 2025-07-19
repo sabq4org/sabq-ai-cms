@@ -9,8 +9,11 @@ async function getArticles() {
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
-    const res = await fetch(`${baseUrl}/api/articles?status=published&limit=12&sortBy=published_at&order=desc`, {
-      next: { revalidate: 60 } // إعادة التحقق كل دقيقة
+    const res = await fetch(`${baseUrl}/api/articles?status=published&limit=16&sortBy=published_at&order=desc`, {
+      next: { revalidate: 180 }, // تحسين cache إلى 3 دقائق
+      headers: {
+        'Cache-Control': 'public, s-maxage=180, stale-while-revalidate=300'
+      }
     });
     
     if (!res.ok) {
@@ -37,7 +40,10 @@ async function getCategories() {
     console.log('🔍 جلب التصنيفات من:', `${baseUrl}/api/categories?is_active=true`);
     
     const res = await fetch(`${baseUrl}/api/categories?is_active=true`, {
-      next: { revalidate: 300 } // إعادة التحقق كل 5 دقائق للتصنيفات
+      next: { revalidate: 600 }, // تحسين cache إلى 10 دقائق للتصنيفات
+      headers: {
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=900'
+      }
     });
     
     if (!res.ok) {

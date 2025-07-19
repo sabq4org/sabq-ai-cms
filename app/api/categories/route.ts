@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma, ensureConnection } from '@/lib/prisma'; // استخدام singleton
-// import { PrismaClient } from '@prisma/client'; // استيراد مباشر
+import { 
+  getCachedData, 
+  ENHANCED_CACHE_KEYS, 
+  ENHANCED_CACHE_TTL 
+} from '@/lib/cache-manager'
 
 
 
@@ -141,29 +145,35 @@ export async function GET(request: NextRequest) {
       where.slug = slug;
     }
     
-    // جلب الفئات مع عدد المقالات
-    const categories = await prisma.categories.findMany({
-      where,
-      orderBy: [
-        { display_order: 'asc' },
-        { name: 'asc' }
-      ],
-      ...(limit && { take: parseInt(limit) })
-    });
-    
-    // جلب عدد المقالات لكل فئة
-    const categoriesWithCount = await Promise.all(
-      categories.map(async (category) => {
-        const articlesCount = await prisma.articles.count({
-          where: {
-            category_id: category.id,
-            status: 'published'
-          }
+    // جلب الفئات مع عدد المقالات باستخدام cache
+    const categories = await getCachedData(
+      ENHANCED_CACHE_KEYS.CATEGORIES_ACTIVE,
+      async () => {
+        console.log('🔍 جلب التصنيفات من قاعدة البيانات...')
+        
+        // جلب الفئات
+        const categoriesData = await prisma.categories.findMany({
+          where,
+          orderBy: [
+            { display_order: 'asc' },
+            { name: 'asc' }
+          ],
+          ...(limit && { take: parseInt(limit) })
         });
         
-        // معالجة metadata
-        let parsedMetadata: any = {};
-        if (category.metadata && typeof category.metadata === 'object') {
+        // جلب عدد المقالات لكل فئة بشكل متوازي
+        const categoriesWithCount = await Promise.all(
+          categoriesData.map(async (category) => {
+            const articlesCount = await prisma.articles.count({
+              where: {
+                category_id: category.id,
+                status: 'published'
+              }
+            });
+            
+            // معالجة metadata
+            let parsedMetadata: any = {};
+            if (category.metadata && typeof category.metadata === 'object') {
           parsedMetadata = normalizeMetadata(category.metadata);
         }
         
@@ -198,12 +208,17 @@ export async function GET(request: NextRequest) {
         };
       })
     );
+        
+        return categoriesWithCount
+      },
+      ENHANCED_CACHE_TTL.CATEGORIES
+    )
     
     return corsResponse({
       success: true,
-      data: categoriesWithCount,
-      categories: categoriesWithCount, // للتوافق مع الكود القديم
-      total: categoriesWithCount.length
+      data: categories,
+      categories: categories, // للتوافق مع الكود القديم
+      total: categories.length
     });
     
   } catch (error) {

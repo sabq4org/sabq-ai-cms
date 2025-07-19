@@ -3,6 +3,13 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { prisma, ensureConnection } from '@/lib/prisma'
 import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved'
+import { 
+  getCachedList, 
+  ENHANCED_CACHE_KEYS, 
+  ENHANCED_CACHE_TTL,
+  generateCacheKey,
+  getCachedData
+} from '@/lib/cache-manager'
 
 import { filterTestContent, rejectTestContent } from '@/lib/data-protection'
 import jwt from 'jsonwebtoken'
@@ -300,64 +307,90 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '6')
     const skip = (page - 1) * limit
 
-    // جلب المقالات من قاعدة البيانات البعيدة مع العلاقات (Eager Loading)
-    console.time('🔍 جلب المقالات من قاعدة البيانات')
-    let articles = []
-    try {
-      // استخدام select محدد لتقليل حجم البيانات المنقولة
-      articles = await prisma.articles.findMany({
-        where,
-        orderBy,
-        skip,
-        take: limit,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          featured_image: true,
-          published_at: true,
-          created_at: true,
-          views: true,
-          reading_time: true,
-          status: true,
-          featured: true,
-          breaking: true,
-          author_id: true,
-          category_id: true,
-          // محتوى المقال فقط عند الحاجة
-          content: searchParams.get('includeContent') === 'true',
-          // البيانات الوصفية
-          seo_title: true,
-          seo_description: true,
-          // العلاقات
-          categories: {
+    // إنشاء مفتاح cache فريد للطلب
+    const cacheParams = {
+      where: JSON.stringify(where),
+      orderBy: JSON.stringify(orderBy),
+      page,
+      limit,
+      includeContent: searchParams.get('includeContent') || 'false'
+    }
+
+    // استخدام cache محسن للمقالات
+    const { data: articles, total, fromCache } = await getCachedList(
+      ENHANCED_CACHE_KEYS.ARTICLES_LIST(''),
+      cacheParams,
+      async () => {
+        console.time('🔍 جلب المقالات من قاعدة البيانات')
+        
+        // جلب المقالات والعدد الإجمالي بشكل متوازي
+        const [articlesData, totalCount] = await Promise.all([
+          // جلب المقالات
+          prisma.articles.findMany({
+            where,
+            orderBy,
+            skip,
+            take: limit,
             select: {
               id: true,
-              name: true,
-              name_en: true,
+              title: true,
               slug: true,
-              color: true,
-              icon: true
+              excerpt: true,
+              featured_image: true,
+              published_at: true,
+              created_at: true,
+              views: true,
+              reading_time: true,
+              status: true,
+              featured: true,
+              breaking: true,
+              author_id: true,
+              category_id: true,
+              // محتوى المقال فقط عند الحاجة
+              content: searchParams.get('includeContent') === 'true',
+              // البيانات الوصفية
+              seo_title: true,
+              seo_description: true,
+              // العلاقات
+              categories: {
+                select: {
+                  id: true,
+                  name: true,
+                  name_en: true,
+                  slug: true,
+                  color: true,
+                  icon: true
+                }
+              }
             }
-          }
+          }),
+          
+          // جلب العدد الإجمالي
+          prisma.articles.count({ where })
+        ])
+        
+        console.timeEnd('🔍 جلب المقالات من قاعدة البيانات')
+        
+        return {
+          data: articlesData,
+          total: totalCount
         }
-      })
-    } catch (dbError) {
-      console.error('خطأ في قاعدة البيانات:', dbError)
-      throw dbError
-    }
-    console.timeEnd('🔍 جلب المقالات من قاعدة البيانات')
+      },
+      ENHANCED_CACHE_TTL.ARTICLES_LIST
+    )
 
-    // جلب العدد الإجمالي والمؤلفين بشكل متوازي
+    if (fromCache) {
+      console.log('📋 تم جلب المقالات من cache - سرعة محسنة!')
+    }
+
+    // جلب المؤلفين فقط إذا كانت هناك مقالات ولم يتم cache البيانات
     console.time('📊 جلب البيانات الإضافية')
-    const [total, authors] = await Promise.all([
-      // جلب العدد الإجمالي
-      prisma.articles.count({ where }),
-      
-      // جلب المؤلفين فقط إذا كانت هناك مقالات
-      articles.length > 0 
-        ? prisma.users.findMany({
+    const authors = articles.length > 0 
+      ? await getCachedData(
+          ENHANCED_CACHE_KEYS.AUTHORS_BY_IDS(
+            [...new Set(articles.map((a: any) => a.author_id).filter(Boolean))]
+          ),
+          () => prisma.users.findMany({
             where: { 
               id: { 
                 in: [...new Set(articles.map((a: any) => a.author_id).filter(Boolean))] 
@@ -368,9 +401,10 @@ export async function GET(request: NextRequest) {
               name: true,
               email: true
             }
-          })
-        : Promise.resolve([])
-    ])
+          }),
+          ENHANCED_CACHE_TTL.AUTHORS
+        )
+      : []
     console.timeEnd('📊 جلب البيانات الإضافية')
 
     // تحويل المؤلفين إلى Map للوصول السريع

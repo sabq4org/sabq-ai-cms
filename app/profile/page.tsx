@@ -275,8 +275,7 @@ export default function ProfilePage() {
 
                  console.log('🎯 تم عرض الاهتمامات فوراً:', userCategories);
          setPreferences(userCategories);
-         // إظهار رسالة نجاح مع عدد الاهتمامات
-         toast.success(`✅ تم تحديث ${userCategories.length} من اهتماماتك`, { duration: 2000 });
+         // تم إزالة الرسالة المزعجة
       } else if (userCategoryIds.length === 0) {
         console.log('❓ لم يتم العثور على اهتمامات للمستخدم');
         setPreferences([]);

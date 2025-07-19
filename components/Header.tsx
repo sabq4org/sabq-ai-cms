@@ -23,7 +23,6 @@ import {
   Folder,
   Edit,
   Users,
-  Search,
   Bell,
   Settings,
   Brain,
@@ -33,11 +32,21 @@ import {
 export default function Header() {
   const router = useRouter();
   const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
-  const { user, logout } = useAuthContext();
+  
+  // Safe auth hook usage
+  let user = null;
+  let logout = () => {};
+  try {
+    const authContext = useAuthContext();
+    user = authContext.user;
+    logout = authContext.logout;
+  } catch (error) {
+    // AuthProvider not ready yet, use defaults
+    console.warn('AuthProvider not ready:', error);
+  }
+  
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [liveEventCount, setLiveEventCount] = useState(3);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -77,15 +86,6 @@ export default function Header() {
     } catch (error) {
       console.error('خطأ في تسجيل الخروج:', error);
       toast.error('حدث خطأ أثناء تسجيل الخروج');
-    }
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
-      setIsSearchOpen(false);
     }
   };
 
@@ -160,46 +160,6 @@ export default function Header() {
 
           {/* أدوات الهيدر */}
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
-            {/* البحث */}
-            <div className="relative">
-              {isSearchOpen ? (
-                <form onSubmit={handleSearch} className="flex items-center">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="البحث..."
-                    className={`w-64 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      darkMode 
-                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
-                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                    }`}
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setIsSearchOpen(false)}
-                    className={`ml-2 p-1 rounded-md ${
-                      darkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                  >
-                    ×
-                  </button>
-                </form>
-              ) : (
-                <button
-                  onClick={() => setIsSearchOpen(true)}
-                  className={`p-2 rounded-md transition-colors duration-200 ${
-                    darkMode 
-                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-800' 
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
-                  }`}
-                >
-                  <Search className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-
             {/* الوضع الليلي */}
             <button
               onClick={toggleDarkMode}
