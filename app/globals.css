@@ -3257,3 +3257,68 @@ img[src="null"] {
   animation: spin-slow 20s linear infinite;
 }
 
+/* أنيميشن القلب للإعجاب */
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.3);
+  }
+  50% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 0.6s ease-in-out;
+}
+
+/* تأثيرات التفاعل */
+.interaction-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.interaction-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: width 0.6s, height 0.6s;
+}
+
+.interaction-button:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* مؤشر التقدم في القراءة */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, #3b82f6 var(--scroll-progress, 0%), transparent var(--scroll-progress, 0%));
+  z-index: 100;
+  transition: background 0.3s ease;
+}
+
+/* تأثير التحديد للنص */
+::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: inherit;
+}
+
