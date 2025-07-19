@@ -980,7 +980,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
                   </div>
                 </div>
               )}
-              {/* عرض المقالات */}
+              {/* عرض المقالات - تم إصلاح العدد ليكون 12 بالضبط */}
               {(showPersonalized && personalizedArticles.length > 0) ? (
                 // عرض المقالات المخصصة للمستخدمين المسجلين
                 isMobile ? (
@@ -1000,7 +1000,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
                     ))}
                   </div>
                 ) : (
-                  // عرض الديسكتوب - شبكة
+                  // عرض الديسكتوب - شبكة (12 مقال بالضبط)
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                     {personalizedArticles.slice(0, 12).map((news) => (
                       <div key={news.id} className="relative">
@@ -1030,7 +1030,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
                     ))}
                   </div>
                 ) : (
-                  // عرض الديسكتوب - شبكة
+                  // عرض الديسكتوب - شبكة (12 مقال للزوار أيضاً)
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                     {articles.slice(0, 12).map((news) => (
                       <NewsCard key={news.id} news={news} />
