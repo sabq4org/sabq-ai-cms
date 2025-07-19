@@ -1,44 +1,45 @@
 #!/bin/sh
 
-echo "🚨 Emergency Build Script"
-echo "========================"
+echo "🚨 Emergency Build Script for DigitalOcean"
+echo "========================================="
+echo "📅 $(date)"
+echo "📁 Current directory: $(pwd)"
+echo ""
 
-# Set environment
-export NODE_ENV=production
-export NEXT_TELEMETRY_DISABLED=1
-export SKIP_ENV_VALIDATION=1
-
-# Set dummy env vars if not present
-if [ -z "$DATABASE_URL" ]; then
-  export DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
-fi
-
-# Clean
+# 1. تنظيف البناء القديم
+echo "1️⃣ Cleaning old build..."
 rm -rf .next
+rm -rf node_modules/.cache
 
-# Try to build
-echo "🏗️ Attempting build..."
-if npx next build; then
-  echo "✅ Build successful!"
-else
-  echo "❌ Build failed, trying without type checking..."
-  # Try build without type checking
-  export SKIP_TYPE_CHECK=1
-  if npx next build; then
-    echo "✅ Build successful (without type check)!"
-  else
-    echo "❌ All build attempts failed!"
+# 2. توليد Prisma
+echo "2️⃣ Generating Prisma Client..."
+npx prisma generate || {
+    echo "❌ Prisma generation failed!"
     exit 1
-  fi
-fi
+}
 
-# Check results
-if [ -d ".next" ]; then
-  echo "✅ .next directory created"
-  ls -la .next/
+# 3. بناء Next.js مباشرة
+echo "3️⃣ Building Next.js directly..."
+NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 npx next build || {
+    echo "❌ Next.js build failed!"
+    exit 1
+}
+
+# 4. التحقق من BUILD_ID
+echo "4️⃣ Verifying build..."
+if [ -f ".next/BUILD_ID" ]; then
+    echo "✅ Build successful!"
+    echo "📋 Build ID: $(cat .next/BUILD_ID)"
+    echo "📁 .next contents:"
+    ls -la .next/
 else
-  echo "❌ No .next directory found!"
-  exit 1
+    echo "❌ BUILD_ID not found!"
+    echo "📁 Current directory contents:"
+    ls -la
+    echo "📁 .next directory contents:"
+    ls -la .next/ || echo "No .next directory"
+    exit 1
 fi
 
-echo "🎉 Emergency build completed!" 
+echo ""
+echo "✅ Emergency build completed successfully!" 

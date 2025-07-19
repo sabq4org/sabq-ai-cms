@@ -48,13 +48,21 @@ RUN echo "🏗️ Building Next.js application..." && \
     chmod +x scripts/digitalocean-build-v5.js && \
     node scripts/digitalocean-build-v5.js
 
-# Verify build output
+# Verify build output and BUILD_ID
 RUN echo "📁 Verifying build output..." && \
     ls -la && \
     echo "📁 .next directory:" && \
     ls -la .next/ || echo "❌ .next not found" && \
+    echo "🆔 BUILD_ID:" && \
+    cat .next/BUILD_ID || echo "❌ BUILD_ID not found!" && \
     echo "📁 .next/standalone directory:" && \
     ls -la .next/standalone/ || echo "⚠️ standalone not found"
+
+# Ensure BUILD_ID exists
+RUN if [ ! -f ".next/BUILD_ID" ]; then \
+        echo "❌ BUILD_ID missing! Running direct build..." && \
+        npx next build; \
+    fi
 
 # Production image, copy all the files and run next
 FROM base AS runner

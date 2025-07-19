@@ -1,21 +1,35 @@
 name: sabq-ai-cms
-region: fra
+region: nyc
 services:
 - name: web
+  dockerfile_path: Dockerfile.digitalocean
   source_dir: /
   github:
     repo: sabq4org/sabq-ai-cms
     branch: main
     deploy_on_push: true
-  build_command: npm run build:deploy
-  run_command: npm run start
+  build_command: |
+    echo "🏗️ بناء المشروع..." && \
+    npx prisma generate && \
+    npm run build && \
+    echo "✅ تم البناء بنجاح"
+  run_command: |
+    echo "🚀 تشغيل الخادم..." && \
+    if [ -f ".next/BUILD_ID" ]; then \
+      echo "✅ Build ID: $(cat .next/BUILD_ID)" && \
+      npx next start -H 0.0.0.0 -p ${PORT:-3000}; \
+    else \
+      echo "❌ BUILD_ID مفقود! إعادة البناء..." && \
+      npm run build && \
+      npx next start -H 0.0.0.0 -p ${PORT:-3000}; \
+    fi
   environment_slug: node-js
   instance_count: 1
-  instance_size_slug: basic-xxs
+  instance_size_slug: professional-xs
   http_port: 3000
   health_check:
     http_path: /api/health
-    initial_delay_seconds: 90
+    initial_delay_seconds: 30
     period_seconds: 30
     timeout_seconds: 15
     success_threshold: 1

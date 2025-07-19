@@ -53,44 +53,45 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // بيانات افتراضية
+  const getDefaultDose = (): DailyDose => ({
+    id: 'default-dose',
+    period: 'evening',
+    title: 'جرعتك اليومية',
+    subtitle: 'محتوى مختار بعناية لك',  
+    date: new Date().toISOString(),
+    status: 'published',
+    views: 0,
+    contents: [
+      {
+        id: '1',
+        contentType: 'article',
+        title: 'أخبار اليوم',
+        summary: 'تابع آخر الأخبار والمستجدات',
+        imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800',
+        displayOrder: 0
+      },
+      {
+        id: '2',
+        contentType: 'audio',
+        title: 'نشرة صوتية',
+        summary: 'استمع إلى أهم الأحداث',
+        imageUrl: 'https://images.unsplash.com/photo-1589903308904-1010c2294adc?w=800',
+        displayOrder: 1
+      }
+    ]
+  });
+
   // جلب الجرعة الحالية
   useEffect(() => {
     let mounted = true;
-    let timeoutId: NodeJS.Timeout;
     
     const fetchData = async () => {
-      // تأخير بسيط لمنع التحديث السريع جداً
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      if (!mounted) return;
-      
-      // إضافة timeout لمنع التعليق
-      timeoutId = setTimeout(() => {
-        if (mounted && loading) {
-          console.warn('SmartDigestBlock: Timeout reached, using fallback data');
-          setDose({
-            id: 'timeout-fallback',
-            period: 'evening',
-            title: 'جرعتك اليومية',
-            subtitle: 'محتوى مختار بعناية لك',  
-            date: new Date().toISOString(),
-            status: 'published',
-            views: 0,
-            contents: [
-              {
-                id: '1',
-                contentType: 'article',
-                title: 'أخبار اليوم',
-                summary: 'تابع آخر الأخبار والمستجدات',
-                imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800',
-                displayOrder: 0
-              }
-            ]
-          });
-          setLoading(false);
-          setError('تأخر في تحميل البيانات');
-        }
-      }, 5000); // 5 ثواني كحد أقصى
+      // إظهار البيانات الافتراضية فوراً ثم تحديثها
+      if (mounted) {
+        setDose(getDefaultDose());
+        setLoading(false);
+      }
       
       try {
         const url = forceTimeSlot 
@@ -102,66 +103,19 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
           headers: {
             'Content-Type': 'application/json',
           },
-          signal: AbortSignal.timeout(4000) // 4 ثواني timeout للـ fetch
+          signal: AbortSignal.timeout(3000) // 3 ثواني timeout
         });
         
         if (!mounted) return;
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.contents && data.contents.length > 0) {
+            setDose(data);
+          }
         }
-        
-        const data = await response.json();
-        
-        if (!mounted) return;
-        
-        setDose(data);
-        setLoading(false);
-        setError(null);
       } catch (error) {
-        console.error('Error fetching daily dose:', error);
-        
-        if (!mounted) return;
-        
-        // في حالة الخطأ، عرض بيانات افتراضية
-        setDose({
-          id: 'fallback-dose',
-          period: 'evening',
-          title: 'جرعتك اليومية',
-          subtitle: 'محتوى مختار بعناية لك',  
-          date: new Date().toISOString(),
-          status: 'published',
-          views: 0,
-          contents: [
-            {
-              id: '1',
-              contentType: 'article',
-              title: 'أخبار اليوم',
-              summary: 'تابع آخر الأخبار والمستجدات',
-              imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800',
-              displayOrder: 0
-            },
-            {
-              id: '2',
-              contentType: 'analysis',
-              title: 'تحليل الأحداث',
-              summary: 'نظرة معمقة على أهم الأحداث',
-              imageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800',
-              displayOrder: 1
-            },
-            {
-              id: '3',
-              contentType: 'tip',
-              title: 'نصيحة اليوم',
-              summary: 'استفد من نصائحنا اليومية',
-              displayOrder: 2
-            }
-          ]
-        });
-        setLoading(false);
-        setError('استخدام محتوى محلي');
-      } finally {
-        if (timeoutId) clearTimeout(timeoutId);
+        console.warn('SmartDigestBlock: Using default data due to error:', error);
       }
     };
     
@@ -169,7 +123,6 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
     
     return () => {
       mounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [forceTimeSlot]);
 

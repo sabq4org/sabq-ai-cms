@@ -10,6 +10,7 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeScript } from './theme-script'
 import BuildVersion from './BUILD_VERSION'
 import SmartErrorBoundary from '@/components/ErrorBoundary/SmartErrorBoundary'
+import GlobalErrorBoundary from '@/components/ErrorBoundary/GlobalErrorBoundary'
 import DevToolsFix from '@/components/DevToolsFix'
 // تحميل article-card.css في النهاية لتجنب التعارضات
 import '@/styles/article-card.css'
@@ -145,11 +146,13 @@ export default function RootLayout({
       )} suppressHydrationWarning>
         <DevToolsFix />
         <BuildVersion />
-        <Providers>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </Providers>
+        <GlobalErrorBoundary>
+          <Providers>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </Providers>
+        </GlobalErrorBoundary>
       </body>
     </html>
   )

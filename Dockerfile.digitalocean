@@ -28,6 +28,15 @@ COPY . .
 RUN npx prisma generate
 RUN npm run build:production || npm run build
 
+# التحقق من نجاح البناء
+RUN echo "🔍 التحقق من البناء..." && \
+    if [ ! -f ".next/BUILD_ID" ]; then \
+        echo "❌ BUILD_ID مفقود! إعادة البناء..." && \
+        rm -rf .next && \
+        npx next build; \
+    fi && \
+    echo "✅ Build ID: $(cat .next/BUILD_ID)"
+
 # ================================
 # 🚀 مرحلة الإنتاج
 # ================================

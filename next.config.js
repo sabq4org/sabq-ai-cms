@@ -2,6 +2,40 @@
 const nextConfig = {
   reactStrictMode: false,
 
+  // تجريبي: تحسينات لحل مشاكل chunks
+  experimental: {
+    optimizeCss: true,
+    serverComponentsExternalPackages: ['prisma', '@prisma/client'],
+  },
+
+  // إعدادات headers لضمان MIME types صحيحة
+  async headers() {
+    return [
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=UTF-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/:path*.js',
+        headers: [
+          {
+            key: 'Content-Type', 
+            value: 'application/javascript; charset=UTF-8',
+          },
+        ],
+      },
+    ];
+  },
+
   // إعدادات الصور لحل مشاكل Cloudinary
   images: {
     remotePatterns: [
