@@ -14,9 +14,11 @@ import Header from '@/components/Header';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
-  Play, Pause, Volume2, CheckCircle, Sparkles
+  Play, Pause, Volume2, CheckCircle, Sparkles, Brain
 } from 'lucide-react';
-import ArticleInteractions from '@/components/article/ArticleInteractions';
+import { SmartInteractionButtons } from '@/components/article/SmartInteractionButtons';
+import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
+import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
 import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
 
 // نوع البيانات
@@ -47,6 +49,7 @@ interface Article {
     shares: number;
     saves: number;
   };
+  comments_count?: number;
 }
 
 interface PageProps {
@@ -62,20 +65,18 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
       setArticleId(resolvedParams.id);
     });
   }, [params]);
+  
   const { darkMode } = useDarkModeContext();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
-  const [interaction, setInteraction] = useState({
-    liked: false,
-    saved: false,
-    likesCount: 0,
-    savesCount: 0
-  });
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'not_found' | 'not_published' | 'server_error' | null>(null);
+
+  // استخدام hook تتبع التفاعلات
+  const interactionTracking = useUserInteractionTracking(articleId);
 
   // تعريف دالة جلب المقال
   const fetchArticle = async (id: string) => {
@@ -110,11 +111,12 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
       
       // تحديث عدادات التفاعل
       if (data.stats) {
-        setInteraction(prev => ({
-          ...prev,
-          likesCount: data.stats.likes || 0,
-          savesCount: data.stats.saves || 0
-        }));
+        // interactionTracking.updateStats({
+        //   likes: data.stats.likes || 0,
+        //   saves: data.stats.saves || 0,
+        //   shares: data.stats.shares || 0,
+        //   comments: data.comments_count || 0
+        // });
       }
     } catch (error) {
       console.error('خطأ في جلب المقال:', error);
@@ -134,40 +136,12 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
 
   // معالجة الإعجاب
   const handleLike = async () => {
-    setInteraction(prev => ({
-      ...prev,
-      liked: !prev.liked,
-      likesCount: prev.liked ? prev.likesCount - 1 : prev.likesCount + 1
-    }));
-    
-    try {
-      await fetch('/api/interactions/like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId })
-      });
-    } catch (error) {
-      console.error('Error liking article:', error);
-    }
+    // interactionTracking.toggleLike();
   };
 
   // معالجة الحفظ
   const handleSave = async () => {
-    setInteraction(prev => ({
-      ...prev,
-      saved: !prev.saved,
-      savesCount: prev.saved ? prev.savesCount - 1 : prev.savesCount + 1
-    }));
-    
-    try {
-      await fetch('/api/interactions/bookmark', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId })
-      });
-    } catch (error) {
-      console.error('Error saving article:', error);
-    }
+    // interactionTracking.toggleSave();
   };
 
   // التحكم في مشغل الصوت
@@ -289,6 +263,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     <>
       <Header />
       <ArticleJsonLd article={article} />
+      <ReadingProgressBar />
       
       <main className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* صورة المقال */}
@@ -325,9 +300,9 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
               {article.title}
             </h1>
 
-            {/* معلومات المقال */}
+            {/* المعلومات الأساسية */}
             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-              {article.author?.name && (
+              {article.author && (
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4" />
                   <span>{article.author.name}</span>
@@ -335,15 +310,15 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
               )}
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                <span>{formatFullDate(article.published_at || article.created_at || '')}</span>
+                <span>{formatFullDate(article.published_at || article.created_at)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>{article.reading_time || calculateReadingTime(article.content)} دقائق قراءة</span>
               </div>
               <div className="flex items-center gap-2">
                 <Eye className="w-4 h-4" />
                 <span>{article.views || 0} مشاهدة</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>{article.reading_time || calculateReadingTime(article.content)} دقائق</span>
               </div>
             </div>
           </header>
@@ -365,23 +340,22 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
                 </div>
                 
                 {/* زر الاستماع - يظهر دائماً إذا كان هناك موجز */}
-                  <button
-                    onClick={toggleAudioPlayer}
-                    className={`flex-shrink-0 p-2 rounded-lg transition-all ${
-                      showAudioPlayer 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50'
-                    }`}
-                    title="استمع للملخص"
-                  >
-                    <Headphones className="w-5 h-5" />
-                  </button>
+                <button
+                  onClick={toggleAudioPlayer}
+                  className={`flex-shrink-0 p-2 rounded-lg transition-all ${
+                    showAudioPlayer 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50'
+                  }`}
+                  title="استمع للملخص"
+                >
+                  <Headphones className="w-5 h-5" />
+                </button>
               </div>
 
               {/* مشغل الصوت الذكي */}
               {showAudioPlayer && (
                 <div className="mt-4">
-                  {/* استخدام AudioSummaryPlayer المتطور */}
                   <AudioSummaryPlayer
                     articleId={article.id}
                     excerpt={article.excerpt || article.summary || article.ai_summary}
@@ -392,15 +366,22 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
             </div>
           )}
 
-          {/* شريط التفاعل */}
+          {/* أزرار التفاعل الذكية */}
           <div className="mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <ArticleInteractions 
+            <SmartInteractionButtons 
               articleId={article.id}
               initialStats={{
-                likes: article.likes || interaction.likesCount || 0,
-                saves: article.saves || interaction.savesCount || 0,
-                shares: article.shares || 0,
-                views: article.views || 0
+                likes: article.likes || article.stats?.likes || 0,
+                saves: article.saves || article.stats?.saves || 0,
+                shares: article.shares || article.stats?.shares || 0,
+                comments: article.comments_count || 0
+              }}
+              onComment={() => {
+                // التمرير إلى قسم التعليقات
+                const commentsSection = document.getElementById('comments');
+                if (commentsSection) {
+                  commentsSection.scrollIntoView({ behavior: 'smooth' });
+                }
               }}
             />
           </div>
@@ -428,6 +409,12 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
             className="prose prose-lg max-w-none dark:prose-invert"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
+          
+          {/* قسم التعليقات */}
+          <div id="comments" className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">التعليقات</h2>
+            {/* يمكن إضافة مكون التعليقات هنا */}
+          </div>
         </article>
       </main>
       
