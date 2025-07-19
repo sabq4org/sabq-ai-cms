@@ -15,6 +15,8 @@ import DevToolsFix from '@/components/DevToolsFix'
 // تحميل article-card.css في النهاية لتجنب التعارضات
 import '@/styles/article-card.css'
 
+import { SmartNotifications } from '@/components/Notifications/SmartNotifications'
+
 // DEBUG: طباعة أنواع المكونات للتحقق من وجودها
 if (process.env.NODE_ENV !== "production") {
   console.log("ROOT_LAYOUT_COMPONENT_TYPES", {
@@ -144,12 +146,15 @@ export default function RootLayout({
       )} suppressHydrationWarning>
         <DevToolsFix />
         <BuildVersion />
+        <SmartNotifications />
         <GlobalErrorBoundary>
-          <Providers>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
-          </Providers>
+          <SmartErrorBoundary>
+            <Providers>
+              <AuthProvider>
+                {children}
+              </AuthProvider>
+            </Providers>
+          </SmartErrorBoundary>
         </GlobalErrorBoundary>
       </body>
     </html>
