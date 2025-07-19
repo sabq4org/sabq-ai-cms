@@ -1,8 +1,5 @@
 import { Metadata } from 'next'
 import './globals.css'
-
-import '@/styles/fix-layout.css'
-import '@/styles/dashboard-enhanced.css'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import { Providers } from './providers'
@@ -12,10 +9,8 @@ import BuildVersion from './BUILD_VERSION'
 import SmartErrorBoundary from '@/components/ErrorBoundary/SmartErrorBoundary'
 import GlobalErrorBoundary from '@/components/ErrorBoundary/GlobalErrorBoundary'
 import DevToolsFix from '@/components/DevToolsFix'
-// تحميل article-card.css في النهاية لتجنب التعارضات
-import '@/styles/article-card.css'
-
 import { SmartNotifications } from '@/components/Notifications/SmartNotifications'
+import { CSSLoader } from '@/components/CSSLoader'
 
 // DEBUG: طباعة أنواع المكونات للتحقق من وجودها
 if (process.env.NODE_ENV !== "production") {
@@ -144,6 +139,7 @@ export default function RootLayout({
         "dark:bg-gray-900 dark:text-gray-100",
         "transition-all duration-300"
       )} suppressHydrationWarning>
+        <CSSLoader />
         <DevToolsFix />
         <BuildVersion />
         <SmartNotifications />

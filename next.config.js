@@ -73,6 +73,30 @@ const nextConfig = {
     } : false,
   },
 
+  // تعطيل preload للـ CSS غير المستخدم
+  webpack: (config, { dev, isServer }) => {
+    // تعطيل CSS preloading في development
+    if (dev && !isServer) {
+      config.plugins = config.plugins.filter(
+        plugin => plugin.constructor.name !== 'CssMinimizerPlugin'
+      );
+    }
+
+    // إضافة قاعدة لتجاهل التحذيرات
+    config.module.rules.push({
+      test: /\.css$/,
+      use: {
+        loader: 'css-loader',
+        options: {
+          importLoaders: 1,
+          modules: false,
+        },
+      },
+    });
+
+    return config;
+  },
+
   // Headers لتحسين التحميل
   async headers() {
     return [
@@ -80,17 +104,26 @@ const nextConfig = {
         source: '/:path*',
         headers: [
           {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on'
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff'
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
       {
-        source: '/_next/static/:path*',
+        source: '/_next/static/css/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+      {
+        source: '/:all*(css)',
         headers: [
           {
             key: 'Cache-Control',
@@ -98,7 +131,7 @@ const nextConfig = {
           },
         ],
       },
-    ]
+    ];
   },
 }
 
