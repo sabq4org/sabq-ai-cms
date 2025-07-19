@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { prisma } from '@/lib/prisma';
+import { prisma, ensureConnection } from '@/lib/prisma';
 import { handleOptions, corsResponse, addCorsHeaders } from '@/lib/cors';
 
 
@@ -24,6 +24,18 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-pro
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 بدء التحقق من هوية المستخدم...')
+    
+    // التأكد من الاتصال بقاعدة البيانات أولاً
+    const isConnected = await ensureConnection();
+    if (!isConnected) {
+      console.error('❌ فشل الاتصال بقاعدة البيانات')
+      return corsResponse({
+        success: false,
+        error: 'فشل الاتصال بقاعدة البيانات'
+      }, 500);
+    }
+
     // Debugging: طباعة متغيرات البيئة للتأكد من وجودها
     console.log('DATABASE_URL is set:', !!process.env.DATABASE_URL);
     console.log('JWT_SECRET is set:', !!process.env.JWT_SECRET);

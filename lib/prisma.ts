@@ -1,4 +1,5 @@
 import { PrismaClient } from '@/lib/generated/prisma'
+import { runStartupChecks } from './startup-checks'
 
 declare global {
   var prisma: PrismaClient | undefined
@@ -7,6 +8,12 @@ declare global {
 // إنشاء Prisma Client مع إعدادات محسنة
 const prismaClientSingleton = () => {
   console.log('🔄 إنشاء Prisma Client جديد...')
+  
+  // فحص المتغيرات قبل إنشاء العميل
+  const checksPass = runStartupChecks()
+  if (!checksPass) {
+    console.warn('⚠️ بعض الفحوصات فشلت، قد تواجه مشاكل')
+  }
   
   const client = new PrismaClient({
     log: process.env.NODE_ENV === 'development' 
@@ -20,12 +27,13 @@ const prismaClientSingleton = () => {
     errorFormat: 'minimal',
   })
 
-  // اتصال تلقائي بقاعدة البيانات
-  client.$connect().then(() => {
-    console.log('✅ تم الاتصال بقاعدة البيانات تلقائياً')
-  }).catch((error) => {
-    console.error('❌ فشل في الاتصال التلقائي:', error)
-  })
+  // معالجة إغلاق الاتصال عند إيقاف التطبيق
+  if (typeof window === 'undefined') {
+    process.on('beforeExit', async () => {
+      console.log('🔌 إغلاق اتصال قاعدة البيانات...')
+      await client.$disconnect()
+    })
+  }
   
   return client
 }
@@ -51,18 +59,32 @@ async function connectDatabase() {
 // helper function للتحقق من حالة الاتصال مع إعادة المحاولة
 export async function ensureConnection() {
   try {
+    // التحقق من متغير البيئة
+    if (!process.env.DATABASE_URL) {
+      console.error('❌ DATABASE_URL غير محدد')
+      return false
+    }
+
     // محاولة اتصال أولية
     await prisma.$connect()
     
     // اختبار الاتصال بعملية بسيطة
-    await prisma.$queryRaw`SELECT 1`
+    await prisma.$queryRaw`SELECT 1 as test`
+    console.log('✅ تم التحقق من اتصال قاعدة البيانات')
     return true
   } catch (error) {
-    console.log('🔄 محاولة إعادة الاتصال...')
+    console.log('🔄 محاولة إعادة الاتصال...', error)
     try {
-      // محاولة اتصال مرة أخرى
+      // إغلاق الاتصال الحالي
+      await prisma.$disconnect()
+      
+      // محاولة اتصال جديد
       await prisma.$connect()
-      return await connectDatabase()
+      
+      // اختبار مرة أخرى
+      await prisma.$queryRaw`SELECT 1 as test`
+      console.log('✅ نجح إعادة الاتصال')
+      return true
     } catch (retryError) {
       console.error('❌ فشل في إعادة الاتصال:', retryError)
       return false

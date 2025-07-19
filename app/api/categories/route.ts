@@ -105,9 +105,12 @@ function normalizeMetadata(md: any): any {
 // GET: جلب جميع الفئات
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 بدء جلب التصنيفات...')
+    
     // التأكد من الاتصال بقاعدة البيانات
     const isConnected = await ensureConnection();
     if (!isConnected) {
+      console.error('❌ فشل الاتصال بقاعدة البيانات')
       return corsResponse({
         success: false,
         error: 'فشل الاتصال بقاعدة البيانات'
@@ -129,6 +132,8 @@ export async function GET(request: NextRequest) {
     const parentId = searchParams.get('parent_id');
     const slug = searchParams.get('slug');
     const limit = searchParams.get('limit');
+    
+    console.log('📋 معاملات البحث:', { isActive, parentId, slug, limit })
     
     // بناء شروط البحث
     const where: any = {};
@@ -214,6 +219,8 @@ export async function GET(request: NextRequest) {
       ENHANCED_CACHE_TTL.CATEGORIES
     )
     
+    console.log(`✅ تم جلب ${categories.length} تصنيف بنجاح`)
+    
     return corsResponse({
       success: true,
       data: categories,
@@ -222,11 +229,20 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('خطأ في جلب الفئات:', error);
+    console.error('❌ خطأ في جلب الفئات:', error);
+    console.error('تفاصيل الخطأ:', {
+      message: error instanceof Error ? error.message : 'خطأ غير معروف',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
+    
     return corsResponse({
       success: false,
       error: 'حدث خطأ في جلب الفئات',
-      message: error instanceof Error ? error.message : 'خطأ غير معروف'
+      message: error instanceof Error ? error.message : 'خطأ غير معروف',
+      ...(process.env.NODE_ENV === 'development' && {
+        stack: error instanceof Error ? error.stack : undefined
+      })
     }, 500);
   }
 }
