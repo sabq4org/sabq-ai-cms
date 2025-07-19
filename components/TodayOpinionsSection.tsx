@@ -206,7 +206,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
             id: 'mubarak-analysis-1',
             title: 'تحولات السياسة الخارجية السعودية في عهد الرؤية',
             author_name: 'مبارك آل عاتي',
-            author_avatar: 'https://www2.0zz0.com/2025/07/15/20/855793733.png',
+            author_avatar: 'https://res.cloudinary.com/dybhezmvb/image/upload/v1730000000/avatars/mubarak-al-ati.jpg',
             author_club: 'platinum',
             author_specialization: 'محلل سياسي',
             excerpt: 'شهدت السياسة الخارجية السعودية تطوراً استراتيجياً جذرياً في إطار رؤية 2030، مما عزز مكانة المملكة إقليمياً وعالمياً...',

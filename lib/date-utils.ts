@@ -1,283 +1,170 @@
-// دوال مساعدة للتاريخ - بالتقويم الميلادي فقط
+/**
+ * دالة تنسيق التاريخ الثابتة لتجنب مشاكل الهيدريشن في Next.js
+ * تضمن نفس النتيجة على الخادم والعميل
+ */
 
-export interface DateFormatOptions {
+interface DateFormatOptions {
+  includeYear?: boolean;
   includeTime?: boolean;
-  format?: 'short' | 'medium' | 'long' | 'full';
-  timeZone?: string;
+  format?: 'full' | 'short' | 'minimal';
 }
 
 /**
- * تنسيق التاريخ بالتقويم الميلادي باللغة العربية
+ * تنسيق التاريخ بطريقة ثابتة لتجنب اختلافات الهيدريشن
  */
-export function formatDate(date: Date | string, options: DateFormatOptions = {}): string {
-  const {
-    includeTime = false,
-    format = 'medium',
-    timeZone = 'Asia/Riyadh'
-  } = options;
-
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+export function formatDate(dateString: string | undefined, options: DateFormatOptions = {}): string {
+  if (!dateString) return 'اليوم';
   
-  if (!dateObj || isNaN(dateObj.getTime())) {
+  const { includeYear = false, includeTime = false, format = 'short' } = options;
+  
+  try {
+    const date = new Date(dateString);
+    
+    // تحقق من صحة التاريخ
+    if (isNaN(date.getTime())) {
+      return 'تاريخ غير صحيح';
+    }
+    
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // للتواريخ الحديثة، نعرض نص نسبي
+    if (diffDays === 0) return 'اليوم';
+    if (diffDays === 1) return 'أمس';
+    if (diffDays < 7 && format !== 'full') return `منذ ${diffDays} أيام`;
+    
+    // تنسيق ثابت للتاريخ
+    const months = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    // تنسيق قصير بدون فاصلة لتجنب مشاكل الهيدريشن
+    let formattedDate = `${day} ${month}`;
+    
+    if (includeYear || year !== now.getFullYear()) {
+      formattedDate += ` ${year}`;
+    }
+    
+    if (includeTime) {
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      formattedDate += ` ${hours}:${minutes}`;
+    }
+    
+    return formattedDate;
+  } catch (error) {
+    console.error('خطأ في تنسيق التاريخ:', error);
     return 'تاريخ غير صحيح';
   }
+}
 
-  const dateOptions: Intl.DateTimeFormatOptions = {
-    timeZone,
-    calendar: 'gregory', // التقويم الميلادي
-    numberingSystem: 'latn', // الأرقام اللاتينية
-  };
+/**
+ * تنسيق التاريخ للعرض المختصر (يوم وشهر فقط)
+ */
+export function formatDateShort(dateString: string | undefined): string {
+  return formatDate(dateString, { format: 'short' });
+}
 
-  // إعداد تنسيق التاريخ
-  if (format === 'short') {
-    dateOptions.year = 'numeric';
-    dateOptions.month = 'numeric';
-    dateOptions.day = 'numeric';
-  } else if (format === 'medium') {
-    dateOptions.year = 'numeric';
-    dateOptions.month = 'short';
-    dateOptions.day = 'numeric';
-  } else if (format === 'long') {
-    dateOptions.year = 'numeric';
-    dateOptions.month = 'long';
-    dateOptions.day = 'numeric';
-    dateOptions.weekday = 'long';
-  } else if (format === 'full') {
-    dateOptions.year = 'numeric';
-    dateOptions.month = 'long';
-    dateOptions.day = 'numeric';
-    dateOptions.weekday = 'long';
+/**
+ * تنسيق التاريخ مع السنة
+ */
+export function formatDateWithYear(dateString: string | undefined): string {
+  return formatDate(dateString, { includeYear: true });
+}
+
+/**
+ * تنسيق التاريخ مع الوقت
+ */
+export function formatDateWithTime(dateString: string | undefined): string {
+  return formatDate(dateString, { includeTime: true });
+}
+
+/**
+ * تحويل التاريخ النسبي (منذ x دقائق/ساعات/أيام)
+ */
+export function formatRelativeTime(dateString: string | undefined): string {
+  if (!dateString) return 'غير محدد';
+  
+  try {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMinutes < 1) return 'الآن';
+    if (diffMinutes < 60) return `منذ ${diffMinutes} دقيقة`;
+    if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+    if (diffDays < 7) return `منذ ${diffDays} أيام`;
+    if (diffDays < 30) return `منذ ${Math.floor(diffDays / 7)} أسابيع`;
+    if (diffDays < 365) return `منذ ${Math.floor(diffDays / 30)} شهر`;
+    
+    return formatDate(dateString, { includeYear: true });
+  } catch (error) {
+    console.error('خطأ في تنسيق الوقت النسبي:', error);
+    return 'غير محدد';
   }
+}
 
-  // إضافة الوقت إذا كان مطلوباً
-  if (includeTime) {
-    dateOptions.hour = '2-digit';
-    dateOptions.minute = '2-digit';
-    dateOptions.hour12 = true;
+/**
+ * تنسيق التاريخ بطريقة آمنة مع نص بديل
+ */
+export function formatDateSafe(
+  dateString: string | undefined, 
+  format: 'full' | 'short' | 'minimal' = 'short', 
+  fallback: string = 'غير محدد'
+): string {
+  if (!dateString) return fallback;
+  
+  try {
+    const options: DateFormatOptions = {
+      format,
+      includeYear: format === 'full',
+      includeTime: format === 'full'
+    };
+    
+    const result = formatDate(dateString, options);
+    return result === 'تاريخ غير صحيح' ? fallback : result;
+  } catch (error) {
+    console.error('خطأ في formatDateSafe:', error);
+    return fallback;
   }
-
-  return dateObj.toLocaleDateString('ar-SA', dateOptions);
 }
 
 /**
  * تنسيق التاريخ والوقت معاً
  */
-export function formatDateTime(date: Date | string, format: 'short' | 'medium' | 'long' = 'medium'): string {
-  return formatDate(date, { includeTime: true, format });
+export function formatDateTime(dateString: string | undefined): string {
+  return formatDate(dateString, { includeTime: true, includeYear: true });
 }
 
 /**
- * تنسيق التاريخ بشكل مختصر (رقمي)
+ * تنسيق التاريخ النسبي المتقدم
  */
-export function formatDateShort(date: Date | string): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  if (!dateObj || isNaN(dateObj.getTime())) {
-    return 'تاريخ غير صحيح';
-  }
-
-  return dateObj.toLocaleDateString('ar-SA', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    calendar: 'gregory',
-    numberingSystem: 'latn'
-  });
-}
-
-/**
- * تنسيق التاريخ النسبي (منذ كم من الوقت)
- */
-export function formatRelativeDate(date: Date | string): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
-
-  if (diffInSeconds < 60) {
-    return 'الآن';
-  } else if (diffInSeconds < 3600) {
-    const minutes = Math.floor(diffInSeconds / 60);
-    return `منذ ${minutes} دقيقة`;
-  } else if (diffInSeconds < 86400) {
-    const hours = Math.floor(diffInSeconds / 3600);
-    return `منذ ${hours} ساعة`;
-  } else if (diffInSeconds < 2592000) {
-    const days = Math.floor(diffInSeconds / 86400);
-    return `منذ ${days} يوم`;
-  } else {
-    return formatDate(dateObj, { format: 'short' });
-  }
-}
-
-/**
- * تنسيق الوقت فقط
- */
-export function formatTime(date: Date | string): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  if (!dateObj || isNaN(dateObj.getTime())) {
-    return 'وقت غير صحيح';
-  }
-
-  return dateObj.toLocaleTimeString('ar-SA', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-    timeZone: 'Asia/Riyadh'
-  });
-}
-
-/**
- * تحويل التاريخ إلى نص قابل للقراءة
- */
-export function formatDateReadable(date: Date | string): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const yesterday = new Date(today.getTime() - 86400000);
-  const targetDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
-
-  if (targetDate.getTime() === today.getTime()) {
-    return `اليوم، ${formatTime(dateObj)}`;
-  } else if (targetDate.getTime() === yesterday.getTime()) {
-    return `أمس، ${formatTime(dateObj)}`;
-  } else if (now.getTime() - targetDate.getTime() < 7 * 24 * 60 * 60 * 1000) {
-    return dateObj.toLocaleDateString('ar-SA', {
-      weekday: 'long',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-      calendar: 'gregory',
-      numberingSystem: 'latn'
-    });
-  } else {
-    return formatDateTime(dateObj, 'medium');
-  }
-}
-
-/**
- * الحصول على التاريخ الحالي بالميلادي
- */
-export function getCurrentDate(): string {
-  return formatDate(new Date(), { format: 'long' });
-}
-
-/**
- * الحصول على التاريخ والوقت الحالي
- */
-export function getCurrentDateTime(): string {
-  return formatDateTime(new Date(), 'long');
-}
-
-/**
- * دالة formatFullDate للتوافق مع الملفات القديمة
- */
-export function formatFullDate(date: Date | string): string {
-  return formatDateTime(date, 'long');
-}
-
-/**
- * دالة formatDateOnly للتوافق مع الملفات القديمة
- */
-export function formatDateOnly(date: Date | string): string {
-  return formatDate(date, { format: 'long' });
-} 
-
-/**
- * التحقق من صحة التاريخ وإصلاحه
- * @param dateInput - التاريخ المدخل (string, Date, أو null)
- * @returns التاريخ الصحيح أو null
- */
-export function validateAndFixDate(dateInput: any): Date | null {
-  if (!dateInput) return null;
+export function formatRelativeDate(dateString: string | undefined): string {
+  if (!dateString) return 'غير محدد';
   
   try {
-    let date: Date;
-    
-    // إذا كان التاريخ من نوع Date
-    if (dateInput instanceof Date) {
-      date = dateInput;
-    } 
-    // إذا كان نص
-    else if (typeof dateInput === 'string') {
-      // محاولة تحويل التاريخ
-      date = new Date(dateInput);
-      
-      // إذا فشل التحويل، محاولة تحليل التاريخ بطرق أخرى
-      if (isNaN(date.getTime())) {
-        // محاولة تحليل التاريخ بتنسيق ISO
-        const isoMatch = dateInput.match(/(\d{4})-(\d{2})-(\d{2})/);
-        if (isoMatch) {
-          date = new Date(`${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}T00:00:00.000Z`);
-        } else {
-          return null;
-        }
-      }
-    } 
-    // إذا كان رقم (timestamp)
-    else if (typeof dateInput === 'number') {
-      date = new Date(dateInput);
-    } 
-    else {
-      return null;
-    }
-    
-    // التحقق من صحة التاريخ النهائي
-    if (isNaN(date.getTime())) {
-      return null;
-    }
-    
-    // التحقق من أن التاريخ منطقي (ليس في المستقبل البعيد أو الماضي البعيد)
+    const date = new Date(dateString);
     const now = new Date();
-    const yearDiff = Math.abs(now.getFullYear() - date.getFullYear());
-    if (yearDiff > 100) {
-      return null;
-    }
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
     
-    return date;
+    if (diffDays === 0) return 'اليوم';
+    if (diffDays === 1) return 'أمس';
+    if (diffDays < 7) return `منذ ${diffDays} أيام`;
+    if (diffDays < 30) return `منذ ${Math.floor(diffDays / 7)} أسابيع`;
+    if (diffDays < 365) return `منذ ${Math.floor(diffDays / 30)} شهر`;
+    
+    return `منذ ${Math.floor(diffDays / 365)} سنة`;
   } catch (error) {
-    console.error('خطأ في معالجة التاريخ:', error);
-    return null;
-  }
-}
-
-/**
- * تنسيق التاريخ بشكل آمن
- * @param dateInput - التاريخ المدخل
- * @param format - تنسيق التاريخ المطلوب
- * @returns التاريخ المنسق أو قيمة افتراضية
- */
-export function formatDateSafe(
-  dateInput: any, 
-  format: 'full' | 'date' | 'time' | 'relative' = 'full',
-  defaultValue: string = '—'
-): string {
-  const date = validateAndFixDate(dateInput);
-  
-  if (!date) {
-    return defaultValue;
-  }
-  
-  try {
-    switch (format) {
-      case 'date':
-        return formatDate(date);
-      case 'time':
-        return date.toLocaleTimeString('ar-SA', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-          calendar: 'gregory',
-          numberingSystem: 'latn'
-        });
-      case 'relative':
-        return formatRelativeDate(date);
-      case 'full':
-      default:
-        return formatDateTime(date);
-    }
-  } catch (error) {
-    console.error('خطأ في تنسيق التاريخ:', error);
-    return defaultValue;
+    console.error('خطأ في formatRelativeDate:', error);
+    return 'غير محدد';
   }
 } 

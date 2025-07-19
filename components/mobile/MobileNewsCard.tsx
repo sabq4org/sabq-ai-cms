@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Clock, Eye, Tag, Zap } from 'lucide-react';
 import { getArticleLink } from '@/lib/utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
+import { formatDateShort } from '@/lib/date-utils';
 
 interface MobileNewsCardProps {
   news: any;
@@ -63,12 +64,7 @@ export default function MobileNewsCard({ news, darkMode }: MobileNewsCardProps) 
                 </span>
               )}
               <span className="text-gray-500 dark:text-gray-400">
-                {new Date(news.published_at || news.created_at).toLocaleDateString('ar-SA', {
-                  month: 'short',
-                  day: 'numeric',
-                  calendar: 'gregory',
-                  numberingSystem: 'latn'
-                })}
+                {formatDateShort(news.published_at || news.created_at)}
               </span>
             </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { formatDateShort } from '@/lib/date-utils';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -247,13 +248,7 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 opacity-60" />
-                              <span>{new Date(analysis.publishedAt || analysis.createdAt).toLocaleDateString('ar-SA', { 
-                  month: 'short', 
-                  day: 'numeric',
-                  year: 'numeric',
-                  calendar: 'gregory',
-                  numberingSystem: 'latn'
-                })}</span>
+                              <span>{formatDateShort(analysis.publishedAt || analysis.createdAt)}</span>
             </span>
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 opacity-60" />

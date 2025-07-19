@@ -1,6 +1,7 @@
 'use client';
 
 import { useTemplates } from './TemplateProvider'
+import { formatDateShort } from '@/lib/date-utils';
 import Image from 'next/image'
 import Link from 'next/link'
 

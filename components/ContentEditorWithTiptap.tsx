@@ -4,15 +4,24 @@ import Image from 'next/image';
 import React, { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { EditorErrorBoundary } from '@/components/ErrorBoundary';
+import { AutoSaveIndicator } from '@/components/AutoSave';
 
 import { Image as ImageIcon, Sparkles
 } from 'lucide-react';
 
 
-// Dynamic import for the Editor to avoid SSR issues
+// Dynamic import for the Editor to avoid SSR issues with enhanced error handling
 const Editor = dynamic(() => import('./Editor/Editor'), { 
   ssr: false,
-  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-96 rounded-lg" />
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[400px] bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+        <p className="text-gray-600 dark:text-gray-400 text-sm">جاري تحميل المحرر المتقدم...</p>
+      </div>
+    </div>
+  )
 });
 
 interface ContentBlock {
@@ -357,17 +366,32 @@ export default function ContentEditorWithTiptap({
 
       {/* المحرر */}
       <div className="p-6">
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4 block">
-          محتوى المقال
-        </label>
-        <Editor
-          ref={editorRef}
-          content={convertBlocksToEditorContent()}
-          onChange={handleEditorChange}
-          placeholder="ابدأ كتابة محتوى مقالك هنا..."
-          enableAI={true}
-          onAIAction={handleAIAction}
-        />
+        <div className="flex items-center justify-between mb-4">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            محتوى المقال
+          </label>
+          <AutoSaveIndicator
+            editorKey={`content-editor-${formData.title || 'untitled'}`}
+            content={formData.content_blocks}
+            onRestore={(content) => {
+              setFormData((prev: any) => ({
+                ...prev,
+                content_blocks: content
+              }));
+            }}
+            className="relative"
+          />
+        </div>
+        <EditorErrorBoundary context="ContentEditorWithTiptap">
+          <Editor
+            ref={editorRef}
+            content={convertBlocksToEditorContent()}
+            onChange={handleEditorChange}
+            placeholder="ابدأ كتابة محتوى مقالك هنا..."
+            enableAI={true}
+            onAIAction={handleAIAction}
+          />
+        </EditorErrorBoundary>
       </div>
 
       {/* مؤشر حالة الذكاء الاصطناعي */}

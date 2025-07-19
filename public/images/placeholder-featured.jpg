@@ -1,1 +1,13 @@
- 
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="675" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="675" fill="#f3f4f6"/>
+  <rect x="50" y="50" width="1100" height="575" fill="#e5e7eb" stroke="#d1d5db" stroke-width="2"/>
+  <circle cx="600" cy="300" r="80" fill="#9ca3af"/>
+  <path d="M560 280 L640 280 L620 300 L600 320 L580 300 Z" fill="#6b7280"/>
+  <text x="600" y="400" font-family="Arial, sans-serif" font-size="32" fill="#6b7280" text-anchor="middle">
+    صورة مميزة مؤقتة
+  </text>
+  <text x="600" y="450" font-family="Arial, sans-serif" font-size="20" fill="#9ca3af" text-anchor="middle">
+    1200 × 675 بكسل
+  </text>
+</svg>

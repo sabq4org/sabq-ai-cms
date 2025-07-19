@@ -13,13 +13,11 @@ const AudioSummaryPlayer = dynamic(() => import('@/components/AudioSummaryPlayer
 });
 
 const RelatedArticles = dynamic(() => import('./related-articles'), {
-  loading: () => <div className="h-40 bg-gray-100 animate-pulse rounded-lg" />,
-  ssr: false
+  loading: () => <div className="h-40 bg-gray-100 animate-pulse rounded-lg" />
 });
 
 const CommentsSection = dynamic(() => import('./comments-section'), {
-  loading: () => <div className="h-60 bg-gray-100 animate-pulse rounded-lg" />,
-  ssr: false
+  loading: () => <div className="h-60 bg-gray-100 animate-pulse rounded-lg" />
 });
 
 interface ArticleContentProps {

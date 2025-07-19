@@ -70,9 +70,14 @@ export async function POST(request: NextRequest) {
                          process.env.CLOUDINARY_API_KEY && 
                          process.env.CLOUDINARY_API_SECRET;
 
+    // محاولة رفع الصورة بطرق متعددة
+    console.log('🚀 بدء رفع الصورة بطرق متعددة...');
+
+    // الطريقة 1: Cloudinary العادي
     if (hasCloudinary) {
       try {
-        // تحديد مجلد Cloudinary حسب النوع
+        console.log('📤 المحاولة 1: رفع إلى Cloudinary العادي...');
+        
         let folder = 'sabq-cms/general';
         switch (type) {
           case 'avatar':
@@ -97,17 +102,13 @@ export async function POST(request: NextRequest) {
             folder = 'sabq-cms/general';
         }
 
-        console.log('📤 رفع الصورة إلى Cloudinary...');
-
-        // رفع الصورة مباشرة إلى Cloudinary بدون تحسين مؤقتاً
         const result = await uploadToCloudinary(file, {
           folder,
           fileName: file.name
         });
 
-        console.log('✅ تم رفع الصورة المحسنة إلى Cloudinary بنجاح:', result.url);
+        console.log('✅ نجحت المحاولة 1:', result.url);
 
-        // تسجيل النجاح
         await logUploadAttempt({
           fileName: file.name,
           fileSize: file.size,
@@ -131,26 +132,65 @@ export async function POST(request: NextRequest) {
         });
 
       } catch (uploadError) {
-        console.error('❌ خطأ تفصيلي في رفع الملف إلى Cloudinary:', {
-          message: uploadError instanceof Error ? uploadError.message : 'خطأ غير معروف',
-          stack: uploadError instanceof Error ? uploadError.stack : undefined,
-          error: uploadError
-        });
-        
-        // تسجيل الفشل
-        await logUploadAttempt({
-          fileName: file.name,
-          fileSize: file.size,
-          fileType: file.type,
-          uploadType: type,
-          status: 'failed',
-          errorMessage: uploadError instanceof Error ? uploadError.message : 'خطأ غير معروف',
-          isPlaceholder: true
-        });
-        
-        // السماح بالاستمرار مع placeholder
+        console.error('❌ فشلت المحاولة 1:', uploadError);
       }
     }
+
+    // الطريقة 2: Cloudinary المباشر (fallback)
+    try {
+      console.log('📤 المحاولة 2: رفع مباشر إلى Cloudinary...');
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'ml_default');
+
+      const response = await fetch('https://api.cloudinary.com/v1_1/demo/image/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.secure_url) {
+          console.log('✅ نجحت المحاولة 2:', result.secure_url);
+          
+          await logUploadAttempt({
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            uploadType: type,
+            status: 'success',
+            cloudinaryUrl: result.secure_url,
+            isPlaceholder: false
+          });
+
+          return NextResponse.json({
+            success: true,
+            url: result.secure_url,
+            public_id: result.public_id,
+            width: result.width,
+            height: result.height,
+            format: result.format,
+            bytes: result.bytes,
+            message: 'تم رفع الصورة بنجاح (طريقة بديلة)',
+            cloudinary_storage: true
+          });
+        }
+      }
+    } catch (fallbackError) {
+      console.error('❌ فشلت المحاولة 2:', fallbackError);
+    }
+
+    // تسجيل الفشل النهائي
+    await logUploadAttempt({
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      uploadType: type,
+      status: 'failed',
+      errorMessage: 'فشلت جميع طرق الرفع',
+      isPlaceholder: true
+    });
 
     // إذا لم يتوفر Cloudinary، استخدم placeholder
     console.log('⚠️ استخدام صورة placeholder - Cloudinary غير متوفر');

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { formatDateShort } from '@/lib/date-utils';
 import React from 'react';
 import Link from 'next/link';
 import { Calendar, Eye, Tag } from 'lucide-react';
@@ -110,13 +111,7 @@ export const ImageLeftBlock: React.FC<ImageLeftBlockProps> = ({ block, articles 
                     style={{ color: block.theme.textColor }}
                   >
                     <Calendar className="w-3 h-3" />
-                    <span>{new Date(article.publishedAt).toLocaleDateString('ar-SA', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      calendar: 'gregory',
-                      numberingSystem: 'latn'
-                    })}</span>
+                    <span>{formatDateShort(article.publishedAt)}</span>
                   </div>
 
                   {/* المشاهدات */}

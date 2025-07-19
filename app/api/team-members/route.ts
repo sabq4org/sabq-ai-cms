@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/prisma';
+import { prisma, ensureConnection } from '@/lib/prisma';
 
 
 export const runtime = 'nodejs';
@@ -8,6 +8,15 @@ export const runtime = 'nodejs';
 // GET: جلب قائمة أعضاء الفريق
 export async function GET() {
   try {
+    // التأكد من الاتصال بقاعدة البيانات
+    const isConnected = await ensureConnection();
+    if (!isConnected) {
+      return NextResponse.json({
+        success: false,
+        error: 'فشل الاتصال بقاعدة البيانات'
+      }, { status: 500 });
+    }
+
     const members = await prisma.users.findMany({
       where: {
         role: {

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { formatDateShort } from '@/lib/date-utils';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, Bookmark, Share2, Heart, MessageCircle } from 'lucide-react';
@@ -57,14 +58,34 @@ export default function EnhancedMobileNewsCard({
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             
-            {/* التصنيف */}
-            {news.category_name && (
-              <div className="absolute top-4 right-4">
-                <span className="px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+            {/* مؤشرات الحالة */}
+            <div className="absolute top-4 right-4 flex flex-col gap-2">
+              {/* مؤشر الخبر الجديد (آخر 12 ساعة) */}
+              {news.published_at && (() => {
+                const newsDate = new Date(news.published_at);
+                const now = new Date();
+                const hoursDiff = (now.getTime() - newsDate.getTime()) / (1000 * 60 * 60);
+                return hoursDiff <= 12;
+              })() && (
+                <span className="px-2 py-1 bg-green-500 text-white text-xs font-bold rounded-full animate-pulse">
+                  🔥 جديد
+                </span>
+              )}
+              
+              {/* مؤشر الخبر العاجل */}
+              {news.breaking && (
+                <span className="px-2 py-1 bg-red-600 text-white text-xs font-bold rounded-full animate-pulse">
+                  ⚡ عاجل
+                </span>
+              )}
+              
+              {/* التصنيف */}
+              {news.category_name && (
+                <span className="px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full">
                   {news.category_name}
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* المحتوى */}
@@ -155,8 +176,27 @@ export default function EnhancedMobileNewsCard({
 
             {/* المحتوى */}
             <div className="flex-1 min-w-0">
-              {/* التصنيف والوقت */}
-              <div className="flex items-center gap-2 mb-2">
+              {/* التصنيف والوقت ومؤشرات الحالة */}
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                {/* مؤشر الخبر الجديد (آخر 12 ساعة) */}
+                {news.published_at && (() => {
+                  const newsDate = new Date(news.published_at);
+                  const now = new Date();
+                  const hoursDiff = (now.getTime() - newsDate.getTime()) / (1000 * 60 * 60);
+                  return hoursDiff <= 12;
+                })() && (
+                  <span className="text-xs font-bold px-2 py-0.5 bg-green-500 text-white rounded-full animate-pulse">
+                    🔥 جديد
+                  </span>
+                )}
+                
+                {/* مؤشر الخبر العاجل */}
+                {news.breaking && (
+                  <span className="text-xs font-bold px-2 py-0.5 bg-red-600 text-white rounded-full animate-pulse">
+                    ⚡ عاجل
+                  </span>
+                )}
+                
                 {news.category_name && (
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                     darkMode 

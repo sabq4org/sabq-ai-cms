@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { useDarkModeContext } from '@/contexts/DarkModeContext'
+import { EditorErrorBoundary } from '@/components/ErrorBoundary'
+import SimpleDashboardLayout from '@/components/layout/SimpleDashboardLayout'
 import { 
   ChevronDown, 
   Search,
@@ -386,9 +388,10 @@ export default function NewsManagementPage() {
     </div>
   );
   return (
-  <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
-      darkMode ? 'bg-gray-900' : ''
-    }`}>
+    <SimpleDashboardLayout pageName="إدارة الأخبار">
+      <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
+        darkMode ? 'bg-gray-900' : ''
+      }`}>
       {/* عنوان وتعريف الصفحة */}
       <div className="mb-6 sm:mb-8">
         <h1 className={`text-2xl sm:text-3xl font-bold mb-2 transition-colors duration-300 ${
@@ -460,12 +463,12 @@ export default function NewsManagementPage() {
                 <span className="sm:hidden">تحليلات</span>
               </Link>
               <Link 
-                href="/dashboard/news/unified"
+                href="/dashboard/news/unified/page-redesigned"
                 className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm animate-pulse"
               >
                 <Sparkles className="w-4 h-4" />
-                <span className="hidden sm:inline">واجهة موحدة</span>
-                <span className="sm:hidden">جديد!</span>
+                <span className="hidden sm:inline">✨ واجهة محسنة</span>
+                <span className="sm:hidden">محسن!</span>
               </Link>
               <Link 
                 href="/dashboard/news/create"
@@ -1007,6 +1010,7 @@ export default function NewsManagementPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </SimpleDashboardLayout>
   );
 }

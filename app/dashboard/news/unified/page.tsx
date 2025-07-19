@@ -19,7 +19,7 @@ import {
   Tag, User, Calendar, AlertCircle, CheckCircle, Loader2,
   Sparkles, FileText, Settings, Search, Plus, Trash2,
   Globe, TrendingUp, BookOpen, ChevronRight, Home, Zap,
-  Star, CheckSquare
+  Star, CheckSquare, Wand2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -123,6 +123,12 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
 
   // دالة توليد الاقتراحات الذكية التلقائية
   const generateAutoSuggestions = useCallback(async (content: string, forceGenerate = false) => {
+    // التحقق من صحة المحتوى
+    if (!content || typeof content !== 'string') {
+      console.warn('generateAutoSuggestions: المحتوى المرسل غير صالح:', typeof content);
+      return;
+    }
+
     // تجنب الطلبات المكررة
     const contentHash = btoa(content.substring(0, 200));
     if (!forceGenerate && contentHash === aiAutoSuggestions.lastContentHash) {
@@ -253,12 +259,15 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       clearTimeout(aiTriggerTimeout);
     }
     
-    // تأخير توليد الاقتراحات لـ 3 ثوان بعد آخر تغيير (debouncing)
-    const newTimeout = setTimeout(() => {
-      generateAutoSuggestions(newContent);
-    }, 3000);
-    
-    setAiTriggerTimeout(newTimeout);
+    // التحقق من صحة المحتوى قبل إرساله للذكاء الاصطناعي
+    if (newContent && typeof newContent === 'string' && newContent.trim().length > 0) {
+      // تأخير توليد الاقتراحات لـ 3 ثوان بعد آخر تغيير (debouncing)
+      const newTimeout = setTimeout(() => {
+        generateAutoSuggestions(newContent);
+      }, 3000);
+      
+      setAiTriggerTimeout(newTimeout);
+    }
   }, [generateAutoSuggestions, aiTriggerTimeout]);
 
   // دالة تطبيق الاقتراح المحدد
@@ -563,6 +572,266 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
     } catch (error) {
       console.error('AI Error:', error);
       toast.error('حدث خطأ في الذكاء الاصطناعي');
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
+  // دالة التوليد التلقائي من المحتوى
+  const generateFromContent = async () => {
+    setIsAILoading(true);
+    
+    try {
+      console.log('🤖 بدء التوليد التلقائي من المحتوى...');
+      
+      // استخراج النص من المحرر
+      let contentText = '';
+      let rawExtractedText = null;
+      
+      // معالجة محتوى formData أولاً
+      if (formData.content) {
+        if (typeof formData.content === 'string') {
+          contentText = formData.content;
+        } else if (typeof formData.content === 'object' && (formData.content as any).html) {
+          contentText = (formData.content as any).html;
+          console.log('📝 استخراج HTML من formData.content.html');
+        } else if (typeof formData.content === 'object') {
+          contentText = JSON.stringify(formData.content);
+          console.log('📝 تحويل formData.content object إلى string');
+        }
+      }
+      
+      console.log('🔍 بدء استخراج المحتوى:', {
+        formDataContentType: typeof formData.content,
+        formDataLength: contentText?.length || 0,
+        formDataPreview: contentText?.substring(0, 50) || 'فارغ',
+        editorRefExists: !!editorRef.current,
+        editorRefMethods: editorRef.current ? Object.keys(editorRef.current) : []
+      });
+      
+      // محاولة استخراج النص من المحرر بطرق مختلفة
+      if (editorRef.current) {
+        try {
+          console.log('🔍 طرق المحرر المتاحة:', {
+            getText: typeof editorRef.current.getText,
+            getContent: typeof editorRef.current.getContent,
+            getValue: typeof editorRef.current.getValue,
+            getHTML: typeof editorRef.current.getHTML,
+            innerText: typeof editorRef.current.innerText,
+            textContent: typeof editorRef.current.textContent,
+            editor: !!editorRef.current.editor,
+            editorMethods: editorRef.current.editor ? Object.keys(editorRef.current.editor) : []
+          });
+
+          // محاولة استخراج النص بطرق مختلفة - الأولوية للطرق الصحيحة
+          // جرب الوصول للـ editor الداخلي في Tiptap أولاً للحصول على النص الخام
+          if (editorRef.current.editor?.getText) {
+            rawExtractedText = editorRef.current.editor.getText();
+            console.log('✅ استخدام editor.getText (نص خام):', rawExtractedText?.length);
+          } else if (editorRef.current.editor?.getHTML) {
+            rawExtractedText = editorRef.current.editor.getHTML();
+            console.log('✅ استخدام editor.getHTML:', rawExtractedText?.length);
+          } else if (editorRef.current.getText) {
+            rawExtractedText = editorRef.current.getText();
+            console.log('✅ استخدام getText:', rawExtractedText?.length);
+          } else if (editorRef.current.getHTML) {
+            rawExtractedText = editorRef.current.getHTML();
+            console.log('✅ استخدام getHTML:', rawExtractedText?.length);
+          } else if (editorRef.current.getContent) {
+            const content = editorRef.current.getContent();
+            console.log('🔍 getContent نتيجة:', typeof content, content);
+            // إذا كان getContent يعيد JSON object، استخرج النص منه
+            if (content && typeof content === 'object') {
+              if (content.html) {
+                rawExtractedText = content.html;
+                console.log('✅ استخدام getContent.html:', rawExtractedText?.length);
+              } else if (content.text) {
+                rawExtractedText = content.text;
+                console.log('✅ استخدام getContent.text:', rawExtractedText?.length);
+              } else {
+                // محاولة تحويل JSON إلى text
+                rawExtractedText = JSON.stringify(content);
+                console.log('✅ استخدام getContent JSON:', rawExtractedText?.length);
+              }
+            } else if (typeof content === 'string') {
+              rawExtractedText = content;
+              console.log('✅ استخدام getContent string:', rawExtractedText?.length);
+            }
+          } else if (editorRef.current.getValue) {
+            rawExtractedText = editorRef.current.getValue();
+            console.log('✅ استخدام getValue:', rawExtractedText?.length);
+          } else if (editorRef.current.innerText) {
+            rawExtractedText = editorRef.current.innerText;
+            console.log('✅ استخدام innerText:', rawExtractedText?.length);
+          } else if (editorRef.current.textContent) {
+            rawExtractedText = editorRef.current.textContent;
+            console.log('✅ استخدام textContent:', rawExtractedText?.length);
+          }
+          
+          console.log('🔍 النص المستخرج من المحرر:', {
+            type: typeof rawExtractedText,
+            length: rawExtractedText?.length || 0,
+            preview: typeof rawExtractedText === 'string' ? rawExtractedText.substring(0, 100) : String(rawExtractedText || '').substring(0, 100)
+          });
+          
+          if (rawExtractedText !== null && rawExtractedText !== undefined) {
+            contentText = rawExtractedText;
+          }
+        } catch (error) {
+          console.warn('⚠️ فشل استخراج النص من المحرر:', error);
+        }
+      }
+
+      // التأكد من أن contentText هو string
+      if (typeof contentText !== 'string') {
+        console.log('🔄 تحويل المحتوى إلى string:', typeof contentText);
+        contentText = String(contentText || '');
+      }
+
+              // تنظيف أفضل للـ HTML
+        let cleanText = contentText;
+        
+        console.log('🧹 قبل التنظيف:', {
+          originalText: contentText,
+          originalLength: contentText.length,
+          hasHTML: contentText.includes('<'),
+          firstChars: contentText.substring(0, 100)
+        });
+        
+        if (cleanText.includes('<')) {
+          console.log('🔧 بدء تنظيف HTML...');
+          
+          // إزالة HTML tags مع الحفاظ على المحتوى النصي - تدريجياً
+          let step1 = cleanText.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ''); // إزالة scripts
+          console.log('بعد إزالة scripts:', step1.length);
+          
+          let step2 = step1.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ''); // إزالة styles  
+          console.log('بعد إزالة styles:', step2.length);
+          
+          let step3 = step2.replace(/<br\s*\/?>/gi, ' '); // تحويل br إلى مسافة
+          console.log('بعد تحويل br:', step3.length);
+          
+          let step4 = step3.replace(/<\/p>/gi, ' '); // تحويل نهاية الفقرات إلى مسافة
+          console.log('بعد تحويل p:', step4.length);
+          
+          let step5 = step4.replace(/<\/div>/gi, ' '); // تحويل div إلى مسافة
+          console.log('بعد تحويل div:', step5.length);
+          
+          let step6 = step5.replace(/<[^>]+>/g, ' '); // إزالة باقي tags وتبديلها بمسافة
+          console.log('بعد إزالة tags:', step6.length);
+          
+          let step7 = step6.replace(/\s+/g, ' ').trim(); // تنظيف المسافات الزائدة
+          console.log('بعد تنظيف المسافات:', step7.length);
+          
+          cleanText = step7;
+        }
+
+      console.log('📝 المحتوى بعد التنظيف:', {
+        originalLength: contentText.length,
+        cleanedLength: cleanText.length,
+        cleanedPreview: cleanText.substring(0, 200) + '...'
+      });
+
+              // التحقق من طول المحتوى بعد التنظيف
+        if (!cleanText || cleanText.trim().length < 50) {
+          console.error('❌ محتوى قصير:', {
+            originalText: contentText,
+            cleanedText: cleanText,
+            originalLength: contentText.length,
+            cleanedLength: cleanText.length,
+            trimmedLength: cleanText.trim().length,
+            formDataOriginal: formData.content,
+            editorMethodsChecked: {
+              hasEditor: !!editorRef.current?.editor,
+              hasGetText: !!editorRef.current?.editor?.getText,
+              hasGetHTML: !!editorRef.current?.editor?.getHTML
+            }
+          });
+          
+          const currentLength = cleanText.trim().length;
+          if (currentLength === 0) {
+            toast.error(
+              `المحرر فارغ!\n` +
+              `• يرجى كتابة محتوى الخبر في المحرر أولاً\n` +
+              `• الحد الأدنى للتوليد التلقائي: 50 حرف`
+            );
+          } else {
+            toast.error(
+              `المحتوى قصير جداً للتوليد التلقائي!\n` +
+              `• الحد الأدنى: 50 حرف\n` +
+              `• الحالي: ${currentLength} حرف\n` +
+              `• يرجى إضافة ${50 - currentLength} حرف إضافي على الأقل`
+            );
+          }
+          setIsAILoading(false);
+          return;
+        }
+
+              // استخدام النص المنظف
+        contentText = cleanText.trim();
+
+      console.log('🚀 إرسال طلب التوليد:', {
+        contentLength: contentText.length,
+        contentPreview: contentText.substring(0, 100) + '...',
+        apiEndpoint: '/api/news/ai-generate'
+      });
+
+      const response = await fetch('/api/news/ai-generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: contentText
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'فشل في التوليد');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // التحقق من وجود العنوان الرئيسي
+        if (!result.title || result.title.trim() === '') {
+          console.warn('⚠️ العنوان الرئيسي فارغ في الاستجابة:', result);
+          toast.error('تم التوليد ولكن العنوان الرئيسي مفقود. يرجى المحاولة مرة أخرى.');
+          return;
+        }
+
+        // تطبيق النتائج على النموذج
+        setFormData(prev => ({
+          ...prev,
+          title: result.title.trim(),
+          subtitle: result.subtitle && result.subtitle.trim() !== '' ? result.subtitle.trim() : prev.subtitle,
+          excerpt: result.summary && result.summary.trim() !== '' ? result.summary.trim() : prev.excerpt,
+          keywords: Array.isArray(result.keywords) && result.keywords.length > 0 ? result.keywords : prev.keywords
+        }));
+
+        // رسائل النجاح
+        toast.success('🎉 تم توليد عناصر الخبر بنجاح!');
+        
+        if (result.warning) {
+          toast(result.warning, { icon: '⚠️' });
+        }
+        
+        console.log('✅ نتائج التوليد:', {
+          title: `"${result.title}"`,
+          subtitle: result.subtitle ? `"${result.subtitle}"` : 'غير موجود',
+          summaryLength: result.summary?.length || 0,
+          keywordsCount: result.keywords?.length || 0,
+          model: result.metadata?.model,
+          fullResult: result
+        });
+      } else {
+        throw new Error('فشل في التوليد');
+      }
+
+    } catch (error) {
+      console.error('❌ خطأ في التوليد التلقائي:', error);
+      toast.error(error instanceof Error ? error.message : 'حدث خطأ في التوليد التلقائي');
     } finally {
       setIsAILoading(false);
     }
@@ -899,9 +1168,48 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                 <CardTitle className="text-lg flex items-center gap-2">
                   <FileText className="w-5 h-5" />
                   محتوى الخبر *
+                  
+                  {/* زر التوليد التلقائي */}
+                  <Button
+                    onClick={() => {
+                      console.log('🔔 تم الضغط على زر التوليد التلقائي');
+                      generateFromContent();
+                    }}
+                    disabled={isAILoading}
+                    size="sm"
+                    className={cn(
+                      "gap-2 ml-auto shadow-md hover:shadow-lg transition-all",
+                      darkMode 
+                        ? "bg-purple-700 hover:bg-purple-600 text-white border-purple-600" 
+                        : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                    )}
+                  >
+                    {isAILoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        جاري التوليد...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="w-4 h-4" />
+                        🤖 توليد تلقائي
+                      </>
+                    )}
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* رسالة توضيحية للتوليد التلقائي */}
+                <Alert className={cn(
+                  "mb-4 border-0 shadow-sm",
+                  darkMode ? "bg-purple-900/20 text-purple-200" : "bg-purple-50 text-purple-800"
+                )}>
+                  <Sparkles className="h-4 w-4" />
+                  <AlertDescription className="text-sm">
+                    💡 <strong>نصيحة:</strong> اكتب محتوى الخبر (50+ حرف) ثم اضغط "🤖 توليد تلقائي" لإنشاء العنوان والموجز والكلمات المفتاحية تلقائياً
+                  </AlertDescription>
+                </Alert>
+                
                 <div className={cn(
                   "min-h-[400px] rounded-lg",
                   darkMode ? "bg-slate-700" : "bg-slate-50"
@@ -910,7 +1218,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                     ref={editorRef}
                     content={formData.content}
                     onChange={handleContentChange}
-                    placeholder="ابدأ في كتابة محتوى الخبر..."
+                    placeholder="اكتب محتوى الخبر هنا... (يجب أن يكون 50 حرف على الأقل لاستخدام التوليد التلقائي)"
                   />
                 </div>
               </CardContent>

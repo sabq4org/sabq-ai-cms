@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { formatDateShort } from '@/lib/date-utils';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Play, Pause, Clock, Eye, Image as ImageIcon } from 'lucide-react';
@@ -220,13 +221,7 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
               <div className="carousel-meta">
                 <span className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
-                  {new Date(currentArticle.published_at || currentArticle.created_at).toLocaleDateString('ar-SA', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    calendar: 'gregory',
-                    numberingSystem: 'latn'
-                  })}
+                  {formatDateShort(currentArticle.published_at || currentArticle.created_at)}
                 </span>
                 <span className="flex items-center gap-1">
                   <Eye className="w-4 h-4" />

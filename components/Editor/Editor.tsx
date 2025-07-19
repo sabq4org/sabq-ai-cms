@@ -153,22 +153,26 @@ const Editor = forwardRef<EditorRef, EditorProps>(({
 
   // الحفظ التلقائي
   const autoSave = useCallback(() => {
-    if (editor && autoSaveKey) {
+    if (editor && autoSaveKey && typeof window !== 'undefined') {
       const content = editor.getHTML();
       if (content && content.length > 50) { // حفظ فقط إذا كان هناك محتوى ذو معنى
-        localStorage.setItem(autoSaveKey, JSON.stringify({
-          content,
-          timestamp: new Date().toISOString()
-        }));
-        setLastSaved(new Date());
-        console.log('تم الحفظ التلقائي');
+        try {
+          localStorage.setItem(autoSaveKey, JSON.stringify({
+            content,
+            timestamp: new Date().toISOString()
+          }));
+          setLastSaved(new Date());
+          console.log('تم الحفظ التلقائي');
+        } catch (error) {
+          console.warn('Failed to save to localStorage:', error);
+        }
       }
     }
   }, [editor, autoSaveKey]);
 
   // إعداد الحفظ التلقائي
   useEffect(() => {
-    if (autoSaveInterval > 0) {
+    if (autoSaveInterval > 0 && typeof window !== 'undefined') {
       autoSaveTimerRef.current = setInterval(autoSave, autoSaveInterval);
       
       // حفظ عند مغادرة الصفحة
@@ -181,14 +185,16 @@ const Editor = forwardRef<EditorRef, EditorProps>(({
         if (autoSaveTimerRef.current) {
           clearInterval(autoSaveTimerRef.current);
         }
-        window.removeEventListener('beforeunload', handleBeforeUnload);
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('beforeunload', handleBeforeUnload);
+        }
       };
     }
   }, [autoSave, autoSaveInterval]);
 
   // التحقق من وجود مسودة محفوظة عند التحميل
   useEffect(() => {
-    if (autoSaveKey && editor && !content) {
+    if (autoSaveKey && editor && !content && typeof window !== 'undefined') {
       const savedDraft = localStorage.getItem(autoSaveKey);
       if (savedDraft) {
         try {
@@ -298,7 +304,7 @@ const Editor = forwardRef<EditorRef, EditorProps>(({
 
   // تعريض دالة insertAIResult للاستخدام الخارجي
   useEffect(() => {
-    if (window && editor) {
+    if (typeof window !== 'undefined' && editor) {
       (window as any).editorInsertAIResult = insertAIResult;
     }
   }, [editor]);

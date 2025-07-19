@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
       {
         id: 'mubarak-al-ati',
         name: 'مبارك آل عاتي',
-        avatar: 'https://www2.0zz0.com/2025/07/15/20/855793733.png',
+        avatar: 'https://res.cloudinary.com/dybhezmvb/image/upload/v1730000000/avatars/mubarak-al-ati.jpg',
         specialization: 'محلل سياسي',
         club: 'platinum',
         bio: 'محلل سياسي متخصص في الشؤون الداخلية والخارجية، خبير في تحليل السياسات والقرارات الحكومية',
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
         isActive: true,
         isVerified: true,
         author_name: 'مبارك آل عاتي',
-        author_avatar: 'https://www2.0zz0.com/2025/07/15/20/855793733.png',
+        author_avatar: 'https://res.cloudinary.com/dybhezmvb/image/upload/v1730000000/avatars/mubarak-al-ati.jpg',
         author_slug: 'mubarak-al-ati',
         audio_sample: '/audio/mubarak-al-ati-intro.mp3', // ملف صوتي تعريفي
         years_of_experience: 15,

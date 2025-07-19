@@ -20,11 +20,9 @@ const prismaClientSingleton = () => {
     errorFormat: 'minimal',
   })
 
-  // الاتصال التلقائي عند الإنشاء
-  client.$connect()
-    .then(() => console.log('✅ تم الاتصال بقاعدة البيانات'))
-    .catch((error) => console.error('❌ فشل الاتصال الأولي:', error))
-
+  // الاتصال المتزامن عند الإنشاء
+  console.log('🔗 محاولة الاتصال بقاعدة البيانات...')
+  
   return client
 }
 
@@ -35,6 +33,18 @@ if (process.env.NODE_ENV !== 'production') {
   globalThis.prisma = prisma
 }
 
+// دالة للاتصال المتزامن
+async function connectDatabase() {
+  try {
+    await prisma.$connect()
+    console.log('✅ تم الاتصال بقاعدة البيانات بنجاح')
+    return true
+  } catch (error) {
+    console.error('❌ فشل الاتصال بقاعدة البيانات:', error)
+    return false
+  }
+}
+
 // helper function للتحقق من حالة الاتصال مع إعادة المحاولة
 export async function ensureConnection() {
   try {
@@ -43,39 +53,11 @@ export async function ensureConnection() {
     return true
   } catch (error) {
     console.log('🔄 محاولة إعادة الاتصال...')
-    try {
-      await prisma.$connect()
-      return true
-    } catch (connectError) {
-      console.error('❌ فشل إعادة الاتصال:', connectError)
-      return false
-    }
+    return await connectDatabase()
   }
 }
 
-// helper function للتحقق من حالة الاتصال
-export async function checkDatabaseConnection() {
-  try {
-    await prisma.$connect()
-    console.log('✅ نجح الاتصال بقاعدة البيانات')
-    return true
-  } catch (error) {
-    console.error('❌ فشل الاتصال بقاعدة البيانات:', error)
-    return false
-  }
-}
-
-// helper function لإعادة الاتصال
-export async function reconnectDatabase() {
-  try {
-    await prisma.$disconnect()
-    await prisma.$connect()
-    console.log('🔄 تم إعادة الاتصال بقاعدة البيانات بنجاح')
-    return true
-  } catch (error) {
-    console.error('❌ فشل إعادة الاتصال:', error)
-    return false
-  }
-}
+// الاتصال عند تحميل الملف
+connectDatabase()
 
 export { prisma }

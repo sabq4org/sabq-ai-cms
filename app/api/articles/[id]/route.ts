@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma, ensureConnection } from '@/lib/prisma';
 import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved';
 
 export const runtime = 'nodejs';
@@ -10,6 +10,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // التأكد من الاتصال بقاعدة البيانات
+    const isConnected = await ensureConnection();
+    if (!isConnected) {
+      return NextResponse.json({
+        success: false,
+        error: 'فشل الاتصال بقاعدة البيانات'
+      }, { status: 500 });
+    }
+
     const { id } = await params;
     
     // التحقق من هوية المستخدم للسماح بعرض المسودات للمحررين

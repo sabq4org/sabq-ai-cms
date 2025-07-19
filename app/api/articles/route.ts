@@ -270,18 +270,25 @@ export async function GET(request: NextRequest) {
     
     let orderBy: any = {};
     if (sortBy === 'published_at') {
-      // استخدام created_at إذا كان published_at غير موجود
+      // ترتيب ذكي: المقالات مع published_at أولاً، ثم بقية المقالات حسب created_at
       orderBy = [
         { published_at: order },
         { created_at: order }
       ];
     } else if (sortBy === 'views_count') {
-      orderBy.views_count = order;
+      orderBy = { views: order }; // استخدام 'views' بدلاً من 'views_count'
     } else if (sortBy === 'engagement_score') {
-      orderBy.engagement_score = order;
+      orderBy = { engagement_score: order };
     } else if (sortBy === 'created_at') {
-      orderBy.created_at = order;
+      orderBy = { created_at: order };
+    } else if (sortBy === 'latest') {
+      // ترتيب الأحدث: أولوية قصوى لتاريخ النشر
+      orderBy = [
+        { published_at: order },
+        { created_at: order }
+      ];
     } else {
+      // الترتيب الافتراضي - الأحدث أولاً
       orderBy = [
         { published_at: order },
         { created_at: order }
@@ -527,7 +534,8 @@ export async function POST(request: NextRequest) {
       textContent = cleanContent.replace(/<[^>]*>/g, ''); // إزالة HTML tags
     }
     
-    const cleanExcerpt = excerpt ? String(excerpt).trim() : textContent.substring(0, 200) + '...';
+    const cleanExcerpt = excerpt ? String(excerpt).trim() : 
+      (textContent && typeof textContent === 'string' ? textContent.substring(0, 200) + '...' : 'ملخص تلقائي');
     
     // تحويل keywords إلى string إذا كان array
     const cleanKeywords = keywords ? 

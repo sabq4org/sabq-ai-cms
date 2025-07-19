@@ -162,18 +162,48 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ خطأ في فحص حالة ElevenLabs:', error);
+    console.error('تفاصيل الخطأ:', {
+      message: error.message,
+      cause: error.cause,
+      code: error.code,
+      stack: error.stack
+    });
+    
+    // التحقق من نوع الخطأ
+    let errorDetails = 'خطأ غير معروف';
+    let troubleshootingSteps: string[] = [];
+    
+    if (error.cause?.code === 'ECONNREFUSED') {
+      errorDetails = 'تم رفض الاتصال - تحقق من اتصال الإنترنت';
+      troubleshootingSteps = [
+        'تأكد من اتصال الإنترنت',
+        'تحقق من عدم وجود جدار حماية يحجب الاتصال',
+        'جرب استخدام VPN إذا كنت في منطقة محجوبة'
+      ];
+    } else if (error.cause?.code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' || error.cause?.code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
+      errorDetails = 'مشكلة في شهادة SSL - قد تكون بسبب الشبكة المحلية';
+      troubleshootingSteps = [
+        'جرب استخدام شبكة مختلفة',
+        'تحقق من إعدادات الوقت والتاريخ في جهازك',
+        'جرب تعطيل برامج مكافحة الفيروسات مؤقتاً'
+      ];
+    } else if (error.message.includes('fetch failed')) {
+      errorDetails = 'فشل الاتصال بخدمة ElevenLabs';
+      troubleshootingSteps = [
+        'تأكد من اتصال الإنترنت',
+        'تحقق من صحة ELEVENLABS_API_KEY',
+        'تأكد من أن الخدمة غير محجوبة في منطقتك',
+        'جرب مرة أخرى بعد دقائق قليلة'
+      ];
+    }
     
     return NextResponse.json({
       success: false,
       status: 'error',
       error: 'فشل في الاتصال بخدمة ElevenLabs',
-      details: error.message,
-      troubleshooting: [
-        'تأكد من اتصال الإنترنت',
-        'تحقق من صحة ELEVENLABS_API_KEY',
-        'تأكد من أن الخدمة غير محجوبة',
-        'جرب مرة أخرى بعد دقائق قليلة'
-      ],
+      details: errorDetails,
+      errorCode: error.code || error.cause?.code,
+      troubleshooting: troubleshootingSteps,
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }

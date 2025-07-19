@@ -1,21 +1,16 @@
-import Image from 'next/image';
-
-
-
-
 import { Metadata } from 'next'
 import './globals.css'
 
 import '@/styles/fix-layout.css'
 import '@/styles/dashboard-enhanced.css'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
-import toast, { Toaster } from "react-hot-toast"
 import { cn } from '@/lib/utils'
 import { Providers } from './providers'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeScript } from './theme-script'
 import BuildVersion from './BUILD_VERSION'
-import ChunkErrorBoundary from './ChunkErrorBoundary'
+import SmartErrorBoundary from '@/components/ErrorBoundary/SmartErrorBoundary'
+import DevToolsFix from '@/components/DevToolsFix'
 // تحميل article-card.css في النهاية لتجنب التعارضات
 import '@/styles/article-card.css'
 
@@ -138,6 +133,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <script src="/devtools-fix.js" />
         <script src="/chunk-error-handler.js" defer />
       </head>
       <body className={cn(
@@ -147,12 +143,11 @@ export default function RootLayout({
         "dark:bg-gray-900 dark:text-gray-100",
         "transition-all duration-300"
       )} suppressHydrationWarning>
+        <DevToolsFix />
         <BuildVersion />
         <Providers>
           <AuthProvider>
-            <ChunkErrorBoundary>
-              {children}
-            </ChunkErrorBoundary>
+            {children}
           </AuthProvider>
         </Providers>
       </body>

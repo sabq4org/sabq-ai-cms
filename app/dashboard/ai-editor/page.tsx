@@ -303,7 +303,9 @@ export default function AIEditorPage() {
       const articleData = {
         title: title || 'مسودة المحرر الذكي',
         content: editorContent,
-        excerpt: editorContent.substring(0, 200) + '...',
+        excerpt: (editorContent && typeof editorContent === 'string') 
+          ? editorContent.substring(0, 200) + '...' 
+          : 'ملخص تلقائي',
         category_id: selectedCategory,
         status: selectedPublishOption === 'publish' ? 'published' : 
                 selectedPublishOption === 'review' ? 'pending' : 'draft',
@@ -368,7 +370,9 @@ export default function AIEditorPage() {
       const gpsData = {
         title: title || 'مادة GPS من المحرر الذكي',
         content: editorContent,
-        excerpt: editorContent.substring(0, 200) + '...',
+        excerpt: (editorContent && typeof editorContent === 'string') 
+          ? editorContent.substring(0, 200) + '...' 
+          : 'ملخص تلقائي',
         category_id: selectedCategory,
         status: 'pending',
         featured_image: attachments.find(att => att.type === 'image')?.url,

@@ -6,6 +6,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useDebounce } from '@/hooks/useDebounce';
 import toast from 'react-hot-toast';
+import { EditorErrorBoundary } from '@/components/ErrorBoundary';
 
 interface RealtimeEditorProps {
   articleId: string;
@@ -67,7 +68,7 @@ export default function RealtimeEditor({
       // بث التحديث (معطل حاليًا)
       mockBroadcast('content-update', {
         content: contentToSave,
-        userName: localStorage.getItem('userName') || 'مستخدم',
+        userName: typeof window !== 'undefined' ? localStorage.getItem('userName') || 'مستخدم' : 'مستخدم',
         savedAt: new Date().toISOString()
       });
       
@@ -128,10 +129,12 @@ export default function RealtimeEditor({
       
       {/* المحرر */}
       <div className="prose prose-lg max-w-none dark:prose-invert">
-        <EditorContent 
-          editor={editor} 
-          className="min-h-[400px] p-4 border border-gray-200 dark:border-gray-700 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all"
-        />
+        <EditorErrorBoundary context="RealtimeEditor">
+          <EditorContent 
+            editor={editor} 
+            className="min-h-[400px] p-4 border border-gray-200 dark:border-gray-700 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all"
+          />
+        </EditorErrorBoundary>
       </div>
       
       {/* معلومات إضافية */}

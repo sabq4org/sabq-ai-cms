@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState, useEffect, useRef, use } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -17,6 +17,7 @@ import { Share2, Eye, Clock, Calendar,
   Play, Pause, Volume2, CheckCircle, Sparkles
 } from 'lucide-react';
 import ArticleInteractions from '@/components/article/ArticleInteractions';
+import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
 
 // نوع البيانات
 interface Article {
@@ -54,8 +55,13 @@ interface PageProps {
 
 export default function ArticlePageEnhanced({ params }: PageProps) {
   const router = useRouter();
-  const resolvedParams = use(params);
-  const articleId = resolvedParams.id;
+  const [articleId, setArticleId] = useState<string>('');
+  
+  useEffect(() => {
+    params.then(resolvedParams => {
+      setArticleId(resolvedParams.id);
+    });
+  }, [params]);
   const { darkMode } = useDarkModeContext();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,12 +77,9 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'not_found' | 'not_published' | 'server_error' | null>(null);
 
-  // جلب المقال
-  useEffect(() => {
-    fetchArticle(articleId);
-  }, [articleId]);
-
+  // تعريف دالة جلب المقال
   const fetchArticle = async (id: string) => {
+    if (!id) return; // التحقق من وجود id
     try {
       setLoading(true);
       console.log('جاري جلب المقال:', id);
@@ -121,6 +124,13 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
       setLoading(false);
     }
   };
+
+  // جلب المقال عند تغيير articleId
+  useEffect(() => {
+    if (articleId) {
+      fetchArticle(articleId);
+    }
+  }, [articleId]);
 
   // معالجة الإعجاب
   const handleLike = async () => {
@@ -347,56 +357,36 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                    💡 الملخص الذكي
+                    🧠 الملخص الذكي
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                     {article.excerpt || article.summary || article.ai_summary}
                   </p>
                 </div>
                 
-                {/* أيقونة الاستماع */}
-                {article.audio_summary_url && (
-                  <button
-                    onClick={toggleAudioPlayer}
-                    className={`flex-shrink-0 p-2 rounded-lg transition-all ${
-                      showAudioPlayer 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50'
-                    }`}
-                    title="استمع للملخص"
-                  >
-                    <Headphones className="w-5 h-5" />
-                  </button>
-                )}
+                {/* زر الاستماع - يظهر دائماً إذا كان هناك موجز */}
+                <button
+                  onClick={toggleAudioPlayer}
+                  className={`flex-shrink-0 p-2 rounded-lg transition-all ${
+                    showAudioPlayer 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50'
+                  }`}
+                  title="استمع للملخص"
+                >
+                  <Headphones className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* مشغل الصوت المخفي */}
-              {showAudioPlayer && article.audio_summary_url && (
-                <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <audio
-                    ref={audioRef}
-                    src={article.audio_summary_url}
-                    onEnded={() => setIsAudioPlaying(false)}
-                    className="hidden"
+              {/* مشغل الصوت الذكي */}
+              {showAudioPlayer && (
+                <div className="mt-4">
+                  {/* استخدام AudioSummaryPlayer المتطور */}
+                  <AudioSummaryPlayer
+                    articleId={article.id}
+                    excerpt={article.excerpt || article.summary || article.ai_summary}
+                    audioUrl={article.audio_summary_url}
                   />
-                  
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={toggleAudioPlayback}
-                      className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors"
-                    >
-                      {isAudioPlaying ? (
-                        <Pause className="w-5 h-5" />
-                      ) : (
-                        <Play className="w-5 h-5" />
-                      )}
-                    </button>
-                    
-                    <div className="flex-1 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                      <Volume2 className="w-4 h-4" />
-                      <span>الاستماع للملخص الصوتي</span>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>

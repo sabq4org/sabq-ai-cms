@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // استخدام singleton
+import { prisma, ensureConnection } from '@/lib/prisma'; // استخدام singleton
 // import { PrismaClient } from '@prisma/client'; // استيراد مباشر
 
 
@@ -101,6 +101,15 @@ function normalizeMetadata(md: any): any {
 // GET: جلب جميع الفئات
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من الاتصال بقاعدة البيانات
+    const isConnected = await ensureConnection();
+    if (!isConnected) {
+      return corsResponse({
+        success: false,
+        error: 'فشل الاتصال بقاعدة البيانات'
+      }, 500);
+    }
+
     // التأكد من وجود URL صحيح
     if (!request.url) {
       return corsResponse({

@@ -124,9 +124,17 @@ export function getImageUrl(imagePath: string | undefined | null): string {
  * @returns المسار المناسب للمقال
  */
 export function getArticleLink(article: any): string {
-  // 🛡️ Guard Clause: التحقق من وجود المقال ومعرفه (ID)
-  if (!article || !article.id) {
-    console.warn('getArticleLink: Article or article.id is missing. Returning fallback link.', { article });
+  // 🛡️ Guard Clause: التحقق من وجود المقال
+  if (!article) {
+    console.warn('getArticleLink: Article is missing. Returning fallback link.', { article });
+    return '/'; // إرجاع رابط احتياطي آمن
+  }
+
+  // استخدام slug إذا كان متاحاً، وإلا استخدام id
+  const identifier = article.slug || article.id;
+  
+  if (!identifier) {
+    console.warn('getArticleLink: Neither slug nor id found. Returning fallback link.', { article });
     return '/'; // إرجاع رابط احتياطي آمن
   }
 
@@ -168,11 +176,11 @@ export function getArticleLink(article: any): string {
 
   // إرجاع المسار المناسب بناءً على النوع
   if (isOpinionArticle) {
-    return `/opinion/${article.id}`;
+    return `/opinion/${identifier}`;
   }
   
   // جميع المقالات الأخرى تذهب لمسار المقالات العادية
-  return `/article/${article.id}`;
+  return `/article/${identifier}`;
 }
 
 // Force rebuild - 2025-01-04 

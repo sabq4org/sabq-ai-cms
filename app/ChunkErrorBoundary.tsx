@@ -19,23 +19,24 @@ class ChunkErrorBoundary extends React.Component<
   }
 
   static getDerivedStateFromError(error: Error): ChunkErrorBoundaryState {
-    // تحديث الحالة عند حدوث خطأ
-    if (error.message && error.message.includes('Loading chunk')) {
-      return { hasError: true, error };
-    }
-    return { hasError: false };
+    // تحديث الحالة عند حدوث أي خطأ
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // تسجيل الخطأ
-    console.error('Chunk loading error:', error, errorInfo);
+    console.error('خطأ في التطبيق:', error, errorInfo);
     
-    // إذا كان خطأ chunk loading، حاول إعادة التحميل تلقائياً مرة واحدة
-    if (error.message && error.message.includes('Loading chunk')) {
-      const hasReloaded = sessionStorage.getItem('chunk_error_reloaded');
+    // إذا كان خطأ chunk loading أو module loading، حاول إعادة التحميل تلقائياً مرة واحدة
+    if (error.message && (
+      error.message.includes('Loading chunk') ||
+      error.message.includes('originalFactory') ||
+      error.message.includes('Failed to fetch')
+    )) {
+      const hasReloaded = sessionStorage.getItem('app_error_reloaded');
       
       if (!hasReloaded) {
-        sessionStorage.setItem('chunk_error_reloaded', 'true');
+        sessionStorage.setItem('app_error_reloaded', 'true');
         window.location.reload();
       }
     }
@@ -43,7 +44,7 @@ class ChunkErrorBoundary extends React.Component<
 
   handleReload = () => {
     // مسح علامة إعادة التحميل
-    sessionStorage.removeItem('chunk_error_reloaded');
+    sessionStorage.removeItem('app_error_reloaded');
     
     // تنظيف service workers
     if ('serviceWorker' in navigator) {
@@ -78,11 +79,11 @@ class ChunkErrorBoundary extends React.Component<
               </div>
               
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                حدث خطأ في تحميل الصفحة
+                حدث خطأ في التطبيق
               </h2>
               
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                نعتذر عن الإزعاج. حدث خطأ أثناء تحميل بعض موارد الصفحة.
+                نعتذر عن الإزعاج. حدث خطأ غير متوقع.
               </p>
               
               <Button
@@ -100,6 +101,8 @@ class ChunkErrorBoundary extends React.Component<
                   </summary>
                   <pre className="mt-2 p-4 bg-gray-100 dark:bg-gray-900 rounded text-xs overflow-auto">
                     {this.state.error.toString()}
+                    {'\n\n'}
+                    {this.state.error.stack}
                   </pre>
                 </details>
               )}

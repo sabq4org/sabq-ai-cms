@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
+import PageWrapper from '@/components/PageWrapper';
 import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
 import FooterDashboard from '@/components/FooterDashboard';
 import Footer from '@/components/Footer';
@@ -560,12 +561,16 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
     }
   };
   return (
-  <div 
-      className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
-      style={{
-        direction: 'rtl'
-      }}
+    <PageWrapper 
+      pageName="الصفحة الرئيسية" 
+      showPerformanceMonitor={process.env.NODE_ENV === 'development'}
     >
+      <div 
+        className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+        style={{
+          direction: 'rtl'
+        }}
+      >
       {/* دالة تشخيص المصادقة - تظهر معلومات في Console فقط */}
       <DebugAuth />
       {/* Header */}
@@ -1356,7 +1361,8 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
 
       {/* Footer Section */}
       <Footer />
-    </div>
+      </div>
+    </PageWrapper>
   );
 }
 // Export with client-side wrapper to ensure ThemeProvider is available

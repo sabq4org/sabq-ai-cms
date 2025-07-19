@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, User, Sparkles, Zap, Heart, Calendar, ArrowLeft, Newspaper } from 'lucide-react';
-import { formatDateOnly } from '@/lib/date-utils';
+import { formatDate } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 import { getArticleLink } from '@/lib/utils';
 
@@ -49,28 +49,6 @@ interface ArticleCardProps {
   article: Article;
   viewMode?: 'grid' | 'list';
 }
-
-// دالة تنسيق التاريخ
-const formatDate = (dateString: string | undefined) => {
-  if (!dateString) return 'اليوم';
-  
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffTime = Math.abs(now.getTime() - date.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 0) return 'اليوم';
-  if (diffDays === 1) return 'أمس';
-  if (diffDays < 7) return `منذ ${diffDays} أيام`;
-  if (diffDays < 30) return `منذ ${Math.floor(diffDays / 7)} أسابيع`;
-  if (diffDays < 365) return `منذ ${Math.floor(diffDays / 30)} شهر`;
-  
-  return date.toLocaleDateString('ar-SA', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
-};
 
 export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardProps) {
   const [isLiked, setIsLiked] = useState(false);

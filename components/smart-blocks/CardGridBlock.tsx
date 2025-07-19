@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { formatDateShort } from '@/lib/date-utils';
 import Link from 'next/link'
 import Image from 'next/image'
 import { Clock, Eye, Coffee } from 'lucide-react'
@@ -16,13 +17,7 @@ export function CardGridBlock({ block, articles }: CardGridBlockProps) {
   // دالة لتنسيق التاريخ
   const formatDate = (date: string) => {
     if (!date) return '';
-    return new Date(date).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      calendar: 'gregory',
-      numberingSystem: 'latn'
-    });
+    return formatDateShort(date);
   };
 
   // إذا لم تكن هناك مقالات، لا نعرض البلوك
