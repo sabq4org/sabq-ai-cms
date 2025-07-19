@@ -420,17 +420,60 @@ export default function CategoriesPage() {
                 استكشف محتوانا المنظم في تصنيفات متنوعة
               </p>
               
+              {/* إحصائيات الأقسام - مثل صفحة الأخبار */}
               {!loading && categories.length > 0 && (
-                <div className="mt-6 inline-flex items-center gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-lg">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{categories.length}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">قسم نشط</div>
+                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 shadow-lg">
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <Layers className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{categories.length}</div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">قسم</div>
                   </div>
-                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600"></div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{totalArticles}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">مقال متنوع</div>
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {totalArticles > 999 ? `${(totalArticles / 1000).toFixed(1)}k` : totalArticles}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">مقال</div>
                   </div>
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {categories.filter(cat => cat.is_active).length}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">نشط</div>
+                  </div>
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {Math.round(totalArticles / categories.length)}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">متوسط</div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Loading indicator for stats */}
+              {loading && (
+                <div className="mt-6 inline-flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">جاري تحميل الإحصائيات...</span>
                 </div>
               )}
             </div>

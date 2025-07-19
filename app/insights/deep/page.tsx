@@ -185,49 +185,87 @@ export default function DeepAnalysesPage() {
       <Header />
       <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 py-16">
-          <div className="absolute inset-0 bg-black/20" />
-          {/* Animated Background Elements */}
+        <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 py-20">
+          {/* Background decoration */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000" />
+            <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-purple-200/30 dark:bg-purple-900/20" />
+            <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-blue-200/30 dark:bg-blue-900/20" />
           </div>
-          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-            <div className="inline-flex items-center justify-center p-8 mb-8 relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full blur-xl opacity-70 animate-pulse" />
-              <div className="relative bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full p-6 shadow-2xl">
-                <Brain className="w-12 h-12 text-white drop-shadow-lg" />
+          
+          <div className="relative max-w-7xl mx-auto px-4 md:px-6">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-2xl">
+                <Brain className="w-10 h-10 text-white" />
               </div>
-            </div>
-            <h1 className="text-5xl font-black text-white mb-6 drop-shadow-lg">
-              التحليلات العميقة
-            </h1>
-            <p className="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
-              اكتشف تحليلات معمقة ورؤى ثاقبة مدعومة بالذكاء الاصطناعي
-            </p>
-              {/* Stats with Glass Effect */}
-              <div className="inline-flex flex-col sm:flex-row items-center gap-4 sm:gap-8 bg-black bg-opacity-20 backdrop-blur-md rounded-2xl px-6 sm:px-8 py-4 shadow-xl border border-white border-opacity-20">
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-lg">{analyses.length}</div>
-                  <div className="text-xs sm:text-sm text-white">تحليل عميق</div>
-                </div>
-                <div className="hidden sm:block w-px h-12 bg-white bg-opacity-50"></div>
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-lg">
-                    {analyses.reduce((sum, a) => sum + a.views, 0).toLocaleString()}
+              
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+                التحليلات العميقة
+              </h1>
+              
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">
+                اكتشف تحليلات معمقة ورؤى ثاقبة مدعومة بالذكاء الاصطناعي
+              </p>
+              
+              {/* إحصائيات التحليلات العميقة */}
+              {analyses.length > 0 && (
+                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 shadow-lg">
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{analyses.length}</div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">تحليل عميق</div>
                   </div>
-                  <div className="text-xs sm:text-sm text-white">مشاهدة إجمالية</div>
-                </div>
-                <div className="hidden sm:block w-px h-12 bg-white bg-opacity-50"></div>
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-lg">
-                    {Math.round(analyses.reduce((sum, a) => sum + a.qualityScore, 0) / analyses.length)}%
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {analyses.reduce((sum, a) => sum + a.views, 0) > 999 ? 
+                          `${(analyses.reduce((sum, a) => sum + a.views, 0) / 1000).toFixed(1)}k` : 
+                          analyses.reduce((sum, a) => sum + a.views, 0)}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">مشاهدة</div>
                   </div>
-                  <div className="text-xs sm:text-sm text-white">معدل الجودة</div>
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {analyses.length > 0 ? Math.round(analyses.reduce((sum, a) => sum + a.qualityScore, 0) / analyses.length) : 0}%
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">معدل الجودة</div>
+                  </div>
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <MessageCircle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {analyses.reduce((sum, a) => sum + (a.commentsCount || 0), 0)}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">تعليق</div>
+                  </div>
                 </div>
-              </div>
+              )}
+              
+              {/* Loading indicator for stats */}
+              {loading && (
+                <div className="mt-6 inline-flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">جاري تحميل الإحصائيات...</span>
+                </div>
+              )}
             </div>
+          </div>
         </section>
         {/* Search Section */}
         <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10 shadow-md">
