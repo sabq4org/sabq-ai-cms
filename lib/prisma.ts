@@ -20,8 +20,12 @@ const prismaClientSingleton = () => {
     errorFormat: 'minimal',
   })
 
-  // لا نتصل بقاعدة البيانات عند الإنشاء
-  // console.log('🔗 محاولة الاتصال بقاعدة البيانات...')
+  // اتصال تلقائي بقاعدة البيانات
+  client.$connect().then(() => {
+    console.log('✅ تم الاتصال بقاعدة البيانات تلقائياً')
+  }).catch((error) => {
+    console.error('❌ فشل في الاتصال التلقائي:', error)
+  })
   
   return client
 }
@@ -47,12 +51,22 @@ async function connectDatabase() {
 // helper function للتحقق من حالة الاتصال مع إعادة المحاولة
 export async function ensureConnection() {
   try {
+    // محاولة اتصال أولية
+    await prisma.$connect()
+    
     // اختبار الاتصال بعملية بسيطة
     await prisma.$queryRaw`SELECT 1`
     return true
   } catch (error) {
     console.log('🔄 محاولة إعادة الاتصال...')
-    return await connectDatabase()
+    try {
+      // محاولة اتصال مرة أخرى
+      await prisma.$connect()
+      return await connectDatabase()
+    } catch (retryError) {
+      console.error('❌ فشل في إعادة الاتصال:', retryError)
+      return false
+    }
   }
 }
 

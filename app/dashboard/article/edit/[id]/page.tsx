@@ -113,18 +113,52 @@ export default function EditArticlePage() {
     const fetchArticle = async () => {
       try {
         setArticleLoading(true);
-        const res = await fetch(`/api/articles/${articleId}`);
+        setLoadError(null);
+        
+        console.log(`🔍 محاولة تحميل المقال: ${articleId}`);
+        
+        const res = await fetch(`/api/articles/${articleId}`, {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        });
+        
+        let errorData = null;
+        try {
+          errorData = await res.json();
+        } catch (jsonError) {
+          console.error('خطأ في قراءة JSON response:', jsonError);
+        }
+        
         if (!res.ok) {
-          const errorData = await res.json().catch(() => null);
-          const errorMessage = errorData?.error || res.statusText || 'خطأ غير معروف';
+          const errorMessage = errorData?.error || 
+                              errorData?.message || 
+                              errorData?.details || 
+                              res.statusText || 
+                              'خطأ غير معروف';
+          
+          console.error(`❌ فشل في جلب المقال:`, {
+            status: res.status,
+            statusText: res.statusText,
+            errorData
+          });
+          
           throw new Error(`فشل في جلب المقال: ${res.status} - ${errorMessage}`);
         }
-        const articleData = await res.json();
+        
+        if (!errorData || !errorData.success) {
+          throw new Error('استجابة غير صالحة من الخادم');
+        }
+        
+        const articleData = errorData.data || errorData;
+        
+        console.log('✅ تم تحميل المقال بنجاح:', articleData.title);
+        
         // تحويل البيانات إلى تنسيق النموذج
         const currentFormData = {
           title: articleData.title || '',
           subtitle: articleData.subtitle || '',
-          excerpt: articleData.summary || '',
+          excerpt: articleData.summary || articleData.excerpt || '',
           content: articleData.content || '',
           authorId: articleData.author_id || '',
           categoryId: articleData.category_id || '',

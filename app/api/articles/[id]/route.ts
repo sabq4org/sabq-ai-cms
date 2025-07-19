@@ -356,7 +356,7 @@ export async function PATCH(
         });
         
         if (categoryExists) {
-          dataToUpdate.category = {
+          dataToUpdate.categories = {
             connect: { id: category_id },
           };
         } else {

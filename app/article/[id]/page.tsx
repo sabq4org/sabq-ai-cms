@@ -14,7 +14,7 @@ import Header from '@/components/Header';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
-  Play, Pause, Volume2, CheckCircle, Sparkles, Brain
+  Play, Pause, Volume2, CheckCircle, Sparkles
 } from 'lucide-react';
 import { SmartInteractionButtons } from '@/components/article/SmartInteractionButtons';
 import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
@@ -75,8 +75,6 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'not_found' | 'not_published' | 'server_error' | null>(null);
-  const [deepAnalysis, setDeepAnalysis] = useState<any>(null);
-  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
 
   // استخدام hook تتبع التفاعلات
   const interactionTracking = useUserInteractionTracking(articleId);
@@ -147,27 +145,10 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     }
   };
 
-  // جلب التحليل العميق
-  const fetchDeepAnalysis = async (id: string) => {
-    try {
-      setLoadingAnalysis(true);
-      const response = await fetch(`/api/deep-analyses/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setDeepAnalysis(data);
-      }
-    } catch (error) {
-      console.error('Error fetching deep analysis:', error);
-    } finally {
-      setLoadingAnalysis(false);
-    }
-  };
-
   // جلب المقال عند تغيير articleId
   useEffect(() => {
     if (articleId) {
       fetchArticle(articleId);
-      fetchDeepAnalysis(articleId);
     }
   }, [articleId]);
 
@@ -316,10 +297,10 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
       
-      <main className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* صورة المقال */}
         {article.featured_image && (
-          <div className="relative h-[50vh] w-full">
+          <div className="relative h-[60vh] w-full">
             <Image
               src={getImageUrl(article.featured_image)}
               alt={article.title}
@@ -327,11 +308,11 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
           </div>
         )}
 
-        <article className="max-w-4xl mx-auto px-4 py-8">
+        <article className={`max-w-4xl mx-auto px-4 py-8 ${!article.featured_image ? 'pt-24' : ''}`}>
           {/* رأس المقال */}
           <header className="mb-8">
             {/* التصنيف */}
@@ -434,44 +415,6 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
               }}
             />
           </div>
-
-          {/* التحليل العميق إن وجد */}
-          {deepAnalysis && (
-            <div className="mb-8 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <Brain className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                    🧠 تحليل عميق
-                  </h3>
-                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                    {deepAnalysis.summary}
-                  </p>
-                  {deepAnalysis.keyInsights && deepAnalysis.keyInsights.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="text-sm font-semibold mb-2">نقاط رئيسية:</h4>
-                      <ul className="list-disc list-inside space-y-1">
-                        {deepAnalysis.keyInsights.map((insight: string, index: number) => (
-                          <li key={index} className="text-sm text-gray-600 dark:text-gray-400">
-                            {insight}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  <Link
-                    href={`/insights/deep/${deepAnalysis.id}`}
-                    className="inline-flex items-center gap-2 mt-4 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 text-sm font-medium"
-                  >
-                    <span>قراءة التحليل الكامل</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* الكلمات المفتاحية */}
           {keywords.length > 0 && (
