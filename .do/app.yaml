@@ -1,5 +1,5 @@
 name: sabq-ai-cms
-region: nyc
+region: fra
 services:
 - name: web
   dockerfile_path: Dockerfile.digitalocean
@@ -9,10 +9,12 @@ services:
     branch: main
     deploy_on_push: true
   build_command: |
-    echo "🏗️ بناء المشروع..." && \
-    npx prisma generate && \
-    npm run build && \
-    echo "✅ تم البناء بنجاح"
+    echo "🚀 Starting DigitalOcean build..." && \
+    export BUILDING=true && \
+    export SKIP_EMAIL_VERIFICATION=true && \
+    export NODE_ENV=production && \
+    export NEXT_TELEMETRY_DISABLED=1 && \
+    echo "✅ Build environment set"
   run_command: |
     echo "🚀 Starting application..." && \
     if [ ! -f ".next/BUILD_ID" ]; then \
@@ -29,15 +31,16 @@ services:
   http_port: 3000
   health_check:
     http_path: /api/health
-    initial_delay_seconds: 30
+    initial_delay_seconds: 60
     period_seconds: 30
-    timeout_seconds: 15
+    timeout_seconds: 10
     success_threshold: 1
-    failure_threshold: 5
+    failure_threshold: 3
   envs:
   # الإعدادات الأساسية
   - key: NODE_ENV
-    value: production
+    value: "production"
+    scope: RUN_TIME
   - key: NEXT_TELEMETRY_DISABLED
     value: "1"
   - key: SKIP_EMAIL_VERIFICATION
@@ -47,20 +50,52 @@ services:
   
   # قاعدة البيانات (استخدم DigitalOcean Secrets)
   - key: DATABASE_URL
+    value: "${DATABASE_URL}"
+    scope: RUN_TIME
     type: SECRET
-    
-  # المصادقة
+  - key: NEXTAUTH_URL  
+    value: "${APP_URL}"
+    scope: RUN_TIME
   - key: NEXTAUTH_SECRET
+    value: "${NEXTAUTH_SECRET}"
+    scope: RUN_TIME
     type: SECRET
   - key: JWT_SECRET
+    value: "${JWT_SECRET}" 
+    scope: RUN_TIME
     type: SECRET
     
   # Cloudinary
   - key: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-    value: dybhezmvb
+    value: "${CLOUDINARY_CLOUD_NAME}"
+    scope: RUN_TIME
   - key: NEXT_PUBLIC_CLOUDINARY_API_KEY
-    value: "559894124915114"
+    value: "${CLOUDINARY_API_KEY}"
+    scope: RUN_TIME
   - key: CLOUDINARY_API_SECRET
+    value: "${CLOUDINARY_API_SECRET}"
+    scope: RUN_TIME
+    type: SECRET
+  - key: OPENAI_API_KEY
+    value: "${OPENAI_API_KEY}"
+    scope: RUN_TIME
+    type: SECRET
+  - key: EMAIL_HOST
+    value: "${EMAIL_HOST}"
+    scope: RUN_TIME
+  - key: EMAIL_PORT
+    value: "${EMAIL_PORT}"
+    scope: RUN_TIME
+  - key: EMAIL_USER
+    value: "${EMAIL_USER}"
+    scope: RUN_TIME
+  - key: EMAIL_PASS
+    value: "${EMAIL_PASS}"
+    scope: RUN_TIME
+    type: SECRET
+  - key: REDIS_URL
+    value: "${REDIS_URL}"
+    scope: RUN_TIME
     type: SECRET
     
   # معلومات التطبيق

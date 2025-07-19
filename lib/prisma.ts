@@ -20,13 +20,12 @@ const prismaClientSingleton = () => {
     errorFormat: 'minimal',
   })
 
-  // الاتصال المتزامن عند الإنشاء
-  console.log('🔗 محاولة الاتصال بقاعدة البيانات...')
+  // لا نتصل بقاعدة البيانات عند الإنشاء
+  // console.log('🔗 محاولة الاتصال بقاعدة البيانات...')
   
   return client
 }
 
-// التأكد من إنشاء instance واحد فقط
 const prisma = globalThis.prisma ?? prismaClientSingleton()
 
 if (process.env.NODE_ENV !== 'production') {
@@ -57,7 +56,8 @@ export async function ensureConnection() {
   }
 }
 
-// الاتصال عند تحميل الملف
-connectDatabase()
+// لا نتصل تلقائياً عند تحميل الملف
+// هذا يسبب مشاكل في البناء
+// connectDatabase()
 
 export { prisma }

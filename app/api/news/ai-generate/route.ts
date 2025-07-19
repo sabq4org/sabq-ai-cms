@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// لا تنشئ OpenAI client على مستوى الملف
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY,
+// });
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +26,11 @@ export async function POST(request: NextRequest) {
       const mockResult = generateMockResult(content);
       return NextResponse.json(mockResult);
     }
+
+    // إنشاء OpenAI client فقط عند الحاجة
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
 
     console.log('🤖 بدء توليد عناصر الخبر تلقائياً...');
 

@@ -2,14 +2,38 @@
 const nextConfig = {
   reactStrictMode: false,
 
-  // إعدادات بسيطة
-  experimental: {
-    serverComponentsExternalPackages: ['prisma', '@prisma/client'],
-  },
+  // نقل serverComponentsExternalPackages للمستوى الأعلى
+  serverExternalPackages: ['prisma', '@prisma/client'],
 
-  // إعدادات الصور البسيطة
+  // إعدادات الصور المحدثة - استخدام remotePatterns بدلاً من domains
   images: {
-    domains: ['res.cloudinary.com', 'images.unsplash.com', 'localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www2.0zz0.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'www2.0zz0.com',
+        pathname: '/**',
+      }
+    ],
   },
 
   // إعدادات بسيطة

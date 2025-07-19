@@ -1,5 +1,5 @@
 # Use the official Node.js image
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -30,6 +30,19 @@ ENV DATABASE_URL="postgresql://user:password@host:5432/db?schema=public"
 ENV JWT_SECRET="build-time-secret"
 ENV NEXTAUTH_SECRET="build-time-secret"
 ENV NEXTAUTH_URL="http://localhost:3000"
+
+# Set dummy environment variables for build
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+# Dummy database URL for build
+ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db?schema=public"
+ENV NEXTAUTH_SECRET="dummy-secret-for-build"
+ENV JWT_SECRET="dummy-jwt-for-build"
+ENV OPENAI_API_KEY=""
+ENV CLOUDINARY_CLOUD_NAME="dummy"
+ENV CLOUDINARY_API_KEY="dummy"  
+ENV CLOUDINARY_API_SECRET="dummy"
 
 # Create the directory for Prisma Client
 RUN mkdir -p lib/generated

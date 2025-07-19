@@ -6,10 +6,12 @@ import { getCorrectEmailConfig } from './email-config-fix';
 // إنشاء transporter للبريد الإلكتروني
 let transporter: Transporter | null = null;
 
-// تهيئة البريد الإلكتروني
+// تهيئة البريد الإلكتروني - lazy initialization
 export function initializeEmail() {
   // تخطي التهيئة أثناء البناء أو إذا كان مطلوباً
-  if (process.env.SKIP_EMAIL_VERIFICATION === 'true' || process.env.NODE_ENV === 'test') {
+  if (process.env.SKIP_EMAIL_VERIFICATION === 'true' || 
+      process.env.NODE_ENV === 'test' ||
+      process.env.BUILDING === 'true') {
     console.log('⏭️  تخطي تهيئة البريد الإلكتروني');
     return;
   }
@@ -20,8 +22,8 @@ export function initializeEmail() {
 
     transporter = nodemailer.createTransport(smtpConfig as any);
 
-    // التحقق من الاتصال
-    if (transporter) {
+    // التحقق من الاتصال - فقط في development
+    if (transporter && process.env.NODE_ENV === 'development') {
       transporter.verify((error) => {
         if (error) {
           console.error('❌ خطأ في إعدادات البريد الإلكتروني:', error);

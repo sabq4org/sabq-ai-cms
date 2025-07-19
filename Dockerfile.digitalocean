@@ -2,76 +2,81 @@
 # 🚀 DigitalOcean Optimized Dockerfile 
 # ================================
 
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
-# إعدادات أساسية
-WORKDIR /app
-RUN apk add --no-cache libc6-compat openssl
-
-# ================================
-# 📦 مرحلة التبعيات
-# ================================
+# Dependencies stage
 FROM base AS deps
-COPY package.json package-lock.json ./
-RUN npm ci --only=production --no-audit --no-fund
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
 
-# ================================
-# 🏗️ مرحلة البناء  
-# ================================
+COPY package.json package-lock.json* ./
+COPY prisma ./prisma/
+
+RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+RUN npx prisma generate
+
+# Builder stage
 FROM base AS builder
-COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
-
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# إنشاء Prisma وبناء التطبيق
+# Set build environment variables
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV BUILDING=true
+ENV SKIP_EMAIL_VERIFICATION=true
+
+# Dummy values for build time only
+ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db?schema=public"
+ENV NEXTAUTH_SECRET="build-time-secret"
+ENV NEXTAUTH_URL="http://localhost:3000"
+ENV JWT_SECRET="build-time-jwt"
+ENV OPENAI_API_KEY=""
+ENV CLOUDINARY_CLOUD_NAME="placeholder"
+ENV CLOUDINARY_API_KEY="placeholder"
+ENV CLOUDINARY_API_SECRET="placeholder"
+ENV EMAIL_HOST="smtp.example.com"
+ENV EMAIL_PORT="587"
+ENV EMAIL_USER="noreply@example.com"
+ENV EMAIL_PASS="placeholder"
+
+# Generate Prisma Client again to ensure it's available
 RUN npx prisma generate
-RUN npm run build:production || npm run build
 
-# التحقق من نجاح البناء
-RUN echo "🔍 التحقق من البناء..." && \
-    if [ ! -f ".next/BUILD_ID" ]; then \
-        echo "❌ BUILD_ID مفقود! إعادة البناء..." && \
-        rm -rf .next && \
+# Check for BUILD_ID and build if missing
+RUN if [ ! -f ".next/BUILD_ID" ]; then \
+        echo "❌ BUILD_ID missing! Running direct build..." && \
         npx next build; \
-    fi && \
-    echo "✅ Build ID: $(cat .next/BUILD_ID)"
+    fi
 
-# ================================
-# 🚀 مرحلة الإنتاج
-# ================================
+# Runner stage
 FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
-ENV HOSTNAME=0.0.0.0
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
 
-# نسخ الملفات المطلوبة
+# Copy necessary files
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/lib/generated ./lib/generated
 
-# نسخ ملفات التشغيل
-COPY --from=builder /app/start.sh ./start.sh
-COPY --from=builder /app/start.js ./start.js
-RUN chmod +x start.sh
+# Create required directories
+RUN mkdir -p public/uploads && \
+    mkdir -p logs && \
+    chown -R nextjs:nodejs /app
 
-# تعيين الصلاحيات
 USER nextjs
 
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# تشغيل مباشر بدون start.sh
-CMD ["node", "node_modules/next/dist/bin/next", "start", "-H", "0.0.0.0", "-p", "3000"] 
+# DigitalOcean will override these at runtime
+CMD ["node", "server.js"] 
