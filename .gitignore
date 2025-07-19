@@ -335,3 +335,12 @@ test-*.js
 *.launch
 .settings/
 *.sublime-workspace
+
+# تقارير التحليل
+/reports/*.json
+/reports/*.txt
+!/reports/.gitkeep
+
+# سجلات الأخطاء
+/logs/*.log
+!/logs/.gitkeep
