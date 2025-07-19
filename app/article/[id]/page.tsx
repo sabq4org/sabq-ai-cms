@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -20,6 +20,7 @@ import { SmartInteractionButtons } from '@/components/article/SmartInteractionBu
 import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
 import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
+import { MetaTags } from '@/components/article/MetaTags';
 
 // نوع البيانات
 interface Article {
@@ -96,12 +97,24 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
         if (response.status === 404) {
           setError('عذراً، المقال المطلوب غير موجود');
           setErrorType('not_found');
+          // تحديث العنوان في حالة عدم وجود المقال
+          if (typeof document !== 'undefined') {
+            document.title = 'المقال غير متوفر | صحيفة سبق الإلكترونية';
+          }
         } else if (response.status === 403 && errorData.code === 'ARTICLE_NOT_PUBLISHED') {
           setError('هذه المقالة في وضع التحرير ولا يمكن عرضها للعامة');
           setErrorType('not_published');
+          // تحديث العنوان في حالة المقال غير المنشور
+          if (typeof document !== 'undefined') {
+            document.title = 'المقال غير متاح للعرض | صحيفة سبق الإلكترونية';
+          }
         } else {
           setError('حدث خطأ في جلب المقال');
           setErrorType('server_error');
+          // تحديث العنوان في حالة الخطأ
+          if (typeof document !== 'undefined') {
+            document.title = 'خطأ في عرض المقال | صحيفة سبق الإلكترونية';
+          }
         }
         
         return;
@@ -110,6 +123,11 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
       const data = await response.json();
       console.log('تم جلب المقال بنجاح:', data.title);
       setArticle(data);
+      
+      // تحديث عنوان الصفحة في المتصفح
+      if (typeof document !== 'undefined' && data.title) {
+        document.title = `${data.title} | صحيفة سبق الإلكترونية`;
+      }
       
       // تحديث عدادات التفاعل
       if (data.stats) {
@@ -280,8 +298,20 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
 
   return (
     <>
+      {/* إضافة meta tags ديناميكية */}
+      {article && (
+        <MetaTags
+          title={article.title}
+          description={article.excerpt || article.summary || article.ai_summary}
+          keywords={getKeywords()}
+          image={getImageUrl(article.featured_image)}
+          url={`https://sabq.org/article/${articleId}`}
+          author={article.author?.name || 'فريق التحرير'}
+          publishedTime={article.published_at || article.created_at}
+        />
+      )}
+      
       <Header />
-      <ArticleJsonLd article={article} />
       
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />

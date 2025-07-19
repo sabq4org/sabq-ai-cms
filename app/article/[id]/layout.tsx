@@ -1,17 +1,6 @@
 import Image from 'next/image';
 import { Metadata } from 'next';
-import fs from 'fs/promises';
-import path from 'path';
-
-
-
-
-
-
-
-
-
-
+import { prisma } from '@/lib/prisma';
 
 interface Article {
   id: string;
@@ -29,20 +18,62 @@ interface Article {
   published_at?: string;
   created_at?: string;
   seo_keywords?: string | string[];
+  seo_title?: string;
+  seo_description?: string;
   slug?: string;
+  excerpt?: string;
+  views?: number;
+  reading_time?: number;
 }
 
 async function getArticle(id: string): Promise<Article | null> {
   try {
-    const articlesPath = path.join(process.cwd(), 'data', 'articles.json');
-    const articlesData = await fs.readFile(articlesPath, 'utf-8');
-    const data = JSON.parse(articlesData);
-    const articles = data.articles || data;
+    // التحقق من نوع المعرف (slug أو id)
+    const isSlug = isNaN(Number(id)) && !id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
     
-    const article = articles.find((a: any) => a.id === id);
-    return article || null;
+    const article = await prisma.articles.findFirst({
+      where: isSlug ? { slug: id } : { id: id },
+      include: {
+        categories: true
+      }
+    });
+    
+    if (!article) return null;
+    
+    // جلب بيانات المؤلف
+    let author: { name: string } | undefined = undefined;
+    if (article.author_id) {
+      const user = await prisma.users.findUnique({
+        where: { id: article.author_id },
+        select: { name: true }
+      });
+      if (user?.name) {
+        author = { name: user.name };
+      }
+    }
+    
+    return {
+      id: article.id,
+      title: article.title,
+      subtitle: article.excerpt || undefined,
+      summary: article.excerpt || undefined,
+      content: article.content,
+      featured_image: article.featured_image || undefined,
+      category_name: article.categories?.name,
+      author: author || undefined,
+      author_name: author?.name || undefined,
+      published_at: article.published_at?.toISOString(),
+      created_at: article.created_at.toISOString(),
+      seo_keywords: article.seo_keywords || undefined,
+      seo_title: article.seo_title || undefined,
+      seo_description: article.seo_description || undefined,
+      slug: article.slug,
+      excerpt: article.excerpt || undefined,
+      views: article.views,
+      reading_time: article.reading_time || undefined
+    };
   } catch (error) {
-    console.error('Error fetching article:', error);
+    console.error('Error fetching article from DB:', error);
     return null;
   }
 }
@@ -53,8 +84,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   
   if (!article) {
     return {
-      title: 'مقال غير موجود | صحيفة سبق الإلكترونية',
-      description: 'عذراً، المقال الذي تبحث عنه غير موجود'
+      title: 'المقال غير متوفر | صحيفة سبق الإلكترونية',
+      description: 'عذراً، المقال الذي تبحث عنه غير موجود أو تم حذفه',
+      robots: {
+        index: false,
+        follow: false
+      }
     };
   }
 
@@ -85,18 +120,25 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   // إضافة كلمات مفتاحية افتراضية
   keywords.push('صحيفة سبق', 'أخبار السعودية', article.category_name || 'أخبار');
 
-  // الوصف - التأكد من وجود قيمة
-  const description = article.summary || article.subtitle || 
-    (article.content ? article.content.substring(0, 160) + '...' : '') || article.title || 'اقرأ المزيد على صحيفة سبق الإلكترونية';
+  // استخدام seo_title إذا كان موجوداً، وإلا استخدام title
+  const pageTitle = article.seo_title || `${article.title} | صحيفة سبق الإلكترونية`;
+  
+  // استخدام seo_description إذا كان موجوداً، وإلا استخدام الملخص أو المحتوى
+  const description = article.seo_description || article.summary || article.excerpt || 
+    (article.content ? article.content.substring(0, 160).replace(/<[^>]*>/g, '') + '...' : '') || 
+    article.title || 'اقرأ المزيد على صحيفة سبق الإلكترونية';
 
   // الصورة المميزة
   const imageUrl = article.featured_image || 'https://sabq.org/default-news-image.jpg';
 
   return {
-    title: `${article.title} | صحيفة سبق الإلكترونية`,
+    title: pageTitle,
     description: description as string,
     keywords: keywords.join(', '),
     authors: [{ name: authorName }],
+    alternates: {
+      canonical: article.slug ? `https://sabq.org/article/${article.slug}` : `https://sabq.org/article/${article.id}`
+    },
     openGraph: {
       title: article.title,
       description: description,
@@ -108,11 +150,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: article.featured_image_alt || article.title
+          alt: article.title
         }
       ],
       siteName: 'صحيفة سبق الإلكترونية',
-      locale: 'ar_SA'
+      locale: 'ar_SA',
+      url: article.slug ? `https://sabq.org/article/${article.slug}` : `https://sabq.org/article/${article.id}`
     },
     twitter: {
       card: 'summary_large_image',
@@ -121,9 +164,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       images: [imageUrl],
       creator: '@sabqorg',
       site: '@sabqorg'
-    },
-    alternates: {
-      canonical: `https://sabq.org/article/${article.slug || article.id}`
     },
     robots: {
       index: true,
