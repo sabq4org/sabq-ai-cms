@@ -2,146 +2,27 @@
 const nextConfig = {
   reactStrictMode: false,
 
-  // تجريبي: تحسينات لحل مشاكل chunks
+  // إعدادات بسيطة
   experimental: {
-    optimizeCss: true,
     serverComponentsExternalPackages: ['prisma', '@prisma/client'],
   },
 
-  // إعدادات headers لضمان MIME types صحيحة
-  async headers() {
-    return [
-      {
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/javascript; charset=UTF-8',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/:path*.js',
-        headers: [
-          {
-            key: 'Content-Type', 
-            value: 'application/javascript; charset=UTF-8',
-          },
-        ],
-      },
-    ];
-  },
-
-  // إعدادات الصور لحل مشاكل Cloudinary
+  // إعدادات الصور البسيطة
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www2.0zz0.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.vercel.app',
-        port: '',
-        pathname: '/**',
-      }
-    ],
-    domains: ['res.cloudinary.com', 'images.unsplash.com', 'www2.0zz0.com'],
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    domains: ['res.cloudinary.com', 'images.unsplash.com', 'localhost'],
   },
 
-  // إعدادات متغيرات البيئة
+  // إعدادات بسيطة
   env: {
-    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dybhezmvb',
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
   },
 
-  // External packages لـ Prisma (تحديث للنسخة الجديدة)
-  serverExternalPackages: ['prisma', '@prisma/client'],
-
-  // تحسينات الأداء
-  experimental: {
-    optimizeCss: true,
-    webpackBuildWorker: true,
-  },
-
-  // تخطي أخطاء البناء مؤقتاً
+  // تخطي أخطاء البناء
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
-  },
-
-  // إعدادات webpack
-  webpack: (config, { dev, isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-    
-    // تحسين bundling
-    config.externals = config.externals || [];
-    if (isServer) {
-      config.externals.push('@prisma/client', 'prisma');
-    }
-
-    return config;
-  },
-
-  // إعدادات الأمان
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-        ],
-      },
-    ];
   },
 }
 

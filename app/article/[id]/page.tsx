@@ -365,17 +365,17 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
                 </div>
                 
                 {/* زر الاستماع - يظهر دائماً إذا كان هناك موجز */}
-                <button
-                  onClick={toggleAudioPlayer}
-                  className={`flex-shrink-0 p-2 rounded-lg transition-all ${
-                    showAudioPlayer 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50'
-                  }`}
-                  title="استمع للملخص"
-                >
-                  <Headphones className="w-5 h-5" />
-                </button>
+                  <button
+                    onClick={toggleAudioPlayer}
+                    className={`flex-shrink-0 p-2 rounded-lg transition-all ${
+                      showAudioPlayer 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50'
+                    }`}
+                    title="استمع للملخص"
+                  >
+                    <Headphones className="w-5 h-5" />
+                  </button>
               </div>
 
               {/* مشغل الصوت الذكي */}

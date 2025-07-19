@@ -1,0 +1,71 @@
+FROM node:20-alpine AS base
+
+# تثبيت الأدوات الأساسية
+RUN apk add --no-cache libc6-compat python3 make g++ redis
+
+WORKDIR /app
+
+# نسخ ملفات التبعيات
+FROM base AS deps
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# تثبيت التبعيات مع تجاهل الأخطاء الاختيارية
+RUN npm ci || npm install
+
+# توليد Prisma Client
+RUN npx prisma generate
+
+# مرحلة البناء
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# توليد Prisma مرة أخرى للتأكد
+RUN npx prisma generate
+
+# البناء
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+RUN npm run build
+
+# مرحلة الإنتاج
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# إنشاء مستخدم غير root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# نسخ الملفات المطلوبة
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/scripts ./scripts
+
+# إنشاء المجلدات المطلوبة
+RUN mkdir -p public/uploads && \
+    mkdir -p logs && \
+    mkdir -p .next && \
+    chown -R nextjs:nodejs /app
+
+# تغيير المستخدم
+USER nextjs
+
+# المنافذ
+EXPOSE 3000
+
+# متغيرات البيئة الافتراضية
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# سكريبت البداية
+COPY --chown=nextjs:nodejs scripts/docker-entrypoint.sh /app/
+RUN chmod +x /app/docker-entrypoint.sh
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"] 

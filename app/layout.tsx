@@ -134,8 +134,6 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <script src="/devtools-fix.js" />
-        <script src="/chunk-error-handler.js" defer />
       </head>
       <body className={cn(
         ibmPlexSansArabic.variable,
