@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
-
-  // نقل serverComponentsExternalPackages للمستوى الأعلى
+  output: 'standalone',
+  
   serverExternalPackages: ['prisma', '@prisma/client'],
 
   // إعدادات الصور
@@ -73,30 +72,6 @@ const nextConfig = {
     } : false,
   },
 
-  // تعطيل preload للـ CSS غير المستخدم
-  webpack: (config, { dev, isServer }) => {
-    // تعطيل CSS preloading في development
-    if (dev && !isServer) {
-      config.plugins = config.plugins.filter(
-        plugin => plugin.constructor.name !== 'CssMinimizerPlugin'
-      );
-    }
-
-    // إضافة قاعدة لتجاهل التحذيرات
-    config.module.rules.push({
-      test: /\.css$/,
-      use: {
-        loader: 'css-loader',
-        options: {
-          importLoaders: 1,
-          modules: false,
-        },
-      },
-    });
-
-    return config;
-  },
-
   // Headers لتحسين التحميل
   async headers() {
     return [
@@ -122,17 +97,8 @@ const nextConfig = {
           },
         ],
       },
-      {
-        source: '/:all*(css)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
     ];
   },
 }
 
-module.exports = nextConfig; 
+module.exports = nextConfig 

@@ -1,5 +1,8 @@
 import { Metadata } from 'next'
 import './globals.css'
+import '@/styles/fix-layout.css'
+import '@/styles/dashboard-enhanced.css'
+import '@/styles/article-card.css'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import { Providers } from './providers'
@@ -139,7 +142,6 @@ export default function RootLayout({
         "dark:bg-gray-900 dark:text-gray-100",
         "transition-all duration-300"
       )} suppressHydrationWarning>
-        <CSSLoader />
         <DevToolsFix />
         <BuildVersion />
         <SmartNotifications />
