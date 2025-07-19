@@ -36,8 +36,12 @@ import {
   CheckCircle2,
   Image as ImageIcon,
   Hash,
-  Info
+  Info,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
+import { useOpenAISettings } from '@/hooks/useOpenAISettings';
+
 const CreateDeepAnalysisPage = () => {
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
@@ -47,6 +51,10 @@ const CreateDeepAnalysisPage = () => {
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  
+  // استخدام hook إعدادات OpenAI
+  const { settings: openAISettings, loading: loadingOpenAI } = useOpenAISettings();
+  
   // حقول النموذج
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
@@ -171,18 +179,7 @@ const CreateDeepAnalysisPage = () => {
     }
     setGenerating(true);
     try {
-      // الحصول على مفتاح OpenAI من الإعدادات المحفوظة
-      const savedAiSettings = localStorage.getItem('settings_ai');
-      let openaiKey = '';
-      if (savedAiSettings) {
-        const aiSettings = JSON.parse(savedAiSettings);
-        openaiKey = aiSettings.openaiKey;
-      }
-      if (!openaiKey) {
-        toast.error('يرجى إضافة مفتاح OpenAI من إعدادات الذكاء الاصطناعي');
-        setGenerating(false);
-        return;
-      }
+      // لا نحتاج لجلب المفتاح هنا - سيتم جلبه في الخادم
       const response = await fetch('/api/deep-analyses/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -190,7 +187,6 @@ const CreateDeepAnalysisPage = () => {
           prompt: gptPrompt,
           sourceArticleId: selectedArticle?.id,
           categories,
-          openaiKey, // إرسال المفتاح مع الطلب
           title: title || 'تحليل عميق',
           creationType: sourceType === 'article' ? 'from_article' : 'topic',
           articleUrl: selectedArticle?.id
@@ -232,11 +228,11 @@ const CreateDeepAnalysisPage = () => {
       if (imageFile) {
         uploadedImageUrl = await uploadImage();
       }
-      // الحصول على مفتاح OpenAI من localStorage
-      const openaiKey = localStorage.getItem('openai_api_key');
+      
       // تحديد ما إذا كان يجب استخدام GPT
       const shouldUseGPT = (creationType === 'gpt' || creationType === 'mixed') && !content;
-              const analysisData: CreateAnalysisRequest = {
+              
+      const analysisData: CreateAnalysisRequest = {
           title,
           summary,
           content,
@@ -254,13 +250,9 @@ const CreateDeepAnalysisPage = () => {
           externalLink: sourceType === 'external' ? externalLink : undefined,
           generateWithGPT: shouldUseGPT,
           gptPrompt: shouldUseGPT ? (gptPrompt || title) : undefined,
-          openaiApiKey: openaiKey || undefined,
           featuredImage: uploadedImageUrl
         };
-      console.log('Submitting analysis with data:', {
-        ...analysisData,
-        openaiApiKey: analysisData.openaiApiKey ? 'PROVIDED' : 'NOT PROVIDED'
-      });
+      console.log('Submitting analysis with data:', analysisData);
       const response = await fetch('/api/deep-analyses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -550,6 +542,44 @@ const CreateDeepAnalysisPage = () => {
             ? 'bg-gray-800 border-gray-700' 
             : 'bg-white border-gray-100'
         }`}>
+          {/* مؤشر حالة الاتصال بـ OpenAI */}
+          <div className={`mb-4 p-3 rounded-lg flex items-center gap-3 ${
+            !loadingOpenAI && openAISettings?.openai?.apiKey
+              ? darkMode 
+                ? 'bg-green-900/20 border border-green-700' 
+                : 'bg-green-50 border border-green-200'
+              : darkMode 
+                ? 'bg-yellow-900/20 border border-yellow-700' 
+                : 'bg-yellow-50 border border-yellow-200'
+          }`}>
+            {!loadingOpenAI && openAISettings?.openai?.apiKey ? (
+              <>
+                <Wifi className="w-5 h-5 text-green-600" />
+                <p className={`text-sm font-medium ${darkMode ? 'text-green-300' : 'text-green-700'}`}>
+                  متصل بـ OpenAI - يمكنك استخدام التوليد بالذكاء الاصطناعي
+                </p>
+              </>
+            ) : (
+              <>
+                <WifiOff className="w-5 h-5 text-yellow-600" />
+                <div className="flex-1">
+                  <p className={`text-sm font-medium ${darkMode ? 'text-yellow-300' : 'text-yellow-700'}`}>
+                    غير متصل بـ OpenAI
+                  </p>
+                  <p className={`text-xs mt-1 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>
+                    يرجى إضافة مفتاح API من{' '}
+                    <button
+                      onClick={() => router.push('/dashboard/settings/ai-settings')}
+                      className="underline hover:no-underline font-medium"
+                    >
+                      إعدادات الذكاء الاصطناعي
+                    </button>
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+          
           <div className="space-y-4">
             <div>
               <Label>وصف المحتوى المطلوب من GPT</Label>
