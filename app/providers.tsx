@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { DarkModeProvider } from '@/contexts/DarkModeContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 import { Toaster } from 'react-hot-toast'
 
 // دالة بسيطة لترحيل الإعدادات القديمة
@@ -42,31 +43,33 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <DarkModeProvider>
-          {children}
-          <Toaster 
-            position="top-center"
-            reverseOrder={false}
-            gutter={8}
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-              success: {
-                duration: 3000,
-                style: {
-                  background: '#10b981',
-                },
-              },
-              error: {
+          <AuthProvider>
+            {children}
+            <Toaster 
+              position="top-center"
+              reverseOrder={false}
+              gutter={8}
+              toastOptions={{
                 duration: 4000,
                 style: {
-                  background: '#ef4444',
+                  background: '#363636',
+                  color: '#fff',
                 },
-              },
-            }}
-          />
+                success: {
+                  duration: 3000,
+                  style: {
+                    background: '#10b981',
+                  },
+                },
+                error: {
+                  duration: 4000,
+                  style: {
+                    background: '#ef4444',
+                  },
+                },
+              }}
+            />
+          </AuthProvider>
         </DarkModeProvider>
       </ThemeProvider>
     </QueryClientProvider>

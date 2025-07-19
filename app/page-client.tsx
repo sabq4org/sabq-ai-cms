@@ -15,7 +15,7 @@ import { getImageUrl } from '@/lib/image-utils';
 import CloudImage, { ArticleImage, CloudAvatar } from '@/components/ui/CloudImage';
 import { getArticleLink } from '@/lib/utils';
 import CategoryBadge from './components/CategoryBadge';
-import Header from '../components/Header';
+import HeaderSimple from '../components/HeaderSimple';
 import { SmartSlot } from '@/components/home/SmartSlot';
 import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
 import { useReaderProfile } from '@/hooks/useReaderProfile';
@@ -596,7 +596,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       {/* دالة تشخيص المصادقة - تظهر معلومات في Console فقط */}
       <DebugAuth />
       {/* Header */}
-      <Header />
+      <HeaderSimple />
       
       {/* شريط الإحصائيات للموبايل */}
       {isMobile && (

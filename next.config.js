@@ -23,15 +23,63 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'sabq.org',
+        hostname: 'source.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'loremflickr.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.sabq.org',
       },
       {
         protocol: 'https',
         hostname: 'www.sabq.org',
       },
       {
-        protocol: 'http',
-        hostname: 'localhost',
+        protocol: 'https',
+        hostname: 'sabq.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.sabq.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sabq-bucket.fra1.digitaloceanspaces.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sabq-bucket.nyc3.digitaloceanspaces.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sabq-bucket.sgp1.digitaloceanspaces.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sabq-bucket.ams3.digitaloceanspaces.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sabq-bucket.sfo3.digitaloceanspaces.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fra1.digitaloceanspaces.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
       },
     ],
   },
@@ -98,6 +146,22 @@ const nextConfig = {
         ],
       },
     ];
+  },
+
+  // إعادة التوجيه
+  async redirects() {
+    return [
+      {
+        source: '/news',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/dashboard',
+        destination: '/dashboard/preferences',
+        permanent: false,
+      },
+    ]
   },
 }
 
