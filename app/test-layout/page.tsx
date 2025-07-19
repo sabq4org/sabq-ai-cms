@@ -1,6 +1,6 @@
 'use client';
 
-import SimpleDashboardLayout from '@/components/Layout/SimpleDashboardLayout';
+import SimpleDashboardLayout from '@/components/layout/SimpleDashboardLayout';
 
 export default function TestLayoutPage() {
   return (
