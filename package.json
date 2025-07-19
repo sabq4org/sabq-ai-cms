@@ -82,7 +82,6 @@
     "@aws-sdk/client-ses": "^3.840.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@google-cloud/vision": "^5.2.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@mui/icons-material": "^7.1.2",
     "@mui/material": "^7.1.2",

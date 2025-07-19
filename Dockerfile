@@ -9,12 +9,19 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+
+# Set npm config to skip problematic post-install scripts
+RUN npm config set ignore-scripts true
+
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm install --legacy-peer-deps; \
+  elif [ -f package-lock.json ]; then npm install --legacy-peer-deps --ignore-scripts; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
   fi
+
+# Re-enable scripts only for essential packages
+RUN npm config set ignore-scripts false
 
 # Rebuild the source code only when needed
 FROM base AS builder
