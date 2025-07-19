@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
@@ -106,9 +106,37 @@ import {
   Bookmark,
   MessageSquare,
   MonitorSmartphone,
-  Vote
+  Vote,
+  MessageCircle,
+  MoreHorizontal,
+  ArrowUpLeft,
+  Loader
 } from 'lucide-react';
 // 🚀 إضافة المكونات المحسنة للموبايل
+
+// دالة تنسيق التاريخ الآمنة لتجنب مشاكل Hydration
+function formatSafeDate(dateString: string | null | undefined): string {
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    
+    const months = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    // تنسيق ثابت بدون فاصلة
+    return `${day} ${month} ${year}`;
+  } catch {
+    return '';
+  }
+}
 import { Suspense } from 'react'
 // import { MobileOptimizer, MobileStats } from '@/components/mobile/MobileOptimizer'
 // import { MobileArticlesList } from '@/components/mobile/MobileArticleCard'
@@ -419,16 +447,10 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
               <div className="flex flex-col gap-1">
                 {/* التاريخ والوقت */}
                 <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                  <div className="text-sm text-gray-500 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    {new Date(news.published_at || news.created_at).toLocaleDateString('ar-SA', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                      calendar: 'gregory',
-                      numberingSystem: 'latn'
-                    })}
-                  </div>
+                                      <div className="text-sm text-gray-500 flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      {formatSafeDate(news.published_at || news.created_at)}
+                    </div>
                   {news.reading_time && (
                     <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
                       <Clock className="w-3 h-3" />
@@ -785,16 +807,10 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
                                   <div className="flex flex-col gap-1">
                                     {/* التاريخ والوقت */}
                                     <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                                      <div className="text-sm text-gray-500 flex items-center gap-2">
-                                        <Clock className="w-4 h-4" />
-                                        {new Date(article.published_at || article.created_at).toLocaleDateString('ar-SA', {
-                                          month: 'short',
-                                          day: 'numeric',
-                                          year: 'numeric',
-                                          calendar: 'gregory',
-                                          numberingSystem: 'latn'
-                                        })}
-                                      </div>
+                                                                              <div className="text-sm text-gray-500 flex items-center gap-2">
+                                          <Clock className="w-4 h-4" />
+                                          {formatSafeDate(article.published_at || article.created_at)}
+                                        </div>
                                       {article.reading_time && (
                                         <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
                                           <Clock className="w-3 h-3" />
