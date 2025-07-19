@@ -1,31 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { OpenAI } from 'openai';
+import { createOpenAIClient } from '@/lib/openai-config';
 
-
-
-
-
-
-
-
-
-// لا ننشئ OpenAI client مباشرة، بل نؤجله حتى وقت الاستخدام
-let openai: OpenAI | null = null;
-
-function getOpenAIClient(): OpenAI | null {
-  if (!openai) {
-    const apiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_AI_EDITOR_KEY;
-    if (apiKey && apiKey !== 'sk-...' && apiKey.length > 20) {
-      try {
-        openai = new OpenAI({ apiKey });
-      } catch (error) {
-        console.error('Failed to initialize OpenAI client:', error);
-        return null;
-      }
-    }
-  }
-  return openai;
-}
 
 // أنواع المهام المتاحة للمحرر الذكي
 type SmartEditorAction = 
@@ -215,12 +190,15 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // التحقق من وجود مفتاح API
-    if (!process.env.OPENAI_API_KEY && !process.env.OPENAI_AI_EDITOR_KEY) {
-      console.error('OpenAI API key not found');
+    // استخدام createOpenAIClient الموحد
+    const openai = await createOpenAIClient();
+    
+    if (!openai) {
+      console.error('OpenAI client not initialized');
       return NextResponse.json({
         result: getMockResponse(action, content),
-        mock: true
+        mock: true,
+        error: 'لم يتم العثور على مفتاح OpenAI. يرجى إضافته من إعدادات الذكاء الاصطناعي.'
       });
     }
     
@@ -229,17 +207,6 @@ export async function POST(request: NextRequest) {
     const userPrompt = buildUserPrompt(action as SmartEditorAction, content, context);
     
     console.log('🔄 طلب المحرر الذكي:', { action, contentLength: content.length });
-    
-    // استدعاء OpenAI
-    const openai = getOpenAIClient();
-    if (!openai) {
-      console.error('OpenAI client not initialized');
-      return NextResponse.json({
-        result: getMockResponse(action, content),
-        mock: true,
-        error: 'حدث خطأ في تهيئة OpenAI'
-      });
-    }
     
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',

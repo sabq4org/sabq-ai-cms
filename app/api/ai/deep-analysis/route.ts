@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getOpenAIKey, getAISettings } from '@/lib/openai-config';
 
 // دالة لجلب إعدادات AI من قاعدة البيانات
-async function getAISettings() {
-  try {
-    const settings = await prisma.site_settings.findFirst({
-      where: { section: 'ai' }
-    });
-    if (settings) {
-      return settings.data as any;
-    }
-  } catch (error) {
-    console.error('خطأ في جلب إعدادات AI:', error);
-  }
-  return null;
-}
+// async function getAISettings() {
+//   try {
+//     const settings = await prisma.site_settings.findFirst({
+//       where: { section: 'ai' }
+//     });
+//     if (settings) {
+//       return settings.data as any;
+//     }
+//   } catch (error) {
+//     console.error('خطأ في جلب إعدادات AI:', error);
+//   }
+//   return null;
+// }
 
 
 // البرومبت الاحترافي لتوليد التحليل العميق
@@ -98,20 +99,8 @@ async function generateAnalysisWithGPT(params: {
   settings?: any;
   apiKey?: string;
 }): Promise<AnalysisResult> {
-  // في بيئة الإنتاج، استخدم OpenAI API
-  // جلب المفتاح من قاعدة البيانات أولاً، ثم من الإعدادات، ثم من البيئة
-  let openaiKey = params.apiKey;
-  
-  if (!openaiKey) {
-    const aiSettings = await getAISettings();
-    if (aiSettings?.openai?.apiKey) {
-      openaiKey = aiSettings.openai.apiKey;
-    }
-  }
-  
-  if (!openaiKey) {
-    openaiKey = process.env.OPENAI_API_KEY;
-  }
+  // جلب المفتاح من المصدر الموحد
+  let openaiKey = params.apiKey || await getOpenAIKey();
   
   if (openaiKey) {
     try {

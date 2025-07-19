@@ -1,428 +1,238 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/hooks/use-toast';
 import { 
   Brain, 
   Key, 
-  Save,
-  CheckCircle,
-  AlertCircle,
+  Zap, 
+  Check, 
+  AlertCircle, 
+  RefreshCw,
+  Trash2,
   Eye,
-  EyeOff,
-  TestTube,
-  Settings,
-  Edit3,
-  BarChart3,
-  Bell
+  EyeOff
 } from 'lucide-react';
-interface AISettings {
-  openai: {
-    apiKey: string;
-    model: string;
-    maxTokens: number;
-    temperature: number;
-  };
-  features: {
-    aiEditor: boolean;
-    analytics: boolean;
-    notifications: boolean;
-  };
-}
+import { useOpenAISettings } from '@/hooks/useOpenAISettings';
+import { toast } from 'react-hot-toast';
+
 export default function AISettingsPage() {
-  const { toast } = useToast();
-  const [settings, setSettings] = useState<AISettings>({
-    openai: {
-      apiKey: '',
-      model: 'gpt-4',
-      maxTokens: 2000,
-      temperature: 0.7
-    },
-    features: {
-      aiEditor: true,
-      analytics: true,
-      notifications: true
+  const {
+    settings,
+    loading,
+    saving,
+    saveSettings,
+    testConnection,
+    deleteKey,
+    updateLocalSettings
+  } = useOpenAISettings();
+
+  const [apiKey, setApiKey] = React.useState('');
+  const [showKey, setShowKey] = React.useState(false);
+  const [testing, setTesting] = React.useState(false);
+
+  React.useEffect(() => {
+    if (settings?.openai?.apiKey) {
+      setApiKey(settings.openai.apiKey);
     }
-  });
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isTesting, setIsTesting] = useState(false);
-  // تحميل الإعدادات
-  useEffect(() => {
-    loadSettings();
-  }, []);
-  
-  const loadSettings = async () => {
-    try {
-      // جلب الإعدادات من API أولاً
-      const response = await fetch('/api/settings/ai');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data) {
-          setSettings({
-            openai: data.data.openai || {
-              apiKey: '',
-              model: 'gpt-4',
-              maxTokens: 2000,
-              temperature: 0.7
-            },
-            features: data.data.features || {
-              aiEditor: true,
-              analytics: true,
-              notifications: true
-            }
-          });
-          console.log('✅ تم تحميل الإعدادات من قاعدة البيانات');
-          return;
-        }
+  }, [settings]);
+
+  const handleSaveKey = async () => {
+    if (!apiKey || apiKey.trim() === '') {
+      toast.error('يرجى إدخال المفتاح');
+      return;
+    }
+
+    if (apiKey === 'sk-...****...' || apiKey === settings?.openai?.apiKey) {
+      toast.info('لم يتم تغيير المفتاح');
+      return;
+    }
+
+    const success = await saveSettings({
+      openai: {
+        ...settings?.openai,
+        apiKey: apiKey.trim()
       }
-      
-      // في حالة فشل API، استخدم localStorage كـ fallback
-      const savedSettings = localStorage.getItem('sabq-ai-settings');
-      if (savedSettings) {
-        setSettings(JSON.parse(savedSettings));
-        console.log('⚠️ تم تحميل الإعدادات من التخزين المحلي');
-      }
-    } catch (error) {
-      console.error('خطأ في تحميل الإعدادات:', error);
-      // محاولة جلب من localStorage في حالة الخطأ
-      try {
-        const savedSettings = localStorage.getItem('sabq-ai-settings');
-        if (savedSettings) {
-          setSettings(JSON.parse(savedSettings));
-        }
-      } catch (localError) {
-        console.error('خطأ في تحميل الإعدادات المحلية:', localError);
+    });
+
+    if (success) {
+      setShowKey(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    setTesting(true);
+    await testConnection(apiKey !== 'sk-...****...' ? apiKey : undefined);
+    setTesting(false);
+  };
+
+  const handleDeleteKey = async () => {
+    if (confirm('هل أنت متأكد من حذف المفتاح؟')) {
+      const success = await deleteKey();
+      if (success) {
+        setApiKey('');
       }
     }
   };
-  const saveSettings = async () => {
-    setIsLoading(true);
-    try {
-      // إرسال إلى API لحفظ في قاعدة البيانات
-      const response = await fetch('/api/settings/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings)
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok && data.success) {
-        // حفظ نسخة احتياطية في localStorage
-        localStorage.setItem('sabq-ai-settings', JSON.stringify(settings));
-        
-        toast({
-          title: "✅ نجح الحفظ",
-          description: "تم حفظ إعدادات الذكاء الاصطناعي في قاعدة البيانات بنجاح",
-          variant: "default"
-        });
-      } else {
-        throw new Error(data.error || 'فشل في حفظ الإعدادات');
-      }
-    } catch (error) {
-      console.error('خطأ في حفظ الإعدادات:', error);
-      toast({
-        title: "❌ خطأ",
-        description: "فشل في حفظ الإعدادات في قاعدة البيانات. يرجى المحاولة مرة أخرى.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
+
+  const handleFeatureToggle = async (feature: string) => {
+    const newFeatures = {
+      ...settings?.features,
+      [feature]: !settings?.features[feature as keyof typeof settings.features]
+    };
+
+    await saveSettings({ features: newFeatures });
   };
-  const testOpenAI = async () => {
-    setIsTesting(true);
-    try {
-      const response = await fetch('/api/ai/smart-editor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'generate_title',
-          content: 'اختبار الاتصال بـ OpenAI'
-        })
-      });
-      const data = await response.json();
-      if (data.result && !data.mock) {
-        toast({
-          title: "نجح",
-          description: "✅ تم الاتصال بـ OpenAI بنجاح",
-          variant: "default"
-        });
-      } else if (data.mock) {
-        toast({
-          title: "تحذير",
-          description: "⚠️ يتم استخدام النصوص التجريبية - تأكد من إضافة مفتاح OpenAI",
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "خطأ",
-          description: "❌ فشل في الاتصال بـ OpenAI",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "❌ خطأ في اختبار الاتصال",
-        variant: "destructive"
-      });
-      console.error('خطأ في اختبار OpenAI:', error);
-    } finally {
-      setIsTesting(false);
-    }
-  };
-  const updateSetting = (section: keyof AISettings, key: string, value: any) => {
-    setSettings(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [key]: value
-      }
-    }));
-  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
-  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* العنوان الرئيسي */}
-        <div className="flex items-center justify-between">
+    <div className="max-w-4xl mx-auto p-6">
+      {/* العنوان */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+          <Brain className="w-8 h-8 text-blue-600" />
+          إعدادات الذكاء الاصطناعي
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          قم بتكوين مفتاح OpenAI API وإدارة ميزات الذكاء الاصطناعي
+        </p>
+      </div>
+
+      {/* بطاقة إعدادات المفتاح */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <Key className="w-5 h-5 text-gray-600" />
+          مفتاح OpenAI API
+        </h2>
+
+        <div className="space-y-4">
+          {/* حقل المفتاح */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">إعدادات الذكاء الاصطناعي</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              تكوين OpenAI API والمحرر الذكي
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              المفتاح السري
+            </label>
+            <div className="relative">
+              <input
+                type={showKey ? 'text' : 'password'}
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="sk-..."
+                className="w-full px-4 py-2 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+              <button
+                onClick={() => setShowKey(!showKey)}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                {showKey ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            {settings?.openai?.hasKey && apiKey === 'sk-...****...' && (
+              <p className="text-sm text-green-600 dark:text-green-400 mt-1">
+                ✓ مفتاح محفوظ مسبقاً
+              </p>
+            )}
+          </div>
+
+          {/* أزرار التحكم */}
+          <div className="flex gap-3">
+            <button
+              onClick={handleSaveKey}
+              disabled={saving || !apiKey || apiKey === 'sk-...****...'}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {saving ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <Check className="w-4 h-4" />
+              )}
+              حفظ المفتاح
+            </button>
+
+            <button
+              onClick={handleTestConnection}
+              disabled={testing || !settings?.openai?.hasKey}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {testing ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <Zap className="w-4 h-4" />
+              )}
+              اختبار الاتصال
+            </button>
+
+            {settings?.openai?.hasKey && (
+              <button
+                onClick={handleDeleteKey}
+                disabled={saving}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                حذف المفتاح
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* رسالة تحذيرية */}
+        <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg flex gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">
+              ملاحظة مهمة:
+            </p>
+            <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
+              احتفظ بمفتاحك السري آمناً. يمكنك الحصول على مفتاح من{' '}
+              <a
+                href="https://platform.openai.com/api-keys"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-amber-900 dark:hover:text-amber-200"
+              >
+                لوحة تحكم OpenAI
+              </a>
             </p>
           </div>
-          <Button 
-            onClick={saveSettings} 
-            disabled={isLoading} 
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300"
-            title="حفظ جميع إعدادات الذكاء الاصطناعي"
-          >
-            <Save className="w-5 h-5" />
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                جاري الحفظ...
-              </>
-            ) : (
-              '💾 حفظ الإعدادات'
-            )}
-          </Button>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* إعدادات OpenAI */}
-          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-1 rounded-full bg-blue-50 text-blue-700">
-                  <Brain className="w-5 h-5" />
-                </div>
-                إعدادات OpenAI
-              </CardTitle>
-              <CardDescription>
-                تكوين OpenAI API للمحرر الذكي والخدمات الأخرى
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* مفتاح API */}
-              <div className="space-y-2">
-                <Label htmlFor="openai-key" className="flex items-center gap-2">
-                  <div className="p-1 rounded-full bg-yellow-50 text-yellow-700">
-                    <Key className="w-4 h-4" />
-                  </div>
-                  مفتاح API
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="openai-key"
-                    type={showApiKey ? 'text' : 'password'}
-                    value={settings.openai.apiKey}
-                    onChange={(e) => updateSetting('openai', 'apiKey', e.target.value)}
-                    placeholder="sk-..."
-                    className="pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3"
-                    onClick={() => setShowApiKey(!showApiKey)}
-                  >
-                    {showApiKey ? (
-                      <div className="p-1 rounded-full bg-red-50 text-red-700">
-                        <EyeOff className="w-4 h-4" />
-                      </div>
-                    ) : (
-                      <div className="p-1 rounded-full bg-green-50 text-green-700">
-                        <Eye className="w-4 h-4" />
-                      </div>
-                    )}
-                  </Button>
-                </div>
-              </div>
-              {/* اختبار الاتصال */}
-              <Button 
-                onClick={testOpenAI} 
-                disabled={isTesting} 
-                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 shadow-md hover:shadow-lg transition-all duration-300"
-                title="اختبار الاتصال مع OpenAI API"
-              >
-                <TestTube className="w-4 h-4" />
-                {isTesting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                    جاري الاختبار...
-                  </>
-                ) : (
-                  '🧪 اختبار الاتصال'
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-          {/* إعدادات المميزات */}
-          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-1 rounded-full bg-green-50 text-green-700">
-                  <Settings className="w-5 h-5" />
-                </div>
-                إعدادات المميزات
-              </CardTitle>
-              <CardDescription>
-                تفعيل وتعطيل المميزات المختلفة
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* المحرر الذكي */}
-              <div className="flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
-                <div className="space-y-0.5 flex items-center gap-3">
-                  <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-800 text-orange-700 dark:text-orange-300">
-                    <Edit3 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <Label className="text-base font-semibold text-orange-900 dark:text-orange-100">المحرر الذكي</Label>
-                    <p className="text-sm text-orange-700 dark:text-orange-300">
-                      تفعيل المحرر الذكي المدعوم بالذكاء الاصطناعي
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-sm font-medium ${settings.features.aiEditor ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {settings.features.aiEditor ? '✅ مفعل' : '⛔ غير مفعل'}
-                  </span>
-                  <Switch
-                    checked={settings.features.aiEditor}
-                    onCheckedChange={(checked) => updateSetting('features', 'aiEditor', checked)}
-                    className="data-[state=checked]:bg-orange-600"
-                  />
-                </div>
-              </div>
-              <Separator />
-              {/* التحليلات */}
-              <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <div className="space-y-0.5 flex items-center gap-3">
-                  <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300">
-                    <BarChart3 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <Label className="text-base font-semibold text-blue-900 dark:text-blue-100">التحليلات</Label>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      تفعيل نظام التحليلات والإحصائيات
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-sm font-medium ${settings.features.analytics ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {settings.features.analytics ? '✅ مفعل' : '⛔ غير مفعل'}
-                  </span>
-                  <Switch
-                    checked={settings.features.analytics}
-                    onCheckedChange={(checked) => updateSetting('features', 'analytics', checked)}
-                    className="data-[state=checked]:bg-blue-600"
-                  />
-                </div>
-              </div>
-              <Separator />
-              {/* الإشعارات */}
-              <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                <div className="space-y-0.5 flex items-center gap-3">
-                  <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300">
-                    <Bell className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <Label className="text-base font-semibold text-purple-900 dark:text-purple-100">الإشعارات</Label>
-                    <p className="text-sm text-purple-700 dark:text-purple-300">
-                      تفعيل نظام الإشعارات والتنبيهات
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-sm font-medium ${settings.features.notifications ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {settings.features.notifications ? '✅ مفعل' : '⛔ غير مفعل'}
-                  </span>
-                  <Switch
-                    checked={settings.features.notifications}
-                    onCheckedChange={(checked) => updateSetting('features', 'notifications', checked)}
-                    className="data-[state=checked]:bg-purple-600"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      </div>
+
+      {/* بطاقة الميزات */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <Zap className="w-5 h-5 text-gray-600" />
+          الميزات المتاحة
+        </h2>
+
+        <div className="grid gap-4">
+          {Object.entries({
+            aiEditor: 'المحرر الذكي',
+            analytics: 'التحليلات الذكية',
+            notifications: 'الإشعارات الذكية',
+            deepAnalysis: 'التحليل العميق',
+            smartLinks: 'الروابط الذكية',
+            commentModeration: 'مراجعة التعليقات بالذكاء الاصطناعي'
+          }).map(([key, label]) => (
+            <label
+              key={key}
+              className="flex items-center justify-between p-3 rounded-lg border dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
+            >
+              <span className="text-gray-700 dark:text-gray-300">{label}</span>
+              <input
+                type="checkbox"
+                checked={settings?.features[key as keyof typeof settings.features] || false}
+                onChange={() => handleFeatureToggle(key)}
+                disabled={saving}
+                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+              />
+            </label>
+          ))}
         </div>
-        {/* حالة النظام */}
-        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-1 rounded-full bg-gray-50 text-gray-700">
-                <CheckCircle className="w-5 h-5" />
-              </div>
-              حالة النظام
-            </CardTitle>
-            <CardDescription>
-              نظرة عامة على حالة النظام والمميزات
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <div>
-                  <p className="font-medium text-green-900 dark:text-green-100">النظام</p>
-                  <p className="text-sm text-green-600 dark:text-green-400">يعمل بشكل طبيعي</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <Brain className="w-5 h-5 text-blue-600" />
-                <div>
-                  <p className="font-medium text-blue-900 dark:text-blue-100">الذكاء الاصطناعي</p>
-                  <p className="text-sm text-blue-600 dark:text-blue-400">
-                    {settings.openai.apiKey ? 'مفعل' : 'غير مفعل'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                <Settings className="w-5 h-5 text-purple-600" />
-                <div>
-                  <p className="font-medium text-purple-900 dark:text-purple-100">المميزات</p>
-                  <p className="text-sm text-purple-600 dark:text-purple-400">
-                    {Object.values(settings.features).filter(Boolean).length}/3 مفعلة
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

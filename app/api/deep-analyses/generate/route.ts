@@ -1,22 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateDeepAnalysis, initializeOpenAI } from '@/lib/services/deepAnalysisService';
 import { GenerateAnalysisRequest } from '@/types/deep-analysis';
-import { prisma } from '@/lib/prisma';
-
-// دالة لجلب إعدادات AI من قاعدة البيانات
-async function getAISettings() {
-  try {
-    const settings = await prisma.site_settings.findFirst({
-      where: { section: 'ai' }
-    });
-    if (settings) {
-      return settings.data as any;
-    }
-  } catch (error) {
-    console.error('خطأ في جلب إعدادات AI:', error);
-  }
-  return null;
-}
+import { getOpenAIKey } from '@/lib/openai-config';
 
 
 
@@ -32,65 +17,15 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // محاولة الحصول على API key من عدة مصادر بالترتيب
-    let apiKey = '';
-    
-    // 1. التحقق من قاعدة البيانات أولاً
-    const aiSettings = await getAISettings();
-    if (aiSettings?.openai?.apiKey && aiSettings.openai.apiKey.trim() !== '') {
-      apiKey = aiSettings.openai.apiKey;
-      console.log('Using API Key from database');
-    }
-    
-    // 2. إذا لم يكن في قاعدة البيانات، نحاول من البيئة
-    if (!apiKey) {
-      apiKey = process.env.OPENAI_API_KEY || '';
-      if (apiKey) {
-        console.log('Using API Key from environment');
-      }
-    }
-    
-    // 3. إذا لم يكن في البيئة، نحاول من جسم الطلب
-    if (!apiKey && body.openaiKey && body.openaiKey.trim() !== '') {
-      apiKey = body.openaiKey;
-      console.log('Using API Key from request body');
-    }
-    
-    // 4. إذا لم يكن موجوداً، نحاول من الإعدادات في جسم الطلب
-    if (!apiKey && body.settings?.openaiKey && body.settings.openaiKey.trim() !== '') {
-      apiKey = body.settings.openaiKey;
-      console.log('Using API Key from request settings');
-    }
+    // الحصول على مفتاح OpenAI من المصدر الموحد
+    const apiKey = await getOpenAIKey();
     
     // التحقق من وجود API key
     if (!apiKey || apiKey.trim() === '') {
       return NextResponse.json(
         { 
           error: 'يرجى إضافة مفتاح OpenAI من إعدادات الذكاء الاصطناعي',
-          details: 'لم يتم العثور على مفتاح API في قاعدة البيانات أو متغيرات البيئة',
-          debug: {
-            checkedDatabase: !!aiSettings?.openai?.apiKey,
-            checkedEnvironment: !!process.env.OPENAI_API_KEY,
-            checkedRequestBody: !!body.openaiKey,
-            checkedRequestSettings: !!body.settings?.openaiKey,
-            envExists: !!process.env.OPENAI_API_KEY,
-            bodyKeyExists: !!body.openaiKey,
-            settingsKeyExists: !!body.settings?.openaiKey
-          }
-        },
-        { status: 401 }
-      );
-    }
-    
-    // التحقق من أن المفتاح كامل وليس مختصراً
-    if (apiKey === 'sk-...' || apiKey.length < 20) {
-      return NextResponse.json(
-        { 
-          error: 'مفتاح OpenAI API غير كامل. يرجى نسخ المفتاح الكامل من https://platform.openai.com/api-keys',
-          debug: {
-            keyLength: apiKey.length,
-            keyPreview: apiKey.substring(0, 10) + '...'
-          }
+          details: 'لم يتم العثور على مفتاح API في قاعدة البيانات أو متغيرات البيئة'
         },
         { status: 401 }
       );
