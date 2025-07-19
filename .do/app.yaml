@@ -14,15 +14,15 @@ services:
     npm run build && \
     echo "✅ تم البناء بنجاح"
   run_command: |
-    echo "🚀 تشغيل الخادم..." && \
-    if [ -f ".next/BUILD_ID" ]; then \
-      echo "✅ Build ID: $(cat .next/BUILD_ID)" && \
-      npx next start -H 0.0.0.0 -p ${PORT:-3000}; \
-    else \
-      echo "❌ BUILD_ID مفقود! إعادة البناء..." && \
-      npm run build && \
-      npx next start -H 0.0.0.0 -p ${PORT:-3000}; \
-    fi
+    echo "🚀 Starting application..." && \
+    if [ ! -f ".next/BUILD_ID" ]; then \
+      echo "❌ BUILD_ID missing! Building now..." && \
+      rm -rf .next && \
+      npx prisma generate && \
+      npx next build; \
+    fi && \
+    echo "✅ Build ID: $(cat .next/BUILD_ID 2>/dev/null || echo 'none')" && \
+    exec npx next start -H 0.0.0.0 -p ${PORT:-3000}
   environment_slug: node-js
   instance_count: 1
   instance_size_slug: professional-xs

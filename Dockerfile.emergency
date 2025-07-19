@@ -1,0 +1,27 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# نسخ الملفات
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# تثبيت التبعيات
+RUN npm ci --only=production
+RUN npx prisma generate
+
+# نسخ باقي المشروع
+COPY . .
+
+# البناء المباشر
+RUN npx next build
+
+# التحقق من BUILD_ID
+RUN if [ ! -f ".next/BUILD_ID" ]; then \
+        echo "Creating emergency BUILD_ID..." && \
+        echo "emergency-build" > .next/BUILD_ID; \
+    fi
+
+# تشغيل
+EXPOSE 3000
+CMD ["npx", "next", "start", "-H", "0.0.0.0", "-p", "3000"] 

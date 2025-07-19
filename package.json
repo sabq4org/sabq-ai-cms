@@ -22,6 +22,7 @@
     "clear:cache": "node scripts/clear-cache-now.js",
     "clear:production": "node scripts/clear-production-cache.js",
     "start": "bash start.sh || ./start.sh || sh start.sh || node start.js",
+    "start:emergency": "rm -rf .next && npx prisma generate && npx next build && npx next start",
     "start:next": "next start",
     "start:safe": "next start",
     "start:production": "./start-production.sh",
