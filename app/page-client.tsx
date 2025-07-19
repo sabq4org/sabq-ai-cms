@@ -521,7 +521,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
     const fetchArticles = async () => {
       try {
         setArticlesLoading(true);
-        const res = await fetch('/api/articles?status=published&limit=12&sortBy=published_at&order=desc');
+        const res = await fetch('/api/articles?status=published&limit=20&sortBy=published_at&order=desc');
         const json = await res.json();
         // 💡 FIX: The API returns { data: [...] } or { articles: [...] }
         const list = Array.isArray(json) ? json : (json.data ?? json.articles ?? []);
@@ -549,7 +549,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
     setSelectedCategory(categoryId);
     setCategoryArticlesLoading(true);
     try {
-      const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=12&sortBy=published_at&order=desc`);
+      const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=20&sortBy=published_at&order=desc`);
       const json = await res.json();
       // 💡 FIX: The API returns { data: [...] } or { articles: [...] }
       const list = Array.isArray(json) ? json : (json.data ?? json.articles ?? []);
@@ -980,7 +980,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
                   </div>
                 </div>
               )}
-              {/* عرض المقالات - تم إصلاح العدد ليكون 12 بالضبط */}
+              {/* عرض المقالات - تم تعديل العدد ليكون 16 مقال كما هو مطلوب */}
               {(showPersonalized && personalizedArticles.length > 0) ? (
                 // عرض المقالات المخصصة للمستخدمين المسجلين
                 isMobile ? (
@@ -1000,9 +1000,9 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
                     ))}
                   </div>
                 ) : (
-                  // عرض الديسكتوب - شبكة (12 مقال بالضبط)
+                  // عرض الديسكتوب - شبكة (16 مقال كما هو مطلوب)
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                    {personalizedArticles.slice(0, 12).map((news) => (
+                    {personalizedArticles.slice(0, 16).map((news) => (
                       <div key={news.id} className="relative">
                         {/* شارة "مخصص لك" */}
                         <div className="absolute top-2 left-2 z-10">
@@ -1030,9 +1030,9 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
                     ))}
                   </div>
                 ) : (
-                  // عرض الديسكتوب - شبكة (12 مقال للزوار أيضاً)
+                  // عرض الديسكتوب - شبكة (16 مقال للزوار أيضاً)
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                    {articles.slice(0, 12).map((news) => (
+                    {articles.slice(0, 16).map((news) => (
                       <NewsCard key={news.id} news={news} />
                     ))}
                   </div>
