@@ -58,7 +58,7 @@ export default function DeepAnalysisPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<AnalysisStatus | 'all'>('all');
   const [sourceTypeFilter, setSourceTypeFilter] = useState<SourceType | 'all'>('all');
-  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortBy, setSortBy] = useState('analyzed_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -75,12 +75,17 @@ export default function DeepAnalysisPage() {
         ...(statusFilter !== 'all' && { status: statusFilter }),
         ...(sourceTypeFilter !== 'all' && { sourceType: sourceTypeFilter })
       });
+      console.log('Fetching analyses with params:', params.toString());
       const response = await fetch(`/api/deep-analyses?${params}`);
       const data = await response.json();
+      console.log('API Response:', data);
       if (response.ok) {
         setAnalyses(data.analyses || []);
-        setTotalPages(data.totalPages || 1);
+        const totalPages = Math.ceil((data.total || 0) / 10);
+        setTotalPages(totalPages);
+        console.log('Fetched analyses:', data.analyses?.length, 'Total:', data.total, 'Pages:', totalPages);
       } else {
+        console.error('API Error:', data);
         toast.error('فشل في جلب التحليلات');
       }
     } catch (error) {
@@ -413,7 +418,7 @@ export default function DeepAnalysisPage() {
               onChange={(e) => setSortBy(e.target.value)}
               className={`w-40 ${darkMode ? 'bg-gray-700 border-gray-600' : ''}`}
             >
-              <SelectOption value="createdAt">تاريخ الإنشاء</SelectOption>
+              <SelectOption value="analyzed_at">تاريخ الإنشاء</SelectOption>
               <SelectOption value="publishedAt">تاريخ النشر</SelectOption>
               <SelectOption value="views">المشاهدات</SelectOption>
               <SelectOption value="qualityScore">الجودة</SelectOption>
@@ -532,7 +537,7 @@ export default function DeepAnalysisPage() {
                       <div className="flex items-center gap-1">
                         <Calendar className={`h-4 w-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                         <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {new Date(analysis.createdAt).toLocaleDateString('ar-SA', {
+                          {new Date(analysis.analyzed_at).toLocaleDateString('ar-SA', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',

@@ -315,11 +315,25 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                         </Link>
                       </div>
 
-                      {/* العنوان - line-clamp محسن */}
+                      {/* العنوان - محسن للرؤية */}
                       <Link href={item.url} onClick={() => markAsRead(item.id)}>
-                        <h3 className={`text-lg font-bold line-clamp-2 mb-3 transition-colors cursor-pointer ${
-                          darkMode ? 'text-white hover:text-purple-400' : 'text-gray-900 hover:text-purple-600'
-                        }`} title={item.title}>
+                        <h3 className={`
+                          text-xl font-bold mb-3 transition-colors cursor-pointer leading-tight
+                          ${darkMode ? 'text-white hover:text-purple-300' : 'text-gray-900 hover:text-purple-700'}
+                          line-clamp-2 min-h-[3.5rem]
+                        `} 
+                        title={item.title}
+                        style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          lineHeight: '1.3',
+                          fontSize: '1.1rem',
+                          fontWeight: '700'
+                        }}
+                        >
                           {item.title}
                         </h3>
                       </Link>

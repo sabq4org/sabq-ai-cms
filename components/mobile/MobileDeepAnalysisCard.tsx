@@ -67,10 +67,23 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
               )}
             </div>
             
-            {/* العنوان */}
-            <h3 className={`font-bold text-sm mb-2 line-clamp-2 ${
-              darkMode ? 'text-white' : 'text-gray-900'
-            }`}>
+            {/* العنوان - محسن للرؤية */}
+            <h3 className={`
+              font-bold mb-2 leading-tight
+              ${darkMode ? 'text-white' : 'text-gray-900'}
+              line-clamp-2 min-h-[2.5rem]
+            `}
+            style={{
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              lineHeight: '1.3',
+              fontSize: '0.95rem',
+              fontWeight: '700'
+            }}
+            >
               {insight.title}
             </h3>
             

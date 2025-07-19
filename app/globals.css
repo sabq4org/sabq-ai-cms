@@ -60,3 +60,29 @@
   }
 }
 
+/* تحسينات للعناوين في بطاقات التحليل العميق */
+@layer components {
+  .analysis-card-title {
+    @apply font-bold leading-tight;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+    font-weight: 700;
+    min-height: 3.5rem;
+  }
+  
+  .analysis-card-title-mobile {
+    @apply font-bold leading-tight;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+    font-weight: 700;
+    min-height: 2.5rem;
+    font-size: 0.95rem;
+  }
+}
+

@@ -21,39 +21,40 @@ export async function GET(
       // استخراج البيانات من metadata إذا كانت موجودة
       const metadata = dbAnalysis.metadata as any || {};
       
-      // تحويل البيانات من قاعدة البيانات إلى صيغة DeepAnalysis
-      const analysis: DeepAnalysis = {
+      // تحويل البيانات للعرض
+      const transformedAnalysis = {
         id: dbAnalysis.id,
-        title: metadata.title || dbAnalysis.ai_summary || 'تحليل عميق',
-        slug: metadata.slug || `analysis-${dbAnalysis.id}`,
-        summary: metadata.summary || dbAnalysis.ai_summary || '',
-        content: metadata.content || {
-          sections: [],
+        title: metadata.title || 'تحليل عميق',
+        slug: metadata.slug || dbAnalysis.id,
+        summary: dbAnalysis.ai_summary || metadata.summary || '',
+        content: {
+          sections: metadata.sections || [],
           tableOfContents: [],
-          recommendations: dbAnalysis.suggested_headlines || [],
-          keyInsights: dbAnalysis.key_topics as any || [],
+          recommendations: [],
+          keyInsights: [],
           dataPoints: []
         },
-        rawContent: metadata.rawContent || dbAnalysis.ai_summary || '',
-        featuredImage: metadata.featuredImage,
+        rawContent: metadata.content || dbAnalysis.ai_summary || '',
+        featuredImage: metadata.featuredImage || null,
         categories: metadata.categories || [],
-        tags: (dbAnalysis.tags as string[]) || [],
-        authorName: metadata.authorName || 'محرر سبق',
+        tags: dbAnalysis.tags || [],
+        authorId: metadata.authorId || null,
+        authorName: metadata.authorName || 'فريق التحرير',
         sourceType: metadata.sourceType || 'original',
-        creationType: metadata.creationType || 'gpt' as const,
-        analysisType: metadata.analysisType || 'ai',
+        creationType: metadata.creationType || 'gpt',
+        analysisType: metadata.creationType || 'ai',
+        sourceArticleId: metadata.sourceArticleId || null,
+        externalLink: metadata.externalLink || null,
         readingTime: metadata.readingTime || 5,
-        qualityScore: metadata.qualityScore || dbAnalysis.engagement_score || 0,
-        contentScore: metadata.contentScore || {
-          overall: dbAnalysis.engagement_score || 0,
-          contentLength: dbAnalysis.ai_summary?.length || 0,
-          hasSections: false,
-          hasData: false,
-          hasRecommendations: Array.isArray(dbAnalysis.suggested_headlines) && dbAnalysis.suggested_headlines.length > 0,
-          readability: parseFloat(dbAnalysis.readability_score?.toString() || '0'),
-          uniqueness: 0.8
+        qualityScore: metadata.qualityScore || 85,
+        contentScore: {
+          overall: metadata.qualityScore || 85,
+          readability: 80,
+          relevance: 90,
+          depth: 85,
+          engagement: 75
         },
-        status: metadata.status || 'published',
+        status: 'published',
         isActive: metadata.isActive !== false,
         isFeatured: metadata.isFeatured || false,
         displayPosition: metadata.displayPosition || 'middle',
@@ -62,14 +63,16 @@ export async function GET(
         shares: metadata.shares || 0,
         saves: metadata.saves || 0,
         commentsCount: metadata.commentsCount || 0,
-        avgReadTime: metadata.avgReadTime || 0,
-        createdAt: metadata.createdAt || dbAnalysis.analyzed_at.toISOString(),
-        updatedAt: metadata.updatedAt || dbAnalysis.updated_at.toISOString(),
-        publishedAt: metadata.publishedAt || dbAnalysis.analyzed_at.toISOString(),
-        metadata: metadata.metadata || {}
+        avgReadTime: metadata.readingTime || 5,
+        createdAt: dbAnalysis.analyzed_at,
+        updatedAt: dbAnalysis.updated_at,
+        analyzed_at: dbAnalysis.analyzed_at,
+        publishedAt: dbAnalysis.analyzed_at,
+        lastGptUpdate: dbAnalysis.updated_at,
+        metadata: metadata
       };
       
-      return NextResponse.json(analysis);
+      return NextResponse.json(transformedAnalysis);
     }
     
     // إذا لم يوجد في قاعدة البيانات، نحاول البحث عن مقال له تحليل
@@ -87,7 +90,7 @@ export async function GET(
       const articleMetadata = articleAnalysis.metadata as any || {};
       
       // إنشاء تحليل من بيانات المقال
-      const analysis: DeepAnalysis = {
+      const analysisResponse = {
         id: `analysis-${articleAnalysis.id}`,
         title: `تحليل عميق: ${articleAnalysis.title}`,
         slug: `analysis-${articleAnalysis.slug}`,
@@ -98,7 +101,7 @@ export async function GET(
             title: 'التحليل الرئيسي',
             content: articleAnalysis.content || '',
             order: 1,
-            type: 'text'
+            type: 'text' as const
           }],
           tableOfContents: [],
           recommendations: [],
@@ -109,38 +112,41 @@ export async function GET(
         featuredImage: articleMetadata.image_url,
         categories: articleMetadata.category_name ? [articleMetadata.category_name] : [],
         tags: [],
+        authorId: null,
         authorName: articleMetadata.author_name || 'محرر سبق',
-        sourceType: 'original',
+        sourceType: 'original' as const,
         creationType: 'manual' as const,
-        analysisType: 'ai',
+        analysisType: 'ai' as const,
+        sourceArticleId: null,
+        externalLink: null,
         readingTime: Math.ceil((articleAnalysis.content?.length || 0) / 250),
         qualityScore: 75,
         contentScore: {
           overall: 75,
-          contentLength: articleAnalysis.content?.length || 0,
-          hasSections: true,
-          hasData: false,
-          hasRecommendations: false,
-          readability: 0.7,
-          uniqueness: 0.8
+          readability: 80,
+          relevance: 85,
+          depth: 70,
+          engagement: 75
         },
-        status: 'published',
+        status: 'published' as const,
         isActive: true,
         isFeatured: false,
-        displayPosition: 'middle',
+        displayPosition: 'middle' as const,
         views: articleAnalysis.views,
         likes: 0,
         shares: 0,
         saves: 0,
         commentsCount: 0,
-        avgReadTime: 0,
+        avgReadTime: Math.ceil((articleAnalysis.content?.length || 0) / 250),
         createdAt: articleAnalysis.created_at.toISOString(),
         updatedAt: articleAnalysis.updated_at.toISOString(),
+        analyzed_at: articleAnalysis.created_at.toISOString(),
         publishedAt: articleAnalysis.published_at?.toISOString() || articleAnalysis.created_at.toISOString(),
+        lastGptUpdate: articleAnalysis.updated_at.toISOString(),
         metadata: {}
       };
       
-      return NextResponse.json(analysis);
+      return NextResponse.json(analysisResponse);
     }
     
     // إذا لم نجد أي شيء

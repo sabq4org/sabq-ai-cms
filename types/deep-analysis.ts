@@ -51,6 +51,7 @@ export interface DeepAnalysis {
   // التواريخ
   createdAt: string;
   updatedAt: string;
+  analyzed_at: string;
   publishedAt?: string;
   lastGptUpdate?: string;
   

@@ -152,11 +152,6 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/news',
-        destination: '/',
-        permanent: false,
-      },
-      {
         source: '/dashboard',
         destination: '/dashboard/preferences',
         permanent: false,

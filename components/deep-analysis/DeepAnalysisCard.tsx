@@ -180,13 +180,25 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           ))}
         </div>
 
-        {/* العنوان - محسن */}
+        {/* العنوان - محسن للرؤية */}
         <Link href={analysisUrl}>
           <h3 className={`
-            text-lg font-bold line-clamp-2 mb-3 transition-colors cursor-pointer
-            ${darkMode ? 'text-white hover:text-purple-400' : 'text-gray-900 hover:text-purple-600'}
+            text-xl font-bold mb-3 transition-colors cursor-pointer leading-tight
+            ${darkMode ? 'text-white hover:text-purple-300' : 'text-gray-900 hover:text-purple-700'}
+            ${viewMode === 'list' ? 'line-clamp-3' : 'line-clamp-2'}
+            min-h-[3.5rem]
           `}
           title={analysis.title}
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: viewMode === 'list' ? 3 : 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            lineHeight: '1.3',
+            fontSize: '1.1rem',
+            fontWeight: '700'
+          }}
           >
             {analysis.title}
           </h3>

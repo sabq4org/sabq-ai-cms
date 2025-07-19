@@ -153,22 +153,29 @@ const CreateDeepAnalysisPage = () => {
   // رفع الصورة
   const uploadImage = async (): Promise<string | null> => {
     if (!imageFile) return null;
-    const formData = new FormData();
-    formData.append('file', imageFile);
+    
+    // تحقق من وجود إعدادات Cloudinary
     try {
+      const formData = new FormData();
+      formData.append('file', imageFile);
+      
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
+      
       if (!response.ok) {
-        throw new Error('فشل رفع الصورة');
+        // في حالة فشل رفع الصورة، استخدم صورة افتراضية
+        console.warn('فشل رفع الصورة، استخدام صورة افتراضية');
+        return '/placeholder-analysis.jpg';
       }
+      
       const data = await response.json();
-      return data.url;
+      return data.url || '/placeholder-analysis.jpg';
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('حدث خطأ أثناء رفع الصورة');
-      return null;
+      toast.error('فشل رفع الصورة، سيتم استخدام صورة افتراضية');
+      return '/placeholder-analysis.jpg';
     }
   };
   // توليد المحتوى بالذكاء الاصطناعي

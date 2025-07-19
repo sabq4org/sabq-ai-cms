@@ -5,6 +5,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import toast from 'react-hot-toast';
 import { 
   Brain, 
@@ -29,20 +31,25 @@ import {
 interface DeepAnalysisPageProps {
   id: string;
   title: string;
-  lead: string;
-  contentHtml: string;
+  lead?: string;
+  summary?: string;
+  contentHtml?: string;
+  rawContent?: string;
+  content?: any;
   tags: string[];
-  author: string;
+  author?: string;
+  authorName?: string;
   authorRole?: string;
   authorAvatar?: string;
   publishedAt: string;
   publishedAtHijri?: string;
-  readTime: number;
+  readTime?: number;
+  readingTime?: number;
   views: number;
   likes: number;
   shares: number;
-  rating: number;
-  category: string;
+  rating?: number;
+  category?: string;
   categorySlug?: string;
   aiSummary?: string;
   aiQuestions?: string[];
@@ -93,10 +100,10 @@ export default function DeepAnalysisPage() {
     fetchAnalysisDetails();
   }, [params?.id]);
   useEffect(() => {
-    if (analysis?.contentHtml) {
+    if (analysis?.rawContent || analysis?.contentHtml) {
       generateTableOfContents();
     }
-  }, [analysis?.contentHtml]);
+  }, [analysis?.rawContent, analysis?.contentHtml]);
   useEffect(() => {
     const handleScroll = () => {
       // تحديث زر العودة للأعلى
@@ -171,15 +178,20 @@ export default function DeepAnalysisPage() {
       }
       const data = await response.json();
       console.log('Fetched data:', data); // للتحقق من البيانات
+
       // تحويل البيانات للعرض
       const analysisData: DeepAnalysisPageProps = {
         id: data.id,
         title: data.title,
         lead: data.summary,
-        contentHtml: data.rawContent || formatContentToHtml(data.content),
+        summary: data.summary,
+        contentHtml: data.rawContent || data.content,
+        rawContent: data.rawContent || data.content,
+        content: data.content,
         tags: data.tags || [],
         author: data.authorName || 'فريق التحرير',
-        authorRole: data.sourceType === 'gpt' ? 'محلل بالذكاء الاصطناعي' : 'محرر',
+        authorName: data.authorName || 'فريق التحرير',
+        authorRole: data.creationType === 'gpt' ? 'محلل بالذكاء الاصطناعي' : 'محرر',
         authorAvatar: data.authorAvatar,
         publishedAt: new Date(data.createdAt).toLocaleDateString('ar-SA', {
           year: 'numeric',
@@ -188,19 +200,20 @@ export default function DeepAnalysisPage() {
           calendar: 'gregory',
           numberingSystem: 'latn'
         }),
-
         readTime: data.readingTime || 5,
+        readingTime: data.readingTime || 5,
         views: data.views || 0,
         likes: data.likes || 0,
         shares: data.shares || 0,
         rating: data.qualityScore ? (data.qualityScore / 20) : 4.5,
         category: data.categories?.[0] || 'تحليل عميق',
         categorySlug: data.categories?.[0]?.toLowerCase().replace(/\s+/g, '-'),
-        aiSummary: data.content?.summary,
-        aiQuestions: data.content?.questions,
+        aiSummary: data.summary,
+        aiQuestions: data.suggestedHeadlines || [],
         relatedArticles: data.relatedArticles || [],
         featuredImage: data.featuredImage || '/images/deep-analysis-default.svg'
       };
+
       console.log('Transformed analysis:', analysisData); // للتحقق من البيانات المحولة
       setAnalysis(analysisData);
       setLoading(false);
@@ -384,7 +397,9 @@ export default function DeepAnalysisPage() {
     );
   }
   return (
-  <div dir="rtl" className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+    <>
+      <Header />
+      <div dir="rtl" className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
       {/* شريط التقدم في القراءة */}
       <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-gray-200 dark:bg-gray-800">
         <div 
@@ -416,19 +431,26 @@ export default function DeepAnalysisPage() {
           </h1>
           {/* Lead */}
           <p className={`text-lg md:text-xl leading-relaxed mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-            {analysis.lead}
+            {analysis.lead || analysis.summary || ''}
           </p>
           {/* Featured Image */}
           {analysis.featuredImage && (
             <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
-              <Image src="/placeholder.jpg" alt="" width={100} height={100} />
+              <Image 
+                src={analysis.featuredImage} 
+                alt={analysis.title}
+                width={1200} 
+                height={600}
+                className="w-full h-auto object-cover"
+                priority
+              />
             </div>
           )}
           {/* Meta Info */}
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
               <User className="w-4 h-4" />
-              <span className="font-medium">{analysis.author}</span>
+              <span className="font-medium">{analysis.author || analysis.authorName || 'غير محدد'}</span>
               {analysis.authorRole && (
                 <span className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   ({analysis.authorRole})
@@ -512,7 +534,7 @@ export default function DeepAnalysisPage() {
                       الوقت المتبقي
                     </span>
                     <span className="font-bold">
-                      {Math.ceil((analysis.readTime * (100 - readingProgress)) / 100)} دقيقة
+                      {Math.ceil(((analysis.readTime || analysis.readingTime || 5) * (100 - readingProgress)) / 100)} دقيقة
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -546,7 +568,7 @@ export default function DeepAnalysisPage() {
                         <Star
                           key={i}
                           className={`w-4 h-4 ${
-                            i < Math.floor(analysis.rating)
+                            i < Math.floor(analysis.rating || 4)
                               ? 'fill-yellow-400 text-yellow-400'
                               : darkMode
                                 ? 'text-gray-600'
@@ -555,7 +577,7 @@ export default function DeepAnalysisPage() {
                         />
                       ))}
                       <span className="text-sm mr-1">
-                        ({Math.round(analysis.rating * 20)}%)
+                        ({Math.round((analysis.rating || 4) * 20)}%)
                       </span>
                     </div>
                   </div>
@@ -640,7 +662,8 @@ export default function DeepAnalysisPage() {
               className={`prose prose-lg max-w-none ${
                 darkMode ? 'prose-invert' : ''
               } prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:leading-relaxed prose-p:mb-4 prose-blockquote:border-r-4 prose-blockquote:border-blue-500 prose-blockquote:pr-4 prose-blockquote:italic prose-ul:list-disc prose-ul:mr-6 prose-li:mb-2`}
-              dangerouslySetInnerHTML={{ __html: analysis.contentHtml }}
+              style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'var(--font-cairo, system-ui)', lineHeight: '1.8' }}
+              dangerouslySetInnerHTML={{ __html: analysis.rawContent || analysis.summary || 'محتوى غير متوفر' }}
             />
             {/* AI Section */}
             {(analysis.aiSummary || analysis.aiQuestions) && (
@@ -822,6 +845,8 @@ export default function DeepAnalysisPage() {
           }
         }
       `}</style>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }
