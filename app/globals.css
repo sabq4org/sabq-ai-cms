@@ -3309,11 +3309,28 @@ img[src="null"] {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  right: 0;
   height: 3px;
-  background: linear-gradient(to right, #3b82f6 var(--scroll-progress, 0%), transparent var(--scroll-progress, 0%));
-  z-index: 100;
-  transition: background 0.3s ease;
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease-out;
+  z-index: 9999;
+  width: var(--scroll-progress, 0%);
+}
+
+/* تأثير heartbeat للإعجاب */
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 0.5s ease-in-out;
 }
 
 /* تأثير التحديد للنص */

@@ -74,6 +74,8 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'not_found' | 'not_published' | 'server_error' | null>(null);
+  const [deepAnalysis, setDeepAnalysis] = useState<any>(null);
+  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
 
   // استخدام hook تتبع التفاعلات
   const interactionTracking = useUserInteractionTracking(articleId);
@@ -127,10 +129,27 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     }
   };
 
+  // جلب التحليل العميق
+  const fetchDeepAnalysis = async (id: string) => {
+    try {
+      setLoadingAnalysis(true);
+      const response = await fetch(`/api/deep-analyses/${id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setDeepAnalysis(data);
+      }
+    } catch (error) {
+      console.error('Error fetching deep analysis:', error);
+    } finally {
+      setLoadingAnalysis(false);
+    }
+  };
+
   // جلب المقال عند تغيير articleId
   useEffect(() => {
     if (articleId) {
       fetchArticle(articleId);
+      fetchDeepAnalysis(articleId);
     }
   }, [articleId]);
 
@@ -263,6 +282,8 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     <>
       <Header />
       <ArticleJsonLd article={article} />
+      
+      {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
       
       <main className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -366,7 +387,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
             </div>
           )}
 
-          {/* أزرار التفاعل الذكية */}
+          {/* شريط التفاعل الذكي */}
           <div className="mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
             <SmartInteractionButtons 
               articleId={article.id}
@@ -377,14 +398,50 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
                 comments: article.comments_count || 0
               }}
               onComment={() => {
-                // التمرير إلى قسم التعليقات
-                const commentsSection = document.getElementById('comments');
-                if (commentsSection) {
-                  commentsSection.scrollIntoView({ behavior: 'smooth' });
-                }
+                // التمرير لقسم التعليقات
+                const commentsSection = document.getElementById('comments-section');
+                commentsSection?.scrollIntoView({ behavior: 'smooth' });
               }}
             />
           </div>
+
+          {/* التحليل العميق إن وجد */}
+          {deepAnalysis && (
+            <div className="mb-8 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <Brain className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                    🧠 تحليل عميق
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                    {deepAnalysis.summary}
+                  </p>
+                  {deepAnalysis.keyInsights && deepAnalysis.keyInsights.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="text-sm font-semibold mb-2">نقاط رئيسية:</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        {deepAnalysis.keyInsights.map((insight: string, index: number) => (
+                          <li key={index} className="text-sm text-gray-600 dark:text-gray-400">
+                            {insight}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <Link
+                    href={`/insights/deep/${deepAnalysis.id}`}
+                    className="inline-flex items-center gap-2 mt-4 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 text-sm font-medium"
+                  >
+                    <span>قراءة التحليل الكامل</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* الكلمات المفتاحية */}
           {keywords.length > 0 && (
@@ -411,7 +468,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
           />
           
           {/* قسم التعليقات */}
-          <div id="comments" className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+          <div id="comments-section" className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
             <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">التعليقات</h2>
             {/* يمكن إضافة مكون التعليقات هنا */}
           </div>
