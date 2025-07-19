@@ -32,6 +32,11 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# Don't ignore start scripts
+!start.sh
+!start.js
+!start-production.sh
+
 # Vercel
 .vercel
 

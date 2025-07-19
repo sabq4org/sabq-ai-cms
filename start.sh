@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "🚀 SABQ AI CMS Starting..."
 echo "📅 Time: $(date)"
@@ -21,7 +21,7 @@ fi
 if [ -d ".next" ]; then
     echo "✅ Build found!"
     echo "🚀 Starting server..."
-    npx next start
+    exec npx next start
 else
     echo "❌ FATAL: Could not create build!"
     exit 1

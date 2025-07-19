@@ -85,6 +85,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/lib/generated ./lib/generated
 
 # Copy start script
 COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
+COPY --from=builder --chown=nextjs:nodejs /app/start.js ./start.js
 RUN chmod +x ./start.sh
 
 USER nextjs
@@ -92,6 +93,7 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
-# Use the start script
-CMD ["./start.sh"] 
+# Use sh explicitly to run the script
+CMD ["sh", "./start.sh"] 

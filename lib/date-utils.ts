@@ -168,3 +168,49 @@ export function formatRelativeDate(dateString: string | undefined): string {
     return 'غير محدد';
   }
 } 
+
+/**
+ * تنسيق التاريخ الكامل مع الوقت
+ */
+export function formatFullDate(dateString: string | undefined): string {
+  return formatDate(dateString, { includeYear: true, includeTime: true, format: 'full' });
+}
+
+/**
+ * تنسيق التاريخ فقط بدون وقت
+ */
+export function formatDateOnly(dateString: string | undefined): string {
+  return formatDate(dateString, { includeYear: true, includeTime: false, format: 'short' });
+}
+
+/**
+ * التحقق من صحة التاريخ وإصلاحه
+ */
+export function validateAndFixDate(dateString: string | undefined): string | null {
+  if (!dateString) return null;
+  
+  try {
+    const date = new Date(dateString);
+    
+    // تحقق من صحة التاريخ
+    if (isNaN(date.getTime())) {
+      // محاولة إصلاح التاريخ
+      const fixedDate = dateString.replace(/\//g, '-');
+      const newDate = new Date(fixedDate);
+      
+      if (!isNaN(newDate.getTime())) {
+        return newDate.toISOString();
+      }
+      
+      return null;
+    }
+    
+    return date.toISOString();
+  } catch (error) {
+    console.error('خطأ في validateAndFixDate:', error);
+    return null;
+  }
+}
+
+// إعادة تصدير جميع الدوال
+export * from './date-utils'; 
