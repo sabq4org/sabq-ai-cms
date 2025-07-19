@@ -48,6 +48,47 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+
+  // إعدادات CSS محسّنة
+  experimental: {
+    optimizeCss: true,
+    cssChunking: 'strict',
+  },
+
+  // تحسين الأداء
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
+  // Headers لتحسين التحميل
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig; 
