@@ -1,0 +1,60 @@
+# ================================
+# 🚀 DigitalOcean Optimized Dockerfile 
+# ================================
+
+FROM node:18-alpine AS base
+
+# إعدادات أساسية
+WORKDIR /app
+RUN apk add --no-cache libc6-compat openssl
+
+# ================================
+# 📦 مرحلة التبعيات
+# ================================
+FROM base AS deps
+COPY package.json package-lock.json ./
+RUN npm ci --only=production --no-audit --no-fund
+
+# ================================
+# 🏗️ مرحلة البناء  
+# ================================
+FROM base AS builder
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
+COPY . .
+
+# إنشاء Prisma وبناء التطبيق
+RUN npx prisma generate
+RUN npm run build:production
+
+# ================================
+# 🚀 مرحلة الإنتاج
+# ================================
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# نسخ الملفات المطلوبة
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=builder /app/prisma ./prisma
+
+# تعيين الصلاحيات
+USER nextjs
+
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s \
+  CMD node scripts/digitalocean-health-check.js || exit 1
+
+CMD ["node", "server.js"] 

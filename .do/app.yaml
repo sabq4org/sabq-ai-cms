@@ -1,57 +1,62 @@
 name: sabq-ai-cms
 region: fra
 services:
-- environment_slug: node-js
+- name: web
+  source_dir: /
   github:
+    repo: sabq4org/sabq-ai-cms
     branch: main
     deploy_on_push: true
-    repo: sabq4org/sabq-ai-cms
-  http_port: 3000
+  build_command: npm run build:deploy
+  run_command: npm run start
+  environment_slug: node-js
   instance_count: 1
-  instance_size_slug: professional-xs
-  name: web
-  dockerfile_path: Dockerfile
-  build_command: node scripts/digitalocean-build-fix.js
-  run_command: npm start
+  instance_size_slug: basic-xxs
+  http_port: 3000
+  health_check:
+    http_path: /api/health
+    initial_delay_seconds: 90
+    period_seconds: 30
+    timeout_seconds: 15
+    success_threshold: 1
+    failure_threshold: 5
   envs:
+  # الإعدادات الأساسية
   - key: NODE_ENV
     value: production
+  - key: NEXT_TELEMETRY_DISABLED
+    value: "1"
+  - key: SKIP_EMAIL_VERIFICATION
+    value: "true"
+  - key: PORT
+    value: "3000"
+  
+  # قاعدة البيانات (استخدم DigitalOcean Secrets)
   - key: DATABASE_URL
+    type: SECRET
+    
+  # المصادقة
+  - key: NEXTAUTH_SECRET
     type: SECRET
   - key: JWT_SECRET
     type: SECRET
+    
+  # Cloudinary
   - key: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
     value: dybhezmvb
   - key: NEXT_PUBLIC_CLOUDINARY_API_KEY
     value: "559894124915114"
   - key: CLOUDINARY_API_SECRET
     type: SECRET
-  - key: NEXTAUTH_SECRET
-    type: SECRET
-  - key: PORT
-    value: "3000"
-  - key: PRISMA_CLI_BINARY_TARGETS
-    value: '["debian-openssl-3.0.x"]'
+    
+  # معلومات التطبيق
   - key: APP_VERSION
     value: "0.2.2"
   - key: APP_NAME
     value: "sabq-ai-cms"
+    
+  # إعدادات Node.js
   - key: NODE_OPTIONS
-    value: "--openssl-legacy-provider"
-  - key: NODE_VERSION
-    value: "18.20.0"
-  - key: NEXT_TELEMETRY_DISABLED
-    value: "1"
-  - key: SKIP_EMAIL_VERIFICATION
-    value: "true"
-  # DigitalOcean Spaces Configuration
-  - key: DO_SPACES_KEY
-    type: SECRET
-  - key: DO_SPACES_SECRET
-    type: SECRET
-  - key: DO_SPACES_REGION
-    value: fra1
-  - key: DO_SPACES_BUCKET
-    value: sabq-ai-spaces
-  - key: DO_SPACES_ENDPOINT
-    value: https://fra1.digitaloceanspaces.com 
+    value: "--max-old-space-size=1024"
+  - key: PRISMA_CLI_BINARY_TARGETS
+    value: '["debian-openssl-3.0.x"]' 
