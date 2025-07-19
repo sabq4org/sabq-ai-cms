@@ -430,7 +430,7 @@ export default function EnhancedTimelineReply({
                     {reply.author.avatar ? (
                       <img src={reply.author.avatar} alt={reply.author.name} className="w-full h-full rounded-full object-cover" />
                     ) : (
-                      reply.author.name.charAt(0)
+                      reply.author.name ? reply.author.name.charAt(0).toUpperCase() : '؟'
                     )}
                     {reply.author.isVerified && (
                       <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
@@ -581,7 +581,7 @@ export default function EnhancedTimelineReply({
                           w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold
                           ${darkMode ? 'bg-gray-600' : 'bg-gray-400'}
                         `}>
-                          {subReply.author.name.charAt(0)}
+                          {subReply.author.name ? subReply.author.name.charAt(0).toUpperCase() : '؟'}
                         </div>
                         <div>
                           <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>

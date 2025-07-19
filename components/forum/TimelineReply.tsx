@@ -171,7 +171,7 @@ export default function TimelineReply({ replies }: TimelineReplyProps) {
                   w-10 h-10 rounded-full flex items-center justify-center text-white font-bold
                   ${darkMode ? 'bg-gray-600' : 'bg-gray-400'}
                 `}>
-                  {reply.author.avatar || reply.author.name.charAt(0)}
+                  {reply.author.avatar || (reply.author.name ? reply.author.name.charAt(0).toUpperCase() : reply.author.email ? reply.author.email.charAt(0).toUpperCase() : '؟')}
                 </div>
                 
                 {/* معلومات المؤلف */}

@@ -618,14 +618,14 @@ export default function ProfilePage() {
                           // إنشاء وإظهار الدائرة البديلة
                           const fallback = document.createElement('div');
                           fallback.className = 'w-full h-full bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold';
-                          fallback.textContent = user.name.charAt(0).toUpperCase();
+                          fallback.textContent = user.name ? user.name.charAt(0).toUpperCase() : user.email ? user.email.charAt(0).toUpperCase() : '؟';
                           parent.appendChild(fallback);
                         }
                       }}
                     />
                   ) : (
                     <div className="w-full h-full bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold">
-                      {user.name.charAt(0).toUpperCase()}
+                      {user.name ? user.name.charAt(0).toUpperCase() : user.email ? user.email.charAt(0).toUpperCase() : '؟'}
                     </div>
                   )}
                 </div>

@@ -95,7 +95,7 @@ export default function UserPopover({ user, onClose, onLogout, anchorElement }: 
               <Image src="/placeholder.jpg" alt="" width={100} height={100} />
             ) : (
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-gray-200 dark:border-gray-600">
-                {user.name.charAt(0).toUpperCase()}
+                {user.name ? user.name.charAt(0).toUpperCase() : user.email ? user.email.charAt(0).toUpperCase() : '؟'}
               </div>
             )}
             <div className="flex-1 min-w-0">

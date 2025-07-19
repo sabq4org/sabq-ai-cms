@@ -410,7 +410,7 @@ export default function LoyaltyUsersPage() {
                             ) : (
                               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                                 <span className="text-white font-semibold">
-                                  {user.name.charAt(0)}
+                                  {user.name ? user.name.charAt(0).toUpperCase() : user.email ? user.email.charAt(0).toUpperCase() : '؟'}
                                 </span>
                               </div>
                             )}

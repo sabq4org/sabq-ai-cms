@@ -303,7 +303,7 @@ export default function TopicPage() {
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
                     darkMode ? 'bg-gray-600' : 'bg-gray-400'
                   }`}>
-                    {topic.author.name.charAt(0)}
+                    {topic.author.name ? topic.author.name.charAt(0).toUpperCase() : '؟'}
                   </div>
                   <span>{topic.author.name}</span>
                   {topic.author.role && (

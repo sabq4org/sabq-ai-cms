@@ -427,7 +427,7 @@ export default function NewTopicPage() {
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${
                       darkMode ? 'bg-gradient-to-br from-blue-600 to-blue-700' : 'bg-gradient-to-br from-blue-500 to-blue-600'
                     }`}>
-                      {user.name.charAt(0).toUpperCase()}
+                      {user.name ? user.name.charAt(0).toUpperCase() : user.email ? user.email.charAt(0).toUpperCase() : '؟'}
                     </div>
                     <div className="flex-1">
                       <p className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{user.name}</p>
