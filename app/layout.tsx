@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import './globals.css'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
-import { Providers } from './providers-minimal'
+import { Providers } from './providers'
 
 const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
   subsets: ['arabic'],
