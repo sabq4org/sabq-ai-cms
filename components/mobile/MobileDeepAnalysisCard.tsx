@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Brain, Clock3, Eye, TrendingUp, Sparkles } from 'lucide-react';
+import { Brain, Clock3, Eye, TrendingUp, Sparkles, Bot, User, Users } from 'lucide-react';
 
 interface MobileDeepAnalysisCardProps {
   insight: {
@@ -57,6 +57,22 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
   const authorName = insight.metadata?.authorName || insight.article?.author?.name || 'مؤلف غير معروف';
   const articleViews = insight.metadata?.views || insight.article?.views_count || 0;
   const readTime = insight.metadata?.readingTime || insight.article?.read_time || 5;
+  const categoryName = insight.metadata?.categories?.[0] || insight.article?.categories?.[0]?.name || 'عام';
+  const hasAI = insight.ai_summary;
+  const analysisScore = insight.readability_score ? Math.round(Number(insight.readability_score) * 100) : null;
+  
+  // تحديد نوع التحليل
+  const getAnalysisType = () => {
+    if (hasAI && insight.updated_at !== insight.analyzed_at) {
+      return { type: 'mixed', label: 'تحليل مشترك', icon: 'users' };
+    } else if (hasAI) {
+      return { type: 'ai', label: 'تحليل AI', icon: 'bot' };
+    } else {
+      return { type: 'human', label: 'تحليل بشري', icon: 'user' };
+    }
+  };
+  
+  const analysisType = getAnalysisType();
   
   // تحليل الوسوم
   const tagsArray: string[] = Array.isArray(insight.tags) 
@@ -66,7 +82,7 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
       : [];
 
   // رابط المقال
-  const articleUrl = `/articles/${insight.article?.id}`;
+  const articleUrl = `/insights/deep/${insight.id}`;
   
   return (
     <Link href={articleUrl} className="block">
@@ -77,31 +93,43 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
       }`}>
         {/* رأس البطاقة */}
         <div className="flex items-start gap-3 mb-3">
-          {/* أيقونة التحليل */}
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500">
-            <Brain className="w-5 h-5 text-white" />
+          {/* أيقونة نوع التحليل */}
+          <div className={`p-2 rounded-lg ${
+            analysisType.type === 'ai' 
+              ? 'bg-gradient-to-br from-purple-500 to-purple-600'
+              : analysisType.type === 'mixed'
+              ? 'bg-gradient-to-br from-blue-500 to-blue-600'  
+              : 'bg-gradient-to-br from-green-500 to-green-600'
+          }`}>
+            {analysisType.type === 'ai' && <Bot className="w-4 h-4 text-white" />}
+            {analysisType.type === 'mixed' && <Users className="w-4 h-4 text-white" />}
+            {analysisType.type === 'human' && <User className="w-4 h-4 text-white" />}
           </div>
           
           {/* المحتوى الرئيسي */}
           <div className="flex-1">
-            {/* نوع التحليل والتاريخ */}
+            {/* نوع التحليل والتصنيف */}
             <div className="flex items-center gap-2 mb-1">
               <span className={`text-xs font-bold ${
-                darkMode ? 'text-purple-400' : 'text-purple-600'
+                analysisType.type === 'ai' 
+                  ? darkMode ? 'text-purple-400' : 'text-purple-600'
+                  : analysisType.type === 'mixed'
+                  ? darkMode ? 'text-blue-400' : 'text-blue-600'
+                  : darkMode ? 'text-green-400' : 'text-green-600'
               }`}>
-                تحليل عميق
+                {analysisType.label}
               </span>
               <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>•</span>
-              <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {analysisDate}
+              <span className={`text-xs ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+                📁 {categoryName}
               </span>
             </div>
             
-            {/* عنوان المقال - محسن للرؤية */}
+            {/* عنوان المقال - محسن ومضغوط */}
             <h3 className={`
               font-bold mb-2 leading-tight
               ${darkMode ? 'text-white' : 'text-gray-900'}
-              line-clamp-2 min-h-[2.5rem] deep-analysis-title arabic-text
+              line-clamp-2 min-h-[2.2rem]
             `}
             style={{
               display: '-webkit-box',
@@ -109,10 +137,9 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              lineHeight: '1.3',
-              fontSize: '0.95rem',
-              fontWeight: '700',
-              color: darkMode ? '#ffffff' : '#1a202c'
+              lineHeight: '1.25',
+              fontSize: '0.9rem',
+              fontWeight: '700'
             }}
             >
               {articleTitle}
@@ -151,34 +178,29 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
               </div>
             )}
             
-            {/* المعلومات السفلية */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 text-xs text-gray-500">
-                <span className="flex items-center gap-1">
+            {/* المعلومات السفلية محسنة */}
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center gap-3 text-xs">
+                <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   <Clock3 className="w-3 h-3" />
                   {readTime} د
                 </span>
-                <span className="flex items-center gap-1">
+                <span className={`flex items-center gap-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
                   <Eye className="w-3 h-3" />
                   {articleViews > 999 ? `${(articleViews / 1000).toFixed(1)}k` : articleViews}
                 </span>
+                {analysisScore && (
+                  <span className={`flex items-center gap-1 ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
+                    <TrendingUp className="w-3 h-3" />
+                    {analysisScore}%
+                  </span>
+                )}
               </div>
               
-              {/* مؤشر القابلية للقراءة */}
-              {insight.readability_score && insight.readability_score >= 70 && (
-                <div className="flex items-center gap-1">
-                  <Sparkles className={`w-3.5 h-3.5 ${
-                    insight.readability_score >= 85 ? 'text-yellow-500' : 'text-gray-400'
-                  }`} />
-                  <span className={`text-xs font-bold ${
-                    insight.readability_score >= 85 
-                      ? darkMode ? 'text-yellow-400' : 'text-yellow-600'
-                      : darkMode ? 'text-gray-400' : 'text-gray-600'
-                  }`}>
-                    {Math.round(insight.readability_score)}%
-                  </span>
-                </div>
-              )}
+              {/* التاريخ */}
+              <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                {analysisDate}
+              </span>
             </div>
             
             {/* اسم المؤلف */}
