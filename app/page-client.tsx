@@ -17,7 +17,7 @@ import { getArticleLink } from '@/lib/utils';
 import CategoryBadge from './components/CategoryBadge';
 import Header from '../components/Header';
 import { SmartSlot } from '@/components/home/SmartSlot';
-import BreakingNewsBanner from '@/components/BreakingNewsBanner';
+import UnifiedBreakingNews from '@/components/UnifiedBreakingNews';
 import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
 import { useReaderProfile } from '@/hooks/useReaderProfile';
 import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
@@ -28,9 +28,7 @@ import MobileLayout from '@/components/mobile/MobileLayout';
 import MobileArticleCard from '@/components/mobile/MobileArticleCard';
 import EnhancedMobileNewsCard from '@/components/mobile/EnhancedMobileNewsCard';
 import MobileStatsBar from '@/components/mobile/MobileStatsBar';
-import LightBreakingNews from '@/components/LightBreakingNews';
-import SimpleBreakingNews from '@/components/SimpleBreakingNews';
-import DirectBreakingNews from '@/components/DirectBreakingNews';
+
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import PodcastBlock from '@/components/home/PodcastBlock';
@@ -652,41 +650,26 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       <Header />
       
       {/* Breaking News Banner - يظهر أسفل الهيدر مباشرة */}
-      {(() => {
-        console.log('🔍 PageClient JSX: فحص شروط عرض الأخبار العاجلة');
-        console.log('🔍 breakingNewsLoading:', breakingNewsLoading);
-        console.log('🔍 breakingNews:', breakingNews);
-        console.log('🔍 الشرط النهائي:', !breakingNewsLoading && breakingNews);
-        
-        if (!breakingNewsLoading && breakingNews) {
-          console.log('✅ PageClient JSX: سيتم عرض BreakingNewsBanner');
-          return (
-            <BreakingNewsBanner 
-              article={breakingNews}
-              onDismiss={() => {
-                console.log('❌ PageClient: تم إغلاق الأخبار العاجلة');
-                setBreakingNews(null);
-              }}
-            />
-          );
-        } else {
-          console.log('❌ PageClient JSX: لن يتم عرض BreakingNewsBanner');
-          return null;
-        }
-      })()}
+      {/* الأخبار العاجلة الموحدة - النموذج الصحيح */}
+      <UnifiedBreakingNews 
+        variant="desktop" 
+        showDismiss={true}
+      />
       
       {/* شريط الإحصائيات للموبايل */}
       {isMobile && (
         <MobileStatsBar darkMode={darkMode} />
       )}
       
-      {/* الأخبار العاجلة الخفيفة - تظهر بعد الإحصائيات أو بعد الهيدر */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-        {(() => {
-          console.log('🔍 PageClient JSX: عرض مكون DirectBreakingNews');
-          return <DirectBreakingNews />;
-        })()}
-      </div>
+      {/* الأخبار العاجلة للموبايل - تحت الإحصائيات مباشرة */}
+      {isMobile && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <UnifiedBreakingNews 
+            variant="mobile" 
+            showDismiss={true}
+          />
+        </div>
+      )}
       
       {/* عرض جميع البلوكات الذكية */}
       {getOrderedBlocks().some(block => blocksConfig[block.key]?.enabled) && (
@@ -714,7 +697,7 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       
       {/* بلوك الجرعات الذكي - ثاني بلوك */}
       <SmartDigestBlock />
-      {/* Deep Analysis Widget - ثالث بلوك */}
+      {/* التحليل العميق - ثالث بلوك */}
       <DeepAnalysisWidget insights={deepInsights.length > 0 ? deepInsights.slice(0, 3) : []} />
       {/* Smart Blocks - قبل المحتوى المخصص (محتوى مخصص لك) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

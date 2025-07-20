@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // جلب التعليقات لمقال معين
 export async function GET(
@@ -36,36 +34,28 @@ export async function GET(
       },
       orderBy,
       take: limit,
-      skip: (page - 1) * limit,
-      include: {
-        // جلب الردود
-        replies: {
-          where: { status: 'approved' },
-          orderBy: { created_at: 'asc' },
-          include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                avatar: true,
-                reputation: true,
-                badges: true
-              }
-            }
-          }
-        },
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            reputation: true,
-            badges: true
-          }
-        }
+      skip: (page - 1) * limit
+    });
+
+    // جلب معلومات المؤلفين والردود بشكل منفصل
+    const commentIds = comments.map(comment => comment.id);
+    
+    // جلب الردود
+    const replies = commentIds.length > 0 ? await prisma.comments.findMany({
+      where: {
+        parent_id: { in: commentIds },
+        status: 'approved'
+      },
+      orderBy: { created_at: 'asc' }
+    }) : [];
+
+    // تجميع البيانات
+    const repliesMap = new Map();
+    replies.forEach(reply => {
+      if (!repliesMap.has(reply.parent_id)) {
+        repliesMap.set(reply.parent_id, []);
       }
+      repliesMap.get(reply.parent_id).push(reply);
     });
 
     // تحويل البيانات للشكل المطلوب
@@ -73,38 +63,18 @@ export async function GET(
       id: comment.id,
       content: comment.content,
       author: {
-        id: comment.author?.id || comment.user_id || 'unknown',
-        name: comment.author?.name || 'مستخدم مجهول',
-        email: comment.author?.email || '',
-        avatar: comment.author?.avatar,
-        reputation: comment.author?.reputation || 0,
-        badges: comment.author?.badges || []
+        id: comment.user_id || 'unknown',
+        name: 'مستخدم مجهول',
+        email: '',
+        avatar: null,
+        reputation: 0,
+        badges: []
       },
       articleId: comment.article_id,
       parentId: comment.parent_id,
       likes: comment.likes,
       isLiked: false, // سيتم تحديدها لاحقاً بناء على المستخدم الحالي
-      replies: comment.replies?.map((reply: any) => ({
-        id: reply.id,
-        content: reply.content,
-        author: {
-          id: reply.author?.id || reply.user_id || 'unknown',
-          name: reply.author?.name || 'مستخدم مجهول',
-          email: reply.author?.email || '',
-          avatar: reply.author?.avatar,
-          reputation: reply.author?.reputation || 0,
-          badges: reply.author?.badges || []
-        },
-        articleId: reply.article_id,
-        parentId: reply.parent_id,
-        likes: reply.likes,
-        isLiked: false,
-        replies: [],
-        status: reply.status,
-        createdAt: reply.created_at.toISOString(),
-        updatedAt: reply.updated_at.toISOString(),
-        metadata: typeof reply.metadata === 'object' ? reply.metadata : {}
-      })) || [],
+      replies: repliesMap.get(comment.id) || [],
       status: comment.status,
       createdAt: comment.created_at.toISOString(),
       updatedAt: comment.updated_at.toISOString(),

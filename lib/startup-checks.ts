@@ -31,8 +31,12 @@ export function validateDatabaseUrl() {
   try {
     const url = new URL(dbUrl);
     
-    if (!url.protocol.startsWith('mysql')) {
-      console.warn('⚠️ DATABASE_URL لا يستخدم بروتوكول MySQL');
+    // دعم MySQL و PostgreSQL
+    if (!url.protocol.startsWith('mysql') && !url.protocol.startsWith('postgresql')) {
+      console.warn('⚠️ DATABASE_URL يجب أن يستخدم بروتوكول MySQL أو PostgreSQL');
+    } else {
+      const dbType = url.protocol.startsWith('mysql') ? 'MySQL' : 'PostgreSQL';
+      console.log(`✅ قاعدة البيانات: ${dbType}`);
     }
     
     if (!url.hostname) {
