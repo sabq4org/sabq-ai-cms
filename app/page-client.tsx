@@ -17,7 +17,6 @@ import { getArticleLink } from '@/lib/utils';
 import CategoryBadge from './components/CategoryBadge';
 import Header from '../components/Header';
 import { SmartSlot } from '@/components/home/SmartSlot';
-import UnifiedBreakingNews from '@/components/UnifiedBreakingNews';
 import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
 import { useReaderProfile } from '@/hooks/useReaderProfile';
 import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
@@ -380,10 +379,6 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
   const [showPersonalized, setShowPersonalized] = useState<boolean>(false);
   const [articles, setArticles] = useState<any[]>(initialArticles);
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
-  const [breakingNews, setBreakingNews] = useState<any>(null);
-  const [breakingNewsLoading, setBreakingNewsLoading] = useState<boolean>(false);
-  
-  console.log('📋 NewspaperHomePage: حالة الأخبار العاجلة الأولية - breakingNews:', breakingNews, 'loading:', breakingNewsLoading);
   
   console.log('🔧 NewspaperHomePage: تحضير useEffects...');
   
@@ -554,40 +549,6 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
     }
   }, [initialCategories]);
   
-  // جلب الأخبار العاجلة عند التحميل
-  useEffect(() => {
-    console.log('🔥 PageClient: بدء useEffect للأخبار العاجلة');
-    
-    const fetchBreakingNews = async () => {
-      try {
-        console.log('🔍 PageClient: بدء جلب الأخبار العاجلة...');
-        setBreakingNewsLoading(true);
-        const response = await fetch('/api/breaking-news');
-        const data = await response.json();
-        
-        console.log('📡 PageClient: استجابة API للأخبار العاجلة:', data);
-        
-        if (data.success && data.data) {
-          setBreakingNews(data.data);
-          console.log('✅ PageClient: تم تحديث حالة الأخبار العاجلة:', data.data.title);
-        } else {
-          console.log('⚠️ PageClient: لا توجد أخبار عاجلة أو فشل في الاستجابة');
-        }
-      } catch (error) {
-        console.error('❌ PageClient: خطأ في جلب الأخبار العاجلة:', error);
-      } finally {
-        setBreakingNewsLoading(false);
-        console.log('🏁 PageClient: انتهاء جلب الأخبار العاجلة');
-      }
-    };
-    
-    fetchBreakingNews();
-    
-    // إعادة جلب الأخبار العاجلة كل 5 دقائق
-    const interval = setInterval(fetchBreakingNews, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-  
   // =============================
   // جلب المقالات الأحدث (للاستخدام في البلوكات لاحقاً)
   useEffect(() => {
@@ -649,26 +610,9 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       {/* Header */}
       <Header />
       
-      {/* Breaking News Banner - يظهر أسفل الهيدر مباشرة */}
-      {/* الأخبار العاجلة الموحدة - النموذج الصحيح */}
-      <UnifiedBreakingNews 
-        variant="desktop" 
-        showDismiss={true}
-      />
-      
       {/* شريط الإحصائيات للموبايل */}
       {isMobile && (
         <MobileStatsBar darkMode={darkMode} />
-      )}
-      
-      {/* الأخبار العاجلة للموبايل - تحت الإحصائيات مباشرة */}
-      {isMobile && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <UnifiedBreakingNews 
-            variant="mobile" 
-            showDismiss={true}
-          />
-        </div>
       )}
       
       {/* عرض جميع البلوكات الذكية */}
