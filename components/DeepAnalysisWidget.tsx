@@ -200,11 +200,11 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
             <div className="p-4 bg-white/20 backdrop-blur-sm rounded-full shadow-2xl ring-2 ring-white/30">
               <Brain className="w-8 h-8 text-white drop-shadow-lg" />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg card-title" style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}>
               التحليل العميق من سبق
             </h2>
           </div>
-          <p className="text-base sm:text-lg mt-2 text-white/90 drop-shadow">
+          <p className="text-base sm:text-lg mt-2 text-white/90 drop-shadow card-description" style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}>
             رؤى استراتيجية ودراسات معمقة بالذكاء الاصطناعي
           </p>
         </div>

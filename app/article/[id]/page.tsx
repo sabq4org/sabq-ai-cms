@@ -11,7 +11,7 @@ import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
 import { marked } from 'marked';
 import Header from '@/components/Header';
-import ImageWithFallback from '@/components/ImageWithFallback';
+import UltimateImage from '@/components/UltimateImage';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
@@ -301,31 +301,25 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
       <ReadingProgressBar />
       
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* صورة المقال المحسنة للأداء */}
+        {/* صورة المقال - حل مبسط ومضمون */}
         {article.featured_image && (
-          <div className="article-featured-image relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[60vh] w-full">
-            <ImageWithFallback
+          <div className="article-featured-image relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[60vh] w-full bg-gray-200 dark:bg-gray-800">
+            <img
               src={article.featured_image}
               alt={article.title}
-              fill
-              className="object-cover"
-              priority
-              quality={85}
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 100vw, 100vw"
-              fallbackSrc="/images/placeholder-featured.jpg"
-              loadingText="جاري تحميل الصورة المميزة..."
-              errorText="فشل في تحميل الصورة المميزة"
-              showLoadingIndicator={true}
-              onLoadComplete={() => {
-                console.log('✅ تم تحميل الصورة المميزة بنجاح');
+              className="w-full h-full object-cover transition-opacity duration-500"
+              onLoad={(e) => {
+                console.log('✅ صورة المقال تم تحميلها:', article.featured_image);
+                const target = e.target as HTMLImageElement;
+                target.style.opacity = '1';
               }}
-              onError={(error) => {
-                console.error('❌ فشل تحميل الصورة المميزة:', article.featured_image, error);
+              onError={(e) => {
+                console.error('❌ فشل تحميل صورة المقال، جاري المحاولة مع صورة بديلة:', article.featured_image);
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/placeholder-featured.jpg';
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 z-10" />
           </div>
         )}
 

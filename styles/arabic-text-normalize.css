@@ -1,0 +1,82 @@
+/* قواعد CSS إضافية لضمان التنسيق الصحيح للنصوص العربية */
+
+/* منع أي تأثيرات justify غير مرغوب فيها */
+* {
+  text-justify: none !important;
+}
+
+/* تطبيق التنسيق الصحيح على جميع عناصر HTML */
+h1, h2, h3, h4, h5, h6, p, span, div, a {
+  font-feature-settings: normal !important;
+  font-variant-ligatures: normal !important;
+  font-kerning: auto !important;
+}
+
+/* تخصيص خاص للنصوص العربية */
+[dir="rtl"] *,
+.arabic-text,
+.text-arabic {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  text-align: start !important;
+  direction: rtl !important;
+  font-family: 'Tajawal', 'Noto Sans Arabic', 'Arial', sans-serif !important;
+}
+
+/* إصلاح خاص لعناصر Tailwind */
+.text-justify {
+  text-align: start !important;
+}
+
+.justify-start {
+  text-align: start !important;
+}
+
+/* إصلاح لعناصر المقالات */
+.prose * {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+}
+
+.prose p,
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  text-align: start !important;
+}
+
+/* إصلاح خاص للعناصر التفاعلية */
+button,
+.btn,
+.button {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+}
+
+/* إصلاح للروابط */
+a {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+}
+
+/* تأكيد أن النصوص لا تحتوي على تباعد مخصص */
+[style*="word-spacing"] {
+  word-spacing: normal !important;
+}
+
+[style*="letter-spacing"] {
+  letter-spacing: normal !important;
+}
+
+/* إصلاح للعناصر ذات الخلفيات الملونة أو المظلمة */
+.bg-gradient-to-br *,
+.bg-gradient-to-r *,
+.bg-white *,
+.bg-gray-800 *,
+.dark .bg-gray-800 * {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+}

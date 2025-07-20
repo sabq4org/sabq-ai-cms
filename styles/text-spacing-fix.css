@@ -1,0 +1,128 @@
+/* إصلاح مشكلة التباعد غير الطبيعي بين الكلمات في العناوين والنصوص */
+
+/* تطبيق إعدادات الخط العربي الأساسية */
+html {
+  font-family: 'Tajawal', 'Noto Sans Arabic', Arial, sans-serif;
+}
+
+/* بطاقات المقالات والعناوين الأساسية */
+.card-title,
+.card-description,
+.article-card-title,
+.analysis-card-title,
+.analysis-card-title-mobile {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  white-space: normal !important;
+  text-align: start !important; /* تجنب justify مع النصوص العربية */
+  font-family: 'Tajawal', 'Noto Sans Arabic', Arial, sans-serif !important;
+}
+
+/* بطاقات التحليل العميق */
+.deep-analysis-card,
+.deep-analysis-card .card-title,
+.deep-analysis-card .card-content,
+.deep-analysis-card .card-summary,
+.deep-analysis-card-container {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  white-space: normal !important;
+  text-align: start !important;
+  font-family: 'Tajawal', 'Noto Sans Arabic', Arial, sans-serif !important;
+}
+
+/* إصلاح خاص للعناصر التي تحتوي على النص العربي */
+.arabic-text,
+.deep-analysis-title,
+.deep-analysis-summary {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  font-family: 'Tajawal', 'Noto Sans Arabic', Arial, sans-serif !important;
+}
+
+/* البطاقات الذكية */
+.smart-content-card,
+.smart-content-card .card-title,
+.smart-content-card .card-description {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  white-space: normal !important;
+  text-align: start !important;
+}
+
+/* عناوين المقالات في البطاقات المختلفة */
+h1, h2, h3, h4, h5, h6 {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+}
+
+/* إصلاح خاص للعناوين في بطاقات المقالات */
+.article-card h3,
+.article-card h4,
+.article-card .title,
+.article-card .headline {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  white-space: normal !important;
+  text-align: start !important;
+}
+
+/* إصلاح النصوص التوضيحية */
+.card-meta,
+.card-excerpt,
+.card-summary,
+.article-excerpt,
+.article-summary {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  white-space: normal !important;
+  text-align: start !important;
+}
+
+/* تطبيق إضافي للتأكد من عدم تأثير justify على النصوص العربية */
+.prose p {
+  text-align: start !important; /* بدلاً من justify للنصوص العربية */
+}
+
+/* إصلاح خاص للموبايل */
+@media (max-width: 768px) {
+  .card-title,
+  .card-description,
+  .deep-analysis-card,
+  .smart-content-card {
+    word-spacing: normal !important;
+    letter-spacing: normal !important;
+    white-space: normal !important;
+    text-align: start !important;
+  }
+}
+
+/* إصلاح إضافي للعناصر التي قد تحتوي على تباعد مخصص */
+.text-justify {
+  text-align: start !important; /* تجاوز justify في النصوص العربية */
+}
+
+/* تأكيد أن الخطوط تستخدم القيم الافتراضية للتباعد */
+* {
+  word-spacing: inherit;
+  letter-spacing: inherit;
+}
+
+/* إصلاح خاص لعناصر التحليل العميق */
+.deep-analysis-widget,
+.deep-analysis-block,
+.analysis-content {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+}
+
+.deep-analysis-widget h3,
+.deep-analysis-widget h4,
+.deep-analysis-widget p,
+.deep-analysis-block h3,
+.deep-analysis-block h4,
+.deep-analysis-block p {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  text-align: start !important;
+}

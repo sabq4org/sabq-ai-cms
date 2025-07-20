@@ -76,21 +76,18 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
           {/* Image محسنة للأداء */}
           <div className="relative w-48 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
             {article.featured_image ? (
-              <Image
+              <img
                 src={imageUrl}
                 alt={article.title || 'صورة المقال'}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-500"
-                sizes="200px"
-                priority={false}
-                quality={80}
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                onLoad={(e) => {
+                  (e.target as HTMLImageElement).style.opacity = '1';
+                }}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = '/images/placeholder-featured.jpg';
                 }}
+                style={{ opacity: 0, transition: 'opacity 0.3s' }}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
@@ -183,21 +180,18 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
         {/* صورة المقال - محسنة للموبايل */}
         <div className="relative h-40 sm:h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
           {article.featured_image ? (
-            <Image
+            <img
               src={imageUrl}
               alt={article.title || 'صورة المقال'}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-500"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              priority={false}
-              quality={80}
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              onLoad={(e) => {
+                (e.target as HTMLImageElement).style.opacity = '1';
+              }}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = '/images/placeholder-featured.jpg';
               }}
+              style={{ opacity: 0, transition: 'opacity 0.3s' }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">

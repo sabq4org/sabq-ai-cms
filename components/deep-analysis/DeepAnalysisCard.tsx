@@ -189,7 +189,7 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
             }
             ${viewMode === 'list' ? 'line-clamp-3' : 'line-clamp-2'}
             min-h-[2.8rem] sm:min-h-[3.5rem]
-            deep-analysis-title arabic-text
+            deep-analysis-title arabic-text card-title
           `}
           style={{
             color: darkMode ? '#ffffff' : '#1a202c',
@@ -198,6 +198,8 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
             display: '-webkit-box',
             WebkitLineClamp: viewMode === 'list' ? 3 : 2,
             WebkitBoxOrient: 'vertical',
+            wordSpacing: 'normal',
+            letterSpacing: 'normal',
             overflow: 'hidden',
             lineHeight: '1.4'
           }}
@@ -210,7 +212,7 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
         {/* الملخص - محسن للموبايل ومحسن لـ Safari */}
         <p className={`
           text-sm sm:text-base line-clamp-2 mb-3 sm:mb-4 flex-grow leading-relaxed
-          deep-analysis-summary arabic-text
+          deep-analysis-summary arabic-text card-description
         `}
         style={{
           color: darkMode ? '#e2e8f0' : '#4a5568',
@@ -218,7 +220,9 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
-          lineHeight: '1.6'
+          lineHeight: '1.6',
+          wordSpacing: 'normal',
+          letterSpacing: 'normal',
         }}
         title={analysis.summary}
         >

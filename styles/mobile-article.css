@@ -63,7 +63,7 @@
   
   .prose p {
     margin-bottom: 1.25rem !important;
-    text-align: justify;
+    text-align: start; /* تم تغيير justify إلى start للنصوص العربية */
   }
   
   .prose img {

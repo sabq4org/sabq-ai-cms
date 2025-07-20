@@ -1,4 +1,4 @@
-'use client';
+ظ'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -76,14 +76,18 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
           {/* Image */}
           <div className="relative w-48 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
             {article.featured_image ? (
-              <Image
+              <img
                 src={imageUrl}
                 alt={article.title || 'صورة المقال'}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-500"
-                sizes="200px"
-                priority={false}
-                unoptimized={article.featured_image.includes('cloudinary.com')}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                onLoad={(e) => {
+                  (e.target as HTMLImageElement).style.opacity = '1';
+                }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/images/placeholder-featured.jpg';
+                }}
+                style={{ opacity: 0, transition: 'opacity 0.3s' }}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
@@ -176,18 +180,18 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
         {/* صورة المقال - محسنة للموبايل */}
         <div className="relative h-40 sm:h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
           {article.featured_image ? (
-            <Image
+            <img
               src={imageUrl}
               alt={article.title || 'صورة المقال'}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-500"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              priority={false}
-              unoptimized={article.featured_image.includes('cloudinary.com')}
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRTVFN0VCO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNEMUQ1REI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0idXJsKCNncmFkMSkiLz4KICA8cGF0aCBkPSJNMzAwIDIwMCBMNTAwIDIwMCBMNTAwIDQwMCBMMzAwIDQwMCBaIiBmaWxsPSIjOUNBM0FGIiBvcGFjaXR5PSIwLjUiLz4KICA8Y2lyY2xlIGN4PSI0MDAiIGN5PSIzMDAiIHI9IjUwIiBmaWxsPSIjOUNBM0FGIiBvcGFjaXR5PSIwLjUiLz4KICA8dGV4dCB4PSI0MDAiIHk9IjQ1MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSIjNkI3MjgwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBvcGFjaXR5PSIwLjgiPgogICAgINi12YjYsdipINin2YTZhNmC2KfZhAogIDwvdGV4dD4KPC9zdmc+';
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              onLoad={(e) => {
+                (e.target as HTMLImageElement).style.opacity = '1';
               }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/placeholder-featured.jpg';
+              }}
+              style={{ opacity: 0, transition: 'opacity 0.3s' }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">

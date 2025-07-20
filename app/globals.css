@@ -154,3 +154,9 @@
   }
 }
 
+/* استيراد إصلاح التباعد بين الكلمات */
+@import '../styles/text-spacing-fix.css';
+
+/* استيراد تطبيع النصوص العربية */
+@import '../styles/arabic-text-normalize.css';
+

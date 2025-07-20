@@ -120,7 +120,7 @@ export default function PodcastBlock() {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 shadow-lg">
+      <div className="bg-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <span className="mr-3 text-gray-600 dark:text-gray-300">جاري تحميل النشرة...</span>
@@ -130,9 +130,9 @@ export default function PodcastBlock() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 shadow-md border border-blue-200 dark:border-gray-700">
+    <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
       {/* عنوان البلوك */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-blue-600 rounded-lg shadow-sm">
           <Mic className="w-5 h-5 text-white" />
         </div>
@@ -146,73 +146,78 @@ export default function PodcastBlock() {
         </div>
       </div>
 
-      {!error && podcast ? (
+      {loading ? (
+        /* حالة التحميل */
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">جاري تحميل النشرة...</span>
+        </div>
+      ) : !error && podcast ? (
         /* حالة وجود نشرة مع مشغل أنيق */
         <>
-          <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                  متاحة الآن
-                </span>
-              </div>
-              <span className="text-sm text-green-600 dark:text-green-400">
-                {formatRelativeTime(podcast.timestamp)}
+          {/* مؤشر الحالة - مصغر ومتناسق */}
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                متاحة الآن
               </span>
             </div>
-            
-            {/* مشغل الصوت الأنيق */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-              <div className="flex items-center gap-4">
-                {/* زر التشغيل الأنيق */}
-                <button
-                  onClick={togglePlay}
-                  className="flex items-center justify-center w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-200 hover:scale-105"
-                >
-                  {isPlaying ? (
-                    <Pause className="w-6 h-6" />
-                  ) : (
-                    <Play className="w-6 h-6 mr-0.5" />
-                  )}
-                </button>
-                
-                {/* معلومات الوقت */}
-                <div className="flex-1">
-                  <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
-                    <span>{formatTime(currentTime)}</span>
-                    <span>{formatTime(duration || podcast.duration * 60)}</span>
-                  </div>
-                  
-                  {/* شريط التقدم */}
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-200"
-                      style={{ 
-                        width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' 
-                      }}
-                    />
-                  </div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {formatRelativeTime(podcast.timestamp)}
+            </span>
+          </div>
+          
+          {/* مشغل الصوت الموحد */}
+          <div className="bg-white dark:bg-gray-700 rounded-lg p-5 shadow-sm border border-gray-100 dark:border-gray-600">
+            <div className="flex items-center gap-4">
+              {/* زر التشغيل */}
+              <button
+                onClick={togglePlay}
+                className="flex items-center justify-center w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-200 hover:scale-105"
+              >
+                {isPlaying ? (
+                  <Pause className="w-6 h-6" />
+                ) : (
+                  <Play className="w-6 h-6 mr-0.5" />
+                )}
+              </button>
+              
+              {/* معلومات الوقت والشريط */}
+              <div className="flex-1">
+                <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration || podcast.duration * 60)}</span>
                 </div>
                 
-                {/* أيقونة الصوت */}
-                <Volume2 className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                {/* شريط التقدم */}
+                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-200"
+                    style={{ 
+                      width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' 
+                    }}
+                  />
+                </div>
               </div>
+              
+              {/* أيقونة الصوت */}
+              <Volume2 className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             </div>
-            
-            {/* معلومات إضافية */}
-            <div className="flex items-center justify-between mt-3 text-sm">
-              <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
-                <Clock className="w-4 h-4" />
-                <span>{podcast.duration} دقيقة</span>
-              </div>
-              <a 
-                href="/newsletters" 
-                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-              >
-                📚 أرشيف النشرات
-              </a>
+          </div>
+          
+          {/* معلومات إضافية */}
+          <div className="flex items-center justify-between mt-4 text-sm">
+            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+              <Clock className="w-4 h-4" />
+              <span>{podcast.duration} دقيقة</span>
             </div>
+            <a 
+              href="/newsletters" 
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+            >
+              📚 أرشيف النشرات
+            </a>
           </div>
           
           {/* العنصر الصوتي المخفي */}
@@ -229,24 +234,27 @@ export default function PodcastBlock() {
           </audio>
         </>
       ) : (
-        /* حالة عدم وجود نشرة */
-        <div className="text-center py-6">
-          <div className="bg-gray-100 dark:bg-gray-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Headphones className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+        /* حالة عدم وجود نشرة صوتية - بتصميم نظيف */
+        <div className="text-center py-8">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+              <Play className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+            </div>
+            <div>
+              <p className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-2">
+                📻 لا توجد نشرة صوتية جديدة
+              </p>
+              <p className="text-gray-500 dark:text-gray-500 text-sm">
+                ترقب النشرة القادمة قريباً
+              </p>
+            </div>
+            <a 
+              href="/newsletters" 
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors font-medium"
+            >
+              📚 أرشيف النشرات
+            </a>
           </div>
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            لا توجد نشرة حالياً
-          </h4>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            ستتوفر قريباً
-          </p>
-          <a 
-            href="/newsletters" 
-            className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline font-medium"
-          >
-            📚 أرشيف النشرات
-            <ChevronRight className="w-4 h-4" />
-          </a>
         </div>
       )}
     </div>

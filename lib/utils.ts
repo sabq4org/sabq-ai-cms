@@ -86,10 +86,16 @@ export function formatCompactNumberAr(num: number): string {
 }
 
 export function getImageUrl(imagePath: string | undefined | null): string {
-  if (!imagePath) return '/images/placeholder-featured.jpg'; // استخدام الصورة الافتراضية الموجودة
+  console.log('🔍 getImageUrl called with:', imagePath);
   
-  // إذا كان المسار URL كامل، أرجعه كما هو
+  if (!imagePath) {
+    console.log('⚠️ No image path provided, using placeholder');
+    return '/images/placeholder-featured.jpg'; // استخدام الصورة الافتراضية الموجودة
+  }
+  
+  // إذا كان المسار URL كامل، أرجعه كما هو (خاصة Cloudinary)
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    console.log('✅ Using full URL:', imagePath);
     return imagePath;
   }
   
@@ -99,17 +105,23 @@ export function getImageUrl(imagePath: string | undefined | null): string {
     if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
       // استخدم API route الذي يتعامل مع الصور غير الموجودة
       const cleanPath = imagePath.replace('/uploads/', '');
-      return `/api/images/${cleanPath}`;
+      const apiUrl = `/api/images/${cleanPath}`;
+      console.log('🔄 Converting to API route:', apiUrl);
+      return apiUrl;
     }
     // في بيئة التطوير، أرجع المسار كما هو
+    console.log('🛠️ Development mode, using original path:', imagePath);
     return imagePath;
   }
   
   // إذا كان المسار نسبي، أضف / في البداية
   if (!imagePath.startsWith('/')) {
-    return `/${imagePath}`;
+    const fullPath = `/${imagePath}`;
+    console.log('🔧 Adding leading slash:', fullPath);
+    return fullPath;
   }
   
+  console.log('📁 Using path as-is:', imagePath);
   return imagePath;
 }
 

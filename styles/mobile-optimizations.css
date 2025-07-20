@@ -947,6 +947,10 @@
   .deep-analysis-card .card-title {
     font-size: 1rem;
     line-height: 1.4;
+    /* إصلاح التباعد */
+    word-spacing: normal !important;
+    letter-spacing: normal !important;
+    text-align: start !important;
   }
   
   .deep-analysis-card .card-meta {
