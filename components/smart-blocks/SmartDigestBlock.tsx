@@ -65,19 +65,27 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
     contents: [
       {
         id: '1',
-        contentType: 'article',
-        title: 'أخبار اليوم',
-        summary: 'تابع آخر الأخبار والمستجدات',
-        imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800',
+        contentType: 'quote',
+        title: '🧠 حكمة اليوم',
+        summary: 'النجاح هو السير من فشل إلى فشل دون أن تفقد حماسك... وتذكر أن كل تجربة تضيف إلى خبرتك.',
+        imageUrl: 'https://images.unsplash.com/photo-1516414447565-b14be0adf13e?w=400',
         displayOrder: 0
       },
       {
         id: '2',
-        contentType: 'audio',
-        title: 'نشرة صوتية',
-        summary: 'استمع إلى أهم الأحداث',
-        imageUrl: 'https://images.unsplash.com/photo-1589903308904-1010c2294adc?w=800',
+        contentType: 'tip',
+        title: '🌙 نصيحة الليل',
+        summary: 'اجعل آخر ساعة في يومك لقراءة شيء يثري روحك... كتاب، مقال ملهم، أو حتى تأمل بسيط.',
+        imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
         displayOrder: 1
+      },
+      {
+        id: '3',
+        contentType: 'analysis',
+        title: '💊 جرعة اليوم',
+        summary: 'لا تتوقف عن التعلم… كل معلومة جديدة هي جرعة وعي تعزز تجربتك بالحياة.',
+        imageUrl: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=400',
+        displayOrder: 2
       }
     ]
   });
@@ -186,10 +194,10 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
   const getContentIcon = useCallback((type: string) => {
     switch (type) {
       case 'weather': return <Cloud className="w-6 h-6" />;
-      case 'quote': return <Sparkles className="w-6 h-6" />;
-      case 'tip': return <Sparkles className="w-6 h-6" />;
+      case 'quote': return <Star className="w-6 h-6" />; // حكمة اليوم
+      case 'tip': return <Moon className="w-6 h-6" />; // نصيحة الليل  
       case 'audio': return <Headphones className="w-6 h-6" />;
-      case 'analysis': return <TrendingUp className="w-6 h-6" />;
+      case 'analysis': return <Zap className="w-6 h-6" />; // جرعة اليوم - أيقونة طاقة/إشعاع
       default: return <BookOpen className="w-6 h-6" />;
     }
   }, []);
@@ -198,10 +206,10 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
   const getContentTypeLabel = useCallback((type: string) => {
     switch (type) {
       case 'weather': return 'طقس';
-      case 'quote': return 'اقتباس';
+      case 'quote': return 'حكمة';
       case 'tip': return 'نصيحة';
       case 'audio': return 'صوتي';
-      case 'analysis': return 'تحليل';
+      case 'analysis': return 'جرعة';
       case 'article': return 'مقال';
       default: return 'محتوى';
     }
@@ -269,12 +277,12 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
             </p>
           </div>
           
-          {/* بطاقات المحتوى - تصميم مركزي */}
-          <div className="flex justify-center gap-4 flex-wrap mb-6">
+          {/* بطاقات المحتوى - تصميم مركزي للبطاقات الثلاث */}
+          <div className="flex justify-center gap-3 sm:gap-4 flex-wrap mb-6 max-w-6xl mx-auto">
             {loading ? (
               // Loading State - بطاقات مركزية
               [0, 1, 2].map(i => (
-                <div key={i} className={`w-72 ${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-lg overflow-hidden border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <div key={i} className={`w-full sm:w-80 lg:w-72 xl:w-80 ${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-lg overflow-hidden border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                   {/* Skeleton Content أفقي */}
                   <div className="flex p-4">
                     <div className={`w-20 h-20 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded-xl animate-pulse flex-shrink-0`}></div>
@@ -287,11 +295,11 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
                 </div>
               ))
             ) : dose?.contents && dose.contents.length > 0 ? (
-              // Content Cards - تصميم مركزي محسّن
+              // Content Cards - تصميم مركزي محسّن للبطاقات الثلاث
               dose.contents.slice(0, 3).map((content, index) => (
                 <div 
                   key={content.id}
-                  className={`w-80 ${
+                  className={`w-full sm:w-80 lg:w-72 xl:w-80 ${
                     darkMode 
                       ? 'bg-gradient-to-br from-gray-800 to-gray-850 hover:from-gray-750 hover:to-gray-800 border-gray-700' 
                       : 'bg-white hover:shadow-xl border-gray-200'

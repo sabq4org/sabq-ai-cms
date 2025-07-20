@@ -77,17 +77,25 @@ export default function AudioProgramsWidget({ position = 'header' }: { position?
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
+    if (!dateString) return 'اليوم';
     const date = new Date(dateString);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
     
-    if (hours < 1) return 'منذ دقائق';
-    if (hours < 24) return `منذ ${hours} ساعة`;
+    if (hours < 1) return 'اليوم';
+    if (hours < 24) return 'اليوم';
     if (hours < 48) return 'أمس';
     
-    return date.toLocaleDateString('ar-SA');
+    // تنسيق التاريخ بالعربية
+    const weekdays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    
+    const dayName = weekdays[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    
+    return `${dayName} ${day} ${month}`;
   };
 
   if (loading || programs.length === 0) {
@@ -166,7 +174,7 @@ export default function AudioProgramsWidget({ position = 'header' }: { position?
 
   // عرض ككارد في الصفحة الرئيسية
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/30 rounded-lg shadow-sm overflow-hidden border border-blue-200 dark:border-blue-800/30">
       {/* الهيدر */}
       <div className="bg-gradient-to-r from-blue-400 to-blue-500 p-4">
         <div className="flex items-center justify-between">
@@ -175,18 +183,28 @@ export default function AudioProgramsWidget({ position = 'header' }: { position?
               <Mic className="w-6 h-6 text-white drop-shadow-sm" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">البرامج الصوتية</h3>
-              <p className="text-white/80 text-sm">استمع لأحدث الحلقات</p>
+              <h3 className="text-lg font-bold text-white">🎙️ النشرة الصوتية</h3>
+              <p className="text-white/80 text-sm">استمع لآخر الأخبار صوتياً</p>
             </div>
           </div>
           <Link
             href="/programs"
             className="text-white/80 hover:text-white text-sm flex items-center gap-1"
           >
-            جميع البرامج
+            الأرشيف
             <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
+        
+        {/* تاريخ النشرة الحالية */}
+        {activeP && activeP.episodes?.[0] && (
+          <div className="mt-2 pt-2 border-t border-white/20">
+            <small className="text-white/70 text-xs flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              نشرة يوم {formatDate(activeP.episodes[0].published_at)}
+            </small>
+          </div>
+        )}
       </div>
 
       {/* قائمة البرامج */}
