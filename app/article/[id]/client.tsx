@@ -60,7 +60,7 @@ interface ArticleClientPageProps {
   articleId: string;
 }
 
-export function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps) {
+function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps) {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
   const [article, setArticle] = useState<Article | null>(initialArticle);

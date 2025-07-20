@@ -359,20 +359,20 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
 
                       {/* التصنيف الفعلي */}
                       <div className="mb-2">
-                        <button
+                        <span
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             router.push(`/categories/${item.article?.categories?.[0]?.slug || 'general'}`);
                           }}
-                          className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md transition-colors hover:scale-105 ${
+                          className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md transition-colors hover:scale-105 cursor-pointer ${
                             darkMode 
                               ? 'text-orange-300 bg-orange-900/20 hover:bg-orange-900/30 border border-orange-700/50' 
                               : 'text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200'
                           }`}
                         >
                           📁 {categoryName}
-                        </button>
+                        </span>
                       </div>
 
                       {/* العنوان - مضغوط */}
@@ -428,33 +428,32 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                             </span>
                           </div>
                           
-                          <button
+                          <span
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
                               window.open(url, '_blank');
                             }}
-                            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 transition-colors"
+                            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
                             title="عرض التحليل المفصل"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             {views.toLocaleString()}
-                          </button>
+                          </span>
                           
                           {analysisScore && (
-                            <button
+                            <span
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 toast.success(`درجة التحليل: ${analysisScore}%`);
                               }}
-                              className="flex items-center gap-1 text-xs text-green-600 hover:text-green-700 transition-colors"
+                              className="flex items-center gap-1 text-xs text-green-600 hover:text-green-700 transition-colors cursor-pointer"
                               title="درجة جودة التحليل"
-                              disabled={!analysisScore}
                             >
                               <Award className="w-3.5 h-3.5" />
                               {analysisScore}%
-                            </button>
+                            </span>
                           )}
                         </div>
                         
