@@ -359,17 +359,20 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
 
                       {/* التصنيف الفعلي */}
                       <div className="mb-2">
-                        <Link 
-                          href={`/categories/${item.article?.categories?.[0]?.slug || 'general'}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md transition-colors ${
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            router.push(`/categories/${item.article?.categories?.[0]?.slug || 'general'}`);
+                          }}
+                          className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md transition-colors hover:scale-105 ${
                             darkMode 
                               ? 'text-orange-300 bg-orange-900/20 hover:bg-orange-900/30 border border-orange-700/50' 
                               : 'text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200'
                           }`}
                         >
                           📁 {categoryName}
-                        </Link>
+                        </button>
                       </div>
 
                       {/* العنوان - مضغوط */}
