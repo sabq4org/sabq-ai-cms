@@ -332,3 +332,5 @@ export function ArticleClientPage({ initialArticle, articleId }: ArticleClientPa
     </>
   );
 }
+
+export default ArticleClientPage;
