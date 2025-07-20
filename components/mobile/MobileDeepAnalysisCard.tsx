@@ -16,7 +16,16 @@ interface MobileDeepAnalysisCardProps {
     engagement_score: number;
     analyzed_at: string;
     updated_at: string;
-    article: {
+    metadata?: {
+      title?: string;
+      summary?: string;
+      authorName?: string;
+      categories?: string[];
+      readingTime?: number;
+      views?: number;
+      featuredImage?: string;
+    };
+    article?: {
       id: string;
       title: string;
       summary: string;
@@ -44,10 +53,10 @@ interface MobileDeepAnalysisCardProps {
 export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeepAnalysisCardProps) {
   // استخدام البيانات الحقيقية من قاعدة البيانات
   const analysisDate = new Date(insight.analyzed_at).toLocaleDateString('ar-SA');
-  const articleTitle = insight.article?.title || 'عنوان المقال غير متوفر';
-  const authorName = insight.article?.author?.name || 'مؤلف غير معروف';
-  const articleViews = insight.article?.views_count || 0;
-  const readTime = insight.article?.read_time || 5;
+  const articleTitle = insight.metadata?.title || insight.article?.title || 'عنوان المقال غير متوفر';
+  const authorName = insight.metadata?.authorName || insight.article?.author?.name || 'مؤلف غير معروف';
+  const articleViews = insight.metadata?.views || insight.article?.views_count || 0;
+  const readTime = insight.metadata?.readingTime || insight.article?.read_time || 5;
   
   // تحليل الوسوم
   const tagsArray: string[] = Array.isArray(insight.tags) 
