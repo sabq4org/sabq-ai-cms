@@ -267,7 +267,7 @@ An advanced smart news platform built with cutting-edge technologies, delivering
 
 ### ✨ Key Features
 
-- **Smart Homepage**: Hero section with breaking news ticker, 8 smart blocks
+- **Smart Homepage**: Hero section with smart content blocks
 - **Article System**: Advanced content display, AI summaries, reading progress
 - **Categories**: Full category system with dedicated pages
 - **Loyalty Points**: 4-tier system (Bronze, Silver, Gold, Platinum)
