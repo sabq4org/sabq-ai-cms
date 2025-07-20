@@ -23,19 +23,25 @@ import {
 interface OpinionAuthor {
   id: string;
   name: string;
-  slug: string;
-  bio?: string;
-  avatar?: string;
-  title?: string;
   email?: string;
-  twitter?: string;
-  linkedin?: string;
-  specialties?: string[];
+  title?: string;
+  avatarUrl?: string;
+  bio?: string;
+  category?: string;
+  twitterUrl?: string;
+  linkedinUrl?: string;
+  websiteUrl?: string;
   isActive: boolean;
-  displayOrder: number;
-  articlesCount: number;
+  displayOrder?: number;
   createdAt: string;
   updatedAt: string;
+  stats?: {
+    totalArticles: number;
+    totalViews: number;
+    totalLikes: number;
+    totalShares: number;
+    lastArticleDate?: string;
+  };
 }
 export default function OpinionAuthorsPage() {
   const { darkMode } = useDarkModeContext();
@@ -184,9 +190,9 @@ export default function OpinionAuthorsPage() {
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      {author.avatar ? (
+                      {author.avatarUrl ? (
                         <Image 
-                          src={author.avatar} 
+                          src={author.avatarUrl} 
                           alt={author.name} 
                           width={64} 
                           height={64}
@@ -250,7 +256,7 @@ export default function OpinionAuthorsPage() {
                       <div className="flex items-center gap-1">
                         <FileText className="w-4 h-4 text-blue-500" />
                         <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {author.articlesCount} مقال
+                          {author.stats?.totalArticles || 0} مقال
                         </span>
                       </div>
                     </div>
@@ -265,9 +271,9 @@ export default function OpinionAuthorsPage() {
                           <Mail className="w-4 h-4" />
                         </a>
                       )}
-                      {author.twitter && (
+                      {author.twitterUrl && (
                         <a
-                          href={`https://twitter.com/${author.twitter}`}
+                          href={author.twitterUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={`p-1.5 rounded-lg ${
@@ -277,9 +283,9 @@ export default function OpinionAuthorsPage() {
                           <Twitter className="w-4 h-4" />
                         </a>
                       )}
-                      {author.linkedin && (
+                      {author.linkedinUrl && (
                         <a
-                          href={`https://linkedin.com/in/${author.linkedin}`}
+                          href={author.linkedinUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={`p-1.5 rounded-lg ${

@@ -35,7 +35,7 @@ export default function PodcastBlock() {
       // التحقق من وجود البيانات بشكل آمن
       if (data?.success && data?.newsletter) {
         const newsletter = data.newsletter;
-        const link = newsletter?.url || newsletter?.audioUrl;
+        const link = newsletter?.audioUrl || newsletter?.url; // ترتيب مختلف: audioUrl أولاً
         const timestamp = newsletter?.created_at;
         const duration = newsletter?.duration || 3;
         
@@ -47,11 +47,11 @@ export default function PodcastBlock() {
             duration
           });
         } else {
-          console.warn('Newsletter data incomplete:', newsletter);
+          console.warn('بيانات النشرة ناقصة:', newsletter);
           setError(true);
         }
       } else {
-        console.log('No newsletter available');
+        console.log('لا توجد نشرة متاحة');
         // لا نعتبرها خطأ، فقط لا توجد نشرة
       }
     } catch (err) {
@@ -94,33 +94,32 @@ export default function PodcastBlock() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 shadow-lg border border-blue-200 dark:border-gray-700">
-      {/* عنوان البلوك */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-blue-600 rounded-full shadow-md">
-          <Mic className="w-6 h-6 text-white" />
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-3 sm:p-4 shadow-md border border-blue-200 dark:border-gray-700">
+      {/* عنوان البلوك - مضغوط أكثر على الموبايل */}
+      <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <div className="p-1.5 sm:p-2 bg-blue-600 rounded-lg shadow-sm">
+          <Mic className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
         </div>
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            🎙️ النشرة الصوتية الإخبارية
+        <div className="flex-1 min-w-0">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
+            🎙️ النشرة الصوتية
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            استمع لآخر الأخبار صوتياً
+          <p className="text-xs text-gray-600 dark:text-gray-400 hidden sm:block">
+            آخر الأخبار صوتياً
           </p>
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-2 sm:space-y-3">
         {!error && podcast ? (
-          /* حالة وجود نشرة */
+          /* حالة وجود نشرة - مضغوطة جداً */
           <>
-            {/* عرض النشرة */}
-            <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <div className="p-2 sm:p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                    النشرة الصوتية
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+                  <span className="text-xs sm:text-sm font-medium text-green-800 dark:text-green-200">
+                    متاحة
                   </span>
                 </div>
                 <span className="text-xs text-green-600 dark:text-green-400">
@@ -128,24 +127,51 @@ export default function PodcastBlock() {
                 </span>
               </div>
               
-              {/* معلومات النشرة */}
-              <div className="mt-2 text-xs text-green-700 dark:text-green-300">
-                <p>🎵 المدة: {podcast.duration} دقائق تقريباً</p>
+              {/* مشغل الصوت - مضغوط */}
+              <div className="mb-2">
+                <audio 
+                  controls 
+                  className="w-full" 
+                  preload="metadata"
+                  style={{ height: '28px' }}
+                >
+                  <source src={podcast.link} type="audio/mpeg" />
+                  <source src={podcast.link} type="audio/wav" />
+                  <source src={podcast.link} type="audio/ogg" />
+                  متصفحك لا يدعم تشغيل الملفات الصوتية
+                </audio>
+              </div>
+              
+              {/* معلومات مختصرة */}
+              <div className="flex items-center justify-between text-xs text-green-700 dark:text-green-300">
+                <span>🎵 {podcast.duration} د</span>
+                <a 
+                  href="/newsletters" 
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  📚 أرشيف
+                </a>
               </div>
             </div>
           </>
         ) : (
-          /* حالة عدم وجود نشرة */
-          <div className="text-center py-8">
-            <div className="bg-gray-100 dark:bg-gray-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Headphones className="w-10 h-10 text-gray-400 dark:text-gray-500" />
+          /* حالة عدم وجود نشرة - مضغوطة */
+          <div className="text-center py-3 sm:py-4">
+            <div className="bg-gray-100 dark:bg-gray-700 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+              <Headphones className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 dark:text-gray-500" />
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              لا توجد نشرة صوتية متاحة
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1 sm:mb-2">
+              لا توجد نشرة
             </h4>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              يتم تحديث النشرة الصوتية بشكل دوري تلقائياً
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 sm:mb-3">
+              ستتوفر قريباً
             </p>
+            <a 
+              href="/newsletters" 
+              className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              📚 أرشيف
+            </a>
           </div>
         )}
       </div>

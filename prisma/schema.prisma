@@ -878,3 +878,66 @@ enum interactions_type {
   view
   reading_session
 }
+
+// نماذج قادة الرأي
+model OpinionAuthor {
+  id         String   @id @default(cuid())
+  name       String
+  email      String?  @unique
+  title      String?  // المسمى الوظيفي
+  avatarUrl  String?
+  bio        String?
+  category   String?  // مثلاً "ريادة أعمال"، "ثقافة"، "تقنية"
+  twitterUrl String?  // رابط تويتر
+  linkedinUrl String? // رابط لينكد إن
+  websiteUrl String?  // الموقع الشخصي
+  isActive   Boolean  @default(true)
+  displayOrder Int?   // ترتيب العرض
+  metadata   Json?    // معلومات إضافية
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // العلاقات
+  articles   OpinionArticle[]
+  
+  @@map("opinion_authors")
+}
+
+model OpinionArticle {
+  id         String   @id @default(cuid())
+  title      String
+  content    String   @db.Text
+  excerpt    String?  // مقتطف قصير
+  authorId   String
+  category   String
+  status     OpinionArticle_status @default(draft)
+  isActive   Boolean  @default(true)
+  views      Int      @default(0)
+  likes      Int      @default(0)
+  shares     Int      @default(0)
+  saves      Int      @default(0)
+  readingTime Int?    // وقت القراءة بالدقائق
+  featuredImage String? // صورة المقال
+  audioUrl   String?  // رابط الملف الصوتي
+  seoKeywords String[] // كلمات مفتاحية للـ SEO
+  publishedAt DateTime?
+  metadata   Json?    // معلومات إضافية
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // العلاقات
+  author     OpinionAuthor @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  @@index([status, isActive])
+  @@index([category])
+  @@index([publishedAt])
+  @@index([authorId])
+  @@map("opinion_articles")
+}
+
+// حالات مقالات الرأي
+enum OpinionArticle_status {
+  draft
+  published
+  archived
+}

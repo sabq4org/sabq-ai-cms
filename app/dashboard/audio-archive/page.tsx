@@ -53,49 +53,46 @@ export default function AudioArchivePage() {
   const fetchAudioFiles = async () => {
     setLoading(true);
     try {
-      // محاكاة البيانات لعدم وجود API حقيقي بعد
-      const mockData: AudioFile[] = [
-        {
-          id: '1',
-          filename: 'news_summary_2025_01_17_14_30.mp3',
-          url: '/public/audio/news_summary_2025_01_17_14_30.mp3',
-          size: 2400000, // 2.4 MB
-          duration: '3:45',
-          createdAt: '2025-01-17T14:30:00Z',
-          type: 'news',
-          title: 'ملخص أخبار اليوم',
-          description: 'نشرة إخبارية تحتوي على أهم 5 أخبار اليوم'
-        },
-        {
-          id: '2', 
-          filename: 'custom_audio_test.mp3',
-          url: '/public/audio/custom_audio_test.mp3',
-          size: 1800000, // 1.8 MB
-          duration: '2:20',
-          createdAt: '2025-01-17T13:15:00Z',
-          type: 'manual',
-          title: 'نشرة صوتية مخصصة',
-          description: 'نشرة صوتية تم إنشاؤها من نص مخصص'
-        },
-        {
-          id: '3',
-          filename: 'article_summary_12345.mp3', 
-          url: '/public/audio/article_summary_12345.mp3',
-          size: 1200000, // 1.2 MB
-          duration: '1:55',
-          createdAt: '2025-01-17T12:00:00Z',
-          type: 'summary',
-          title: 'ملخص المقال: تطورات الذكاء الاصطناعي',
-          description: 'ملخص صوتي لمقال عن أحدث تطورات الذكاء الاصطناعي'
-        }
-      ];
+      // جلب النشرات الصوتية من قاعدة البيانات
+      const response = await fetch('/api/audio/newsletters');
+      if (!response.ok) {
+        throw new Error('فشل في جلب البيانات');
+      }
       
-      setAudioFiles(mockData);
+      const data = await response.json();
+      
+      if (data.success && data.newsletters) {
+        // تحويل البيانات للتنسيق المطلوب
+        const formattedFiles: AudioFile[] = data.newsletters.map((newsletter: any) => ({
+          id: newsletter.id,
+          filename: `${newsletter.title || 'نشرة صوتية'}.mp3`,
+          url: newsletter.audioUrl,
+          size: newsletter.duration * 50000, // تقدير الحجم
+          duration: formatDuration(newsletter.duration),
+          createdAt: newsletter.created_at,
+          type: newsletter.category === 'news' ? 'news' : 
+                newsletter.category === 'summary' ? 'summary' : 'manual',
+          title: newsletter.title,
+          description: newsletter.content?.substring(0, 100) + '...'
+        }));
+        
+        setAudioFiles(formattedFiles);
+      } else {
+        setAudioFiles([]);
+      }
     } catch (error) {
       console.error('خطأ في جلب الملفات الصوتية:', error);
+      setAudioFiles([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  // دالة لتنسيق المدة الزمنية
+  const formatDuration = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   // تشغيل/إيقاف الصوت
@@ -134,10 +131,18 @@ export default function AudioArchivePage() {
   const deleteAudioFile = async (fileId: string) => {
     if (confirm('هل أنت متأكد من حذف هذا الملف الصوتي؟')) {
       try {
-        // TODO: إضافة API للحذف
-        setAudioFiles(prev => prev.filter(file => file.id !== fileId));
-        alert('تم حذف الملف بنجاح');
+        const response = await fetch(`/api/audio/newsletters/${fileId}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          setAudioFiles(prev => prev.filter(file => file.id !== fileId));
+          alert('تم حذف الملف بنجاح');
+        } else {
+          throw new Error('فشل في حذف الملف');
+        }
       } catch (error) {
+        console.error('خطأ في الحذف:', error);
         alert('فشل في حذف الملف');
       }
     }

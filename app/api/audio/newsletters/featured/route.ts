@@ -1,57 +1,52 @@
-import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "../../../../../lib/generated/prisma";
 
-// مسار ملف حفظ البيانات
-const PODCASTS_FILE = path.join(process.cwd(), 'data', 'audio-podcasts.json');
+const prisma = new PrismaClient();
 
-// التأكد من وجود الملف
-async function ensureFile() {
+export async function GET() {
   try {
-    await fs.access(PODCASTS_FILE);
-  } catch {
-    await fs.mkdir(path.dirname(PODCASTS_FILE), { recursive: true });
-    await fs.writeFile(PODCASTS_FILE, JSON.stringify({ podcasts: [] }));
-  }
-}
+    const featuredNewsletter = await prisma.audio_newsletters.findFirst({
+      where: {
+        is_published: true,
+        is_featured: true
+      },
+      orderBy: {
+        created_at: 'desc'
+      }
+    });
 
-export async function GET(request: NextRequest) {
-  try {
-    await ensureFile();
-    
-    // قراءة البيانات من الملف
-    const data = await fs.readFile(PODCASTS_FILE, 'utf-8');
-    const { podcasts } = JSON.parse(data);
-    
-    // البحث عن آخر نشرة يومية منشورة
-    const featuredNewsletter = podcasts.find((p: any) => 
-      p.is_daily === true && p.is_published === true
-    );
-    
-    if (!featuredNewsletter) {
-      // إذا لم توجد نشرة يومية، احصل على آخر نشرة منشورة
-      const latestNewsletter = podcasts.find((p: any) => 
-        p.is_published === true
-      );
-      
+    if (featuredNewsletter) {
       return NextResponse.json({
         success: true,
-        newsletter: latestNewsletter || null
+        newsletter: featuredNewsletter
       });
     }
 
-    // زيادة عداد التشغيل (اختياري - يمكن إضافته لاحقاً)
-    // يمكن تحديث الملف هنا إذا أردت زيادة عداد التشغيل
+    const latestNewsletter = await prisma.audio_newsletters.findFirst({
+      where: {
+        is_published: true
+      },
+      orderBy: {
+        created_at: 'desc'
+      }
+    });
 
     return NextResponse.json({
-      success: true,
-      newsletter: featuredNewsletter
+      success: latestNewsletter ? true : false,
+      newsletter: latestNewsletter,
+      message: latestNewsletter ? null : 'لا توجد نشرات صوتية منشورة'
     });
+
   } catch (error) {
     console.error('Error fetching featured newsletter:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch featured newsletter' },
+      { 
+        success: false,
+        error: 'Failed to fetch featured newsletter' 
+      },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
-} 
+}

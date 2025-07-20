@@ -315,12 +315,11 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                         </Link>
                       </div>
 
-                      {/* العنوان - محسن للرؤية */}
+                      {/* العنوان - محسن للرؤية ومحسن لـ Safari */}
                       <Link href={item.url} onClick={() => markAsRead(item.id)}>
                         <h3 className={`
                           text-xl font-bold mb-3 transition-colors cursor-pointer leading-tight
-                          ${darkMode ? 'text-white hover:text-purple-300' : 'text-gray-900 hover:text-purple-700'}
-                          line-clamp-2 min-h-[3.5rem]
+                          line-clamp-2 min-h-[3.5rem] deep-analysis-title arabic-text
                         `} 
                         title={item.title}
                         style={{
@@ -328,20 +327,23 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
                           overflow: 'hidden',
+                          color: darkMode ? '#ffffff' : '#1a202c',
+                          fontWeight: '700',
+                          textShadow: darkMode ? '0 1px 2px rgba(0, 0, 0, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)',
                           textOverflow: 'ellipsis',
-                          lineHeight: '1.3',
-                          fontSize: '1.1rem',
-                          fontWeight: '700'
+                          lineHeight: '1.3'
                         }}
                         >
                           {item.title}
                         </h3>
                       </Link>
 
-                      {/* الملخص - مخفي للتقليل من الكثافة */}
-                      <p className={`text-sm line-clamp-2 mb-4 ${
-                        darkMode ? 'text-gray-300' : 'text-gray-600'
-                      }`} title={item.summary}>
+                      {/* الملخص - محسن لـ Safari */}
+                      <p className="text-sm line-clamp-2 mb-4 deep-analysis-summary arabic-text"
+                         style={{
+                           color: darkMode ? '#e2e8f0' : '#4a5568'
+                         }}
+                         title={item.summary}>
                         {item.summary}
                       </p>
 

@@ -153,96 +153,180 @@ export default function UnifiedNewsCreatePageRedesigned() {
     }));
   };
 
-  // التوليد التلقائي بالذكاء الاصطناعي
-  const generateFromContent = async () => {
+  // دوال التوليد الفردية
+  const generateTitle = async () => {
     if (isAILoading) return;
 
     try {
       setIsAILoading(true);
-      console.log('🤖 بدء التوليد التلقائي من المحتوى...');
-
-      // استخراج النص من المحرر
       let contentText = typeof formData.content === 'string' ? formData.content : '';
       if (editorRef.current?.editor?.getText) {
-        try {
-          const extractedText = editorRef.current.editor.getText();
-          if (typeof extractedText === 'string' && extractedText.trim()) {
-            contentText = extractedText;
-          }
-        } catch (error) {
-          console.warn('فشل استخراج النص من المحرر:', error);
-        }
+        const extractedText = editorRef.current.editor.getText();
+        if (extractedText) contentText = extractedText;
       }
 
-      // التأكد من وجود محتوى كافي
-      if (typeof contentText !== 'string') {
-        contentText = String(contentText || '');
-      }
-
-      // تنظيف HTML
-      let cleanText = contentText;
-      if (cleanText.includes('<')) {
-        cleanText = cleanText
-          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim();
-      }
-
-      if (!cleanText || cleanText.length < 50) {
-        toast.error(`المحتوى قصير جداً! الحد الأدنى 50 حرف، الحالي: ${cleanText.length} حرف`);
+      if (!contentText.trim()) {
+        toast.error('يجب إدخال المحتوى أولاً');
         return;
       }
 
-      const response = await fetch('/api/news/ai-generate', {
+      const response = await fetch('/api/ai/generate-metadata', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: cleanText }),
+        body: JSON.stringify({
+          content: contentText,
+          type: 'title'
+        })
       });
 
-      if (!response.ok) {
-        throw new Error(`خطأ HTTP: ${response.status}`);
-      }
-
       const result = await response.json();
-
-      if (result.success && result.data) {
-        // تحديث البيانات
-        setFormData(prev => ({
-          ...prev,
-          title: result.data.title || prev.title,
-          subtitle: result.data.subtitle || prev.subtitle,
-          excerpt: result.data.summary || prev.excerpt,
-          keywords: result.data.keywords ? 
-            [...new Set([...prev.keywords, ...result.data.keywords.split(',').map((k: string) => k.trim())])] : 
-            prev.keywords
-        }));
-
-        toast.success('✨ تم التوليد التلقائي بنجاح!');
-      } else {
-        throw new Error(result.error || 'فشل التوليد');
+      if (result.success && result.title) {
+        setFormData(prev => ({ ...prev, title: result.title }));
+        toast.success('تم توليد العنوان بنجاح!');
       }
     } catch (error) {
-      console.error('خطأ في التوليد التلقائي:', error);
-      toast.error('فشل في التوليد التلقائي');
+      toast.error('فشل في توليد العنوان');
     } finally {
       setIsAILoading(false);
     }
   };
 
+  const generateSummary = async () => {
+    if (isAILoading) return;
+
+    try {
+      setIsAILoading(true);
+      let contentText = typeof formData.content === 'string' ? formData.content : '';
+      if (editorRef.current?.editor?.getText) {
+        const extractedText = editorRef.current.editor.getText();
+        if (extractedText) contentText = extractedText;
+      }
+
+      if (!contentText.trim()) {
+        toast.error('يجب إدخال المحتوى أولاً');
+        return;
+      }
+
+      const response = await fetch('/api/ai/generate-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: contentText,
+          type: 'summary'
+        })
+      });
+
+      const result = await response.json();
+      if (result.success && result.summary) {
+        setFormData(prev => ({ ...prev, excerpt: result.summary }));
+        toast.success('تم توليد الموجز بنجاح!');
+      }
+    } catch (error) {
+      toast.error('فشل في توليد الموجز');
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
+  const generateKeywords = async () => {
+    if (isAILoading) return;
+
+    try {
+      setIsAILoading(true);
+      let contentText = typeof formData.content === 'string' ? formData.content : '';
+      if (editorRef.current?.editor?.getText) {
+        const extractedText = editorRef.current.editor.getText();
+        if (extractedText) contentText = extractedText;
+      }
+
+      if (!contentText.trim()) {
+        toast.error('يجب إدخال المحتوى أولاً');
+        return;
+      }
+
+      const response = await fetch('/api/ai/generate-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: contentText,
+          type: 'keywords'
+        })
+      });
+
+      const result = await response.json();
+      if (result.success && result.keywords) {
+        // تحويل الكلمات المفتاحية إلى مصفوفة إذا كانت نص
+        const newKeywords = Array.isArray(result.keywords) 
+          ? result.keywords 
+          : result.keywords.split(',').map((k: string) => k.trim()).filter((k: string) => k.length > 0);
+        
+        setFormData(prev => ({ 
+          ...prev, 
+          keywords: [...prev.keywords, ...newKeywords]
+        }));
+        toast.success('تم توليد الكلمات المفتاحية بنجاح!');
+      } else {
+        toast.error(result.error || 'فشل في توليد الكلمات المفتاحية');
+      }
+    } catch (error) {
+      toast.error('فشل في توليد الكلمات المفتاحية');
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
+  // دالة التحقق من صحة المحتوى
+  const isContentValid = () => {
+    if (typeof formData.content === 'string') {
+      return formData.content.trim().length > 0;
+    }
+    
+    // إذا كان المحتوى من محرر rich text
+    if (editorRef.current?.editor?.getText) {
+      const textContent = editorRef.current.editor.getText();
+      return textContent && textContent.trim().length > 0;
+    }
+    
+    return false;
+  };
+
   // حفظ المقال
   const handleSave = async (status: 'draft' | 'published') => {
-    if (!formData.title.trim() || !formData.content || typeof formData.content !== 'string' || !formData.content.trim()) {
-      toast.error('العنوان والمحتوى مطلوبان');
-      return;
+    // للمسودة: نتطلب العنوان فقط
+    // للنشر: نتطلب العنوان والمحتوى والموجز
+    if (status === 'published') {
+      if (!formData.title.trim()) {
+        toast.error('العنوان مطلوب للنشر');
+        return;
+      }
+      if (!formData.excerpt.trim()) {
+        toast.error('موجز الخبر مطلوب للنشر');
+        return;
+      }
+      if (!isContentValid()) {
+        toast.error('محتوى الخبر مطلوب للنشر');
+        return;
+      }
+    } else {
+      // للمسودة: العنوان فقط مطلوب
+      if (!formData.title.trim()) {
+        toast.error('العنوان مطلوب على الأقل');
+        return;
+      }
     }
 
     try {
       setSaving(true);
       
+      // استخراج المحتوى من المحرر
+      let contentToSave = formData.content;
+      if (editorRef.current?.editor?.getHTML) {
+        contentToSave = editorRef.current.editor.getHTML();
+      }
+      
       const articleData = {
         ...formData,
+        content: contentToSave,
         status,
         keywords: formData.keywords.join(', '),
         published_at: status === 'published' ? new Date().toISOString() : null
@@ -343,7 +427,7 @@ export default function UnifiedNewsCreatePageRedesigned() {
               </Button>
               <Button
                 onClick={() => handleSave('published')}
-                disabled={saving || !formData.title || !formData.content || typeof formData.content !== 'string' || !formData.content.trim()}
+                disabled={saving || !formData.title || !formData.excerpt || !isContentValid()}
                 size="sm"
                 className="gap-2 bg-emerald-600 hover:bg-emerald-700"
               >
@@ -399,9 +483,25 @@ export default function UnifiedNewsCreatePageRedesigned() {
               <CardContent className="space-y-4">
                 {/* العنوان الرئيسي */}
                 <div>
-                  <Label htmlFor="title" className="text-sm font-medium mb-2 flex items-center gap-2">
-                    العنوان الرئيسي *
-                    <span className="text-red-500">●</span>
+                  <Label htmlFor="title" className="text-sm font-medium mb-2 flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      العنوان الرئيسي *
+                      <span className="text-red-500">●</span>
+                    </span>
+                    <Button
+                      onClick={generateTitle}
+                      disabled={isAILoading}
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 text-xs"
+                    >
+                      {isAILoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Wand2 className="w-3 h-3" />
+                      )}
+                      توليد العنوان
+                    </Button>
                   </Label>
                   <Input
                     id="title"
@@ -434,9 +534,25 @@ export default function UnifiedNewsCreatePageRedesigned() {
                 
                 {/* موجز الخبر */}
                 <div>
-                  <Label htmlFor="excerpt" className="text-sm font-medium mb-2 flex items-center gap-2">
-                    موجز الخبر *
-                    <span className="text-red-500">●</span>
+                  <Label htmlFor="excerpt" className="text-sm font-medium mb-2 flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      موجز الخبر *
+                      <span className="text-red-500">●</span>
+                    </span>
+                    <Button
+                      onClick={generateSummary}
+                      disabled={isAILoading}
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 text-xs"
+                    >
+                      {isAILoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Wand2 className="w-3 h-3" />
+                      )}
+                      توليد الموجز
+                    </Button>
                   </Label>
                   <Textarea
                     id="excerpt"
@@ -459,10 +575,26 @@ export default function UnifiedNewsCreatePageRedesigned() {
               darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
             )}>
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2 text-green-600 dark:text-green-400">
-                  <Hash className="w-5 h-5" />
-                  🔑 الكلمات المفتاحية
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2 text-green-600 dark:text-green-400">
+                    <Hash className="w-5 h-5" />
+                    🔑 الكلمات المفتاحية
+                  </CardTitle>
+                  <Button
+                    onClick={generateKeywords}
+                    disabled={isAILoading}
+                    size="sm"
+                    variant="outline"
+                    className="gap-1 text-xs"
+                  >
+                    {isAILoading ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Wand2 className="w-3 h-3" />
+                    )}
+                    توليد كلمات مفتاحية
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex gap-2">
@@ -517,35 +649,10 @@ export default function UnifiedNewsCreatePageRedesigned() {
               darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
             )}>
               <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2 text-purple-600 dark:text-purple-400">
-                    <FileText className="w-5 h-5" />
-                    ✍️ محتوى الخبر
-                  </CardTitle>
-                  
-                  {/* زر التوليد التلقائي */}
-                  <Button
-                    onClick={generateFromContent}
-                    disabled={isAILoading}
-                    size="sm"
-                    className={cn(
-                      "gap-2 shadow-md hover:shadow-lg transition-all",
-                      "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                    )}
-                  >
-                    {isAILoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        جاري التوليد...
-                      </>
-                    ) : (
-                      <>
-                        <Wand2 className="w-4 h-4" />
-                        🤖 توليد تلقائي
-                      </>
-                    )}
-                  </Button>
-                </div>
+                <CardTitle className="text-lg flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                  <FileText className="w-5 h-5" />
+                  ✍️ محتوى الخبر
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className={cn(
@@ -564,7 +671,7 @@ export default function UnifiedNewsCreatePageRedesigned() {
                 <Alert className="mt-4 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
                   <Sparkles className="h-4 w-4 text-blue-600" />
                   <AlertDescription className="text-blue-800 dark:text-blue-200 text-sm">
-                    💡 <strong>نصيحة:</strong> اكتب محتوى الخبر أولاً، ثم استخدم زر "توليد تلقائي" لإنشاء العنوان والموجز والكلمات المفتاحية تلقائياً بالذكاء الاصطناعي.
+                    💡 <strong>نصيحة:</strong> اكتب محتوى الخبر أولاً، ثم استخدم أزرار التوليد الفردية لإنشاء العنوان والموجز والكلمات المفتاحية تلقائياً بالذكاء الاصطناعي.
                   </AlertDescription>
                 </Alert>
               </CardContent>

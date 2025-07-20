@@ -161,18 +161,17 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           </Link>
         </div>      {/* محتوى البطاقة - محسن للموبايل ليشبه بطاقات الأخبار */}
       <div className={`p-4 sm:p-5 ${viewMode === 'list' ? 'flex-1' : ''} flex flex-col`}>
-        {/* التصنيفات - محسنة للموبايل */}
+        {/* التصنيفات - محسنة للموبايل ومحسنة لـ Safari */}
         <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
           {analysis.categories.slice(0, 2).map((category, index) => (
             <span 
               key={index}
-              className={`
-                text-xs px-2 py-1 sm:px-3 sm:py-1.5 rounded-full font-medium transition-colors flex items-center gap-1
-                ${darkMode 
-                  ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50' 
-                  : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
-                }
-              `}
+              className="text-xs px-2 py-1 sm:px-3 sm:py-1.5 rounded-full font-medium transition-colors flex items-center gap-1 analysis-category-tag purple"
+              style={{
+                backgroundColor: darkMode ? '#44337a' : '#faf5ff',
+                color: darkMode ? '#e9d5ff' : '#553c9a',
+                border: `1px solid ${darkMode ? '#7c3aed' : '#d6bcfa'}`
+              }}
             >
               <Brain className="w-3 h-3" />
               {typeof category === 'string' ? category : ((category as any).name_ar || (category as any).name || 'عام')}
@@ -180,25 +179,37 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           ))}
         </div>
 
-        {/* العنوان - محسن للموبايل ليشبه بطاقات الأخبار */}
+        {/* العنوان - محسن للموبايل ومحسن لـ Safari */}
         <Link href={analysisUrl}>
           <h3 className={`
             text-base sm:text-lg lg:text-xl font-bold mb-2 sm:mb-3 transition-colors cursor-pointer leading-snug
-            ${darkMode ? 'text-white hover:text-purple-300' : 'text-gray-900 hover:text-purple-700'}
+            ${darkMode 
+              ? 'text-white hover:text-purple-300' 
+              : 'text-gray-900 hover:text-purple-700'
+            }
             ${viewMode === 'list' ? 'line-clamp-3' : 'line-clamp-2'}
             min-h-[2.8rem] sm:min-h-[3.5rem]
+            deep-analysis-title arabic-text
           `}
+          style={{
+            color: darkMode ? '#ffffff' : '#1a202c',
+            fontWeight: '700',
+            textShadow: darkMode ? '0 1px 2px rgba(0, 0, 0, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
+          }}
           title={analysis.title}
           >
             {analysis.title}
           </h3>
         </Link>
 
-        {/* الملخص - محسن للموبايل */}
+        {/* الملخص - محسن للموبايل ومحسن لـ Safari */}
         <p className={`
           text-sm sm:text-base line-clamp-2 mb-3 sm:mb-4 flex-grow leading-relaxed
-          ${darkMode ? 'text-gray-300' : 'text-gray-600'}
+          deep-analysis-summary arabic-text
         `}
+        style={{
+          color: darkMode ? '#e2e8f0' : '#4a5568'
+        }}
         title={analysis.summary}
         >
           {analysis.summary}
