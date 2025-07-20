@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const SPA_API_BASE = process.env.SPA_API_URL ?? 'https://nwdistapi.spa.gov.sa';
+const SPA_API_BASE = process.env.SPA_API_URL ?? 'https://nwDistAPI.spa.gov.sa';
 const SPA_API_KEY  = process.env.SPA_API_KEY;
 
 const instance = axios.create({
-  baseURL: SPA_API_BASE,
+  baseURL: `${SPA_API_BASE}/ClientAppV1`,
   headers: {
     'Content-Type': 'application/json',
     'X-API-Key': SPA_API_KEY ?? '',
@@ -49,18 +49,19 @@ instance.interceptors.response.use(
   }
 );
 
-// هياكل البيانات حسب الوثائق
-interface ContractInfo {
-  client_name_TXT: string;
-  client_key_TXT: string;
+// هياكل البيانات حسب الوثائق الجديدة
+interface ClientInfo {
+  clientName: string;
+  clientKey: string;
+  languageId: number; // 1 = AR, 2 = EN
 }
 
-interface Condition {
-  Client: ContractInfo;
-  last_news_CD: number;
-  basket_CD: number;
-  IS_recived: boolean;
-  IS_load_media: boolean;
+interface GetNextNewsRequest {
+  Client: ClientInfo;
+  LastNewsId: number;
+  BasketId: number;
+  IsRecived: boolean;
+  LoadMedia: boolean;
 }
 
 export async function getNextNews(
@@ -75,18 +76,21 @@ export async function getNextNews(
     throw new Error('SPA_CLIENT_NAME or SPA_CLIENT_KEY is missing in env');
   }
 
-  const body: Condition = {
+  const body: GetNextNewsRequest = {
     Client: {
-      client_name_TXT: clientName,
-      client_key_TXT: clientKey,
+      clientName: clientName,
+      clientKey: clientKey,
+      languageId: 1 // 1 = Arabic
     },
-    last_news_CD: lastId,
-    basket_CD: basketId,
-    IS_recived: false,
-    IS_load_media: loadMedia,
+    LastNewsId: lastId,
+    BasketId: basketId,
+    IsRecived: false,
+    LoadMedia: loadMedia,
   };
 
-  const { data } = await instance.post('/GetNextNews', body);
+  const { data } = await instance.get('/GetNextNews', {
+    data: body
+  });
   return data;
 }
 
@@ -98,12 +102,15 @@ export async function getBaskets() {
     throw new Error('SPA_CLIENT_NAME or SPA_CLIENT_KEY is missing in env');
   }
 
-  const body: ContractInfo = {
-    client_name_TXT: clientName,
-    client_key_TXT: clientKey,
+  const body: ClientInfo = {
+    clientName: clientName,
+    clientKey: clientKey,
+    languageId: 1 // 1 = Arabic
   };
 
-  const { data } = await instance.post('/GetBaskets', body);
+  const { data } = await instance.get('/GetBaskets', {
+    data: body
+  });
   return data;
 }
 
@@ -116,12 +123,15 @@ export async function getStatus() {
     throw new Error('SPA_CLIENT_NAME or SPA_CLIENT_KEY is missing in env');
   }
 
-  const body: ContractInfo = {
-    client_name_TXT: clientName,
-    client_key_TXT: clientKey,
+  const body: ClientInfo = {
+    clientName: clientName,
+    clientKey: clientKey,
+    languageId: 1 // 1 = Arabic
   };
 
-  const { data } = await instance.post('/GetStatus', body);
+  const { data } = await instance.get('/GetStatus', {
+    data: body
+  });
   return data;
 }
 
@@ -134,12 +144,15 @@ export async function getAllClassifications() {
     throw new Error('SPA_CLIENT_NAME or SPA_CLIENT_KEY is missing in env');
   }
 
-  const body: ContractInfo = {
-    client_name_TXT: clientName,
-    client_key_TXT: clientKey,
+  const body: ClientInfo = {
+    clientName: clientName,
+    clientKey: clientKey,
+    languageId: 1 // 1 = Arabic
   };
 
-  const { data } = await instance.post('/GetAllClassifications', body);
+  const { data } = await instance.get('/GetAllClassifications', {
+    data: body
+  });
   return data;
 }
 
@@ -152,12 +165,57 @@ export async function getAllPriorities() {
     throw new Error('SPA_CLIENT_NAME or SPA_CLIENT_KEY is missing in env');
   }
 
-  const body: ContractInfo = {
-    client_name_TXT: clientName,
-    client_key_TXT: clientKey,
+  const body: ClientInfo = {
+    clientName: clientName,
+    clientKey: clientKey,
+    languageId: 1 // 1 = Arabic
   };
 
-  const { data } = await instance.post('/GetAllPriorities', body);
+  const { data } = await instance.get('/GetAllPriorities', {
+    data: body
+  });
+  return data;
+}
+
+// دالة للحصول على جميع المناطق
+export async function getAllRegions() {
+  const clientName = process.env.SPA_CLIENT_NAME;
+  const clientKey  = process.env.SPA_CLIENT_KEY;
+
+  if (!clientName || !clientKey) {
+    throw new Error('SPA_CLIENT_NAME or SPA_CLIENT_KEY is missing in env');
+  }
+
+  const body: ClientInfo = {
+    clientName: clientName,
+    clientKey: clientKey,
+    languageId: 1 // 1 = Arabic
+  };
+
+  const { data } = await instance.get('/GetAllRegions', {
+    data: body
+  });
+  return data;
+}
+
+// دالة للحصول على جميع أقسام الموقع
+export async function getAllSiteSections(basketId: number = 3) {
+  const clientName = process.env.SPA_CLIENT_NAME;
+  const clientKey  = process.env.SPA_CLIENT_KEY;
+
+  if (!clientName || !clientKey) {
+    throw new Error('SPA_CLIENT_NAME or SPA_CLIENT_KEY is missing in env');
+  }
+
+  const body: ClientInfo = {
+    clientName: clientName,
+    clientKey: clientKey,
+    languageId: 1 // 1 = Arabic
+  };
+
+  const { data } = await instance.get(`/GetAllSiteSections?basketId=${basketId}`, {
+    data: body
+  });
   return data;
 }
 
@@ -167,6 +225,8 @@ const spaClient = {
   getStatus,
   getAllClassifications,
   getAllPriorities,
+  getAllRegions,
+  getAllSiteSections,
 };
 
 export default spaClient;

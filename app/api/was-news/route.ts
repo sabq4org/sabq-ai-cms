@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBaskets, getNextNews, getStatus } from "@/lib/spaClient";
+import { 
+  getBaskets, 
+  getNextNews, 
+  getStatus, 
+  getAllClassifications,
+  getAllPriorities,
+  getAllRegions,
+  getAllSiteSections
+} from "@/lib/spaClient";
 
 /**
  * هذه الواجهة تتعامل مع وكالة الأنباء السعودية (واس) وتُستخدم من لوحة التحكم.
@@ -41,6 +49,27 @@ export async function POST(request: NextRequest) {
       // معالجة الاستجابة حسب الوثائق
       const baskets = data.baskets || data || [];
       return NextResponse.json({ success: true, baskets });
+    }
+
+    if (action === "classifications") {
+      const data = await getAllClassifications();
+      return NextResponse.json({ success: true, data });
+    }
+
+    if (action === "priorities") {
+      const data = await getAllPriorities();
+      return NextResponse.json({ success: true, data });
+    }
+
+    if (action === "regions") {
+      const data = await getAllRegions();
+      return NextResponse.json({ success: true, data });
+    }
+
+    if (action === "siteSections") {
+      const basketId = Number(body.basketId) || 3;
+      const data = await getAllSiteSections(basketId);
+      return NextResponse.json({ success: true, data });
     }
 
     if (action === "news") {
@@ -136,6 +165,43 @@ export async function GET(request: NextRequest) {
           { news_basket_CD: 3, news_basket_TXT: "Economy", news_basket_TXT_AR: "اقتصاد" }
         ]
       });
+    }
+  }
+
+  if (action === 'classifications') {
+    try {
+      const data = await getAllClassifications();
+      return NextResponse.json({ success: true, data });
+    } catch (error: any) {
+      return NextResponse.json({ success: false, error: error.message });
+    }
+  }
+
+  if (action === 'priorities') {
+    try {
+      const data = await getAllPriorities();
+      return NextResponse.json({ success: true, data });
+    } catch (error: any) {
+      return NextResponse.json({ success: false, error: error.message });
+    }
+  }
+
+  if (action === 'regions') {
+    try {
+      const data = await getAllRegions();
+      return NextResponse.json({ success: true, data });
+    } catch (error: any) {
+      return NextResponse.json({ success: false, error: error.message });
+    }
+  }
+
+  if (action === 'siteSections') {
+    try {
+      const basketId = Number(searchParams.get('basketId')) || 3;
+      const data = await getAllSiteSections(basketId);
+      return NextResponse.json({ success: true, data });
+    } catch (error: any) {
+      return NextResponse.json({ success: false, error: error.message });
     }
   }
 

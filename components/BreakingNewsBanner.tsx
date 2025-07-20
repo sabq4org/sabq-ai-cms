@@ -24,10 +24,17 @@ interface BreakingNewsBannerProps {
 }
 
 export default function BreakingNewsBanner({ article, onDismiss }: BreakingNewsBannerProps) {
-  if (!article) return null;
+  console.log('🔥 BreakingNewsBanner: تم تحميل مكون الأخبار العاجلة:', article);
+  
+  if (!article) {
+    console.log('⚠️ BreakingNewsBanner: لا يوجد خبر عاجل للعرض');
+    return null;
+  }
 
   const articleUrl = `/articles/${article.slug}`;
   const summary = article.summary || article.lead || '';
+
+  console.log('📰 BreakingNewsBanner: عرض خبر عاجل:', article.title);
 
   return (
     <div className="w-full bg-red-50 border-b border-red-200 shadow-sm">

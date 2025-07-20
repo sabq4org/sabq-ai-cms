@@ -28,6 +28,9 @@ import MobileLayout from '@/components/mobile/MobileLayout';
 import MobileArticleCard from '@/components/mobile/MobileArticleCard';
 import EnhancedMobileNewsCard from '@/components/mobile/EnhancedMobileNewsCard';
 import MobileStatsBar from '@/components/mobile/MobileStatsBar';
+import LightBreakingNews from '@/components/LightBreakingNews';
+import SimpleBreakingNews from '@/components/SimpleBreakingNews';
+import DirectBreakingNews from '@/components/DirectBreakingNews';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import PodcastBlock from '@/components/home/PodcastBlock';
@@ -298,11 +301,17 @@ class UserIntelligenceTracker {
   }
   // تحميل من التخزين المحلي
   private loadFromStorage() {
-    const stored = localStorage.getItem('user_intelligence_tracker');
-    if (stored) {
-      const data = JSON.parse(stored);
-      this.interactions = data.interactions || [];
-      this.preferences = data.preferences || {};
+    try {
+      const stored = localStorage.getItem('user_intelligence_tracker');
+      if (stored) {
+        const data = JSON.parse(stored);
+        this.interactions = data.interactions || [];
+        this.preferences = data.preferences || {};
+      }
+    } catch (error) {
+      console.error('خطأ في تحليل localStorage:', error);
+      // مسح البيانات التالفة
+      localStorage.removeItem('user_intelligence_tracker');
     }
   }
   // إرسال التفاعل إلى الخادم
@@ -330,6 +339,7 @@ interface NewspaperHomePageProps {
 function NewspaperHomePage({ stats, initialArticles = [], initialCategories = [] }: NewspaperHomePageProps & { initialArticles?: any[], initialCategories?: any[] }): React.ReactElement {
   // سجل التصنيفات الأولية عند تحميل المكون
   console.log('🎯 التصنيفات الأولية المُستلمة من الخادم:', initialCategories.length);
+  console.log('🚀 NewspaperHomePage: تم تحميل الكومبوننت الرئيسي');
   
   const { isLoggedIn, userId, user } = useAuth();
   const { darkMode } = useDarkModeContext();
@@ -374,6 +384,10 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
   const [breakingNews, setBreakingNews] = useState<any>(null);
   const [breakingNewsLoading, setBreakingNewsLoading] = useState<boolean>(false);
+  
+  console.log('📋 NewspaperHomePage: حالة الأخبار العاجلة الأولية - breakingNews:', breakingNews, 'loading:', breakingNewsLoading);
+  
+  console.log('🔧 NewspaperHomePage: تحضير useEffects...');
   
   // دوال مؤقتة
   const handleInterestClick = (interestId: string) => {
@@ -544,19 +558,28 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
   
   // جلب الأخبار العاجلة عند التحميل
   useEffect(() => {
+    console.log('🔥 PageClient: بدء useEffect للأخبار العاجلة');
+    
     const fetchBreakingNews = async () => {
       try {
+        console.log('🔍 PageClient: بدء جلب الأخبار العاجلة...');
         setBreakingNewsLoading(true);
         const response = await fetch('/api/breaking-news');
         const data = await response.json();
         
+        console.log('📡 PageClient: استجابة API للأخبار العاجلة:', data);
+        
         if (data.success && data.data) {
           setBreakingNews(data.data);
+          console.log('✅ PageClient: تم تحديث حالة الأخبار العاجلة:', data.data.title);
+        } else {
+          console.log('⚠️ PageClient: لا توجد أخبار عاجلة أو فشل في الاستجابة');
         }
       } catch (error) {
-        console.error('خطأ في جلب الأخبار العاجلة:', error);
+        console.error('❌ PageClient: خطأ في جلب الأخبار العاجلة:', error);
       } finally {
         setBreakingNewsLoading(false);
+        console.log('🏁 PageClient: انتهاء جلب الأخبار العاجلة');
       }
     };
     
@@ -629,17 +652,41 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       <Header />
       
       {/* Breaking News Banner - يظهر أسفل الهيدر مباشرة */}
-      {!breakingNewsLoading && breakingNews && (
-        <BreakingNewsBanner 
-          article={breakingNews}
-          onDismiss={() => setBreakingNews(null)}
-        />
-      )}
+      {(() => {
+        console.log('🔍 PageClient JSX: فحص شروط عرض الأخبار العاجلة');
+        console.log('🔍 breakingNewsLoading:', breakingNewsLoading);
+        console.log('🔍 breakingNews:', breakingNews);
+        console.log('🔍 الشرط النهائي:', !breakingNewsLoading && breakingNews);
+        
+        if (!breakingNewsLoading && breakingNews) {
+          console.log('✅ PageClient JSX: سيتم عرض BreakingNewsBanner');
+          return (
+            <BreakingNewsBanner 
+              article={breakingNews}
+              onDismiss={() => {
+                console.log('❌ PageClient: تم إغلاق الأخبار العاجلة');
+                setBreakingNews(null);
+              }}
+            />
+          );
+        } else {
+          console.log('❌ PageClient JSX: لن يتم عرض BreakingNewsBanner');
+          return null;
+        }
+      })()}
       
       {/* شريط الإحصائيات للموبايل */}
       {isMobile && (
         <MobileStatsBar darkMode={darkMode} />
       )}
+      
+      {/* الأخبار العاجلة الخفيفة - تظهر بعد الإحصائيات أو بعد الهيدر */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        {(() => {
+          console.log('🔍 PageClient JSX: عرض مكون DirectBreakingNews');
+          return <DirectBreakingNews />;
+        })()}
+      </div>
       
       {/* عرض جميع البلوكات الذكية */}
       {getOrderedBlocks().some(block => blocksConfig[block.key]?.enabled) && (

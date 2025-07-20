@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/app/lib/auth';
 import { quickLocalAnalysis } from '@/lib/comment-moderation';
 import { classifyCommentWithAI } from '@/lib/services/ai-comment-classifier';
+import { v4 as uuidv4 } from 'uuid';
 
 
 

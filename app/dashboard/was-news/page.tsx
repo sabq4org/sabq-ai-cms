@@ -26,6 +26,7 @@ import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import WasApiTester from '@/components/WasApiTester';
 
 interface WasNews {
   id: string;
@@ -320,6 +321,7 @@ export default function WasNewsPage() {
   const NavigationTabs = () => {
     const tabs = [
       { id: 'monitor', name: 'مراقبة الاتصال', icon: Activity, count: logs?.length || 0 },
+      { id: 'tester', name: 'اختبار API المحدث', icon: Settings, count: 7 },
       { id: 'saved', name: 'الأخبار المحفوظة', icon: Database, count: savedNews?.length || 0 },
       { id: 'fetch', name: 'جلب أخبار جديدة', icon: Download, count: baskets?.length || 0 }
     ];
@@ -713,6 +715,10 @@ export default function WasNewsPage() {
               </div>
             )}
           </div>
+        )}
+
+        {activeTab === 'tester' && (
+          <WasApiTester />
         )}
 
         {activeTab === 'saved' && (

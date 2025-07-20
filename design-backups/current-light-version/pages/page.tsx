@@ -10,6 +10,7 @@ import {
 import ArticleCard from '@/components/ArticleCard';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import LightBreakingNews from '@/components/LightBreakingNews';
 import './news-styles.css';
 import '../categories/categories-fixes.css';
 
@@ -281,6 +282,13 @@ export default function NewsPage() {
                 </div>
               )}
             </div>
+          </div>
+        </section>
+
+        {/* الأخبار العاجلة - تظهر بعد الإحصائيات */}
+        <section className="py-4">
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
+            <LightBreakingNews />
           </div>
         </section>
 

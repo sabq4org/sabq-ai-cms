@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import dynamic from 'next/dynamic';
 import FeaturedImageUpload from '@/components/FeaturedImageUpload';
+import EnhancedImageUpload from '@/components/EnhancedImageUpload';
 import { 
   Save, Send, Eye, Clock, Image as ImageIcon, Upload, X, 
   Tag, User, Calendar, AlertCircle, CheckCircle, Loader2,
@@ -159,14 +160,59 @@ export default function UnifiedNewsCreatePageRedesigned() {
 
     try {
       setIsAILoading(true);
-      let contentText = typeof formData.content === 'string' ? formData.content : '';
-      if (editorRef.current?.editor?.getText) {
-        const extractedText = editorRef.current.editor.getText();
-        if (extractedText) contentText = extractedText;
+      
+      // طرق متعددة لاستخراج المحتوى
+      let contentText = '';
+      
+      // الطريقة 1: من formData.content
+      if (typeof formData.content === 'string' && formData.content.trim()) {
+        contentText = formData.content.trim();
+        console.log('📝 تم استخراج المحتوى من formData:', contentText.substring(0, 100) + '...');
+      }
+      
+      // الطريقة 2: من محرر النصوص
+      if (!contentText && editorRef.current?.editor) {
+        try {
+          if (editorRef.current.editor.getText) {
+            const extractedText = editorRef.current.editor.getText();
+            if (extractedText && extractedText.trim()) {
+              contentText = extractedText.trim();
+              console.log('📝 تم استخراج المحتوى من المحرر (getText):', contentText.substring(0, 100) + '...');
+            }
+          } else if (editorRef.current.editor.getHTML) {
+            const htmlContent = editorRef.current.editor.getHTML();
+            if (htmlContent && htmlContent.trim()) {
+              // إزالة HTML tags للحصول على النص الخام
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = htmlContent;
+              contentText = tempDiv.textContent || tempDiv.innerText || '';
+              console.log('📝 تم استخراج المحتوى من المحرر (getHTML):', contentText.substring(0, 100) + '...');
+            }
+          }
+        } catch (editorError) {
+          console.warn('⚠️ خطأ في استخراج المحتوى من المحرر:', editorError);
+        }
+      }
+      
+      // الطريقة 3: فحص العنصر مباشرة
+      if (!contentText) {
+        const editorElement = document.querySelector('.ProseMirror, .ql-editor, [contenteditable="true"]');
+        if (editorElement) {
+          const elementText = editorElement.textContent || editorElement.innerHTML;
+          if (elementText && elementText.trim()) {
+            // إزالة HTML tags إذا وجدت
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = elementText;
+            contentText = tempDiv.textContent || tempDiv.innerText || '';
+            console.log('📝 تم استخراج المحتوى من عنصر المحرر:', contentText.substring(0, 100) + '...');
+          }
+        }
       }
 
-      if (!contentText.trim()) {
-        toast.error('يجب إدخال المحتوى أولاً');
+      // التحقق النهائي من وجود المحتوى
+      if (!contentText || contentText.trim().length < 50) {
+        toast.error('يجب إدخال محتوى كافي أولاً (على الأقل 50 حرف)');
+        console.log('❌ المحتوى غير كافي:', { contentText, length: contentText.length });
         return;
       }
 
@@ -233,14 +279,51 @@ export default function UnifiedNewsCreatePageRedesigned() {
 
     try {
       setIsAILoading(true);
-      let contentText = typeof formData.content === 'string' ? formData.content : '';
-      if (editorRef.current?.editor?.getText) {
-        const extractedText = editorRef.current.editor.getText();
-        if (extractedText) contentText = extractedText;
+      
+      // طرق متعددة لاستخراج المحتوى (نفس الطريقة المحسّنة)
+      let contentText = '';
+      
+      // الطريقة 1: من formData.content
+      if (typeof formData.content === 'string' && formData.content.trim()) {
+        contentText = formData.content.trim();
+      }
+      
+      // الطريقة 2: من محرر النصوص
+      if (!contentText && editorRef.current?.editor) {
+        try {
+          if (editorRef.current.editor.getText) {
+            const extractedText = editorRef.current.editor.getText();
+            if (extractedText && extractedText.trim()) {
+              contentText = extractedText.trim();
+            }
+          } else if (editorRef.current.editor.getHTML) {
+            const htmlContent = editorRef.current.editor.getHTML();
+            if (htmlContent && htmlContent.trim()) {
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = htmlContent;
+              contentText = tempDiv.textContent || tempDiv.innerText || '';
+            }
+          }
+        } catch (editorError) {
+          console.warn('⚠️ خطأ في استخراج المحتوى من المحرر:', editorError);
+        }
+      }
+      
+      // الطريقة 3: فحص العنصر مباشرة
+      if (!contentText) {
+        const editorElement = document.querySelector('.ProseMirror, .ql-editor, [contenteditable="true"]');
+        if (editorElement) {
+          const elementText = editorElement.textContent || editorElement.innerHTML;
+          if (elementText && elementText.trim()) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = elementText;
+            contentText = tempDiv.textContent || tempDiv.innerText || '';
+          }
+        }
       }
 
-      if (!contentText.trim()) {
-        toast.error('يجب إدخال المحتوى أولاً');
+      if (!contentText || contentText.trim().length < 50) {
+        toast.error('يجب إدخال محتوى كافي أولاً (على الأقل 50 حرف)');
         return;
       }
 
@@ -689,10 +772,49 @@ export default function UnifiedNewsCreatePageRedesigned() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <FeaturedImageUpload
+                <EnhancedImageUpload
                   value={formData.featuredImage}
                   onChange={(url) => setFormData(prev => ({ ...prev, featuredImage: url }))}
+                  darkMode={darkMode}
+                  type="featured"
                 />
+                
+                {/* زر فحص حالة Cloudinary */}
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const loadingToast = toast.loading('🔍 فحص حالة Cloudinary...');
+                      try {
+                        const response = await fetch('/api/cloudinary/status');
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                          const status = data.cloudinary.status;
+                          if (status === 'ready') {
+                            toast.success('✅ Cloudinary مُعد وجاهز للاستخدام', { id: loadingToast });
+                          } else {
+                            toast.error('⚠️ Cloudinary غير مُعد - ستُستخدم صور مؤقتة', { id: loadingToast });
+                          }
+                        } else {
+                          toast.error('❌ فشل فحص Cloudinary', { id: loadingToast });
+                        }
+                        
+                        console.log('📊 نتائج فحص Cloudinary:', data);
+                      } catch (error) {
+                        toast.error('❌ خطأ في الفحص', { id: loadingToast });
+                        console.error('خطأ فحص Cloudinary:', error);
+                      }
+                    }}
+                    className={`w-full text-sm px-3 py-2 rounded-lg border transition-colors ${
+                      darkMode 
+                        ? 'bg-gray-700 hover:bg-gray-600 text-gray-300 border-gray-600' 
+                        : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'
+                    }`}
+                  >
+                    🔍 فحص حالة رفع الصور
+                  </button>
+                </div>
               </CardContent>
             </Card>
           </div>
