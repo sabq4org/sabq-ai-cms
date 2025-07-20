@@ -97,15 +97,12 @@ export default function PodcastBlock() {
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 shadow-lg border border-blue-200 dark:border-gray-700">
       {/* عنوان البلوك */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-blue-600 rounded-full shadow-md">
-          <Mic className="w-6 h-6 text-white" />
-        </div>
         <div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
             🎙️ النشرة الصوتية الإخبارية
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            استمع لآخر الأخبار صوتياً
+            تأتيكم على رأس كل ساعة من سبق
           </p>
         </div>
       </div>

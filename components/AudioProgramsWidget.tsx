@@ -179,21 +179,11 @@ export default function AudioProgramsWidget({ position = 'header' }: { position?
       <div className="bg-gradient-to-r from-blue-400 to-blue-500 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
-              <Mic className="w-6 h-6 text-white drop-shadow-sm" />
-            </div>
             <div>
               <h3 className="text-lg font-bold text-white">🎙️ النشرة الصوتية</h3>
-              <p className="text-white/80 text-sm">استمع لآخر الأخبار صوتياً</p>
+              <p className="text-white/80 text-sm">تأتيكم على رأس كل ساعة من سبق</p>
             </div>
           </div>
-          <Link
-            href="/programs"
-            className="text-white/80 hover:text-white text-sm flex items-center gap-1"
-          >
-            الأرشيف
-            <ChevronRight className="w-4 h-4" />
-          </Link>
         </div>
         
         {/* تاريخ النشرة الحالية */}

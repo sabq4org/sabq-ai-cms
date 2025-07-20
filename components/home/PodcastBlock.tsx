@@ -133,15 +133,12 @@ export default function PodcastBlock() {
     <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
       {/* عنوان البلوك */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-blue-600 rounded-lg shadow-sm">
-          <Mic className="w-5 h-5 text-white" />
-        </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
             🎙️ النشرة الصوتية
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            آخر الأخبار صوتياً
+            تأتيكم على رأس كل ساعة من سبق
           </p>
         </div>
       </div>
@@ -212,12 +209,6 @@ export default function PodcastBlock() {
               <Clock className="w-4 h-4" />
               <span>{podcast.duration} دقيقة</span>
             </div>
-            <a 
-              href="/newsletters" 
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
-            >
-              📚 أرشيف النشرات
-            </a>
           </div>
           
           {/* العنصر الصوتي المخفي */}
@@ -248,12 +239,6 @@ export default function PodcastBlock() {
                 ترقب النشرة القادمة قريباً
               </p>
             </div>
-            <a 
-              href="/newsletters" 
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors font-medium"
-            >
-              📚 أرشيف النشرات
-            </a>
           </div>
         </div>
       )}

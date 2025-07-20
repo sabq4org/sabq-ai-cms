@@ -155,23 +155,16 @@ export default function EnhancedAudioNewsletter({
         
         {/* Header */}
         <div className="flex items-center space-x-3 rtl:space-x-reverse mb-4">
-          <div className={`p-2 rounded-lg ${
-            darkMode ? 'bg-gray-800' : 'bg-blue-100'
-          }`}>
-            <Radio className={`w-5 h-5 ${
-              darkMode ? 'text-blue-400' : 'text-blue-600'
-            }`} />
-          </div>
           <div>
             <h3 className={`font-semibold ${
               darkMode ? 'text-white' : 'text-gray-900'
             }`}>
-              النشرة الصوتية
+              🎙️ النشرة الصوتية
             </h3>
             <p className={`text-sm ${
               darkMode ? 'text-gray-400' : 'text-gray-600'
             }`}>
-              آخر الأخبار صوتياً
+              تأتيكم على رأس كل ساعة من سبق
             </p>
           </div>
         </div>
