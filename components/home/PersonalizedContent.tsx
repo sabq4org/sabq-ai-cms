@@ -539,7 +539,7 @@ export default function PersonalizedContent() {
               </div>
 
               <div className="p-4 space-y-4">
-                {categoryArticles.slice(0, 12).map((article) => (
+                {categoryArticles.slice(0, 16).map((article) => (
                   <div key={article.id} className="relative group">
                     <Link 
                       href={`/article/${article.id}`}
@@ -576,7 +576,7 @@ export default function PersonalizedContent() {
 
                           {/* محتوى المقال */}
                           <div className="flex-1 min-w-0">
-                            <h4 className={`font-semibold text-lg mb-2 group-hover:text-blue-600 transition-colors ${
+                            <h4 className={`font-semibold text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-3 ${
                               darkMode ? 'text-white' : 'text-gray-900'
                             }`}>
                               {article.title}
