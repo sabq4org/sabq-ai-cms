@@ -86,7 +86,7 @@ export function formatCompactNumberAr(num: number): string {
 }
 
 export function getImageUrl(imagePath: string | undefined | null): string {
-  if (!imagePath) return '';
+  if (!imagePath) return '/images/placeholder-featured.jpg'; // استخدام الصورة الافتراضية الموجودة
   
   // إذا كان المسار URL كامل، أرجعه كما هو
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
@@ -111,6 +111,27 @@ export function getImageUrl(imagePath: string | undefined | null): string {
   }
   
   return imagePath;
+}
+
+// دالة مساعدة لإنشاء صور مصغرة محسنة
+export function getOptimizedImageUrl(
+  imagePath: string | undefined | null, 
+  width: number = 800, 
+  quality: number = 85
+): string {
+  const baseUrl = getImageUrl(imagePath);
+  
+  if (!baseUrl || baseUrl === '/images/placeholder-article.jpg') {
+    return baseUrl;
+  }
+  
+  // إذا كان URL خارجي، أرجعه كما هو (Next.js سيحسنه تلقائياً)
+  if (baseUrl.startsWith('http')) {
+    return baseUrl;
+  }
+  
+  // للصور المحلية، يمكن إضافة معاملات تحسين
+  return baseUrl;
 }
 
 /**

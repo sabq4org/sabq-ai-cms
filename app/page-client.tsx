@@ -17,6 +17,7 @@ import { getArticleLink } from '@/lib/utils';
 import CategoryBadge from './components/CategoryBadge';
 import Header from '../components/Header';
 import { SmartSlot } from '@/components/home/SmartSlot';
+import BreakingNewsBanner from '@/components/BreakingNewsBanner';
 import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
 import { useReaderProfile } from '@/hooks/useReaderProfile';
 import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
@@ -371,6 +372,9 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
   const [showPersonalized, setShowPersonalized] = useState<boolean>(false);
   const [articles, setArticles] = useState<any[]>(initialArticles);
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
+  const [breakingNews, setBreakingNews] = useState<any>(null);
+  const [breakingNewsLoading, setBreakingNewsLoading] = useState<boolean>(false);
+  
   // دوال مؤقتة
   const handleInterestClick = (interestId: string) => {
     /* TODO: تنفيذ فعل عند اختيار الاهتمام */
@@ -537,6 +541,32 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       setCategoriesLoading(false);
     }
   }, [initialCategories]);
+  
+  // جلب الأخبار العاجلة عند التحميل
+  useEffect(() => {
+    const fetchBreakingNews = async () => {
+      try {
+        setBreakingNewsLoading(true);
+        const response = await fetch('/api/breaking-news');
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          setBreakingNews(data.data);
+        }
+      } catch (error) {
+        console.error('خطأ في جلب الأخبار العاجلة:', error);
+      } finally {
+        setBreakingNewsLoading(false);
+      }
+    };
+    
+    fetchBreakingNews();
+    
+    // إعادة جلب الأخبار العاجلة كل 5 دقائق
+    const interval = setInterval(fetchBreakingNews, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+  
   // =============================
   // جلب المقالات الأحدث (للاستخدام في البلوكات لاحقاً)
   useEffect(() => {
@@ -597,6 +627,14 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       <DebugAuth />
       {/* Header */}
       <Header />
+      
+      {/* Breaking News Banner - يظهر أسفل الهيدر مباشرة */}
+      {!breakingNewsLoading && breakingNews && (
+        <BreakingNewsBanner 
+          article={breakingNews}
+          onDismiss={() => setBreakingNews(null)}
+        />
+      )}
       
       {/* شريط الإحصائيات للموبايل */}
       {isMobile && (
@@ -1308,8 +1346,8 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
             </div>
             {/* شريط الإحصائيات */}
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-              <div className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
-                <div className="text-2xl md:text-3xl font-bold text-orange-500 mb-2">
+              <Link href="/moment-by-moment" className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 cursor-pointer`}>
+                <div className="text-2xl md:text-3xl font-bold text-red-500 mb-2">
                   {!stats || stats.loading ? (
                     <span className="inline-block w-20 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
                   ) : (
@@ -1317,23 +1355,23 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
                   )}
                 </div>
                 <div className={`flex items-center justify-center gap-1 text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  <Vote className="w-3 h-3 md:w-4 md:h-4" />
-                  <span>تصويت اليوم</span>
+                  <Clock className="w-3 h-3 md:w-4 md:h-4" />
+                  <span>أخبار اليوم</span>
                 </div>
-              </div>
-              <div className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
+              </Link>
+              <Link href="/categories" className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 cursor-pointer`}>
                 <div className="text-2xl md:text-3xl font-bold text-purple-500 mb-2">
                   {!stats || stats.loading ? (
                     <span className="inline-block w-20 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
                   ) : (
-                    '8.2K'
+                    '12'
                   )}
                 </div>
                 <div className={`flex items-center justify-center gap-1 text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  <Users className="w-3 h-3 md:w-4 md:h-4" />
-                  <span>مشارك نشط</span>
+                  <Tag className="w-3 h-3 md:w-4 md:h-4" />
+                  <span>الأقسام</span>
                 </div>
-              </div>
+              </Link>
               <div className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
                 <div className="text-2xl md:text-3xl font-bold text-green-500 mb-2">
                   {!stats || stats.loading ? (

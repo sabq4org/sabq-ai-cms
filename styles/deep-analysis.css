@@ -1,8 +1,15 @@
 /* تحسينات التحليلات العميقة */
 
-/* تحسين التباين للنصوص على الخلفيات */
+/* إصلاح عرض البطاقات والنصوص */
 .deep-analysis-card {
   position: relative;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .deep-analysis-card {
+  background: rgba(31, 41, 55, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .deep-analysis-card::before {
@@ -23,6 +30,107 @@
 
 .deep-analysis-card:hover::before {
   opacity: 1;
+}
+
+/* ضمان ظهور النصوص بوضوح */
+.deep-analysis-title {
+  color: #1a202c !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  line-height: 1.4 !important;
+}
+
+.dark .deep-analysis-title {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.deep-analysis-summary {
+  color: #4a5568 !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  line-height: 1.6 !important;
+}
+
+.dark .deep-analysis-summary {
+  color: #e2e8f0 !important;
+}
+
+/* Container للبطاقات لتحسين المظهر */
+.deep-analysis-card-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.deep-analysis-card-container > div {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* تحسين عرض الوسوم القابلة للضغط */
+.clickable-tag {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.clickable-tag::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.clickable-tag:hover::before {
+  left: 100%;
+}
+
+.clickable-tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.clickable-tag:active {
+  transform: translateY(0);
+  scale: 0.95;
+}
+
+/* تحسين أزرار التفاعل */
+.interaction-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .interaction-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .interaction-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 
 /* تحسين قابلية القراءة على الجوال */

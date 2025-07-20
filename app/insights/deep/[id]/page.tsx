@@ -695,83 +695,109 @@ export default function DeepAnalysisPage() {
                 )}
               </div>
             )}
-            {/* Tags */}
+            {/* Tags - قابلة للضغط ومحسنة */}
             {analysis.tags && analysis.tags.length > 0 && (
               <div className="mt-8 pt-8 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}">
-                <div className="flex flex-wrap gap-2">
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <Hash className="w-5 h-5 text-purple-500" />
+                  الكلمات المفتاحية
+                </h3>
+                <div className="flex flex-wrap gap-3">
                   {analysis.tags.map((tag, index) => (
-                    <span 
-                      key={index} 
-                      className={`px-3 py-1 rounded-full text-sm ${
+                    <button
+                      key={index}
+                      onClick={() => {
+                        // البحث عن المقالات المرتبطة بهذه الكلمة المفتاحية
+                        window.location.href = `/insights/deep?tag=${encodeURIComponent(tag)}`;
+                      }}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
                         darkMode 
-                          ? 'bg-gray-700 text-gray-300' 
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
+                          ? 'bg-gray-700 text-gray-300 hover:bg-purple-600 hover:text-white border border-gray-600 hover:border-purple-500' 
+                          : 'bg-gray-200 text-gray-700 hover:bg-purple-100 hover:text-purple-700 border border-gray-300 hover:border-purple-300'
+                      } shadow-sm hover:shadow-md`}
+                      title={`البحث عن مقالات مشابهة بكلمة "${tag}"`}
                     >
                       <Hash className="w-3 h-3 inline ml-1" />
                       {tag}
-                    </span>
+                    </button>
                   ))}
                 </div>
               </div>
             )}
-            {/* Action Buttons */}
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
-              <button
-                onClick={handleLike}
-                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-                  liked
-                    ? 'bg-red-500 text-white'
-                    : darkMode
-                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-                {liked ? 'تم الإعجاب' : 'أعجبني'} ({analysis.likes})
-              </button>
-              <button
-                onClick={handleShare}
-                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-                  darkMode
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <Share2 className="w-5 h-5" />
-                مشاركة
-              </button>
-              <button
-                onClick={handleSave}
-                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-                  saved
-                    ? 'bg-green-500 text-white'
-                    : darkMode
-                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <Bookmark className={`w-5 h-5 ${saved ? 'fill-current' : ''}`} />
-                {saved ? 'تم الحفظ' : 'حفظ'}
-              </button>
-              <button
-                onClick={handleDownloadPDF}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <Download className="w-5 h-5" />
-                تحميل PDF
-              </button>
-              <button
-                onClick={handlePrint}
-                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-                  darkMode
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                }`}
-              >
-                <Printer className="w-5 h-5" />
-                طباعة
-              </button>
+            {/* Action Buttons - محسنة ومنظمة */}
+            <div className="mt-12 p-6 rounded-xl bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-bold mb-6 text-center">تفاعل مع المحتوى</h3>
+              <div className="interaction-grid">
+                {/* إعجاب */}
+                <button
+                  onClick={handleLike}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 ${
+                    liked
+                      ? 'bg-gradient-to-br from-red-500 to-pink-600 text-white shadow-lg shadow-red-500/25'
+                      : darkMode
+                        ? 'bg-gray-700 text-gray-300 hover:bg-red-600 hover:text-white border border-gray-600 hover:border-red-500'
+                        : 'bg-white text-gray-700 hover:bg-red-50 hover:text-red-600 border border-gray-300 hover:border-red-300 shadow-sm'
+                  }`}
+                >
+                  <Heart className={`w-6 h-6 ${liked ? 'fill-current' : ''}`} />
+                  <span className="text-sm">{liked ? 'أعجبني' : 'إعجاب'}</span>
+                  <span className="text-xs opacity-75">({analysis.likes})</span>
+                </button>
+
+                {/* مشاركة */}
+                <button
+                  onClick={handleShare}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 ${
+                    darkMode
+                      ? 'bg-gray-700 text-gray-300 hover:bg-blue-600 hover:text-white border border-gray-600 hover:border-blue-500'
+                      : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-300 hover:border-blue-300 shadow-sm'
+                  }`}
+                >
+                  <Share2 className="w-6 h-6" />
+                  <span className="text-sm">مشاركة</span>
+                  <span className="text-xs opacity-75">({analysis.shares})</span>
+                </button>
+
+                {/* حفظ */}
+                <button
+                  onClick={handleSave}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 ${
+                    saved
+                      ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25'
+                      : darkMode
+                        ? 'bg-gray-700 text-gray-300 hover:bg-emerald-600 hover:text-white border border-gray-600 hover:border-emerald-500'
+                        : 'bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 border border-gray-300 hover:border-emerald-300 shadow-sm'
+                  }`}
+                >
+                  <Bookmark className={`w-6 h-6 ${saved ? 'fill-current' : ''}`} />
+                  <span className="text-sm">{saved ? 'محفوظ' : 'حفظ'}</span>
+                  <span className="text-xs opacity-75">للقراءة لاحقاً</span>
+                </button>
+
+                {/* تحميل PDF */}
+                <button
+                  onClick={handleDownloadPDF}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 bg-gradient-to-br from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
+                >
+                  <Download className="w-6 h-6" />
+                  <span className="text-sm">تحميل</span>
+                  <span className="text-xs opacity-75">PDF</span>
+                </button>
+
+                {/* طباعة */}
+                <button
+                  onClick={handlePrint}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 ${
+                    darkMode
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-sm'
+                  }`}
+                >
+                  <Printer className="w-6 h-6" />
+                  <span className="text-sm">طباعة</span>
+                  <span className="text-xs opacity-75">المقال</span>
+                </button>
+              </div>
             </div>
             {/* Related Articles */}
             {analysis.relatedArticles && analysis.relatedArticles.length > 0 && (

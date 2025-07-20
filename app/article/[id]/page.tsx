@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
-import { getImageUrl } from '@/lib/utils';
+import { getImageUrl, getOptimizedImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
 import { marked } from 'marked';
@@ -22,6 +22,7 @@ import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
 import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
 import { MetaTags } from '@/components/article/MetaTags';
 import '@/styles/mobile-article.css';
+import '@/styles/image-optimizations.css';
 
 // نوع البيانات
 interface Article {
@@ -299,18 +300,42 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
       <ReadingProgressBar />
       
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* صورة المقال */}
+        {/* صورة المقال المحسنة للأداء */}
         {article.featured_image && (
           <div className="article-featured-image relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[60vh] w-full">
             <Image
-              src={getImageUrl(article.featured_image)}
+              src={getOptimizedImageUrl(article.featured_image, 1200, 85)}
               alt={article.title}
               fill
-              className="object-cover"
+              className="object-cover transition-opacity duration-300"
               priority
+              quality={85}
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 100vw, 100vw"
+              onLoad={() => {
+                // إزالة blur بعد التحميل الكامل
+                const img = document.querySelector('.article-featured-image img');
+                if (img) {
+                  img.classList.add('loaded');
+                }
+              }}
+              onError={(e) => {
+                // في حالة فشل تحميل الصورة، استخدم صورة بديلة
+                console.warn('فشل تحميل الصورة المميزة:', article.featured_image);
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/placeholder-featured.jpg';
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+            
+            {/* مؤشر تحميل الصورة */}
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-800 image-loading-placeholder">
+              <div className="text-center">
+                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">جاري تحميل الصورة...</p>
+              </div>
+            </div>
           </div>
         )}
 

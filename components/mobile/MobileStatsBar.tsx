@@ -66,8 +66,8 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
         : 'bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200'
     }`}>
       <div className="flex items-center justify-around">
-        {/* عدد المقالات */}
-        <div className="flex items-center gap-2">
+        {/* عدد الأخبار */}
+        <a href="/news" className="flex items-center gap-2 hover:scale-105 transition-transform">
           <div className={`p-1.5 rounded-lg ${
             darkMode ? 'bg-blue-900/30' : 'bg-blue-100'
           }`}>
@@ -77,7 +77,7 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
           </div>
           <div>
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              المقالات
+              الأخبار
             </p>
             <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {loading ? (
@@ -87,10 +87,10 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
               )}
             </p>
           </div>
-        </div>
+        </a>
 
-        {/* عدد التصنيفات */}
-        <div className="flex items-center gap-2">
+        {/* عدد الأقسام */}
+        <a href="/categories" className="flex items-center gap-2 hover:scale-105 transition-transform">
           <div className={`p-1.5 rounded-lg ${
             darkMode ? 'bg-purple-900/30' : 'bg-purple-100'
           }`}>
@@ -100,7 +100,7 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
           </div>
           <div>
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              التصنيفات
+              الأقسام
             </p>
             <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {loading ? (
@@ -110,10 +110,10 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
               )}
             </p>
           </div>
-        </div>
+        </a>
 
-        {/* مقالات اليوم مع مؤشر التغيير */}
-        <div className="flex items-center gap-2">
+        {/* أخبار اليوم مع مؤشر التغيير */}
+        <a href="/moment-by-moment" className="flex items-center gap-2 hover:scale-105 transition-transform">
           <div className={`p-1.5 rounded-lg ${
             darkMode ? 'bg-green-900/30' : 'bg-green-100'
           }`}>
@@ -123,7 +123,7 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
           </div>
           <div>
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              مقالات اليوم
+              أخبار اليوم
             </p>
             <div className="flex items-center gap-1">
               <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -145,8 +145,8 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
               )}
             </div>
           </div>
-        </div>
+        </a>
       </div>
     </div>
   );
-} 
+}

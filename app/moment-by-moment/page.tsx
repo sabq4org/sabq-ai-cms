@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import '@/styles/moment-by-moment.css';
 import { 
   Radio, Loader2, Grid3X3, List, Calendar, Clock, Eye, Home,
   ArrowLeft, AlertTriangle, Filter, TrendingUp, Activity, Zap,
@@ -19,6 +20,8 @@ interface TimelineItem {
   slug?: string;
   excerpt?: string | null;
   image?: string | null;
+  is_breaking?: boolean;
+  breaking?: boolean;
   category?: {
     id: string;
     name: string;
@@ -48,7 +51,7 @@ export default function MomentByMomentPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLive, setIsLive] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'news' | 'articles' | 'categories'>('all');
+  const [filter, setFilter] = useState<'all' | 'news' | 'articles' | 'categories' | 'breaking'>('all');
 
   const ITEMS_PER_PAGE = 20;
 
@@ -118,6 +121,7 @@ export default function MomentByMomentPage() {
     if (filter === 'news') return item.type === 'news';
     if (filter === 'articles') return item.type === 'article';
     if (filter === 'categories') return item.type === 'category';
+    if (filter === 'breaking') return item.is_breaking || item.breaking;
     return true;
   });
 
@@ -135,15 +139,26 @@ export default function MomentByMomentPage() {
     }
   };
 
-  // Get color classes for timeline item
-  const getItemColorClasses = (color: string) => {
+  // Get color classes for timeline item - تحديث الألوان حسب نوع المحتوى
+  const getItemColorClasses = (color: string, isBreaking?: boolean) => {
+    // إذا كان الخبر عاجل، استخدم اللون الأحمر دائماً
+    if (isBreaking) {
+      return {
+        bg: 'bg-red-50 dark:bg-red-900/20',
+        border: 'border-red-500',
+        text: 'text-red-700 dark:text-red-300',
+        badge: 'bg-red-500'
+      };
+    }
+    
+    // ألوان عادية حسب نوع المحتوى
     switch (color) {
       case 'green':
         return {
-          bg: 'bg-green-100 dark:bg-green-900/30',
-          border: 'border-green-500',
-          text: 'text-green-700 dark:text-green-300',
-          badge: 'bg-green-500'
+          bg: 'bg-blue-50 dark:bg-blue-900/30',
+          border: 'border-blue-500',
+          text: 'text-blue-700 dark:text-blue-300',
+          badge: 'bg-blue-500'
         };
       case 'orange':
         return {
@@ -154,10 +169,10 @@ export default function MomentByMomentPage() {
         };
       case 'blue':
         return {
-          bg: 'bg-blue-100 dark:bg-blue-900/30',
-          border: 'border-blue-500',
-          text: 'text-blue-700 dark:text-blue-300',
-          badge: 'bg-blue-500'
+          bg: 'bg-green-100 dark:bg-green-900/30',
+          border: 'border-green-500',
+          text: 'text-green-700 dark:text-green-300',
+          badge: 'bg-green-500'
         };
       default:
         return {
@@ -173,9 +188,9 @@ export default function MomentByMomentPage() {
     <>
       <Header />
       
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800" suppressHydrationWarning>
+      <div className="moment-by-moment-container min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 overflow-x-hidden pull-to-refresh" suppressHydrationWarning>
         {/* Hero Section */}
-        <section className="relative py-16 bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <section className="moment-hero-section relative py-12 md:py-16 bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-red-200/30 dark:bg-red-900/20" />
             <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-orange-200/30 dark:bg-orange-900/20" />
@@ -203,7 +218,7 @@ export default function MomentByMomentPage() {
 
               {/* Live Indicator */}
               {mounted && (
-                <div className="mt-4 inline-flex items-center gap-2">
+                <div className="mt-4 inline-flex items-center gap-2 live-indicator">
                   <div className="relative">
                     <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                     <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
@@ -218,30 +233,31 @@ export default function MomentByMomentPage() {
         </section>
 
         {/* Controls Bar */}
-        <div className="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700" suppressHydrationWarning>
+        <div className="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 touch-pan-y" suppressHydrationWarning>
           <div className="max-w-7xl mx-auto px-4 md:px-6">
-            <div className="flex items-center justify-between py-4">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-4 gap-4">
+              <div className="flex flex-wrap items-center gap-2 md:gap-4 w-full md:w-auto">
                 {/* Live Toggle */}
                 <button
                   onClick={() => setIsLive(!isLive)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     isLive
                       ? 'bg-red-600 text-white shadow-lg'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   <Activity className="w-4 h-4" />
-                  {isLive ? 'التحديث التلقائي مفعّل' : 'التحديث التلقائي معطّل'}
+                  <span className="hidden sm:inline">{isLive ? 'التحديث التلقائي مفعّل' : 'التحديث التلقائي معطّل'}</span>
+                  <span className="sm:hidden">{isLive ? 'مفعّل' : 'معطّل'}</span>
                 </button>
 
                 {/* Filter Buttons */}
-                <div className="flex items-center gap-2">
+                <div className="filters-mobile flex items-center gap-1 md:gap-2 overflow-x-auto">
                   <button
                     onClick={() => setFilter('all')}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-2 md:px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                       filter === 'all'
-                        ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+                        ? 'bg-gray-800 text-white shadow-md'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
                     }`}
                   >
@@ -249,9 +265,9 @@ export default function MomentByMomentPage() {
                   </button>
                   <button
                     onClick={() => setFilter('news')}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-2 md:px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                       filter === 'news'
-                        ? 'bg-green-600 text-white'
+                        ? 'bg-blue-600 text-white shadow-md'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
                     }`}
                   >
@@ -259,9 +275,9 @@ export default function MomentByMomentPage() {
                   </button>
                   <button
                     onClick={() => setFilter('articles')}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-2 md:px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                       filter === 'articles'
-                        ? 'bg-orange-600 text-white'
+                        ? 'bg-green-600 text-white shadow-md'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
                     }`}
                   >
@@ -269,13 +285,23 @@ export default function MomentByMomentPage() {
                   </button>
                   <button
                     onClick={() => setFilter('categories')}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-2 md:px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                       filter === 'categories'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-purple-600 text-white shadow-md'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
                     }`}
                   >
                     تصنيفات
+                  </button>
+                  <button
+                    onClick={() => setFilter('breaking')}
+                    className={`px-2 md:px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                      filter === 'breaking'
+                        ? 'bg-red-600 text-white shadow-md animate-pulse'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                    }`}
+                  >
+                    🔴 عاجل
                   </button>
                 </div>
               </div>
@@ -286,7 +312,7 @@ export default function MomentByMomentPage() {
                   onClick={() => setViewMode('timeline')}
                   className={`p-2 rounded transition-colors ${
                     viewMode === 'timeline' 
-                      ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' 
+                      ? 'bg-gray-800 text-white shadow-md' 
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                   }`}
                   title="عرض خط زمني"
@@ -297,7 +323,7 @@ export default function MomentByMomentPage() {
                   onClick={() => setViewMode('grid')}
                   className={`p-2 rounded transition-colors ${
                     viewMode === 'grid' 
-                      ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' 
+                      ? 'bg-gray-800 text-white shadow-md' 
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                   }`}
                   title="عرض شبكي"
@@ -349,7 +375,8 @@ export default function MomentByMomentPage() {
                   
                   <div className="space-y-8">
                     {filteredItems.map((item, index) => {
-                      const colors = getItemColorClasses(item.color);
+                      const isBreaking = item.is_breaking || item.breaking || false;
+                      const colors = getItemColorClasses(item.color, isBreaking);
                       const timeAgo = formatDistanceToNow(new Date(item.timestamp), {
                         locale: ar,
                         addSuffix: true
@@ -359,17 +386,22 @@ export default function MomentByMomentPage() {
                         <div key={item.id} className="relative flex items-start gap-4">
                           {/* Timeline Dot */}
                           <div className="hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-white dark:bg-gray-800 border-4 border-gray-200 dark:border-gray-700 z-10">
-                            <div className={`w-6 h-6 rounded-full ${colors.badge}`} />
+                            <div className={`w-6 h-6 rounded-full ${colors.badge} ${isBreaking ? 'animate-pulse' : ''}`} />
                           </div>
                           
                           {/* Content Card */}
-                          <div className={`flex-1 ${colors.bg} rounded-xl p-6 border-r-4 ${colors.border}`}>
+                          <div className={`timeline-card flex-1 ${colors.bg} rounded-xl p-6 border-r-4 ${colors.border} ${isBreaking ? 'shadow-lg shadow-red-200 dark:shadow-red-900/50' : ''}`}>
                             <div className="flex items-start justify-between mb-3">
                               <div className="flex items-center gap-3">
                                 <span className="text-2xl">{item.tag}</span>
                                 <span className={`font-semibold ${colors.text}`}>
-                                  {item.label}
+                                  {isBreaking ? '🔴 عاجل' : item.label}
                                 </span>
+                                {isBreaking && (
+                                  <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
+                                    BREAKING
+                                  </span>
+                                )}
                               </div>
                               <span className="text-sm text-gray-500 dark:text-gray-400">
                                 {timeAgo}
@@ -443,7 +475,8 @@ export default function MomentByMomentPage() {
                 // Grid View
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredItems.map(item => {
-                    const colors = getItemColorClasses(item.color);
+                    const isBreaking = item.is_breaking || item.breaking || false;
+                    const colors = getItemColorClasses(item.color, isBreaking);
                     const timeAgo = formatDistanceToNow(new Date(item.timestamp), {
                       locale: ar,
                       addSuffix: true
@@ -453,12 +486,12 @@ export default function MomentByMomentPage() {
                       <div key={item.id}>
                         {(item.type === 'news' || item.type === 'article') && item.slug ? (
                           <Link href={`/article/${item.slug}`}>
-                            <div className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer`}>
+                            <div className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer ${isBreaking ? 'shadow-red-200 dark:shadow-red-900/50' : ''}`}>
                               <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                   <span className="text-xl">{item.tag}</span>
                                   <span className={`text-sm font-semibold ${colors.text}`}>
-                                    {item.label}
+                                    {isBreaking ? '🔴 عاجل' : item.label}
                                   </span>
                                 </div>
                                 {getItemIcon(item.type)}
@@ -559,16 +592,16 @@ export default function MomentByMomentPage() {
                   <button
                     onClick={loadMore}
                     disabled={loading}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="load-more-button inline-flex items-center gap-2 px-6 md:px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none hover:scale-105 shadow-lg hover:shadow-xl"
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        جاري التحميل...
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>جاري التحميل...</span>
                       </>
                     ) : (
                       <>
-                        عرض المزيد
+                        <span>عرض المزيد</span>
                         <ArrowLeft className="w-5 h-5" />
                       </>
                     )}

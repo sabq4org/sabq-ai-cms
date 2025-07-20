@@ -189,7 +189,12 @@ export default function NewsManagementPage() {
             lastModified: formatSafeDate(a.updated_at) || formatSafeDate(a.created_at) || '—',
             lastModifiedBy: a.editor?.name || a.editor_name || getAuthorName(),
             isPinned: a.is_pinned || false,
-            isBreaking: a.is_breaking || false,
+            isBreaking: a.is_breaking || 
+                       (a.metadata && (
+                         a.metadata.isBreakingNews || 
+                         a.metadata.breaking || 
+                         a.metadata.is_breaking
+                       )) || false,
             status: status,
             rating: 0,
             slug: a.slug,
@@ -278,6 +283,44 @@ export default function NewsManagementPage() {
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'فشل استعادة المقال');
       console.error('خطأ في استعادة المقال:', e);
+    }
+  };
+
+  // دالة تبديل حالة الخبر العاجل
+  const handleToggleBreaking = async (articleId: string, currentBreakingStatus: boolean) => {
+    try {
+      const response = await fetch('/api/admin/toggle-breaking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ articleId })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'فشل تحديث حالة الخبر العاجل');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Optimistic update - تحديث فوري للواجهة
+        setNewsData(prev => prev.map(n => 
+          n.id === articleId 
+            ? { ...n, isBreaking: result.data.isBreakingNews }
+            : // إلغاء حالة العاجل من المقالات الأخرى إذا تم تفعيل مقال جديد
+              result.data.isBreakingNews 
+                ? { ...n, isBreaking: false }
+                : n
+        ));
+        
+        toast.success(result.data.message || 'تم تحديث حالة الخبر العاجل');
+      } else {
+        throw new Error(result.error || 'فشل تحديث حالة الخبر العاجل');
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'فشل تحديث حالة الخبر العاجل');
+      console.error('خطأ في تحديث حالة الخبر العاجل:', e);
     }
   };
   const statusTabs = [
@@ -708,10 +751,11 @@ export default function NewsManagementPage() {
             }}
           >
             <div className="grid grid-cols-12 gap-4 px-6 py-4">
-              <div className={`col-span-4 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>العنوان</div>
+              <div className={`col-span-3 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>العنوان</div>
               <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>التصنيف</div>
               <div className={`col-span-2 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>تاريخ النشر</div>
               <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>المشاهدات</div>
+              <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>عاجل؟</div>
               <div className={`col-span-2 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>آخر تعديل</div>
               <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>الحالة</div>
               <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>الإجراءات</div>
@@ -766,7 +810,7 @@ export default function NewsManagementPage() {
                   style={{ borderBottom: index < newsData.length - 1 ? (darkMode ? '1px solid #374151' : '1px solid #f4f8fe') : 'none' }}
                 >
                   {/* العنوان */}
-                  <div className="col-span-4">
+                  <div className="col-span-3">
                     <div className="flex items-start gap-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -867,6 +911,38 @@ export default function NewsManagementPage() {
                          news.viewCount >= 1000 ? `${(news.viewCount / 1000).toFixed(1)}K` :
                          news.viewCount.toLocaleString('ar-SA')}
                       </span>
+                    </div>
+                  </div>
+
+                  {/* عمود الخبر العاجل - جديد */}
+                  <div className="col-span-1">
+                    <div className="flex items-center justify-center">
+                      <button
+                        onClick={() => handleToggleBreaking(news.id, news.isBreaking)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${
+                          news.isBreaking 
+                            ? 'bg-red-600 shadow-lg shadow-red-500/25' 
+                            : darkMode 
+                              ? 'bg-gray-600' 
+                              : 'bg-gray-200'
+                        }`}
+                        title={news.isBreaking ? 'إلغاء الخبر العاجل' : 'تفعيل كخبر عاجل'}
+                      >
+                        <span className="sr-only">
+                          {news.isBreaking ? 'إلغاء الخبر العاجل' : 'تفعيل كخبر عاجل'}
+                        </span>
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
+                            news.isBreaking ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        >
+                          {news.isBreaking && (
+                            <span className="flex items-center justify-center h-full w-full">
+                              🔥
+                            </span>
+                          )}
+                        </span>
+                      </button>
                     </div>
                   </div>
                   {/* آخر تعديل */}

@@ -194,11 +194,16 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           style={{
             color: darkMode ? '#ffffff' : '#1a202c',
             fontWeight: '700',
-            textShadow: darkMode ? '0 1px 2px rgba(0, 0, 0, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
+            textShadow: darkMode ? '0 1px 2px rgba(0, 0, 0, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)',
+            display: '-webkit-box',
+            WebkitLineClamp: viewMode === 'list' ? 3 : 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            lineHeight: '1.4'
           }}
           title={analysis.title}
           >
-            {analysis.title}
+            {analysis.title || 'تحليل عميق'}
           </h3>
         </Link>
 
@@ -208,30 +213,41 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
           deep-analysis-summary arabic-text
         `}
         style={{
-          color: darkMode ? '#e2e8f0' : '#4a5568'
+          color: darkMode ? '#e2e8f0' : '#4a5568',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          lineHeight: '1.6'
         }}
         title={analysis.summary}
         >
-          {analysis.summary}
+          {analysis.summary || 'ملخص التحليل غير متوفر'}
         </p>
 
-        {/* الوسوم - تصميم محسن للموبايل */}
+        {/* الوسوم - تصميم محسن للموبايل وقابلة للضغط */}
         {analysis.tags.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
             <Brain className="w-3 h-3 sm:w-4 sm:h-4 text-purple-500 hidden sm:block" />
             {visibleTags.map((tag, index) => (
-              <span 
+              <button
                 key={index}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.location.href = `/insights/deep?tag=${encodeURIComponent(tag)}`;
+                }}
                 className={`
-                  text-xs px-2 py-1 rounded-md font-medium
+                  text-xs px-2 py-1 rounded-md font-medium transition-all duration-200 hover:scale-105 active:scale-95 clickable-tag
                   ${darkMode 
-                    ? 'bg-gray-700/50 text-gray-400' 
-                    : 'bg-gray-100 text-gray-600'
+                    ? 'bg-gray-700/50 text-gray-400 hover:bg-purple-600 hover:text-white border border-gray-600 hover:border-purple-500' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-purple-100 hover:text-purple-700 border border-gray-200 hover:border-purple-300'
                   }
                 `}
+                title={`البحث عن تحليلات مشابهة بكلمة "${tag}"`}
               >
                 #{tag}
-              </span>
+              </button>
             ))}
             {remainingTags > 0 && !showAllTags && (
               <button

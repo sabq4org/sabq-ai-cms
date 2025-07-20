@@ -40,9 +40,17 @@ export default function DeepAnalysesPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState('all');
+  const [selectedTag, setSelectedTag] = useState('');
 
   useEffect(() => {
     setMounted(true);
+    // التحقق من وجود tag في URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tagFromUrl = urlParams.get('tag');
+    if (tagFromUrl) {
+      setSelectedTag(tagFromUrl);
+      setSearchTerm(tagFromUrl);
+    }
     fetchAnalyses();
   }, [filter, page]);
 
@@ -309,37 +317,38 @@ export default function DeepAnalysesPage() {
             </div>
           ) : (
             <>
-              {/* عرض الشبكة الموحد للجميع - محسن للموبايل */}
+              {/* عرض الشبكة الموحد للجميع - محسن للموبايل ومحسن للنصوص */}
               <div className={`
                 ${viewMode === 'grid' 
-                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6' 
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8' 
                   : 'space-y-6'
                 }
               `}>
                 {filteredAnalyses.map((analysis) => (
-                  <DeepAnalysisCard 
-                    key={analysis.id}
-                    analysis={{
-                      id: analysis.id,
-                      title: analysis.title,
-                      slug: analysis.slug,
-                      summary: analysis.summary,
-                      categories: analysis.categories,
-                      tags: analysis.tags,
-                      authorName: analysis.authorName,
-                      sourceType: analysis.sourceType,
-                      analysisType: analysis.analysisType,
-                      readingTime: analysis.readingTime,
-                      views: analysis.views,
-                      likes: analysis.likes,
-                      qualityScore: analysis.qualityScore,
-                      status: analysis.status,
-                      createdAt: analysis.createdAt,
-                      publishedAt: analysis.publishedAt,
-                      featuredImage: analysis.featuredImage || undefined
-                    }} 
-                    viewMode={viewMode}
-                  />
+                  <div key={analysis.id} className="deep-analysis-card-container">
+                    <DeepAnalysisCard 
+                      analysis={{
+                        id: analysis.id,
+                        title: analysis.title || 'تحليل عميق',
+                        slug: analysis.slug,
+                        summary: analysis.summary || 'ملخص التحليل غير متوفر',
+                        categories: analysis.categories,
+                        tags: analysis.tags,
+                        authorName: analysis.authorName,
+                        sourceType: analysis.sourceType,
+                        analysisType: analysis.analysisType,
+                        readingTime: analysis.readingTime,
+                        views: analysis.views,
+                        likes: analysis.likes,
+                        qualityScore: analysis.qualityScore,
+                        status: analysis.status,
+                        createdAt: analysis.createdAt,
+                        publishedAt: analysis.publishedAt,
+                        featuredImage: analysis.featuredImage || undefined
+                      }} 
+                      viewMode={viewMode}
+                    />
+                  </div>
                 ))}
               </div>
             </>

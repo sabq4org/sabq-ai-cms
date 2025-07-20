@@ -71,7 +71,7 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
             <h3 className={`
               font-bold mb-2 leading-tight
               ${darkMode ? 'text-white' : 'text-gray-900'}
-              line-clamp-2 min-h-[2.5rem]
+              line-clamp-2 min-h-[2.5rem] deep-analysis-title arabic-text
             `}
             style={{
               display: '-webkit-box',
@@ -81,17 +81,21 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
               textOverflow: 'ellipsis',
               lineHeight: '1.3',
               fontSize: '0.95rem',
-              fontWeight: '700'
+              fontWeight: '700',
+              color: darkMode ? '#ffffff' : '#1a202c'
             }}
             >
-              {insight.title}
+              {insight.title || 'تحليل عميق'}
             </h3>
             
             {/* الملخص - سطر واحد فقط */}
-            <p className={`text-xs line-clamp-1 mb-2 ${
+            <p className={`text-xs line-clamp-1 mb-2 deep-analysis-summary arabic-text ${
               darkMode ? 'text-gray-400' : 'text-gray-600'
-            }`}>
-              {insight.summary}
+            }`}
+            style={{
+              color: darkMode ? '#e2e8f0' : '#4a5568'
+            }}>
+              {insight.summary || 'ملخص التحليل غير متوفر'}
             </p>
             
             {/* الوسوم - أول وسمين فقط */}

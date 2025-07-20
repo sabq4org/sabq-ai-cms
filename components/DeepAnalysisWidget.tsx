@@ -334,17 +334,22 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                           lineHeight: '1.3'
                         }}
                         >
-                          {item.title}
+                          {item.title || 'تحليل عميق'}
                         </h3>
                       </Link>
 
                       {/* الملخص - محسن لـ Safari */}
                       <p className="text-sm line-clamp-2 mb-4 deep-analysis-summary arabic-text"
                          style={{
-                           color: darkMode ? '#e2e8f0' : '#4a5568'
+                           color: darkMode ? '#e2e8f0' : '#4a5568',
+                           display: '-webkit-box',
+                           WebkitLineClamp: 2,
+                           WebkitBoxOrient: 'vertical',
+                           overflow: 'hidden',
+                           lineHeight: '1.6'
                          }}
                          title={item.summary}>
-                        {item.summary}
+                        {item.summary || 'ملخص التحليل غير متوفر'}
                       </p>
 
                       {/* الوسوم - بحد أقصى سطرين */}

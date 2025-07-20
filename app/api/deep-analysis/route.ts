@@ -8,11 +8,33 @@ export const runtime = 'nodejs';
 function convertToDeepAnalysis(dbAnalysis: any): DeepAnalysis {
   const metadata = dbAnalysis.metadata as any || {};
   
+  // استخراج العنوان بطريقة أكثر ذكاءً
+  let title = metadata.title || dbAnalysis.title;
+  if (!title && dbAnalysis.ai_summary) {
+    // استخراج العنوان من بداية الـ AI summary إذا كان متوفراً
+    const summaryLines = dbAnalysis.ai_summary.split('\n');
+    title = summaryLines[0] || 'تحليل عميق';
+  }
+  title = title || 'تحليل عميق';
+  
+  // استخراج الملخص بطريقة أكثر ذكاءً
+  let summary = metadata.summary || metadata.lead || metadata.description;
+  if (!summary && dbAnalysis.ai_summary) {
+    // استخراج الملخص من الـ AI summary بعد العنوان
+    const summaryLines = dbAnalysis.ai_summary.split('\n').filter(line => line.trim());
+    if (summaryLines.length > 1) {
+      summary = summaryLines.slice(1, 3).join(' ').substring(0, 200) + '...';
+    } else {
+      summary = dbAnalysis.ai_summary.substring(0, 200) + '...';
+    }
+  }
+  summary = summary || 'ملخص التحليل غير متوفر';
+  
   return {
     id: dbAnalysis.id,
-    title: metadata.title || dbAnalysis.ai_summary || 'تحليل عميق',
+    title: title,
     slug: metadata.slug || `analysis-${dbAnalysis.id}`,
-    summary: metadata.summary || dbAnalysis.ai_summary || '',
+    summary: summary,
     content: metadata.content || {
       sections: [],
       tableOfContents: [],
