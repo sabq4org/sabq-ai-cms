@@ -21,8 +21,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ar" dir="rtl">
-      <body className={ibmPlexSansArabic.variable}>
+    <html lang="ar" dir="rtl" className="font-arabic">
+      <head>
+        <link 
+          rel="preload" 
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" 
+          as="style" 
+        />
+        <link 
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" 
+          rel="stylesheet" 
+        />
+      </head>
+      <body className={`${ibmPlexSansArabic.variable} font-arabic antialiased`} style={{ fontFamily: 'var(--font-ibm-plex-arabic), IBM Plex Sans Arabic, system-ui, sans-serif' }}>
         <Providers>
           {children}
         </Providers>

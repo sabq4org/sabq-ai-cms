@@ -2,7 +2,7 @@
 
 /* تطبيق إعدادات الخط العربي الأساسية */
 html {
-  font-family: 'Tajawal', 'Noto Sans Arabic', Arial, sans-serif;
+  font-family: var(--font-ibm-plex-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif !important;
 }
 
 /* بطاقات المقالات والعناوين الأساسية */
@@ -15,7 +15,7 @@ html {
   letter-spacing: normal !important;
   white-space: normal !important;
   text-align: start !important; /* تجنب justify مع النصوص العربية */
-  font-family: 'Tajawal', 'Noto Sans Arabic', Arial, sans-serif !important;
+  font-family: var(--font-ibm-plex-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif !important;
 }
 
 /* بطاقات التحليل العميق */
@@ -28,7 +28,7 @@ html {
   letter-spacing: normal !important;
   white-space: normal !important;
   text-align: start !important;
-  font-family: 'Tajawal', 'Noto Sans Arabic', Arial, sans-serif !important;
+  font-family: var(--font-ibm-plex-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif !important;
 }
 
 /* إصلاح خاص للعناصر التي تحتوي على النص العربي */
@@ -37,7 +37,7 @@ html {
 .deep-analysis-summary {
   word-spacing: normal !important;
   letter-spacing: normal !important;
-  font-family: 'Tajawal', 'Noto Sans Arabic', Arial, sans-serif !important;
+  font-family: var(--font-ibm-plex-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif !important;
 }
 
 /* البطاقات الذكية */

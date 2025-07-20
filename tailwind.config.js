@@ -90,8 +90,8 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ['Tajawal', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Noto Sans Arabic', 'Arial', 'sans-serif'],
-        arabic: ['Tajawal', 'Noto Sans Arabic', 'Arial', 'sans-serif'],
+        sans: ['var(--font-ibm-plex-arabic)', 'IBM Plex Sans Arabic', 'system-ui', 'sans-serif'],
+        arabic: ['var(--font-ibm-plex-arabic)', 'IBM Plex Sans Arabic', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         'jura-sm': '0 2px 8px rgba(0, 0, 0, 0.04)',

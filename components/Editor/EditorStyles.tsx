@@ -7,7 +7,7 @@ export default function EditorStyles() {
     <style jsx global>{`
       /* أنماط المحرر الأساسية */
       .editor-content .ProseMirror {
-        font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-family: var(--font-ibm-plex-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif;
         direction: rtl;
         text-align: right;
         padding-top: 2rem !important;
