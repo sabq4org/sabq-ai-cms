@@ -99,7 +99,7 @@ export default function AudioProgramsWidget({ position = 'header' }: { position?
   // عرض في الهيدر
   if (position === 'header') {
     return (
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-2">
+      <div className="bg-gradient-to-r from-blue-400 to-blue-500 text-white py-2">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -168,7 +168,7 @@ export default function AudioProgramsWidget({ position = 'header' }: { position?
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
       {/* الهيدر */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 p-4">
+      <div className="bg-gradient-to-r from-blue-400 to-blue-500 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
@@ -198,7 +198,7 @@ export default function AudioProgramsWidget({ position = 'header' }: { position?
               onClick={() => setActiveProgram(program.id)}
               className={`px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 activeProgram === program.id
-                  ? 'text-red-600 border-red-600 bg-red-50 dark:bg-red-900/20'
+                  ? 'text-blue-600 border-blue-600 bg-blue-50 dark:bg-blue-900/20'
                   : 'text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-white'
               }`}
             >
@@ -264,7 +264,7 @@ export default function AudioProgramsWidget({ position = 'header' }: { position?
                     <div className="flex items-center gap-2 mr-4">
                       <button
                         onClick={() => togglePlay(episode.id, episode.audio_url!)}
-                        className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-colors"
+                        className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors"
                       >
                         {playingEpisode === episode.id && isPlaying ? (
                           <Pause className="w-5 h-5" />

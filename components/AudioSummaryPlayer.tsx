@@ -85,10 +85,10 @@ export default function AudioSummaryPlayer({
   if (!excerpt) return null;
 
   return (
-    <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 mb-8 shadow-sm">
+    <div className="bg-gradient-to-r from-blue-50 to-sky-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 mb-8 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <Headphones className="w-6 h-6 text-red-600 dark:text-red-400" />
+          <Headphones className="w-6 h-6 text-blue-600 dark:text-blue-400" />
           <h3 className="font-bold text-lg text-gray-900 dark:text-white">
             استمع إلى موجز المقال
           </h3>
@@ -107,20 +107,20 @@ export default function AudioSummaryPlayer({
       </div>
 
       {error ? (
-        <div className="text-red-600 dark:text-red-400 text-sm mb-4">
+        <div className="text-blue-600 dark:text-blue-400 text-sm mb-4">
           {error}
         </div>
       ) : !audioUrl && !isLoading ? (
         <button
           onClick={loadAudio}
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
         >
           <Volume2 className="w-5 h-5" />
           توليد الصوت من الموجز
         </button>
       ) : isLoading ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-8 h-8 text-red-600 animate-spin" />
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
           <span className="mr-3 text-gray-600 dark:text-gray-400">
             جاري توليد الصوت...
           </span>
@@ -141,7 +141,7 @@ export default function AudioSummaryPlayer({
           <div className="flex items-center gap-4">
             <button
               onClick={togglePlayPause}
-              className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-full transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors"
             >
               {isPlaying ? (
                 <Pause className="w-6 h-6" />
@@ -154,7 +154,7 @@ export default function AudioSummaryPlayer({
             <div className="flex-1">
               <div className="relative h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
                 <div
-                  className="absolute h-full bg-red-600 transition-all duration-300"
+                  className="absolute h-full bg-blue-600 transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
