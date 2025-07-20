@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { AlertCircle } from 'lucide-react';
 
@@ -46,10 +46,31 @@ export default function ImageWithFallback({
   const [imageState, setImageState] = useState<'loading' | 'loaded' | 'error'>('loading');
   const [currentSrc, setCurrentSrc] = useState(src);
 
+  // إعادة تعيين الحالة عند تغيير src
+  useEffect(() => {
+    if (src !== currentSrc) {
+      setCurrentSrc(src);
+      setImageState('loading');
+    }
+  }, [src, currentSrc]);
+
+  // مؤقت لمنع التحميل المعلق
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (imageState === 'loading') {
+        console.warn('انتهت مهلة تحميل الصورة:', currentSrc);
+        setImageState('error');
+      }
+    }, 10000); // 10 ثواني
+
+    return () => clearTimeout(timer);
+  }, [imageState, currentSrc]);
+
   const handleLoad = useCallback(() => {
+    console.log('✅ تم تحميل الصورة بنجاح:', currentSrc);
     setImageState('loaded');
     onLoadComplete?.();
-  }, [onLoadComplete]);
+  }, [currentSrc, onLoadComplete]);
 
   const handleError = useCallback((error: any) => {
     console.warn('فشل تحميل الصورة:', currentSrc, error);
@@ -57,6 +78,7 @@ export default function ImageWithFallback({
     
     // جرب الصورة البديلة إذا لم نكن نستخدمها بالفعل
     if (currentSrc !== fallbackSrc) {
+      console.log('محاولة تحميل الصورة البديلة:', fallbackSrc);
       setCurrentSrc(fallbackSrc);
       setImageState('loading');
     }
@@ -75,8 +97,19 @@ export default function ImageWithFallback({
     sizes,
     onLoad: handleLoad,
     onError: handleError,
-    ...(fill ? { fill: true } : { width, height })
+    ...(fill ? { fill: true } : { width, height }),
+    unoptimized: currentSrc.includes('cloudinary.com') // تجنب تحسين Next.js للصور من Cloudinary
   };
+
+  // تسجيل معلومات التصحيح
+  useEffect(() => {
+    console.log('ImageWithFallback تم تحديث الصورة:', {
+      originalSrc: src,
+      currentSrc,
+      state: imageState,
+      isCloudinary: currentSrc.includes('cloudinary.com')
+    });
+  }, [src, currentSrc, imageState]);
 
   return (
     <div className="relative">

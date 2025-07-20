@@ -305,7 +305,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
         {article.featured_image && (
           <div className="article-featured-image relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[60vh] w-full">
             <ImageWithFallback
-              src={getOptimizedImageUrl(article.featured_image, 1200, 85)}
+              src={article.featured_image}
               alt={article.title}
               fill
               className="object-cover"
