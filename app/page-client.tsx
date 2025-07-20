@@ -28,6 +28,7 @@ import MobileArticleCard from '@/components/mobile/MobileArticleCard';
 import EnhancedMobileNewsCard from '@/components/mobile/EnhancedMobileNewsCard';
 import MobileStatsBar from '@/components/mobile/MobileStatsBar';
 import VersionedBreakingNews from '@/components/VersionedBreakingNews';
+import BreakingNewsBlock from '@/components/BreakingNewsBlock';
 
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -894,6 +895,10 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
           )}
         </div>
       </section>
+      
+      {/* الأخبار العاجلة */}
+      <BreakingNewsBlock />
+      
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {/* Enhanced News Section */}

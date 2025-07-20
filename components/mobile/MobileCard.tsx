@@ -87,23 +87,23 @@ export default function MobileCard({
                       color: article.category.color || '#3b82f6'
                     }}
                   >
-                    {article.category.name}
+                    {String(article.category.name || '')}
                   </span>
                 </div>
               )}
               
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white text-clamp-2 mb-2">
-                {article.title}
+                {String(article.title || '')}
               </h3>
               
               <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  {formatDate(article.published_at || '')}
+                  {String(formatDate(article.published_at || '') || '')}
                 </span>
                 
                 {article.reading_time && (
-                  <span>{article.reading_time} دقيقة</span>
+                  <span>{String(article.reading_time)} دقيقة</span>
                 )}
               </div>
             </div>

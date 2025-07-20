@@ -44,6 +44,31 @@ export default function ArticlesListPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [isMobile, setIsMobile] = useState(false);
+
+  // فحص الموبايل
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const mobileKeywords = ['android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone'];
+      const isMobileUserAgent = mobileKeywords.some(keyword => userAgent.includes(keyword));
+      const isSmallScreen = window.innerWidth <= 768;
+      
+      setIsMobile(isMobileUserAgent || isSmallScreen);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // توجيه للموبايل
+  useEffect(() => {
+    if (isMobile) {
+      router.replace('/dashboard/article/mobile');
+      return;
+    }
+  }, [isMobile, router]);
   
   // جلب المقالات
   useEffect(() => {

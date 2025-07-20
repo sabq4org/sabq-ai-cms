@@ -119,12 +119,12 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                 ? 'text-red-700 dark:text-red-400' 
                 : 'text-gray-900 dark:text-white'
             } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2`}>
-              {article.title}
+              {String(article.title || '')}
             </h3>
             
             {summary && (
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">
-                {summary}
+                {String(summary)}
               </p>
             )}
             
@@ -132,30 +132,30 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
               <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  {formatDate(article.published_at || article.created_at)}
+                  {String(formatDate(article.published_at || article.created_at) || '')}
                 </span>
                 {article.reading_time && (
                   <span className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    {article.reading_time} دقيقة
+                    {String(article.reading_time)} دقيقة
                   </span>
                 )}
                 {authorName && authorName !== 'غير محدد' && (
                   <span className="flex items-center gap-1">
                     <User className="w-4 h-4" />
-                    {authorName}
+                    {String(authorName)}
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                   <Eye className="w-4 h-4" />
-                  {viewsCount > 0 ? viewsCount.toLocaleString('ar-SA') : 'جديد'}
+                  {String(viewsCount > 0 ? viewsCount.toLocaleString('ar-SA') : 'جديد')}
                 </span>
                 {likesCount > 0 && (
                   <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                     <Heart className="w-4 h-4" />
-                    {likesCount.toLocaleString('ar-SA')}
+                    {String(likesCount.toLocaleString('ar-SA'))}
                   </span>
                 )}
                 <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
@@ -227,14 +227,14 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
             isBreaking 
               ? 'text-red-700 dark:text-red-400' 
               : 'text-gray-900 dark:text-white'
-          } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors`} title={article.title}>
-            {article.title}
+          } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors`} title={String(article.title || '')}>
+            {String(article.title || '')}
           </h4>
           
           {/* الملخص */}
           {summary && (
             <p className="text-sm mb-4 line-clamp-2 text-gray-600 dark:text-gray-400 leading-relaxed">
-              {summary}
+              {String(summary)}
             </p>
           )}
           
@@ -245,24 +245,24 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
               {/* التاريخ */}
               <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 sm:gap-2">
                 <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-                {formatDate(article.published_at || article.created_at)}
+                {String(formatDate(article.published_at || article.created_at) || '')}
               </div>
               {/* الكاتب والمشاهدات */}
               <div className="flex items-center gap-2 sm:gap-3 text-xs">
                 {authorName && authorName !== 'غير محدد' && (
                   <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                     <User className="w-3 h-3" />
-                    {authorName}
+                    {String(authorName)}
                   </span>
                 )}
                 <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                   <Eye className="w-3 h-3" />
-                  {viewsCount > 0 ? viewsCount.toLocaleString('ar-SA') : 'جديد'}
+                  {String(viewsCount > 0 ? viewsCount.toLocaleString('ar-SA') : 'جديد')}
                 </span>
                 {article.reading_time && (
                   <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                     <Clock className="w-3 h-3" />
-                    {article.reading_time} د
+                    {String(article.reading_time)} د
                   </span>
                 )}
               </div>

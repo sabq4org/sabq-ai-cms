@@ -175,16 +175,16 @@ export default function MobileArticleCard({
             {/* المحتوى */}
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm line-clamp-2 mb-1">
-                {article.title}
+                {String(article.title || '')}
               </h3>
               
               <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                 <Clock className="w-3 h-3" />
-                <span>{formatDateOnly(article.created_at)}</span>
+                <span>{String(formatDateOnly(article.created_at) || '')}</span>
                 {article.views_count > 0 && (
                   <>
                     <Eye className="w-3 h-3" />
-                    <span>{article.views_count}</span>
+                    <span>{String(article.views_count || 0)}</span>
                   </>
                 )}
               </div>
@@ -297,13 +297,13 @@ export default function MobileArticleCard({
         <div className="p-4">
           {/* العنوان */}
           <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg line-clamp-2 mb-3">
-            {article.title}
+            {String(article.title || '')}
           </h3>
 
           {/* الوصف */}
           {viewMode === 'detailed' && article.summary && (
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-              {article.summary}
+              {String(article.summary || '')}
             </p>
           )}
 

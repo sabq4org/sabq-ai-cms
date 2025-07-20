@@ -173,18 +173,18 @@ export function ArticleClientPage({ initialArticle, articleId }: ArticleClientPa
             {/* التصنيف */}
             {article.category && (
               <Link
-                href={`/categories/${article.category.slug}`}
+                href={`/categories/${String(article.category.slug || '')}`}
                 className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium text-white mb-3 sm:mb-4"
                 style={{ backgroundColor: article.category.color || '#1a73e8' }}
               >
-                {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
-                <span>{article.category.name}</span>
+                {article.category.icon && <span className="text-sm sm:text-base">{String(article.category.icon)}</span>}
+                <span>{String(article.category.name || 'غير محدد')}</span>
               </Link>
             )}
 
             {/* العنوان */}
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-gray-900 dark:text-white leading-tight">
-              {article.title}
+              {String(article.title || 'عنوان غير محدد')}
             </h1>
 
             {/* المعلومات الأساسية */}
@@ -192,23 +192,23 @@ export function ArticleClientPage({ initialArticle, articleId }: ArticleClientPa
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="truncate max-w-[120px] sm:max-w-none">{article.author.name}</span>
+                  <span className="truncate max-w-[120px] sm:max-w-none">{String(article.author.name || 'كاتب غير محدد')}</span>
                 </div>
               )}
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="hidden sm:inline">{formatFullDate(article.published_at || article.created_at)}</span>
-                <span className="sm:hidden">{formatRelativeDate(article.published_at || article.created_at)}</span>
+                <span className="hidden sm:inline">{String(formatFullDate(article.published_at || article.created_at) || 'غير محدد')}</span>
+                <span className="sm:hidden">{String(formatRelativeDate(article.published_at || article.created_at) || 'غير محدد')}</span>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span>{article.reading_time || calculateReadingTime(article.content)} د</span>
+                <span>{String(article.reading_time || calculateReadingTime(article.content) || 0)} د</span>
               </div>
               {article.views !== undefined && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="hidden sm:inline">{article.views} مشاهدة</span>
-                  <span className="sm:hidden">{article.views}</span>
+                  <span className="hidden sm:inline">{String(article.views || 0)} مشاهدة</span>
+                  <span className="sm:hidden">{String(article.views || 0)}</span>
                 </div>
               )}
             </div>
@@ -226,7 +226,7 @@ export function ArticleClientPage({ initialArticle, articleId }: ArticleClientPa
                     🧠 الملخص الذكي
                   </h3>
                   <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {article.excerpt || article.summary || article.ai_summary}
+                    {String(article.excerpt || article.summary || article.ai_summary || '')}
                   </p>
                 </div>
                 
@@ -260,12 +260,12 @@ export function ArticleClientPage({ initialArticle, articleId }: ArticleClientPa
           {/* شريط التفاعل الذكي */}
           <div className="mb-6 sm:mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
             <SmartInteractionButtons 
-              articleId={article.id}
+              articleId={String(article.id)}
               initialStats={{
-                likes: article.likes || article.stats?.likes || 0,
-                saves: article.saves || article.stats?.saves || 0,
-                shares: article.shares || article.stats?.shares || 0,
-                comments: article.comments_count || 0
+                likes: Number(article.likes || article.stats?.likes || 0),
+                saves: Number(article.saves || article.stats?.saves || 0),
+                shares: Number(article.shares || article.stats?.shares || 0),
+                comments: Number(article.comments_count || 0)
               }}
               onComment={() => {
                 // التمرير لقسم التعليقات
@@ -282,11 +282,11 @@ export function ArticleClientPage({ initialArticle, articleId }: ArticleClientPa
                 {keywords.map((keyword, index) => (
                   <Link
                     key={index}
-                    href={`/tags/${encodeURIComponent(keyword)}`}
+                    href={`/tags/${encodeURIComponent(String(keyword))}`}
                     className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
                   >
                     <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                    <span>{keyword}</span>
+                    <span>{String(keyword)}</span>
                   </Link>
                 ))}
               </div>

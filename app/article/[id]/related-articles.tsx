@@ -47,12 +47,12 @@ export default function RelatedArticles({ articles }: RelatedArticlesProps) {
               {/* محتوى المقال */}
               <div className="p-4">
                 <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  {article.title}
+                  {String(article.title || '')}
                 </h3>
                 
                 <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                   <Clock className="w-4 h-4" />
-                  <span>{article.reading_time || 5} دقائق</span>
+                  <span>{String(article.reading_time || 5)} دقائق</span>
                 </div>
               </div>
             </article>

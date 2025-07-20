@@ -579,13 +579,13 @@ export default function PersonalizedContent() {
                             <h4 className={`font-semibold text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-3 ${
                               darkMode ? 'text-white' : 'text-gray-900'
                             }`}>
-                              {article.title}
+                              {String(article.title || '')}
                             </h4>
                             
                             <p className={`text-sm mb-3 line-clamp-2 ${
                               darkMode ? 'text-gray-300' : 'text-gray-600'
                             }`}>
-                              {article.excerpt || article.summary}
+                              {String(article.excerpt || article.summary || '')}
                             </p>
 
                             {/* معلومات إضافية */}
@@ -595,14 +595,14 @@ export default function PersonalizedContent() {
                                   darkMode ? 'text-gray-400' : 'text-gray-500'
                                 }`}>
                                   <User className="w-3 h-3" />
-                                  <span>{article.author_name || article.author}</span>
+                                  <span>{String(article.author_name || article.author || 'غير محدد')}</span>
                                 </span>
                                 
                                 <span className={`flex items-center space-x-1 space-x-reverse ${
                                   darkMode ? 'text-gray-400' : 'text-gray-500'
                                 }`}>
                                   <Clock className="w-3 h-3" />
-                                  <span>{formatDate(article.published_at)}</span>
+                                  <span>{String(formatDate(article.published_at) || '')}</span>
                                 </span>
                               </div>
 
@@ -611,14 +611,14 @@ export default function PersonalizedContent() {
                                   darkMode ? 'text-gray-400' : 'text-gray-500'
                                 }`}>
                                   <Eye className="w-3 h-3" />
-                                  <span>{formatNumber(article.views_count || article.views)}</span>
+                                  <span>{String(formatNumber(article.views_count || article.views) || '0')}</span>
                                 </span>
                                 
                                 <span className={`flex items-center space-x-1 space-x-reverse ${
                                   darkMode ? 'text-gray-400' : 'text-gray-500'
                                 }`}>
                                   <Heart className="w-3 h-3" />
-                                  <span>{formatNumber(article.likes_count || article.likes)}</span>
+                                  <span>{String(formatNumber(article.likes_count || article.likes) || '0')}</span>
                                 </span>
                               </div>
                             </div>

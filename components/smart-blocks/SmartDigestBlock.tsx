@@ -367,7 +367,7 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
                         </span>
                         {content.article?.category && (
                           <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                            • {content.article.category.name_ar || content.article.category.name}
+                            • {String(content.article.category.name_ar || content.article.category.name || '')}
                           </span>
                         )}
                       </div>

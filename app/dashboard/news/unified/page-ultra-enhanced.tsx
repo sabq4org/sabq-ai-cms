@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import MobileNewsForm from '@/components/mobile/MobileNewsForm';
 import dynamic from 'next/dynamic';
 import { 
   Save, Send, Eye, Clock, Image as ImageIcon, Upload, X, 
@@ -45,6 +46,23 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
   const editorRef = useRef<any>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // اكتشاف الموبايل
+  useEffect(() => {
+    const checkDevice = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
+
+  // عرض نسخة الموبايل المحسنة
+  if (isMobile) {
+    return <MobileNewsForm />;
+  }
   
   // حالات التحميل
   const [loading, setLoading] = useState(true);

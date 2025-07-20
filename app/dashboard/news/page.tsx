@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import { useDarkModeContext } from '@/contexts/DarkModeContext'
 import { EditorErrorBoundary } from '@/components/ErrorBoundary'
 import SimpleDashboardLayout from '@/components/layout/SimpleDashboardLayout'
+import MobileNewsManagement from '@/components/mobile/MobileNewsManagement'
 import { 
   ChevronDown, 
   Search,
@@ -87,8 +88,25 @@ export default function NewsManagementPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [categories, setCategories] = useState<any[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
   const { darkMode } = useDarkModeContext();
   const router = useRouter();
+
+  // اكتشاف الموبايل
+  useEffect(() => {
+    const checkDevice = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
+
+  // عرض نسخة الموبايل المحسنة
+  if (isMobile) {
+    return <MobileNewsManagement />;
+  }
   // جلب التصنيفات
   useEffect(() => {
     const fetchCategories = async () => {

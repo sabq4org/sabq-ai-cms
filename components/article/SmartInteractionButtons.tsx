@@ -112,7 +112,7 @@ export function SmartInteractionButtons({
             hasLiked && "fill-current animate-heartbeat"
           )}
         />
-        <span className="text-sm font-medium">{localStats.likes}</span>
+        <span className="text-sm font-medium">{String(localStats.likes || 0)}</span>
       </button>
 
       {/* زر الحفظ */}
@@ -133,7 +133,7 @@ export function SmartInteractionButtons({
             hasSaved && "fill-current"
           )}
         />
-        <span className="text-sm font-medium">{localStats.saves}</span>
+        <span className="text-sm font-medium">{String(localStats.saves || 0)}</span>
       </button>
 
       {/* زر المشاركة */}
@@ -148,7 +148,7 @@ export function SmartInteractionButtons({
           aria-label="مشاركة"
         >
           <Share2 className="w-5 h-5" />
-          <span className="text-sm font-medium">{localStats.shares}</span>
+          <span className="text-sm font-medium">{String(localStats.shares || 0)}</span>
         </button>
 
         {/* قائمة المشاركة */}
@@ -194,16 +194,16 @@ export function SmartInteractionButtons({
           aria-label="تعليق"
         >
           <MessageCircle className="w-5 h-5" />
-          <span className="text-sm font-medium">{localStats.comments}</span>
+          <span className="text-sm font-medium">{String(localStats.comments || 0)}</span>
         </button>
       )}
 
       {/* عرض إحصائيات التفاعل (للتطوير) */}
       {process.env.NODE_ENV === 'development' && (
         <div className="ml-auto text-xs text-gray-500">
-          <div>عمق التمرير: {(stats.scrollDepth * 100).toFixed(0)}%</div>
-          <div>مدة الجلسة: {Math.floor(stats.sessionDuration / 1000)}ث</div>
-          <div>التفاعلات: {stats.interactionCount}</div>
+          <div>عمق التمرير: {String((stats.scrollDepth * 100).toFixed(0))}%</div>
+          <div>مدة الجلسة: {String(Math.floor(stats.sessionDuration / 1000))}ث</div>
+          <div>التفاعلات: {String(stats.interactionCount || 0)}</div>
         </div>
       )}
     </div>

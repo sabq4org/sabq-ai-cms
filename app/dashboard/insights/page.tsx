@@ -2,12 +2,14 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { Users, Eye, FileText, Heart, MessageSquare,
   Share2, Clock, Activity,
   ArrowUp, ArrowDown, Minus, BarChart3, PieChart,
   LineChart, Trophy
 } from 'lucide-react';
+
 interface QuickStat {
   title: string;
   value: string | number;
@@ -15,10 +17,37 @@ interface QuickStat {
   icon: any;
   color: string;
 }
+
 export default function InsightsPage() {
+  const router = useRouter();
   const { darkMode } = useDarkMode();
   const [timeRange, setTimeRange] = useState('week');
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // فحص الموبايل
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const mobileKeywords = ['android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone'];
+      const isMobileUserAgent = mobileKeywords.some(keyword => userAgent.includes(keyword));
+      const isSmallScreen = window.innerWidth <= 768;
+      
+      setIsMobile(isMobileUserAgent || isSmallScreen);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // توجيه للموبايل
+  useEffect(() => {
+    if (isMobile) {
+      router.replace('/dashboard/insights/mobile');
+      return;
+    }
+  }, [isMobile, router]);
   useEffect(() => {
     // محاكاة تحميل البيانات
     setTimeout(() => setLoading(false), 1000);
