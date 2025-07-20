@@ -426,6 +426,22 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
           </div>
         </div>
         )}
+
+        {/* زر عرض جميع التحليلات */}
+        <div className="text-center mt-8">
+          <Link 
+            href="/insights/deep" 
+            className={`inline-flex items-center gap-3 px-8 py-4 font-medium text-sm rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group ${
+              darkMode 
+                ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20' 
+                : 'bg-white/90 hover:bg-white text-gray-800 border border-white/30'
+            } backdrop-blur-sm`}
+          >
+            <BookOpen className="w-5 h-5" />
+            <span>عرض جميع التحليلات العميقة</span>
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          </Link>
+        </div>
       </div>
 
       <style jsx>{`
