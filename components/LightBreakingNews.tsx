@@ -93,21 +93,21 @@ export default function LightBreakingNews({ darkMode = false }: LightBreakingNew
   const summary = breakingNews.summary || breakingNews.lead || '';
 
   return (
-    <div className={`w-full border-l-4 border-red-500 shadow-lg rounded-lg overflow-hidden mb-6 ${
+    <div className={`w-full border-2 border-red-500 shadow-lg rounded-lg overflow-hidden mb-6 bg-red-50 ${
       darkMode 
-        ? 'bg-gray-800 border-gray-700' 
-        : 'bg-white border-gray-200'
+        ? 'dark:bg-red-950 dark:border-red-600' 
+        : 'bg-red-50 border-red-500'
     }`}>
       {/* هيدر الخبر العاجل */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2">
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-2 sm:px-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Flame className="w-5 h-5 animate-pulse" />
-            <span className="font-bold text-sm uppercase tracking-wide">
+            <Flame className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
+            <span className="font-bold text-xs sm:text-sm uppercase tracking-wide">
               ⚡ خبر عاجل
             </span>
             {breakingNews.category && (
-              <span className="text-red-100 text-xs bg-red-800/50 px-2 py-1 rounded-full">
+              <span className="text-red-100 text-xs bg-red-800/50 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full">
                 {breakingNews.category}
               </span>
             )}
@@ -115,7 +115,7 @@ export default function LightBreakingNews({ darkMode = false }: LightBreakingNew
           
           <button
             onClick={() => setDismissed(true)}
-            className="text-red-100 hover:text-white transition-colors p-1 rounded"
+            className="text-red-100 hover:text-white transition-colors p-1 rounded text-sm"
             title="إخفاء الخبر"
           >
             ✕
@@ -124,8 +124,8 @@ export default function LightBreakingNews({ darkMode = false }: LightBreakingNew
       </div>
 
       {/* محتوى الخبر */}
-      <div className="p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           {/* الصورة */}
           {breakingNews.featuredImage && (
             <div className="flex-shrink-0">
@@ -135,7 +135,7 @@ export default function LightBreakingNews({ darkMode = false }: LightBreakingNew
                   alt={breakingNews.title}
                   width={120}
                   height={80}
-                  className="w-full sm:w-30 h-20 object-cover rounded-lg border-2 border-red-200 hover:border-red-300 transition-colors"
+                  className="w-full sm:w-28 h-16 sm:h-20 object-cover rounded-lg border-2 border-red-200 hover:border-red-300 transition-colors"
                 />
               </Link>
             </div>
@@ -145,7 +145,7 @@ export default function LightBreakingNews({ darkMode = false }: LightBreakingNew
           <div className="flex-1 space-y-2">
             {/* العنوان */}
             <Link href={articleUrl}>
-              <h3 className={`font-bold text-lg leading-tight hover:text-red-600 transition-colors line-clamp-2 ${
+              <h3 className={`font-bold text-base sm:text-lg leading-tight hover:text-red-600 transition-colors line-clamp-2 ${
                 darkMode ? 'text-gray-100' : 'text-gray-900'
               }`}>
                 {breakingNews.title}
@@ -154,7 +154,7 @@ export default function LightBreakingNews({ darkMode = false }: LightBreakingNew
 
             {/* الملخص */}
             {summary && (
-              <p className={`text-sm leading-relaxed line-clamp-2 ${
+              <p className={`text-xs sm:text-sm leading-relaxed line-clamp-2 ${
                 darkMode ? 'text-gray-300' : 'text-gray-600'
               }`}>
                 {summary}
@@ -162,8 +162,8 @@ export default function LightBreakingNews({ darkMode = false }: LightBreakingNew
             )}
 
             {/* معلومات إضافية */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 text-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
+              <div className="flex items-center gap-2 sm:gap-3 text-xs">
                 <span className={`flex items-center gap-1 ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
@@ -183,10 +183,10 @@ export default function LightBreakingNews({ darkMode = false }: LightBreakingNew
               {/* زر القراءة */}
               <Link 
                 href={articleUrl}
-                className="flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium transition-colors group"
+                className="flex items-center gap-1 text-red-600 hover:text-red-700 text-xs sm:text-sm font-medium transition-colors group self-start"
               >
                 <span>اقرأ التفاصيل</span>
-                <ArrowLeft className="w-4 h-4 group-hover:translate-x-[-2px] transition-transform" />
+                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-[-2px] transition-transform" />
               </Link>
             </div>
           </div>
