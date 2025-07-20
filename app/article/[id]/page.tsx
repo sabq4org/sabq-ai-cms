@@ -21,6 +21,7 @@ import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
 import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
 import { MetaTags } from '@/components/article/MetaTags';
+import '@/styles/mobile-article.css';
 
 // نوع البيانات
 interface Article {
@@ -300,73 +301,78 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* صورة المقال */}
         {article.featured_image && (
-          <div className="relative h-[60vh] w-full">
+          <div className="article-featured-image relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[60vh] w-full">
             <Image
               src={getImageUrl(article.featured_image)}
               alt={article.title}
               fill
               className="object-cover"
               priority
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 100vw, 100vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
           </div>
         )}
 
-        <article className={`max-w-4xl mx-auto px-4 py-8 ${!article.featured_image ? 'pt-24' : ''}`}>
+        <article className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 ${!article.featured_image ? 'pt-20 sm:pt-24' : ''}`}>
           {/* رأس المقال */}
           <header className="mb-8">
             {/* التصنيف */}
             {article.category && (
               <Link
                 href={`/categories/${article.category.slug}`}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white mb-4"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium text-white mb-3 sm:mb-4"
                 style={{ backgroundColor: article.category.color || '#1a73e8' }}
               >
-                {article.category.icon && <span>{article.category.icon}</span>}
+                {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
                 <span>{article.category.name}</span>
               </Link>
             )}
 
             {/* العنوان */}
-            <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-gray-900 dark:text-white leading-tight">
               {article.title}
             </h1>
 
             {/* المعلومات الأساسية */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               {article.author && (
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  <span>{article.author.name}</span>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="truncate max-w-[120px] sm:max-w-none">{article.author.name}</span>
                 </div>
               )}
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>{formatFullDate(article.published_at || article.created_at)}</span>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">{formatFullDate(article.published_at || article.created_at)}</span>
+                <span className="sm:hidden">{formatRelativeDate(article.published_at || article.created_at)}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>{article.reading_time || calculateReadingTime(article.content)} دقائق قراءة</span>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span>{article.reading_time || calculateReadingTime(article.content)} د</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                <span>{article.views || 0} مشاهدة</span>
-              </div>
+              {article.views !== undefined && (
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">{article.views} مشاهدة</span>
+                  <span className="sm:hidden">{article.views}</span>
+                </div>
+              )}
             </div>
           </header>
 
           {/* الموجز الموحد */}
           {(article.excerpt || article.summary || article.ai_summary) && (
-            <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl border border-blue-200 dark:border-blue-700">
+            <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl border border-blue-200 dark:border-blue-700">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
-                  <Sparkles className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                     🧠 الملخص الذكي
                   </h3>
-                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
                     {article.excerpt || article.summary || article.ai_summary}
                   </p>
                 </div>
@@ -381,7 +387,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
                   }`}
                   title="استمع للملخص"
                 >
-                  <Headphones className="w-5 h-5" />
+                  <Headphones className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
 
@@ -399,7 +405,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
           )}
 
           {/* شريط التفاعل الذكي */}
-          <div className="mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="mb-6 sm:mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
             <SmartInteractionButtons 
               articleId={article.id}
               initialStats={{
@@ -418,15 +424,15 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
 
           {/* الكلمات المفتاحية */}
           {keywords.length > 0 && (
-            <div className="mb-8">
-              <div className="flex flex-wrap gap-2">
+            <div className="mb-6 sm:mb-8">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {keywords.map((keyword, index) => (
                   <Link
                     key={index}
                     href={`/tags/${encodeURIComponent(keyword)}`}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                    className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
                   >
-                    <Hash className="w-3 h-3" />
+                    <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     <span>{keyword}</span>
                   </Link>
                 ))}
@@ -436,13 +442,13 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
 
           {/* محتوى المقال */}
           <div 
-            className="prose prose-lg max-w-none dark:prose-invert"
+            className="prose prose-sm sm:prose-base lg:prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-relaxed"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
           
           {/* قسم التعليقات */}
-          <div id="comments-section" className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">التعليقات</h2>
+          <div id="comments-section" className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">التعليقات</h2>
             {/* يمكن إضافة مكون التعليقات هنا */}
           </div>
         </article>
