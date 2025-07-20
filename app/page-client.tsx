@@ -27,6 +27,7 @@ import MobileLayout from '@/components/mobile/MobileLayout';
 import MobileArticleCard from '@/components/mobile/MobileArticleCard';
 import EnhancedMobileNewsCard from '@/components/mobile/EnhancedMobileNewsCard';
 import MobileStatsBar from '@/components/mobile/MobileStatsBar';
+import VersionedBreakingNews from '@/components/VersionedBreakingNews';
 
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -610,9 +611,17 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       {/* Header */}
       <Header />
       
+      {/* الأخبار العاجلة - النسخة الكاملة (شريط ملصق بالهيدر) */}
+      <VersionedBreakingNews version="full" isMobile={isMobile} />
+      
       {/* شريط الإحصائيات للموبايل */}
       {isMobile && (
         <MobileStatsBar darkMode={darkMode} />
+      )}
+      
+      {/* الأخبار العاجلة - النسخة الخفيفة (بين الإحصائيات والنشرة الصوتية) */}
+      {isMobile && (
+        <VersionedBreakingNews version="light" isMobile={true} />
       )}
       
       {/* عرض جميع البلوكات الذكية */}
@@ -638,6 +647,11 @@ function NewspaperHomePage({ stats, initialArticles = [], initialCategories = []
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <PodcastBlock />
       </div>
+      
+      {/* الأخبار العاجلة - النسخة الخفيفة للديسكتوب أيضاً */}
+      {!isMobile && (
+        <VersionedBreakingNews version="light" isMobile={false} />
+      )}
       
       {/* بلوك الجرعات الذكي - ثاني بلوك */}
       <SmartDigestBlock />

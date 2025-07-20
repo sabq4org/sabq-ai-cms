@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import './globals.css'
+import '../styles/versioned-breaking-news.css'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { Providers } from './providers'
 
