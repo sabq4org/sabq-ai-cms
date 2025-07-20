@@ -151,32 +151,32 @@ export default function MomentByMomentPage() {
       };
     }
     
-    // ألوان عادية حسب نوع المحتوى
+    // ألوان عادية حسب نوع المحتوى - ألوان مخففة لراحة العين
     switch (color) {
-      case 'green':
+      case 'green': // خبر جديد (أزرق مخفف)
         return {
-          bg: 'bg-blue-50 dark:bg-blue-900/30',
+          bg: 'bg-blue-25 dark:bg-blue-900/20 hover:bg-blue-50 dark:hover:bg-blue-900/30',
           border: 'border-blue-500',
           text: 'text-blue-700 dark:text-blue-300',
           badge: 'bg-blue-500'
         };
       case 'orange':
         return {
-          bg: 'bg-orange-100 dark:bg-orange-900/30',
+          bg: 'bg-orange-25 dark:bg-orange-900/20 hover:bg-orange-50 dark:hover:bg-orange-900/30',
           border: 'border-orange-500',
           text: 'text-orange-700 dark:text-orange-300',
           badge: 'bg-orange-500'
         };
-      case 'blue':
+      case 'blue': // تصنيف جديد (أخضر مخفف)
         return {
-          bg: 'bg-green-100 dark:bg-green-900/30',
+          bg: 'bg-green-25 dark:bg-green-900/20 hover:bg-green-50 dark:hover:bg-green-900/30',
           border: 'border-green-500',
           text: 'text-green-700 dark:text-green-300',
           badge: 'bg-green-500'
         };
       default:
         return {
-          bg: 'bg-gray-100 dark:bg-gray-800',
+          bg: 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700',
           border: 'border-gray-400',
           text: 'text-gray-700 dark:text-gray-300',
           badge: 'bg-gray-500'

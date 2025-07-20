@@ -1,5 +1,31 @@
 /* أنماط صفحة لحظة بلحظة - محدثة */
 
+/* ألوان مخففة مخصصة لراحة العين */
+.bg-blue-25 {
+  background-color: #F2F7FD; /* أزرق فاتح جداً - للأخبار الجديدة */
+}
+
+.bg-green-25 {
+  background-color: #F4FBF5; /* أخضر فاتح جداً - للتصنيفات الجديدة */
+}
+
+.bg-orange-25 {
+  background-color: #FEF7F0; /* برتقالي فاتح جداً */
+}
+
+/* ألوان hover أقوى قليلاً */
+.hover\:bg-blue-50:hover {
+  background-color: #E8F1FF !important;
+}
+
+.hover\:bg-green-50:hover {
+  background-color: #EDFAEF !important;
+}
+
+.hover\:bg-orange-50:hover {
+  background-color: #FEF4E6 !important;
+}
+
 /* منع الحركة الجانبية للصفحة */
 .moment-by-moment-container {
   overflow-x: hidden;
