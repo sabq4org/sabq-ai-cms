@@ -13,20 +13,18 @@ interface SmartRecommendation {
   createdAt?: string
 }
 
-export async function POST(
+export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const articleId = params.id
-    const { category, tags } = await request.json()
-
+    
     const recommendations: SmartRecommendation[] = []
 
-    // 1. أخبار مشابهة (من نفس التصنيف)
+    // 1. أخبار مشابهة
     const similarArticles = await prisma.articles.findMany({
       where: {
-        category_id: category,
         id: { not: articleId },
         status: 'published'
       },
@@ -54,58 +52,7 @@ export async function POST(
       })
     })
 
-    // 2. تحليل عميق (من جدول deep_analyses)
-    const deepAnalysis = await prisma.deep_analyses.findFirst({
-      where: {
-        ai_summary: { not: null }
-      },
-      orderBy: { created_at: 'desc' }
-    })
-
-    if (deepAnalysis) {
-      recommendations.push({
-        id: `analysis_${deepAnalysis.id}`,
-        type: 'analysis',
-        title: 'تحليل ذكي للأحداث الجارية',
-        excerpt: deepAnalysis.ai_summary?.slice(0, 150) + '...',
-        url: `/analysis/${deepAnalysis.id}`,
-        badge: 'ذكاء اصطناعي'
-      })
-    }
-
-    // 3. مقال رأي (من نفس التصنيف)
-    const opinionArticle = await prisma.articles.findFirst({
-      where: {
-        category_id: category,
-        id: { not: articleId },
-        status: 'published',
-        metadata: {
-          path: ['type'],
-          equals: 'opinion'
-        }
-      },
-      select: {
-        id: true,
-        title: true,
-        excerpt: true,
-        featured_image: true,
-        slug: true
-      },
-      orderBy: { created_at: 'desc' }
-    })
-
-    if (opinionArticle) {
-      recommendations.push({
-        id: opinionArticle.id,
-        type: 'opinion',
-        title: opinionArticle.title,
-        excerpt: opinionArticle.excerpt || undefined,
-        image: opinionArticle.featured_image || undefined,
-        url: `/article/${opinionArticle.slug}`
-      })
-    }
-
-    // 4. نصيحة ذكية (مولدة تلقائياً)
+    // 2. نصيحة ذكية
     const aiTips = [
       {
         title: 'نصيحة اليوم',
@@ -130,7 +77,7 @@ export async function POST(
       url: '#'
     })
 
-    // 5. سؤال تفاعلي
+    // 3. سؤال تفاعلي
     const interactiveQuestions = [
       'ما رأيك في تطور الأحداث الأخيرة؟',
       'هل تعتقد أن هذا القرار سيكون فعالاً؟',
@@ -147,50 +94,28 @@ export async function POST(
       url: '#comments'
     })
 
-    // 6. إضافة المزيد من المقالات الشائعة إذا لم نجد ما يكفي
-    if (recommendations.filter(r => r.type === 'similar').length < 2) {
-      const popularArticles = await prisma.articles.findMany({
-        where: {
-          id: { not: articleId },
-          status: 'published'
-        },
-        select: {
-          id: true,
-          title: true,
-          excerpt: true,
-          featured_image: true,
-          slug: true,
-          created_at: true
-        },
-        orderBy: { views: 'desc' },
-        take: 2
-      })
+    // 4. مقال تحليلي (محاكاة)
+    recommendations.push({
+      id: `analysis_${Date.now()}`,
+      type: 'analysis',
+      title: 'تحليل ذكي للأحداث الجارية',
+      excerpt: 'فهم عميق للأحداث الحالية وتأثيرها على المستقبل...',
+      url: `#analysis`,
+      badge: 'ذكاء اصطناعي'
+    })
 
-      popularArticles.forEach(article => {
-        recommendations.push({
-          id: article.id,
-          type: 'similar',
-          title: article.title,
-          excerpt: article.excerpt || undefined,
-          image: article.featured_image || undefined,
-          url: `/article/${article.slug}`,
-          createdAt: article.created_at.toISOString()
-        })
-      })
-    }
-
-    // ترتيب التوصيات (تنويع الأنواع)
-    const sortedRecommendations = [
-      ...recommendations.filter(r => r.type === 'tip').slice(0, 1),
-      ...recommendations.filter(r => r.type === 'similar').slice(0, 2),
-      ...recommendations.filter(r => r.type === 'analysis').slice(0, 1),
-      ...recommendations.filter(r => r.type === 'opinion').slice(0, 1),
-      ...recommendations.filter(r => r.type === 'question').slice(0, 1)
-    ].slice(0, 6)
+    // 5. مقال رأي (محاكاة)
+    recommendations.push({
+      id: `opinion_${Date.now()}`,
+      type: 'opinion',
+      title: 'وجهة نظر: قراءة في الأحداث',
+      excerpt: 'نظرة تحليلية متعمقة في القضايا المعاصرة...',
+      url: '#opinion'
+    })
 
     return NextResponse.json({
-      recommendations: sortedRecommendations,
-      total: sortedRecommendations.length
+      recommendations: recommendations.slice(0, 6),
+      total: recommendations.length
     })
 
   } catch (error) {

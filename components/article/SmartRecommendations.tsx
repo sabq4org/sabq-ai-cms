@@ -47,11 +47,7 @@ export default function SmartRecommendations({
 
   const fetchRecommendations = async () => {
     try {
-      const response = await fetch(`/api/articles/${articleId}/recommendations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category, tags })
-      })
+      const response = await fetch(`/api/articles/${articleId}/recommendations`)
 
       if (response.ok) {
         const data = await response.json()
