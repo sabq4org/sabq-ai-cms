@@ -1,212 +1,23 @@
-/* تحسينات شاملة للصور في الموقع لتحسين الأداء */
-
-/* تحسينات عامة للصور */
-img {
-  /* تحسين جودة العرض */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  
-  /* تحسين الأداء */
-  will-change: auto;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* صور المقالات المميزة */
-.article-featured-image {
-  /* تحسين الحاوي */
-  contain: layout style paint;
-  isolation: isolate;
-}
-
-.article-featured-image img {
-  /* انتقالات سلسة */
-  transition: opacity 0.4s ease-in-out, transform 0.3s ease;
-  
-  /* تحسين العرض على الشاشات عالية الدقة */
-  image-rendering: -webkit-optimize-contrast;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* مؤشرات التحميل المحسنة */
-.image-loading-placeholder {
-  background: linear-gradient(
-    90deg,
-    rgba(243, 244, 246, 0.8) 25%,
-    rgba(229, 231, 235, 0.8) 50%,
-    rgba(243, 244, 246, 0.8) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-  transition: opacity 0.3s ease-out;
-}
-
-.dark .image-loading-placeholder {
-  background: linear-gradient(
-    90deg,
-    rgba(31, 41, 55, 0.8) 25%,
-    rgba(55, 65, 81, 0.8) 50%,
-    rgba(31, 41, 55, 0.8) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* إخفاء مؤشر التحميل عند اكتمال الصورة */
-.image-container:has(img[complete="true"]) .image-loading-placeholder,
-.image-container:has(img.loaded) .image-loading-placeholder {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* تحسين صور البطاقات */
-.article-card-image {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.article-card-image:hover {
-  transform: scale(1.05);
-}
-
-/* تحسين الصور للشاشات الصغيرة */
-@media (max-width: 640px) {
-  .article-featured-image {
-    /* تقليل ارتفاع الصورة على الهواتف لتوفير المساحة */
-    height: clamp(200px, 40vh, 300px) !important;
-  }
-  
-  /* تحسين جودة الصور على الهواتف - إزالة الخاصية غير الصحيحة */
-  .article-card-image img {
-    image-rendering: -webkit-optimize-contrast;
-  }
-}
-
-/* تحسين الصور للشاشات المتوسطة */
-@media (min-width: 641px) and (max-width: 1024px) {
-  .article-featured-image {
-    height: clamp(300px, 50vh, 500px) !important;
-  }
-}
-
-/* تحسين للشاشات الكبيرة */
-@media (min-width: 1025px) {
-  .article-featured-image {
-    height: clamp(400px, 60vh, 600px) !important;
-  }
-}
-
-/* تحسين الصور في الوضع المظلم */
-.dark .article-featured-image img {
-  filter: brightness(0.95) contrast(1.05);
-}
-
-/* تحسين صور المحتوى داخل المقالات */
-.prose img {
-  /* تحسين العرض */
+/* 🖼️ تحسينات الصور */
+.image-container {
+  position: relative;
+  overflow: hidden;
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  margin: 1.5rem auto;
-  
-  /* استجابة للأحجام */
-  max-width: 100%;
-  height: auto;
-  
-  /* تحسين الأداء */
-  image-rendering: -webkit-optimize-contrast;
 }
 
-.dark .prose img {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-}
-
-/* تحسين صور الكتاب والمؤلفين */
-.author-avatar {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.author-avatar:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-/* تحسين الصور في التحليل العميق */
-.deep-analysis-image {
-  /* تحسين الأداء */
-  contain: layout;
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  
-  /* انتقالات سلسة */
-  transition: transform 0.3s ease, filter 0.3s ease;
-}
-
-/* تحسين الصور على الهواتف الضعيفة */
-@media (max-width: 480px) and (max-device-width: 896px) {
-  /* تقليل جودة الصور للأجهزة الضعيفة */
-  .article-featured-image img,
-  .article-card-image img {
-    image-rendering: -webkit-optimize-contrast;
-  }
-  
-  /* إلغاء التأثيرات المعقدة */
-  .article-card-image:hover {
-    transform: none;
-  }
-}
-
-/* تحسين للأجهزة ذات الذاكرة المحدودة */
-@media (max-device-memory: 2GB) {
-  img {
-    image-rendering: auto;
-  }
-  
-  .article-featured-image img {
-    will-change: auto;
-  }
-}
-
-/* تحسين للاتصالات البطيئة */
-@media (connection: slow-2g), (connection: 2g) {
-  .article-featured-image {
-    background: #f3f4f6; /* لون خفيف أثناء التحميل */
-  }
-  
-  .dark .article-featured-image {
-    background: #374151;
-  }
-}
-
-/* تحسين عام للأداء */
 .image-optimized {
-  /* خصائص الأداء */
-  content-visibility: auto;
-  contain-intrinsic-size: 400px 300px;
-  
-  /* تحسين العرض */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  
-  /* انتقالات سلسة */
-  transition: opacity 0.3s ease;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-/* إعدادات للصور التفاعلية */
-.interactive-image {
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.interactive-image:hover {
-  filter: brightness(1.1) contrast(1.05);
+.image-optimized:hover {
   transform: scale(1.02);
 }
 
-.dark .interactive-image:hover {
-  filter: brightness(0.9) contrast(1.1);
+@media (max-width: 768px) {
+  .image-container {
+    margin: 1rem 0;
+  }
 }

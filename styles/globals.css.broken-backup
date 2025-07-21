@@ -1,0 +1,218 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 📰 إعدادات جذر للخطوط العربية */
+:root {
+  --font-ibm-plex-arabic: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 245, 245, 245;
+}
+
+[data-theme="dark"] {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 15, 23, 42;
+  --background-end-rgb: 30, 41, 59;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 🎨 تحسينات للخط العربي */
+* {
+  font-family: var(--font-ibm-plex-arabic) !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* تحسينات للنصوص العربية */
+.text-arabic {
+  direction: rtl;
+  text-align: right;
+  font-feature-settings: 'kern' 1;
+}
+
+/* تحسينات للقراءة */
+p, div, span, article {
+  line-height: 1.8;
+  word-spacing: 0.1em;
+}
+
+/* تحسينات للعناوين */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+/* تحسينات للروابط */
+a:hover {
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+}
+
+/* تحسينات للأزرار */
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+/* تحسينات للحقول */
+input, textarea, select {
+  font-family: inherit;
+  outline: none;
+}
+
+/* تحسينات للجداول */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* تحسينات للصور */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* تحسينات للفيديو */
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* إخفاء شريط التمرير في WebKit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* تحسينات للوضع المظلم */
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+  -webkit-line-clamp: 3;
+  ::-webkit-scrollbar-thumb {
+  ::-webkit-scrollbar-thumb:hover {
+  ::-webkit-scrollbar-track {
+  :root {
+  .arabic-content blockquote {
+  }
+  background: #555;
+  background: #888;
+  background: #f1f1f1;
+  background: linear-gradient(
+  border-radius: 4px;
+  border-right: 4px solid #e5e7eb;
+  box-sizing: border-box;
+  color: #6b7280;
+  color: inherit;
+  color: rgb(var(--foreground-rgb));
+  direction: rtl;
+  display: -webkit-box;
+  font-family: var(--font-family-base) !important;
+  font-style: italic;
+  font-weight: 600;
+  height: 8px;
+  letter-spacing: 0.025em;
+  line-height: 1.4;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  margin-right: 1.5rem;
+  margin: 0;
+  margin: 1.5rem 0;
+  max-width: 100vw;
+  overflow-x: hidden;
+  overflow: hidden;
+  padding-right: 1rem;
+  padding: 0;
+  text-align: right;
+  text-decoration: none;
+  transform: translateZ(0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 8px;
+::-webkit-scrollbar {
+::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-track {
+:root {
+.arabic-content {
+.arabic-content blockquote {
+.arabic-content h1,
+.arabic-content h2,
+.arabic-content h3,
+.arabic-content h4,
+.arabic-content h5,
+.arabic-content h6 {
+.arabic-content ol {
+.arabic-content p {
+.arabic-content ul,
+.font-arabic {
+.line-clamp-1 {
+.line-clamp-2 {
+.line-clamp-3 {
+.transform-gpu {
+.transition-all {
+}
+} 
+@media (prefers-color-scheme: dark) {
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+* {
+/* أنماط مخصصة للمحتوى العربي */
+/* تحسينات للنمط الليلي */
+/* الأنماط الأساسية */
+/* انتقالات سلسة */
+/* تحسينات للأداء */
+/* تحسينات للتمرير */
+/* خط عربي */
+/* فئات مساعدة */
+/* متغيرات الألوان */
+a {
+body {
+html,

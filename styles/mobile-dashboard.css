@@ -1,722 +1,380 @@
-/* تحسينات لوحة التحكم للموبايل */
 
-/* تحسين المساحات الآمنة للموبايل */
-.safe-area-pb {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.safe-area-pt {
-  padding-top: env(safe-area-inset-top);
-}
-
-/* تحسين التمرير على الموبايل */
-.mobile-scroll {
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.mobile-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-/* تحسين الأزرار اللمسية */
-.touch-button {
-  min-height: 44px;
-  min-width: 44px;
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* تحسين النماذج للموبايل */
-.mobile-form-input {
-  font-size: 16px; /* منع التكبير على iOS */
-  padding: 12px 16px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.mobile-form-input:focus {
-  transform: scale(1.02);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* تحسين البطاقات للموبايل */
-.mobile-card {
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.mobile-card:active {
-  transform: scale(0.98);
-}
-
-/* تحسين التبويبات للموبايل */
-.mobile-tabs {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 16px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.mobile-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.mobile-tab {
-  flex-shrink: 0;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-}
-
-.mobile-tab.active {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-}
-
-/* تحسين القوائم للموبايل */
-.mobile-list {
-  padding: 0 16px;
-}
-
-.mobile-list-item {
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 8px;
-  transition: all 0.2s ease;
-}
-
-.mobile-list-item:active {
-  transform: scale(0.98);
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-/* تحسين الأزرار العائمة */
-.mobile-fab {
-  position: fixed;
-  bottom: 80px;
-  right: 20px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  z-index: 1000;
-}
-
-.mobile-fab:active {
-  transform: scale(0.95);
-}
-
-/* تحسين شريط التنقل السفلي */
-.mobile-bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  background: white;
-  border-top: 1px solid #e5e7eb;
-  z-index: 50;
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.dark .mobile-bottom-nav {
-  background: #1f2937;
-  border-top-color: #374151;
-}
-
-.mobile-nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  min-width: 60px;
-}
-
-.mobile-nav-item:active {
-  transform: scale(0.95);
-  background-color: rgba(59, 130, 246, 0.1);
-}
-
-/* تحسين النوافذ المنبثقة للموبايل */
-.mobile-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: flex-end;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.mobile-modal-content {
-  width: 100%;
-  max-height: 90vh;
-  background: white;
-  border-radius: 16px 16px 0 0;
-  padding: 20px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom));
-  overflow-y: auto;
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
-}
-
-.mobile-modal.open .mobile-modal-content {
-  transform: translateY(0);
-}
-
-.dark .mobile-modal-content {
-  background: #1f2937;
-}
-
-/* تحسين الرسوم المتحركة للموبايل */
-.mobile-slide-in {
-  animation: slideInFromRight 0.3s ease-out;
-}
-
-@keyframes slideInFromRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.mobile-fade-in {
-  animation: fadeInMobile 0.3s ease-out;
-}
-
-@keyframes fadeInMobile {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* تحسين الهيكل الأساسي للموبايل */
-.mobile-container {
-  padding: 16px;
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-.mobile-content {
-  padding-bottom: 80px; /* مساحة للتنقل السفلي */
-}
-
-/* تحسين الشبكات للموبايل */
-.mobile-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: 1fr;
-}
-
-.mobile-grid-2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.mobile-grid-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-/* تحسين النصوص للموبايل */
-.mobile-text-sm {
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.mobile-text-xs {
-  font-size: 12px;
-  line-height: 1.3;
-}
-
-.mobile-text-truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.mobile-text-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.mobile-text-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* تحسين الحالات الفارغة */
-.mobile-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-}
-
-.mobile-empty-state-icon {
-  width: 64px;
-  height: 64px;
-  opacity: 0.5;
-  margin-bottom: 16px;
-}
-
-/* تحسين التحميل للموبايل */
-.mobile-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
-.mobile-skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-}
-
-.dark .mobile-skeleton {
-  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
-  background-size: 200% 100%;
-}
-
-@keyframes loading {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-/* تحسين الاستجابة للإيماءات */
-.mobile-swipeable {
-  touch-action: pan-x;
-}
-
-.mobile-no-scroll {
-  touch-action: none;
-  overflow: hidden;
-}
-
-/* تحسين التبديل للوضع الليلي */
-.mobile-dark-toggle {
-  transition: all 0.3s ease;
-}
-
-/* تحسين الكثافة البصرية للموبايل */
-@media (max-width: 768px) {
-  .mobile-dense {
-    padding: 8px 12px;
-    font-size: 14px;
-  }
   
-  .mobile-spacious {
-    padding: 16px 20px;
-    font-size: 16px;
-  }
-}
-
-/* ==== تحسينات إضافية للموبايل المتقدم ==== */
-
-/* متغيرات إضافية */
-:root {
-  --mobile-header-height: 64px;
-  --mobile-nav-height: 60px;
-  --mobile-touch-target: 44px;
-  --mobile-border-radius: 12px;
-  --mobile-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --mobile-animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* تحسينات البطاقات القابلة للطي المتقدمة */
-.collapsible-card-enhanced {
-  border-radius: var(--mobile-border-radius);
-  box-shadow: var(--mobile-shadow);
-  transition: all 0.3s var(--mobile-animation-timing);
-  overflow: hidden;
-  position: relative;
-}
-
-.collapsible-card-enhanced::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  transition: left 0.5s;
-}
-
-.collapsible-card-enhanced:hover::before {
-  left: 100%;
-}
-
-/* شريط التقدم المتقدم */
-.mobile-progress-enhanced {
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-.mobile-progress-enhanced .fill {
-  height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, 
-    rgb(59 130 246) 0%, 
-    rgb(147 51 234) 50%, 
-    rgb(34 197 94) 100%
-  );
-  transition: width 0.8s var(--mobile-animation-timing);
-  position: relative;
-  overflow: hidden;
-}
-
-.mobile-progress-enhanced .fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.6) 50%,
-    transparent 100%
-  );
-  animation: progressShine 2s infinite;
-}
-
-@keyframes progressShine {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-/* تحسينات النصوص الذكية */
-.mobile-text-smart {
-  font-size: clamp(14px, 4vw, 16px);
-  line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-}
-
-.mobile-heading-smart {
-  font-size: clamp(18px, 5vw, 24px);
-  line-height: 1.4;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-/* تحسينات الشارات المتقدمة */
-.mobile-badge-dynamic {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1;
-  transition: all 0.3s var(--mobile-animation-timing);
-  position: relative;
-  overflow: hidden;
-}
-
-.mobile-badge-dynamic::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
-  transform: translateX(-100%);
-  transition: transform 0.6s;
-}
-
-.mobile-badge-dynamic:hover::before {
-  transform: translateX(100%);
-}
-
-/* تحسينات الأزرار المتقدمة */
-.mobile-button-enhanced {
-  position: relative;
-  overflow: hidden;
-  min-height: var(--mobile-touch-target);
-  border-radius: var(--mobile-border-radius);
-  transition: all 0.2s var(--mobile-animation-timing);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mobile-button-enhanced::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transition: width 0.4s, height 0.4s;
-  transform: translate(-50%, -50%);
-}
-
-.mobile-button-enhanced:active::before {
-  width: 200px;
-  height: 200px;
-}
-
-/* تحسينات القوائم المتقدمة */
-.mobile-list-enhanced {
-  border-radius: var(--mobile-border-radius);
-  overflow: hidden;
-  box-shadow: var(--mobile-shadow);
-}
-
-.mobile-list-item-enhanced {
-  padding: 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.2s var(--mobile-animation-timing);
-  position: relative;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mobile-list-item-enhanced:last-child {
-  border-bottom: none;
-}
-
-.mobile-list-item-enhanced::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 0;
-  background: rgb(59 130 246);
-  transition: width 0.3s var(--mobile-animation-timing);
-}
-
-.mobile-list-item-enhanced:active::before {
-  width: 4px;
-}
-
-.mobile-list-item-enhanced:active {
-  background: rgba(59, 130, 246, 0.05);
-  transform: translateX(4px);
-}
-
-/* تحسينات التنقل السفلي المتقدم */
-.mobile-bottom-nav-enhanced {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  z-index: 40;
-}
-
-.mobile-nav-item-enhanced {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-height: var(--mobile-touch-target);
-  font-size: 10px;
-  font-weight: 500;
-  transition: all 0.3s var(--mobile-animation-timing);
-  position: relative;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mobile-nav-item-enhanced.active {
-  color: rgb(59 130 246);
-  transform: translateY(-2px);
-}
-
-.mobile-nav-item-enhanced.active::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 50%;
-  width: 32px;
-  height: 3px;
-  background: rgb(59 130 246);
-  border-radius: 2px;
-  transform: translateX(-50%);
-}
-
-.mobile-nav-item-enhanced .icon {
-  transition: transform 0.3s var(--mobile-animation-timing);
-}
-
-.mobile-nav-item-enhanced.active .icon {
-  transform: scale(1.1);
-}
-
-/* تحسينات الرسوم المتحركة المتقدمة */
-@keyframes mobileSlideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes mobileSlideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes mobilePulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
-}
-
-.mobile-slide-in-up {
-  animation: mobileSlideInUp 0.4s var(--mobile-animation-timing);
-}
-
-.mobile-slide-in-right {
-  animation: mobileSlideInRight 0.4s var(--mobile-animation-timing);
-}
-
-.mobile-pulse {
-  animation: mobilePulse 2s infinite;
-}
-
-/* تحسينات الاستجابة للاتجاه */
-@media screen and (orientation: landscape) and (max-height: 500px) {
-  :root {
     --mobile-header-height: 48px;
     --mobile-nav-height: 48px;
-  }
-  
-  .mobile-container {
-    padding: 12px;
-  }
-  
-  .mobile-section {
-    margin-bottom: 16px;
-  }
-}
-
-/* تحسينات للأجهزة عالية الدقة */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .mobile-border-thin {
-    border-width: 0.5px;
-  }
-  
-  .mobile-shadow-crisp {
-    box-shadow: 0 0.5px 4px rgba(0, 0, 0, 0.1);
-  }
-}
-
-/* تحسينات إمكانية الوصول */
-@media (prefers-reduced-motion: reduce) {
-  * {
+    -webkit-appearance: none;
+    90deg,
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-@media (prefers-high-contrast: high) {
-  .mobile-button-enhanced {
-    border: 2px solid currentColor;
-  }
-  
-  .mobile-badge-dynamic {
-    border: 1px solid currentColor;
-  }
-}
-
-/* تحسينات للوضع المظلم */
-@media (prefers-color-scheme: dark) {
-  .mobile-bottom-nav-enhanced {
+    appearance: none;
+    background-position: -200% 0;
+    background-position: 200% 0;
     background: rgba(0, 0, 0, 0.95);
-    border-top-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .mobile-list-item-enhanced {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .mobile-list-item-enhanced:active {
     background: rgba(59, 130, 246, 0.15);
-  }
-}
-
-/* تحسينات خاصة بـ Safari */
-@supports (-webkit-appearance: none) {
-  .mobile-form-input {
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.1);
+    border-width: 0.5px;
+    border: 1px solid currentColor;
+    border: 2px solid currentColor;
+    box-shadow: 0 0.5px 4px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    font-size: 16px;
+    margin-bottom: 16px;
+    opacity: 0;
+    opacity: 0.8;
+    opacity: 1;
+    padding: 12px;
+    padding: 16px 20px;
+    padding: 8px 12px;
+    rgb(147 51 234) 50%, 
+    rgb(34 197 94) 100%
+    rgb(59 130 246) 0%, 
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.6) 50%,
+    transform: scale(1.05);
+    transform: scale(1);
+    transform: translateX(-20px);
+    transform: translateX(0);
+    transform: translateX(100%);
+    transform: translateY(0);
+    transform: translateY(20px);
+    transition-duration: 0.01ms !important;
+    transparent
+    transparent 0%,
+    transparent 100%
+    transparent,
+  --mobile-animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
+  --mobile-border-radius: 12px;
+  --mobile-header-height: 64px;
+  --mobile-nav-height: 60px;
+  --mobile-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --mobile-touch-target: 44px;
+  -ms-overflow-style: none;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  :root {
+  .mobile-badge-dynamic {
+  .mobile-border-thin {
+  .mobile-bottom-nav-enhanced {
   .mobile-button-enhanced {
-    -webkit-appearance: none;
-    appearance: none;
+  .mobile-container {
+  .mobile-dense {
+  .mobile-form-input {
+  .mobile-list-item-enhanced {
+  .mobile-list-item-enhanced:active {
+  .mobile-section {
+  .mobile-shadow-crisp {
+  .mobile-spacious {
+  );
   }
+  * {
+  0% {
+  0% { transform: translateX(-100%); }
+  0%, 100% {
+  100% {
+  100% { transform: translateX(100%); }
+  50% {
+  align-items: center;
+  align-items: flex-end;
+  animation: fadeInMobile 0.3s ease-out;
+  animation: loading 1.5s infinite;
+  animation: mobilePulse 2s infinite;
+  animation: mobileSlideInRight 0.4s var(--mobile-animation-timing);
+  animation: mobileSlideInUp 0.4s var(--mobile-animation-timing);
+  animation: progressShine 2s infinite;
+  animation: slideInFromRight 0.3s ease-out;
+  backdrop-filter: blur(20px);
+  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(59, 130, 246, 0.1);
+  background-size: 200% 100%;
+  background: #1f2937;
+  background: linear-gradient(
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+  background: linear-gradient(90deg, 
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: rgb(59 130 246);
+  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.95);
+  background: rgba(59, 130, 246, 0.05);
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: none;
+  border-radius: 12px;
+  border-radius: 16px 16px 0 0;
+  border-radius: 20px;
+  border-radius: 2px;
+  border-radius: 4px;
+  border-radius: 50%;
+  border-radius: 8px;
+  border-radius: var(--mobile-border-radius);
+  border-top-color: #374151;
+  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid transparent;
+  bottom: 0;
+  bottom: 80px;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--mobile-shadow);
+  color: rgb(59 130 246);
+  content: '';
+  cursor: pointer;
+  display: -webkit-box;
+  display: flex;
+  display: grid;
+  display: inline-flex;
+  display: none;
+  flex-direction: column;
+  flex-shrink: 0;
+  flex: 1;
+  font-size: 10px;
+  font-size: 11px;
+  font-size: 12px;
+  font-size: 14px;
+  font-size: 16px; /* منع التكبير على iOS */
+  font-size: clamp(14px, 4vw, 16px);
+  font-size: clamp(18px, 5vw, 24px);
+  font-weight: 400;
+  font-weight: 500;
+  font-weight: 600;
+  from {
+  gap: 12px;
+  gap: 4px;
+  gap: 8px;
+  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  height: 0;
+  height: 100%;
+  height: 200px;
+  height: 3px;
+  height: 56px;
+  height: 60px;
+  height: 64px;
+  height: 8px;
+  height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
+  inset: 0;
+  justify-content: center;
+  justify-content: space-around;
+  left: -100%;
+  left: 0;
+  left: 100%;
+  left: 50%;
+  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
+  line-clamp: 2;
+  line-clamp: 3;
+  line-height: 1;
+  line-height: 1.3;
+  line-height: 1.4;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  margin-bottom: 8px;
+  max-height: 90vh;
+  max-width: 100vw;
+  min-height: 44px;
+  min-height: var(--mobile-touch-target);
+  min-width: 44px;
+  min-width: 60px;
+  opacity: 0.5;
+  overflow-x: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overflow: hidden;
+  padding-bottom: 80px; /* مساحة للتنقل السفلي */
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-top: env(safe-area-inset-top);
+  padding: 0 16px;
+  padding: 12px 16px;
+  padding: 16px;
+  padding: 20px;
+  padding: 40px 20px;
+  padding: 40px;
+  padding: 6px 10px;
+  padding: 8px 16px;
+  padding: 8px;
+  position: absolute;
+  position: fixed;
+  position: relative;
+  right: 0;
+  right: 20px;
+  scrollbar-width: none;
+  text-align: center;
+  text-overflow: ellipsis;
+  to {
+  top: -1px;
+  top: 0;
+  top: 50%;
+  touch-action: none;
+  touch-action: pan-x;
+  transform: scale(0.95);
+  transform: scale(0.98);
+  transform: scale(1.02);
+  transform: scale(1.05);
+  transform: scale(1.1);
+  transform: translate(-50%, -50%);
+  transform: translateX(-100%);
+  transform: translateX(-50%);
+  transform: translateX(100%);
+  transform: translateX(4px);
+  transform: translateY(-2px);
+  transform: translateY(0);
+  transform: translateY(100%);
+  transition: all 0.2s ease;
+  transition: all 0.2s var(--mobile-animation-timing);
+  transition: all 0.3s ease;
+  transition: all 0.3s var(--mobile-animation-timing);
+  transition: left 0.5s;
+  transition: transform 0.3s ease;
+  transition: transform 0.3s var(--mobile-animation-timing);
+  transition: transform 0.6s;
+  transition: width 0.3s var(--mobile-animation-timing);
+  transition: width 0.4s, height 0.4s;
+  transition: width 0.8s var(--mobile-animation-timing);
+  user-select: none;
+  white-space: nowrap;
+  width: 0;
+  width: 100%;
+  width: 200px;
+  width: 32px;
+  width: 4px;
+  width: 56px;
+  width: 64px;
+  z-index: 1000;
+  z-index: 40;
+  z-index: 50;
+:root {
+.collapsible-card-enhanced {
+.collapsible-card-enhanced::before {
+.collapsible-card-enhanced:hover::before {
+.dark .mobile-bottom-nav {
+.dark .mobile-modal-content {
+.dark .mobile-skeleton {
+.mobile-badge-dynamic {
+.mobile-badge-dynamic::before {
+.mobile-badge-dynamic:hover::before {
+.mobile-bottom-nav {
+.mobile-bottom-nav-enhanced {
+.mobile-button-enhanced {
+.mobile-button-enhanced::before {
+.mobile-button-enhanced:active::before {
+.mobile-card {
+.mobile-card:active {
+.mobile-container {
+.mobile-content {
+.mobile-dark-toggle {
+.mobile-empty-state {
+.mobile-empty-state-icon {
+.mobile-fab {
+.mobile-fab:active {
+.mobile-fade-in {
+.mobile-form-input {
+.mobile-form-input:focus {
+.mobile-grid {
+.mobile-grid-2 {
+.mobile-grid-3 {
+.mobile-heading-smart {
+.mobile-list {
+.mobile-list-enhanced {
+.mobile-list-item {
+.mobile-list-item-enhanced {
+.mobile-list-item-enhanced::before {
+.mobile-list-item-enhanced:active {
+.mobile-list-item-enhanced:active::before {
+.mobile-list-item-enhanced:last-child {
+.mobile-list-item:active {
+.mobile-loading {
+.mobile-modal {
+.mobile-modal-content {
+.mobile-modal.open .mobile-modal-content {
+.mobile-nav-item {
+.mobile-nav-item-enhanced .icon {
+.mobile-nav-item-enhanced {
+.mobile-nav-item-enhanced.active .icon {
+.mobile-nav-item-enhanced.active {
+.mobile-nav-item-enhanced.active::before {
+.mobile-nav-item:active {
+.mobile-no-scroll {
+.mobile-progress-enhanced .fill {
+.mobile-progress-enhanced .fill::after {
+.mobile-progress-enhanced {
+.mobile-pulse {
+.mobile-scroll {
+.mobile-scroll::-webkit-scrollbar {
+.mobile-skeleton {
+.mobile-slide-in {
+.mobile-slide-in-right {
+.mobile-slide-in-up {
+.mobile-swipeable {
+.mobile-tab {
+.mobile-tab.active {
+.mobile-tabs {
+.mobile-tabs::-webkit-scrollbar {
+.mobile-text-clamp-2 {
+.mobile-text-clamp-3 {
+.mobile-text-sm {
+.mobile-text-smart {
+.mobile-text-truncate {
+.mobile-text-xs {
+.safe-area-pb {
+.safe-area-pt {
+.touch-button {
 }
+@keyframes fadeInMobile {
+@keyframes loading {
+@keyframes mobilePulse {
+@keyframes mobileSlideInRight {
+@keyframes mobileSlideInUp {
+@keyframes progressShine {
+@keyframes slideInFromRight {
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (max-width: 768px) {
+@media (prefers-color-scheme: dark) {
+@media (prefers-high-contrast: high) {
+@media (prefers-reduced-motion: reduce) {
+@media screen and (orientation: landscape) and (max-height: 500px) {
+@supports (-webkit-appearance: none) {
+/* تحسينات البطاقات القابلة للطي المتقدمة */
+/* تحسينات التنقل السفلي المتقدم */
+/* تحسينات الرسوم المتحركة المتقدمة */
+/* تحسينات للأجهزة عالية الدقة */
+/* تحسينات لوحة التحكم للموبايل */
+/* تحسين التبديل للوضع الليلي */
+/* تحسين التمرير على الموبايل */
+/* تحسين الرسوم المتحركة للموبايل */
+/* تحسين الكثافة البصرية للموبايل */
+/* تحسين المساحات الآمنة للموبايل */
+/* تحسين النوافذ المنبثقة للموبايل */
+/* تحسين الهيكل الأساسي للموبايل */
+/* تحسين شريط التنقل السفلي */
+/* تحسينات إمكانية الوصول */
+/* تحسينات الأزرار المتقدمة */
+/* تحسينات الاستجابة للاتجاه */
+/* تحسينات الشارات المتقدمة */
+/* تحسينات القوائم المتقدمة */
+/* تحسينات النصوص الذكية */
+/* تحسينات للوضع المظلم */
+/* تحسين الأزرار العائمة */
+/* تحسين الأزرار اللمسية */
+/* تحسين الاستجابة للإيماءات */
+/* تحسين البطاقات للموبايل */
+/* تحسين التبويبات للموبايل */
+/* تحسين التحميل للموبايل */
+/* تحسين الحالات الفارغة */
+/* تحسين الشبكات للموبايل */
+/* تحسين القوائم للموبايل */
+/* تحسين النصوص للموبايل */
+/* تحسين النماذج للموبايل */
+/* شريط التقدم المتقدم */
+/* تحسينات خاصة بـ Safari */
+/* متغيرات إضافية */
+/* ==== تحسينات إضافية للموبايل المتقدم ==== */

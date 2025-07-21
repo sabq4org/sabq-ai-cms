@@ -1,298 +1,181 @@
-/* تحسينات التحليلات العميقة */
 
-/* إصلاح عرض البطاقات والنصوص */
-.deep-analysis-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  /* إصلاح التباعد */
-  word-spacing: normal !important;
-  letter-spacing: normal !important;
-}
-
-.dark .deep-analysis-card {
-  background: rgba(31, 41, 55, 0.95) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.deep-analysis-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0, 0, 0, 0.1) 50%,
-    rgba(0, 0, 0, 0.2) 100%
-  );
-  pointer-events: none;
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.deep-analysis-card:hover::before {
-  opacity: 1;
-}
-
-/* ضمان ظهور النصوص بوضوح */
-.deep-analysis-title {
-  color: #1a202c !important;
-  font-weight: 700 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2 !important;
-  line-clamp: 2 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
-  line-height: 1.4 !important;
-}
-
-.dark .deep-analysis-title {
-  color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-}
-
-.deep-analysis-summary {
-  color: #4a5568 !important;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2 !important;
-  line-clamp: 2 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
-  line-height: 1.6 !important;
-}
-
-.dark .deep-analysis-summary {
-  color: #e2e8f0 !important;
-}
-
-/* Container للبطاقات لتحسين المظهر */
-.deep-analysis-card-container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.deep-analysis-card-container > div {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-/* تحسين عرض الوسوم القابلة للضغط */
-.clickable-tag {
-  transition: all 0.2s ease;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.clickable-tag::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.clickable-tag:hover::before {
-  left: 100%;
-}
-
-.clickable-tag:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.clickable-tag:active {
-  transform: translateY(0);
-  scale: 0.95;
-}
-
-/* تحسين أزرار التفاعل */
-.interaction-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-}
-
-@media (max-width: 640px) {
-  .interaction-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .interaction-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-/* تحسين قابلية القراءة على الجوال */
-@media (max-width: 640px) {
-  .deep-analysis-content {
-    font-size: 0.95rem;
-    line-height: 1.7;
-  }
   
-  .deep-analysis-title {
-    font-size: 1.125rem;
-    line-height: 1.4;
-  }
-}
-
-/* تحسين أزرار التفاعل */
-.interaction-button {
-  position: relative;
-  overflow: hidden;
-}
-
-.interaction-button::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translate(-50%, -50%);
-  transition: width 0.3s, height 0.3s;
-}
-
-.interaction-button:active::after {
-  width: 40px;
-  height: 40px;
-}
-
-/* تحسين التمرير الأفقي للتصنيفات */
-.categories-scroll {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.categories-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-/* تأثير التحميل المحسن */
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
-.skeleton-loader {
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 25%,
-    #e0e0e0 50%,
-    #f0f0f0 75%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
-}
-
-.dark .skeleton-loader {
-  background: linear-gradient(
-    90deg,
+    'Cairo', 'Dubai', var(--font-family-base);
     #374151 25%,
-    #4b5563 50%,
     #374151 75%
-  );
-  background-size: 1000px 100%;
-}
-
-/* تحسين الظلال للوضع الليلي */
-.dark .deep-analysis-shadow {
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 2px 4px -1px rgba(0, 0, 0, 0.2);
-}
-
-.dark .deep-analysis-shadow:hover {
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.4),
+    #4b5563 50%,
+    #e0e0e0 50%,
+    #f0f0f0 25%,
+    #f0f0f0 75%
     0 10px 10px -5px rgba(0, 0, 0, 0.3);
-}
-
-/* تحسين التدرجات اللونية */
-.quality-gradient-high {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.quality-gradient-medium {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-}
-
-.quality-gradient-low {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-}
-
-/* تحسين الحركات */
-@media (prefers-reduced-motion: reduce) {
-  * {
+    0 20px 25px -5px rgba(0, 0, 0, 0.4),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    90deg,
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* تحسين التباعد للجوال */
-@media (max-width: 640px) {
-  .mobile-spacing {
+    background-position: -1000px 0;
+    background-position: 1000px 0;
+    flex-direction: column;
+    font-size: 0.95rem;
+    font-size: 1.125rem;
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(5, 1fr);
+    height: 200px;
+    line-height: 1.4;
+    line-height: 1.7;
     padding-left: 1rem;
     padding-right: 1rem;
-  }
-  
-  .mobile-gap {
-    gap: 0.75rem;
-  }
-}
-
-/* تحسين البطاقات في الوضع القائمة */
-.list-mode-card {
-  display: flex;
-  align-items: stretch;
-}
-
-@media (max-width: 768px) {
-  .list-mode-card {
-    flex-direction: column;
-  }
-  
-  .list-mode-image {
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.2) 100%
+    to bottom,
+    transition-duration: 0.01ms !important;
+    transparent 0%,
     width: 100%;
-    height: 200px;
+  -moz-osx-font-smoothing: grayscale !important;
+  -ms-overflow-style: none;
+  -webkit-box-orient: vertical !important;
+  -webkit-font-smoothing: antialiased !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-overflow-scrolling: touch;
+  .deep-analysis-content {
+  .deep-analysis-title {
+  .interaction-grid {
+  .list-mode-card {
+  .list-mode-image {
+  .mobile-gap {
+  .mobile-spacing {
+  );
   }
-}
-
-/* تحسين الخط العربي */
-.arabic-text {
+  * {
+  /* إصلاح التباعد */
+  0% {
+  100% {
+  align-items: stretch;
+  animation: shimmer 2s infinite;
+  background-size: 1000px 100%;
+  background: linear-gradient(
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95) !important;
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-radius: 50%;
+  border-radius: inherit;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  color: #1a202c !important;
+  color: #4a5568 !important;
+  color: #e2e8f0 !important;
+  color: #ffffff !important;
+  content: '';
+  cursor: pointer;
+  display: -webkit-box !important;
+  display: flex;
+  display: grid;
+  display: none;
+  flex-direction: column;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Arabic', 
-    'Cairo', 'Dubai', sans-serif;
+  font-weight: 700 !important;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  height: 0;
+  height: 100%;
+  height: 40px;
+  inset: 0;
+  left: -100%;
+  left: 100%;
+  left: 50%;
   letter-spacing: 0.02em;
-}
-
-/* تحسين حالة التركيز للإمكانية الوصول */
-.focus-visible:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-.dark .focus-visible:focus {
+  letter-spacing: normal !important;
+  line-clamp: 2 !important;
+  line-height: 1.4 !important;
+  line-height: 1.6 !important;
+  opacity: 0;
+  opacity: 1;
   outline-color: #60a5fa;
+  outline-offset: 2px;
+  outline: 2px solid #3b82f6;
+  overflow: hidden !important;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  position: relative;
+  scale: 0.95;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+  top: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transform: translateY(-1px);
+  transform: translateY(0);
+  transition: all 0.2s ease;
+  transition: left 0.5s;
+  transition: opacity 0.3s ease;
+  transition: width 0.3s, height 0.3s;
+  width: 0;
+  width: 100%;
+  width: 40px;
+  word-spacing: normal !important;
+.arabic-text {
+.categories-scroll {
+.categories-scroll::-webkit-scrollbar {
+.clickable-tag {
+.clickable-tag::before {
+.clickable-tag:active {
+.clickable-tag:hover {
+.clickable-tag:hover::before {
+.dark .deep-analysis-card {
+.dark .deep-analysis-shadow {
+.dark .deep-analysis-shadow:hover {
+.dark .deep-analysis-summary {
+.dark .deep-analysis-title {
+.dark .focus-visible:focus {
+.dark .skeleton-loader {
+.deep-analysis-card {
+.deep-analysis-card-container {
+.deep-analysis-card-container > div {
+.deep-analysis-card::before {
+.deep-analysis-card:hover::before {
+.deep-analysis-summary {
+.deep-analysis-title {
+.focus-visible:focus {
+.interaction-button {
+.interaction-button::after {
+.interaction-button:active::after {
+.interaction-grid {
+.list-mode-card {
+.quality-gradient-high {
+.quality-gradient-low {
+.quality-gradient-medium {
+.skeleton-loader {
+}
 } 
+@keyframes shimmer {
+@media (max-width: 640px) {
+@media (max-width: 768px) {
+@media (min-width: 1024px) {
+@media (prefers-reduced-motion: reduce) {
+/* تحسين البطاقات في الوضع القائمة */
+/* تحسين حالة التركيز للإمكانية الوصول */
+/* تحسين عرض الوسوم القابلة للضغط */
+/* تحسين قابلية القراءة على الجوال */
+/* إصلاح عرض البطاقات والنصوص */
+/* تحسين التمرير الأفقي للتصنيفات */
+/* تحسين الظلال للوضع الليلي */
+/* ضمان ظهور النصوص بوضوح */
+/* تأثير التحميل المحسن */
+/* تحسين أزرار التفاعل */
+/* تحسينات التحليلات العميقة */
+/* تحسين التباعد للجوال */
+/* تحسين التدرجات اللونية */
+/* تحسين الخط العربي */
+/* تحسين الحركات */
+/* Container للبطاقات لتحسين المظهر */

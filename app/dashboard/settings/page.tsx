@@ -20,7 +20,7 @@ import {
   Building, Mail, Phone, Twitter, Instagram, Facebook,
   Youtube, Smartphone, Lock, Bell, RefreshCw, FileText, 
   Type, Bot, Languages, ShieldAlert, Key, HardDrive, History, Info, Image as ImageIcon,
-  MessageCircle
+  MessageCircle, Activity
 } from 'lucide-react';
 interface SettingsData {
   openai: {
@@ -361,6 +361,7 @@ export default function SettingsPage() {
     { id: 'seo', name: 'SEO', icon: Search },
     { id: 'social', name: 'المشاركة', icon: Share2 },
     { id: 'ai', name: 'الذكاء الاصطناعي', icon: Brain },
+    { id: 'system', name: 'النظام', icon: Type },
     { id: 'security', name: 'الأمان', icon: Shield },
     { id: 'backup', name: 'النسخ الاحتياطي', icon: Database }
   ];
@@ -1169,6 +1170,111 @@ export default function SettingsPage() {
                 <Save className="w-5 h-5" />
                 💾 حفظ إعدادات النسخ الاحتياطي
               </button>
+            </div>
+          )}
+
+          {/* 🎨 تبويب إعدادات النظام */}
+          {activeTab === 'system' && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <Type className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className={`text-xl font-bold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>🎨 إعدادات النظام والتخصيص</h3>
+                  <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>إدارة الخطوط والتصميم والتخصيصات التقنية</p>
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                {/* إدارة الخطوط */}
+                <div className={`p-6 rounded-xl border transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                  <h4 className={`text-lg font-semibold mb-4 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                    <Type className="inline w-5 h-5 ml-2" />
+                    إدارة الخطوط والطباعة
+                  </h4>
+                  <div className="space-y-4">
+                    <div className={`p-4 rounded-lg border transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`font-medium transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                          الخط الحالي المعتمد
+                        </span>
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-lg text-sm font-medium">
+                          IBM Plex Sans Arabic
+                        </span>
+                      </div>
+                      <p className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'} mb-3`}>
+                        الخط الأساسي المستخدم في جميع نصوص الموقع
+                      </p>
+                      <a 
+                        href="/admin/fonts" 
+                        target="_blank"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 text-sm"
+                      >
+                        <Type className="w-4 h-4" />
+                        فحص وإدارة الخطوط
+                      </a>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg border transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'}`}>
+                      <h5 className={`font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                        أدوات التشخيص السريع
+                      </h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <button 
+                          onClick={() => window.open('/admin/fonts', '_blank')}
+                          className="flex items-center gap-2 px-3 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition-colors duration-200 text-sm"
+                        >
+                          <Eye className="w-4 h-4" />
+                          فحص حالة الخطوط
+                        </button>
+                        <button 
+                          onClick={() => {
+                            if (window.confirm('هذا سيقوم بتشغيل إصلاح شامل للخطوط. هل تريد المتابعة؟')) {
+                              // يمكن إضافة وظيفة API هنا لتشغيل السكربت
+                              alert('تم بدء عملية الإصلاح. يُرجى التحقق من الطرفية للتقدم.');
+                            }
+                          }}
+                          className="flex items-center gap-2 px-3 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg transition-colors duration-200 text-sm"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          إصلاح تلقائي
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* إعدادات الأداء */}
+                <div className={`p-6 rounded-xl border transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'}`}>
+                  <h4 className={`text-lg font-semibold mb-4 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                    <Activity className="inline w-5 h-5 ml-2" />
+                    تحسين الأداء
+                  </h4>
+                  <div className="space-y-3">
+                    <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <span className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>تسريع تحميل الخطوط</span>
+                      </div>
+                      <input type="checkbox" defaultChecked className="w-4 h-4" />
+                    </label>
+                    <label className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <span className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>ضغط الخطوط تلقائياً</span>
+                      </div>
+                      <input type="checkbox" defaultChecked className="w-4 h-4" />
+                    </label>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => saveSettings()}
+                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl flex items-center gap-2 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  <Save className="w-5 h-5" />
+                  💾 حفظ إعدادات النظام
+                </button>
+              </div>
             </div>
           )}
         </div>

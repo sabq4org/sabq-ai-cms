@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import '../styles/smart-recommendations.css';
 import type { Metadata } from 'next';
 import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import { Providers } from './providers';

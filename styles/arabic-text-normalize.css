@@ -1,119 +1,64 @@
-/* قواعد CSS إضافية لضمان التنسيق الصحيح للنصوص العربية */
 
-/* منع أي تأثيرات justify غير مرغوب فيها */
-* {
-  text-justify: none !important;
-}
-
-/* تطبيق التنسيق الصحيح على جميع عناصر HTML */
-h1, h2, h3, h4, h5, h6, p, span, div, a {
-  font-feature-settings: normal !important;
-  font-variant-ligatures: normal !important;
-  font-kerning: auto !important;
-}
-
-/* تخصيص خاص للنصوص العربية */
-[dir="rtl"] *,
-.arabic-text,
-.text-arabic {
-  word-spacing: normal !important;
-  letter-spacing: normal !important;
-  text-align: start !important;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   direction: rtl !important;
-  font-family: var(--font-ibm-plex-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif !important;
-}
-
-/* إصلاح خاص لعناصر Tailwind */
-.text-justify {
-  text-align: start !important;
-}
-
-.justify-start {
-  text-align: start !important;
-}
-
-/* إصلاح لعناصر المقالات */
-.prose * {
-  word-spacing: normal !important;
+  display: -webkit-box;
+  font-family: var(--font-family-base) !important;
+  font-feature-settings: normal !important;
+  font-kerning: auto !important;
+  font-variant-ligatures: normal !important;
   letter-spacing: normal !important;
-}
-
-.prose p,
+  line-clamp: 1;
+  line-clamp: 2;
+  line-clamp: 3;
+  line-clamp: 4;
+  overflow: hidden;
+  text-align: start !important;
+  text-justify: none !important;
+  text-overflow: ellipsis;
+  word-spacing: normal !important;
+.arabic-text,
+.bg-gradient-to-br *,
+.bg-gradient-to-r *,
+.bg-gray-800 *,
+.bg-white *,
+.btn,
+.button {
+.dark .bg-gray-800 * {
+.justify-start {
+.line-clamp-1 {
+.line-clamp-2 {
+.line-clamp-3 {
+.line-clamp-4 {
+.prose * {
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4,
 .prose h5,
 .prose h6 {
-  text-align: start !important;
-}
-
-/* إصلاح خاص للعناصر التفاعلية */
-button,
-.btn,
-.button {
-  word-spacing: normal !important;
-  letter-spacing: normal !important;
-}
-
-/* إصلاح للروابط */
-a {
-  word-spacing: normal !important;
-  letter-spacing: normal !important;
-}
-
-/* تأكيد أن النصوص لا تحتوي على تباعد مخصص */
-[style*="word-spacing"] {
-  word-spacing: normal !important;
-}
-
+.prose p,
+.text-arabic {
+.text-justify {
+[dir="rtl"] *,
 [style*="letter-spacing"] {
-  letter-spacing: normal !important;
+[style*="word-spacing"] {
 }
-
+* {
+/* تأكيد أن النصوص لا تحتوي على تباعد مخصص */
 /* إصلاح للعناصر ذات الخلفيات الملونة أو المظلمة */
-.bg-gradient-to-br *,
-.bg-gradient-to-r *,
-.bg-white *,
-.bg-gray-800 *,
-.dark .bg-gray-800 * {
-  word-spacing: normal !important;
-  letter-spacing: normal !important;
-}
-
+/* تطبيق التنسيق الصحيح على جميع عناصر HTML */
 /* إضافات لتحديد عدد الأسطر المعروضة */
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.line-clamp-4 {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+/* إصلاح خاص للعناصر التفاعلية */
+/* تخصيص خاص للنصوص العربية */
+/* إصلاح لعناصر المقالات */
+/* منع أي تأثيرات justify غير مرغوب فيها */
+/* إصلاح خاص لعناصر Tailwind */
+/* إصلاح للروابط */
+/* قواعد CSS إضافية لضمان التنسيق الصحيح للنصوص العربية */
+a {
+button,
+h1, h2, h3, h4, h5, h6, p, span, div, a {

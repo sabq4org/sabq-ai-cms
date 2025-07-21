@@ -1,0 +1,229 @@
+/* 📰 إصلاح شامل للخط المعتمد في صحيفة سبق */
+/* هذا الملف يضمن استخدام الخط الموحد في جميع عناصر الموقع */
+
+/* 🎯 تعريف الخط الأساسي المعتمد للصحيفة */
+:root {
+  --font-family-base: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-content: var(--font-family-base);
+  --font-family-heading: var(--font-family-base);
+}
+
+/* 📖 فرض الخط على جميع عناصر المحتوى */
+html, body, * {
+  font-family: var(--font-family-base) !important;
+}
+
+/* 📄 خط محتوى المقالات - الأولوية القصوى */
+.article-content,
+.article-content *,
+.article-text,
+.article-body,
+.prose,
+.prose * {
+  font-family: var(--font-family-content) !important;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'clig' 1, 'calt' 1 !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* 📝 عناوين المقالات */
+.article-title,
+.article-headline,
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  font-family: var(--font-family-heading) !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+}
+
+/* 📑 فقرات المحتوى */
+.article-content p,
+.article-content div,
+.article-content span,
+.article-content li {
+  font-family: var(--font-family-content) !important;
+  font-weight: 400 !important;
+  line-height: 1.8 !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* 🏷️ عناصر البطاقات والتوصيات */
+.card-title,
+.recommendation-title,
+.smart-recommendation-title {
+  font-family: var(--font-family-heading) !important;
+  font-weight: 600 !important;
+}
+
+.card-description,
+.recommendation-description,
+.smart-recommendation-description {
+  font-family: var(--font-family-content) !important;
+  font-weight: 400 !important;
+}
+
+/* 🔗 الروابط والأزرار */
+a, button, .btn {
+  font-family: var(--font-family-base) !important;
+}
+
+/* 📊 عناصر التحليل العميق */
+.deep-analysis-title,
+.deep-analysis-content,
+.analysis-card-title,
+.analysis-card-description {
+  font-family: var(--font-family-content) !important;
+}
+
+/* 🏠 عناصر الصفحة الرئيسية */
+.homepage-title,
+.homepage-description,
+.section-title {
+  font-family: var(--font-family-heading) !important;
+}
+
+/* 📱 تحسينات الموبايل */
+@media (max-width: 768px) {
+  .article-content {
+    font-size: 16px !important;
+    line-height: 1.7 !important;
+  }
+  
+  .article-content h1 {
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  .article-content h2 {
+    font-size: 1.5rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .article-content h3 {
+    font-size: 1.25rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .article-content p {
+    font-size: 16px !important;
+    line-height: 1.7 !important;
+    margin-bottom: 1.25rem !important;
+  }
+}
+
+/* 💻 تحسينات الديسكتوب */
+@media (min-width: 769px) {
+  .article-content {
+    font-size: 18px !important;
+    line-height: 1.8 !important;
+  }
+  
+  .article-content h1 {
+    font-size: 2.5rem !important;
+  }
+  
+  .article-content h2 {
+    font-size: 2rem !important;
+  }
+  
+  .article-content h3 {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* 🎨 تحسينات خاصة للعربية */
+[dir="rtl"], .arabic-text {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+.article-content blockquote {
+  border-right: 4px solid #3b82f6 !important;
+  border-left: none !important;
+  padding-right: 1rem !important;
+  padding-left: 0 !important;
+  margin-right: 0 !important;
+  font-style: italic !important;
+}
+
+.article-content ul, 
+.article-content ol {
+  padding-right: 1.5rem !important;
+  padding-left: 0 !important;
+}
+
+/* 🔤 إصلاح مشاكل التباعد */
+* {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  text-justify: none !important;
+}
+
+.text-justify {
+  text-align: right !important;
+}
+
+/* 🌙 الوضع المظلم */
+.dark .article-content {
+  color: #e2e8f0 !important;
+}
+
+.dark .article-content h1,
+.dark .article-content h2,
+.dark .article-content h3 {
+  color: #f1f5f9 !important;
+}
+
+.dark .article-content blockquote {
+  border-right-color: #60a5fa !important;
+  color: #cbd5e1 !important;
+}
+
+/* 🔧 إصلاحات محددة للمكونات */
+.smart-recommendation-block .card-title,
+.smart-recommendation-block .card-description {
+  font-family: var(--font-family-base) !important;
+}
+
+.header-title,
+.navigation-link {
+  font-family: var(--font-family-base) !important;
+}
+
+.footer-text,
+.footer-link {
+  font-family: var(--font-family-base) !important;
+}
+
+.dashboard-title,
+.dashboard-content {
+  font-family: var(--font-family-base) !important;
+}
+
+.ProseMirror,
+.ProseMirror * {
+  font-family: var(--font-family-content) !important;
+}
+
+/* 🎯 ضمان تطبيق الخط على العناصر الجديدة */
+.new-element,
+.dynamic-content,
+.generated-content,
+.ai-content {
+  font-family: var(--font-family-content) !important;
+}
+
+/* 🏁 ضمان التطبيق على كل شيء */
+*, *::before, *::after {
+  font-family: inherit !important;
+}
+
+/* 📖 تأكيد نهائي للمحتوى */
+.content, .main-content, .page-content {
+  font-family: var(--font-family-content) !important;
+}

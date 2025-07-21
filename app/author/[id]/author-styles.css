@@ -1,39 +1,28 @@
-/* Author Page Styles - تصميم بسيط ومتناسق */
 
-/* إزالة معظم الأنماط المخصصة لأننا نستخدم Tailwind CSS */
-
-/* تخصيصات بسيطة للتوافق مع الوضع المظلم */
-@media (prefers-color-scheme: dark) {
-  .author-page {
     color-scheme: dark;
-  }
-}
-
-/* تحسينات الأداء */
-img {
-  content-visibility: auto;
-}
-
-/* تحسين التمرير */
-.scrollbar-hide {
+    display: none !important;
   -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
+  .author-page {
+  .no-print {
+  }
+  content-visibility: auto;
   display: none;
-}
-
-/* انتقالات ناعمة */
-* {
+  scrollbar-width: none;
+  transition-duration: 150ms;
   transition-property: background-color, border-color, color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
+.scrollbar-hide {
+.scrollbar-hide::-webkit-scrollbar {
 }
-
-/* تحسين الطباعة */
-@media print {
-  .no-print {
-    display: none !important;
-  }
 } 
+@media (prefers-color-scheme: dark) {
+@media print {
+* {
+/* تخصيصات بسيطة للتوافق مع الوضع المظلم */
+/* إزالة معظم الأنماط المخصصة لأننا نستخدم Tailwind CSS */
+/* انتقالات ناعمة */
+/* تحسينات الأداء */
+/* تحسين التمرير */
+/* تحسين الطباعة */
+/* Author Page Styles - تصميم بسيط ومتناسق */
+img {

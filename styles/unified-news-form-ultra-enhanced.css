@@ -1,233 +1,142 @@
-/* تحسينات إضافية للنموذج الموحد للأخبار */
 
-/* خلفيات ناعمة ومتدرجة */
-.gentle-gradient-light {
-  background: linear-gradient(135deg, 
-    rgba(248, 250, 252, 0.95) 0%, 
-    rgba(241, 245, 249, 0.95) 25%,
-    rgba(239, 246, 255, 0.95) 50%,
-    rgba(238, 242, 255, 0.95) 75%,
-    rgba(245, 243, 255, 0.95) 100%
-  );
-}
-
-.gentle-gradient-dark {
-  background: linear-gradient(135deg,
-    rgba(15, 23, 42, 0.95) 0%,
-    rgba(30, 41, 59, 0.95) 25%,
-    rgba(51, 65, 85, 0.95) 50%,
-    rgba(71, 85, 105, 0.95) 75%,
-    rgba(100, 116, 139, 0.95) 100%
-  );
-}
-
-/* تأثيرات الظلال الناعمة */
-.soft-shadow {
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+  
     0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
-.soft-shadow-dark {
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.4),
-    0 2px 4px -1px rgba(0, 0, 0, 0.2),
     0 0 0 1px rgba(255, 255, 255, 0.1);
-}
-
-/* تأثيرات التمرير */
-.smooth-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.smooth-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
-}
-
-/* الألوان الناعمة للبطاقات */
-.card-soft-blue {
-  background: linear-gradient(145deg, 
-    rgba(239, 246, 255, 0.6) 0%, 
+    0 0 0 3px rgba(59, 130, 246, 0.1),
+    0 0 0 3px rgba(59, 130, 246, 0.2),
+    0 0 20px rgba(59, 130, 246, 0.1);
+    0 0 20px rgba(59, 130, 246, 0.2);
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 4px 6px -1px rgba(0, 0, 0, 0.4),
+    90deg,
+    background: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    opacity: 1;
+    rgba(100, 116, 139, 0.95) 100%
+    rgba(124, 58, 237, 0.1) 100%
+    rgba(127, 29, 29, 0.2) 0%, 
+    rgba(15, 23, 42, 0.95) 0%,
+    rgba(154, 52, 18, 0.2) 0%, 
+    rgba(185, 28, 28, 0.1) 100%
+    rgba(20, 83, 45, 0.2) 0%, 
+    rgba(209, 250, 229, 0.6) 100%
     rgba(219, 234, 254, 0.6) 100%
-  );
-  border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-.card-soft-blue-dark {
-  background: linear-gradient(145deg, 
+    rgba(22, 163, 74, 0.1) 100%
+    rgba(234, 88, 12, 0.1) 100%
+    rgba(236, 253, 245, 0.6) 0%, 
+    rgba(238, 242, 255, 0.95) 75%,
+    rgba(239, 246, 255, 0.6) 0%, 
+    rgba(239, 246, 255, 0.95) 50%,
+    rgba(241, 245, 249, 0.95) 25%,
+    rgba(243, 232, 255, 0.6) 100%
+    rgba(245, 243, 255, 0.95) 100%
+    rgba(248, 250, 252, 0.95) 0%, 
+    rgba(250, 245, 255, 0.6) 0%, 
+    rgba(254, 226, 226, 0.6) 100%
+    rgba(254, 235, 200, 0.6) 100%
+    rgba(254, 242, 242, 0.6) 0%, 
+    rgba(255, 247, 237, 0.6) 0%, 
+    rgba(30, 41, 59, 0.95) 25%,
     rgba(30, 58, 138, 0.2) 0%, 
     rgba(37, 99, 235, 0.1) 100%
-  );
-  border: 1px solid rgba(59, 130, 246, 0.3);
-}
-
-.card-soft-green {
-  background: linear-gradient(145deg, 
-    rgba(236, 253, 245, 0.6) 0%, 
-    rgba(209, 250, 229, 0.6) 100%
-  );
-  border: 1px solid rgba(34, 197, 94, 0.2);
-}
-
-.card-soft-green-dark {
-  background: linear-gradient(145deg, 
-    rgba(20, 83, 45, 0.2) 0%, 
-    rgba(22, 163, 74, 0.1) 100%
-  );
-  border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-.card-soft-red {
-  background: linear-gradient(145deg, 
-    rgba(254, 242, 242, 0.6) 0%, 
-    rgba(254, 226, 226, 0.6) 100%
-  );
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-.card-soft-red-dark {
-  background: linear-gradient(145deg, 
-    rgba(127, 29, 29, 0.2) 0%, 
-    rgba(185, 28, 28, 0.1) 100%
-  );
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.card-soft-purple {
-  background: linear-gradient(145deg, 
-    rgba(250, 245, 255, 0.6) 0%, 
-    rgba(243, 232, 255, 0.6) 100%
-  );
-  border: 1px solid rgba(147, 51, 234, 0.2);
-}
-
-.card-soft-purple-dark {
-  background: linear-gradient(145deg, 
-    rgba(76, 29, 149, 0.2) 0%, 
-    rgba(124, 58, 237, 0.1) 100%
-  );
-  border: 1px solid rgba(147, 51, 234, 0.3);
-}
-
-.card-soft-orange {
-  background: linear-gradient(145deg, 
-    rgba(255, 247, 237, 0.6) 0%, 
-    rgba(254, 235, 200, 0.6) 100%
-  );
-  border: 1px solid rgba(249, 115, 22, 0.2);
-}
-
-.card-soft-orange-dark {
-  background: linear-gradient(145deg, 
-    rgba(154, 52, 18, 0.2) 0%, 
-    rgba(234, 88, 12, 0.1) 100%
-  );
-  border: 1px solid rgba(249, 115, 22, 0.3);
-}
-
-/* تأثيرات الحقول */
-.input-glow:focus {
-  box-shadow: 
-    0 0 0 3px rgba(59, 130, 246, 0.1),
-    0 0 20px rgba(59, 130, 246, 0.1);
-}
-
-.input-glow-dark:focus {
-  box-shadow: 
-    0 0 0 3px rgba(59, 130, 246, 0.2),
-    0 0 20px rgba(59, 130, 246, 0.2);
-}
-
-/* تحسينات للنشر المجدول */
-.schedule-highlight {
-  position: relative;
-  overflow: hidden;
-}
-
-.schedule-highlight::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
+    rgba(51, 65, 85, 0.95) 50%,
     rgba(59, 130, 246, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-}
-
-.schedule-highlight:hover::before {
-  left: 100%;
-}
-
-/* إضافات للحركات */
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.slide-in {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
+    rgba(71, 85, 105, 0.95) 75%,
+    rgba(76, 29, 149, 0.2) 0%, 
     transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
     transform: translateX(0);
-  }
-}
-
-/* تحسينات الخطوط */
-.text-soft-shadow {
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.text-soft-shadow-dark {
-  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
-}
-
-/* تأثيرات الأزرار */
-.btn-glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.btn-glass-dark {
-  background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* تحسينات متجاوبة */
-@media (max-width: 768px) {
-  .gentle-gradient-light,
+    transform: translateY(0);
+    transform: translateY(10px);
+    transparent
+    transparent,
   .gentle-gradient-dark {
-    background: none;
-  }
-  
-  .soft-shadow,
+  .gentle-gradient-light,
   .soft-shadow-dark {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  .soft-shadow,
+  );
   }
+  animation: fadeIn 0.5s ease-in-out;
+  animation: slideIn 0.3s ease-out;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(
+  background: linear-gradient(135deg,
+  background: linear-gradient(135deg, 
+  background: linear-gradient(145deg, 
+  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  border: 1px solid rgba(147, 51, 234, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
+  content: '';
+  from {
+  height: 100%;
+  left: -100%;
+  left: 100%;
+  overflow: hidden;
+  position: absolute;
+  position: relative;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+  to {
+  top: 0;
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: left 0.5s;
+  width: 100%;
+.btn-glass {
+.btn-glass-dark {
+.card-soft-blue {
+.card-soft-blue-dark {
+.card-soft-green {
+.card-soft-green-dark {
+.card-soft-orange {
+.card-soft-orange-dark {
+.card-soft-purple {
+.card-soft-purple-dark {
+.card-soft-red {
+.card-soft-red-dark {
+.fade-in {
+.gentle-gradient-dark {
+.gentle-gradient-light {
+.input-glow-dark:focus {
+.input-glow:focus {
+.schedule-highlight {
+.schedule-highlight::before {
+.schedule-highlight:hover::before {
+.slide-in {
+.smooth-hover {
+.smooth-hover:hover {
+.soft-shadow {
+.soft-shadow-dark {
+.text-soft-shadow {
+.text-soft-shadow-dark {
+}
 } 
+@keyframes fadeIn {
+@keyframes slideIn {
+@media (max-width: 768px) {
+/* تحسينات إضافية للنموذج الموحد للأخبار */
+/* الألوان الناعمة للبطاقات */
+/* تأثيرات الظلال الناعمة */
+/* تحسينات للنشر المجدول */
+/* خلفيات ناعمة ومتدرجة */
+/* إضافات للحركات */
+/* تأثيرات الأزرار */
+/* تأثيرات التمرير */
+/* تأثيرات الحقول */
+/* تحسينات الخطوط */
+/* تحسينات متجاوبة */

@@ -1,120 +1,80 @@
-/* تحسينات صفحة ملف القارئ الذكي */
 
-/* التأكد من الاتجاه الصحيح */
-.smart-profile-container {
+  
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0;
+    opacity: 1;
+    text-align: center;
+    transform: translateY(0);
+    transform: translateY(10px);
+  .smart-profile-header {
+  .smart-profile-stats {
+  .smart-profile-tabs {
+  }
+  animation: fadeIn 0.5s ease-in-out;
+  background: inherit;
+  bottom: 0;
+  content: '';
+  direction: ltr;
   direction: rtl !important;
-  text-align: right;
-}
-
-/* تحسين تنسيق الأزرار */
-.smart-profile-tabs {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-
-/* تحسين البطاقات */
-.smart-profile-card {
-  text-align: right;
   direction: rtl;
-}
-
-/* تحسين الأيقونات في RTL */
-.smart-profile-icon {
+  display: flex;
+  display: grid;
+  flex-wrap: wrap;
+  float: left;
+  from {
+  gap: 1.5rem;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  left: 0;
+  margin-bottom: 2rem;
   margin-left: 0.5rem;
   margin-right: 0;
-}
-
-/* تحسين شريط التقدم */
-.progress-bar-container {
-  direction: ltr;
-}
-
-.progress-bar-fill {
-  float: left;
-}
-
-/* تحسين التوافق مع الجوال */
-@media (max-width: 768px) {
-  .smart-profile-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .smart-profile-stats {
-    justify-content: center;
-  }
-  
-  .smart-profile-tabs {
-    justify-content: center;
-  }
-}
-
-/* تحسين الرسوم المتحركة */
-.smart-profile-animate {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* تحسين الألوان في الوضع الليلي */
-.dark .smart-profile-gradient {
-  opacity: 0.15;
-}
-
-/* تحسين المسافات */
-.smart-profile-section {
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-/* إصلاح محاذاة النصوص */
-.text-right-important {
-  text-align: right !important;
-}
-
-.text-left-important {
-  text-align: left !important;
-}
-
-/* تحسين عرض الإحصائيات */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
   margin-top: 1.5rem;
-}
-
-/* تحسين البطاقات المتدرجة */
-.gradient-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.gradient-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: inherit;
   opacity: 0.1;
-  z-index: 0;
-}
-
-.gradient-card > * {
+  opacity: 0.15;
+  overflow: hidden;
+  padding: 2rem;
+  position: absolute;
   position: relative;
+  right: 0;
+  text-align: left !important;
+  text-align: right !important;
+  text-align: right;
+  to {
+  top: 0;
+  z-index: 0;
   z-index: 1;
+.dark .smart-profile-gradient {
+.gradient-card {
+.gradient-card > * {
+.gradient-card::before {
+.progress-bar-container {
+.progress-bar-fill {
+.smart-profile-animate {
+.smart-profile-card {
+.smart-profile-container {
+.smart-profile-icon {
+.smart-profile-section {
+.smart-profile-tabs {
+.stats-grid {
+.text-left-important {
+.text-right-important {
+}
 } 
+@keyframes fadeIn {
+@media (max-width: 768px) {
+/* تحسينات صفحة ملف القارئ الذكي */
+/* تحسين الألوان في الوضع الليلي */
+/* التأكد من الاتجاه الصحيح */
+/* تحسين التوافق مع الجوال */
+/* إصلاح محاذاة النصوص */
+/* تحسين البطاقات المتدرجة */
+/* تحسين الرسوم المتحركة */
+/* تحسين تنسيق الأزرار */
+/* تحسين شريط التقدم */
+/* تحسين عرض الإحصائيات */
+/* تحسين الأيقونات في RTL */
+/* تحسين البطاقات */
+/* تحسين المسافات */

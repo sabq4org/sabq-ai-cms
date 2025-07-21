@@ -1,0 +1,202 @@
+/* إصلاحات Safari للتحليل العميق - CSS محسن للتوافق */
+
+/* تحسين ألوان النصوص لضمان التباين الجيد في Safari */
+.deep-analysis-title {
+  color: #1a202c !important; /* أسود داكن للوضع العادي */
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dark .deep-analysis-title {
+  color: #ffffff !important; /* أبيض نقي للوضع الداكن */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.deep-analysis-summary {
+  color: #4a5568 !important; /* رمادي متوسط للوضع العادي */
+}
+
+.dark .deep-analysis-summary {
+  color: #e2e8f0 !important; /* رمادي فاتح للوضع الداكن */
+}
+
+/* إصلاح مشكلة الألوان في Safari مع webkit prefixes */
+.deep-analysis-card {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* تحسين ألوان التصنيفات */
+.analysis-category-tag {
+  background-color: #f7fafc !important;
+  color: #2d3748 !important;
+  border: 1px solid #e2e8f0;
+}
+
+.dark .analysis-category-tag {
+  background-color: #2d3748 !important;
+  color: #f7fafc !important;
+  border: 1px solid #4a5568;
+}
+
+.analysis-category-tag.purple {
+  background-color: #faf5ff !important;
+  color: #553c9a !important;
+  border: 1px solid #d6bcfa;
+}
+
+.dark .analysis-category-tag.purple {
+  background-color: #44337a !important;
+  color: #e9d5ff !important;
+  border: 1px solid #7c3aed;
+}
+
+/* تحسين أزرار التفاعل */
+.analysis-interaction-button {
+  background-color: #f7fafc !important;
+  color: #4a5568 !important;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.analysis-interaction-button:hover {
+  background-color: #edf2f7 !important;
+  color: #2d3748 !important;
+}
+
+.dark .analysis-interaction-button {
+  background-color: #2d3748 !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #4a5568;
+}
+
+.dark .analysis-interaction-button:hover {
+  background-color: #4a5568 !important;
+  color: #f7fafc !important;
+}
+
+/* تحسين عرض الوقت والتاريخ */
+.analysis-meta-text {
+  color: #718096 !important;
+  font-size: 0.875rem;
+}
+
+.dark .analysis-meta-text {
+  color: #a0aec0 !important;
+}
+
+/* إصلاح مشاكل التحديد والنسخ في Safari */
+.analysis-content {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* تحسين مؤشر الجودة */
+.quality-indicator {
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.quality-indicator.high {
+  background-color: #38a169 !important;
+  color: white !important;
+}
+
+.quality-indicator.medium {
+  background-color: #ed8936 !important;
+  color: white !important;
+}
+
+.quality-indicator.low {
+  background-color: #e53e3e !important;
+  color: white !important;
+}
+
+/* تحسين الحدود والظلال لـ Safari */
+.deep-analysis-card-container {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.dark .deep-analysis-card-container {
+  border: 1px solid #4a5568;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.deep-analysis-card-container:hover {
+  border-color: #cbd5e0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dark .deep-analysis-card-container:hover {
+  border-color: #718096;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+}
+
+/* إصلاح مخصص لـ Safari على iOS */
+@supports (-webkit-touch-callout: none) {
+  .deep-analysis-title {
+    color: #000000 !important;
+    font-weight: 700 !important;
+  }
+  
+  .dark .deep-analysis-title {
+    color: #ffffff !important;
+  }
+  
+  .deep-analysis-summary {
+    color: #666666 !important;
+  }
+  
+  .dark .deep-analysis-summary {
+    color: #cccccc !important;
+  }
+}
+
+/* تحسين التمرير الأفقي */
+.deep-analysis-scroll-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.deep-analysis-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* تحسين الرسوم المتحركة لـ Safari */
+@-webkit-keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.deep-analysis-card-container {
+  -webkit-animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* تحسين عرض الصور في Safari */
+.deep-analysis-image {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* تحسين الخطوط العربية في Safari */
+.arabic-text {
+  font-family: 'Noto Sans Arabic', 'Apple Color Emoji', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  direction: rtl;
+  text-align: right;
+}

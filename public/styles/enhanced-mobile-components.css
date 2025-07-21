@@ -1,310 +1,176 @@
-/* ====================================
-   Enhanced Mobile Components Styles
-   ==================================== */
 
-/* Compact News Card Animations */
-.compact-news-card {
-  @apply transition-all duration-300 ease-in-out;
-}
-
-.compact-news-card:hover {
-  @apply transform scale-[1.02] shadow-lg;
-}
-
-.compact-news-card .image-hover {
-  @apply transition-transform duration-500 ease-out;
-}
-
-.compact-news-card:hover .image-hover {
-  @apply scale-110;
-}
-
-/* Category Tag Styles */
-.category-tag {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-/* Audio Player Progress Bar */
-.audio-progress {
-  @apply appearance-none bg-transparent cursor-pointer;
-}
-
-.audio-progress::-webkit-slider-track {
-  @apply h-1 rounded-lg;
-  background: rgba(156, 163, 175, 0.3);
-}
-
-.audio-progress::-webkit-slider-thumb {
-  @apply appearance-none w-3 h-3 rounded-full cursor-pointer;
-  background: #3B82F6;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.audio-progress::-moz-range-track {
-  @apply h-1 rounded-lg;
-  background: rgba(156, 163, 175, 0.3);
-  border: none;
-}
-
-.audio-progress::-moz-range-thumb {
-  @apply w-3 h-3 rounded-full cursor-pointer border-0;
-  background: #3B82F6;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Dark mode audio progress */
-.dark .audio-progress::-webkit-slider-track {
-  background: rgba(75, 85, 99, 0.5);
-}
-
-.dark .audio-progress::-moz-range-track {
-  background: rgba(75, 85, 99, 0.5);
-}
-
-/* Stats Bar Animation */
-.stats-bar-item {
-  @apply transition-all duration-300;
-}
-
-.stats-bar-item:hover {
-  @apply transform scale-105;
-}
-
-/* Thumbnail News Card Hover Effects */
-.thumbnail-news-card {
-  @apply transition-all duration-300;
-}
-
-.thumbnail-news-card:hover {
-  @apply shadow-md transform translate-y-[-2px];
-}
-
-/* Enhanced Mobile Layout Utilities */
-.mobile-container {
-  @apply px-4 py-2 mx-auto max-w-sm;
-}
-
-.mobile-grid-compact {
-  @apply grid grid-cols-1 gap-4;
-}
-
-.mobile-grid-cards {
-  @apply grid grid-cols-2 gap-3;
-}
-
-/* Responsive Text Sizes */
-.mobile-title {
-  @apply text-base font-semibold leading-tight;
-}
-
-.mobile-subtitle {
-  @apply text-sm font-medium;
-}
-
-.mobile-body {
-  @apply text-sm leading-relaxed;
-}
-
-.mobile-caption {
-  @apply text-xs;
-}
-
-/* Touch-friendly Button Styles */
-.mobile-button {
-  @apply min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg;
-  @apply transition-all duration-200 active:scale-95;
-}
-
-.mobile-button-primary {
-  @apply bg-blue-600 text-white;
-}
-
-.mobile-button-primary:hover {
-  @apply bg-blue-700;
-}
-
-.mobile-button-secondary {
-  @apply bg-gray-100 text-gray-700;
-}
-
-.mobile-button-secondary:hover {
-  @apply bg-gray-200;
-}
-
-.dark .mobile-button-secondary {
-  @apply bg-gray-700 text-gray-300;
-}
-
-.dark .mobile-button-secondary:hover {
-  @apply bg-gray-600;
-}
-
-/* Loading Animations */
-.loading-pulse {
-  @apply animate-pulse bg-gray-200 rounded;
-}
-
-.dark .loading-pulse {
-  @apply bg-gray-700;
-}
-
-.loading-shimmer {
-  background: linear-gradient(90deg, 
-    rgba(229, 231, 235, 0) 0%, 
-    rgba(229, 231, 235, 0.8) 50%, 
-    rgba(229, 231, 235, 0) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.dark .loading-shimmer {
-  background: linear-gradient(90deg, 
-    rgba(75, 85, 99, 0) 0%, 
-    rgba(75, 85, 99, 0.8) 50%, 
-    rgba(75, 85, 99, 0) 100%
-  );
-  background-size: 200% 100%;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* Scroll Improvements for Mobile */
-.mobile-scroll-container {
-  @apply overflow-x-auto scrollbar-hide;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-
-.mobile-scroll-item {
-  scroll-snap-align: start;
-  scroll-snap-stop: normal;
-}
-
-/* Hide scrollbar but keep functionality */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* Safe Area Support for iOS */
-.mobile-safe-top {
-  padding-top: env(safe-area-inset-top);
-}
-
-.mobile-safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.mobile-safe-left {
-  padding-left: env(safe-area-inset-left);
-}
-
-.mobile-safe-right {
-  padding-right: env(safe-area-inset-right);
-}
-
-/* Enhanced Card Shadows */
-.card-shadow-soft {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.card-shadow-medium {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.card-shadow-strong {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.dark .card-shadow-soft {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.dark .card-shadow-medium {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.dark .card-shadow-strong {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-}
-
-/* Gradient Overlays */
-.gradient-overlay-dark {
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.3) 50%,
-    transparent 100%
-  );
-}
-
-.gradient-overlay-light {
-  background: linear-gradient(
-    to top,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(255, 255, 255, 0.5) 50%,
-    transparent 100%
-  );
-}
-
-/* Improved Focus States for Accessibility */
-.mobile-focus {
-  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
-}
-
-.dark .mobile-focus {
-  @apply focus:ring-offset-gray-900;
-}
-
-/* Typography Improvements */
-.text-balance {
-  text-wrap: balance;
-}
-
-.text-pretty {
-  text-wrap: pretty;
-}
-
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-  .compact-news-card,
-  .thumbnail-news-card,
-  .stats-bar-item,
-  .mobile-button {
+  
+    @apply border-2 border-current;
     @apply transition-none;
-  }
-  
-  .breaking-badge::before,
-  .loading-shimmer {
     animation: none;
-  }
-}
-
-/* High Contrast Mode Support */
-@media (prefers-contrast: high) {
-  .category-tag {
-    @apply border-2 border-current;
-  }
-  
-  .mobile-button {
-    @apply border-2 border-current;
-  }
-}
-
-/* Print Styles */
-@media print {
-  .mobile-button,
+    display: none !important;
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(229, 231, 235, 0.8) 50%, 
+    rgba(229, 231, 235, 0) 0%, 
+    rgba(229, 231, 235, 0) 100%
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(75, 85, 99, 0.8) 50%, 
+    rgba(75, 85, 99, 0) 0%, 
+    rgba(75, 85, 99, 0) 100%
+    to top,
+    transparent 100%
+   ==================================== */
+   Enhanced Mobile Components Styles
+  -ms-overflow-style: none;
+  -webkit-backdrop-filter: blur(8px);
+  -webkit-overflow-scrolling: touch;
   .audio-progress,
   .breaking-badge::before {
-    display: none !important;
+  .breaking-badge::before,
+  .category-tag {
+  .compact-news-card,
+  .loading-shimmer {
+  .mobile-button {
+  .mobile-button,
+  .stats-bar-item,
+  .thumbnail-news-card,
+  );
   }
+  @apply animate-pulse bg-gray-200 rounded;
+  @apply appearance-none bg-transparent cursor-pointer;
+  @apply appearance-none w-3 h-3 rounded-full cursor-pointer;
+  @apply bg-blue-600 text-white;
+  @apply bg-blue-700;
+  @apply bg-gray-100 text-gray-700;
+  @apply bg-gray-200;
+  @apply bg-gray-600;
+  @apply bg-gray-700 text-gray-300;
+  @apply bg-gray-700;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  @apply focus:ring-offset-gray-900;
+  @apply grid grid-cols-1 gap-4;
+  @apply grid grid-cols-2 gap-3;
+  @apply h-1 rounded-lg;
+  @apply min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg;
+  @apply overflow-x-auto scrollbar-hide;
+  @apply px-4 py-2 mx-auto max-w-sm;
+  @apply scale-110;
+  @apply shadow-md transform translate-y-[-2px];
+  @apply text-base font-semibold leading-tight;
+  @apply text-sm font-medium;
+  @apply text-sm leading-relaxed;
+  @apply text-xs;
+  @apply transform scale-[1.02] shadow-lg;
+  @apply transform scale-105;
+  @apply transition-all duration-200 active:scale-95;
+  @apply transition-all duration-300 ease-in-out;
+  @apply transition-all duration-300;
+  @apply transition-transform duration-500 ease-out;
+  @apply w-3 h-3 rounded-full cursor-pointer border-0;
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+  animation: shimmer 1.5s infinite;
+  backdrop-filter: blur(8px);
+  background-size: 200% 100%;
+  background: #3B82F6;
+  background: linear-gradient(
+  background: linear-gradient(90deg, 
+  background: rgba(156, 163, 175, 0.3);
+  background: rgba(75, 85, 99, 0.5);
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  display: none;
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  text-wrap: balance;
+  text-wrap: pretty;
+.audio-progress {
+.audio-progress::-moz-range-thumb {
+.audio-progress::-moz-range-track {
+.audio-progress::-webkit-slider-thumb {
+.audio-progress::-webkit-slider-track {
+.card-shadow-medium {
+.card-shadow-soft {
+.card-shadow-strong {
+.category-tag {
+.compact-news-card .image-hover {
+.compact-news-card {
+.compact-news-card:hover .image-hover {
+.compact-news-card:hover {
+.dark .audio-progress::-moz-range-track {
+.dark .audio-progress::-webkit-slider-track {
+.dark .card-shadow-medium {
+.dark .card-shadow-soft {
+.dark .card-shadow-strong {
+.dark .loading-pulse {
+.dark .loading-shimmer {
+.dark .mobile-button-secondary {
+.dark .mobile-button-secondary:hover {
+.dark .mobile-focus {
+.gradient-overlay-dark {
+.gradient-overlay-light {
+.loading-pulse {
+.loading-shimmer {
+.mobile-body {
+.mobile-button {
+.mobile-button-primary {
+.mobile-button-primary:hover {
+.mobile-button-secondary {
+.mobile-button-secondary:hover {
+.mobile-caption {
+.mobile-container {
+.mobile-focus {
+.mobile-grid-cards {
+.mobile-grid-compact {
+.mobile-safe-bottom {
+.mobile-safe-left {
+.mobile-safe-right {
+.mobile-safe-top {
+.mobile-scroll-container {
+.mobile-scroll-item {
+.mobile-subtitle {
+.mobile-title {
+.scrollbar-hide {
+.scrollbar-hide::-webkit-scrollbar {
+.stats-bar-item {
+.stats-bar-item:hover {
+.text-balance {
+.text-pretty {
+.thumbnail-news-card {
+.thumbnail-news-card:hover {
+}
 } 
+@keyframes shimmer {
+@media (prefers-contrast: high) {
+@media (prefers-reduced-motion: reduce) {
+@media print {
+/* ====================================
+/* Audio Player Progress Bar */
+/* Category Tag Styles */
+/* Compact News Card Animations */
+/* Dark mode audio progress */
+/* Enhanced Card Shadows */
+/* Enhanced Mobile Layout Utilities */
+/* Gradient Overlays */
+/* Hide scrollbar but keep functionality */
+/* High Contrast Mode Support */
+/* Improved Focus States for Accessibility */
+/* Loading Animations */
+/* Print Styles */
+/* Reduced Motion Support */
+/* Responsive Text Sizes */
+/* Safe Area Support for iOS */
+/* Scroll Improvements for Mobile */
+/* Stats Bar Animation */
+/* Thumbnail News Card Hover Effects */
+/* Touch-friendly Button Styles */
+/* Typography Improvements */

@@ -11,7 +11,7 @@ import {
   Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Notification } from '@/lib/services/NotificationService';
+import { Notification, NotificationAction } from '@/lib/services/NotificationService';
 
 interface NotificationToastProps {
   maxVisible?: number;
@@ -96,13 +96,26 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
   };
 
   // تنفيذ إجراء الإشعار
-  const executeAction = async (action: any, notificationId: string) => {
+  const executeAction = async (action: NotificationAction, notificationId: string) => {
     try {
-      await action.action();
-      // إزالة الإشعار بعد تنفيذ الإجراء
+      if (!action) {
+        console.warn('No action provided for notification');
+        return;
+      }
+
+      // التحقق من وجود دالة الإجراء وتنفيذها
+      if (typeof action.action === 'function') {
+        await action.action();
+      } else {
+        console.warn('Action does not contain a valid function:', action);
+        return;
+      }
+
+      // إزالة الإشعار بعد تنفيذ الإجراء بنجاح
       remove(notificationId);
     } catch (error) {
       console.error('Failed to execute notification action:', error);
+      // عدم إزالة الإشعار في حالة الخطأ للسماح للمستخدم بالمحاولة مرة أخرى
     }
   };
 
@@ -162,10 +175,14 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
                 {/* إجراءات الإشعار */}
                 {notification.actions && notification.actions.length > 0 && (
                   <div className="flex gap-2 mt-3">
-                    {notification.actions.slice(0, 2).map((action) => (
+                    {notification.actions.slice(0, 2).map((action, actionIndex) => (
                       <Button
-                        key={action.id}
-                        onClick={() => executeAction(action, notification.id)}
+                        key={action.id || `action-${actionIndex}`}
+                        onClick={() => {
+                          if (action) {
+                            executeAction(action, notification.id);
+                          }
+                        }}
                         size="sm"
                         variant={action.style === 'primary' ? 'default' : 'outline'}
                         className={`text-xs ${

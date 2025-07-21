@@ -1,95 +1,54 @@
-/* إصلاحات خاصة للتوسيط والمحاذاة */
 
-/* إصلاح التوسيط العام */
-.center-fix {
-  text-align: center !important;
-  justify-content: center !important;
+    text-align: center !important;
+  .lg\\:text-center {
+  .md\\:text-center {
+  .sm\\:text-center {
+  }
   align-items: center !important;
+  align-self: center !important;
+  display: block !important;
+  justify-content: center !important;
+  justify-self: center !important;
   margin-left: auto !important;
   margin-right: auto !important;
-}
-
-/* إصلاح للعناوين المتوسطة */
-h1.text-center,
-h2.text-center,
-h3.text-center,
+  place-items: center !important;
+  text-align: center !important;
+  width: 100% !important;
+.center-fix {
+.container.mx-auto,
+.deep-analysis-widget .text-center * {
+.deep-analysis-widget .text-center,
+.flex.items-center {
+.flex.justify-center {
+.grid.place-items-center * {
+.max-w-3xl.mx-auto {
+.max-w-4xl.mx-auto,
+.max-w-5xl.mx-auto,
+.max-w-6xl.mx-auto,
+.max-w-7xl.mx-auto,
+.mx-auto {
+.place-items-center {
 .text-center h1,
 .text-center h2,
 .text-center h3 {
-  text-align: center !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  width: 100% !important;
-  display: block !important;
-}
-
-/* إصلاح للفقرات المتوسطة */
-p.text-center,
 .text-center p {
-  text-align: center !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
 }
-
-/* إصلاح للعناصر المرنة المتوسطة */
-.flex.justify-center {
-  justify-content: center !important;
-}
-
-.flex.items-center {
-  align-items: center !important;
-}
-
-/* إصلاح خاص للويدجت */
-.deep-analysis-widget .text-center,
-.deep-analysis-widget .text-center * {
-  text-align: center !important;
-}
-
-/* إصلاح للعناصر التي تحتوي على أطفال متوسطين */
-.mx-auto {
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* إصلاح Grid المتوسط */
-.place-items-center {
-  place-items: center !important;
-}
-
-.grid.place-items-center * {
-  justify-self: center !important;
-  align-self: center !important;
-}
-
-/* إصلاح للكونتينرات المتوسطة */
-.container.mx-auto,
-.max-w-7xl.mx-auto,
-.max-w-6xl.mx-auto,
-.max-w-5xl.mx-auto,
-.max-w-4xl.mx-auto,
-.max-w-3xl.mx-auto {
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* إصلاح خاص للديسكتوب */
-@media (min-width: 1024px) {
-  .lg\\:text-center {
-    text-align: center !important;
-  }
-}
-
-/* إصلاح خاص للتابلت */
-@media (min-width: 768px) {
-  .md\\:text-center {
-    text-align: center !important;
-  }
-}
-
-/* إصلاح خاص للموبايل */
 @media (max-width: 767px) {
-  .sm\\:text-center {
-    text-align: center !important;
-  }
-}
+@media (min-width: 1024px) {
+@media (min-width: 768px) {
+/* إصلاح للعناصر التي تحتوي على أطفال متوسطين */
+/* إصلاحات خاصة للتوسيط والمحاذاة */
+/* إصلاح للعناصر المرنة المتوسطة */
+/* إصلاح التوسيط العام */
+/* إصلاح خاص للتابلت */
+/* إصلاح خاص للديسكتوب */
+/* إصلاح خاص للموبايل */
+/* إصلاح خاص للويدجت */
+/* إصلاح للعناوين المتوسطة */
+/* إصلاح للفقرات المتوسطة */
+/* إصلاح للكونتينرات المتوسطة */
+/* إصلاح Grid المتوسط */
+h1.text-center,
+h2.text-center,
+h3.text-center,
+p.text-center,

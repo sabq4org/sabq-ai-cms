@@ -1,978 +1,528 @@
-/* 📱 تحسينات شاملة للموبايل - تجربة مستخدم محسنة */
 
-/* ===============================
-   🎯 1. قابلية القراءة والنصوص
-   =============================== */
-
-/* أحجام نصوص محسنة للموبايل */
-@media (max-width: 768px) {
-  /* العناوين الرئيسية */
-  h1 {
-    font-size: 1.75rem !important; /* 28px */
-    line-height: 1.3 !important;
-    margin-bottom: 1rem !important;
-  }
   
-  h2 {
-    font-size: 1.5rem !important; /* 24px */
-    line-height: 1.4 !important;
-    margin-bottom: 0.75rem !important;
-  }
-  
-  h3 {
-    font-size: 1.25rem !important; /* 20px */
-    line-height: 1.4 !important;
-  }
-  
-  /* النصوص العادية */
-  p, span, div {
-    font-size: 1rem !important; /* 16px - الحد الأدنى للقراءة المريحة */
-    line-height: 1.6 !important;
-  }
-  
-  /* النصوص الصغيرة */
-  .text-sm {
-    font-size: 0.875rem !important; /* 14px */
-  }
-  
-  .text-xs {
-    font-size: 0.75rem !important; /* 12px */
-  }
-  
-  /* تحسين التباين للقراءة */
-  .text-gray-600 {
-    color: #4b5563 !important;
-  }
-  
-  .dark .text-gray-400 {
-    color: #d1d5db !important;
-  }
-}
-
-/* ===============================
-   🎨 2. تناسق العناصر والهوامش
-   =============================== */
-
-@media (max-width: 768px) {
-  /* الهوامش الثابتة */
-  .container, .max-w-7xl {
-    max-width: 100% !important; /* امتداد كامل العرض */
-    margin-left: 0 !important;   /* إزالة الهوامش */
-    margin-right: 0 !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
-  
-  /* إزالة mx-auto لجميع العناصر التي تستخدمها تايلويند على الموبايل */
-  .mx-auto {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-  
-  /* المسافات بين العناصر */
-  .space-y-4 > * + * {
-    margin-top: 1rem !important;
-  }
-  
-  .space-y-6 > * + * {
-    margin-top: 1.5rem !important;
-  }
-  
-  /* البطاقات والكروت */
-  .card, .bg-white {
-    padding: 1rem !important;
-    margin-bottom: 1rem !important;
-    border-radius: 0.75rem !important;
-  }
-  
-  /* منع التداخل */
-  * {
-    box-sizing: border-box !important;
-  }
-  
-  /* منع الخروج من الشاشة */
-  img, video, iframe {
-    max-width: 100% !important;
-    height: auto !important;
-  }
-}
-
-/* ===============================
-   👆 3. الأزرار وسهولة اللمس
-   =============================== */
-
-@media (max-width: 768px) {
-  /* الحد الأدنى لمساحة اللمس 44px */
-  button, a, input, select {
-    min-height: 44px !important;
-    min-width: 44px !important;
-    padding: 0.75rem 1rem !important;
-  }
-  
-  /* أزرار خاصة */
-  .btn-primary {
-    padding: 0.875rem 1.5rem !important;
-    font-size: 1rem !important;
-    font-weight: 500 !important;
-  }
-  
-  /* أزرار الأيقونات */
-  .icon-button {
-    width: 48px !important;
-    height: 48px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-  
-  /* تحسين المسافات بين الأزرار */
-  .button-group button {
-    margin: 0.25rem !important;
-  }
-}
-
-/* ===============================
-   🖼️ 4. الصور والوسائط
-   =============================== */
-
-@media (max-width: 768px) {
-  /* الصور المتجاوبة */
-  .article-image, .featured-image {
-    width: 100% !important;
-    height: 200px !important;
-    object-fit: cover !important;
-    border-radius: 0.5rem !important;
-  }
-  
-  /* صور البطاقات */
-  .card-image {
-    width: 100% !important;
-    height: 150px !important;
-    object-fit: cover !important;
-  }
-  
-  /* الصور الصغيرة */
-  .thumbnail {
-    width: 60px !important;
-    height: 60px !important;
-    border-radius: 0.5rem !important;
-  }
-  
-  /* تحسين التحميل */
-  img {
-    loading: lazy;
-    transition: opacity 0.3s ease !important;
-  }
-  
-  img[data-loaded="false"] {
-    opacity: 0.5;
-  }
-  
-  img[data-loaded="true"] {
-    opacity: 1;
-  }
-}
-
-/* ===============================
-   📱 5. الهيدر والتنقل
-   =============================== */
-
-@media (max-width: 768px) {
-  /* الهيدر الثابت */
-  header {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-    height: 64px !important;
-    padding: 0.75rem 1rem !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-  }
-  
-  /* منع تغطية المحتوى */
-  body {
-    padding-top: 0 !important;
-  }
-  
-  main {
-    padding-top: 1rem !important;
-  }
-  
-  /* القائمة المنسدلة */
-  .mobile-menu {
-    position: fixed !important;
-    top: 64px !important;
-    left: 0 !important;
-    right: 0 !important;
-    background: white !important;
-    border-top: 1px solid #e5e7eb !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-    z-index: 999 !important;
-  }
-  
-  .dark .mobile-menu {
-    background: #1f2937 !important;
-    border-top-color: #374151 !important;
-  }
-}
-
-/* ===============================
-   📋 6. القوائم والجداول
-   =============================== */
-
-@media (max-width: 768px) {
-  /* تحويل الجداول إلى بطاقات */
-  .table-responsive {
-    display: block !important;
-  }
-  
-  .table-responsive table {
-    display: none !important;
-  }
-  
-  .mobile-card {
-    background: white !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 0.75rem !important;
-    padding: 1rem !important;
-    margin-bottom: 0.75rem !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-  }
-  
-  .dark .mobile-card {
-    background: #1f2937 !important;
-    border-color: #374151 !important;
-  }
-  
-  /* القوائم المنسدلة */
-  .dropdown-menu {
-    position: fixed !important;
-    top: auto !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    border-radius: 1rem 1rem 0 0 !important;
-    max-height: 70vh !important;
-    overflow-y: auto !important;
-  }
-}
-
-/* ===============================
-   ⚡ 7. الأداء والسلاسة
-   =============================== */
-
-@media (max-width: 768px) {
-  /* تقليل التأثيرات للأداء */
-  * {
-    transition-duration: 0.2s !important;
-  }
-  
-  /* تحسين التمرير */
-  .scroll-container {
-    -webkit-overflow-scrolling: touch !important;
-    scroll-behavior: smooth !important;
-  }
-  
-  /* إخفاء شريط التمرير */
-  .hide-scrollbar {
-    -ms-overflow-style: none !important;
-    scrollbar-width: none !important;
-  }
-  
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none !important;
-  }
-  
-  /* تحسين الرسوم المتحركة */
-  @media (prefers-reduced-motion: reduce) {
-    * {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-}
-
-/* ===============================
-   🔄 8. التوجه الأفقي والرأسي
-   =============================== */
-
-/* الوضع الرأسي (عمودي) */
-@media (max-width: 768px) and (orientation: portrait) {
-  .grid-cols-2 {
-    grid-template-columns: 1fr !important;
-  }
-  
-  .grid-cols-3 {
-    grid-template-columns: 1fr !important;
-  }
-  
-  .flex-row {
-    flex-direction: column !important;
-  }
-}
-
-/* الوضع الأفقي (أفقي) */
-@media (max-width: 768px) and (orientation: landscape) {
-  header {
-    height: 56px !important;
-    padding: 0.5rem 1rem !important;
-  }
-  
-  .mobile-menu {
-    top: 56px !important;
-  }
-  
-  /* تقليل المسافات في الوضع الأفقي */
-  .container {
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
-  }
-}
-
-/* ===============================
-   📱 9. أحجام شاشات محددة
-   =============================== */
-
-/* iPhone SE وما شابه (375px) */
-@media (max-width: 375px) {
-  .container {
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-  }
-  
-  h1 {
-    font-size: 1.5rem !important;
-  }
-  
-  .btn-primary {
-    padding: 0.75rem 1rem !important;
-    font-size: 0.875rem !important;
-  }
-}
-
-/* iPhone 13 وما شابه (390px) */
-@media (min-width: 376px) and (max-width: 430px) {
-  .grid-cols-2 {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
-
-/* Galaxy S21 وما شابه (360px) */
-@media (max-width: 360px) {
-  .text-sm {
-    font-size: 0.8rem !important;
-  }
-  
-  .card {
-    padding: 0.75rem !important;
-  }
-}
-
-/* ===============================
-   🌙 10. الوضع المظلم للموبايل
-   =============================== */
-
-@media (max-width: 768px) {
-  .dark {
-    --mobile-bg: #111827;
-    --mobile-card: #1f2937;
-    --mobile-border: #374151;
-    --mobile-text: #f9fafb;
-    --mobile-text-secondary: #d1d5db;
-  }
-  
-  .dark body {
-    background-color: var(--mobile-bg) !important;
-  }
-  
-  .dark .card,
-  .dark .bg-white {
-    background-color: var(--mobile-card) !important;
-    border-color: var(--mobile-border) !important;
-  }
-  
-  .dark header {
-    background-color: rgba(31, 41, 55, 0.9) !important;
-    border-bottom: 1px solid var(--mobile-border) !important;
-  }
-}
-
-/* ===============================
-   🎮 11. التفاعل باللمس
-   =============================== */
-
-@media (hover: none) and (pointer: coarse) {
-  /* إزالة hover effects */
-  .hover\:bg-gray-50:hover {
-    background-color: transparent !important;
-  }
-  
-  .hover\:text-blue-600:hover {
-    color: inherit !important;
-  }
-  
-  /* استخدام active state */
-  button:active,
-  a:active {
-    transform: scale(0.98) !important;
-    opacity: 0.8 !important;
-  }
-  
-  /* تحسين ردود الأفعال */
-  .tap-highlight {
-    -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1) !important;
-  }
-}
-
-/* ===============================
-   🔧 12. إصلاحات خاصة
-   =============================== */
-
-@media (max-width: 768px) {
-  /* إصلاح مشكلة viewport في iOS */
-  body {
-    -webkit-text-size-adjust: 100% !important;
-    -ms-text-size-adjust: 100% !important;
-  }
-  
-  /* إصلاح مشكلة الـ safe area في iPhone */
-  .safe-area-top {
-    padding-top: env(safe-area-inset-top) !important;
-  }
-  
-  .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom) !important;
-  }
-  
-  /* إصلاح مشكلة الكيبورد */
-  .keyboard-adjust {
-    transition: transform 0.3s ease !important;
-  }
-  
-  /* منع zoom عند focus على input */
-  input, select, textarea {
-    font-size: 16px !important;
-  }
-}
-
-/* ===============================
-   ⚡ 13. تحسينات الأداء النهائية
-   =============================== */
-
-@media (max-width: 768px) {
-  /* تحسين الرسوم */
-  * {
-    will-change: auto !important;
-  }
-  
-  .animate-element {
-    will-change: transform, opacity !important;
-  }
-  
-  /* تحسين الخطوط */
-  body {
-    text-rendering: optimizeSpeed !important;
-    -webkit-font-smoothing: antialiased !important;
-    -moz-osx-font-smoothing: grayscale !important;
-  }
-  
-  /* تحسين التمرير */
-  .scroll-smooth {
-    scroll-behavior: smooth !important;
-  }
-  
-  /* إخفاء العناصر غير المرئية */
-  .offscreen {
-    position: absolute !important;
-    left: -9999px !important;
-    width: 1px !important;
-    height: 1px !important;
-    overflow: hidden !important;
-  }
-}
-
-/* ===============================
-   📊 14. مؤشرات التحميل والحالة
-   =============================== */
-
-@media (max-width: 768px) {
-  /* مؤشر التحميل */
-  .loading-spinner {
-    width: 32px !important;
-    height: 32px !important;
-    border: 3px solid #e5e7eb !important;
-    border-top-color: #3b82f6 !important;
-    border-radius: 50% !important;
-    animation: spin 1s linear infinite !important;
-  }
-  
-  @keyframes spin {
-    to {
       transform: rotate(360deg);
-    }
-  }
-  
-  /* مؤشر الشبكة */
-  .network-indicator {
-    position: fixed !important;
-    top: 64px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    background: #ef4444 !important;
-    color: white !important;
-    padding: 0.5rem 1rem !important;
-    border-radius: 0.5rem !important;
-    font-size: 0.875rem !important;
-    z-index: 9999 !important;
-  }
-  
-  .network-indicator.online {
-    background: #10b981 !important;
-  }
-}
-
-/* ===============================
-   🎯 15. تحسينات نهائية للتجربة
-   =============================== */
-
-@media (max-width: 768px) {
-  /* منع التحديد العشوائي للنص */
-  .no-select {
-    -webkit-user-select: none !important;
+      transition-duration: 0.01ms !important;
+    --mobile-bg: #111827;
+    --mobile-border: #374151;
+    --mobile-card: #1f2937;
+    --mobile-text-secondary: #d1d5db;
+    --mobile-text: #f9fafb;
+    -moz-osx-font-smoothing: grayscale !important;
     -moz-user-select: none !important;
+    -ms-overflow-style: none !important;
+    -ms-text-size-adjust: 100% !important;
     -ms-user-select: none !important;
-    user-select: none !important;
-  }
-  
-  /* تحسين العرض للنصوص الطويلة */
-  .text-ellipsis {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-  
-  .text-clamp-2 {
-    display: -webkit-box !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-font-smoothing: antialiased !important;
     -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-  }
-  
-  .text-clamp-3 {
-    display: -webkit-box !important;
     -webkit-line-clamp: 3 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-  }
-  
-  /* تحسين المسافات النهائية */
-  .mb-safe {
-    margin-bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
-  }
-  
-  .pb-safe {
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
-  }
-}
-
-/* Mobile Optimizations for SABQ AI CMS */
-
-/* Global Mobile Fixes */
-* {
-  box-sizing: border-box;
-}
-
-/* Container improvements */
-.container-mobile {
-  max-width: 100%;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-@media (min-width: 640px) {
-  .container-mobile {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-/* Stats boxes horizontal layout on mobile */
-.stats-mobile-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-}
-
-@media (min-width: 768px) {
-  .stats-mobile-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-  }
-}
-
-/* Improved touch targets for mobile */
-.touch-target {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-/* Better text sizing for mobile */
-.text-mobile-sm {
-  font-size: 0.75rem;
-  line-height: 1rem;
-}
-
-@media (min-width: 640px) {
-  .text-mobile-sm {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-  }
-}
-
-.text-mobile-base {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-}
-
-@media (min-width: 640px) {
-  .text-mobile-base {
-    font-size: 1rem;
-    line-height: 1.5rem;
-  }
-}
-
-.text-mobile-lg {
-  font-size: 1rem;
-  line-height: 1.5rem;
-}
-
-@media (min-width: 640px) {
-  .text-mobile-lg {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-  }
-}
-
-/* Responsive spacing */
-.space-mobile-2 > * + * {
-  margin-top: 0.5rem;
-}
-
-@media (min-width: 640px) {
-  .space-mobile-2 > * + * {
-    margin-top: 0.75rem;
-  }
-}
-
-.space-mobile-4 > * + * {
-  margin-top: 1rem;
-}
-
-@media (min-width: 640px) {
-  .space-mobile-4 > * + * {
-    margin-top: 1.5rem;
-  }
-}
-
-/* Card improvements for mobile */
-.card-mobile {
-  border-radius: 1rem;
-  padding: 1rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
-
-@media (min-width: 640px) {
-  .card-mobile {
-    border-radius: 1.5rem;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-}
-
-/* Button improvements */
-.btn-mobile {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.75rem;
-  border-radius: 0.75rem;
-  font-weight: 500;
-}
-
-@media (min-width: 640px) {
-  .btn-mobile {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.875rem;
-    border-radius: 1rem;
-  }
-}
-
-/* Grid improvements for mobile */
-.grid-mobile-1 {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1rem;
-}
-
-@media (min-width: 640px) {
-  .grid-mobile-1 {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .grid-mobile-1 {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .grid-mobile-1 {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* Safe area support for iPhone notch */
-.safe-area-top {
-  padding-top: env(safe-area-inset-top);
-}
-
-.safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.safe-area-left {
-  padding-left: env(safe-area-inset-left);
-}
-
-.safe-area-right {
-  padding-right: env(safe-area-inset-right);
-}
-
-/* Improved scrolling on mobile */
-.smooth-scroll {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Better image loading */
-.img-mobile {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  loading: lazy;
-}
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-  * {
+    -webkit-overflow-scrolling: touch !important;
+    -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1) !important;
+    -webkit-text-size-adjust: 100% !important;
+    -webkit-user-select: none !important;
+    }
+    * {
+    /* إصلاح التباعد */
+   🎯 1. قابلية القراءة والنصوص
+   🌙 10. الوضع المظلم للموبايل
+   🎮 11. التفاعل باللمس
+   🔧 12. إصلاحات خاصة
+   ⚡ 13. تحسينات الأداء النهائية
+   📊 14. مؤشرات التحميل والحالة
+   🎯 15. تحسينات نهائية للتجربة
+   🎨 2. تناسق العناصر والهوامش
+   👆 3. الأزرار وسهولة اللمس
+   🖼️ 4. الصور والوسائط
+   📱 5. الهيدر والتنقل
+   📋 6. القوائم والجداول
+   ⚡ 7. الأداء والسلاسة
+   🔄 8. التوجه الأفقي والرأسي
+   📱 9. أحجام شاشات محددة
+    align-items: center !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Dark mode improvements */
-@media (prefers-color-scheme: dark) {
-  .auto-dark {
-    color-scheme: dark;
-  }
-}
-
-/* Focus improvements for keyboard navigation */
-.focus-mobile:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* Typography improvements for Arabic */
-.arabic-text {
-  font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  direction: rtl;
-  text-align: right;
-}
-
-/* Performance optimizations */
-.will-change-transform {
-  will-change: transform;
-}
-
-.will-change-opacity {
-  will-change: opacity;
-}
-
-/* Prevent horizontal scroll */
-.prevent-horizontal-scroll {
-  overflow-x: hidden;
-  max-width: 100vw;
-}
-
-/* Better line heights for Arabic text */
-.line-height-relaxed {
-  line-height: 1.625;
-}
-
-.line-height-loose {
-  line-height: 2;
-}
-
-/* Mobile-specific utilities */
-@media (max-width: 639px) {
-  .mobile-hidden {
-    display: none;
-  }
-  
-  .mobile-full-width {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-  }
-  
-  .mobile-text-center {
-    text-align: center;
-  }
-  
-  .mobile-flex-col {
-    flex-direction: column;
-  }
-  
-  .mobile-space-y-2 > * + * {
-    margin-top: 0.5rem;
-  }
-  
-  .mobile-space-y-4 > * + * {
-    margin-top: 1rem;
-  }
-}
-
-/* Tablet and up */
-@media (min-width: 640px) {
-  .sm-hidden {
-    display: none;
-  }
-}
-
-/* Loading states */
-.skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
+    animation: spin 1s linear infinite !important;
+    backdrop-filter: blur(10px) !important;
+    background-color: rgba(31, 41, 55, 0.9) !important;
+    background-color: transparent !important;
+    background-color: var(--mobile-bg) !important;
+    background-color: var(--mobile-card) !important;
     background-position: -200% 0;
-  }
-}
-
-.dark .skeleton {
-  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
-  background-size: 200% 100%;
-}
-
-/* Deep Analysis Card Improvements */
-.deep-analysis-card {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-}
-
-.deep-analysis-card .card-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.deep-analysis-card .card-summary {
-  flex-grow: 1;
-}
-
-.deep-analysis-card .card-button {
-  margin-top: auto;
-  padding-top: 0.5rem;
-  padding-bottom: 1rem;
-}
-
-/* Enhanced button styles for deep analysis */
-.analysis-button {
-  width: fit-content;
-  max-width: 180px;
-  margin: 0 auto;
-  background-color: #f1f5f9;
-  color: #1e293b;
-  border: 1px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.analysis-button:hover {
-  background-color: #dbeafe;
-  color: #1e3a8a;
-  border-color: #bfdbfe;
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.analysis-button:active {
-  transform: scale(0.98);
-}
-
-/* Dark mode button styles */
-.dark .analysis-button {
-  background-color: #f1f5f9;
-  color: #1e293b;
-}
-
-.dark .analysis-button:hover {
-  background-color: #dbeafe;
-  color: #1e3a8a;
-  border-color: #bfdbfe;
-}
-
-/* AI-specific button styles */
-.analysis-button.ai-button:hover {
-  background-color: #f3e8ff;
-  color: #6b21a8;
-  border-color: #d8b4fe;
-}
-
-/* Responsive improvements for deep analysis cards */
-@media (max-width: 640px) {
-  .deep-analysis-card {
-    padding: 1rem;
-  }
-  
-  .deep-analysis-card .card-title {
-    font-size: 1rem;
-    line-height: 1.4;
-    /* إصلاح التباعد */
-    word-spacing: normal !important;
-    letter-spacing: normal !important;
-    text-align: start !important;
-  }
-  
-  .deep-analysis-card .card-meta {
-    gap: 0.5rem;
-  }
-  
-  .analysis-button {
+    background-position: 200% 0;
+    background: #10b981 !important;
+    background: #1f2937 !important;
+    background: #ef4444 !important;
+    background: white !important;
+    border-bottom: 1px solid var(--mobile-border) !important;
+    border-color: #374151 !important;
+    border-color: var(--mobile-border) !important;
+    border-radius: 0.5rem !important;
+    border-radius: 0.75rem !important;
+    border-radius: 1.5rem;
+    border-radius: 1rem 1rem 0 0 !important;
+    border-radius: 1rem;
+    border-radius: 50% !important;
+    border-top-color: #374151 !important;
+    border-top-color: #3b82f6 !important;
+    border-top: 1px solid #e5e7eb !important;
+    border: 1px solid #e5e7eb !important;
+    border: 3px solid #e5e7eb !important;
+    bottom: 0 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-sizing: border-box !important;
+    color-scheme: dark;
+    color: #4b5563 !important;
+    color: #d1d5db !important;
+    color: inherit !important;
+    color: white !important;
+    display: -webkit-box !important;
+    display: block !important;
+    display: flex !important;
+    display: none !important;
+    display: none;
+    flex-direction: column !important;
+    flex-direction: column;
+    font-size: 0.75rem !important; /* 12px */
+    font-size: 0.875rem !important;
+    font-size: 0.875rem !important; /* 14px */
     font-size: 0.875rem;
-    padding: 0.5rem 1rem;
-  }
-}
-
-/* Prevent button overflow on mobile */
-@media (max-width: 375px) {
-  .analysis-button {
-    max-width: 160px;
+    font-size: 0.8rem !important;
     font-size: 0.8rem;
-  }
-  
-  .analysis-button span {
-    white-space: nowrap;
+    font-size: 1.125rem;
+    font-size: 1.25rem !important; /* 20px */
+    font-size: 1.5rem !important;
+    font-size: 1.5rem !important; /* 24px */
+    font-size: 1.75rem !important; /* 28px */
+    font-size: 16px !important;
+    font-size: 1rem !important;
+    font-size: 1rem !important; /* 16px - الحد الأدنى للقراءة المريحة */
+    font-size: 1rem;
+    font-weight: 500 !important;
+    gap: 0.5rem;
+    gap: 1.5rem;
+    gap: 2rem;
+    grid-template-columns: 1fr !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    height: 150px !important;
+    height: 1px !important;
+    height: 200px !important;
+    height: 32px !important;
+    height: 48px !important;
+    height: 56px !important;
+    height: 60px !important;
+    height: 64px !important;
+    height: auto !important;
+    justify-content: center !important;
+    left: -9999px !important;
+    left: 0 !important;
+    left: 50% !important;
+    letter-spacing: normal !important;
+    line-height: 1.25rem;
+    line-height: 1.3 !important;
+    line-height: 1.4 !important;
+    line-height: 1.4;
+    line-height: 1.5rem;
+    line-height: 1.6 !important;
+    line-height: 1.75rem;
+    loading: lazy;
+    margin-bottom: 0.75rem !important;
+    margin-bottom: 1rem !important;
+    margin-bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
+    margin-left: 0 !important;
+    margin-left: 0 !important;   /* إزالة الهوامش */
+    margin-left: calc(-50vw + 50%);
+    margin-right: 0 !important;
+    margin-top: 0.5rem;
+    margin-top: 0.75rem;
+    margin-top: 1.5rem !important;
+    margin-top: 1.5rem;
+    margin-top: 1rem !important;
+    margin-top: 1rem;
+    margin: 0.25rem !important;
+    max-height: 70vh !important;
+    max-width: 100% !important;
+    max-width: 100% !important; /* امتداد كامل العرض */
+    max-width: 160px;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    object-fit: cover !important;
+    opacity: 0.5;
+    opacity: 0.8 !important;
+    opacity: 1;
+    overflow-y: auto !important;
+    overflow: hidden !important;
     overflow: hidden;
+    padding-bottom: 0.5rem !important;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    padding-left: 0.75rem !important;
+    padding-left: 1.5rem;
+    padding-left: 1rem !important;
+    padding-right: 0.75rem !important;
+    padding-right: 1.5rem;
+    padding-right: 1rem !important;
+    padding-top: 0 !important;
+    padding-top: 0.5rem !important;
+    padding-top: 1rem !important;
+    padding-top: env(safe-area-inset-top) !important;
+    padding: 0.5rem 1rem !important;
+    padding: 0.5rem 1rem;
+    padding: 0.75rem !important;
+    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1rem !important;
+    padding: 0.875rem 1.5rem !important;
+    padding: 1.5rem;
+    padding: 1rem !important;
+    padding: 1rem;
+    position: absolute !important;
+    position: fixed !important;
+    position: sticky !important;
+    right: 0 !important;
+    scroll-behavior: smooth !important;
+    scrollbar-width: none !important;
+    text-align: center;
+    text-align: start !important;
+    text-overflow: ellipsis !important;
     text-overflow: ellipsis;
+    text-rendering: optimizeSpeed !important;
+    to {
+    top: 0 !important;
+    top: 56px !important;
+    top: 64px !important;
+    top: auto !important;
+    transform: scale(0.98) !important;
+    transform: translateX(-50%) !important;
+    transition-duration: 0.01ms !important;
+    transition-duration: 0.2s !important;
+    transition: opacity 0.3s ease !important;
+    transition: transform 0.3s ease !important;
+    user-select: none !important;
+    white-space: nowrap !important;
+    white-space: nowrap;
+    width: 100% !important;
+    width: 100vw;
+    width: 1px !important;
+    width: 32px !important;
+    width: 48px !important;
+    width: 60px !important;
+    will-change: auto !important;
+    will-change: transform, opacity !important;
+    word-spacing: normal !important;
+    z-index: 1000 !important;
+    z-index: 999 !important;
+    z-index: 9999 !important;
+   =============================== */
+  -webkit-overflow-scrolling: touch;
+  .analysis-button {
+  .analysis-button span {
+  .animate-element {
+  .article-image, .featured-image {
+  .auto-dark {
+  .btn-mobile {
+  .btn-primary {
+  .button-group button {
+  .card {
+  .card-image {
+  .card-mobile {
+  .card, .bg-white {
+  .container {
+  .container-mobile {
+  .container, .max-w-7xl {
+  .dark .bg-white {
+  .dark .card,
+  .dark .mobile-card {
+  .dark .mobile-menu {
+  .dark .text-gray-400 {
+  .dark {
+  .dark body {
+  .dark header {
+  .deep-analysis-card .card-meta {
+  .deep-analysis-card .card-title {
+  .deep-analysis-card {
+  .dropdown-menu {
+  .flex-row {
+  .grid-cols-2 {
+  .grid-cols-3 {
+  .grid-mobile-1 {
+  .hide-scrollbar {
+  .hide-scrollbar::-webkit-scrollbar {
+  .hover\:bg-gray-50:hover {
+  .hover\:text-blue-600:hover {
+  .icon-button {
+  .keyboard-adjust {
+  .loading-spinner {
+  .mb-safe {
+  .mobile-card {
+  .mobile-flex-col {
+  .mobile-full-width {
+  .mobile-hidden {
+  .mobile-menu {
+  .mobile-space-y-2 > * + * {
+  .mobile-space-y-4 > * + * {
+  .mobile-text-center {
+  .mx-auto {
+  .network-indicator {
+  .network-indicator.online {
+  .no-select {
+  .offscreen {
+  .pb-safe {
+  .safe-area-bottom {
+  .safe-area-top {
+  .scroll-container {
+  .scroll-smooth {
+  .sm-hidden {
+  .space-mobile-2 > * + * {
+  .space-mobile-4 > * + * {
+  .space-y-4 > * + * {
+  .space-y-6 > * + * {
+  .stats-mobile-grid {
+  .table-responsive {
+  .table-responsive table {
+  .tap-highlight {
+  .text-clamp-2 {
+  .text-clamp-3 {
+  .text-ellipsis {
+  .text-gray-600 {
+  .text-mobile-base {
+  .text-mobile-lg {
+  .text-mobile-sm {
+  .text-sm {
+  .text-xs {
+  .thumbnail {
   }
+  @keyframes spin {
+  @media (prefers-reduced-motion: reduce) {
+  * {
+  /* تقليل المسافات في الوضع الأفقي */
+  /* إخفاء العناصر غير المرئية */
+  /* تحسين العرض للنصوص الطويلة */
+  /* تحسين المسافات بين الأزرار */
+  /* تحويل الجداول إلى بطاقات */
+  /* منع التحديد العشوائي للنص */
+  /* منع الخروج من الشاشة */
+  /* الحد الأدنى لمساحة اللمس 44px */
+  /* إخفاء شريط التمرير */
+  /* إصلاح مشكلة الكيبورد */
+  /* المسافات بين العناصر */
+  /* تحسين التباين للقراءة */
+  /* تحسين الرسوم المتحركة */
+  /* تحسين المسافات النهائية */
+  /* تحسين ردود الأفعال */
+  /* تقليل التأثيرات للأداء */
+  /* منع تغطية المحتوى */
+  /* إصلاح مشكلة الـ safe area في iPhone */
+  /* أزرار الأيقونات */
+  /* أزرار خاصة */
+  /* البطاقات والكروت */
+  /* الصور الصغيرة */
+  /* الصور المتجاوبة */
+  /* العناوين الرئيسية */
+  /* القائمة المنسدلة */
+  /* القوائم المنسدلة */
+  /* النصوص الصغيرة */
+  /* النصوص العادية */
+  /* الهوامش الثابتة */
+  /* الهيدر الثابت */
+  /* تحسين التحميل */
+  /* تحسين التمرير */
+  /* تحسين الخطوط */
+  /* تحسين الرسوم */
+  /* صور البطاقات */
+  /* مؤشر التحميل */
+  /* مؤشر الشبكة */
+  /* منع التداخل */
+  /* إصلاح مشكلة viewport في iOS */
+  /* استخدام active state */
+  /* إزالة hover effects */
+  /* إزالة mx-auto لجميع العناصر التي تستخدمها تايلويند على الموبايل */
+  /* منع zoom عند focus على input */
+  0% {
+  100% {
+  a:active {
+  animation: loading 1.5s infinite;
+  background-color: #dbeafe;
+  background-color: #f1f5f9;
+  background-color: #f3e8ff;
+  background-size: 200% 100%;
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  body {
+  border-color: #bfdbfe;
+  border-color: #d8b4fe;
+  border-radius: 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  button, a, input, select {
+  button:active,
+  color: #1e293b;
+  color: #1e3a8a;
+  color: #6b21a8;
+  direction: rtl;
+  display: flex;
+  display: grid;
+  flex-direction: column;
+  flex-grow: 1;
+  flex: 1;
+  font-family: var(--font-family-base) !important;
+  font-size: 0.75rem;
+  font-size: 0.875rem;
+  font-size: 1rem;
+  font-weight: 500;
+  gap: 0.75rem;
+  gap: 1rem;
+  grid-template-columns: repeat(1, 1fr);
+  grid-template-columns: repeat(2, 1fr);
+  h1 {
+  h2 {
+  h3 {
+  header {
+  height: auto;
+  img {
+  img, video, iframe {
+  img[data-loaded="false"] {
+  img[data-loaded="true"] {
+  input, select, textarea {
+  line-height: 1.25rem;
+  line-height: 1.5rem;
+  line-height: 1.625;
+  line-height: 1rem;
+  line-height: 2;
+  loading: lazy;
+  main {
+  margin-top: 0.5rem;
+  margin-top: 1rem;
+  margin-top: auto;
+  margin: 0 auto;
+  max-width: 100%;
+  max-width: 100vw;
+  max-width: 180px;
+  min-height: 100%;
+  min-height: 44px;
+  min-width: 44px;
+  object-fit: cover;
+  outline-offset: 2px;
+  outline: 2px solid #3b82f6;
+  overflow-x: hidden;
+  p, span, div {
+  padding-bottom: 1rem;
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: 1rem;
+  padding-left: env(safe-area-inset-left);
+  padding-right: 1rem;
+  padding-right: env(safe-area-inset-right);
+  padding-top: 0.5rem;
+  padding-top: env(safe-area-inset-top);
+  padding: 0.5rem 0.75rem;
+  padding: 1rem;
+  scroll-behavior: smooth;
+  text-align: right;
+  transform: scale(0.98);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+  width: 100%;
+  width: fit-content;
+  will-change: opacity;
+  will-change: transform;
+.analysis-button {
+.analysis-button:active {
+.analysis-button:hover {
+.analysis-button.ai-button:hover {
+.arabic-text {
+.btn-mobile {
+.card-mobile {
+.container-mobile {
+.dark .analysis-button {
+.dark .analysis-button:hover {
+.dark .skeleton {
+.deep-analysis-card .card-button {
+.deep-analysis-card .card-content {
+.deep-analysis-card .card-summary {
+.deep-analysis-card {
+.focus-mobile:focus {
+.grid-mobile-1 {
+.img-mobile {
+.line-height-loose {
+.line-height-relaxed {
+.prevent-horizontal-scroll {
+.safe-area-bottom {
+.safe-area-left {
+.safe-area-right {
+.safe-area-top {
+.skeleton {
+.smooth-scroll {
+.space-mobile-2 > * + * {
+.space-mobile-4 > * + * {
+.stats-mobile-grid {
+.text-mobile-base {
+.text-mobile-lg {
+.text-mobile-sm {
+.touch-target {
+.will-change-opacity {
+.will-change-transform {
+}
 } 
+@keyframes loading {
+@media (hover: none) and (pointer: coarse) {
+@media (max-width: 360px) {
+@media (max-width: 375px) {
+@media (max-width: 639px) {
+@media (max-width: 640px) {
+@media (max-width: 768px) {
+@media (max-width: 768px) and (orientation: landscape) {
+@media (max-width: 768px) and (orientation: portrait) {
+@media (min-width: 1024px) {
+@media (min-width: 1280px) {
+@media (min-width: 376px) and (max-width: 430px) {
+@media (min-width: 640px) {
+@media (min-width: 768px) {
+@media (prefers-color-scheme: dark) {
+@media (prefers-reduced-motion: reduce) {
+* {
+/* 📱 تحسينات شاملة للموبايل - تجربة مستخدم محسنة */
+/* أحجام نصوص محسنة للموبايل */
+/* الوضع الأفقي (أفقي) */
+/* الوضع الرأسي (عمودي) */
+/* ===============================
+/* Accessibility improvements */
+/* AI-specific button styles */
+/* Better image loading */
+/* Better line heights for Arabic text */
+/* Better text sizing for mobile */
+/* Button improvements */
+/* Card improvements for mobile */
+/* Container improvements */
+/* Dark mode button styles */
+/* Dark mode improvements */
+/* Deep Analysis Card Improvements */
+/* Enhanced button styles for deep analysis */
+/* Focus improvements for keyboard navigation */
+/* Galaxy S21 وما شابه (360px) */
+/* Global Mobile Fixes */
+/* Grid improvements for mobile */
+/* Improved scrolling on mobile */
+/* Improved touch targets for mobile */
+/* iPhone 13 وما شابه (390px) */
+/* iPhone SE وما شابه (375px) */
+/* Loading states */
+/* Mobile Optimizations for SABQ AI CMS */
+/* Mobile-specific utilities */
+/* Performance optimizations */
+/* Prevent button overflow on mobile */
+/* Prevent horizontal scroll */
+/* Responsive improvements for deep analysis cards */
+/* Responsive spacing */
+/* Safe area support for iPhone notch */
+/* Stats boxes horizontal layout on mobile */
+/* Tablet and up */
+/* Typography improvements for Arabic */

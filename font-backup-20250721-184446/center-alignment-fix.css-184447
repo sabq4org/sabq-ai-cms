@@ -1,0 +1,95 @@
+/* إصلاحات خاصة للتوسيط والمحاذاة */
+
+/* إصلاح التوسيط العام */
+.center-fix {
+  text-align: center !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* إصلاح للعناوين المتوسطة */
+h1.text-center,
+h2.text-center,
+h3.text-center,
+.text-center h1,
+.text-center h2,
+.text-center h3 {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+/* إصلاح للفقرات المتوسطة */
+p.text-center,
+.text-center p {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* إصلاح للعناصر المرنة المتوسطة */
+.flex.justify-center {
+  justify-content: center !important;
+}
+
+.flex.items-center {
+  align-items: center !important;
+}
+
+/* إصلاح خاص للويدجت */
+.deep-analysis-widget .text-center,
+.deep-analysis-widget .text-center * {
+  text-align: center !important;
+}
+
+/* إصلاح للعناصر التي تحتوي على أطفال متوسطين */
+.mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* إصلاح Grid المتوسط */
+.place-items-center {
+  place-items: center !important;
+}
+
+.grid.place-items-center * {
+  justify-self: center !important;
+  align-self: center !important;
+}
+
+/* إصلاح للكونتينرات المتوسطة */
+.container.mx-auto,
+.max-w-7xl.mx-auto,
+.max-w-6xl.mx-auto,
+.max-w-5xl.mx-auto,
+.max-w-4xl.mx-auto,
+.max-w-3xl.mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* إصلاح خاص للديسكتوب */
+@media (min-width: 1024px) {
+  .lg\\:text-center {
+    text-align: center !important;
+  }
+}
+
+/* إصلاح خاص للتابلت */
+@media (min-width: 768px) {
+  .md\\:text-center {
+    text-align: center !important;
+  }
+}
+
+/* إصلاح خاص للموبايل */
+@media (max-width: 767px) {
+  .sm\\:text-center {
+    text-align: center !important;
+  }
+}

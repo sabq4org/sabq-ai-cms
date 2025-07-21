@@ -2,50 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-/* متغيرات الألوان */
-:root {
-  --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 245, 245, 245;
-  --foreground-rgb: 0, 0, 0;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background-start-rgb: 15, 23, 42;
-    --background-end-rgb: 30, 41, 59;
-    --foreground-rgb: 255, 255, 255;
-  }
-}
-
-/* الأنماط الأساسية */
 * {
   box-sizing: border-box;
-  padding: 0;
   margin: 0;
+  padding: 0;
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
 }
 
 html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  font-family: var(--font-ibm-plex-arabic), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
   direction: rtl;
   text-align: right;
 }
 
-/* خط عربي */
-.font-arabic {
-  font-family: var(--font-ibm-plex-arabic), 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', sans-serif;
+body {
+  color: #1a202c;
+  background: #ffffff;
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  line-height: 1.7;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+p, div, span {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  line-height: 1.7;
 }
 
 a {
@@ -53,110 +40,30 @@ a {
   text-decoration: none;
 }
 
-/* فئات مساعدة */
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+button {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
 }
 
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+input, textarea, select {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
 }
 
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* تحسينات للتمرير */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-/* تحسينات للنمط الليلي */
-@media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar-track {
-    background: #374151;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #6b7280;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
-  }
-}
-
-/* انتقالات سلسة */
-.transition-all {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* تحسينات للأداء */
-.transform-gpu {
-  transform: translateZ(0);
-}
-
-/* أنماط مخصصة للمحتوى العربي */
-.arabic-content {
+.article-content {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
   line-height: 1.8;
-  letter-spacing: 0.025em;
+  text-align: right;
+  direction: rtl;
 }
 
-.arabic-content h1,
-.arabic-content h2,
-.arabic-content h3,
-.arabic-content h4,
-.arabic-content h5,
-.arabic-content h6 {
-  line-height: 1.4;
-  font-weight: 600;
+.article-content h1,
+.article-content h2,
+.article-content h3 {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  font-weight: 700;
 }
 
-.arabic-content p {
-  margin-bottom: 1rem;
+.article-content p {
+  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  margin-bottom: 1.5rem;
+  text-align: right;
 }
-
-.arabic-content ul,
-.arabic-content ol {
-  margin-right: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.arabic-content blockquote {
-  border-right: 4px solid #e5e7eb;
-  padding-right: 1rem;
-  margin: 1.5rem 0;
-  font-style: italic;
-  color: #6b7280;
-}
-
-@media (prefers-color-scheme: dark) {
-  .arabic-content blockquote {
-    border-right-color: #4b5563;
-    color: #9ca3af;
-  }
-} 

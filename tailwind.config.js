@@ -8,7 +8,10 @@ module.exports = {
   ],
 
   theme: {
-    extend: {
+    fontFamily: {
+      arabic: ["var(--font-ibm-plex-arabic)", "Tajawal", "Noto Sans Arabic", "system-ui", "sans-serif"],
+      sans: ["var(--font-ibm-plex-arabic)", "Tajawal", "Noto Sans Arabic", "system-ui", "sans-serif"],
+    },    extend: {
       colors: {
         // ألوان ناعمة مريحة للعين
         'soft': {

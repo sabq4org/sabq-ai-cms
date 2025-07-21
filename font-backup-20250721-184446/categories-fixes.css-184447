@@ -1,0 +1,326 @@
+/* إصلاحات CSS لصفحة الفئات */
+
+.categories-container {
+  direction: rtl;
+  text-align: right;
+}
+
+.category-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* تم إزالة تأثير hover */
+
+.category-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.category-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.category-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.category-description {
+  opacity: 0.9;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.category-stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  min-width: 60px;
+}
+
+.stat-number {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.category-content {
+  padding: 1.5rem;
+}
+
+.recent-topics {
+  margin-top: 1rem;
+}
+
+.topic-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s ease;
+}
+
+.topic-item:last-child {
+  border-bottom: none;
+}
+
+/* تم إزالة تأثير hover للموضوعات */
+
+.topic-title {
+  flex: 1;
+  font-weight: 500;
+  color: #374151;
+  text-decoration: none;
+}
+
+.topic-title:hover {
+  color: #1f2937;
+}
+
+.topic-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.topic-author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.author-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.topic-stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* الوضع الداكن */
+.dark .category-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.dark .category-header {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.dark .topic-item {
+  border-color: #374151;
+}
+
+/* تم إزالة تأثير hover للموضوعات في الوضع الداكن */
+
+.dark .topic-title {
+  color: #d1d5db;
+}
+
+.dark .topic-title:hover {
+  color: #f9fafb;
+}
+
+.dark .topic-meta {
+  color: #9ca3af;
+}
+
+/* تحسينات للأجهزة المحمولة */
+@media (max-width: 768px) {
+  .category-stats {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .stat-item {
+    min-width: 50px;
+    padding: 0.25rem;
+  }
+  
+  .topic-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .topic-stats {
+    gap: 0.5rem;
+  }
+}
+
+/* تأثيرات بصرية إضافية */
+.category-card {
+  position: relative;
+}
+
+.category-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.dark .category-card::after {
+  background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+/* تحسين أداء الحركات */
+.category-card,
+.topic-item {
+  will-change: transform;
+}
+
+/* تحسين إمكانية الوصول */
+.category-card:focus-within {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.topic-title:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+  border-radius: 4px;
+} 
+
+/* إصلاحات لصفحة التصنيفات */
+
+/* تحسين عرض الصور في البطاقات */
+.article-card-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.article-card-image img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+/* تحسين الانتقالات */
+.article-card {
+  transition: all 0.3s ease;
+}
+
+/* تم إزالة تأثير hover للمقالات */
+
+/* دعم الوضع الداكن */
+@media (prefers-color-scheme: dark) {
+  .article-card {
+    background-color: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+  }
+}
+
+/* تحسين التخطيط على الشاشات الصغيرة */
+@media (max-width: 768px) {
+  .articles-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* إصلاح مشكلة تحميل الصور من Cloudinary */
+img[src*="cloudinary.com"] {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* تحسين شارة عاجل */
+@keyframes urgent-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.urgent-badge {
+  animation: urgent-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+}
+
+/* إضافة رمز "جديد" للمقالات بدون مشاهدات */
+.new-article-indicator {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  color: white;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+/* تحسين عرض العناوين الطويلة */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ضمان ارتفاع متسق للبطاقات */
+.article-card h4 {
+  min-height: 3.5rem; /* يكفي لـ 3 أسطر */
+}
+
+@media (min-width: 768px) {
+  .article-card h4 {
+    min-height: 4rem;
+  }
+} 

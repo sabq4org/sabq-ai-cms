@@ -1,283 +1,168 @@
-/* ========================================
+
    تحسينات الموبايل الشاملة - سبق الذكية
-   ======================================== */
-
-/* إعدادات عامة للموبايل */
-@media (max-width: 768px) {
-  /* إزالة الهوامش الجانبية من الحاوي الرئيسي */
-  body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-  }
-
-  /* ضبط العرض الكامل للعناصر الرئيسية */
-  .main-container,
-  main,
-  .container {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  /* تحسين الهيدر */
-  header,
-  .header,
-  nav {
-    width: 100vw;
-    padding: 0.75rem 1rem;
-    margin: 0;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: var(--background-color, #fff);
-  }
-
-  /* البطاقات بعرض كامل */
-  .card,
-  .article-card,
-  [class*="card"] {
-    width: calc(100vw - 2rem);
-    margin: 0.5rem 1rem;
-    padding: 1rem;
-    border-radius: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  }
-
-  /* الصور داخل البطاقات */
-  .card img,
-  .article-card img,
-  [class*="card"] img {
-    width: 100%;
-    height: 12rem;
-    object-fit: cover;
-    border-radius: 0.75rem;
-  }
-
-  /* الإحصائيات - عرض أفقي */
-  .stats-container,
-  .statistics-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 0.5rem;
-    width: 100%;
-    overflow-x: auto;
+      padding-bottom: env(safe-area-inset-bottom);
     -webkit-overflow-scrolling: touch;
-  }
-
-  .stat-box,
-  .statistic-item {
-    flex: 1;
-    min-width: 80px;
-    background: rgba(0, 0, 0, 0.85);
-    color: white;
-    padding: 0.75rem 0.5rem;
-    border-radius: 0.75rem;
-    text-align: center;
-  }
-
-  .stat-box .number,
-  .statistic-item .value {
-    font-size: 1.25rem;
-    font-weight: bold;
-    margin-bottom: 0.25rem;
-  }
-
-  .stat-box .label,
-  .statistic-item .label {
-    font-size: 0.75rem;
-    opacity: 0.9;
-  }
-
-  /* التابات والأزرار */
-  .tabs,
-  .tab-container {
-    display: flex;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-  }
-
-  .tab,
-  .tab-item {
-    flex-shrink: 0;
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
-  }
-
-  /* الأزرار */
-  button,
-  .button,
-  .btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.875rem;
-    border-radius: 0.5rem;
-  }
-
-  /* القوائم */
-  .list-item,
-  .menu-item {
-    padding: 1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  }
-
-  /* النصوص */
-  h1 {
-    font-size: 1.5rem;
-  }
-
-  h2 {
-    font-size: 1.25rem;
-  }
-
-  h3 {
-    font-size: 1.125rem;
-  }
-
-  p,
-  .text-base {
-    font-size: 1rem;
-    line-height: 1.6;
-  }
-
-  /* تحسينات خاصة بالآيفون */
-  @supports (padding: env(safe-area-inset-bottom)) {
     .bottom-navigation,
     .fixed-bottom {
-      padding-bottom: env(safe-area-inset-bottom);
     }
-  }
-
-  /* منع التمرير الأفقي */
-  * {
-    max-width: 100vw;
-  }
-
-  /* تحسين الفورم */
-  input,
-  textarea,
-  select {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 16px; /* منع التكبير في iOS */
+    background: rgba(0, 0, 0, 0.85);
+    background: var(--background-color, #fff);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 0.5rem;
-  }
-
-  /* الشبكات */
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  /* الصفوف المرنة */
-  .flex-row {
+    border-radius: 0.75rem;
+    border-radius: 1rem;
+    border-radius: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    color: white;
+    display: flex !important;
+    display: flex;
+    flex-direction: column !important;
+    flex-direction: row !important;
+    flex-shrink: 0;
     flex-wrap: wrap;
-  }
-
-  /* الهوامش والحشوات */
-  .p-4 {
-    padding: 1rem !important;
-  }
-
-  .p-6 {
-    padding: 1.5rem !important;
-  }
-
-  .p-8 {
-    padding: 1rem !important;
-  }
-
-  .m-4 {
-    margin: 1rem !important;
-  }
-
-  .m-6 {
-    margin: 1rem !important;
-  }
-
-  /* تحسينات الأداء */
-  .image-container {
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* تحسين التمرير */
-  .scroll-container {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-  }
-}
-
-/* شاشات صغيرة جداً */
-@media (max-width: 350px) {
-  .stat-box,
-  .statistic-item {
-    min-width: 70px;
-    padding: 0.5rem 0.25rem;
-  }
-
-  .stat-box .number,
-  .statistic-item .value {
-    font-size: 1rem;
-  }
-
-  .stat-box .label,
-  .statistic-item .label {
+    flex: 1;
     font-size: 0.625rem;
-  }
-
-  h1 {
-    font-size: 1.25rem;
-  }
-
-  h2 {
+    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-size: 1.125rem;
-  }
-
-  .card,
-  .article-card {
-    padding: 0.75rem;
-  }
-}
-
-/* الوضع الأفقي */
-@media (max-width: 768px) and (orientation: landscape) {
-  header,
-  .header {
-    padding: 0.5rem 1rem;
-  }
-
-  .card img,
-  .article-card img {
+    font-size: 1.25rem;
+    font-size: 1.5rem;
+    font-size: 16px; /* منع التكبير في iOS */
+    font-size: 1rem;
+    font-weight: bold;
+    gap: 0.5rem;
+    gap: 1rem;
+    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
+    height: 12rem;
     height: 8rem;
-  }
-}
-
-/* تحسينات Tailwind المخصصة */
-@media (max-width: 768px) {
-  /* Override Tailwind classes */
-  .sm\:px-6 {
+    line-height: 1.6;
+    margin-bottom: 0.25rem;
+    margin: 0 !important;
+    margin: 0;
+    margin: 0.5rem 1rem;
+    margin: 1rem !important;
+    max-width: 100vw !important;
+    max-width: 100vw;
+    min-width: 70px;
+    min-width: 80px;
+    object-fit: cover;
+    opacity: 0.9;
+    overflow-x: auto;
+    overflow-x: hidden;
+    overflow: hidden;
+    padding-bottom: 1rem !important;
     padding-left: 1rem !important;
     padding-right: 1rem !important;
-  }
-
-  .sm\:py-4 {
     padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-  }
-
+    padding: 0 !important;
+    padding: 0;
+    padding: 0.5rem 0.25rem;
+    padding: 0.5rem 1rem;
+    padding: 0.75rem 0.5rem;
+    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1rem;
+    padding: 0.75rem;
+    padding: 1.5rem !important;
+    padding: 1rem !important;
+    padding: 1rem;
+    position: relative;
+    position: sticky;
+    scroll-behavior: smooth;
+    text-align: center;
+    top: 0;
+    white-space: nowrap;
+    width: 100%;
+    width: 100vw !important;
+    width: 100vw;
+    width: calc(100vw - 2rem);
+    z-index: 50;
+   ======================================== */
+  .article-card {
+  .article-card img {
+  .article-card img,
+  .article-card,
+  .btn {
+  .button,
+  .card img,
+  .card,
+  .container {
+  .flex-row {
+  .grid {
+  .header {
+  .header,
+  .image-container {
+  .list-item,
+  .m-4 {
+  .m-6 {
+  .main-container,
   .md\:flex-row {
-    flex-direction: column !important;
-  }
-
   .md\:grid-cols-2,
   .md\:grid-cols-3,
   .md\:grid-cols-4 {
-    grid-template-columns: 1fr !important;
+  .menu-item {
+  .p-4 {
+  .p-6 {
+  .p-8 {
+  .scroll-container {
+  .sm\:px-6 {
+  .sm\:py-4 {
+  .stat-box .label,
+  .stat-box .number,
+  .stat-box,
+  .statistic-item .label {
+  .statistic-item .value {
+  .statistic-item {
+  .statistics-row {
+  .stats-container,
+  .tab-container {
+  .tab-item {
+  .tab,
+  .tabs,
+  .text-base {
+  [class*="card"] {
+  [class*="card"] img {
   }
+  @supports (padding: env(safe-area-inset-bottom)) {
+  * {
+  /* إزالة الهوامش الجانبية من الحاوي الرئيسي */
+  /* ضبط العرض الكامل للعناصر الرئيسية */
+  /* البطاقات بعرض كامل */
+  /* الصور داخل البطاقات */
+  /* تحسينات خاصة بالآيفون */
+  /* منع التمرير الأفقي */
+  /* التابات والأزرار */
+  /* الصفوف المرنة */
+  /* الهوامش والحشوات */
+  /* تحسينات الأداء */
+  /* تحسين التمرير */
+  /* تحسين الفورم */
+  /* تحسين الهيدر */
+  /* الإحصائيات - عرض أفقي */
+  /* الأزرار */
+  /* الشبكات */
+  /* القوائم */
+  /* النصوص */
+  /* Override Tailwind classes */
+  body {
+  button,
+  h1 {
+  h2 {
+  h3 {
+  header,
+  input,
+  main,
+  nav {
+  p,
+  select {
+  textarea,
+}
 } 
+@media (max-width: 350px) {
+@media (max-width: 768px) {
+@media (max-width: 768px) and (orientation: landscape) {
+/* إعدادات عامة للموبايل */
+/* شاشات صغيرة جداً */
+/* الوضع الأفقي */
+/* تحسينات Tailwind المخصصة */
+/* ========================================

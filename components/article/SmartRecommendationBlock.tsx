@@ -218,6 +218,99 @@ const QuickLinkMobile: React.FC<{ recommendation: SmartRecommendation }> = ({ re
   </Link>
 );
 
+// 🔗 روابط متنوعة - كسر التشابه البصري
+const SmartLinkCard: React.FC<{ recommendations: SmartRecommendation[]; type: 'opinion' | 'analysis'; isMobile: boolean }> = ({ recommendations, type, isMobile }) => {
+  if (!recommendations.length) return null;
+
+  const getTypeConfig = (type: string) => {
+    switch (type) {
+      case 'opinion':
+        return {
+          icon: '✍️',
+          title: 'آراء وتحليلات',
+          bgColor: 'from-green-50 to-emerald-50',
+          borderColor: 'border-green-400',
+          iconBg: 'bg-green-100',
+          textColor: 'text-green-800'
+        };
+      case 'analysis':
+        return {
+          icon: '🧠',
+          title: 'تحليل عميق',
+          bgColor: 'from-purple-50 to-violet-50',
+          borderColor: 'border-purple-400',
+          iconBg: 'bg-purple-100',
+          textColor: 'text-purple-800'
+        };
+      default:
+        return {
+          icon: '📰',
+          title: 'أخبار مشابهة',
+          bgColor: 'from-blue-50 to-cyan-50',
+          borderColor: 'border-blue-400',
+          iconBg: 'bg-blue-100',
+          textColor: 'text-blue-800'
+        };
+    }
+  };
+
+  const config = getTypeConfig(type);
+
+  return (
+    <div className={`smart-link-group bg-gradient-to-r ${config.bgColor} rounded-xl p-4 border-r-4 ${config.borderColor} ${
+      isMobile ? 'mx-4 mb-4' : 'mb-6'
+    } shadow-sm hover:shadow-md transition-all duration-300`}>
+      <div className="flex items-center mb-3">
+        <div className={`w-8 h-8 ${config.iconBg} rounded-full flex items-center justify-center ml-3`}>
+          <span className="text-lg">{config.icon}</span>
+        </div>
+        <h4 className={`font-bold ${config.textColor} ${isMobile ? 'text-base' : 'text-lg'}`}>
+          {config.title}
+        </h4>
+      </div>
+
+      <div className="space-y-3">
+        {recommendations.slice(0, 2).map((recommendation) => (
+          <Link 
+            key={recommendation.id} 
+            href={`/article/${recommendation.slug}`}
+            className="group block"
+          >
+            <div className="flex items-start space-x-reverse space-x-3 p-3 rounded-lg bg-white/60 hover:bg-white hover:shadow-sm transition-all duration-200">
+              <div className="flex-shrink-0 mt-1">
+                <span className="text-sm">{config.icon}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h5 className={`font-semibold text-gray-900 group-hover:${config.textColor} transition-colors leading-tight ${
+                  isMobile ? 'text-sm' : 'text-base'
+                } line-clamp-2`}>
+                  {recommendation.title}
+                </h5>
+                {recommendation.author && (
+                  <div className="flex items-center mt-1 text-xs text-gray-500">
+                    <User className="w-3 h-3 ml-1" />
+                    <span>{recommendation.author}</span>
+                    {recommendation.readTime && (
+                      <>
+                        <span className="mx-2">•</span>
+                        <Clock className="w-3 h-3 ml-1" />
+                        <span>{recommendation.readTime} د</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className={`flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${config.textColor}`}>
+                <TrendingUp className="w-4 h-4" />
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // رابط سريع للديسكتوب (النسخة الأصلية)
 const QuickLinkDesktop: React.FC<{ recommendation: SmartRecommendation }> = ({ recommendation }) => (
   <Link href={`/article/${recommendation.slug}`} className="group block">
@@ -266,6 +359,11 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
   className = '' 
 }) => {
   const [recommendations, setRecommendations] = useState<SmartRecommendation[]>([]);
+  const [smartData, setSmartData] = useState<{
+    news: SmartRecommendation[];
+    opinion: SmartRecommendation[];
+    analysis: SmartRecommendation[];
+  }>({ news: [], opinion: [], analysis: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -314,17 +412,26 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
           title: item.title,
           summary: item.excerpt || item.summary,
           slug: item.slug,
-          type: determineType(item),
+          type: item.type || determineType(item),
           badge: getBadgeText(item),
           featuredImage: item.featured_image || item.featuredImage,
-          author: item.author?.name || item.author_name,
+          author: item.author_name || item.author?.name,
           readTime: item.reading_time || calculateReadTime(item.content),
           views: item.views || item.views_count,
-          category: item.category?.name || item.category_name,
+          category: item.category_name || item.category?.name,
           publishedAt: item.published_at || item.created_at
         }));
 
         setRecommendations(formattedRecommendations);
+        
+        // تخزين البيانات المصنفة للعرض الذكي
+        if (data.smart) {
+          setSmartData({
+            news: data.smart.news || [],
+            opinion: data.smart.opinion || [],
+            analysis: data.smart.analysis || []
+          });
+        }
       } else {
         setRecommendations([]);
       }
@@ -386,62 +493,61 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
   };
 
   // 🎯 نظام التنويع البصري المتطور - يكسر الرتابة ويحسن التفاعل
-  const renderItem = (recommendation: SmartRecommendation, index: number) => {
-    const cyclePosition = index % 6;
-    const isSpecialContent = recommendation.type === 'analysis' || recommendation.type === 'opinion';
-    
-    if (isMobile) {
-      // 📱 نمط الهواتف: تنويع ذكي مع إعطاء أولوية للمحتوى الخاص
-      if (isSpecialContent) {
-        // المحتوى الخاص (تحليل/رأي) يظهر دائماً كبطاقة كاملة
-        return (
-          <div key={recommendation.id}>
-            <RecommendationCard recommendation={recommendation} isMobile={true} />
-          </div>
-        );
-      }
-      
-      // للأخبار العادية: دورة التنويع (3 بطاقات كاملة + 3 روابط سريعة)
-      if (cyclePosition < 3) {
-        return (
-          <div key={recommendation.id}>
-            <RecommendationCard recommendation={recommendation} isMobile={true} />
-          </div>
-        );
-      } else {
-        return (
-          <div key={recommendation.id}>
-            <QuickLinkMobile recommendation={recommendation} />
-          </div>
-        );
-      }
-    } else {
-      // 🖥️ نمط الديسكتوب: تنويع متقدم مع توزيع ذكي
-      if (isSpecialContent) {
-        // المحتوى الخاص يظهر كبطاقة كاملة لجذب الانتباه
-        return (
-          <div key={recommendation.id} className="mb-6">
-            <RecommendationCard recommendation={recommendation} isMobile={false} />
-          </div>
-        );
-      }
-      
-      // للأخبار العادية: نمط التبديل الذكي
-      // العناصر 0,1,2 = بطاقات كاملة | العناصر 3,4,5 = روابط سريعة
-      if (cyclePosition < 3) {
-        return (
-          <div key={recommendation.id} className="mb-6">
-            <RecommendationCard recommendation={recommendation} isMobile={false} />
-          </div>
-        );
-      } else {
-        return (
-          <div key={recommendation.id} className="mb-4">
-            <QuickLinkDesktop recommendation={recommendation} />
-          </div>
-        );
+  const renderContent = () => {
+    if (!recommendations.length) return null;
+
+    const newsRecommendations = recommendations.filter(r => r.type === 'news');
+    const opinionRecommendations = smartData.opinion.length ? smartData.opinion : recommendations.filter(r => r.type === 'opinion');
+    const analysisRecommendations = smartData.analysis.length ? smartData.analysis : recommendations.filter(r => r.type === 'analysis');
+
+    const allContent = [];
+    let newsIndex = 0;
+
+    // � نمط التبديل الذكي: كل 6 عناصر نغير النمط
+    for (let i = 0; i < recommendations.length; i += 6) {
+      // المجموعة الأولى: 5 بطاقات أخبار
+      const newsBatch = newsRecommendations.slice(newsIndex, newsIndex + 5);
+      newsBatch.forEach((recommendation, idx) => {
+        allContent.push({
+          type: 'card',
+          content: (
+            <div key={`news-${recommendation.id}-${i}-${idx}`}>
+              <RecommendationCard recommendation={recommendation} isMobile={isMobile} />
+            </div>
+          )
+        });
+      });
+      newsIndex += 5;
+
+      // عنصر كسر التشابه: روابط من مقالات الرأي أو التحليل العميق
+      if (i === 0 && opinionRecommendations.length > 0) {
+        allContent.push({
+          type: 'smart-links',
+          content: (
+            <SmartLinkCard 
+              key={`opinion-links-${i}`}
+              recommendations={opinionRecommendations}
+              type="opinion"
+              isMobile={isMobile}
+            />
+          )
+        });
+      } else if (i === 6 && analysisRecommendations.length > 0) {
+        allContent.push({
+          type: 'smart-links', 
+          content: (
+            <SmartLinkCard 
+              key={`analysis-links-${i}`}
+              recommendations={analysisRecommendations}
+              type="analysis"
+              isMobile={isMobile}
+            />
+          )
+        });
       }
     }
+
+    return allContent.map(item => item.content);
   };
 
   const containerClasses = isMobile 
@@ -557,9 +663,7 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
       </div>
 
       <div className={isMobile ? 'space-y-0 pb-6' : 'space-y-0'}>
-        {recommendations.map((recommendation, index) => 
-          renderItem(recommendation, index)
-        )}
+        {renderContent()}
       </div>
 
       {!isMobile && (
