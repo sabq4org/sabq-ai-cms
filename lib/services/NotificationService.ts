@@ -177,7 +177,14 @@ class NotificationService {
 
   // إشعارات مخصصة للمحررات
   public showEditorError(error: Error, component: string, errorId?: string): string {
-    return this.show('error', 'خطأ في المحرر', error.message, {
+    // فلترة الأخطاء التقنية في بيئة الإنتاج
+    if (process.env.NODE_ENV === 'production' && this.isTechnicalError(error.message)) {
+      // تسجيل الخطأ فقط دون إزعاج المستخدم
+      console.error(`Technical error in ${component}:`, error);
+      return '';
+    }
+
+    return this.show('error', 'خطأ في المحرر', this.getUserFriendlyMessage(error.message), {
       persistent: true,
       metadata: { component, errorId },
       actions: [
@@ -195,6 +202,40 @@ class NotificationService {
         }
       ]
     });
+  }
+
+  private isTechnicalError(message: string): boolean {
+    const technicalErrors = [
+      'can\'t access property "slice"',
+      'is undefined',
+      'is null',
+      'Cannot read property',
+      'Cannot read properties',
+      'Unexpected token',
+      'SyntaxError',
+      'TypeError',
+      'ReferenceError',
+      'webpack-internal'
+    ];
+    
+    return technicalErrors.some(error => message.includes(error));
+  }
+
+  private getUserFriendlyMessage(technicalMessage: string): string {
+    if (technicalMessage.includes('slice') && technicalMessage.includes('undefined')) {
+      return 'حدث خطأ في تحميل البيانات. يرجى إعادة تحميل الصفحة.';
+    }
+    
+    if (technicalMessage.includes('Cannot read property') || technicalMessage.includes('Cannot read properties')) {
+      return 'حدث خطأ في عرض المحتوى. يرجى المحاولة مرة أخرى.';
+    }
+    
+    if (technicalMessage.includes('Network')) {
+      return 'حدث خطأ في الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت.';
+    }
+    
+    // رسالة عامة للأخطاء الأخرى
+    return 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى أو إعادة تحميل الصفحة.';
   }
 
   public showAutoSaveSuccess(lastSaved: Date): string {

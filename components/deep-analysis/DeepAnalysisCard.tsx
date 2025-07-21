@@ -102,8 +102,9 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
   const analysisUrl = `/insights/deep/${analysis.id}`;
 
   // الوسوم المرئية (4 كحد أقصى)
-  const visibleTags = showAllTags ? analysis.tags : analysis.tags.slice(0, 4);
-  const remainingTags = analysis.tags.length - 4;
+  const tags = analysis.tags || [];
+  const visibleTags = showAllTags ? tags : tags.slice(0, 4);
+  const remainingTags = tags.length - 4;
 
   return (
     <div className={`

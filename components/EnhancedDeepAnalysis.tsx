@@ -268,22 +268,24 @@ export default function EnhancedDeepAnalysis({ className = '' }: EnhancedDeepAna
                 </p>
 
                 {/* التاجات */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {analysis.tags.slice(0, 3).map((tag, tagIndex) => (
-                    <span
-                      key={tagIndex}
-                      className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 
-                                 text-xs px-2 py-1 rounded-full"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                  {analysis.tags.length > 3 && (
-                    <span className="text-gray-500 dark:text-gray-400 text-xs">
-                      +{analysis.tags.length - 3}
-                    </span>
-                  )}
-                </div>
+                {analysis.tags && analysis.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {analysis.tags.slice(0, 3).map((tag, tagIndex) => (
+                      <span
+                        key={tagIndex}
+                        className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 
+                                   text-xs px-2 py-1 rounded-full"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                    {analysis.tags.length > 3 && (
+                      <span className="text-gray-500 dark:text-gray-400 text-xs">
+                        +{analysis.tags.length - 3} مزيداً
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {/* الإحصائيات */}
                 <div className="flex items-center justify-between mb-4">

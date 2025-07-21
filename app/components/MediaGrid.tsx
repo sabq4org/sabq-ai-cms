@@ -220,7 +220,7 @@ export default function MediaGrid({
                       <div className="text-sm text-gray-500 truncate">
                         {file.description}
                       </div>
-                      {file.tags.length > 0 && (
+                      {file.tags && file.tags.length > 0 && (
                         <div className="flex items-center mt-1">
                           <Tag className="w-3 h-3 text-gray-400 ml-1" />
                           <span className="text-xs text-gray-500">
@@ -359,7 +359,7 @@ export default function MediaGrid({
               </div>
 
               {/* الوسوم */}
-              {file.tags.length > 0 && (
+              {file.tags && file.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
                   {file.tags.slice(0, 2).map((tag, index) => (
                     <span
