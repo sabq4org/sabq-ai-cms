@@ -7,14 +7,17 @@ interface Article {
   created_at: string;
   views: number;
   status: string;
-  is_breaking: boolean;
-  category: string;
+  breaking: boolean;
+  category_id: string;
 }
 
 interface User {
   id: string;
-  is_active: boolean;
-  last_login: string;
+  email: string;
+  name: string;
+  role: string;
+  is_verified: boolean;
+  created_at: string;
 }
 
 interface Comment {
@@ -32,7 +35,7 @@ export async function GET() {
     // جلب إحصائيات المقالات
     const { data: articles, error: articlesError } = await supabase
       .from('articles')
-      .select('id, created_at, views, status, is_breaking, category');
+      .select('id, created_at, views, status, breaking, category_id');
 
     if (articlesError) throw articlesError;
 
@@ -48,7 +51,7 @@ export async function GET() {
 
     // الأخبار العاجلة
     const breakingNews = articles?.filter((article: Article) => 
-      article.is_breaking === true
+      article.breaking === true
     ).length || 0;
 
     // إجمالي المشاهدات
@@ -59,12 +62,12 @@ export async function GET() {
     // جلب عدد المستخدمين النشطين
     const { data: users, error: usersError } = await supabase
       .from('users')
-      .select('id, is_active, last_login');
+      .select('id, email, name, role, is_verified, created_at');
 
     if (usersError) throw usersError;
 
     const activeUsers = users?.filter((user: User) => 
-      user.is_active !== false
+      user.is_verified === true
     ).length || 0;
 
     // جلب التعليقات الجديدة (آخر 24 ساعة)

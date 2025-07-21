@@ -15,7 +15,6 @@ import { getImageUrl } from '@/lib/image-utils';
 import CloudImage, { ArticleImage, CloudAvatar } from '@/components/ui/CloudImage';
 import { getArticleLink, formatDate } from '@/lib/utils';
 import CategoryBadge from './components/CategoryBadge';
-import Header from '../components/Header';
 import { SmartSlot } from '@/components/home/SmartSlot';
 import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
 import { useReaderProfile } from '@/hooks/useReaderProfile';

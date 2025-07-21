@@ -7,10 +7,9 @@ import ArticleClientComponent from './ArticleClientComponent';
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }): Promise<Metadata> {
-  const resolvedParams = await params;
-  const article = await getArticleData(resolvedParams.id);
+  const article = await getArticleData(params.id);
 
   if (!article) {
     return {
@@ -22,7 +21,7 @@ export async function generateMetadata({
   const title = `${article.title} | صحيفة سبق الإلكترونية`;
   const description = article.excerpt || article.summary || article.ai_summary || 'اقرأ آخر الأخبار والتحليلات على صحيفة سبق الإلكترونية';
   const imageUrl = getFullImageUrl(article.featured_image);
-  const articleUrl = getFullArticleUrl(resolvedParams.id);
+  const articleUrl = getFullArticleUrl(params.id);
   const keywords = prepareKeywords(article.seo_keywords || article.keywords);
 
   return {
@@ -81,18 +80,17 @@ export async function generateMetadata({
 export default async function ArticlePage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
   // جلب البيانات في السيرفر
-  const resolvedParams = await params;
-  const article = await getArticleData(resolvedParams.id);
+  const article = await getArticleData(params.id);
 
   if (!article) {
     notFound();
   }
 
   // تمرير البيانات للـ Client Component
-  return <ArticleClientComponent initialArticle={article} articleId={resolvedParams.id} />;
+  return <ArticleClientComponent initialArticle={article} articleId={params.id} />;
 }
 
 // تحسين الأداء - إنشاء صفحات ثابتة للمقالات الشائعة

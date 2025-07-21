@@ -468,8 +468,131 @@ export default function DeepAnalysisPage() {
           </div>
         </div>
       </div>
-      {/* جدول التحليلات */}
-      <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
+      
+      {/* عرض البطاقات - الجوال */}
+      <div className="lg:hidden space-y-4 mb-6">
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          </div>
+        ) : analyses.length === 0 ? (
+          <div className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            لا توجد تحليلات متاحة
+          </div>
+        ) : (
+          analyses.map((analysis) => (
+            <div key={analysis.id} className={`rounded-xl p-4 shadow-sm border transition-colors duration-300 ${
+              darkMode 
+                ? 'bg-gray-800 border-gray-700' 
+                : 'bg-white border-gray-100'
+            }`}>
+              <div className="flex items-start gap-3 mb-3">
+                <div className={`w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 ${
+                  darkMode ? 'bg-gray-700' : 'bg-gray-100'
+                }`}>
+                  {analysis.featuredImage ? (
+                    <Image
+                      src={analysis.featuredImage}
+                      alt={analysis.title || 'تحليل عميق'}
+                      width={48}
+                      height={48}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Brain className="w-6 h-6 text-purple-500" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className={`font-medium text-sm mb-1 ${
+                    darkMode ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    {analysis.title || 'تحليل عميق'}
+                  </h3>
+                  <p className={`text-xs mb-2 line-clamp-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {analysis.summary || 'ملخص غير متوفر'}
+                  </p>
+                  
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge variant="secondary" className="text-xs">
+                      {analysis.sourceType === 'manual' ? 'يدوي' : 
+                       analysis.sourceType === 'gpt' ? 'GPT' : 'مختلط'}
+                    </Badge>
+                    <Badge 
+                      variant={
+                        analysis.status === 'published' ? 'default' : 
+                        analysis.status === 'draft' ? 'secondary' : 
+                        'outline'
+                      }
+                      className="text-xs"
+                    >
+                      {analysis.status === 'published' ? 'منشور' :
+                       analysis.status === 'draft' ? 'مسودة' : 'مؤرشف'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-gray-500">
+                      {new Date(analysis.createdAt).toLocaleDateString('ar-SA')}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push(`/dashboard/deep-analysis/${analysis.id}`)}
+                        className="h-7 w-7 p-0"
+                      >
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push(`/dashboard/deep-analysis/${analysis.id}/edit`)}
+                        className="h-7 w-7 p-0"
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                          >
+                            <MoreHorizontal className="h-3 w-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => router.push(`/dashboard/deep-analysis/${analysis.id}`)}>
+                            <Eye className="ml-2 h-4 w-4" />
+                            عرض
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => router.push(`/dashboard/deep-analysis/${analysis.id}/edit`)}>
+                            <Edit className="ml-2 h-4 w-4" />
+                            تحرير
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => handleDelete(analysis.id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="ml-2 h-4 w-4" />
+                            حذف
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* جدول التحليلات - عرض سطح المكتب */}
+      <div className={`hidden lg:block rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
         darkMode 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'

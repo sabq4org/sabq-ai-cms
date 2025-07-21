@@ -1,11 +1,13 @@
 import '../styles/globals.css';
 import '../styles/smart-recommendations.css';
+import '../styles/minimal-fix.css';
 import type { Metadata } from 'next';
 import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import { Providers } from './providers';
 import Header from '../components/Header';
 import ErrorBoundary from '../components/ErrorBoundary';
 import GlobalErrorHandler from '../components/GlobalErrorHandler';
+import ConditionalHeader from '../components/ConditionalHeader';
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({ 
   subsets: ['arabic'],
@@ -29,7 +31,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <Providers>
             <GlobalErrorHandler />
-            <Header />
+            <ConditionalHeader />
             {children}
           </Providers>
         </ErrorBoundary>
