@@ -1,298 +1,344 @@
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { 
-  Brain, 
-  Heart, 
-  MessageCircle, 
-  Lightbulb, 
-  ArrowRight, 
-  Eye,
-  Calendar,
-  User,
-  Tag,
-  TrendingUp,
-  Sparkles,
-  BookOpen,
-  FileText
-} from 'lucide-react';
+'use client';
 
-interface Recommendation {
+import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Clock, User, TrendingUp, Lightbulb, FileText, Eye, Edit } from 'lucide-react';
+
+interface SmartRecommendation {
   id: string;
-  type: 'similar' | 'analysis' | 'opinion' | 'question' | 'tip';
   title: string;
-  description?: string;
-  link?: string;
+  summary?: string;
+  slug: string;
+  type: 'news' | 'analysis' | 'opinion' | 'question' | 'tip';
+  badge: string;
+  featuredImage?: string;
   author?: string;
-  date?: string;
-  category?: string;
+  readTime?: number;
   views?: number;
-  tags?: string[];
+  category?: string;
+  publishedAt?: string;
 }
 
 interface SmartRecommendationBlockProps {
   articleId: string;
-  category?: string;
-  tags?: string[];
   className?: string;
 }
 
-export default function SmartRecommendationBlock({
-  articleId,
-  category,
-  tags = [],
-  className = ""
-}: SmartRecommendationBlockProps) {
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [loading, setLoading] = useState(true);
+// بيانات تجريبية متنوعة
+const mockRecommendations: SmartRecommendation[] = [
+  {
+    id: '1',
+    title: 'السعودية تعلن عن مشروع جديد للطاقة المتجددة في نيوم',
+    summary: 'مشروع طموح يهدف لإنتاج 9 جيجاواط من الطاقة الشمسية',
+    slug: 'neom-renewable-energy-project',
+    type: 'news',
+    badge: 'أخبار مشابهة',
+    featuredImage: '/images/news-placeholder.jpg',
+    author: 'أحمد السعيد',
+    readTime: 3,
+    views: 1250,
+    category: 'طاقة',
+    publishedAt: '2025-01-12T10:30:00Z'
+  },
+  {
+    id: '2',
+    title: 'تحليل: مستقبل الذكاء الاصطناعي في القطاع المصرفي السعودي',
+    slug: 'ai-banking-sector-analysis',
+    type: 'analysis',
+    badge: 'تحليل عميق',
+    author: 'د. فاطمة النجار',
+    readTime: 8,
+    category: 'تقنية'
+  },
+  {
+    id: '3',
+    title: 'التحول الرقمي في التعليم: فرص ومخاطر',
+    summary: 'نظرة شاملة على تأثير التكنولوجيا على منظومة التعليم',
+    slug: 'digital-transformation-education',
+    type: 'news',
+    badge: 'أخبار مشابهة',
+    featuredImage: '/images/education-tech.jpg',
+    author: 'سارة الحربي',
+    readTime: 5,
+    views: 890,
+    category: 'تعليم',
+    publishedAt: '2025-01-12T08:15:00Z'
+  },
+  {
+    id: '4',
+    title: 'رأي: هل نحن مستعدون للثورة التكنولوجية القادمة؟',
+    slug: 'tech-revolution-opinion',
+    type: 'opinion',
+    badge: 'مقال رأي',
+    author: 'خالد المنصوري',
+    readTime: 6,
+    category: 'رأي'
+  },
+  {
+    id: '5',
+    title: 'الاستثمار في البنية التحتية الرقمية يحقق نمواً اقتصادياً مستداماً',
+    summary: 'دراسة حديثة تكشف عن تأثير الاستثمار التقني على الاقتصاد',
+    slug: 'digital-infrastructure-investment',
+    type: 'news',
+    badge: 'أخبار مشابهة',
+    featuredImage: '/images/digital-infrastructure.jpg',
+    author: 'نور العتيبي',
+    readTime: 4,
+    views: 567,
+    category: 'اقتصاد',
+    publishedAt: '2025-01-12T06:45:00Z'
+  },
+  {
+    id: '6',
+    title: 'تحليل متعمق: الأمن السيبراني في عصر إنترنت الأشياء',
+    slug: 'cybersecurity-iot-analysis',
+    type: 'analysis',
+    badge: 'تحليل عميق',
+    author: 'د. محمد الزهراني',
+    readTime: 10,
+    category: 'أمن معلومات'
+  },
+  {
+    id: '7',
+    title: 'مبادرة جديدة لدعم الشركات الناشئة في مجال التقنية المالية',
+    summary: 'صندوق استثماري بقيمة 500 مليون ريال لدعم الفنتك',
+    slug: 'fintech-startup-initiative',
+    type: 'news',
+    badge: 'أخبار مشابهة',
+    featuredImage: '/images/fintech-startups.jpg',
+    author: 'ريم الشهري',
+    readTime: 3,
+    views: 1100,
+    category: 'مالية',
+    publishedAt: '2025-01-12T14:20:00Z'
+  },
+  {
+    id: '8',
+    title: 'رأي: التوازن بين الابتكار والخصوصية في العصر الرقمي',
+    slug: 'innovation-privacy-balance',
+    type: 'opinion',
+    badge: 'مقال رأي',
+    author: 'أمل القحطاني',
+    readTime: 7,
+    category: 'تقنية'
+  }
+];
 
-  useEffect(() => {
-    fetchRecommendations();
-  }, [articleId, category]);
+const getBadgeIcon = (type: string) => {
+  switch (type) {
+    case 'news':
+      return '📰';
+    case 'analysis':
+      return '🧠';
+    case 'opinion':
+      return '✍️';
+    case 'question':
+      return '💬';
+    case 'tip':
+      return '💡';
+    default:
+      return '📝';
+  }
+};
 
-  const fetchRecommendations = async () => {
-    try {
-      setLoading(true);
+const getBadgeColor = (type: string) => {
+  switch (type) {
+    case 'news':
+      return 'bg-blue-100 text-blue-800';
+    case 'analysis':
+      return 'bg-purple-100 text-purple-800';
+    case 'opinion':
+      return 'bg-green-100 text-green-800';
+    case 'question':
+      return 'bg-orange-100 text-orange-800';
+    case 'tip':
+      return 'bg-yellow-100 text-yellow-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
+const formatTimeAgo = (dateString?: string) => {
+  if (!dateString) return '';
+  const now = new Date();
+  const date = new Date(dateString);
+  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+  
+  if (diffInHours < 1) return 'الآن';
+  if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
+  const diffInDays = Math.floor(diffInHours / 24);
+  return `منذ ${diffInDays} يوم`;
+};
+
+// مكون البطاقة الكاملة
+const RecommendationCard: React.FC<{ recommendation: SmartRecommendation }> = ({ recommendation }) => (
+  <Link href={`/article/${recommendation.slug}`} className="group block">
+    <article className="recommendation-card bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-blue-200">
+      {recommendation.featuredImage && (
+        <div className="relative h-48 overflow-hidden">
+          <Image
+            src={recommendation.featuredImage}
+            alt={recommendation.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute top-3 right-3">
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getBadgeColor(recommendation.type)}`}>
+              <span className="ml-1">{getBadgeIcon(recommendation.type)}</span>
+              {recommendation.badge}
+            </span>
+          </div>
+        </div>
+      )}
       
-      // محاكاة جلب التوصيات من مصادر مختلفة
-      const mockRecommendations: Recommendation[] = [
-        // أخبار مشابهة
-        {
-          id: '1',
-          type: 'similar',
-          title: 'تطورات جديدة في نفس السياق',
-          description: 'مقال يكمل هذا الموضوع بتفاصيل إضافية ومعلومات حديثة',
-          link: '/article/similar-1',
-          author: 'محمد أحمد',
-          date: 'منذ ساعتين',
-          category: category || 'أخبار',
-          views: 1250
-        },
-        // تحليل عميق
-        {
-          id: '2',
-          type: 'analysis',
-          title: 'تحليل عميق: خلفيات الموضوع وتداعياته',
-          description: 'دراسة شاملة تحلل الموضوع من جوانب متعددة مع استشراف المستقبل',
-          link: '/insights/deep-analysis-1',
-          author: 'د. سارة المطيري',
-          date: 'أمس',
-          views: 890
-        },
-        // مقال رأي
-        {
-          id: '3',
-          type: 'opinion',
-          title: 'وجهة نظر: ما الذي يعنيه هذا حقاً؟',
-          description: 'رؤية تحليلية من كاتب رأي حول تأثيرات الموضوع على المجتمع',
-          link: '/opinion/perspective-1',
-          author: 'أحمد الكاتب',
-          date: 'منذ يوم',
-          category: 'رأي',
-          views: 670
-        },
-        // سؤال تفاعلي
-        {
-          id: '4',
-          type: 'question',
-          title: 'ما رأيك في التطورات الأخيرة؟',
-          description: 'شاركنا وجهة نظرك حول هذا الموضوع المهم'
-        },
-        // نصيحة ذكية
-        {
-          id: '5',
-          type: 'tip',
-          title: 'نصيحة ذكية: كيف تتابع هذا الموضوع',
-          description: 'اشترك في تنبيهات هذا التصنيف لتكون أول من يعرف بالتطورات الجديدة'
-        }
-      ];
-
-      // محاكاة تأخير الشبكة
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setRecommendations(mockRecommendations);
-    } catch (error) {
-      console.error('خطأ في جلب التوصيات:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getBadgeConfig = (type: string) => {
-    switch (type) {
-      case 'similar':
-        return {
-          icon: <FileText className="w-3 h-3" />,
-          text: 'مشابه',
-          bg: 'bg-blue-100 dark:bg-blue-900/30',
-          text_color: 'text-blue-600 dark:text-blue-400'
-        };
-      case 'analysis':
-        return {
-          icon: <Brain className="w-3 h-3" />,
-          text: 'تحليل عميق',
-          bg: 'bg-purple-100 dark:bg-purple-900/30',
-          text_color: 'text-purple-600 dark:text-purple-400'
-        };
-      case 'opinion':
-        return {
-          icon: <Heart className="w-3 h-3" />,
-          text: 'رأي',
-          bg: 'bg-red-100 dark:bg-red-900/30',
-          text_color: 'text-red-600 dark:text-red-400'
-        };
-      case 'question':
-        return {
-          icon: <MessageCircle className="w-3 h-3" />,
-          text: 'سؤال تفاعلي',
-          bg: 'bg-green-100 dark:bg-green-900/30',
-          text_color: 'text-green-600 dark:text-green-400'
-        };
-      case 'tip':
-        return {
-          icon: <Lightbulb className="w-3 h-3" />,
-          text: 'نصيحة ذكية',
-          bg: 'bg-yellow-100 dark:bg-yellow-900/30',
-          text_color: 'text-yellow-600 dark:text-yellow-400'
-        };
-      default:
-        return {
-          icon: <Sparkles className="w-3 h-3" />,
-          text: 'توصية',
-          bg: 'bg-gray-100 dark:bg-gray-800',
-          text_color: 'text-gray-600 dark:text-gray-400'
-        };
-    }
-  };
-
-  const formatNumber = (num: number) => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'ك';
-    }
-    return num.toString();
-  };
-
-  if (loading) {
-    return (
-      <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-600 ${className}`}>
-        <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-6"></div>
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+      <div className="p-4">
+        <h3 className="font-bold text-gray-900 text-lg leading-tight mb-2 group-hover:text-blue-600 transition-colors">
+          {recommendation.title}
+        </h3>
+        
+        {recommendation.summary && (
+          <p className="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-2">
+            {recommendation.summary}
+          </p>
+        )}
+        
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center space-x-reverse space-x-4">
+            {recommendation.author && (
+              <div className="flex items-center">
+                <User className="w-3 h-3 ml-1" />
+                <span>{recommendation.author}</span>
               </div>
-            ))}
+            )}
+            {recommendation.readTime && (
+              <div className="flex items-center">
+                <Clock className="w-3 h-3 ml-1" />
+                <span>{recommendation.readTime} دقائق</span>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex items-center space-x-reverse space-x-3">
+            {recommendation.views && (
+              <div className="flex items-center">
+                <Eye className="w-3 h-3 ml-1" />
+                <span>{recommendation.views.toLocaleString()}</span>
+              </div>
+            )}
+            {recommendation.publishedAt && (
+              <span>{formatTimeAgo(recommendation.publishedAt)}</span>
+            )}
           </div>
         </div>
       </div>
+    </article>
+  </Link>
+);
+
+// مكون الرابط السريع
+const QuickLink: React.FC<{ recommendation: SmartRecommendation }> = ({ recommendation }) => (
+  <Link href={`/article/${recommendation.slug}`} className="group block">
+    <div className="quick-link bg-gray-50 rounded-lg p-4 border-r-4 border-blue-400 hover:bg-blue-50 hover:border-blue-600 transition-all duration-300">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center mb-2">
+            <span className="text-lg ml-2">{getBadgeIcon(recommendation.type)}</span>
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getBadgeColor(recommendation.type)}`}>
+              {recommendation.badge}
+            </span>
+          </div>
+          
+          <h4 className="font-semibold text-gray-900 text-base leading-tight group-hover:text-blue-600 transition-colors mb-2">
+            {recommendation.title}
+          </h4>
+          
+          <div className="flex items-center space-x-reverse space-x-4 text-xs text-gray-500">
+            {recommendation.author && (
+              <div className="flex items-center">
+                <User className="w-3 h-3 ml-1" />
+                <span>{recommendation.author}</span>
+              </div>
+            )}
+            {recommendation.readTime && (
+              <div className="flex items-center">
+                <Clock className="w-3 h-3 ml-1" />
+                <span>{recommendation.readTime} دقائق</span>
+              </div>
+            )}
+            {recommendation.category && (
+              <span className="bg-gray-200 px-2 py-1 rounded">{recommendation.category}</span>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex items-center text-blue-600 group-hover:text-blue-800 transition-colors">
+          <TrendingUp className="w-4 h-4" />
+        </div>
+      </div>
+    </div>
+  </Link>
+);
+
+const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({ 
+  articleId, 
+  className = '' 
+}) => {
+  const renderItem = (recommendation: SmartRecommendation, index: number) => {
+    // نمط التبديل: أول 3 بطاقات، ثم 3 روابط، ثم بطاقات، ثم روابط...
+    const cyclePosition = index % 6;
+    
+    // إذا كان الموضع في النصف الثاني من الدورة (3-5) أو كان من نوع الرأي/التحليل، نعرضه كرابط سريع
+    if (cyclePosition >= 3 || recommendation.type === 'opinion' || recommendation.type === 'analysis') {
+      return (
+        <div key={recommendation.id} className="mb-4">
+          <QuickLink recommendation={recommendation} />
+        </div>
+      );
+    }
+    
+    // وإلا نعرضه كبطاقة كاملة
+    return (
+      <div key={recommendation.id} className="mb-6">
+        <RecommendationCard recommendation={recommendation} />
+      </div>
     );
-  }
+  };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-600 ${className}`}>
-      {/* العنوان */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-indigo-500" />
-          <h3 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white">
-            محتوى مخصص لك
-          </h3>
+    <section className={`smart-recommendation-block bg-white rounded-xl border border-gray-200 p-6 ${className}`}>
+      {/* الهيدر مع النص التوضيحي */}
+      <div className="text-center mb-6">
+        <div className="flex items-center justify-center mb-2">
+          <Lightbulb className="w-6 h-6 text-blue-600 ml-2" />
+          <h2 className="text-2xl font-bold text-gray-900">محتوى مخصص لك</h2>
         </div>
-        <div className="flex-1 h-px bg-gradient-to-r from-indigo-200 to-transparent dark:from-indigo-700"></div>
+        <p className="text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-lg inline-flex items-center">
+          <span className="ml-2">🧠</span>
+          يتم توليد هذا المحتوى بناءً على اهتماماتك وتفاعلاتك
+        </p>
       </div>
 
-      {/* التوصيات */}
-      <div className="space-y-4">
-        {recommendations.map((rec) => {
-          const badge = getBadgeConfig(rec.type);
-          
-          return (
-            <div
-              key={rec.id}
-              className="group relative bg-gradient-to-r from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-700 transition-all duration-300"
-            >
-              {/* شارة النوع */}
-              <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium mb-3 ${badge.bg} ${badge.text_color}`}>
-                {badge.icon}
-                <span>{badge.text}</span>
-              </div>
-
-              {/* المحتوى */}
-              <div className="space-y-2">
-                <h4 className="font-semibold text-gray-800 dark:text-white text-sm sm:text-base leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                  {rec.title}
-                </h4>
-                
-                {rec.description && (
-                  <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed line-clamp-2">
-                    {rec.description}
-                  </p>
-                )}
-
-                {/* معلومات إضافية */}
-                {(rec.author || rec.date || rec.views) && (
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-600">
-                    {rec.author && (
-                      <div className="flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        <span>{rec.author}</span>
-                      </div>
-                    )}
-                    {rec.date && (
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        <span>{rec.date}</span>
-                      </div>
-                    )}
-                    {rec.views && (
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-3 h-3" />
-                        <span>{formatNumber(rec.views)} مشاهدة</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* رابط */}
-              {rec.link ? (
-                <Link 
-                  href={rec.link}
-                  className="absolute inset-0 z-10"
-                  aria-label={`اقرأ: ${rec.title}`}
-                />
-              ) : rec.type === 'question' ? (
-                <button 
-                  onClick={() => {
-                    // يمكن إضافة منطق فتح نموذج السؤال هنا
-                    console.log('فتح سؤال تفاعلي');
-                  }}
-                  className="absolute inset-0 z-10"
-                  aria-label={rec.title}
-                />
-              ) : null}
-
-              {/* سهم التوجيه */}
-              <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <ArrowRight className="w-4 h-4 text-indigo-500 transform group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          );
-        })}
+      {/* قائمة التوصيات مع التنويع البصري */}
+      <div className="space-y-0">
+        {mockRecommendations.map((recommendation, index) => 
+          renderItem(recommendation, index)
+        )}
       </div>
 
       {/* رابط عرض المزيد */}
-      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
-        <Link
-          href="/for-you"
-          className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm transition-colors"
+      <div className="text-center mt-8 pt-6 border-t border-gray-200">
+        <Link 
+          href="/for-you" 
+          className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
-          <BookOpen className="w-4 h-4" />
-          <span>استكشف المزيد من المحتوى المخصص لك</span>
-          <ArrowRight className="w-4 h-4" />
+          <FileText className="w-4 h-4 ml-2" />
+          عرض المزيد من التوصيات
+          <TrendingUp className="w-4 h-4 mr-2" />
         </Link>
       </div>
-    </div>
+    </section>
   );
-} 
+};
+
+export default SmartRecommendationBlock; 

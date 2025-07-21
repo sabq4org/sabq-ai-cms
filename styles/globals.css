@@ -413,3 +413,92 @@ body.dropdown-open {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
 } 
+
+/* Smart Recommendation Block Styles */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* تحسينات الرسوم المتحركة للبطاقات */
+@keyframes slideInFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.recommendation-card {
+  animation: slideInFade 0.6s ease-out;
+}
+
+.recommendation-card:nth-child(even) {
+  animation-delay: 0.1s;
+}
+
+.recommendation-card:nth-child(odd) {
+  animation-delay: 0.2s;
+}
+
+/* تحسينات الحواف والظلال */
+.smart-recommendation-block {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.smart-recommendation-block:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* تحسينات النسخة المحمولة */
+@media (max-width: 768px) {
+  .smart-recommendation-block {
+    margin: 0 -1rem;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  .recommendation-card {
+    border-radius: 0.5rem;
+  }
+  
+  .quick-link {
+    margin: 0 0.5rem;
+    border-radius: 0.5rem;
+  }
+}
+
+/* تحسينات الألوان للوضع الليلي */
+@media (prefers-color-scheme: dark) {
+  .smart-recommendation-block {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+  
+  .recommendation-card {
+    background-color: #111827;
+    border-color: #374151;
+  }
+  
+  .quick-link {
+    background-color: #374151;
+    border-color: #4f46e5;
+  }
+  
+  .quick-link:hover {
+    background-color: #4338ca;
+  }
+} 
