@@ -112,15 +112,6 @@ export default function DashboardLayout({
     setExpandedSection(expandedSection === section ? null : section);
   };
 
-  // تطبيق التخطيط المحسن للموبايل
-  if (isMobile) {
-    return (
-      <DashboardMobileLayout>
-        {children}
-      </DashboardMobileLayout>
-    );
-  }
-
   return (
     <div 
       className={`min-h-screen transition-all duration-500 ease-in-out ${

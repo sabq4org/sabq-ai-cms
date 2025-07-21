@@ -8,7 +8,7 @@ import {
   BookmarkIcon, 
   ShareIcon,
   TagIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   ChatBubbleLeftIcon
 } from '@heroicons/react/24/outline'
 import { 
@@ -214,14 +214,14 @@ export default function ArticleStats({ articleId, initialStats }: ArticleStatsPr
       {/* العنوان */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-          <TrendingUpIcon className="w-5 h-5 text-white" />
+                          <ArrowTrendingUpIcon className="w-5 h-5 text-white" />
         </div>
         <h3 className="text-lg font-bold text-gray-900">إحصائيات المقال</h3>
         
         {/* معدل النمو */}
         {stats.growthRate > 0 && (
           <div className="mr-auto bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-            <TrendingUpIcon className="w-4 h-4 inline ml-1" />
+                              <ArrowTrendingUpIcon className="w-4 h-4 inline ml-1" />
             نمو {stats.growthRate}%
           </div>
         )}

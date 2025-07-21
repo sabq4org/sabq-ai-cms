@@ -365,6 +365,12 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                               ? 'text-orange-300 bg-orange-900/20 border border-orange-700/50' 
                               : 'text-orange-700 bg-orange-50 border border-orange-200'
                           }`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            router.push(`/categories/${categoryName}`);
+                          }}
+                          style={{ cursor: 'pointer' }}
                         >
                           📁 {categoryName}
                         </span>
