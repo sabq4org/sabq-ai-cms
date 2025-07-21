@@ -1,5 +1,30 @@
 'use client';
 
+/**
+ * 🎯 نظام التوصيات الذكي المتطور - SmartRecommendationBlock
+ * 
+ * النظام الجديد يكسر الرتابة البصرية من خلال:
+ * 
+ * 🔄 نمط التبديل الذكي:
+ * - دورة تكرار كل 6 عناصر (index % 6)
+ * - العناصر 0,1,2 = بطاقات كاملة مع صور
+ * - العناصر 3,4,5 = روابط سريعة مدمجة
+ * 
+ * 🏷️ تصنيف المحتوى المتقدم:
+ * - 📰 أخبار عادية: تتبع دورة التبديل
+ * - 🧠 تحليلات عميقة: بطاقات كاملة دائماً (أولوية عالية)
+ * - ✍️ مقالات رأي: بطاقات كاملة دائماً (أولوية عالية)
+ * 
+ * 📱💻 استجابة متقدمة:
+ * - الهواتف: تنويع مُحسَّن مع الحفاظ على الأداء
+ * - الديسكتوب: تنويع كامل مع إبراز المحتوى المميز
+ * 
+ * 🧠 ذكاء اصطناعي:
+ * - تحليل العناوين والمحتوى لتصنيف نوع المقال
+ * - كلمات مفتاحية ذكية للتمييز بين الأنواع
+ * - عرض تفضيلات المستخدم ديناميكياً
+ */
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -313,17 +338,43 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
   };
 
   const determineType = (item: any): SmartRecommendation['type'] => {
-    if (item.type === 'analysis' || item.category_name === 'تحليل عميق') return 'analysis';
-    if (item.type === 'opinion' || item.category_name === 'رأي') return 'opinion';
+    // 🏷️ تصنيف ذكي للمحتوى حسب أولويات مختلفة
+    const title = item.title?.toLowerCase() || '';
+    const category = item.category_name?.toLowerCase() || item.category?.name?.toLowerCase() || '';
+    const content = item.content?.toLowerCase() || item.excerpt?.toLowerCase() || '';
+    
+    // أولوية أولى: نوع صريح محدد
+    if (item.type === 'analysis' || item.type === 'opinion') return item.type;
+    
+    // أولوية ثانية: اسم الفئة
+    if (category.includes('تحليل') || category.includes('عميق')) return 'analysis';
+    if (category.includes('رأي') || category.includes('مقال')) return 'opinion';
+    
+    // أولوية ثالثة: كلمات مفتاحية في العنوان والمحتوى
+    const analysisKeywords = ['تحليل', 'دراسة', 'بحث', 'تقرير', 'إحصائية', 'استطلاع'];
+    const opinionKeywords = ['رأي', 'وجهة نظر', 'تعليق', 'مقال', 'كاتب'];
+    
+    if (analysisKeywords.some(keyword => title.includes(keyword) || content.includes(keyword))) {
+      return 'analysis';
+    }
+    
+    if (opinionKeywords.some(keyword => title.includes(keyword) || content.includes(keyword))) {
+      return 'opinion';
+    }
+    
+    // افتراضي: أخبار عادية
     return 'news';
   };
 
   const getBadgeText = (item: any): string => {
     const type = determineType(item);
     switch (type) {
-      case 'analysis': return 'تحليل عميق';
-      case 'opinion': return 'مقال رأي';
-      default: return 'أخبار مشابهة';
+      case 'analysis': 
+        return '🧠 تحليل عميق';
+      case 'opinion': 
+        return '✍️ مقال رأي';
+      default: 
+        return '📰 أخبار مشابهة';
     }
   };
 
@@ -334,22 +385,30 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
     return Math.ceil(wordCount / wordsPerMinute);
   };
 
-  // تطبيق نمط التنويع حسب حجم الشاشة
+  // 🎯 نظام التنويع البصري المتطور - يكسر الرتابة ويحسن التفاعل
   const renderItem = (recommendation: SmartRecommendation, index: number) => {
+    const cyclePosition = index % 6;
+    const isSpecialContent = recommendation.type === 'analysis' || recommendation.type === 'opinion';
+    
     if (isMobile) {
-      // النسخة الخفيفة للهواتف - تطبيق التنويع
-      const cyclePosition = index % 6;
-      
-      // أول 3 بطاقات: عرض كاملة
-      if (cyclePosition < 3) {
+      // 📱 نمط الهواتف: تنويع ذكي مع إعطاء أولوية للمحتوى الخاص
+      if (isSpecialContent) {
+        // المحتوى الخاص (تحليل/رأي) يظهر دائماً كبطاقة كاملة
         return (
           <div key={recommendation.id}>
             <RecommendationCard recommendation={recommendation} isMobile={true} />
           </div>
         );
       }
-      // التالي 3: روابط سريعة
-      else {
+      
+      // للأخبار العادية: دورة التنويع (3 بطاقات كاملة + 3 روابط سريعة)
+      if (cyclePosition < 3) {
+        return (
+          <div key={recommendation.id}>
+            <RecommendationCard recommendation={recommendation} isMobile={true} />
+          </div>
+        );
+      } else {
         return (
           <div key={recommendation.id}>
             <QuickLinkMobile recommendation={recommendation} />
@@ -357,22 +416,31 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
         );
       }
     } else {
-      // نسخة الديسكتوب - النمط الأصلي
-      const cyclePosition = index % 6;
+      // 🖥️ نمط الديسكتوب: تنويع متقدم مع توزيع ذكي
+      if (isSpecialContent) {
+        // المحتوى الخاص يظهر كبطاقة كاملة لجذب الانتباه
+        return (
+          <div key={recommendation.id} className="mb-6">
+            <RecommendationCard recommendation={recommendation} isMobile={false} />
+          </div>
+        );
+      }
       
-      if (cyclePosition >= 3 || recommendation.type === 'opinion' || recommendation.type === 'analysis') {
+      // للأخبار العادية: نمط التبديل الذكي
+      // العناصر 0,1,2 = بطاقات كاملة | العناصر 3,4,5 = روابط سريعة
+      if (cyclePosition < 3) {
+        return (
+          <div key={recommendation.id} className="mb-6">
+            <RecommendationCard recommendation={recommendation} isMobile={false} />
+          </div>
+        );
+      } else {
         return (
           <div key={recommendation.id} className="mb-4">
             <QuickLinkDesktop recommendation={recommendation} />
           </div>
         );
       }
-      
-      return (
-        <div key={recommendation.id} className="mb-6">
-          <RecommendationCard recommendation={recommendation} isMobile={false} />
-        </div>
-      );
     }
   };
 
@@ -388,20 +456,24 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
     return (
       <section className={containerClasses}>
         <div className={headerClasses}>
-          <div className="flex items-center justify-center mb-2">
-            <Lightbulb className="w-6 h-6 text-blue-600 ml-2" />
-            <h2 className="text-2xl font-bold text-gray-900">محتوى مخصص لك</h2>
+          <div className="flex items-center justify-center mb-3">
+            <Lightbulb className="w-6 h-6 text-blue-600 ml-2 animate-pulse" />
+            <h2 className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+              🎯 محتوى مخصص لك
+            </h2>
           </div>
-          <p className="text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-lg inline-flex items-center">
-            <span className="ml-2">🧠</span>
-            يتم توليد هذا المحتوى بناءً على اهتماماتك وتفاعلاتك
-          </p>
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 rounded-xl border border-blue-100">
+            <p className="text-sm text-gray-700 text-center flex items-center justify-center">
+              <span className="ml-2">🧠</span>
+              <span className="font-medium">يتم توليد هذا المحتوى بناءً على اهتماماتك وتفاعلاتك</span>
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center justify-center py-12">
           <div className="flex items-center gap-3">
             <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-            <span className="text-gray-600">جاري تحميل التوصيات...</span>
+            <span className="text-gray-600">جاري تحليل تفضيلاتك...</span>
           </div>
         </div>
       </section>
@@ -412,9 +484,11 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
     return (
       <section className={containerClasses}>
         <div className={headerClasses}>
-          <div className="flex items-center justify-center mb-2">
+          <div className="flex items-center justify-center mb-3">
             <Lightbulb className="w-6 h-6 text-blue-600 ml-2" />
-            <h2 className="text-2xl font-bold text-gray-900">محتوى مخصص لك</h2>
+            <h2 className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+              🎯 محتوى مخصص لك
+            </h2>
           </div>
         </div>
 
@@ -423,8 +497,9 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
           <p className="text-gray-600 text-center mb-4">{error}</p>
           <button
             onClick={fetchRecommendations}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
           >
+            <span>🔄</span>
             إعادة المحاولة
           </button>
         </div>
@@ -436,15 +511,18 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
     return (
       <section className={containerClasses}>
         <div className={headerClasses}>
-          <div className="flex items-center justify-center mb-2">
+          <div className="flex items-center justify-center mb-3">
             <Lightbulb className="w-6 h-6 text-blue-600 ml-2" />
-            <h2 className="text-2xl font-bold text-gray-900">محتوى مخصص لك</h2>
+            <h2 className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+              🎯 محتوى مخصص لك
+            </h2>
           </div>
         </div>
 
         <div className="text-center py-12">
           <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">لا توجد توصيات متاحة حالياً</p>
+          <p className="text-gray-600 mb-2">لا توجد توصيات متاحة حالياً</p>
+          <p className="text-sm text-gray-500">تفاعل مع المزيد من المحتوى لتحسين توصياتك 📈</p>
         </div>
       </section>
     );
@@ -453,14 +531,29 @@ const SmartRecommendationBlock: React.FC<SmartRecommendationBlockProps> = ({
   return (
     <section className={containerClasses}>
       <div className={headerClasses}>
-        <div className="flex items-center justify-center mb-2">
-          <Lightbulb className="w-6 h-6 text-blue-600 ml-2" />
-          <h2 className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-2xl'}`}>محتوى مخصص لك</h2>
+        <div className="flex items-center justify-center mb-3">
+          <Lightbulb className="w-6 h-6 text-blue-600 ml-2 animate-pulse" />
+          <h2 className={`font-bold text-gray-900 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+            🎯 محتوى مخصص لك
+          </h2>
         </div>
-        <p className="text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-lg inline-flex items-center">
-          <span className="ml-2">🧠</span>
-          يتم توليد هذا المحتوى بناءً على اهتماماتك وتفاعلاتك
-        </p>
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 rounded-xl border border-blue-100">
+          <p className="text-sm text-gray-700 text-center flex items-center justify-center">
+            <span className="ml-2">🧠</span>
+            <span className="font-medium">يتم توليد هذا المحتوى بناءً على اهتماماتك وتفاعلاتك</span>
+          </p>
+          <div className="flex items-center justify-center mt-2 text-xs text-gray-500">
+            <span className="flex items-center ml-3">
+              📰 <span className="mr-1">أخبار</span>
+            </span>
+            <span className="flex items-center ml-3">
+              🧠 <span className="mr-1">تحليلات</span>
+            </span>
+            <span className="flex items-center">
+              ✍️ <span className="mr-1">آراء</span>
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className={isMobile ? 'space-y-0 pb-6' : 'space-y-0'}>
