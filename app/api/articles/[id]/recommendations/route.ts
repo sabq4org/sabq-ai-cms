@@ -1,128 +1,115 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-interface SmartRecommendation {
-  id: string
-  type: 'similar' | 'analysis' | 'opinion' | 'tip' | 'question'
-  title: string
-  excerpt?: string
-  image?: string
-  url: string
-  badge?: string
-  author?: string
-  createdAt?: string
-}
-
-export async function GET(
+export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const articleId = params.id
-    
-    const recommendations: SmartRecommendation[] = []
+    const { category, tags = [], limit = 8 } = await request.json();
+    const articleId = params.id;
 
-    // 1. أخبار مشابهة
-    const similarArticles = await prisma.articles.findMany({
+    // الحصول على المقال الحالي
+    const currentArticle = await prisma.articles.findUnique({
+      where: { id: articleId }
+    });
+
+    if (!currentArticle) {
+      return NextResponse.json(
+        { success: false, error: 'المقال غير موجود' },
+        { status: 404 }
+      );
+    }
+
+    const recommendations = [];
+
+    // 1. مقالات مشابهة من نفس الفئة
+    if (currentArticle.category_id) {
+      const similarCategoryArticles = await prisma.articles.findMany({
+        where: {
+          id: { not: articleId },
+          category_id: currentArticle.category_id,
+          status: 'published'
+        },
+        orderBy: [
+          { views: 'desc' },
+          { published_at: 'desc' }
+        ],
+        take: 3
+      });
+
+      recommendations.push(...similarCategoryArticles);
+    }
+
+    // 2. مقالات حديثة شائعة
+    const popularArticles = await prisma.articles.findMany({
+      where: {
+        id: { not: articleId },
+        status: 'published',
+        published_at: {
+          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // آخر أسبوع
+        }
+      },
+      orderBy: [
+        { views: 'desc' },
+        { likes: 'desc' }
+      ],
+      take: 4
+    });
+
+    recommendations.push(...popularArticles);
+
+    // 3. مقالات عشوائية أخرى
+    const randomArticles = await prisma.articles.findMany({
       where: {
         id: { not: articleId },
         status: 'published'
       },
-      select: {
-        id: true,
-        title: true,
-        excerpt: true,
-        featured_image: true,
-        slug: true,
-        created_at: true
-      },
-      orderBy: { views: 'desc' },
+      orderBy: { created_at: 'desc' },
       take: 3
-    })
+    });
 
-    similarArticles.forEach(article => {
-      recommendations.push({
+    recommendations.push(...randomArticles);
+
+    // إزالة التكرارات وتحديد العدد
+    const uniqueRecommendations = recommendations
+      .filter((article, index, self) => 
+        index === self.findIndex(a => a.id === article.id)
+      )
+      .slice(0, limit)
+      .map(article => ({
         id: article.id,
-        type: 'similar',
         title: article.title,
-        excerpt: article.excerpt || undefined,
-        image: article.featured_image || undefined,
-        url: `/article/${article.slug}`,
-        createdAt: article.created_at.toISOString()
-      })
-    })
-
-    // 2. نصيحة ذكية
-    const aiTips = [
-      {
-        title: 'نصيحة اليوم',
-        excerpt: 'في عالم الأخبار السريع، خذ وقتك لفهم السياق الكامل قبل تكوين رأيك النهائي.'
-      },
-      {
-        title: 'فكر بعمق',
-        excerpt: 'الأخبار الجيدة تطرح أسئلة أكثر مما تقدم إجابات جاهزة. ابحث عن المصادر المتعددة.'
-      },
-      {
-        title: 'ابق متابعاً',
-        excerpt: 'القصص الإخبارية تتطور باستمرار. ما تعرفه اليوم قد يتغير غداً.'
-      }
-    ]
-
-    const randomTip = aiTips[Math.floor(Math.random() * aiTips.length)]
-    recommendations.push({
-      id: `tip_${Date.now()}`,
-      type: 'tip',
-      title: randomTip.title,
-      excerpt: randomTip.excerpt,
-      url: '#'
-    })
-
-    // 3. سؤال تفاعلي
-    const interactiveQuestions = [
-      'ما رأيك في تطور الأحداث الأخيرة؟',
-      'هل تعتقد أن هذا القرار سيكون فعالاً؟',
-      'كيف ترى تأثير هذا الخبر على المجتمع؟',
-      'ما هي توقعاتك للفترة القادمة؟'
-    ]
-
-    const randomQuestion = interactiveQuestions[Math.floor(Math.random() * interactiveQuestions.length)]
-    recommendations.push({
-      id: `question_${Date.now()}`,
-      type: 'question',
-      title: randomQuestion,
-      excerpt: 'شاركنا رأيك وكن جزءاً من الحوار',
-      url: '#comments'
-    })
-
-    // 4. مقال تحليلي (محاكاة)
-    recommendations.push({
-      id: `analysis_${Date.now()}`,
-      type: 'analysis',
-      title: 'تحليل ذكي للأحداث الجارية',
-      excerpt: 'فهم عميق للأحداث الحالية وتأثيرها على المستقبل...',
-      url: `#analysis`,
-      badge: 'ذكاء اصطناعي'
-    })
-
-    // 5. مقال رأي (محاكاة)
-    recommendations.push({
-      id: `opinion_${Date.now()}`,
-      type: 'opinion',
-      title: 'وجهة نظر: قراءة في الأحداث',
-      excerpt: 'نظرة تحليلية متعمقة في القضايا المعاصرة...',
-      url: '#opinion'
-    })
+        excerpt: article.excerpt,
+        slug: article.slug,
+        content: article.content,
+        featured_image: article.featured_image,
+        author_id: article.author_id,
+        category_id: article.category_id,
+        views: article.views,
+        reading_time: article.reading_time,
+        published_at: article.published_at,
+        created_at: article.created_at,
+        likes: article.likes,
+        saves: article.saves,
+        shares: article.shares
+      }));
 
     return NextResponse.json({
-      recommendations: recommendations.slice(0, 6),
-      total: recommendations.length
-    })
+      success: true,
+      recommendations: uniqueRecommendations,
+      total: uniqueRecommendations.length
+    });
 
   } catch (error) {
-    console.error('Error fetching recommendations:', error)
+    console.error('خطأ في جلب التوصيات:', error);
     return NextResponse.json(
-      { error: 'خطأ في جلب التوصيات' },
+      { 
+        success: false, 
+        error: 'فشل في جلب التوصيات',
+        recommendations: []
+      },
       { status: 500 }
-    )
+    );
   }
 }

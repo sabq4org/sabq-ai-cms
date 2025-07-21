@@ -4,125 +4,29 @@ const nextConfig = {
   
   serverExternalPackages: ['prisma', '@prisma/client'],
 
-  // إعدادات الصور محسنة للأداء والسرعة
+  // إعدادات الصور محسنة للأداء
   images: {
     formats: ['image/avif', 'image/webp'],
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    minimumCacheTTL: 300, // تحسين cache إلى 5 دقائق
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // تحسين ضغط الصور لتسريع التحميل - إزالة الخصائص غير المدعومة
-    unoptimized: false,
-    loader: 'default',
+    minimumCacheTTL: 60, // cache لمدة دقيقة
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
       {
         protocol: 'https',
-        hostname: 'source.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-      {
-        protocol: 'https',
-        hostname: 'loremflickr.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.amazonaws.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.sabq.org',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.sabq.org',
-      },
-      {
-        protocol: 'https',
-        hostname: 'sabq.org',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.sabq.org',
-      },
-      {
-        protocol: 'https',
-        hostname: 'sabq-bucket.fra1.digitaloceanspaces.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'sabq-bucket.nyc3.digitaloceanspaces.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'sabq-bucket.sgp1.digitaloceanspaces.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'sabq-bucket.ams3.digitaloceanspaces.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'sabq-bucket.sfo3.digitaloceanspaces.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'fra1.digitaloceanspaces.com',
+        hostname: 'images.unsplash.com',
       },
       {
         protocol: 'https',
         hostname: 'placehold.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'ui-avatars.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'gravatar.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'secure.gravatar.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
+      }
     ],
   },
 
-  // إعادة توجيه الصور الفاشلة
-  async rewrites() {
-    return [
-      {
-        source: '/images/failed/:path*',
-        destination: '/images/placeholder.jpg',
-      },
-    ];
-  },
-
-  // إعدادات بسيطة
-  env: {
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-  },
-
-  // تخطي أخطاء البناء
+  // تخطي أخطاء البناء للسرعة
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -130,60 +34,53 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // إعدادات CSS وأداء محسّنة
+  // إعدادات تجريبية للأداء
   experimental: {
     optimizeCss: true,
     cssChunking: 'strict',
-    // تحسينات إضافية للأداء
-    optimizePackageImports: ['lucide-react'],
+    optimizePackageImports: [
+      'lucide-react',
+      '@heroicons/react',
+      'framer-motion'
+    ],
   },
 
-  // تحسين الأداء والكمبايل
+  // تحسين الكمبايل
   compiler: {
-    // إزالة console.log في الإنتاج
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
     } : false,
   },
 
-  // تحسين bundle analyzer
+  // تحسين Webpack للأداء
   webpack: (config, { dev, isServer }) => {
-    // تحسين تقسيم الكود
+    // تحسين bundle size
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
-          default: false,
-          vendors: false,
-          // مكتبات العامة
           vendor: {
+            test: /[\\/]node_modules[\\/]/,
             name: 'vendor',
             chunks: 'all',
-            test: /node_modules/,
-            priority: 20
           },
-          // مكونات shared
           common: {
-            name: 'common',
             minChunks: 2,
-            chunks: 'all',
-            priority: 10,
+            priority: -10,
             reuseExistingChunk: true,
-            enforce: true
-          }
-        }
-      }
+          },
+        },
+      };
     }
     
-    return config
-    return config
+    return config;
   },
 
-  // Headers لتحسين التحميل
+  // Headers للتحميل السريع
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: '/_next/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
@@ -192,31 +89,16 @@ const nextConfig = {
         ],
       },
       {
-        source: '/_next/static/css/:path*',
+        source: '/images/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            value: 'public, max-age=86400',
           },
         ],
       },
     ];
   },
+};
 
-  // إعادة التوجيه
-  async redirects() {
-    return [
-      {
-        source: '/dashboard',
-        destination: '/dashboard/preferences',
-        permanent: false,
-      },
-    ]
-  },
-}
-
-module.exports = nextConfig 
+module.exports = nextConfig; 

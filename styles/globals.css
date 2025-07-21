@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -500,5 +502,228 @@ body.dropdown-open {
   
   .quick-link:hover {
     background-color: #4338ca;
+  }
+} 
+
+/* ===================================
+   تحسينات التوصيات الذكية للموبايل
+   =================================== */
+
+/* تنسيق الروابط السريعة للموبايل */
+@media (max-width: 768px) {
+  .quick-link-mobile {
+    animation: slideInMobile 0.4s ease-out forwards;
+    animation-delay: calc(var(--index, 0) * 0.1s);
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  .quick-link-mobile:nth-child(1) { --index: 1; }
+  .quick-link-mobile:nth-child(2) { --index: 2; }
+  .quick-link-mobile:nth-child(3) { --index: 3; }
+  .quick-link-mobile:nth-child(4) { --index: 4; }
+
+  @keyframes slideInMobile {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* تحسين البطاقات للموبايل */
+  .recommendation-card {
+    animation: fadeInCard 0.5s ease-out forwards;
+    animation-delay: calc(var(--card-index, 0) * 0.15s);
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .recommendation-card:nth-child(1) { --card-index: 1; }
+  .recommendation-card:nth-child(2) { --card-index: 2; }
+  .recommendation-card:nth-child(3) { --card-index: 3; }
+
+  @keyframes fadeInCard {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* تحسين البلوك الرئيسي للموبايل */
+  .smart-recommendation-block {
+    margin: 1rem 0;
+    border-radius: 1.5rem 1.5rem 0 0;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(to bottom, #f8fafc, #ffffff);
+  }
+
+  /* تحسين العناوين للموبايل */
+  .recommendation-card h3,
+  .quick-link-mobile h4 {
+    line-height: 1.4;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  /* تحسين الأيقونات والشارات */
+  .quick-link-mobile .text-lg {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  }
+
+  /* تأثيرات التفاعل للموبايل */
+  .quick-link-mobile:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  .recommendation-card:active {
+    transform: scale(0.99);
+    transition: transform 0.1s ease;
+  }
+
+  /* تحسين المسافات */
+  .quick-link-mobile + .quick-link-mobile {
+    margin-top: 0.75rem;
+  }
+
+  /* خلفية متدرجة للروابط السريعة */
+  .quick-link-mobile {
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0, #f8fafc);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+  }
+
+  .quick-link-mobile:hover {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe, #eff6ff);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+}
+
+/* ===================================
+   تحسينات عامة للتوصيات الذكية
+   =================================== */
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@keyframes slideInFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.recommendation-card {
+  animation: slideInFade 0.6s ease-out forwards;
+}
+
+.recommendation-card:nth-child(even) {
+  animation-delay: 0.1s;
+}
+
+.recommendation-card:nth-child(odd) {
+  animation-delay: 0.2s;
+}
+
+.smart-recommendation-block {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.smart-recommendation-block:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+/* تحسينات للنسخة المظلمة */
+@media (prefers-color-scheme: dark) {
+  .smart-recommendation-block {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .recommendation-card {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .quick-link {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+
+  @media (max-width: 768px) {
+    .quick-link-mobile {
+      background: linear-gradient(135deg, #374151, #4b5563, #6b7280);
+      border-color: rgba(156, 163, 175, 0.3);
+    }
+
+    .quick-link-mobile:hover {
+      background: linear-gradient(135deg, #4b5563, #6b7280, #9ca3af);
+    }
+  }
+}
+
+/* ===================================
+   تحسينات إضافية للأداء
+   =================================== */
+
+/* تحسين الرسوم المتحركة للأداء */
+.recommendation-card,
+.quick-link,
+.quick-link-mobile {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* تحسين التمرير السلس */
+.smart-recommendation-block {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* تحسين التفاعل باللمس */
+@media (hover: none) and (pointer: coarse) {
+  .recommendation-card:hover,
+  .quick-link:hover,
+  .quick-link-mobile:hover {
+    transform: none;
+  }
+
+  .recommendation-card:active,
+  .quick-link:active,
+  .quick-link-mobile:active {
+    opacity: 0.8;
+    transition: opacity 0.1s ease;
+  }
+}
+
+/* تحسينات إضافية للموبايل الصغير */
+@media (max-width: 375px) {
+  .quick-link-mobile {
+    padding: 0.75rem;
+    margin: 0 0.75rem 0.5rem;
+  }
+
+  .recommendation-card {
+    margin: 0 0.75rem 0.75rem;
+  }
+
+  .smart-recommendation-block h2 {
+    font-size: 1.125rem;
   }
 } 
