@@ -1,0 +1,24 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "🔄 تثبيت الحزم..."
+        - npm ci
+        - echo "🔄 توليد Prisma Client..."
+        - npx prisma generate
+        - echo "✅ انتهاء preBuild"
+    build:
+      commands:
+        - echo "🏗️ بناء التطبيق..."
+        - npm run build
+        - echo "✅ انتهاء البناء"
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
+      - lib/generated/**/*
