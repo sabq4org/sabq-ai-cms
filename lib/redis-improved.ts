@@ -1,10 +1,24 @@
-import { Redis } from 'ioredis';
+// تحقق من وجود ioredis وإذا لم تكن متوفرة، استخدم null
+let Redis: any = null;
+try {
+  const ioredis = require('ioredis');
+  Redis = ioredis.Redis || ioredis.default || ioredis;
+} catch (error) {
+  console.warn('⚠️ ioredis غير متوفر، سيتم تشغيل النظام بدون Redis');
+  Redis = null;
+}
 
 // إنشاء اتصال Redis محسن
-let redis: Redis | null = null;
+let redis: any = null;
 
 function createRedisConnection() {
   const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+  
+  // إذا لم تكن ioredis متوفرة، لا تحاول الاتصال
+  if (!Redis) {
+    console.log('🔧 تم تعطيل Redis - العمل في وضع التطوير بدون Redis');
+    return;
+  }
   
   // في بيئة الإنتاج على DigitalOcean
   if (process.env.REDIS_URL && process.env.REDIS_URL.includes('redis-')) {
@@ -13,7 +27,7 @@ function createRedisConnection() {
       tls: {
         rejectUnauthorized: false
       },
-      retryStrategy: (times) => {
+      retryStrategy: (times: number) => {
         if (times > 2) {
           console.log('⚠️ تجاوز عدد محاولات الاتصال بـ Redis Cloud');
           return null; // إيقاف المحاولات
@@ -41,7 +55,7 @@ function createRedisConnection() {
       port,
       password: process.env.REDIS_PASSWORD,
       db: parseInt(process.env.REDIS_DB || '0'),
-      retryStrategy: (times) => {
+      retryStrategy: (times: number) => {
         if (times > 2) {
           console.log('⚠️ Redis المحلي غير متاح، سيتم العمل بدون cache');
           return null; // إيقاف المحاولات
@@ -58,7 +72,7 @@ function createRedisConnection() {
   }
 
   // معالج الأخطاء
-  redis.on('error', (err) => {
+  redis.on('error', (err: any) => {
     console.error('❌ خطأ في Redis:', err.message);
     // لا نوقف التطبيق، نعمل بدون cache
   });

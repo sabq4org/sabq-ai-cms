@@ -154,30 +154,30 @@ export default function PodcastBlock() {
           </div>
           <div className="flex-1">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-              🎙️ النشرة الصوتية
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              تأتيكم على رأس كل ساعة من سبق
-            </p>
-          </div>
+            🎙️ النشرة الصوتية
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            تأتيكم على رأس كل ساعة من سبق
+          </p>
         </div>
+      </div>
 
         {!error && podcast ? (
           <>
             {/* شريط الحالة */}
             <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-xl">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <span className="text-sm font-semibold text-green-800 dark:text-green-200">
                     النشرة الصوتية متاحة الآن
-                  </span>
-                </div>
+              </span>
+            </div>
                 <span className="text-xs bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-200 px-2 py-1 rounded-full font-medium">
-                  {formatRelativeTime(podcast.timestamp)}
-                </span>
-              </div>
-              
+              {formatRelativeTime(podcast.timestamp)}
+            </span>
+          </div>
+          
               {/* معلومات النشرة */}
               <div className="flex items-center gap-4 text-sm text-green-700 dark:text-green-300">
                 <div className="flex items-center gap-1">
@@ -195,18 +195,18 @@ export default function PodcastBlock() {
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-5 border border-gray-200 dark:border-gray-600">
               {/* أزرار التحكم */}
               <div className="flex items-center gap-4 mb-4">
-                <button
-                  onClick={togglePlay}
+              <button
+                onClick={togglePlay}
                   className="w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                >
-                  {isPlaying ? (
-                    <Pause className="w-6 h-6" />
-                  ) : (
-                    <Play className="w-6 h-6 mr-0.5" />
-                  )}
-                </button>
-
-                <div className="flex-1">
+              >
+                {isPlaying ? (
+                  <Pause className="w-6 h-6" />
+                ) : (
+                  <Play className="w-6 h-6 mr-0.5" />
+                )}
+              </button>
+              
+              <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
                     النشرة الإخبارية الصوتية
                   </div>
@@ -214,7 +214,7 @@ export default function PodcastBlock() {
                     {duration > 0 ? `${formatTime(currentTime)} / ${formatTime(duration)}` : 'جاري التحميل...'}
                   </div>
                 </div>
-
+                
                 <button
                   onClick={toggleMute}
                   className="w-10 h-10 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-full flex items-center justify-center transition-colors"
@@ -226,30 +226,30 @@ export default function PodcastBlock() {
                   )}
                 </button>
               </div>
-
+              
               {/* شريط التقدم */}
               <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div
                   className="absolute h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-300"
                   style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
                 ></div>
-              </div>
             </div>
-
+          </div>
+          
             {/* العنصر الصوتي */}
-            <audio
-              ref={audioRef}
-              onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={handleLoadedMetadata}
-              onEnded={() => setIsPlaying(false)}
-              preload="metadata"
-            >
-              <source src={podcast.link} type="audio/mpeg" />
-              <source src={podcast.link} type="audio/wav" />
-              <source src={podcast.link} type="audio/ogg" />
-            </audio>
-          </>
-        ) : (
+          <audio
+            ref={audioRef}
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+            onEnded={() => setIsPlaying(false)}
+            preload="metadata"
+          >
+            <source src={podcast.link} type="audio/mpeg" />
+            <source src={podcast.link} type="audio/wav" />
+            <source src={podcast.link} type="audio/ogg" />
+          </audio>
+        </>
+      ) : (
           /* حالة عدم وجود نشرة صوتية */
           <div className="text-center py-12">
             <div className="flex flex-col items-center gap-6">
@@ -258,18 +258,18 @@ export default function PodcastBlock() {
                   <Radio className="w-10 h-10 text-gray-400 dark:text-gray-500" />
                 </div>
                 <div className="absolute inset-0 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600 animate-spin"></div>
-              </div>
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-2">
-                  📻 لا توجد نشرة صوتية جديدة
-                </p>
-                <p className="text-gray-500 dark:text-gray-500 text-sm">
-                  ترقب النشرة القادمة قريباً
-                </p>
-              </div>
+            </div>
+            <div>
+              <p className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-2">
+                📻 لا توجد نشرة صوتية جديدة
+              </p>
+              <p className="text-gray-500 dark:text-gray-500 text-sm">
+                ترقب النشرة القادمة قريباً
+              </p>
             </div>
           </div>
-        )}
+        </div>
+      )}
       </div>
     </div>
   );

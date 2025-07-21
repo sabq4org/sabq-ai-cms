@@ -8,7 +8,6 @@ import {
   ArrowLeft, AlertTriangle, Filter, TrendingUp, Activity, Zap,
   Newspaper, FileText, FolderOpen, Hash
 } from 'lucide-react';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -186,7 +185,6 @@ export default function MomentByMomentPage() {
 
   return (
     <>
-      <Header />
       
       <div className="moment-by-moment-container min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 overflow-x-hidden pull-to-refresh" suppressHydrationWarning>
         {/* Hero Section */}

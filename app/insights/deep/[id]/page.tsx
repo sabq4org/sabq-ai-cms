@@ -5,7 +5,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import toast from 'react-hot-toast';
 import { 
@@ -398,7 +397,6 @@ export default function DeepAnalysisPage() {
   }
   return (
     <>
-      <Header />
       <div dir="rtl" className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
       {/* شريط التقدم في القراءة */}
       <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-gray-200 dark:bg-gray-800">

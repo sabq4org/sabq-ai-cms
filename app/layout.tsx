@@ -1,8 +1,14 @@
-import './globals.css';
+import '../styles/globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { IBM_Plex_Sans_Arabic } from 'next/font/google';
+import { Providers } from './providers';
+import Header from '../components/Header';
 
-const inter = Inter({ subsets: ['latin'] });
+const ibmPlexArabic = IBM_Plex_Sans_Arabic({ 
+  subsets: ['arabic'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-ibm-plex-arabic',
+});
 
 export const metadata: Metadata = {
   title: 'سبق AI CMS',
@@ -16,8 +22,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={inter.className}>
-        {children}
+      <body className={`${ibmPlexArabic.variable} font-arabic`}>
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );

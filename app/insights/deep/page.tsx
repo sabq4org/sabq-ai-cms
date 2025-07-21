@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DeepAnalysisCard from '@/components/deep-analysis/DeepAnalysisCard';
 import DeepAnalysisHorizontalScroll from '@/components/deep-analysis/DeepAnalysisHorizontalScroll';
@@ -173,7 +172,6 @@ export default function DeepAnalysesPage() {
   if (!mounted || loading) {
     return (
       <>
-        <Header />
         <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
           <div className="flex items-center justify-center h-screen">
             <div className="text-center">
@@ -190,7 +188,6 @@ export default function DeepAnalysesPage() {
   }
   return (
     <>
-      <Header />
       <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 py-20">

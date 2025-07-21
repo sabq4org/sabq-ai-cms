@@ -80,7 +80,13 @@ async function getStats() {
   } catch (error) {
     console.error('خطأ في جلب الإحصائيات:', error);
   }
-  return null;
+  
+  // إرجاع قيم افتراضية آمنة
+  return {
+    activeReaders: 0,
+    dailyArticles: 0,
+    loading: false
+  };
 }
 
 // Force dynamic to support server-side features

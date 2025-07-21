@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import Header from '@/components/Header';
 import { useReaderProfile } from '@/hooks/useReaderProfile';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -83,7 +82,6 @@ export default function SmartProfilePage() {
   if (isLoading) {
     return (
   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} style={{ direction: 'rtl' }}>
-        <Header />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -96,7 +94,6 @@ export default function SmartProfilePage() {
   if (error || !profile) {
     return (
   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} style={{ direction: 'rtl' }}>
-        <Header />
         <div className="max-w-4xl mx-auto px-6 py-12">
           <div className={`text-center p-12 rounded-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
             <Brain className={`w-16 h-16 mx-auto mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
@@ -158,7 +155,6 @@ export default function SmartProfilePage() {
       className={`smart-profile-page min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
       style={{ direction: 'rtl' }}
     >
-      <Header />
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className={cn(

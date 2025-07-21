@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowRight, Search, Filter, MessageCircle, MessageSquare, Clock, Eye, User, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import Header from "@/components/Header";
 import { useTheme } from "@/contexts/ThemeContext";
 
 interface SearchResult {
@@ -121,7 +120,6 @@ export default function ForumSearchPage() {
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} dir="rtl">
       {/* الهيدر الرسمي للصحيفة */}
-      <Header />
       
       {/* رأس الصفحة */}
       <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm border-b`}>

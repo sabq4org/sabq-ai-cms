@@ -46,8 +46,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     return (
       <div className={`bg-gray-200 flex items-center justify-center ${className}`}>
         <div className="text-gray-400 text-sm">فشل في تحميل الصورة</div>
-      </div>
-    );
+    </div>
+  );
   }
 
   return (
@@ -56,23 +56,23 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         <div className="absolute inset-0 bg-gray-200 animate-pulse" />
       )}
       
-      <Image
+          <Image
         src={src}
-        alt={alt}
+            alt={alt}
         width={fill ? undefined : width}
         height={fill ? undefined : height}
         fill={fill}
         sizes={sizes}
-        quality={quality}
-        priority={priority}
+            quality={quality}
+            priority={priority}
         placeholder={placeholder}
         blurDataURL={blurDataURL}
-        className={`transition-opacity duration-300 ${
-          isLoading ? 'opacity-0' : 'opacity-100'
+            className={`transition-opacity duration-300 ${
+              isLoading ? 'opacity-0' : 'opacity-100'
         }`}
-        onLoad={handleLoad}
-        onError={handleError}
-      />
+            onLoad={handleLoad}
+            onError={handleError}
+          />
     </div>
   );
 };

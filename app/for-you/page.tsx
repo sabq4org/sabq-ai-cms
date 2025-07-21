@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Header from '@/components/Header';
 import CategoryBadge from '@/app/components/CategoryBadge';
 import { generatePlaceholderImage } from '@/lib/cloudinary';
 import { Filter, TrendingUp, Clock, Eye, 
@@ -120,7 +119,6 @@ export default function ForYouPage() {
   };
   return (
   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="mb-8">

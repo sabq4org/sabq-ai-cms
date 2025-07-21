@@ -4,7 +4,6 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, Loader2, AlertTriangle, Hash, Calendar, ArrowLeft, Grid, List, TrendingUp, Eye, Clock } from "lucide-react";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 interface Article {
@@ -110,7 +109,6 @@ function SearchContent() {
 
   return (
     <>
-      <Header />
       
       {/* Hero Section */}
       <section className={`relative py-16 ${

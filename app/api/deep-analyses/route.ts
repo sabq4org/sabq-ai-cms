@@ -20,9 +20,9 @@ export async function GET(request: NextRequest) {
 
     try {
       console.log('🔍 جلب التحليلات العميقة من قاعدة البيانات...');
-      
-      // بناء شروط البحث
-      const where: any = {};
+
+    // بناء شروط البحث
+    const where: any = {};
       if (search) {
         where.OR = [
           { ai_summary: { contains: search, mode: 'insensitive' } }
@@ -30,14 +30,14 @@ export async function GET(request: NextRequest) {
       }
 
       // جلب التحليلات من قاعدة البيانات
-      const [totalCount, deepAnalyses] = await Promise.all([
-        prisma.deep_analyses.count({ where }),
-        prisma.deep_analyses.findMany({
-          where,
+        const [totalCount, deepAnalyses] = await Promise.all([
+          prisma.deep_analyses.count({ where }),
+          prisma.deep_analyses.findMany({
+            where,
           orderBy: { [sortBy]: sortOrder as 'asc' | 'desc' },
-          take: limit,
-          skip: offset
-        })
+            take: limit,
+            skip: offset
+          })
       ]);
 
       // معالجة البيانات وتنسيقها
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
         
         // تحديد الحالة
         let status = metadata.status || (metadata.isActive === false ? 'archived' : 'published');
-        
+
         // حساب نقاط الجودة
         let qualityScore = metadata.qualityScore || analysis.engagement_score || 0;
         if (qualityScore === 0) {
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
             75
           ), 98);
         }
-        
+
         return {
           id: analysis.id,
           title,
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
             title: 'مقال مرتبط',
             slug: 'related-article',
             category: { name: 'عام', color: '#6B7280' }
-          }
+        }
         };
       });
 
@@ -99,17 +99,17 @@ export async function GET(request: NextRequest) {
 
       console.log(`✅ تم جلب ${filteredAnalyses.length} تحليل من أصل ${totalCount}`);
 
-      return NextResponse.json({
-        success: true,
+    return NextResponse.json({
+      success: true,
         analyses: filteredAnalyses,
         total: filteredAnalyses.length,
         totalInDb: totalCount,
-        limit,
-        offset,
-        page,
+      limit,
+      offset,
+      page,
         hasNext: offset + limit < filteredAnalyses.length,
-        hasPrev: page > 1
-      });
+      hasPrev: page > 1
+    });
 
     } catch (dbError) {
       console.error('Error accessing database:', dbError);
@@ -157,8 +157,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     try {
-      const newAnalysis = await prisma.deep_analyses.create({
-        data: {
+    const newAnalysis = await prisma.deep_analyses.create({
+      data: {
           id: `analysis-${Date.now()}`,
           article_id: body.article_id || `article-${Date.now()}`,
           ai_summary: body.summary || body.title,
@@ -169,13 +169,13 @@ export async function POST(request: NextRequest) {
           metadata: body,
           analyzed_at: new Date(),
           updated_at: new Date()
-        }
-      });
+      }
+    });
 
-      return NextResponse.json({
-        success: true,
-        data: newAnalysis
-      });
+    return NextResponse.json({
+      success: true,
+      data: newAnalysis
+    });
     } catch (dbError) {
       console.error('Database error:', dbError);
       

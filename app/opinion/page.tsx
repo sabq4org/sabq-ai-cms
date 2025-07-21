@@ -7,7 +7,6 @@ import { getArticleLink } from '@/lib/utils';
 import { formatDateOnly } from '@/lib/date-utils';
 import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
 import CloudImage from '@/components/ui/CloudImage';
-import Header from '@/components/Header';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Search, Filter, ChevronLeft, ChevronRight, Sparkles, 
@@ -415,7 +414,6 @@ export default function OpinionPage() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <Header />
       
       {/* Hero Section - نفس تصميم الصفحة الرئيسية */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">

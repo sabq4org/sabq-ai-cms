@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { 
   Shield, Lock, Eye, FileText, UserCheck, 
@@ -64,7 +63,6 @@ export default function PrivacyPolicyPage() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section - News Style */}
         <div className="bg-gradient-to-b from-blue-900 to-blue-800 text-white">

@@ -5,7 +5,6 @@ import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import EconomicCharts from '@/components/EconomicCharts';
-import Header from '@/components/Header';
 import { 
   Heart, Share2, Volume2, Eye, Clock, Calendar, User, MessageSquare,
   ThumbsUp, ThumbsDown, Lightbulb, TrendingUp, BarChart3, 
@@ -172,7 +171,6 @@ export default function OpinionArticlePage({ params }: { params: Promise<{ id: s
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* الهيدر الرسمي للموقع */}
-      <Header />
       
       <article>
         {/* صورة الغطاء والعنوان */}

@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import Header from '@/components/Header';
 import { 
   ArrowLeft, Save, User, Mail, Lock, Bell,
   Shield, Globe, Moon, Sun, Check
@@ -67,7 +66,6 @@ export default function ProfileSettingsPage() {
   };
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           {/* رأس الصفحة */}

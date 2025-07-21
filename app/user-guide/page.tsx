@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { 
   UserPlus, Heart, Settings, Brain, 
@@ -80,7 +79,6 @@ export default function UserGuidePage() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         
         {/* Hero Section - بسيط ونظيف */}

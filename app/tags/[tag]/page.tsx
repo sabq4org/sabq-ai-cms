@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Hash, Home, Loader2, Grid3X3, List, Calendar, Clock, TrendingUp, Eye, ArrowLeft, AlertTriangle } from 'lucide-react';
 import ArticleCard from '@/components/ArticleCard';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 interface Article {
@@ -107,7 +106,6 @@ export default function TagPage() {
 
   return (
     <>
-      <Header />
       
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section - مطابق لصفحة البحث */}

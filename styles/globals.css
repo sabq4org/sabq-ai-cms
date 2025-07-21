@@ -1,606 +1,65 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* تحسين الأداء العام */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* متغيرات الألوان */
+:root {
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 245, 245, 245;
+  --foreground-rgb: 0, 0, 0;
 }
 
-html {
-  scroll-behavior: smooth;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-start-rgb: 15, 23, 42;
+    --background-end-rgb: 30, 41, 59;
+    --foreground-rgb: 255, 255, 255;
+  }
+}
+
+/* الأنماط الأساسية */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-ibm-plex-arabic), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  direction: rtl;
+  text-align: right;
 }
 
-/* إعدادات خاصة للقائمة المنسدلة */
-body.dropdown-open {
-  overflow: hidden !important;
-  position: fixed !important;
-  width: 100% !important;
-  height: 100% !important;
-  touch-action: none !important;
-  -webkit-overflow-scrolling: touch !important;
-  overscroll-behavior: contain !important;
+/* خط عربي */
+.font-arabic {
+  font-family: var(--font-ibm-plex-arabic), 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', sans-serif;
 }
 
-/* حماية الصور الشخصية من التمدد */
-.user-avatar {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
-  max-width: 32px !important;
-  max-height: 32px !important;
-  object-fit: cover !important;
-  border-radius: 50% !important;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-.user-avatar-large {
-  width: 56px !important;
-  height: 56px !important;
-  min-width: 56px !important;
-  min-height: 56px !important;
-  max-width: 56px !important;
-  max-height: 56px !important;
-  object-fit: cover !important;
-  border-radius: 50% !important;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.dropdown-container {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
-/* تحسين z-index للقوائم */
-.dropdown-overlay {
-  z-index: 9998 !important;
-}
-
-.dropdown-content {
-  z-index: 9999 !important;
-}
-
-/* تحسين التمرير للموبايل */
-@media (max-width: 768px) {
-  body.dropdown-open {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    overflow: hidden !important;
-    touch-action: none !important;
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior: contain !important;
-  }
-}
-
-/* تحسين الأنيميشن */
-.dropdown-enter {
-  opacity: 0;
-  transform: translateY(10px) scale(0.95);
-}
-
-.dropdown-enter-active {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  transition: opacity 200ms ease-out, transform 200ms ease-out;
-}
-
-.dropdown-exit {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.dropdown-exit-active {
-  opacity: 0;
-  transform: translateY(10px) scale(0.95);
-  transition: opacity 150ms ease-in, transform 150ms ease-in;
-}
-
-/* تحسين الأداء للصور */
-.user-avatar {
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-
-/* تحسين الأداء للعناصر الثابتة */
-.fixed-element {
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.animate-element {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-}
-
-/* إزالة التأثيرات غير المرغوبة */
-.no-select {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-/* تحسين الأداء للعناصر المخفية */
-.hidden-element {
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* تحسين الأداء للعناصر المرئية */
-.visible-element {
-  visibility: visible;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-}
-
-.fade-in {
-  animation: fadeIn 200ms ease-out;
-}
-
-.fade-out {
-  animation: fadeOut 150ms ease-in;
-}
-
-/* تحسين الأداء للعناصر المتحركة على الموبايل */
-@media (max-width: 768px) {
-  .mobile-dropdown {
-    will-change: transform;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-  }
-  
-  .mobile-dropdown-enter {
-    transform: translateY(100%);
-  }
-  
-  .mobile-dropdown-enter-active {
-    transform: translateY(0);
-    transition: transform 300ms ease-out;
-  }
-  
-  .mobile-dropdown-exit {
-    transform: translateY(0);
-  }
-  
-  .mobile-dropdown-exit-active {
-    transform: translateY(100%);
-    transition: transform 250ms ease-in;
-  }
-}
-
-/* تحسين الأداء للعناصر المثبتة */
-.sticky-element {
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.transform-element {
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر الشفافة */
-.opacity-element {
-  will-change: opacity;
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.transition-element {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.scale-element {
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.rotate-element {
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.translate-element {
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.skew-element {
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.matrix-element {
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.perspective-element {
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.preserve-3d-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.flat-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-style: flat;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.origin-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-origin: center;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.box-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: view-box;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.fill-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: fill-box;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.border-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: border-box;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.content-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: content-box;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.stroke-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: stroke-box;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.padding-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: padding-box;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.margin-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: margin-box;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.local-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: local;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.global-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: global;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.initial-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: initial;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.inherit-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: inherit;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.unset-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: unset;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.revert-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: revert;
-}
-
-/* تحسين الأداء للعناصر المتحركة */
-.revert-layer-element {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-box: revert-layer;
-}
-
-/* Fade in animation */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.8s ease-out;
-}
-
-/* Scrollbar hide */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
-} 
-
-/* Smart Recommendation Block Styles */
-.line-clamp-2 {
+/* فئات مساعدة */
+.line-clamp-1 {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* تحسينات الرسوم المتحركة للبطاقات */
-@keyframes slideInFade {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.recommendation-card {
-  animation: slideInFade 0.6s ease-out;
-}
-
-.recommendation-card:nth-child(even) {
-  animation-delay: 0.1s;
-}
-
-.recommendation-card:nth-child(odd) {
-  animation-delay: 0.2s;
-}
-
-/* تحسينات الحواف والظلال */
-.smart-recommendation-block {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
-
-.smart-recommendation-block:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-/* تحسينات النسخة المحمولة */
-@media (max-width: 768px) {
-  .smart-recommendation-block {
-    margin: 0 -1rem;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
-  
-  .recommendation-card {
-    border-radius: 0.5rem;
-  }
-  
-  .quick-link {
-    margin: 0 0.5rem;
-    border-radius: 0.5rem;
-  }
-}
-
-/* تحسينات الألوان للوضع الليلي */
-@media (prefers-color-scheme: dark) {
-  .smart-recommendation-block {
-    background-color: #1f2937;
-    border-color: #374151;
-  }
-  
-  .recommendation-card {
-    background-color: #111827;
-    border-color: #374151;
-  }
-  
-  .quick-link {
-    background-color: #374151;
-    border-color: #4f46e5;
-  }
-  
-  .quick-link:hover {
-    background-color: #4338ca;
-  }
-} 
-
-/* ===================================
-   تحسينات التوصيات الذكية للموبايل
-   =================================== */
-
-/* تنسيق الروابط السريعة للموبايل */
-@media (max-width: 768px) {
-  .quick-link-mobile {
-    animation: slideInMobile 0.4s ease-out forwards;
-    animation-delay: calc(var(--index, 0) * 0.1s);
-    opacity: 0;
-    transform: translateX(30px);
-  }
-
-  .quick-link-mobile:nth-child(1) { --index: 1; }
-  .quick-link-mobile:nth-child(2) { --index: 2; }
-  .quick-link-mobile:nth-child(3) { --index: 3; }
-  .quick-link-mobile:nth-child(4) { --index: 4; }
-
-  @keyframes slideInMobile {
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  /* تحسين البطاقات للموبايل */
-  .recommendation-card {
-    animation: fadeInCard 0.5s ease-out forwards;
-    animation-delay: calc(var(--card-index, 0) * 0.15s);
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  .recommendation-card:nth-child(1) { --card-index: 1; }
-  .recommendation-card:nth-child(2) { --card-index: 2; }
-  .recommendation-card:nth-child(3) { --card-index: 3; }
-
-  @keyframes fadeInCard {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* تحسين البلوك الرئيسي للموبايل */
-  .smart-recommendation-block {
-    margin: 1rem 0;
-    border-radius: 1.5rem 1.5rem 0 0;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(to bottom, #f8fafc, #ffffff);
-  }
-
-  /* تحسين العناوين للموبايل */
-  .recommendation-card h3,
-  .quick-link-mobile h4 {
-    line-height: 1.4;
-    font-weight: 600;
-    color: #1e293b;
-  }
-
-  /* تحسين الأيقونات والشارات */
-  .quick-link-mobile .text-lg {
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-  }
-
-  /* تأثيرات التفاعل للموبايل */
-  .quick-link-mobile:active {
-    transform: scale(0.98);
-    transition: transform 0.1s ease;
-  }
-
-  .recommendation-card:active {
-    transform: scale(0.99);
-    transition: transform 0.1s ease;
-  }
-
-  /* تحسين المسافات */
-  .quick-link-mobile + .quick-link-mobile {
-    margin-top: 0.75rem;
-  }
-
-  /* خلفية متدرجة للروابط السريعة */
-  .quick-link-mobile {
-    background: linear-gradient(135deg, #f1f5f9, #e2e8f0, #f8fafc);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-  }
-
-  .quick-link-mobile:hover {
-    background: linear-gradient(135deg, #dbeafe, #bfdbfe, #eff6ff);
-    border-color: rgba(59, 130, 246, 0.3);
-  }
-}
-
-/* ===================================
-   تحسينات عامة للتوصيات الذكية
-   =================================== */
 
 .line-clamp-2 {
   display: -webkit-box;
@@ -616,114 +75,88 @@ body.dropdown-open {
   overflow: hidden;
 }
 
-@keyframes slideInFade {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* تحسينات للتمرير */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.recommendation-card {
-  animation: slideInFade 0.6s ease-out forwards;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
 }
 
-.recommendation-card:nth-child(even) {
-  animation-delay: 0.1s;
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
 }
 
-.recommendation-card:nth-child(odd) {
-  animation-delay: 0.2s;
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
-.smart-recommendation-block {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.smart-recommendation-block:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.3s ease;
-}
-
-/* تحسينات للنسخة المظلمة */
+/* تحسينات للنمط الليلي */
 @media (prefers-color-scheme: dark) {
-  .smart-recommendation-block {
-    background-color: #1f2937;
-    border-color: #374151;
+  ::-webkit-scrollbar-track {
+    background: #374151;
   }
 
-  .recommendation-card {
-    background-color: #1f2937;
-    border-color: #374151;
+  ::-webkit-scrollbar-thumb {
+    background: #6b7280;
   }
 
-  .quick-link {
-    background-color: #374151;
-    border-color: #4b5563;
-  }
-
-  @media (max-width: 768px) {
-    .quick-link-mobile {
-      background: linear-gradient(135deg, #374151, #4b5563, #6b7280);
-      border-color: rgba(156, 163, 175, 0.3);
-    }
-
-    .quick-link-mobile:hover {
-      background: linear-gradient(135deg, #4b5563, #6b7280, #9ca3af);
-    }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
   }
 }
 
-/* ===================================
-   تحسينات إضافية للأداء
-   =================================== */
-
-/* تحسين الرسوم المتحركة للأداء */
-.recommendation-card,
-.quick-link,
-.quick-link-mobile {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
+/* انتقالات سلسة */
+.transition-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* تحسين التمرير السلس */
-.smart-recommendation-block {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+/* تحسينات للأداء */
+.transform-gpu {
+  transform: translateZ(0);
 }
 
-/* تحسين التفاعل باللمس */
-@media (hover: none) and (pointer: coarse) {
-  .recommendation-card:hover,
-  .quick-link:hover,
-  .quick-link-mobile:hover {
-    transform: none;
-  }
-
-  .recommendation-card:active,
-  .quick-link:active,
-  .quick-link-mobile:active {
-    opacity: 0.8;
-    transition: opacity 0.1s ease;
-  }
+/* أنماط مخصصة للمحتوى العربي */
+.arabic-content {
+  line-height: 1.8;
+  letter-spacing: 0.025em;
 }
 
-/* تحسينات إضافية للموبايل الصغير */
-@media (max-width: 375px) {
-  .quick-link-mobile {
-    padding: 0.75rem;
-    margin: 0 0.75rem 0.5rem;
-  }
+.arabic-content h1,
+.arabic-content h2,
+.arabic-content h3,
+.arabic-content h4,
+.arabic-content h5,
+.arabic-content h6 {
+  line-height: 1.4;
+  font-weight: 600;
+}
 
-  .recommendation-card {
-    margin: 0 0.75rem 0.75rem;
-  }
+.arabic-content p {
+  margin-bottom: 1rem;
+}
 
-  .smart-recommendation-block h2 {
-    font-size: 1.125rem;
+.arabic-content ul,
+.arabic-content ol {
+  margin-right: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.arabic-content blockquote {
+  border-right: 4px solid #e5e7eb;
+  padding-right: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+@media (prefers-color-scheme: dark) {
+  .arabic-content blockquote {
+    border-right-color: #4b5563;
+    color: #9ca3af;
   }
 } 

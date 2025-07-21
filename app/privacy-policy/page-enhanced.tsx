@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { 
   Shield, Lock, Eye, FileText, UserCheck, 
@@ -131,7 +130,6 @@ export default function PrivacyPolicyPageEnhanced() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700">
         
         {/* Hero Section - تصميم ناعم وأنيق */}

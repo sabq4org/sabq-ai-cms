@@ -13,7 +13,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { getCookie, setCookie } from '@/lib/cookies';
 import { getImageUrl } from '@/lib/image-utils';
 import CloudImage, { ArticleImage, CloudAvatar } from '@/components/ui/CloudImage';
-import { getArticleLink, formatSafeDate } from '@/lib/utils';
+import { getArticleLink, formatDate } from '@/lib/utils';
 import CategoryBadge from './components/CategoryBadge';
 import Header from '../components/Header';
 import { SmartSlot } from '@/components/home/SmartSlot';
@@ -60,6 +60,18 @@ import {
   ArrowRight,
   X,
   MessageSquare,
+  Beaker,
+  Briefcase,
+  Palette,
+  Plane,
+  Heart,
+  Building2,
+  CloudRain,
+  Tag,
+  BookOpen,
+  User,
+  ArrowLeft,
+  Settings,
 } from 'lucide-react';
 
 const categoryIcons: { [key: string]: React.ElementType } = {
@@ -84,13 +96,19 @@ interface PageClientProps {
     loading: boolean;
   };
   initialDeepAnalyses?: DeepAnalysis[];
+  stats?: {
+    activeReaders: number | null;
+    dailyArticles: number | null;
+    loading: boolean;
+  };
 }
 
 function NewspaperHomePage({ 
   initialArticles = [], 
   initialCategories = [], 
   initialStats,
-  initialDeepAnalyses = []
+  initialDeepAnalyses = [],
+  stats
 }: PageClientProps) {
   const { user, loading: authLoading } = useAuth();
   const { darkMode } = useDarkModeContext();
@@ -202,7 +220,7 @@ function NewspaperHomePage({
                 <div className="flex items-center gap-2 sm:gap-3 text-xs">
                                       <div className="text-sm text-gray-500 flex items-center gap-2">
                       <Clock className="w-4 h-4" />
-                      {formatSafeDate(news.published_at || news.created_at)}
+                      {formatDate(news.published_at || news.created_at)}
                     </div>
                   {news.reading_time && (
                     <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
@@ -345,8 +363,6 @@ function NewspaperHomePage({
           direction: 'rtl'
         }}
       >
-      {/* Header */}
-      <Header />
       
       {/* شريط الإحصائيات للموبايل */}
       {isMobile && (
@@ -559,7 +575,7 @@ function NewspaperHomePage({
                                     <div className="flex items-center gap-2 sm:gap-3 text-xs">
                                                                               <div className="text-sm text-gray-500 flex items-center gap-2">
                                           <Clock className="w-4 h-4" />
-                                          {formatSafeDate(article.published_at || article.created_at)}
+                                          {formatDate(article.published_at || article.created_at)}
                                         </div>
                                       {article.reading_time && (
                                         <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>

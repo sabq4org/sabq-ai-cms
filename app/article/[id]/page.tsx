@@ -9,8 +9,7 @@ import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
 import { getImageUrl, getOptimizedImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
-import { marked } from 'marked';
-import Header from '@/components/Header';
+
 import UltimateImage from '@/components/UltimateImage';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
@@ -26,6 +25,7 @@ import ArticleStatsBlock from '@/components/article/ArticleStatsBlock';
 import SmartRecommendationBlock from '@/components/article/SmartRecommendationBlock';
 import '@/styles/mobile-article.css';
 import '@/styles/image-optimizations.css';
+import './article-styles.css';
 
 // نوع البيانات
 interface Article {
@@ -296,8 +296,6 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
           publishedTime={article.published_at || article.created_at}
         />
       )}
-      
-      <Header />
       
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />

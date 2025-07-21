@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { 
   Tag, BookOpen, Loader2, Search, TrendingUp, Trophy, Building2, 
@@ -396,7 +395,6 @@ export default function CategoriesPage() {
 
   return (
     <>
-      <Header />
       
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section */}

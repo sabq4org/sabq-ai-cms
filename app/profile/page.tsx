@@ -5,7 +5,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import Header from '@/components/Header';
 import { getMembershipLevel, getProgressToNextLevel, getPointsToNextLevel } from '@/lib/loyalty';
 import ReadingInsights from '@/components/profile/ReadingInsights';
 import AchievementBadges from '@/components/profile/AchievementBadges';
@@ -580,7 +579,6 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <>
-        <Header />
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
@@ -593,7 +591,6 @@ export default function ProfilePage() {
   const pointsToNext = getPointsToNextLevel(userPoints);
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* رأس الصفحة بتصميم محسّن */}
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">

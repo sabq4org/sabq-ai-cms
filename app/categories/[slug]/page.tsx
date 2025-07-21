@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Header from '@/components/Header';
 import { getArticleLink } from '@/lib/utils';
 import CloudImage from '@/components/ui/CloudImage';
 import { 
@@ -271,7 +270,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
   if (loading) {
     return (
       <>
-        <Header />
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="text-center">
             <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
@@ -284,7 +282,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
   if (!category) {
     return (
       <>
-        <Header />
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="text-center">
             <Tag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -306,7 +303,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
   const colorGradient = getColor(category.name_ar);
   return (
   <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
       
       {/* Hero Section with Cover Image */}
       <section className="relative h-[300px] md:h-[500px] overflow-hidden">

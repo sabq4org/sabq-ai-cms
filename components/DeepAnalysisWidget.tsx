@@ -281,8 +281,9 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                 const isUnread = !readItems.includes(item.id);
                 const hasAI = item.ai_summary;
                 const isNew = isNewInsight(item.analyzed_at);
-                const visibleTags = showAllTags[item.id] ? item.tags : item.tags.slice(0, 2);
-                const remainingTags = item.tags.length - 2;
+                const tags = item.tags || [];
+                const visibleTags = showAllTags[item.id] ? tags : tags.slice(0, 2);
+                const remainingTags = tags.length - 2;
                 const title = item.metadata?.title || item.article?.title || 'تحليل عميق';
                 const summary = item.ai_summary || item.metadata?.summary || item.article?.summary || 'ملخص التحليل غير متوفر';
                 const authorName = item.metadata?.authorName || item.article?.author?.name || 'مجهول';
@@ -405,13 +406,13 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                               #{tag}
                             </span>
                           ))}
-                          {item.tags.length > 2 && (
+                          {tags.length > 2 && (
                             <span className={`text-xs px-2 py-0.5 rounded-md ${
                               darkMode 
                                 ? 'bg-purple-900/30 text-purple-400' 
                                 : 'bg-purple-50 text-purple-600'
                             }`}>
-                              +{item.tags.length - 2}
+                              +{tags.length - 2}
                             </span>
                           )}
                         </div>
@@ -444,7 +445,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                         
                         <div className="flex items-center gap-2">
                           <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                            {formatDate(item.analyzed_at)}
+                            {item.analyzed_at ? formatDate(item.analyzed_at) : 'التاريخ غير محدد'}
                           </span>
                           <ChevronRight className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 ${
                             darkMode ? 'text-gray-400' : 'text-gray-500'

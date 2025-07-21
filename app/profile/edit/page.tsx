@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import Header from '@/components/Header';
 import { 
   User, Mail, MapPin, Users, Save, X,
   ArrowRight, AlertCircle
@@ -88,7 +87,6 @@ export default function EditProfilePage() {
   if (loading) {
     return (
       <>
-        <Header />
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
@@ -97,7 +95,6 @@ export default function EditProfilePage() {
   }
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-2xl mx-auto px-4">
           {/* العنوان */}

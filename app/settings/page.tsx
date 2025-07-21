@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import Header from '@/components/Header';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Bell, Shield, Moon, Sun, Globe, Save, ArrowLeft
 } from 'lucide-react';
@@ -65,7 +64,6 @@ export default function SettingsPage() {
   };
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* رأس الصفحة */}
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">

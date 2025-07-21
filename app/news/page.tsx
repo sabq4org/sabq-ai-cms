@@ -8,7 +8,6 @@ import {
   Share2, MessageSquare, Layers
 } from 'lucide-react';
 import ArticleCard from '@/components/ArticleCard';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import './news-styles.css';
 import '../categories/categories-fixes.css';
@@ -191,7 +190,6 @@ export default function NewsPage() {
 
   return (
     <>
-      <Header />
       
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section */}

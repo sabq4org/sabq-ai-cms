@@ -10,7 +10,6 @@ import { getImageUrl, getOptimizedImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
 import { marked } from 'marked';
-import Header from '@/components/Header';
 import UltimateImage from '@/components/UltimateImage';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
@@ -139,7 +138,6 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
 
   return (
     <>
-      <Header />
       
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />

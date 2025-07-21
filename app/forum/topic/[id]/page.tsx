@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from '@/contexts/ThemeContext';
-import Header from '@/components/Header';
 import TimelineReply from '@/components/forum/TimelineReply';
 import { 
   ArrowRight, 
@@ -245,7 +244,6 @@ export default function TopicPage() {
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* الهيدر الرسمي للصحيفة */}
-      <Header />
       
       {/* رأس الصفحة */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>

@@ -10,7 +10,6 @@ import { getImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
 import { marked } from 'marked';
-import Header from '@/components/Header';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
@@ -287,7 +286,6 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
 
   return (
     <>
-      <Header />
       <ArticleJsonLd article={article} />
       
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900">

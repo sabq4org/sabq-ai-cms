@@ -8,7 +8,6 @@ import {
   Layers, Target, Zap, BookOpen, MessageSquare, Share2
 } from 'lucide-react';
 import ArticleCard from '@/components/ArticleCard';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 interface Article {
@@ -161,7 +160,6 @@ export default function DeepAnalysisPage() {
 
   return (
     <>
-      <Header />
       
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section */}

@@ -4,7 +4,6 @@ import React from 'react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useDarkMode } from '@/hooks/useDarkMode';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { 
   Send, 
@@ -275,7 +274,6 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
       
       {/* Hero Section - نمط موحد مع الصفحات الأخرى */}
       <section className="relative py-16 bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -293,12 +291,12 @@ export default function ContactPage() {
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
-              تواصل معنا
-            </h1>
+            تواصل معنا
+          </h1>
             
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-              نسعد بسماع آرائكم واقتراحاتكم. رسالتك تهمنا وستصل إلى الفريق المختص
-            </p>
+            نسعد بسماع آرائكم واقتراحاتكم. رسالتك تهمنا وستصل إلى الفريق المختص
+          </p>
             
             {/* إحصائيات التواصل - نمط موحد */}
             <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
@@ -317,9 +315,9 @@ export default function ContactPage() {
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
                   <Globe className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                </div>
+            </div>
                 <span>+10k رسالة تم الرد عليها</span>
-              </div>
+            </div>
             </div>
           </div>
         </div>
@@ -685,7 +683,7 @@ export default function ContactPage() {
         @media (hover: none) and (pointer: coarse) {
           .hover\\:scale-105:hover {
             transform: none;
-          }
+        }
           .hover\\:-translate-y-1:hover {
             transform: none;
           }
