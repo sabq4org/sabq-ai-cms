@@ -69,21 +69,47 @@ async function getStats() {
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
-    const res = await fetch(`${baseUrl}/api/news/stats`, { 
-      next: { revalidate: 60 } // cache لدقيقة واحدة للإحصائيات
+    const res = await fetch(`${baseUrl}/api/news/stats`, {
+      next: { revalidate: 300 },
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+      }
     });
-    if (res.ok) {
-      return await res.json();
-    }
+    
+    if (!res.ok) return null;
+    return await res.json();
   } catch (error) {
     console.error('خطأ في جلب الإحصائيات:', error);
+    return null;
   }
-  
-  return {
-    activeReaders: 0,
-    dailyArticles: 0,
-    loading: false
-  };
+}
+
+async function getDeepAnalyses() {
+  try {
+    const headersList = await headers();
+    const host = headersList.get('host') || 'localhost:3000';
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+    
+    const res = await fetch(`${baseUrl}/api/deep-analyses?limit=5&sortBy=analyzed_at&sortOrder=desc`, {
+      next: { revalidate: 300 }, // cache لـ 5 دقائق
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+      }
+    });
+    
+    if (!res.ok) {
+      console.error('فشل جلب التحليلات العميقة:', res.status);
+      return [];
+    }
+    
+    const json = await res.json();
+    const analyses = Array.isArray(json) ? json : (json.data ?? json.analyses ?? []);
+    return analyses;
+  } catch (error) {
+    console.error('خطأ في جلب التحليلات العميقة من الخادم:', error);
+    return [];
+  }
 }
 
 // Force dynamic for server-side features
@@ -94,16 +120,18 @@ export default async function HomePage() {
     console.log('🚀 بدء تحميل الصفحة الرئيسية...');
     
     // جلب جميع البيانات بالتوازي
-    const [articles, categories, stats] = await Promise.all([
+    const [articles, categories, stats, deepAnalyses] = await Promise.all([
       getArticles(),
       getCategories(),
-      getStats()
+      getStats(),
+      getDeepAnalyses()
     ]);
 
     console.log('✅ تم جلب البيانات بنجاح:', {
       articles: articles.length,
       categories: categories.length,
-      stats: !!stats
+      stats: !!stats,
+      deepAnalyses: deepAnalyses.length
     });
 
     return (
@@ -111,6 +139,7 @@ export default async function HomePage() {
         initialArticles={articles}
         initialCategories={categories}
         initialStats={stats}
+        initialDeepAnalyses={deepAnalyses}
       />
     );
   } catch (error) {

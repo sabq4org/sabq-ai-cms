@@ -79,9 +79,17 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // جلب البيانات الحقيقية
+  // جلب البيانات الحقيقية فقط إذا لم يتم تمريرها كـ props
   useEffect(() => {
     const fetchAnalyses = async () => {
+      // إذا كانت البيانات متوفرة كـ props، استخدمها
+      if (insights && insights.length > 0) {
+        setRealAnalyses(insights);
+        setLoading(false);
+        return;
+      }
+
+      // وإلا، جلب البيانات من API
       setLoading(true);
       try {
         const response = await fetch('/api/deep-analyses?limit=3&sortBy=analyzed_at&sortOrder=desc');
@@ -97,7 +105,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
     };
 
     fetchAnalyses();
-  }, []);
+  }, [insights]);
 
   // استخدام البيانات الحقيقية أو فارغة
   const displayInsights = realAnalyses.length > 0 ? realAnalyses : [];
@@ -263,18 +271,15 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
               <div className="col-span-full flex flex-col items-center justify-center py-16">
                 <Brain className="w-16 h-16 text-gray-400 mb-4" />
                 <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                  لا توجد تحليلات عميقة
+                  سيتم تحديث التحليلات العميقة قريباً
                 </h3>
                 <p className={`text-center mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  لم يتم إنشاء أي تحليلات عميقة بعد
+                  نحن نعمل على إعداد تحليلات عميقة بالذكاء الاصطناعي لأحدث الأخبار
                 </p>
-                <Link 
-                  href="/dashboard/deep-analysis/create"
-                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  إنشاء تحليل جديد
-                </Link>
+                <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+                  <Bot className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm text-blue-700">قيد المعالجة بواسطة الذكاء الاصطناعي</span>
+                </div>
               </div>
             ) : (
               displayInsights.slice(0, 3).map((item, index) => {
@@ -285,7 +290,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                 const visibleTags = showAllTags[item.id] ? tags : tags.slice(0, 2);
                 const remainingTags = tags.length - 2;
                 const title = item.metadata?.title || item.article?.title || 'تحليل عميق';
-                const summary = item.ai_summary || item.metadata?.summary || item.article?.summary || 'ملخص التحليل غير متوفر';
+                const summary = item.ai_summary || item.metadata?.summary || item.article?.summary || 'سيتم تحديث الملخص قريباً بواسطة الذكاء الاصطناعي';
                 const authorName = item.metadata?.authorName || item.article?.author?.name || 'مجهول';
                 const categoryName = item.metadata?.categories?.[0] || item.article?.categories?.[0]?.name || 'عام';
                 const url = `/insights/deep/${item.id}`;

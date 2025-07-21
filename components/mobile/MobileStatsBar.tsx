@@ -60,18 +60,18 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
   }
 
   return (
-    <div className={`w-full py-3 px-4 ${
+    <div className={`w-full py-2 px-3 ${
       darkMode 
         ? 'bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700' 
         : 'bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200'
     }`}>
       <div className="flex items-center justify-around">
         {/* عدد الأخبار */}
-        <a href="/news" className="flex items-center gap-2 hover:scale-105 transition-transform">
-          <div className={`p-1.5 rounded-lg ${
+        <a href="/news" className="flex items-center gap-1.5 hover:scale-105 transition-transform">
+          <div className={`p-1 rounded-lg ${
             darkMode ? 'bg-blue-900/30' : 'bg-blue-100'
           }`}>
-            <Newspaper className={`w-4 h-4 ${
+            <Newspaper className={`w-3.5 h-3.5 ${
               darkMode ? 'text-blue-400' : 'text-blue-600'
             }`} />
           </div>
@@ -79,9 +79,9 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               الأخبار
             </p>
-            <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <p className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {loading ? (
-                <span className="inline-block w-12 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
+                <span className="inline-block w-12 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
               ) : (
                 stats?.totalArticles.toLocaleString()
               )}
@@ -90,11 +90,11 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
         </a>
 
         {/* عدد الأقسام */}
-        <a href="/categories" className="flex items-center gap-2 hover:scale-105 transition-transform">
-          <div className={`p-1.5 rounded-lg ${
+        <a href="/categories" className="flex items-center gap-1.5 hover:scale-105 transition-transform">
+          <div className={`p-1 rounded-lg ${
             darkMode ? 'bg-purple-900/30' : 'bg-purple-100'
           }`}>
-            <Tag className={`w-4 h-4 ${
+            <Tag className={`w-3.5 h-3.5 ${
               darkMode ? 'text-purple-400' : 'text-purple-600'
             }`} />
           </div>
@@ -102,9 +102,9 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               الأقسام
             </p>
-            <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <p className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {loading ? (
-                <span className="inline-block w-8 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
+                <span className="inline-block w-8 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
               ) : (
                 stats?.totalCategories
               )}
@@ -113,11 +113,11 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
         </a>
 
         {/* أخبار اليوم مع مؤشر التغيير */}
-        <a href="/moment-by-moment" className="flex items-center gap-2 hover:scale-105 transition-transform">
-          <div className={`p-1.5 rounded-lg ${
+        <a href="/moment-by-moment" className="flex items-center gap-1.5 hover:scale-105 transition-transform">
+          <div className={`p-1 rounded-lg ${
             darkMode ? 'bg-green-900/30' : 'bg-green-100'
           }`}>
-            <Calendar className={`w-4 h-4 ${
+            <Calendar className={`w-3.5 h-3.5 ${
               darkMode ? 'text-green-400' : 'text-green-600'
             }`} />
           </div>
@@ -126,9 +126,9 @@ export default function MobileStatsBar({ darkMode }: MobileStatsBarProps) {
               أخبار اليوم
             </p>
             <div className="flex items-center gap-1">
-              <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <p className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 {loading ? (
-                  <span className="inline-block w-8 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
+                  <span className="inline-block w-8 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
                 ) : (
                   stats?.todayArticles || 0
                 )}

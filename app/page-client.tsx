@@ -255,10 +255,14 @@ function NewspaperHomePage({
   // جلب التحليلات العميقة عند التحميل
   useEffect(() => {
     const fetchDeepInsights = async () => {
+      // إذا كانت البيانات الأولية متوفرة، استخدمها
       if (initialDeepAnalyses.length > 0) {
+        setDeepInsights(initialDeepAnalyses);
         setDeepInsightsLoading(false);
         return;
       }
+      
+      // وإلا، جلب البيانات من API
       try {
         setDeepInsightsLoading(true);
         const response = await fetch('/api/deep-analyses?limit=5&sortBy=analyzed_at&sortOrder=desc');
