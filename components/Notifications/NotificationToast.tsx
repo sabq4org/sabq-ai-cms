@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNotifications } from '@/hooks/useNotifications';
+import { editorNotificationManager } from '@/lib/services/EditorNotificationFilter';
 import { 
   X, 
   CheckCircle, 
@@ -30,8 +31,10 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
   // تحديث الإشعارات المرئية
   useEffect(() => {
     // إظهار الإشعارات الجديدة فقط (غير المقروءة والتي لها مدة محددة)
+    // وتطبيق فلترة الرسائل المزعجة
     const newNotifications = notifications
       .filter(n => !n.read && n.duration !== 0)
+      .filter(n => editorNotificationManager.shouldShowMessage(n.message, n.type))
       .slice(0, maxVisible);
     
     setVisibleNotifications(newNotifications);

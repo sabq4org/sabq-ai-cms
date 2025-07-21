@@ -10,7 +10,7 @@ async function getArticles() {
     const baseUrl = `${protocol}://${host}`;
     
     const res = await fetch(`${baseUrl}/api/articles?status=published&limit=16&sortBy=published_at&order=desc`, {
-      next: { revalidate: 180 }, // تحسين cache إلى 3 دقائق
+      next: { revalidate: 180 }, // cache لـ 3 دقائق
       headers: {
         'Cache-Control': 'public, s-maxage=180, stale-while-revalidate=300'
       }
@@ -40,7 +40,7 @@ async function getCategories() {
     console.log('🔍 جلب التصنيفات من:', `${baseUrl}/api/categories?is_active=true`);
     
     const res = await fetch(`${baseUrl}/api/categories?is_active=true`, {
-      next: { revalidate: 600 }, // تحسين cache إلى 10 دقائق للتصنيفات
+      next: { revalidate: 600 }, // cache لـ 10 دقائق
       headers: {
         'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=900'
       }
@@ -52,8 +52,6 @@ async function getCategories() {
     }
     
     const data = await res.json();
-    
-    // API يُرجع { success: true, data: [...], categories: [...] }
     const categories = Array.isArray(data) ? data : (data.data || data.categories || []);
     console.log('✅ التصنيفات المُستلمة:', categories.length);
     
@@ -72,7 +70,7 @@ async function getStats() {
     const baseUrl = `${protocol}://${host}`;
     
     const res = await fetch(`${baseUrl}/api/news/stats`, { 
-      next: { revalidate: 60 } // إعادة التحقق كل دقيقة للإحصائيات
+      next: { revalidate: 60 } // cache لدقيقة واحدة للإحصائيات
     });
     if (res.ok) {
       return await res.json();
@@ -81,7 +79,6 @@ async function getStats() {
     console.error('خطأ في جلب الإحصائيات:', error);
   }
   
-  // إرجاع قيم افتراضية آمنة
   return {
     activeReaders: 0,
     dailyArticles: 0,
@@ -89,17 +86,25 @@ async function getStats() {
   };
 }
 
-// Force dynamic to support server-side features
-export const dynamic = 'force-dynamic'
+// Force dynamic for server-side features
+export const dynamic = 'force-dynamic';
 
-export default async function Page() {
+export default async function HomePage() {
   try {
-    // جلب جميع البيانات في الخادم
+    console.log('🚀 بدء تحميل الصفحة الرئيسية...');
+    
+    // جلب جميع البيانات بالتوازي
     const [articles, categories, stats] = await Promise.all([
       getArticles(),
       getCategories(),
       getStats()
     ]);
+
+    console.log('✅ تم جلب البيانات بنجاح:', {
+      articles: articles.length,
+      categories: categories.length,
+      stats: !!stats
+    });
 
     return (
       <PageClient 
@@ -113,15 +118,17 @@ export default async function Page() {
     
     // صفحة خطأ بسيطة
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '48px', marginBottom: '20px' }}>صحيفة سبق الإلكترونية</h1>
-        <p style={{ fontSize: '24px', color: '#666' }}>عذراً، حدث خطأ في تحميل الصفحة</p>
-        <p style={{ marginTop: '20px' }}>
-          <a href="/news" style={{ color: '#1e40af', textDecoration: 'underline' }}>
-            انتقل إلى صفحة الأخبار
-          </a>
-        </p>
-
+      <div className="min-h-screen bg-red-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-800 mb-4">خطأ في تحميل الصفحة</h1>
+          <p className="text-red-600 mb-4">حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
       </div>
     );
   }

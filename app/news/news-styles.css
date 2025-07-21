@@ -1,168 +1,197 @@
+/* تنسيقات صفحة الأخبار */
 
-  
-    90deg,
-    background-color: #4b5563;
-    background-color: #6b7280;
-    background-position: -200% 0;
-    background-position: 200% 0;
-    display: none !important;
-    opacity: 0;
-    opacity: 1;
-    position: relative !important;
-    rgba(255, 255, 255, 0.3),
-    transform: translateY(0);
-    transform: translateY(20px);
-    transparent
-    transparent,
-  --bg-primary: rgb(17 24 39);
-  --bg-secondary: rgb(31 41 55);
-  --bg-tertiary: rgb(55 65 81);
-  --border-primary: rgb(75 85 99);
-  --border-secondary: rgb(107 114 128);
-  --text-primary: rgb(243 244 246);
-  --text-secondary: rgb(209 213 219);
-  --text-tertiary: rgb(156 163 175);
-  --tw-bg-opacity: 0.2;
-  --tw-bg-opacity: 0.5;
-  --tw-border-opacity: 0.2;
-  -ms-overflow-style: none;
-  -webkit-backdrop-filter: blur(12px);
-  .dark\:scrollbar-thumb-gray-600::-webkit-scrollbar-thumb {
-  .dark\:scrollbar-thumb-gray-600::-webkit-scrollbar-thumb:hover {
-  .no-print {
-  .sticky {
-  );
-  }
-  /* تحسين ألوان الحدود */
-  /* تحسين ألوان الخلفيات */
-  /* تحسين ألوان النصوص */
-  0% {
-  100% {
-  animation: fadeInUp 0.5s ease-out;
-  animation: shimmer 2s infinite;
-  backdrop-filter: blur(10px);
-  backdrop-filter: blur(12px);
-  background-color: #94a3b8;
-  background-color: #cbd5e1;
-  background-color: inherit;
-  background-color: rgb(0, 0, 0);
-  background-color: rgb(17, 24, 39) !important;
-  background-color: rgb(17, 24, 39); /* bg-gray-900 */
-  background-color: rgb(249, 250, 251); /* bg-gray-50 */
-  background-color: rgb(31, 41, 55) !important;
-  background-color: rgba(17, 24, 39, 0.95);
-  background-color: rgba(31, 41, 55, 0.9);
-  background-color: rgba(55, 65, 81, 0.8);
-  background-color: rgba(55, 65, 81, 0.9);
-  background-color: rgba(75, 85, 99, 0.8);
-  background-color: var(--bg-secondary) !important;
-  background-size: 200% 100%;
-  background: linear-gradient(
-  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
-  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
-  background: transparent;
-  border-color: rgb(255, 255, 255);
-  border-color: rgba(107, 114, 128, 0.5);
-  border-color: rgba(75, 85, 99, 0.3);
-  border-color: rgba(75, 85, 99, 0.4);
-  border-color: rgba(75, 85, 99, 0.5);
-  border-color: rgba(96, 165, 250, 0.5);
-  border-radius: 20px;
-  border-top-color: rgba(75, 85, 99, 0.3);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  color: rgb(243, 244, 246);
-  color: rgb(255, 255, 255);
-  display: none;
-  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.04)) drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1));
-  from {
-  height: 6px;
-  margin-top: 0 !important;
-  min-height: calc(100vh - 80px); /* ارتفاع الشاشة ناقص ارتفاع الهيدر */
-  scrollbar-width: none;
-  scrollbar-width: thin;
-  to {
-  transform: translateY(-4px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-.article-card-animation {
-.backdrop-blur-md {
-.bg-black {
-.bg-opacity-20 {
-.bg-opacity-50 {
-.border-opacity-20 {
-.border-white {
-.dark .article-card {
-.dark .bg-gray-50 {
-.dark .bg-white {
-.dark .border-gray-100 {
-.dark .border-gray-200 {
-.dark .category-button {
-.dark .category-button:hover {
-.dark .footer {
-.dark .gradient-overlay {
-.dark .shadow-lg {
-.dark .shadow-sm {
-.dark .sticky {
-.dark [class*="bg-white"]:not(.dark\:bg-gray-800) {
-.dark {
-.dark body {
-.dark footer,
-.dark input,
-.dark input:focus,
-.dark select {
-.dark select:focus {
-.drop-shadow-lg {
-.hover-lift {
-.hover-lift:hover {
-.min-h-screen {
-.news-content {
-.scrollbar-hide {
-.scrollbar-hide::-webkit-scrollbar {
-.scrollbar-thin {
-.scrollbar-thin::-webkit-scrollbar {
-.scrollbar-thin::-webkit-scrollbar-thumb {
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-.scrollbar-thin::-webkit-scrollbar-track {
-.shadow-xl {
-.shimmer-effect {
-.text-white {
+.news-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
 }
-} 
-@keyframes fadeInUp {
+
+.news-header {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.news-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.news-subtitle {
+  font-size: 1.125rem;
+  opacity: 0.9;
+}
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.news-card {
+  background: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.news-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.news-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.news-content {
+  padding: 1.5rem;
+}
+
+.news-category {
+  display: inline-block;
+  background: #3b82f6;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.news-item-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.news-summary {
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.news-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.news-author {
+  font-weight: 500;
+  color: #3b82f6;
+}
+
+.news-date {
+  color: #6b7280;
+}
+
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 25%,
+    #e5e7eb 50%,
+    #f3f4f6 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
 @keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background-color: #e5e7eb;
+  border-radius: 0.25rem;
+}
+
+.skeleton-text {
+  height: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-title {
+  height: 1.5rem;
+  width: 75%;
+  margin-bottom: 1rem;
+}
+
+.skeleton-image {
+  height: 200px;
+  width: 100%;
+}
+
+/* الوضع المظلم */
 @media (prefers-color-scheme: dark) {
-@media print {
-/* التأكد من عدم وجود مساحات بيضاء بين الأقسام */
-/* التأكد من أن المحتوى الرئيسي يملأ الشاشة */
-/* التأكد من عدم وجود خلفيات بيضاء مخفية */
-/* إزالة الخلفيات البيضاء في الوضع الليلي */
-/* إصلاح أي فجوات في الوضع الليلي */
-/* إصلاح مشكلة اللون الأبيض في الأسفل */
-/* تحسين أزرار التصنيفات في الوضع الليلي */
-/* تحسين الخلفيات الثابتة في الوضع الليلي */
-/* تحسين حقول الإدخال في الوضع الليلي */
-/* إصلاح المساحة البيضاء قبل الفوتر */
-/* تحسين البطاقات في الوضع الليلي */
-/* تحسين التدرجات في الوضع الليلي */
-/* تحسين الظلال في الوضع الليلي */
-/* تحسين الفواصل في الوضع الليلي */
-/* إخفاء شريط التمرير الافتراضي */
-/* تأثير الضوء على الأزرار */
-/* تحسينات إضافية للوضع الليلي */
-/* شريط تمرير مخصص رفيع */
-/* ضمان ظهور النصوص البيضاء */
-/* تأثيرات التحويم المحسنة */
-/* تأثيرات الحركة للبطاقات */
-/* تأثير الظل للنصوص */
-/* حدود بيضاء شفافة */
-/* خلفية سوداء شفافة */
-/* دعم الوضع المظلم */
-/* تحسينات الطباعة */
-/* إزالة أي margin أو padding غير مرغوب فيه */
-/* تأثيرات backdrop blur للمتصفحات المختلفة */
-/* تحسينات CSS لصفحة الأخبار */
-body {
-div + footer {
-main + footer,
+  .news-container {
+    background-color: #111827;
+  }
+  
+  .news-card {
+    background-color: #1f2937;
+  }
+  
+  .news-item-title {
+    color: #f9fafb;
+  }
+  
+  .news-summary {
+    color: #d1d5db;
+  }
+  
+  .skeleton {
+    background-color: #374151;
+  }
+  
+  .loading-shimmer {
+    background: linear-gradient(
+      90deg,
+      #374151 25%,
+      #4b5563 50%,
+      #374151 75%
+    );
+  }
+}
+
+/* الاستجابة للأجهزة الصغيرة */
+@media (max-width: 768px) {
+  .news-container {
+    padding: 1rem;
+  }
+  
+  .news-header {
+    padding: 1.5rem;
+  }
+  
+  .news-title {
+    font-size: 2rem;
+  }
+  
+  .news-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .news-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}

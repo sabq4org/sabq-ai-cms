@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { EditorErrorBoundary } from '@/components/ErrorBoundary';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { NotificationToast } from '@/components/Notifications';
 import { useNotifications } from '@/hooks/useNotifications';
 import { usePagePerformance } from '@/hooks/usePagePerformance';
@@ -51,10 +51,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({
   };
 
   return (
-    <EditorErrorBoundary 
-      context={pageName}
-      onError={handleError}
-    >
+    <ErrorBoundary>
       <div className={`page-wrapper ${className}`}>
         {children}
 
@@ -86,7 +83,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({
           </button>
         )}
       </div>
-    </EditorErrorBoundary>
+    </ErrorBoundary>
   );
 };
 

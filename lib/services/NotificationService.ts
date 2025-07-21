@@ -2,6 +2,8 @@
  * خدمة التنبيهات والإشعارات للمحررات
  */
 
+import { editorNotificationManager } from './EditorNotificationFilter';
+
 export interface Notification {
   id: string;
   type: 'info' | 'success' | 'warning' | 'error';
@@ -99,11 +101,21 @@ class NotificationService {
     message: string,
     options: Partial<Notification> = {}
   ): string {
+    // فلترة الرسائل المزعجة
+    if (!editorNotificationManager.shouldShowMessage(message, type)) {
+      editorNotificationManager.logFilteredMessage(`${title}: ${message}`, type);
+      return ''; // لا نعرض الرسالة
+    }
+
+    // تحويل الرسائل التقنية إلى مفهومة
+    const friendlyMessage = editorNotificationManager.transformMessage(message);
+    const friendlyTitle = editorNotificationManager.transformMessage(title);
+
     const notification: Notification = {
       id: this.generateId(),
       type,
-      title,
-      message,
+      title: friendlyTitle,
+      message: friendlyMessage,
       timestamp: new Date(),
       duration: options.duration ?? this.defaultDuration,
       actions: options.actions || [],
@@ -350,11 +362,18 @@ class NotificationService {
 
   // الحصول على الإشعارات
   public getAll(): Notification[] {
-    return [...this.notifications];
+    // فلترة الإشعارات بناءً على دور المستخدم والإعدادات
+    return this.notifications.filter(notification => 
+      editorNotificationManager.shouldShowMessage(notification.message, notification.type)
+    );
   }
 
   public getUnread(): Notification[] {
-    return this.notifications.filter(n => !n.read);
+    // فلترة الإشعارات غير المقروءة أيضاً
+    return this.notifications.filter(n => 
+      !n.read && 
+      editorNotificationManager.shouldShowMessage(n.message, n.type)
+    );
   }
 
   public getByType(type: Notification['type']): Notification[] {
