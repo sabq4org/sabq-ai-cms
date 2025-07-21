@@ -22,6 +22,8 @@ import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
 import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
 import { MetaTags } from '@/components/article/MetaTags';
+import ArticleStatsBlock from '@/components/article/ArticleStatsBlock';
+import SmartRecommendationBlock from '@/components/article/SmartRecommendationBlock';
 import '@/styles/mobile-article.css';
 import '@/styles/image-optimizations.css';
 
@@ -424,9 +426,8 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
                 comments: article.comments_count || 0
               }}
               onComment={() => {
-                // التمرير لقسم التعليقات
-                const commentsSection = document.getElementById('comments-section');
-                commentsSection?.scrollIntoView({ behavior: 'smooth' });
+                // تم إزالة قسم التعليقات
+                console.log('تم النقر على التعليقات');
               }}
             />
           </div>
@@ -455,10 +456,29 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
           
-          {/* قسم التعليقات */}
-          <div id="comments-section" className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">التعليقات</h2>
-            {/* يمكن إضافة مكون التعليقات هنا */}
+          {/* إحصائيات المقال */}
+          <div className="mt-8 sm:mt-12">
+            <ArticleStatsBlock
+              views={article.views || 0}
+              likes={article.likes || article.stats?.likes || 0}
+              saves={article.saves || article.stats?.saves || 0}
+              shares={article.shares || article.stats?.shares || 0}
+              category={article.category ? {
+                name: article.category.name,
+                color: article.category.color,
+                icon: article.category.icon
+              } : undefined}
+              growthRate={Math.floor(Math.random() * 60)} // نسبة نمو عشوائية للعرض
+            />
+          </div>
+
+          {/* التوصيات الذكية */}
+          <div className="mt-6 sm:mt-8">
+            <SmartRecommendationBlock
+              articleId={article.id}
+              category={article.category?.name}
+              tags={article.keywords || []}
+            />
           </div>
         </article>
       </main>

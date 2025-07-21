@@ -53,7 +53,8 @@ export default function PreferencesPage() {
           console.log('✅ تم جلب الاهتمامات المحفوظة:', result.categoryIds);
           setSelectedCategoryIds(result.categoryIds);
           setHasExistingInterests(true);
-          toast.success(`تم تحميل ${result.categoryIds.length} اهتمام محفوظ مسبقاً`);
+          // تم إزالة الرسالة المزعجة للتحميل التلقائي
+        console.log(`✅ تم تحميل ${result.categoryIds.length} اهتمام محفوظ مسبقاً`);
         } else {
           console.log('ℹ️ لا توجد اهتمامات محفوظة مسبقاً');
           setHasExistingInterests(false);
@@ -195,7 +196,8 @@ export default function PreferencesPage() {
         }
       }
 
-      toast.success(hasExistingInterests ? 'تم تحديث اهتماماتك بنجاح! ✨' : 'تم حفظ اهتماماتك بنجاح! 🎉');
+      // تم إزالة الرسالة المزعجة - الرسالة تظهر فقط عند الحفظ الفعلي
+      // toast.success(hasExistingInterests ? 'تم تحديث اهتماماتك بنجاح! ✨' : 'تم حفظ اهتماماتك بنجاح! 🎉');
       
       // انتظار ثانية ثم التوجيه لصفحة التجربة المخصصة
       setTimeout(() => {

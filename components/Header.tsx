@@ -26,8 +26,7 @@ import {
   Bell,
   Settings,
   Brain,
-  Target,
-  Headphones
+  Target
 } from 'lucide-react';
 
 export default function Header() {
@@ -56,7 +55,6 @@ export default function Header() {
     { url: '/', label: 'الرئيسية', icon: Home, highlight: false },
     { url: '/news', label: 'الأخبار', icon: Newspaper, highlight: false },
     { url: '/categories', label: 'الأقسام', icon: Folder, highlight: false },
-    { url: '/newsletters', label: 'النشرات الصوتية', icon: Headphones, highlight: false },
     { url: '/insights/deep', label: 'عمق', icon: Brain, highlight: false },
     { url: '/opinion', label: 'الرأي', icon: Edit, highlight: false },
     { 

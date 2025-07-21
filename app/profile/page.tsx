@@ -886,7 +886,7 @@ export default function ProfilePage() {
                       <button
                         onClick={() => {
                           fetchUserInterestsImmediately();
-                          toast.success('جاري تحديث الاهتمامات...', { duration: 1000 });
+                          // تم إزالة الرسالة المزعجة
                         }}
                         className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium flex items-center gap-1 text-sm transition-colors"
                         title="تحديث الاهتمامات"
