@@ -1,0 +1,141 @@
+# Kubernetes deployment with proper health checks
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sabq-ai-cms
+  labels:
+    app: sabq-ai-cms
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sabq-ai-cms
+  template:
+    metadata:
+      labels:
+        app: sabq-ai-cms
+    spec:
+      containers:
+      - name: sabq-ai-cms
+        image: sabq-ai-cms:latest
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        - name: HOSTNAME
+          value: "0.0.0.0"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: sabq-secrets
+              key: database-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: sabq-secrets
+              key: jwt-secret
+        
+        # Health checks configuration
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+            httpHeaders:
+            - name: Accept
+              value: application/json
+          initialDelaySeconds: 60    # Wait 60s before first check
+          periodSeconds: 30          # Check every 30s
+          timeoutSeconds: 10         # 10s timeout
+          failureThreshold: 3        # Fail after 3 attempts
+          successThreshold: 1
+        
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+            httpHeaders:
+            - name: Accept
+              value: application/json
+          initialDelaySeconds: 30    # Wait 30s before first check
+          periodSeconds: 10          # Check every 10s
+          timeoutSeconds: 5          # 5s timeout
+          failureThreshold: 3        # Fail after 3 attempts
+          successThreshold: 1
+        
+        startupProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+            httpHeaders:
+            - name: Accept
+              value: application/json
+          initialDelaySeconds: 10    # Wait 10s before first check
+          periodSeconds: 10          # Check every 10s
+          timeoutSeconds: 5          # 5s timeout
+          failureThreshold: 10       # Allow 10 failures (100s total)
+          successThreshold: 1
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        
+        # Security context
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+            - ALL
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sabq-ai-cms-service
+  labels:
+    app: sabq-ai-cms
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: sabq-ai-cms
+
+---
+# Optional: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sabq-ai-cms-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sabq-ai-cms
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

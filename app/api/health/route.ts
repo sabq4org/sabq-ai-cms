@@ -8,11 +8,26 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    console.log('🏥 بدء فحص صحة النظام...');
+    console.log('🏥 Health check requested...');
 
-    // فحص الاتصال بقاعدة البيانات مع قياس الوقت
+    // Quick response for Kubernetes/Docker health checks
+    const basicHealth = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      port: process.env.PORT || '3000',
+      uptime: process.uptime(),
+      responseTime: Date.now() - startTime
+    };
+
+    // فحص الاتصال بقاعدة البيانات مع قياس الوقت (اختياري للسرعة)
     const dbStart = Date.now();
-    const dbConnected = await ensureConnection();
+    let dbConnected = false;
+    try {
+      dbConnected = await ensureConnection();
+    } catch (error) {
+      console.log('Database check skipped for speed:', error instanceof Error ? error.message : 'Unknown error');
+    }
     const dbLatency = Date.now() - dbStart;
 
     let dbTestResult = null;
