@@ -135,21 +135,56 @@ export default function DeepAnalysisPage() {
       toast.error('حدث خطأ في تحديث الحالة');
     }
   };
-  // ألوان الحالة
-  const getStatusColor = (status: AnalysisStatus) => {
+  // دوال مساعدة لعرض البيانات
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'published': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-      case 'draft': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-      case 'archived': return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+      case 'published':
+        return 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700';
+      case 'draft':
+        return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700';
+      case 'archived':
+        return 'bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
+      default:
+        return 'bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
     }
   };
-  // أيقونة نوع المصدر
-  const getSourceIcon = (sourceType: SourceType) => {
+
+  const getSourceIcon = (sourceType: string) => {
     switch (sourceType) {
-      case 'gpt': return <Brain className="h-4 w-4 text-purple-500" />;
-      case 'manual': return <PenTool className="h-4 w-4 text-blue-500" />;
-      case 'hybrid': return <Layers className="h-4 w-4 text-green-500" />;
+      case 'gpt':
+        return <Brain className="w-4 h-4 text-purple-600 dark:text-purple-400" />;
+      case 'manual':
+        return <PenTool className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
+      case 'mixed':
+        return <Layers className="w-4 h-4 text-green-600 dark:text-green-400" />;
+      default:
+        return <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'published':
+        return 'منشور';
+      case 'draft':
+        return 'مسودة';
+      case 'archived':
+        return 'مؤرشف';
+      default:
+        return 'غير محدد';
+    }
+  };
+
+  const getSourceText = (sourceType: string) => {
+    switch (sourceType) {
+      case 'gpt':
+        return 'GPT';
+      case 'manual':
+        return 'يدوي';
+      case 'mixed':
+        return 'مختلط';
+      default:
+        return 'غير محدد';
     }
   };
   // مكون بطاقة الإحصائية
@@ -486,19 +521,32 @@ export default function DeepAnalysisPage() {
                     darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
                   }`}>
                     <td className="px-6 py-4">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                          <Brain className="w-5 h-5 text-white" />
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 ${
+                          darkMode ? 'bg-gray-700' : 'bg-gray-100'
+                        }`}>
+                          {analysis.featuredImage ? (
+                            <Image
+                              src={analysis.featuredImage}
+                              alt={analysis.title || 'تحليل عميق'}
+                              width={40}
+                              height={40}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Brain className="w-5 h-5 text-purple-500" />
+                            </div>
+                          )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className={`text-sm font-medium truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {analysis.title}
+                        <div className="min-w-0 flex-1">
+                          <h3 className={`font-medium text-sm line-clamp-1 ${
+                            darkMode ? 'text-white' : 'text-gray-900'
+                          }`}>
+                            {analysis.title || 'تحليل عميق'}
                           </h3>
-                          <p className={`text-xs mt-0.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            بواسطة: {analysis.authorName}
-                          </p>
                           <p className={`text-xs mt-1 line-clamp-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            {analysis.summary}
+                            {analysis.summary || 'ملخص غير متوفر'}
                           </p>
                         </div>
                       </div>
@@ -507,15 +555,13 @@ export default function DeepAnalysisPage() {
                       <div className="flex items-center gap-2">
                         {getSourceIcon(analysis.sourceType)}
                         <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {analysis.sourceType === 'manual' ? 'يدوي' :
-                           analysis.sourceType === 'gpt' ? 'GPT' : 'مختلط'}
+                          {getSourceText(analysis.sourceType)}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <Badge className={`${getStatusColor(analysis.status)}`}>
-                        {analysis.status === 'published' ? 'منشور' :
-                         analysis.status === 'draft' ? 'مسودة' : 'مؤرشف'}
+                        {getStatusText(analysis.status)}
                       </Badge>
                     </td>
                     <td className="px-6 py-4">
@@ -525,11 +571,11 @@ export default function DeepAnalysisPage() {
                         }`}>
                           <div
                             className="h-full bg-gradient-to-r from-purple-500 to-indigo-600"
-                            style={{ width: `${Math.min(analysis.qualityScore, 100)}%` }}
+                            style={{ width: `${Math.min(analysis.qualityScore || 0, 100)}%` }}
                           />
                         </div>
                         <span className={`text-xs font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {Math.min(Math.round(analysis.qualityScore), 100)}%
+                          {Math.min(Math.round(analysis.qualityScore || 0), 100)}%
                         </span>
                       </div>
                     </td>
@@ -537,13 +583,13 @@ export default function DeepAnalysisPage() {
                       <div className="flex items-center gap-1">
                         <Calendar className={`h-4 w-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                         <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {new Date(analysis.analyzed_at).toLocaleDateString('ar-SA', {
+                          {analysis.analyzed_at ? new Date(analysis.analyzed_at).toLocaleDateString('ar-SA', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
                             calendar: 'gregory',
                             numberingSystem: 'latn'
-                          })}
+                          }) : 'غير محدد'}
                         </span>
                       </div>
                     </td>
