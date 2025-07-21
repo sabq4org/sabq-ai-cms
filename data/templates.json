@@ -68,7 +68,7 @@
         ]
       },
       "topBar": {
-        "showBreakingNews": true,
+        "showBreakingNews": false,
         "showDateTime": true,
         "showWeather": false
       }
@@ -141,7 +141,7 @@
         ]
       },
       "topBar": {
-        "showBreakingNews": true,
+        "showBreakingNews": false,
         "showDateTime": true,
         "showWeather": false
       }

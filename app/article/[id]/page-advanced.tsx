@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState, useEffect, useRef, use } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -16,6 +16,7 @@ import { Share2, Eye, Clock, Calendar,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
   Play, Pause, Volume2, CheckCircle, Sparkles
 } from 'lucide-react';
+import ArticleInteractions from '@/components/article/ArticleInteractions';
 import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
 
 // نوع البيانات
@@ -29,6 +30,9 @@ interface Article {
   keywords?: string[];
   seo_keywords?: string | string[];
   author?: { name: string; avatar?: string };
+  likes?: number;
+  saves?: number;
+  shares?: number;
   author_id?: string;
   category?: { name: string; slug: string; color?: string; icon?: string };
   category_id?: string;
@@ -51,8 +55,13 @@ interface PageProps {
 
 export default function ArticlePageEnhanced({ params }: PageProps) {
   const router = useRouter();
-  const resolvedParams = use(params);
-  const articleId = resolvedParams.id;
+  const [articleId, setArticleId] = useState<string>('');
+  
+  useEffect(() => {
+    params.then(resolvedParams => {
+      setArticleId(resolvedParams.id);
+    });
+  }, [params]);
   const { darkMode } = useDarkModeContext();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,21 +74,38 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<'not_found' | 'not_published' | 'server_error' | null>(null);
 
-  // جلب المقال
-  useEffect(() => {
-    fetchArticle(articleId);
-  }, [articleId]);
-
+  // تعريف دالة جلب المقال
   const fetchArticle = async (id: string) => {
+    if (!id) return; // التحقق من وجود id
     try {
       setLoading(true);
+      console.log('جاري جلب المقال:', id);
       const response = await fetch(`/api/articles/${id}`);
+      
       if (!response.ok) {
-        router.push('/');
+        console.error('فشل جلب المقال:', response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('تفاصيل الخطأ:', errorData);
+        
+        if (response.status === 404) {
+          setError('عذراً، المقال المطلوب غير موجود');
+          setErrorType('not_found');
+        } else if (response.status === 403 && errorData.code === 'ARTICLE_NOT_PUBLISHED') {
+          setError('هذه المقالة في وضع التحرير ولا يمكن عرضها للعامة');
+          setErrorType('not_published');
+        } else {
+          setError('حدث خطأ في جلب المقال');
+          setErrorType('server_error');
+        }
+        
         return;
       }
+      
       const data = await response.json();
+      console.log('تم جلب المقال بنجاح:', data.title);
       setArticle(data);
       
       // تحديث عدادات التفاعل
@@ -91,12 +117,20 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
         }));
       }
     } catch (error) {
-      console.error('Error fetching article:', error);
-      router.push('/');
+      console.error('خطأ في جلب المقال:', error);
+      setError('حدث خطأ في الاتصال بالخادم');
+      setErrorType('server_error');
     } finally {
       setLoading(false);
     }
   };
+
+  // جلب المقال عند تغيير articleId
+  useEffect(() => {
+    if (articleId) {
+      fetchArticle(articleId);
+    }
+  }, [articleId]);
 
   // معالجة الإعجاب
   const handleLike = async () => {
@@ -183,12 +217,63 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     return [];
   };
 
-  if (loading) {
+  if (loading || error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
-          <p className="text-gray-500">جاري تحميل المقال...</p>
+        <div className="text-center p-8 max-w-md">
+          {error ? (
+            <>
+              <div className="mb-4">
+                {errorType === 'not_published' ? (
+                  <div className="w-20 h-20 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto">
+                    <Clock className="w-10 h-10 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                ) : (
+                  <X className="w-16 h-16 text-red-500 mx-auto" />
+                )}
+              </div>
+              <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
+                {errorType === 'not_found' && 'المقال غير موجود'}
+                {errorType === 'not_published' && 'المقال قيد التحرير'}
+                {errorType === 'server_error' && 'حدث خطأ'}
+              </h2>
+              <p className="text-lg mb-6 text-gray-600 dark:text-gray-400">
+                {error}
+              </p>
+              
+              {/* رسالة إضافية للمقالات غير المنشورة */}
+              {errorType === 'not_published' && (
+                <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    هذه المقالة في وضع المسودة ولم يتم نشرها بعد. 
+                    إذا كنت محرراً، يرجى تسجيل الدخول لعرض المقالة.
+                  </p>
+                </div>
+              )}
+              
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => router.push('/')}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                >
+                  العودة للرئيسية
+                </button>
+                {errorType === 'not_published' && (
+                  <button
+                    onClick={() => router.push('/login?redirect=' + encodeURIComponent(window.location.pathname))}
+                    className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
+                  >
+                    تسجيل الدخول
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+              <p className="text-gray-500">جاري تحميل المقال...</p>
+            </>
+          )}
         </div>
       </div>
     );
@@ -308,55 +393,16 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
           )}
 
           {/* شريط التفاعل */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
-            {/* أزرار التفاعل */}
-            <div className="flex items-center gap-2">
-              {/* زر الإعجاب */}
-              <button
-                onClick={handleLike}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-                  interaction.liked
-                    ? 'text-red-500 bg-red-50 dark:bg-red-900/30 scale-105'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Heart className={`w-5 h-5 transition-all ${interaction.liked ? 'fill-current scale-110' : ''}`} />
-                <span className="font-medium">{interaction.likesCount}</span>
-              </button>
-
-              {/* زر الحفظ */}
-              <button
-                onClick={handleSave}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-                  interaction.saved
-                    ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30 scale-105'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
-              >
-                {interaction.saved ? (
-                  <>
-                    <CheckCircle className="w-5 h-5 fill-current" />
-                    <span className="font-medium">تم الحفظ</span>
-                  </>
-                ) : (
-                  <>
-                    <Bookmark className="w-5 h-5" />
-                    <span className="font-medium">حفظ</span>
-                  </>
-                )}
-                {interaction.savesCount > 0 && (
-                  <span className="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-full">
-                    {interaction.savesCount}
-                  </span>
-                )}
-              </button>
-
-              {/* زر المشاركة */}
-              <button className="flex items-center gap-2 px-4 py-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
-                <Share2 className="w-5 h-5" />
-                <span className="font-medium">مشاركة</span>
-              </button>
-            </div>
+          <div className="mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <ArticleInteractions 
+              articleId={article.id}
+              initialStats={{
+                likes: article.likes || interaction.likesCount || 0,
+                saves: article.saves || interaction.savesCount || 0,
+                shares: article.shares || 0,
+                views: article.views || 0
+              }}
+            />
           </div>
 
           {/* الكلمات المفتاحية */}

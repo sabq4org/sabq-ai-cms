@@ -333,4 +333,5 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
   );
 }
 
+// الـ export الرئيسي
 export default ArticleClientPage;

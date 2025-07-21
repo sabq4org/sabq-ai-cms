@@ -6,9 +6,6 @@
 
 // أوقات التخزين المؤقت (بالثواني)
 export const SMART_CACHE_TTL = {
-  // الأخبار العاجلة - بدون كاش تقريباً
-  BREAKING_NEWS: 30, // 30 ثانية فقط
-  
   // الأخبار الحديثة (آخر ساعة)
   FRESH_NEWS: 60, // دقيقة واحدة
   
@@ -43,11 +40,6 @@ export const SMART_CACHE_TTL = {
  * تحديد مدة الكاش حسب نوع المحتوى
  */
 export function getCacheTTL(contentType: string, metadata?: any): number {
-  // الأخبار العاجلة
-  if (metadata?.isBreaking || metadata?.breaking) {
-    return SMART_CACHE_TTL.BREAKING_NEWS;
-  }
-  
   // الأخبار الحديثة (منشورة خلال الساعة الماضية)
   if (metadata?.publishedAt) {
     const publishTime = new Date(metadata.publishedAt).getTime();

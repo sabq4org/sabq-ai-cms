@@ -206,21 +206,39 @@ export async function GET(
       console.warn('⚠️ خطأ في استخراج شرح الصورة:', captionError);
     }
 
-    // إعداد البيانات المحسنة مع قيم افتراضية آمنة
+    // إعداد البيانات الحقيقية من قاعدة البيانات
     const articleWithEnhancedData = {
       ...dbArticle,
       success: true,
+      title: dbArticle.title,
+      content: dbArticle.content,
+      excerpt: dbArticle.excerpt,
+      summary: dbArticle.excerpt,
+      subtitle: (dbArticle.metadata as any)?.subtitle || null,
+      featured_image: dbArticle.featured_image,
+      featured_image_alt: (dbArticle.metadata as any)?.featured_image_alt || null,
       views_count: dbArticle.views || 0,
-      seo_keywords: keywords.length > 0 ? keywords : (dbArticle.seo_keywords || []),
-      description: dbArticle.excerpt || dbArticle.seo_description || '',
-      summary: dbArticle.excerpt || '',
+      seo_keywords: keywords,
+      description: dbArticle.excerpt || dbArticle.seo_description,
       image_caption: imageCaption,
       featured_image_caption: imageCaption,
       author: authorData,
       author_name: authorData.name,
       category: dbArticle.categories || null,
-      category_name: dbArticle.categories?.name || 'غير مصنف',
-      category_color: dbArticle.categories?.color || '#6B7280'
+      category_name: dbArticle.categories?.name,
+      category_color: dbArticle.categories?.color,
+      reading_time: dbArticle.reading_time,
+      is_breaking: dbArticle.breaking || false,
+      is_featured: dbArticle.featured || false,
+      likes_count: dbArticle.likes || 0,
+      shares_count: dbArticle.shares || 0,
+      stats: {
+        views: dbArticle.views || 0,
+        likes: dbArticle.likes || 0,
+        shares: dbArticle.shares || 0,
+        comments: 0,
+        saves: dbArticle.saves || 0
+      }
     };
     
     // زيادة عدد المشاهدات بشكل غير متزامن

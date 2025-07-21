@@ -59,18 +59,6 @@
   ],
   "shortcuts": [
     {
-      "name": "الأخبار العاجلة",
-      "short_name": "عاجل",
-      "description": "آخر الأخبار العاجلة",
-      "url": "/news?breaking=true",
-      "icons": [
-        {
-          "src": "/icons/breaking-news.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
       "name": "لحظة بلحظة",
       "short_name": "لحظة",
       "description": "تغطية الأحداث لحظة بلحظة",

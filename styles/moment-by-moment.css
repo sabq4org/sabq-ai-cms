@@ -251,20 +251,6 @@ body.moment-by-moment {
   border-left: 4px solid #a855f7;
 }
 
-/* تأثير خاص للأخبار العاجلة */
-.breaking-news-glow {
-  animation: breaking-glow 2s ease-in-out infinite alternate;
-}
-
-@keyframes breaking-glow {
-  from {
-    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1), 0 2px 4px -1px rgba(239, 68, 68, 0.06);
-  }
-  to {
-    box-shadow: 0 8px 25px -1px rgba(239, 68, 68, 0.25), 0 4px 6px -1px rgba(239, 68, 68, 0.1);
-  }
-}
-
 /* انتقالات سلسة */
 * {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;

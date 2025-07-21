@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { toast } from 'react-hot-toast';
 import MobileDashboardLayout from '@/components/mobile/MobileDashboardLayout';
-import InterestBasedBreakingNews from '@/components/mobile/InterestBasedBreakingNews';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
