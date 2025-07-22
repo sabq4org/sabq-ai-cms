@@ -8,6 +8,7 @@ import {
   Share2, MessageSquare, Layers
 } from 'lucide-react';
 import ArticleCard from '@/components/ArticleCard';
+import MobileNewsCard from '@/components/mobile/MobileNewsCard';
 import Footer from '@/components/Footer';
 import './news-styles.css';
 import '../categories/categories-fixes.css';
@@ -82,6 +83,7 @@ export default function NewsPage() {
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<NewsStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const ITEMS_PER_PAGE = 20;
 
@@ -164,6 +166,20 @@ export default function NewsPage() {
 
   useEffect(() => {
     fetchCategories();
+  }, []);
+
+  // كشف الموبايل
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    // فحص أولي
+    checkMobile();
+
+    // مراقبة تغيير حجم الشاشة
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
@@ -348,31 +364,33 @@ export default function NewsPage() {
                   <option value="views">الأكثر مشاهدة</option>
                 </select>
 
-                {/* View Mode Toggle */}
-                <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded transition-colors ${
-                      viewMode === 'grid' 
-                        ? 'bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400' 
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                    }`}
-                    title="عرض شبكي"
-                  >
-                    <Grid3X3 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded transition-colors ${
-                      viewMode === 'list' 
-                        ? 'bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400' 
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                    }`}
-                    title="عرض قائمة"
-                  >
-                    <List className="w-4 h-4" />
-                  </button>
-                </div>
+                {/* View Mode Toggle - مخفي في الموبايل */}
+                {!isMobile && (
+                  <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-2 rounded transition-colors ${
+                        viewMode === 'grid' 
+                          ? 'bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400' 
+                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                      }`}
+                      title="عرض شبكي"
+                    >
+                      <Grid3X3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-2 rounded transition-colors ${
+                        viewMode === 'list' 
+                          ? 'bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400' 
+                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                      }`}
+                      title="عرض قائمة"
+                    >
+                      <List className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -409,36 +427,68 @@ export default function NewsPage() {
             </div>
           ) : (
             <>
-              {/* Articles Grid/List - محسن ليتطابق مع الواجهة الرئيسية */}
-              <div className={viewMode === 'grid' 
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6' 
-                : 'space-y-4'
-              }>
-                {articles.map((article) => (
-                  <ArticleCard
-                    key={article.id}
-                    article={{
-                      ...article,
-                      category: article.category || (article.category_id ? {
-                        id: article.category_id.toString(),
-                        name: article.category_name || getCategoryName(article.category_id),
-                        slug: '',
-                        color: getCategoryColor(article.category_id),
-                        icon: null
-                      } : null),
-                      author: article.author || (article.author_name ? {
-                        id: article.author_id || '',
-                        name: article.author_name,
-                        email: ''
-                      } : null),
-                      views: article.views || article.views_count || 0,
-                      featured: article.featured || article.is_featured || false,
-                      breaking: article.breaking || article.is_breaking || false
-                    }}
-                    viewMode={viewMode}
-                  />
-                ))}
-              </div>
+              {/* Articles Grid/List - محسن للموبايل */}
+              {isMobile ? (
+                // عرض الموبايل - قائمة كاملة العرض
+                <div className="mobile-news-container">
+                  <div className="mobile-news-list">
+                    {articles.map((article) => (
+                      <MobileNewsCard
+                        key={article.id}
+                        article={{
+                          ...article,
+                          category: article.category || (article.category_id ? {
+                            id: article.category_id.toString(),
+                            name: article.category_name || getCategoryName(article.category_id),
+                            slug: '',
+                            color: getCategoryColor(article.category_id),
+                            icon: null
+                          } : null),
+                          author: article.author || (article.author_name ? {
+                            id: article.author_id || '',
+                            name: article.author_name,
+                            email: ''
+                          } : null),
+                          views: article.views || article.views_count || 0,
+                          featured: article.featured || article.is_featured || false,
+                          breaking: article.breaking || article.is_breaking || false
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                // عرض سطح المكتب - الشبكة العادية
+                <div className={viewMode === 'grid' 
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6' 
+                  : 'space-y-4'
+                }>
+                  {articles.map((article) => (
+                    <ArticleCard
+                      key={article.id}
+                      article={{
+                        ...article,
+                        category: article.category || (article.category_id ? {
+                          id: article.category_id.toString(),
+                          name: article.category_name || getCategoryName(article.category_id),
+                          slug: '',
+                          color: getCategoryColor(article.category_id),
+                          icon: null
+                        } : null),
+                        author: article.author || (article.author_name ? {
+                          id: article.author_id || '',
+                          name: article.author_name,
+                          email: ''
+                        } : null),
+                        views: article.views || article.views_count || 0,
+                        featured: article.featured || article.is_featured || false,
+                        breaking: article.breaking || article.is_breaking || false
+                      }}
+                      viewMode={viewMode}
+                    />
+                  ))}
+                </div>
+              )}
 
               {/* Load More */}
               {hasMore && (

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار عرض الأخبار - الموبايل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* نسخة مبسطة من CSS الخاص بنا */
+        .mobile-news-container {
+            width: 100%;
+            padding: 0 1rem;
+        }
+        .mobile-news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .mobile-news-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .mobile-news-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+        }
+        .mobile-news-image {
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    
+    <!-- عنوان الاختبار -->
+    <div class="bg-blue-600 text-white p-4 text-center">
+        <h1 class="text-xl font-bold">📱 اختبار عرض الأخبار - الموبايل</h1>
+        <p class="text-sm opacity-80 mt-1">عرض كامل العرض بدون أعمدة</p>
+    </div>
+
+    <!-- محتوى الاختبار -->
+    <div class="mobile-news-container py-4">
+        <div class="mobile-news-list">
+            
+            <!-- خبر 1 -->
+            <div class="mobile-news-card p-4">
+                <div class="flex gap-3">
+                    <div class="w-20 h-20 flex-shrink-0">
+                        <img src="https://via.placeholder.com/320x180/3b82f6/ffffff?text=صورة+الخبر+1" 
+                             alt="صورة الخبر" 
+                             class="mobile-news-image w-full h-full" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-gray-900 text-sm leading-snug mb-1">
+                            عنوان الخبر الأول - اختبار العرض الكامل للموبايل
+                        </h3>
+                        <p class="text-gray-600 text-xs leading-relaxed mb-2">
+                            ملخص سريع للخبر الأول لاختبار العرض...
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span>منذ ساعة</span>
+                            <span>👁 1.2k</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- خبر 2 -->
+            <div class="mobile-news-card p-4">
+                <div class="flex gap-3">
+                    <div class="w-20 h-20 flex-shrink-0">
+                        <img src="https://via.placeholder.com/320x180/10b981/ffffff?text=صورة+الخبر+2" 
+                             alt="صورة الخبر" 
+                             class="mobile-news-image w-full h-full" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-bold">
+                                🔥 عاجل
+                            </span>
+                        </div>
+                        <h3 class="font-bold text-gray-900 text-sm leading-snug mb-1">
+                            خبر عاجل - اختبار الشارات والتنسيق
+                        </h3>
+                        <p class="text-gray-600 text-xs leading-relaxed mb-2">
+                            ملخص الخبر العاجل مع شارة حمراء...
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span>منذ 30 دقيقة</span>
+                            <span>👁 2.5k</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- خبر 3 -->
+            <div class="mobile-news-card p-4">
+                <div class="flex gap-3">
+                    <div class="w-20 h-20 flex-shrink-0">
+                        <img src="https://via.placeholder.com/320x180/f59e0b/ffffff?text=صورة+الخبر+3" 
+                             alt="صورة الخبر" 
+                             class="mobile-news-image w-full h-full" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-gray-900 text-sm leading-snug mb-1">
+                            خبر رياضي - اختبار طول النص والتقطيع
+                        </h3>
+                        <p class="text-gray-600 text-xs leading-relaxed mb-2">
+                            ملخص طويل نسبياً للخبر الرياضي لاختبار كيف يتم التعامل مع النصوص الطويلة...
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span>منذ ساعتين</span>
+                            <span>👁 890</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- معلومات الاختبار -->
+    <div class="bg-white border-t p-4 text-center text-sm text-gray-600">
+        <p>✅ عرض كامل العرض (100%)</p>
+        <p>✅ بدون أعمدة متعددة</p>
+        <p>✅ تصميم متجاوب</p>
+        <p>✅ مساحات محسنة</p>
+    </div>
+
+</body>
+</html>
