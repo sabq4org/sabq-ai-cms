@@ -22,7 +22,7 @@ import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
 import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
 import ArticleStatsBlock from '@/components/article/ArticleStatsBlock';
-import SmartRecommendationBlock from '@/components/article/SmartRecommendationBlock';
+import SmartRelatedContent from '@/components/article/SmartRelatedContent';
 import '@/styles/mobile-article.css';
 import '@/styles/image-optimizations.css';
 import './article-styles.css';
@@ -280,12 +280,13 @@ export default function ArticleClientComponent({
             />
           </div>
 
-          {/* التوصيات الذكية */}
+          {/* المحتوى المرتبط المخصص */}
           <div className="mt-6 sm:mt-8">
-            <SmartRecommendationBlock
+            <SmartRelatedContent
               articleId={article.id}
               category={article.category?.name}
               tags={article.keywords || []}
+              darkMode={darkMode}
             />
           </div>
         </article>
