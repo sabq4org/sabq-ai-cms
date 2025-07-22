@@ -28,7 +28,7 @@ export default function PodcastBlock() {
       const res = await fetch('/api/audio/newsletters/featured');
       
       if (!res.ok) {
-        console.error('Failed to fetch podcast:', res.status, res.statusText);
+        // Failed to fetch podcast - handling gracefully
         setError(true);
         return;
       }
@@ -54,7 +54,7 @@ export default function PodcastBlock() {
         setError(true);
       }
     } catch (error) {
-      console.error('Error fetching podcast:', error);
+      // Error fetching podcast - handling gracefully
       setError(true);
     } finally {
       setLoading(false);
@@ -68,7 +68,8 @@ export default function PodcastBlock() {
       audioRef.current.pause();
     } else {
       audioRef.current.play().catch(error => {
-        console.error('Error playing audio:', error);
+        // Audio playback error - handling gracefully
+        setError(true);
       });
     }
     setIsPlaying(!isPlaying);
