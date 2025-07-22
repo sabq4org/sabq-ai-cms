@@ -10,9 +10,11 @@ import {
   Tag, ArrowRight, Calendar, Clock, Eye, Heart, 
   BookOpen, TrendingUp, Loader2, ChevronLeft,
   Trophy, Laptop, Building2, Leaf, Activity, Globe,
-  Grid, List, SortDesc, Sparkles, Filter, X, Check, Search, Zap, User, ArrowLeft, Newspaper
+  Grid, List, SortDesc, Sparkles, Filter, X, Check, Search, Zap, User, ArrowLeft, Newspaper,
+  AlertTriangle, RefreshCw
 } from 'lucide-react';
 import '../categories-fixes.css';
+import '../category-page-mobile.css';
 interface Category {
   id: number;
   name: string;
@@ -85,6 +87,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'newest' | 'views' | 'likes'>('newest');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
@@ -122,45 +125,116 @@ export default function CategoryDetailPage({ params }: PageProps) {
   const fetchCategoryData = async (slug: string) => {
     try {
       setLoading(true);
-      // جلب بيانات التصنيف
-      const categoriesResponse = await fetch('/api/categories');
-      if (categoriesResponse.ok) {
-        const categoriesData = await categoriesResponse.json();
-        const categories = categoriesData.categories || categoriesData.data || [];
-        const foundCategory = categories.find((cat: Category) => 
-          cat.slug === slug || cat.name_ar.toLowerCase().replace(/\s+/g, '-') === slug
-        );
-        if (!foundCategory) {
-          console.error('التصنيف غير موجود');
-          router.push('/categories');
+      setError(null); // إعادة تعيين الخطأ
+      
+      console.log('🔍 جلب بيانات التصنيف:', slug);
+      
+      // جلب بيانات التصنيف مع معالجة أخطاء
+      let categoriesResponse;
+      try {
+        categoriesResponse = await fetch('/api/categories', {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!categoriesResponse.ok) {
+          throw new Error(`فشل في جلب التصنيفات: ${categoriesResponse.status} ${categoriesResponse.statusText}`);
+        }
+      } catch (fetchError) {
+        console.error('❌ خطأ في fetch التصنيفات:', fetchError);
+        setError('فشل في الاتصال بالخادم لجلب التصنيفات');
+        return;
+      }
+
+      const categoriesData = await categoriesResponse.json();
+      const categories = categoriesData.categories || categoriesData.data || [];
+      
+      if (!Array.isArray(categories) || categories.length === 0) {
+        console.error('❌ لا توجد تصنيفات متاحة');
+        setError('لا توجد تصنيفات متاحة');
+        return;
+      }
+
+      console.log('✅ تم جلب', categories.length, 'تصنيف');
+      
+      const foundCategory = categories.find((cat: Category) => 
+        cat.slug === slug || cat.name_ar.toLowerCase().replace(/\s+/g, '-') === slug
+      );
+      
+      if (!foundCategory) {
+        console.error('❌ التصنيف غير موجود:', slug);
+        setError(`التصنيف "${slug}" غير موجود`);
+        // بدلاً من إعادة التوجيه المباشر، نعرض رسالة خطأ
+        return;
+      }
+      
+      setCategory(foundCategory);
+      console.log('✅ تم جلب التصنيف:', foundCategory.name);
+      
+      // جلب المقالات الخاصة بالتصنيف مع معالجة أخطاء
+      let articlesResponse;
+      try {
+        articlesResponse = await fetch(`/api/articles?category_id=${foundCategory.id}&status=published`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!articlesResponse.ok) {
+          // إذا فشل جلب المقالات، نعرض التصنيف بدون مقالات
+          console.warn('⚠️ فشل في جلب المقالات، سيتم عرض التصنيف بدون مقالات');
+          setArticles([]);
           return;
         }
-        setCategory(foundCategory);
-        console.log('تم جلب التصنيف:', foundCategory.name);
-        
-        // جلب المقالات الخاصة بالتصنيف
-        const articlesResponse = await fetch(`/api/articles?category_id=${foundCategory.id}`);
-        if (articlesResponse.ok) {
-          const articlesData = await articlesResponse.json();
-          console.log('البيانات المستلمة:', articlesData.data?.length || 0, 'مقال');
-          
-          // تحويل البيانات لتطابق الواجهة
-          const transformedArticles = (articlesData.data || []).map((article: any) => ({
-            ...article,
-            views_count: article.views_count || article.views || 0,
-            likes_count: article.likes_count || 0,
-            category_name: article.category_name || article.category?.name || foundCategory.name,
-            author_name: article.author_name || article.author?.name || 'غير محدد',
-            published_at: article.published_at || article.created_at,
-            is_featured: article.featured || article.is_featured || false,
-            is_breaking: article.breaking === true || article.is_breaking === true || false
-          }));
-          setArticles(transformedArticles);
-          console.log('تم تحويل المقالات:', transformedArticles.length);
-        }
+      } catch (articlesError) {
+        console.warn('⚠️ خطأ في fetch المقالات:', articlesError);
+        setArticles([]);
+        return;
       }
+
+      const articlesData = await articlesResponse.json();
+      console.log('📊 البيانات المستلمة:', articlesData.data?.length || 0, 'مقال');
+      
+      // التحقق من صحة بيانات المقالات
+      const rawArticles = articlesData.data || articlesData.articles || [];
+      if (!Array.isArray(rawArticles)) {
+        console.warn('⚠️ بيانات المقالات ليست مصفوفة');
+        setArticles([]);
+        return;
+      }
+
+      // تحويل البيانات لتطابق الواجهة مع معالجة آمنة
+      const transformedArticles = rawArticles
+        .filter((article: any) => article && article.id && article.title) // فلترة المقالات غير الصالحة
+        .map((article: any) => {
+          try {
+            return {
+              ...article,
+              views_count: parseInt(article.views_count || article.views || 0, 10) || 0,
+              likes_count: parseInt(article.likes_count || 0, 10) || 0,
+              category_name: article.category_name || article.category?.name || foundCategory.name || 'غير محدد',
+              author_name: article.author_name || article.author?.name || 'غير محدد',
+              published_at: article.published_at || article.created_at || new Date().toISOString(),
+              is_featured: Boolean(article.featured || article.is_featured),
+              is_breaking: Boolean(article.breaking || article.is_breaking),
+              excerpt: article.excerpt || article.summary || '',
+              reading_time: parseInt(article.reading_time || 5, 10) || 5
+            };
+          } catch (transformError) {
+            console.warn('⚠️ خطأ في تحويل مقال:', article.id, transformError);
+            return null;
+          }
+        })
+        .filter(Boolean); // إزالة المقالات التي فشل تحويلها
+
+      setArticles(transformedArticles);
+      console.log('✅ تم تحويل المقالات:', transformedArticles.length);
+      
     } catch (error) {
-      console.error('Error fetching category data:', error);
+      console.error('❌ خطأ عام في fetchCategoryData:', error);
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -279,6 +353,37 @@ export default function CategoryDetailPage({ params }: PageProps) {
       </>
     );
   }
+
+  if (error) {
+    return (
+      <>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+          <div className="text-center max-w-md mx-auto p-6">
+            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">حدث خطأ</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
+            <div className="flex gap-3 justify-center">
+              <button 
+                onClick={() => window.location.reload()} 
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
+              >
+                <RefreshCw className="w-5 h-5" />
+                إعادة المحاولة
+              </button>
+              <Link 
+                href="/categories" 
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-colors"
+              >
+                <ArrowRight className="w-5 h-5" />
+                العودة للتصنيفات
+              </Link>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   if (!category) {
     return (
       <>
@@ -447,11 +552,14 @@ export default function CategoryDetailPage({ params }: PageProps) {
           <>
             {/* Mobile View */}
             <div className="md:hidden space-y-4">
-                {filteredArticles.map((article) => (
-                <Link key={article.id} href={getArticleLink(article)} className="block">
-                  <article className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden active:scale-[0.98] transition-transform">
-                    {/* Mobile Card Layout */}
-                    <div className="flex p-4 gap-3">
+                {filteredArticles && filteredArticles.length > 0 ? (
+                  filteredArticles.map((article) => {
+                    try {
+                      return (
+                        <Link key={article?.id || Math.random()} href={getArticleLink(article)} className="block">
+                          <article className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden active:scale-[0.98] transition-transform">
+                            {/* Mobile Card Layout */}
+                            <div className="flex p-4 gap-3">
                       {/* Thumbnail */}
                       <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
                         {article.featured_image ? (
@@ -517,18 +625,32 @@ export default function CategoryDetailPage({ params }: PageProps) {
                     </div>
                   </article>
                 </Link>
-              ))}
+                      );
+                    } catch (error) {
+                      console.error('Error rendering article:', error);
+                      return null;
+                    }
+                  })
+                ) : (
+                  <div className="text-center py-8">
+                    <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">لا توجد مقالات للعرض</p>
+                  </div>
+                )}
             </div>
 
             {/* Desktop View - Keep existing */}
             <div className="hidden md:block">
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {filteredArticles.map((article) => (
-                    <Link key={article.id} href={getArticleLink(article)} className="group block">
-                      <article className={`article-card h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 ${
-                        article.is_breaking 
-                          ? 'bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800'
+                  {filteredArticles && filteredArticles.length > 0 ? (
+                    filteredArticles.map((article) => {
+                      try {
+                        return (
+                          <Link key={article?.id || Math.random()} href={getArticleLink(article)} className="group block">
+                            <article className={`article-card h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 ${
+                              article?.is_breaking 
+                                ? 'bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800'
                           : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'
                       }`}>
                         {/* صورة المقال */}
@@ -635,15 +757,29 @@ export default function CategoryDetailPage({ params }: PageProps) {
                       </div>
                     </article>
                   </Link>
-                ))}
+                        );
+                      } catch (error) {
+                        console.error('Error rendering grid article:', error);
+                        return null;
+                      }
+                    })
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500">لا توجد مقالات للعرض</p>
+                    </div>
+                  )}
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredArticles.map((article) => (
-                  <Link key={article.id} href={getArticleLink(article)} className="group block">
-                    <article className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6 ${
-                      article.is_breaking 
-                        ? 'border-2 border-red-200 dark:border-red-800'
+                {filteredArticles && filteredArticles.length > 0 ? (
+                  filteredArticles.map((article) => {
+                    try {
+                      return (
+                        <Link key={article?.id || Math.random()} href={getArticleLink(article)} className="group block">
+                          <article className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6 ${
+                            article?.is_breaking 
+                              ? 'border-2 border-red-200 dark:border-red-800'
                         : 'border border-gray-100 dark:border-gray-700'
                     }`}>
                       {/* Image */}
@@ -736,7 +872,18 @@ export default function CategoryDetailPage({ params }: PageProps) {
                       </div>
                     </article>
                   </Link>
-                ))}
+                      );
+                    } catch (error) {
+                      console.error('Error rendering list article:', error);
+                      return null;
+                    }
+                  })
+                ) : (
+                  <div className="text-center py-12">
+                    <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">لا توجد مقالات للعرض</p>
+                  </div>
+                )}
               </div>
             )}
             </div>
