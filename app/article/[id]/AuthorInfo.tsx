@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { User, Calendar, Clock, Eye, ChevronRight } from 'lucide-react';
+import { formatDateGregorian, formatTimeOnly } from '@/lib/date-utils';
 
 interface AuthorData {
   id?: string;
@@ -27,33 +28,13 @@ export default function AuthorInfo({
   className = "" 
 }: AuthorInfoProps) {
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) {
-      return 'اليوم';
-    } else if (diffDays === 1) {
-      return 'أمس';
-    } else if (diffDays < 7) {
-      return `منذ ${diffDays} أيام`;
-    } else {
-      return date.toLocaleDateString('ar-SA', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    }
+    // استخدام النظام الموحد للتاريخ الميلادي العربي
+    return formatDateGregorian(dateString);
   };
 
   const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('ar-SA', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
+    // استخدام النظام الموحد لتنسيق الوقت
+    return formatTimeOnly(dateString);
   };
 
   return (

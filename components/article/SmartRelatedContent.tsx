@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { formatRelativeDate } from '@/lib/date-utils';
 import { 
   Clock, User, Eye, Brain, Edit, Newspaper, TrendingUp, 
   ChevronRight, Sparkles, BarChart3, MessageCircle 
@@ -52,25 +53,9 @@ const getBadgeColors = (type: string) => {
   }
 };
 
-// تنسيق الوقت
+// تنسيق الوقت باستخدام النظام الموحد
 const formatTimeAgo = (dateString: string) => {
-  try {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 60) {
-      return `منذ ${diffInMinutes} دقيقة`;
-    } else if (diffInMinutes < 1440) {
-      const hours = Math.floor(diffInMinutes / 60);
-      return `منذ ${hours} ${hours === 1 ? 'ساعة' : 'ساعات'}`;
-    } else {
-      const days = Math.floor(diffInMinutes / 1440);
-      return `منذ ${days} ${days === 1 ? 'يوم' : 'أيام'}`;
-    }
-  } catch {
-    return 'حديثاً';
-  }
+  return formatRelativeDate(dateString);
 };
 
 // مكون البطاقة الأفقية
@@ -290,13 +275,13 @@ export default function SmartRelatedContent({
         {/* عنوان القسم */}
         <div className="flex items-center gap-2 mb-6">
           <div className="flex items-center gap-2">
-            <Sparkles className={`w-5 h-5 ${
+            <Brain className={`w-5 h-5 ${
               darkMode ? 'text-blue-400' : 'text-blue-600'
             }`} />
             <h2 className={`text-lg font-bold ${
               darkMode ? 'text-white' : 'text-gray-900'
             }`}>
-              محتوى مخصص لك
+              مخصص لك بذكاء
             </h2>
           </div>
         </div>

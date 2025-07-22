@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import PageWrapper from '@/components/PageWrapper';
-import DeepAnalysisWidget from '@/components/DeepAnalysisWidget';
+import DeepAnalysisBlock from '@/components/DeepAnalysisBlock';
 import FooterDashboard from '@/components/FooterDashboard';
 import Footer from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -136,9 +136,7 @@ function NewspaperHomePage({
   const getOrderedBlocks = () => {
     return [] as Array<{ key: string; component: React.ReactNode }>;
   };
-  // التحليلات العميقة
-  const [deepInsights, setDeepInsights] = useState<any[]>(initialDeepAnalyses);
-  const [deepInsightsLoading, setDeepInsightsLoading] = useState<boolean>(initialDeepAnalyses.length === 0);
+  
   // التصنيفات
   const [categories, setCategories] = useState<any[]>(initialCategories);
   const [categoriesLoading, setCategoriesLoading] = useState<boolean>(initialCategories.length === 0);
@@ -252,31 +250,6 @@ function NewspaperHomePage({
       </Link>
     );
   };
-  // جلب التحليلات العميقة عند التحميل
-  useEffect(() => {
-    const fetchDeepInsights = async () => {
-      // إذا كانت البيانات الأولية متوفرة، استخدمها
-      if (initialDeepAnalyses.length > 0) {
-        setDeepInsights(initialDeepAnalyses);
-        setDeepInsightsLoading(false);
-        return;
-      }
-      
-      // وإلا، جلب البيانات من API
-      try {
-        setDeepInsightsLoading(true);
-        const response = await fetch('/api/deep-analyses?limit=5&sortBy=analyzed_at&sortOrder=desc');
-        const data = await response.json();
-        const rawList = Array.isArray(data) ? data : (data.analyses ?? []);
-        setDeepInsights(rawList);
-      } catch (error) {
-        console.error('خطأ في جلب التحليلات العميقة:', error);
-      } finally {
-        setDeepInsightsLoading(false);
-      }
-    };
-    fetchDeepInsights();
-  }, [initialDeepAnalyses]);
   // =============================
   // جلب التصنيفات عند التحميل
   useEffect(() => {
@@ -400,7 +373,7 @@ function NewspaperHomePage({
       <SmartDigestBlock />
       {/* التحليل العميق - ثالث بلوك */}
       <div className="w-full">
-         <DeepAnalysisWidget insights={deepInsights} />
+         <DeepAnalysisBlock className="col-span-1" maxItems={3} />
       </div>
       {/* Smart Blocks - قبل المحتوى المخصص (محتوى مخصص لك) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

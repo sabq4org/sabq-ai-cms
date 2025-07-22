@@ -22,7 +22,7 @@ import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
 import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
 import ArticleStatsBlock from '@/components/article/ArticleStatsBlock';
-import SmartRelatedContent from '@/components/article/SmartRelatedContent';
+import SmartPersonalizedContent from '@/components/article/SmartPersonalizedContent';
 import '@/styles/mobile-article.css';
 import '@/styles/image-optimizations.css';
 import './article-styles.css';
@@ -280,14 +280,15 @@ export default function ArticleClientComponent({
             />
           </div>
 
-          {/* المحتوى المرتبط المخصص */}
+          {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
           <div className="mt-6 sm:mt-8">
-            <SmartRelatedContent
+            <SmartPersonalizedContent
               articleId={article.id}
               categoryId={article.category_id}
               categoryName={article.category?.name}
               tags={article.keywords || []}
               darkMode={darkMode}
+              userId={undefined} // يمكن تمرير معرف المستخدم عند التسجيل
             />
           </div>
         </article>

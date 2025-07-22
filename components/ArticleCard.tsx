@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, User, Sparkles, Zap, Heart, Calendar, ArrowLeft, Newspaper } from 'lucide-react';
-import { formatDate } from '@/lib/date-utils';
+import { formatDateGregorian } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 import { getArticleLink } from '@/lib/utils';
 
@@ -132,7 +132,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
               <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  {String(formatDate(article.published_at || article.created_at) || '')}
+                  {String(formatDateGregorian(article.published_at || article.created_at) || '')}
                 </span>
                 {article.reading_time && (
                   <span className="flex items-center gap-1">
@@ -245,7 +245,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
               {/* التاريخ */}
               <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 sm:gap-2">
                 <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-                {String(formatDate(article.published_at || article.created_at) || '')}
+                {String(formatDateGregorian(article.published_at || article.created_at) || '')}
               </div>
               {/* الكاتب والمشاهدات */}
               <div className="flex items-center gap-2 sm:gap-3 text-xs">

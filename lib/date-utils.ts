@@ -1,40 +1,25 @@
 /**
- * دالة تنسيق التاريخ الثابتة لتجنب مشاكل الهيدريشن في Next.js
- * تضمن نفس النتيجة على الخادم والعميل
+ * 🗓️ نظام التاريخ الموحد - سبق الذكية
+ * التاريخ المعتمد في الواجهة هو الميلادي فقط، بصيغة عربية (d MMMM yyyy)
+ * مثال: 13 يوليو 2025
  */
-
-interface DateFormatOptions {
-  includeYear?: boolean;
-  includeTime?: boolean;
-  format?: 'full' | 'short' | 'minimal';
-}
 
 /**
- * تنسيق التاريخ بطريقة ثابتة لتجنب اختلافات الهيدريشن
+ * ✅ دالة تنسيق التاريخ الميلادي الموحدة (باللغة العربية)
+ * تعرض التاريخ بصيغة: "13 يوليو 2025" 
  */
-export function formatDate(dateString: string | undefined, options: DateFormatOptions = {}): string {
-  if (!dateString) return 'اليوم';
-  
-  const { includeYear = false, includeTime = false, format = 'short' } = options;
+export function formatDateGregorian(dateString: string | undefined): string {
+  if (!dateString) return '';
   
   try {
     const date = new Date(dateString);
     
     // تحقق من صحة التاريخ
     if (isNaN(date.getTime())) {
-      return 'تاريخ غير صحيح';
+      return '';
     }
     
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    // للتواريخ الحديثة، نعرض نص نسبي
-    if (diffDays === 0) return 'اليوم';
-    if (diffDays === 1) return 'أمس';
-    if (diffDays < 7 && format !== 'full') return `منذ ${diffDays} أيام`;
-    
-    // تنسيق ثابت للتاريخ
+    // أسماء الأشهر باللغة العربية
     const months = [
       'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
       'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
@@ -44,173 +29,155 @@ export function formatDate(dateString: string | undefined, options: DateFormatOp
     const month = months[date.getMonth()];
     const year = date.getFullYear();
     
-    // تنسيق قصير بدون فاصلة لتجنب مشاكل الهيدريشن
-    let formattedDate = `${day} ${month}`;
-    
-    if (includeYear || year !== now.getFullYear()) {
-      formattedDate += ` ${year}`;
-    }
-    
-    if (includeTime) {
-      const hours = date.getHours().toString().padStart(2, '0');
-      const minutes = date.getMinutes().toString().padStart(2, '0');
-      formattedDate += ` ${hours}:${minutes}`;
-    }
-    
-    return formattedDate;
+    return `${day} ${month} ${year}`;
   } catch (error) {
-    console.error('خطأ في تنسيق التاريخ:', error);
-    return 'تاريخ غير صحيح';
+    console.error('خطأ في تنسيق التاريخ الميلادي:', error);
+    return '';
   }
 }
 
 /**
- * تنسيق التاريخ للعرض المختصر (يوم وشهر فقط)
+ * 📅 دالة التاريخ الكامل للاستخدام في واجهة المقالات
+ * تعرض: "13 يوليو 2025"
  */
-export function formatDateShort(dateString: string | undefined): string {
-  return formatDate(dateString, { format: 'short' });
+export function formatFullDate(dateString: string | undefined): string {
+  return formatDateGregorian(dateString);
 }
 
 /**
- * تنسيق التاريخ مع السنة
+ * ⏰ دالة التاريخ النسبي للاستخدام في الكروت
+ * تعرض: "منذ ساعتين" أو "13 يوليو 2025" للتواريخ القديمة
  */
-export function formatDateWithYear(dateString: string | undefined): string {
-  return formatDate(dateString, { includeYear: true });
-}
-
-/**
- * تنسيق التاريخ مع الوقت
- */
-export function formatDateWithTime(dateString: string | undefined): string {
-  return formatDate(dateString, { includeTime: true });
-}
-
-/**
- * تحويل التاريخ النسبي (منذ x دقائق/ساعات/أيام)
- */
-export function formatRelativeTime(dateString: string | undefined): string {
-  if (!dateString) return 'غير محدد';
+export function formatRelativeDate(dateString: string | undefined): string {
+  if (!dateString) return '';
   
   try {
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
-    const diffMinutes = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
     
-    if (diffMinutes < 1) return 'الآن';
-    if (diffMinutes < 60) return `منذ ${diffMinutes} دقيقة`;
-    if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+    // للتواريخ الحديثة (أقل من 24 ساعة)
+    if (diffHours < 1) return 'منذ أقل من ساعة';
+    if (diffHours < 24) return `منذ ${diffHours} ${diffHours === 1 ? 'ساعة' : 'ساعات'}`;
+    if (diffDays === 1) return 'أمس';
     if (diffDays < 7) return `منذ ${diffDays} أيام`;
-    if (diffDays < 30) return `منذ ${Math.floor(diffDays / 7)} أسابيع`;
-    if (diffDays < 365) return `منذ ${Math.floor(diffDays / 30)} شهر`;
     
-    return formatDate(dateString, { includeYear: true });
+    // للتواريخ الأقدم، نعرض التاريخ الكامل
+    return formatDateGregorian(dateString);
   } catch (error) {
-    console.error('خطأ في تنسيق الوقت النسبي:', error);
-    return 'غير محدد';
+    console.error('خطأ في تنسيق التاريخ النسبي:', error);
+    return formatDateGregorian(dateString);
   }
 }
 
 /**
- * تنسيق التاريخ بطريقة آمنة مع نص بديل
- */
-export function formatDateSafe(
-  dateString: string | undefined, 
-  format: 'full' | 'short' | 'minimal' = 'short', 
-  fallback: string = 'غير محدد'
-): string {
-  if (!dateString) return fallback;
-  
-  try {
-    const options: DateFormatOptions = {
-      format,
-      includeYear: format === 'full',
-      includeTime: format === 'full'
-    };
-    
-    const result = formatDate(dateString, options);
-    return result === 'تاريخ غير صحيح' ? fallback : result;
-  } catch (error) {
-    console.error('خطأ في formatDateSafe:', error);
-    return fallback;
-  }
-}
-
-/**
- * تنسيق التاريخ والوقت معاً
+ * ⏱️ دالة للتاريخ مع الوقت
+ * تعرض: "13 يوليو 2025 الساعة 14:30"
  */
 export function formatDateTime(dateString: string | undefined): string {
-  return formatDate(dateString, { includeTime: true, includeYear: true });
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+    
+    const formattedDate = formatDateGregorian(dateString);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${formattedDate} الساعة ${hours}:${minutes}`;
+  } catch (error) {
+    console.error('خطأ في تنسيق التاريخ والوقت:', error);
+    return formatDateGregorian(dateString);
+  }
 }
 
 /**
- * تنسيق التاريخ النسبي المتقدم
+ * 📆 دالة تنسيق مختصر للتاريخ (بدون السنة إذا كانت نفس السنة الحالية)
+ * تعرض: "13 يوليو" أو "13 يوليو 2024" 
  */
-export function formatRelativeDate(dateString: string | undefined): string {
-  if (!dateString) return 'غير محدد';
+export function formatDateShort(dateString: string | undefined): string {
+  if (!dateString) return '';
   
   try {
     const date = new Date(dateString);
     const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 0) return 'اليوم';
-    if (diffDays === 1) return 'أمس';
-    if (diffDays < 7) return `منذ ${diffDays} أيام`;
-    if (diffDays < 30) return `منذ ${Math.floor(diffDays / 7)} أسابيع`;
-    if (diffDays < 365) return `منذ ${Math.floor(diffDays / 30)} شهر`;
+    if (isNaN(date.getTime())) {
+      return '';
+    }
     
-    return `منذ ${Math.floor(diffDays / 365)} سنة`;
+    const months = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    // إذا كانت نفس السنة الحالية، لا نعرض السنة
+    if (year === now.getFullYear()) {
+      return `${day} ${month}`;
+    }
+    
+    return `${day} ${month} ${year}`;
   } catch (error) {
-    console.error('خطأ في formatRelativeDate:', error);
-    return 'غير محدد';
+    console.error('خطأ في تنسيق التاريخ المختصر:', error);
+    return '';
   }
-} 
-
-/**
- * تنسيق التاريخ الكامل مع الوقت
- */
-export function formatFullDate(dateString: string | undefined): string {
-  return formatDate(dateString, { includeYear: true, includeTime: true, format: 'full' });
 }
 
 /**
- * تنسيق التاريخ فقط بدون وقت
+ * ☀️ فحص إذا كان التاريخ اليوم
  */
-export function formatDateOnly(dateString: string | undefined): string {
-  return formatDate(dateString, { includeYear: true, includeTime: false, format: 'short' });
+export function isToday(dateString: string): boolean {
+  if (!dateString) return false;
+  
+  try {
+    const date = new Date(dateString);
+    const today = new Date();
+    
+    return date.toDateString() === today.toDateString();
+  } catch {
+    return false;
+  }
 }
 
 /**
- * التحقق من صحة التاريخ وإصلاحه
+ * � دالة للوقت فقط
+ * تعرض: "14:30"
  */
-export function validateAndFixDate(dateString: string | undefined): string | null {
-  if (!dateString) return null;
+export function formatTimeOnly(dateString: string | undefined): string {
+  if (!dateString) return '';
   
   try {
     const date = new Date(dateString);
     
-    // تحقق من صحة التاريخ
     if (isNaN(date.getTime())) {
-      // محاولة إصلاح التاريخ
-      const fixedDate = dateString.replace(/\//g, '-');
-      const newDate = new Date(fixedDate);
-      
-      if (!isNaN(newDate.getTime())) {
-        return newDate.toISOString();
-      }
-      
-      return null;
+      return '';
     }
     
-    return date.toISOString();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${hours}:${minutes}`;
   } catch (error) {
-    console.error('خطأ في validateAndFixDate:', error);
-    return null;
+    console.error('خطأ في تنسيق الوقت:', error);
+    return '';
   }
 }
 
-// إعادة تصدير جميع الدوال
-export * from './date-utils'; 
+/**
+ * 🔍 فحص صحة التاريخ
+ */
+export function isValidDate(dateString: string): boolean {
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  return !isNaN(date.getTime());
+}
