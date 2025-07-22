@@ -105,27 +105,35 @@ export async function getSpaNextNews({
   console.log("Headers:", getHeaders());
   
   try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      
-      headers: getHeaders(),
-      body: JSON.stringify(payload),
-    });
-    
+    // دعم timeout عبر AbortController
+    const controller = new AbortController();
+    const timeoutMs = 15000; // 15 ثانية
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    let response;
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+    } catch (err: any) {
+      if (err && typeof err === 'object' && 'name' in err && (err as any).name === 'AbortError') {
+        throw new Error('انتهت مهلة الاتصال بجلب الأخبار من وكالة الأنباء السعودية (SPA). يرجى المحاولة لاحقاً أو زيادة المهلة.');
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeoutId);
+    }
     const data = await response.json();
-    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
     console.log("✅ News API Call succeeded!");
     console.log("Response:", JSON.stringify(data, null, 2));
     return data;
-    
   } catch (error: any) {
     console.error("❌ Error fetching SPA news:", error);
-    console.error("Response status:", error?.response?.status);
-    console.error("Response data:", error?.response?.data);
     console.error("Endpoint used:", endpoint);
     throw error;
   }

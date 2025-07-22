@@ -60,21 +60,41 @@ export default function DeepAnalysesPage() {
   const fetchAnalyses = async () => {
     try {
       setLoading(true);
-      let url = `/api/deep-analysis?page=${page}&limit=9`;
+      let url = `/api/deep-analyses?page=${page}&limit=9`;
       
       if (filter !== 'all') {
         url += `&status=${filter}`;
       }
       
-      const response = await fetch(url);
-      const data = await response.json();
+      // إضافة timeout لتجنب مشاكل انتهاء المهلة
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
+
+      try {
+        const response = await fetch(url, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        const data = await response.json();
+        
+        console.log('📊 Deep Analysis Page API Response:', data); // للتشخيص
       
-      if (data.success) {
-        const analysesArray = data.data;
-        const uniqueCategories = [...new Set(analysesArray.flatMap((a: DeepAnalysis) => a.categories || []))];
-        setCategories(uniqueCategories as string[]);
-        setAnalyses(analysesArray);
-        setTotalPages(data.pagination.totalPages);
+        if (data.success) {
+          // إصلاح قراءة البيانات من API - يمكن أن تكون في data.analyses أو data.data
+          const analysesArray = data.analyses || data.data || [];
+          const uniqueCategories = [...new Set(analysesArray.flatMap((a: DeepAnalysis) => a.categories || []))];
+          setCategories(uniqueCategories as string[]);
+          setAnalyses(analysesArray);
+          setTotalPages(data.pagination?.totalPages || Math.ceil((data.total || 0) / 10));
+        }
+      } catch (timeoutError) {
+        console.error('Request timeout or error:', timeoutError);
+        if (timeoutError instanceof Error && timeoutError.name === 'AbortError') {
+          toast.error('انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.');
+        } else {
+          toast.error('حدث خطأ في الاتصال بالخادم');
+        }
       }
     } catch (error) {
       console.error('Error fetching analyses:', error);

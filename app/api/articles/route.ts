@@ -72,7 +72,21 @@ export async function GET(request: NextRequest) {
     const cacheKey = `articles:${status}:${categoryId || 'all'}:${sortBy}:${order}:${page}:${limit}`;
 
     // بناء شروط البحث المحسنة
-    const where: any = { status };
+    const where: any = {};
+    
+    // إضافة فلترة الحالة - دعم "all" للداشبورد
+    if (status && status !== 'all') {
+      where.status = status;
+    } else if (!status || status === 'published') {
+      // افتراضي: فقط المنشورة للصفحة الرئيسية
+      where.status = 'published';
+    } else if (status === 'all') {
+      // للداشبورد: كل الحالات عدا المحذوفة
+      where.status = {
+        not: 'deleted'
+      };
+    }
+    
     if (categoryId && categoryId !== 'all') {
       where.category_id = categoryId;
     }
@@ -122,6 +136,7 @@ export async function GET(request: NextRequest) {
               saves: true,
               featured: true,
               breaking: true,
+              status: true, // إضافة حقل الحالة
               // علاقات محدودة
               categories: {
                 select: {

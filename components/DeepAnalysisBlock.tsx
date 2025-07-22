@@ -76,6 +76,7 @@ export default function DeepAnalysisBlock({
   const [isMobile, setIsMobile] = useState(false);
   const [realAnalyses, setRealAnalyses] = useState<DeepInsight[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // تحديد نوع الجهاز
   useEffect(() => {
@@ -90,23 +91,46 @@ export default function DeepAnalysisBlock({
   // جلب البيانات الحقيقية فقط إذا لم يتم تمريرها كـ props
   useEffect(() => {
     const fetchAnalyses = async () => {
-      // إذا كانت البيانات متوفرة كـ props، استخدمها
-      if (insights && insights.length > 0) {
-        setRealAnalyses(insights);
-        setLoading(false);
-        return;
-      }
-
       // وإلا، جلب البيانات من API
       setLoading(true);
       try {
-        const response = await fetch(`/api/deep-analyses?limit=${maxItems}&sortBy=analyzed_at&sortOrder=desc`);
-        if (response.ok) {
-          const data = await response.json();
-          setRealAnalyses(data.analyses || []);
+        // إضافة timeout لتجنب مشاكل انتهاء المهلة
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
+
+        try {
+          const response = await fetch(`/api/deep-analyses?limit=${maxItems}&sortBy=analyzed_at&sortOrder=desc`, {
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log('📊 Deep Analysis API Response:', data); // للتشخيص
+            
+            // إصلاح قراءة البيانات من API
+            const analyses = data.analyses || data.data || [];
+            setRealAnalyses(analyses);
+            
+            if (analyses.length === 0) {
+              console.warn('⚠️ لا توجد تحليلات عميقة في قاعدة البيانات');
+            } else {
+              console.log(`✅ تم جلب ${analyses.length} تحليل عميق بنجاح`);
+            }
+          } else {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+        } catch (fetchError: any) {
+          clearTimeout(timeoutId);
+          if (fetchError.name === 'AbortError') {
+            throw new Error('انتهت مهلة تحميل التحليلات العميقة. يرجى المحاولة مرة أخرى.');
+          }
+          throw fetchError;
         }
       } catch (error) {
-        console.error('خطأ في جلب التحليلات:', error);
+        console.error('❌ خطأ في جلب التحليلات العميقة:', error);
+        // عرض رسالة خطأ للمستخدم
+        setError(error instanceof Error ? error.message : 'حدث خطأ في تحميل التحليلات');
       } finally {
         setLoading(false);
       }
@@ -223,10 +247,10 @@ export default function DeepAnalysisBlock({
 
   return (
     <div id="deep-analysis-highlight" className={`py-8 relative overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 ${className}`}>
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
-        {/* العنوان والوصف */}
-        {showTitle && (
-          <div className="text-center mb-8 max-w-3xl mx-auto">
+      {/* العنوان والوصف - محصور في container */}
+      {showTitle && (
+        <div className="max-w-7xl mx-auto px-4 relative z-10 mb-8">
+          <div className="text-center max-w-3xl mx-auto">
             <div className="flex flex-col items-center gap-3">
               <div className="p-4 bg-white/20 backdrop-blur-sm rounded-full shadow-2xl ring-2 ring-white/30">
                 <Brain className="w-8 h-8 text-white drop-shadow-lg" />
@@ -239,7 +263,11 @@ export default function DeepAnalysisBlock({
               رؤى استراتيجية ودراسات معمقة بالذكاء الاصطناعي
             </p>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* البطاقات - ممتدة بالكامل */}
+      <div className="relative z-10 w-full px-4">{/* تم إزالة max-w-7xl mx-auto لجعلها ممتدة بالكامل */}
 
         {/* البطاقات - صف أفقي قابل للتمرير */}
         {isMobile ? (
@@ -291,19 +319,41 @@ export default function DeepAnalysisBlock({
                 </div>
               ))
             ) : displayInsights.length === 0 ? (
-              // عرض حالة عدم وجود بيانات
+              // عرض حالة عدم وجود بيانات أو خطأ
               <div className="col-span-full flex flex-col items-center justify-center py-16">
                 <Brain className="w-16 h-16 text-gray-400 mb-4" />
-                <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                  سيتم تحديث التحليلات العميقة قريباً
-                </h3>
-                <p className={`text-center mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  نحن نعمل على إعداد تحليلات عميقة بالذكاء الاصطناعي لأحدث الأخبار
-                </p>
-                <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
-                  <Bot className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm text-blue-700">قيد المعالجة بواسطة الذكاء الاصطناعي</span>
-                </div>
+                {error ? (
+                  <>
+                    <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+                      حدث خطأ في تحميل التحليلات
+                    </h3>
+                    <p className={`text-center mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {error}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setError(null);
+                        window.location.reload();
+                      }}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                      إعادة المحاولة
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                      سيتم تحديث التحليلات العميقة قريباً
+                    </h3>
+                    <p className={`text-center mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      نحن نعمل على إعداد تحليلات عميقة بالذكاء الاصطناعي لأحدث الأخبار
+                    </p>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+                      <Bot className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm text-blue-700">قيد المعالجة بواسطة الذكاء الاصطناعي</span>
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               displayInsights.slice(0, maxItems).map((item, index) => {
@@ -505,7 +555,7 @@ export default function DeepAnalysisBlock({
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           </Link>
         </div>
-      </div>
+      </div>{/* إغلاق div البطاقات الممتدة */}
 
       <style jsx>{`
         /* إخفاء شريط التمرير */

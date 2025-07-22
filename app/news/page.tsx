@@ -110,12 +110,26 @@ export default function NewsPage() {
         params.append('category_id', selectedCategory.toString());
       }
       
-      const response = await fetch(`/api/news/stats?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch stats');
-      const data = await response.json();
+      // دعم timeout للإحصائيات أيضًا
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 ثواني للإحصائيات
       
-      if (data.success && data.stats) {
-        setStats(data.stats);
+      try {
+        const response = await fetch(`/api/news/stats?${params}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) throw new Error('Failed to fetch stats');
+        const data = await response.json();
+        
+        if (data.success && data.stats) {
+          setStats(data.stats);
+        }
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        // لا نظهر خطأ للمستخدم في حالة فشل الإحصائيات، فقط نسجل في console
+        console.warn('فشل في تحميل الإحصائيات:', fetchError.message);
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -144,22 +158,41 @@ export default function NewsPage() {
         params.append('category_id', selectedCategory.toString());
       }
 
-      const response = await fetch(`/api/articles?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch articles');
-      
-      const data = await response.json();
-      
-      if (reset) {
-        setArticles(data.articles || []);
-        setPage(1);
-      } else {
-        setArticles(prev => [...prev, ...(data.articles || [])]);
+      // دعم timeout لتجنب مشاكل انتهاء المهلة
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
+
+      try {
+        const response = await fetch(`/api/articles?${params}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) throw new Error('Failed to fetch articles');
+        
+        const data = await response.json();
+        
+        // إصلاح مشكلة عدم ظهور الأخبار - API يعيد البيانات في data.data
+        const articles = data.data || data.articles || [];
+        
+        if (reset) {
+          setArticles(articles);
+          setPage(1);
+        } else {
+          setArticles(prev => [...prev, ...articles]);
+        }
+        
+        setHasMore(articles.length === ITEMS_PER_PAGE);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          throw new Error('انتهت مهلة تحميل الأخبار. يرجى المحاولة مرة أخرى.');
+        }
+        throw fetchError;
       }
-      
-      setHasMore((data.articles?.length || 0) === ITEMS_PER_PAGE);
     } catch (error) {
       console.error('Error fetching articles:', error);
-      setError('فشل في تحميل المقالات');
+      setError(error instanceof Error ? error.message : 'فشل في تحميل المقالات');
     } finally {
       setLoading(false);
     }

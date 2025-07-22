@@ -381,11 +381,6 @@ function NewspaperHomePage({
         <SmartSlot position="beforePersonalization" />
       </div>
 
-      {/* التحليل العميق - رابع بلوك (بعد المحتوى المخصص) */}
-      <div className="w-full">
-         <DeepAnalysisBlock className="col-span-1" maxItems={3} />
-      </div>
-
       {/* Smart Blocks - Below Deep Analysis */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="below_deep_analysis" />
@@ -829,23 +824,24 @@ function NewspaperHomePage({
         </section>
 
         {/* Deep Analysis Block - بلوك التحليل العميق */}
-        <section className="mb-16">
-          <div className="max-w-7xl mx-auto px-3 sm:px-6">
+        <section className="relative w-full bg-[#1a365d] dark:bg-[#0d1b2a] py-16 mb-16">
+          {/* خلفية متدرجة overlay تمتد بالكامل */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/95 via-indigo-900/90 to-purple-900/95 dark:from-gray-900/95 dark:via-blue-900/90 dark:to-indigo-900/95"></div>
+          
+          {/* المحتوى داخل container محدود */}
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 mb-6 dark:bg-indigo-900/20 dark:border-indigo-800/30">
-                <Brain className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  ذكاء اصطناعي متقدم
-                </span>
-                <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h2 className={`text-3xl sm:text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white">
                 🧠 تحليل عميق بالذكاء الاصطناعي
               </h2>
-              <p className={`text-lg sm:text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <p className="text-lg sm:text-xl max-w-2xl mx-auto text-blue-100">
                 استكشف تحليلات عميقة ومتطورة للموضوعات المهمة مدعومة بالذكاء الاصطناعي
               </p>
             </div>
+          </div>
+          
+          {/* بلوك المحتوى - خلفية ممتدة بالكامل */}
+          <div className="relative z-10 w-full">
             <DeepAnalysisBlock />
           </div>
         </section>

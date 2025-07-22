@@ -130,8 +130,8 @@ export default function NewsManagementPage() {
         setError(null);
         console.log('🔄 بدء جلب البيانات...');
         const startTime = Date.now();
-        // جلب البيانات مع الترتيب من الأحدث
-        const response = await fetch('/api/articles?limit=100&sort=created_at&order=desc');
+        // جلب البيانات مع الترتيب من الأحدث - تحديث: إضافة status=all للداشبورد
+        const response = await fetch('/api/articles?status=all&limit=100&sort=created_at&order=desc');
         if (!response.ok) {
           throw new Error('فشل في تحميل البيانات');
         }
