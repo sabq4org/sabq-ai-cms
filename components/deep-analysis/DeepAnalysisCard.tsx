@@ -106,6 +106,9 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
   const visibleTags = showAllTags ? tags : tags.slice(0, 4);
   const remainingTags = tags.length - 4;
 
+  // التصنيفات مع معالجة حالة عدم التوفر
+  const categories = analysis.categories || [];
+
   return (
     <div className={`
       relative overflow-hidden rounded-xl sm:rounded-2xl transition-all duration-300 group
@@ -164,7 +167,7 @@ export default function DeepAnalysisCard({ analysis, viewMode = 'grid' }: DeepAn
       <div className={`p-4 sm:p-5 ${viewMode === 'list' ? 'flex-1' : ''} flex flex-col`}>
         {/* التصنيفات - محسنة للموبايل ومحسنة لـ Safari */}
         <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-          {analysis.categories.slice(0, 2).map((category, index) => (
+          {categories.slice(0, 2).map((category, index) => (
             <span 
               key={index}
               className="text-xs px-2 py-1 sm:px-3 sm:py-1.5 rounded-full font-medium transition-colors flex items-center gap-1 analysis-category-tag purple"

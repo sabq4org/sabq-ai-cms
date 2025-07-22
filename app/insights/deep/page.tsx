@@ -110,12 +110,12 @@ export default function DeepAnalysesPage() {
       filtered = filtered.filter(analysis => 
         analysis.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         analysis.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        analysis.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        (analysis.tags || []).some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(analysis => 
-        analysis.categories.includes(selectedCategory)
+        (analysis.categories || []).includes(selectedCategory)
       );
     }
     switch (sortBy) {
@@ -349,8 +349,8 @@ export default function DeepAnalysesPage() {
                         title: analysis.title || 'تحليل عميق',
                         slug: analysis.slug,
                         summary: analysis.summary || 'ملخص التحليل غير متوفر',
-                        categories: analysis.categories,
-                        tags: analysis.tags,
+                        categories: analysis.categories || [],
+                        tags: analysis.tags || [],
                         authorName: analysis.authorName,
                         sourceType: analysis.sourceType,
                         analysisType: analysis.analysisType,
