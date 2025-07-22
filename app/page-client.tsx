@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import PageWrapper from '@/components/PageWrapper';
@@ -16,20 +16,30 @@ import CloudImage, { ArticleImage, CloudAvatar } from '@/components/ui/CloudImag
 import { getArticleLink, formatDate } from '@/lib/utils';
 import CategoryBadge from './components/CategoryBadge';
 import { SmartSlot } from '@/components/home/SmartSlot';
-import ReaderProfileCard from '@/components/reader-profile/ReaderProfileCard';
-import { useReaderProfile } from '@/hooks/useReaderProfile';
 import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
-import SmartContextWidget from '@/components/home/SmartContextWidget';
-import InteractiveArticle from '@/components/InteractiveArticle';
-import TodayOpinionsSection from '@/components/TodayOpinionsSection';
-import MobileLayout from '@/components/mobile/MobileLayout';
 import MobileArticleCard from '@/components/mobile/MobileArticleCard';
 import EnhancedMobileNewsCard from '@/components/mobile/EnhancedMobileNewsCard';
 import MobileStatsBar from '@/components/mobile/MobileStatsBar';
+import EnhancedMobileStatsBar from '@/components/mobile/EnhancedMobileStatsBar';
 
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
-import PodcastBlock from '@/components/home/PodcastBlock';
+
+// Dynamic imports for components that appear below the fold
+const SmartContextWidget = dynamic(() => import('@/components/home/SmartContextWidget'), {
+  ssr: true,
+  loading: () => <Skeleton className="w-full h-64 rounded-lg" />
+});
+
+const TodayOpinionsSection = dynamic(() => import('@/components/TodayOpinionsSection'), {
+  ssr: true,
+  loading: () => <Skeleton className="w-full h-96 rounded-lg" />
+});
+
+const PodcastBlock = dynamic(() => import('@/components/home/PodcastBlock'), {
+  ssr: true,
+  loading: () => <Skeleton className="w-full h-80 rounded-lg" />
+});
 import { DeepAnalysis } from '@/types/deep-analysis';
 import { 
   Share2, 
@@ -45,17 +55,11 @@ import {
   Play,
   Volume2,
   Star,
-  Zap,
-  Globe,
+  Trophy,
+  Sparkles,
   Newspaper,
   BarChart3,
-  Lightbulb,
-  Sparkles,
-  Crown,
-  Trophy,
-  Gift,
-  Coins,
-  Activity,
+  Zap,
   ArrowRight,
   X,
   MessageSquare,
@@ -339,10 +343,10 @@ function NewspaperHomePage({
           direction: 'rtl'
         }}
       >
-      
-      {/* شريط الإحصائيات للموبايل */}
+
+      {/* شريط الإحصائيات المحسن للموبايل */}
       {isMobile && (
-        <MobileStatsBar darkMode={darkMode} />
+        <EnhancedMobileStatsBar darkMode={darkMode} />
       )}
       
       {/* عرض جميع البلوكات الذكية */}
@@ -739,6 +743,7 @@ function NewspaperHomePage({
                   </div>
                 </div>
               )}
+
               {/* عرض المقالات - تم تعديل العدد ليكون 16 مقال كما هو مطلوب */}
               {(showPersonalized && personalizedArticles.length > 0) ? (
                 // عرض المقالات المخصصة للمستخدمين المسجلين

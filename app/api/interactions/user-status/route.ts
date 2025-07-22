@@ -11,7 +11,7 @@ interface JWTPayload {
 export async function GET(request: NextRequest) {
   try {
     // التحقق من المستخدم عبر JWT
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get('auth-token')?.value;
     
     if (!token) {

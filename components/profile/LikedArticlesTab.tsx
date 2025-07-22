@@ -5,6 +5,7 @@ import { Heart, Clock, User, ExternalLink, Trash2, BookOpen } from 'lucide-react
 import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { getArticleLink } from '@/lib/utils';
 
 interface Article {
   id: string;
@@ -205,7 +206,7 @@ export default function LikedArticlesTab({ userId, darkMode = false }: LikedArti
                 {/* محتوى المقال */}
                 <div className="flex-1 min-w-0">
                   <Link 
-                    href={`/article/${like.article.slug}`}
+                    href={getArticleLink(like.article)}
                     className={`block mb-2 ${darkMode ? 'text-white hover:text-blue-400' : 'text-gray-900 hover:text-blue-600'} transition-colors`}
                   >
                     <h4 className="font-medium line-clamp-2 group-hover:underline">
@@ -236,7 +237,7 @@ export default function LikedArticlesTab({ userId, darkMode = false }: LikedArti
                 {/* أزرار التحكم */}
                 <div className="flex-shrink-0 flex flex-col gap-2">
                   <Link
-                    href={`/article/${like.article.slug}`}
+                    href={getArticleLink(like.article)}
                     className={`p-2 rounded-lg ${
                       darkMode 
                         ? 'text-gray-400 hover:text-white hover:bg-gray-600' 

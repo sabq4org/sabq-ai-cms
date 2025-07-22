@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import { Calendar, Eye, User, TrendingUp, Clock } from 'lucide-react';
+import { getArticleLink } from '@/lib/utils';
 
 interface Article {
   id: string;
@@ -57,7 +58,7 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
         {/* المقال الرئيسي */}
         <div className="lg:col-span-2">
           {mainArticle && (
-            <Link href={`/news/${mainArticle.slug}`} className="group block">
+            <Link href={getArticleLink(mainArticle)} className="group block">
               <article className="relative h-full rounded-2xl overflow-hidden">
                 <div className="aspect-w-16 aspect-h-9 lg:aspect-h-10">
                   {mainArticle.imageUrl ? (
@@ -134,7 +135,7 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
         <div className="space-y-6">
           {/* المقالات الثانوية */}
           {secondaryArticles.map((article) => (
-            <Link key={article.id} href={`/news/${article.slug}`} className="group block">
+            <Link key={article.id} href={getArticleLink(article)} className="group block">
               <article className="article-card">
                 <div className="article-card-image h-48">
                   {article.imageUrl ? (
@@ -191,7 +192,7 @@ export const MagazineLayoutBlock: React.FC<MagazineLayoutBlockProps> = ({ block,
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {listArticles.map((article) => (
-              <Link key={article.id} href={`/news/${article.slug}`} className="group">
+              <Link key={article.id} href={getArticleLink(article)} className="group">
                 <article className="flex gap-3">
                   {/* رقم أو أيقونة */}
                   <div 

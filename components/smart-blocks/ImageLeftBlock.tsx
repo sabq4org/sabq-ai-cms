@@ -5,6 +5,7 @@ import { formatDateShort } from '@/lib/date-utils';
 import React from 'react';
 import Link from 'next/link';
 import { Calendar, Eye, Tag } from 'lucide-react';
+import { getArticleLink } from '@/lib/utils';
 
 interface Article {
   id: string;
@@ -52,7 +53,7 @@ export const ImageLeftBlock: React.FC<ImageLeftBlockProps> = ({ block, articles 
         {articles.map((article) => (
           <Link 
             key={article.id}
-            href={`/news/${article.slug}`}
+            href={getArticleLink(article)}
             className="group block"
           >
             <div 

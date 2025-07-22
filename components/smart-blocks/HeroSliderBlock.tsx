@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Calendar, Eye, User, Clock } from 'lucide-react';
+import { getArticleLink } from '@/lib/utils';
 
 interface Article {
   id: string;
@@ -122,7 +123,7 @@ export const HeroSliderBlock: React.FC<HeroSliderBlockProps> = ({ block, article
               )}
 
               {/* العنوان */}
-              <Link href={`/news/${activeArticle.slug}`}>
+              <Link href={getArticleLink(activeArticle)}>
                 <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4 hover:text-gray-200 transition-colors line-clamp-2">
                   {activeArticle.title}
                 </h1>

@@ -28,6 +28,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getArticleLink } from '@/lib/utils';
 import { Clock, User, TrendingUp, Lightbulb, FileText, Eye, Edit, Loader2, AlertCircle } from 'lucide-react';
 
 interface SmartRecommendation {
@@ -108,7 +109,7 @@ const formatTimeAgo = (publishedAt: string): string => {
 
 // بطاقة كاملة للأخبار (للعرض العادي)
 const RecommendationCard: React.FC<{ recommendation: SmartRecommendation; isMobile: boolean }> = ({ recommendation, isMobile }) => (
-  <Link href={`/article/${recommendation.slug}`} className="group block">
+  <Link href={getArticleLink(recommendation)} className="group block">
     <article className={`recommendation-card bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-blue-200 ${
       isMobile ? 'mx-4 mb-4' : 'mb-6'
     }`}>
@@ -179,7 +180,7 @@ const RecommendationCard: React.FC<{ recommendation: SmartRecommendation; isMobi
 
 // رابط سريع للموبايل (بدون صورة)
 const QuickLinkMobile: React.FC<{ recommendation: SmartRecommendation }> = ({ recommendation }) => (
-  <Link href={`/article/${recommendation.slug}`} className="group block mx-4 mb-3">
+  <Link href={getArticleLink(recommendation)} className="group block mx-4 mb-3">
     <div className="quick-link-mobile bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-4 border-r-4 border-blue-400 hover:from-blue-50 hover:to-blue-100 hover:border-blue-600 transition-all duration-300 shadow-sm">
       <div className="flex items-start justify-between">
         <div className="flex-1">
@@ -273,7 +274,7 @@ const SmartLinkCard: React.FC<{ recommendations: SmartRecommendation[]; type: 'o
         {recommendations.slice(0, 2).map((recommendation) => (
           <Link 
             key={recommendation.id} 
-            href={`/article/${recommendation.slug}`}
+            href={getArticleLink(recommendation)}
             className="group block"
           >
             <div className="flex items-start space-x-reverse space-x-3 p-3 rounded-lg bg-white/60 hover:bg-white hover:shadow-sm transition-all duration-200">
@@ -313,7 +314,7 @@ const SmartLinkCard: React.FC<{ recommendations: SmartRecommendation[]; type: 'o
 
 // رابط سريع للديسكتوب (النسخة الأصلية)
 const QuickLinkDesktop: React.FC<{ recommendation: SmartRecommendation }> = ({ recommendation }) => (
-  <Link href={`/article/${recommendation.slug}`} className="group block">
+  <Link href={getArticleLink(recommendation)} className="group block">
     <div className="quick-link bg-gray-50 rounded-lg p-4 border-r-4 border-blue-400 hover:bg-blue-50 hover:border-blue-600 transition-all duration-300">
       <div className="flex items-start justify-between">
         <div className="flex-1">

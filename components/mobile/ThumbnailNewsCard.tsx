@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { getArticleLink } from '@/lib/utils';
 
 interface ThumbnailNewsCardProps {
   article: {
@@ -114,7 +115,7 @@ export default function ThumbnailNewsCard({
     } border rounded-lg transition-all duration-300 hover:shadow-md 
     ${darkMode ? 'hover:shadow-gray-800' : 'hover:shadow-gray-200'}`}>
       
-      <Link href={`/article/${article.slug || article.id}`} className="block">
+      <Link href={getArticleLink(article)} className="block">
         <div className={sizeClasses.container}>
           <div className="flex gap-4">
             

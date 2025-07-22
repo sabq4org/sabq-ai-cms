@@ -38,7 +38,7 @@ export interface ArticleData {
 // جلب المقال للسيرفر (SSR)
 export async function getArticleData(id: string): Promise<ArticleData | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const response = await fetch(`${baseUrl}/api/articles/${id}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -75,13 +75,13 @@ export function getFullImageUrl(imageUrl?: string): string {
     return imageUrl;
   }
   
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   return `${baseUrl}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`;
 }
 
 // إنشاء URL كامل للمقال
 export function getFullArticleUrl(id: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   return `${baseUrl}/article/${id}`;
 }
 

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { getArticleLink } from '@/lib/utils';
 
 interface CompactNewsCardProps {
   article: {
@@ -82,7 +83,7 @@ export default function CompactNewsCard({
     } rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg 
     ${darkMode ? 'hover:shadow-gray-800' : 'hover:shadow-gray-200'}`}>
       
-      <Link href={`/article/${article.slug || article.id}`} className="block">
+      <Link href={getArticleLink(article)} className="block">
         <div className="relative">
           
           {/* التصنيف Tag */}

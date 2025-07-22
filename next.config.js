@@ -4,12 +4,20 @@ const nextConfig = {
   
   serverExternalPackages: ['prisma', '@prisma/client'],
 
-  // إعدادات الصور محسنة للأداء
+  // إعدادات الصور محسنة للأداء والاستقرار
   images: {
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60, // cache لمدة دقيقة
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    formats: ['image/webp'], // تبسيط الفورمات
+    minimumCacheTTL: 300, // cache لمدة 5 دقائق
+    deviceSizes: [640, 750, 1080, 1920], // تقليل الأحجام
+    imageSizes: [16, 32, 64, 128, 256], // تبسيط الأحجام
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // تقليل التايم أوت
+    loader: 'default',
+    loaderFile: undefined,
+    // تحسين الأداء
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: 'https',
