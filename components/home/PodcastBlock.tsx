@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Play, Pause, Mic } from 'lucide-react';
+import { getAudioDuration, formatDuration } from '@/lib/audio-utils';
 
 interface PodcastData {
   link: string;
@@ -16,11 +17,28 @@ export default function PodcastBlock() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [actualDuration, setActualDuration] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     fetchLatestPodcast();
   }, []);
+
+  const updateNewsletterDuration = async (newsletterId: string, duration: number) => {
+    try {
+      const response = await fetch('/api/audio/newsletters/update-duration', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: newsletterId, duration })
+      });
+      
+      if (response.ok) {
+        console.log('✅ تم تحديث مدة النشرة في قاعدة البيانات');
+      }
+    } catch (error) {
+      console.warn('فشل في تحديث مدة النشرة:', error);
+    }
+  };
 
   const fetchLatestPodcast = async () => {
     try {
@@ -47,6 +65,21 @@ export default function PodcastBlock() {
             timestamp,
             duration
           });
+          
+          // قراءة المدة الحقيقية من الملف الصوتي
+          try {
+            const realDuration = await getAudioDuration(link);
+            setActualDuration(realDuration);
+            
+            // تحديث المدة في قاعدة البيانات إذا كانت مختلفة
+            if (Math.abs(realDuration - duration) > 5) { // فرق أكثر من 5 ثواني
+              await updateNewsletterDuration(newsletter.id, realDuration);
+            }
+          } catch (error) {
+            console.warn('فشل في قراءة المدة الحقيقية للملف الصوتي:', error);
+            // استخدام المدة المقدرة كبديل
+            setActualDuration(duration);
+          }
         } else {
           setError(true);
         }
@@ -59,6 +92,12 @@ export default function PodcastBlock() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDuration = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   const togglePlayPause = () => {
@@ -84,6 +123,7 @@ export default function PodcastBlock() {
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
+      setActualDuration(Math.floor(audioRef.current.duration));
     }
   };
 
@@ -110,7 +150,7 @@ export default function PodcastBlock() {
                 النشرة الإخبارية الصوتية
               </span>
               <span className="text-sm text-blue-600 dark:text-blue-400">
-                🎧 {podcast.duration}:00 دقيقة
+                🎧 {actualDuration !== null ? formatDuration(actualDuration) : formatDuration(podcast.duration)} دقيقة
               </span>
             </div>
           </div>
@@ -156,6 +196,7 @@ export default function PodcastBlock() {
             onLoadedMetadata={handleLoadedMetadata}
             onEnded={() => setIsPlaying(false)}
             preload="metadata"
+            crossOrigin="anonymous"
           >
             <source src={podcast.link} type="audio/mpeg" />
             <source src={podcast.link} type="audio/wav" />

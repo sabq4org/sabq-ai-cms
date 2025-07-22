@@ -119,6 +119,14 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
         if (response.ok) {
           const data = await response.json();
           if (data && data.contents && data.contents.length > 0) {
+            // التأكد من وجود 3 عناصر على الأقل
+            const defaultContents = getDefaultDose().contents;
+            while (data.contents.length < 3 && defaultContents[data.contents.length]) {
+              data.contents.push({
+                ...defaultContents[data.contents.length],
+                id: `default-${data.contents.length}`
+              });
+            }
             setDose(data);
           }
         }

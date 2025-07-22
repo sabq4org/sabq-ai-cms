@@ -12,15 +12,31 @@ import MobileDeepAnalysisCard from './mobile/MobileDeepAnalysisCard';
 
 interface DeepInsight {
   id: string;
-  article_id: string;
-  ai_summary: string;
-  key_topics: string[];
+  article_id?: string;
+  ai_summary?: string;
+  key_topics?: string[];
   tags: string[];
-  sentiment: string;
-  readability_score: number;
-  engagement_score: number;
+  sentiment?: string;
+  readability_score?: number;
+  engagement_score?: number;
   analyzed_at: string;
-  updated_at: string;
+  updated_at?: string;
+  // خصائص من API الجديد
+  title?: string;
+  summary?: string;
+  slug?: string;
+  featuredImage?: string;
+  status?: string;
+  sourceType?: string;
+  qualityScore?: number;
+  categories?: string[];
+  authorName?: string;
+  analysisType?: string;
+  readingTime?: number;
+  views?: number;
+  likes?: number;
+  createdAt?: string;
+  publishedAt?: string;
   metadata?: {
     title?: string;
     summary?: string;
@@ -50,6 +66,10 @@ interface DeepInsight {
       slug: string;
       color?: string;
     }>;
+    category?: {
+      name: string;
+      color: string;
+    };
   };
 }
 
@@ -116,6 +136,16 @@ export default function DeepAnalysisBlock({
               console.warn('⚠️ لا توجد تحليلات عميقة في قاعدة البيانات');
             } else {
               console.log(`✅ تم جلب ${analyses.length} تحليل عميق بنجاح`);
+              console.log('📋 البيانات المجلوبة:', analyses.map((a: any) => ({
+                id: a.id,
+                title: a.title || a.metadata?.title || a.article?.title,
+                hasArticle: !!a.article,
+                hasMetadata: !!a.metadata,
+                summary: a.summary?.substring(0, 50) + '...',
+                views: a.views,
+                featuredImage: a.featuredImage
+              })));
+              console.log('🔍 مثال كامل للتحليل الأول:', analyses[0]);
             }
           } else {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -246,7 +276,7 @@ export default function DeepAnalysisBlock({
   }, []);
 
   return (
-    <div id="deep-analysis-highlight" className={`py-8 relative overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 ${className}`}>
+    <div id="deep-analysis-highlight" className={`py-8 relative overflow-hidden ${className}`}>
       {/* العنوان والوصف - محصور في container */}
       {showTitle && (
         <div className="max-w-7xl mx-auto px-4 relative z-10 mb-8">
@@ -266,8 +296,8 @@ export default function DeepAnalysisBlock({
         </div>
       )}
 
-      {/* البطاقات - ممتدة بالكامل */}
-      <div className="relative z-10 w-full px-4">{/* تم إزالة max-w-7xl mx-auto لجعلها ممتدة بالكامل */}
+      {/* البطاقات - محدودة العرض مثل باقي المحتوى */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4">
 
         {/* البطاقات - صف أفقي قابل للتمرير */}
         {isMobile ? (
@@ -276,14 +306,23 @@ export default function DeepAnalysisBlock({
             {displayInsights.slice(0, maxItems).map((item) => (
               <MobileDeepAnalysisCard 
                 key={item.id} 
-                insight={item} 
+                insight={{
+                  ...item,
+                  article_id: item.article_id || '',
+                  ai_summary: item.ai_summary || item.summary || '',
+                  key_topics: item.key_topics || [],
+                  sentiment: item.sentiment || 'neutral',
+                  readability_score: item.readability_score || 0,
+                  engagement_score: item.engagement_score || 0,
+                  updated_at: item.updated_at || item.analyzed_at
+                }} 
                 darkMode={darkMode} 
               />
             ))}
           </div>
         ) : (
         <div className="relative mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
             {loading ? (
               // عرض skeleton loader أثناء التحميل
               Array.from({ length: maxItems }).map((_, index) => (
@@ -295,25 +334,39 @@ export default function DeepAnalysisBlock({
                       : 'bg-white/95 backdrop-blur-sm border-white/20'
                   } rounded-2xl shadow-lg overflow-hidden border animate-pulse`}
                 >
-                  <div className="relative p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className={`h-6 w-24 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-                      <div className={`h-8 w-8 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-                    </div>
-                    <div className={`h-6 w-full mb-3 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-                    <div className={`h-6 w-4/5 mb-4 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-                    <div className={`h-4 w-full mb-2 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-                    <div className={`h-4 w-3/4 mb-6 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-                    <div className="flex gap-2 mb-6">
-                      <div className={`h-6 w-16 rounded-md ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-                      <div className={`h-6 w-20 rounded-md ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-                    </div>
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-200/20">
-                      <div className="flex items-center gap-3">
-                        <div className={`h-4 w-12 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-                        <div className={`h-4 w-16 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                  <div className="relative p-4">
+                    {/* Header skeleton */}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1.5">
+                        <div className={`h-5 w-20 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                        <div className={`h-5 w-12 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
                       </div>
-                      <div className={`h-4 w-8 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                      <div className={`h-2 w-2 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                    </div>
+                    {/* Category skeleton */}
+                    <div className={`h-4 w-16 rounded mb-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                    {/* Title skeleton */}
+                    <div className="space-y-1 mb-2">
+                      <div className={`h-4 w-full rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                      <div className={`h-4 w-3/4 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                    </div>
+                    {/* Summary skeleton */}
+                    <div className={`h-3 w-full rounded mb-3 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                    {/* Tags skeleton */}
+                    <div className="flex gap-1 mb-3">
+                      <div className={`h-4 w-12 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                      <div className={`h-4 w-16 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                    </div>
+                    {/* Footer skeleton */}
+                    <div className="pt-2 border-t border-gray-200/30 dark:border-gray-700/30">
+                      <div className="flex justify-between">
+                        <div className="flex gap-2">
+                          <div className={`h-3 w-8 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                          <div className={`h-3 w-8 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                          <div className={`h-3 w-10 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                        </div>
+                        <div className={`h-3.5 w-3.5 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -358,29 +411,24 @@ export default function DeepAnalysisBlock({
             ) : (
               displayInsights.slice(0, maxItems).map((item, index) => {
                 const isUnread = !readItems.includes(item.id);
-                const hasAI = item.ai_summary;
+                const hasAI = item.ai_summary || item.summary;
                 const isNew = isNewInsight(item.analyzed_at);
                 const tags = item.tags || [];
                 const visibleTags = showAllTags[item.id] ? tags : tags.slice(0, 2);
                 const remainingTags = tags.length - 2;
-                const title = item.metadata?.title || item.article?.title || 'تحليل عميق';
-                const summary = item.ai_summary || item.metadata?.summary || item.article?.summary || 'سيتم تحديث الملخص قريباً بواسطة الذكاء الاصطناعي';
-                const authorName = item.metadata?.authorName || item.article?.author?.name || 'مجهول';
-                const categoryName = item.metadata?.categories?.[0] || item.article?.categories?.[0]?.name || 'عام';
+                const title = item.title || item.metadata?.title || item.article?.title || 'تحليل عميق';
+                const summary = item.summary || item.ai_summary || item.metadata?.summary || item.article?.summary || 'سيتم تحديث الملخص قريباً بواسطة الذكاء الاصطناعي';
+                const authorName = item.authorName || item.metadata?.authorName || item.article?.author?.name || 'مجهول';
+                const categoryName = item.categories?.[0] || item.metadata?.categories?.[0] || item.article?.categories?.[0]?.name || 'عام';
                 const url = `/insights/deep/${item.id}`;
-                const readTime = item.metadata?.readingTime || item.article?.read_time || 10;
-                const views = item.metadata?.views || item.article?.views_count || 0;
-                const analysisScore = item.readability_score ? Math.round(Number(item.readability_score) * 100) : null;
+                const readTime = item.readingTime || item.metadata?.readingTime || item.article?.read_time || 10;
+                const views = item.views || item.metadata?.views || item.article?.views_count || 0;
+                const analysisScore = item.qualityScore || item.readability_score ? Math.round(Number(item.qualityScore || item.readability_score)) : null;
                 
-                // تحديد نوع التحليل الدقيق
+                // تحديد نوع التحليل العميق
                 const getAnalysisType = () => {
-                  if (hasAI && item.updated_at !== item.analyzed_at) {
-                    return { type: 'mixed', label: 'تحليل مشترك', icon: 'user-robot' };
-                  } else if (hasAI) {
-                    return { type: 'ai', label: 'تحليل AI', icon: 'robot' };
-                  } else {
-                    return { type: 'human', label: 'تحليل بشري', icon: 'user' };
-                  }
+                  // جميع التحليلات في هذا البلوك تعتبر "تحليل عميق"
+                  return { type: 'deep', label: 'تحليل عميق', icon: 'brain' };
                 };
                 
                 const analysisType = getAnalysisType();
@@ -390,42 +438,28 @@ export default function DeepAnalysisBlock({
                     key={item.id}
                     href={url}
                     onClick={() => markAsRead(item.id)}
-                    className={`group block ${
+                    className={`group block h-full ${
                       darkMode 
                         ? 'bg-gray-800/90 backdrop-blur-sm hover:bg-gray-800/95 border-gray-700 hover:border-gray-600' 
                         : 'bg-white/95 backdrop-blur-sm hover:bg-white border-white/20 hover:border-white/40'
                     } rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden border transition-all duration-300 transform hover:scale-[1.01] hover:translate-y-[-2px]`}
                   >
-                    <div className="relative p-5">
-                      {/* رأس البطاقة - مضغوط */}
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          {/* أيقونة نوع التحليل */}
-                          <div className={`p-1.5 rounded-lg ${
-                            analysisType.type === 'ai' 
-                              ? darkMode ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-50 text-purple-600'
-                              : analysisType.type === 'mixed'
-                              ? darkMode ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-50 text-blue-600'  
-                              : darkMode ? 'bg-green-900/30 text-green-300' : 'bg-green-50 text-green-600'
+                    <div className="relative p-4 h-full flex flex-col">
+                      {/* رأس البطاقة - مضغوط جداً */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-1.5">
+                          {/* نوع التحليل مدمج */}
+                          <div className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${
+                            darkMode 
+                              ? 'bg-gradient-to-r from-purple-900/30 to-blue-900/30 text-purple-300 border border-purple-700/50' 
+                              : 'bg-gradient-to-r from-purple-50 to-blue-50 text-purple-700 border border-purple-200'
                           }`}>
-                            {analysisType.type === 'ai' && <Bot className="w-4 h-4" />}
-                            {analysisType.type === 'mixed' && <Users className="w-4 h-4" />}
-                            {analysisType.type === 'human' && <User className="w-4 h-4" />}
+                            <Brain className="w-3.5 h-3.5" />
+                            <span className="font-semibold">{analysisType.label}</span>
                           </div>
                           
-                          {/* نوع التحليل */}
-                          <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                            analysisType.type === 'ai' 
-                              ? darkMode ? 'bg-purple-900/30 text-purple-300 border border-purple-700/50' : 'bg-purple-50 text-purple-700 border border-purple-200'
-                              : analysisType.type === 'mixed'
-                              ? darkMode ? 'bg-blue-900/30 text-blue-300 border border-blue-700/50' : 'bg-blue-50 text-blue-700 border border-blue-200'
-                              : darkMode ? 'bg-green-900/30 text-green-300 border border-green-700/50' : 'bg-green-50 text-green-700 border border-green-200'
-                          }`}>
-                            {analysisType.label}
-                          </span>
-                          
                           {isNew && (
-                            <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-green-100 text-green-700 border border-green-200">
+                            <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-green-100 text-green-700">
                               جديد
                             </span>
                           )}
@@ -433,103 +467,127 @@ export default function DeepAnalysisBlock({
                         
                         {/* نقطة القراءة */}
                         {isUnread && (
-                          <div className="w-2.5 h-2.5 bg-purple-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
                         )}
                       </div>
 
-                      {/* التصنيف الفعلي */}
-                      <div className="mb-2">
-                        <span
-                          className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md ${
-                            darkMode 
-                              ? 'text-orange-300 bg-orange-900/20 border border-orange-700/50' 
-                              : 'text-orange-700 bg-orange-50 border border-orange-200'
-                          }`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            router.push(`/categories/${categoryName}`);
-                          }}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          📁 {categoryName}
-                        </span>
+                      {/* الصورة والمحتوى */}
+                      <div className="flex gap-3 mb-3">
+                        {/* الصورة المصغرة إن وجدت */}
+                        {(item.featuredImage || item.metadata?.featuredImage) && (
+                          <div className="flex-shrink-0">
+                            <div className={`relative w-16 h-16 rounded-lg overflow-hidden ${
+                              darkMode ? 'bg-gray-700' : 'bg-gray-200'
+                            }`}>
+                              <img
+                                src={item.featuredImage || item.metadata?.featuredImage}
+                                alt={title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="flex-1 min-w-0">
+                          {/* التصنيف */}
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md ${
+                              darkMode 
+                                ? 'text-blue-300 bg-blue-900/20 border border-blue-700/30' 
+                                : 'text-blue-700 bg-blue-50 border border-blue-200'
+                            }`}>
+                              {categoryName}
+                            </span>
+                            {/* نقاط الجودة */}
+                            {analysisScore && analysisScore > 85 && (
+                              <span className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                                darkMode 
+                                  ? 'text-green-300 bg-green-900/20' 
+                                  : 'text-green-700 bg-green-50'
+                              }`}>
+                                <Award className="w-3 h-3" />
+                                {analysisScore}%
+                              </span>
+                            )}
+                          </div>
+
+                          {/* العنوان */}
+                          <h3 className={`text-sm font-bold mb-1.5 leading-tight line-clamp-2 ${
+                            darkMode ? 'text-white' : 'text-gray-900'
+                          } group-hover:text-purple-600 transition-colors`}>
+                            {title}
+                          </h3>
+
+                          {/* الملخص */}
+                          <p className={`text-xs leading-relaxed line-clamp-2 ${
+                            darkMode ? 'text-gray-400' : 'text-gray-600'
+                          }`}>
+                            {summary}
+                          </p>
+                        </div>
                       </div>
 
-                      {/* العنوان - مضغوط */}
-                      <h3 className={`text-base font-bold mb-2 leading-tight line-clamp-2 min-h-[2.5rem] ${
-                        darkMode ? 'text-white' : 'text-gray-900'
-                      } group-hover:text-purple-600 transition-colors`}>
-                        {title}
-                      </h3>
-
-                      {/* الملخص - سطرين فقط */}
-                      <p className={`text-sm leading-relaxed line-clamp-2 mb-4 ${
-                        darkMode ? 'text-gray-300' : 'text-gray-600'
-                      }`}>
-                        {summary}
-                      </p>
-
-                      {/* الوسوم - مضغوطة */}
-                      <div className="mb-4">
-                        <div className="flex flex-wrap gap-1.5">
-                          {visibleTags.slice(0, 2).map((tag, idx) => (
+                      {/* الوسوم */}
+                      {tags.length > 0 && (
+                        <div className="mb-3 flex flex-wrap gap-1.5">
+                          {tags.slice(0, 3).map((tag, idx) => (
                             <span 
                               key={idx} 
-                              className={`text-xs px-2 py-0.5 rounded-md ${
+                              className={`text-[10px] px-2 py-0.5 rounded-full ${
                                 darkMode 
-                                  ? 'bg-gray-700/50 text-gray-400 border border-gray-600/50' 
+                                  ? 'bg-gray-700/50 text-gray-400 border border-gray-600/30' 
                                   : 'bg-gray-100 text-gray-600 border border-gray-200'
                               }`}
                             >
                               #{tag}
                             </span>
                           ))}
-                          {tags.length > 2 && (
-                            <span className={`text-xs px-2 py-0.5 rounded-md ${
+                          {tags.length > 3 && (
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full ${
                               darkMode 
-                                ? 'bg-purple-900/30 text-purple-400' 
+                                ? 'bg-purple-900/20 text-purple-400' 
                                 : 'bg-purple-50 text-purple-600'
                             }`}>
-                              +{tags.length - 2}
+                              +{tags.length - 3}
                             </span>
                           )}
                         </div>
-                      </div>
+                      )}
 
-                      {/* معلومات سفلية مع أزرار فعالة */}
-                      <div className={`flex items-center justify-between pt-3 border-t ${
-                        darkMode ? 'border-gray-700/50' : 'border-gray-200/50'
+                      {/* معلومات سفلية - محسنة */}
+                      <div className={`flex items-center justify-between pt-2 mt-auto border-t ${
+                        darkMode ? 'border-gray-700/30' : 'border-gray-200/30'
                       }`}>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1">
-                            <Clock3 className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                            <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {readTime} د
+                        <div className="flex items-center gap-3 text-[11px]">
+                          {/* الكاتب */}
+                          <div className={`flex items-center gap-1 ${
+                            darkMode ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
+                            <User className="w-3 h-3" />
+                            <span className="font-medium">{authorName}</span>
+                          </div>
+                          
+                          {/* وقت القراءة */}
+                          <div className="flex items-center gap-0.5">
+                            <Clock3 className={`w-3 h-3 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
+                            <span className={darkMode ? 'text-gray-500' : 'text-gray-400'}>
+                              {readTime}د
                             </span>
                           </div>
                           
-                          <span className="flex items-center gap-1 text-xs text-blue-600 transition-colors">
-                            <Eye className="w-3.5 h-3.5" />
-                            {String(views).toLocaleString()}
+                          {/* المشاهدات */}
+                          <span className="flex items-center gap-0.5 text-blue-600">
+                            <Eye className="w-3 h-3" />
+                            <span className="font-medium">{views}</span>
                           </span>
-                          
-                          {analysisScore && (
-                            <span className="flex items-center gap-1 text-xs text-green-600 transition-colors">
-                              <Award className="w-3.5 h-3.5" />
-                              {String(analysisScore)}%
-                            </span>
-                          )}
                         </div>
                         
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                            {item.analyzed_at ? formatDate(item.analyzed_at) : 'التاريخ غير محدد'}
-                          </span>
-                          <ChevronRight className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 ${
-                            darkMode ? 'text-gray-400' : 'text-gray-500'
-                          }`} />
-                        </div>
+                        <ChevronRight className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${
+                          darkMode ? 'text-gray-400' : 'text-gray-400'
+                        }`} />
                       </div>
                     </div>
                   </Link>

@@ -10,7 +10,8 @@ import {
 import ArticleCard from '@/components/ArticleCard';
 import MobileNewsCard from '../../components/mobile/MobileNewsCard';
 import Footer from '@/components/Footer';
-import '../../components/mobile/mobile-news.css';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import '@/components/mobile/mobile-news.css';
 import './news-styles.css';
 import '../categories/categories-fixes.css';
 
@@ -73,6 +74,7 @@ interface NewsStats {
 }
 
 export default function NewsPage() {
+  const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -487,6 +489,7 @@ export default function NewsPage() {
                           featured: article.featured || article.is_featured || false,
                           breaking: article.breaking || article.is_breaking || false
                         }}
+                        darkMode={darkMode}
                       />
                     ))}
                   </div>

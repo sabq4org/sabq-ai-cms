@@ -514,6 +514,7 @@ model interactions {
   @@unique([user_id, article_id, type])
   @@index([article_id])
   @@index([user_id])
+  @@index([article_id, type, created_at(sort: Desc)], map: "idx_interactions_article_type")
 }
 
 model keywords {

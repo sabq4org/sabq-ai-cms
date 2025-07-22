@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* إلغاء تأثيرات underline على الروابط */
+@import './no-link-underline.css';
+
 * {
   box-sizing: border-box;
   margin: 0;

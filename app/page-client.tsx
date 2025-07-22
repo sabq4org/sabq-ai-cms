@@ -822,30 +822,33 @@ function NewspaperHomePage({
             </>
           )}
         </section>
+      </main>
 
-        {/* Deep Analysis Block - بلوك التحليل العميق */}
-        <section className="relative w-full bg-[#1a365d] dark:bg-[#0d1b2a] py-16 mb-16">
-          {/* خلفية متدرجة overlay تمتد بالكامل */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/95 via-indigo-900/90 to-purple-900/95 dark:from-gray-900/95 dark:via-blue-900/90 dark:to-indigo-900/95"></div>
-          
-          {/* المحتوى داخل container محدود */}
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white">
-                🧠 تحليل عميق بالذكاء الاصطناعي
-              </h2>
-              <p className="text-lg sm:text-xl max-w-2xl mx-auto text-blue-100">
-                استكشف تحليلات عميقة ومتطورة للموضوعات المهمة مدعومة بالذكاء الاصطناعي
-              </p>
-            </div>
+      {/* Deep Analysis Block - بلوك التحليل العميق - خارج main للامتداد الكامل */}
+      <section className="relative w-full bg-[#1a365d] dark:bg-[#0d1b2a] py-16 mb-16">
+        {/* خلفية متدرجة overlay تمتد بالكامل */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/95 via-indigo-900/90 to-purple-900/95 dark:from-gray-900/95 dark:via-blue-900/90 dark:to-indigo-900/95"></div>
+        
+        {/* المحتوى داخل container محدود */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white">
+              🧠 تحليل عميق بالذكاء الاصطناعي
+            </h2>
+            <p className="text-lg sm:text-xl max-w-2xl mx-auto text-blue-100">
+              استكشف تحليلات عميقة ومتطورة للموضوعات المهمة مدعومة بالذكاء الاصطناعي
+            </p>
           </div>
-          
-          {/* بلوك المحتوى - خلفية ممتدة بالكامل */}
-          <div className="relative z-10 w-full">
-            <DeepAnalysisBlock />
-          </div>
-        </section>
+        </div>
+        
+        {/* بلوك المحتوى - خلفية ممتدة بالكامل */}
+        <div className="relative z-10 w-full">
+          <DeepAnalysisBlock maxItems={3} showTitle={false} />
+        </div>
+      </section>
 
+      {/* استمرار المحتوى الرئيسي */}
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {/* Smart Blocks - After Cards - مخفي للنسخة المطورة */}
         {/* <SmartSlot position="afterCards" /> */}
         {/* السياق الذكي */}

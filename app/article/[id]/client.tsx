@@ -9,8 +9,8 @@ import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
 import { getImageUrl, getOptimizedImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
-import { marked } from 'marked';
 import UltimateImage from '@/components/UltimateImage';
+import { marked } from 'marked';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
@@ -64,8 +64,9 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
   const { darkMode } = useDarkModeContext();
   const [article, setArticle] = useState<Article | null>(initialArticle);
   const [loading, setLoading] = useState(false);
-  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'not_found' | 'not_published' | 'server_error' | null>(null);
@@ -83,16 +84,60 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
     // interactionTracking.toggleSave();
   };
 
-  // التحكم في مشغل الصوت
-  const toggleAudioPlayer = () => {
-    if (showAudioPlayer) {
-      setShowAudioPlayer(false);
-      if (audioRef.current) {
+  // التحكم في مشغل الصوت المباشر
+  const toggleAudioPlayer = async () => {
+    // إذا كان الصوت قيد التشغيل، أوقفه
+    if (isAudioPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsAudioPlaying(false);
+      return;
+    }
+
+    // إذا لم يتم تحميل الصوت بعد، قم بتحميله
+    if (!audioUrl && !isLoadingAudio && article) {
+      setIsLoadingAudio(true);
+      try {
+        // إذا كان هناك URL صوتي جاهز
+        if (article.audio_summary_url) {
+          setAudioUrl(article.audio_summary_url);
+          setIsLoadingAudio(false);
+          // شغل الصوت مباشرة بعد تحميله
+          setTimeout(() => {
+            if (audioRef.current) {
+              audioRef.current.play();
+              setIsAudioPlaying(true);
+            }
+          }, 100);
+        } else {
+          // توليد الصوت من الموجز
+          const response = await fetch(`/api/voice-summary?articleId=${articleId}`);
+          const data = await response.json();
+          
+          if (data.success && data.audioUrl) {
+            setAudioUrl(data.audioUrl);
+            // شغل الصوت مباشرة بعد تحميله
+            setTimeout(() => {
+              if (audioRef.current) {
+                audioRef.current.play();
+                setIsAudioPlaying(true);
+              }
+            }, 100);
+          }
+        }
+      } catch (err) {
+        console.error('خطأ في تحميل الصوت:', err);
+      } finally {
+        setIsLoadingAudio(false);
+      }
+    } else if (audioUrl && audioRef.current) {
+      // إذا كان الصوت محملاً، شغله أو أوقفه
+      if (audioRef.current.paused) {
+        audioRef.current.play();
+        setIsAudioPlaying(true);
+      } else {
         audioRef.current.pause();
         setIsAudioPlaying(false);
       }
-    } else {
-      setShowAudioPlayer(true);
     }
   };
 
@@ -228,29 +273,39 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
                   </p>
                 </div>
                 
-                {/* زر الاستماع - يظهر دائماً إذا كان هناك موجز */}
+                {/* زر الاستماع المباشر */}
                 <button
                   onClick={toggleAudioPlayer}
                   className={`flex-shrink-0 p-2 rounded-lg transition-all ${
-                    showAudioPlayer 
-                      ? 'bg-blue-600 text-white' 
+                    isAudioPlaying 
+                      ? 'bg-red-600 text-white hover:bg-red-700' 
+                      : isLoadingAudio
+                      ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-wait'
                       : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50'
                   }`}
-                  title="استمع للملخص"
+                  title={isAudioPlaying ? "إيقاف" : "استمع للملخص"}
+                  disabled={isLoadingAudio}
                 >
-                  <Headphones className="w-4 h-4 sm:w-5 sm:h-5" />
+                  {isLoadingAudio ? (
+                    <div className="animate-spin">
+                      <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
+                  ) : isAudioPlaying ? (
+                    <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
+                  ) : (
+                    <Play className="w-4 h-4 sm:w-5 sm:h-5" />
+                  )}
                 </button>
               </div>
 
-              {/* مشغل الصوت الذكي */}
-              {showAudioPlayer && (
-                <div className="mt-4">
-                  <AudioSummaryPlayer
-                    articleId={article.id}
-                    excerpt={article.excerpt || article.summary || article.ai_summary}
-                    audioUrl={article.audio_summary_url}
-                  />
-                </div>
+              {/* عنصر الصوت المخفي */}
+              {audioUrl && (
+                <audio
+                  ref={audioRef}
+                  src={audioUrl}
+                  onEnded={() => setIsAudioPlaying(false)}
+                  className="hidden"
+                />
               )}
             </div>
           )}
