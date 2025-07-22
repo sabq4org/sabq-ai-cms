@@ -827,6 +827,29 @@ function NewspaperHomePage({
             </>
           )}
         </section>
+
+        {/* Deep Analysis Block - بلوك التحليل العميق */}
+        <section className="mb-16">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 mb-6 dark:bg-indigo-900/20 dark:border-indigo-800/30">
+                <Brain className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  ذكاء اصطناعي متقدم
+                </span>
+                <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h2 className={`text-3xl sm:text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                🧠 تحليل عميق بالذكاء الاصطناعي
+              </h2>
+              <p className={`text-lg sm:text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                استكشف تحليلات عميقة ومتطورة للموضوعات المهمة مدعومة بالذكاء الاصطناعي
+              </p>
+            </div>
+            <DeepAnalysisBlock />
+          </div>
+        </section>
+
         {/* Smart Blocks - After Cards - مخفي للنسخة المطورة */}
         {/* <SmartSlot position="afterCards" /> */}
         {/* السياق الذكي */}
