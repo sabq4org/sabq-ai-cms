@@ -24,7 +24,8 @@ interface SmartArticle {
 
 interface SmartRelatedContentProps {
   articleId: string;
-  category?: string;
+  categoryId?: string;
+  categoryName?: string;
   tags?: string[];
   darkMode?: boolean;
 }
@@ -77,7 +78,7 @@ const HorizontalCard: React.FC<{ article: SmartArticle; darkMode?: boolean }> = 
   article, 
   darkMode = false 
 }) => (
-  <Link href={`/article/${article.slug}`} className="group block">
+  <Link href={`/article/${article.id}`} className="group block">
     <div className={`flex gap-3 p-3 rounded-lg border transition-all duration-300 hover:shadow-md ${
       darkMode 
         ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
@@ -161,7 +162,8 @@ const QuickLink: React.FC<{
 
 export default function SmartRelatedContent({ 
   articleId, 
-  category, 
+  categoryId,
+  categoryName,
   tags = [],
   darkMode = false 
 }: SmartRelatedContentProps) {
@@ -174,16 +176,37 @@ export default function SmartRelatedContent({
       try {
         setLoading(true);
         
+        // تحديد البروتوكول والمنفذ بناءً على البيئة
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+        const apiUrl = `${baseUrl}/api/articles/related?articleId=${articleId}&categoryId=${categoryId || ''}&tags=${tags.join(',')}&limit=8`;
+        
+        console.log('جلب المقالات المرتبطة من:', apiUrl);
+        
         // جلب المقالات المرتبطة من API
-        const response = await fetch(
-          `/api/articles/related?articleId=${articleId}&category=${category}&tags=${tags.join(',')}&limit=8`
-        );
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // إضافة timeout
+          signal: AbortSignal.timeout(10000) // 10 ثوانٍ
+        });
         
         if (!response.ok) {
-          throw new Error('فشل في جلب المحتوى المرتبط');
+          throw new Error(`HTTP ${response.status}: فشل في جلب المحتوى المرتبط`);
         }
         
-        const data = await response.json();
+        const text = await response.text();
+        console.log('استجابة API:', text.substring(0, 200) + '...');
+        
+        let data;
+        
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          console.error('خطأ في parsing JSON:', parseError);
+          console.error('Response text:', text.substring(0, 500));
+          throw new Error('استجابة غير صالحة من الخادم');
+        }
         
         // تحويل البيانات إلى الشكل المطلوب
         const articles: SmartArticle[] = (data.articles || []).map((article: any) => ({
@@ -227,7 +250,7 @@ export default function SmartRelatedContent({
     };
 
     fetchRelatedContent();
-  }, [articleId, category, tags]);
+  }, [articleId, categoryId, tags]);
 
   if (loading) {
     return (

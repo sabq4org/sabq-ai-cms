@@ -284,7 +284,8 @@ export default function ArticleClientComponent({
           <div className="mt-6 sm:mt-8">
             <SmartRelatedContent
               articleId={article.id}
-              category={article.category?.name}
+              categoryId={article.category_id}
+              categoryName={article.category?.name}
               tags={article.keywords || []}
               darkMode={darkMode}
             />

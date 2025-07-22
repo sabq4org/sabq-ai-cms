@@ -38,7 +38,7 @@ export interface ArticleData {
 // جلب المقال للسيرفر (SSR)
 export async function getArticleData(id: string): Promise<ArticleData | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
     const response = await fetch(`${baseUrl}/api/articles/${id}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -48,14 +48,21 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
     });
 
     if (!response.ok) {
-      console.error(`خطأ في جلب المقال ${id}:`, response.status);
-      return null;
+      if (response.status === 404) {
+        console.warn(`المقال ${id} غير موجود`);
+        return null;
+      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('خطأ في جلب بيانات المقال:', error);
+    console.error('خطأ في جلب بيانات المقال:', {
+      id,
+      error: error instanceof Error ? error.message : 'خطأ غير معروف',
+      timestamp: new Date().toISOString()
+    });
     return null;
   }
 }
@@ -68,13 +75,13 @@ export function getFullImageUrl(imageUrl?: string): string {
     return imageUrl;
   }
   
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
   return `${baseUrl}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`;
 }
 
 // إنشاء URL كامل للمقال
 export function getFullArticleUrl(id: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
   return `${baseUrl}/article/${id}`;
 }
 
