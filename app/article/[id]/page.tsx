@@ -14,13 +14,13 @@ export async function generateMetadata({
 
   if (!article) {
     return {
-      title: 'المقال غير متوفر | صحيفة سبق الإلكترونية',
+      title: 'المقال غير متوفر | صحيفة سبق الالكترونية AI',
       description: 'عذراً، المقال المطلوب غير متاح أو غير موجود.',
     };
   }
 
-  const title = `${article.title} | صحيفة سبق الإلكترونية`;
-  const description = article.excerpt || article.summary || article.ai_summary || 'اقرأ آخر الأخبار والتحليلات على صحيفة سبق الإلكترونية';
+  const title = `${article.title} | صحيفة سبق الالكترونية AI`;
+  const description = article.excerpt || article.summary || article.ai_summary || 'اقرأ آخر الأخبار والتحليلات على صحيفة سبق الالكترونية AI';
   const imageUrl = getFullImageUrl(article.featured_image);
   const articleUrl = getFullArticleUrl(resolvedParams.id);
   const keywords = prepareKeywords(article.seo_keywords || article.keywords);
@@ -37,7 +37,7 @@ export async function generateMetadata({
       title,
       description,
       url: articleUrl,
-      siteName: 'صحيفة سبق الإلكترونية',
+      siteName: 'صحيفة سبق الالكترونية AI',
       images: imageUrl
         ? [
             {

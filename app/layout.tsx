@@ -17,8 +17,8 @@ const ibmPlexArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: 'سبق AI CMS',
-  description: 'نظام إدارة المحتوى بالذكاء الاصطناعي',
+  title: 'صحيفة سبق الالكترونية AI',
+  description: 'صحيفة سبق الإلكترونية - أخبار ومقالات بتقنية الذكاء الاصطناعي',
 };
 
 export default function RootLayout({

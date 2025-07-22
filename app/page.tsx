@@ -1,5 +1,26 @@
 import { headers } from 'next/headers';
+import { Metadata } from 'next';
 import PageClient from './page-client';
+
+// Metadata للصفحة الرئيسية
+export const metadata: Metadata = {
+  title: 'صحيفة سبق الالكترونية AI - الصفحة الرئيسية',
+  description: 'موقع صحيفة سبق الإلكترونية الرسمي - آخر الأخبار والمقالات من المملكة العربية السعودية والعالم بتقنية الذكاء الاصطناعي',
+  keywords: 'سبق, صحيفة سبق, أخبار السعودية, أخبار عربية, ذكاء اصطناعي',
+  authors: [{ name: 'صحيفة سبق الإلكترونية' }],
+  openGraph: {
+    title: 'صحيفة سبق الالكترونية AI',
+    description: 'موقع صحيفة سبق الإلكترونية الرسمي - آخر الأخبار والمقالات',
+    siteName: 'صحيفة سبق الالكترونية AI',
+    type: 'website',
+    locale: 'ar_SA',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@sabqorg',
+    creator: '@sabqorg',
+  },
+};
 
 // Server Component لجلب البيانات
 async function getArticles() {

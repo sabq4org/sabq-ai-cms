@@ -6,7 +6,7 @@ export default function UltraSimpleLayout({
   return (
     <html lang="ar" dir="rtl">
       <head>
-        <title>سبق AI CMS</title>
+        <title>صحيفة سبق الالكترونية AI</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
