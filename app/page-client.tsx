@@ -20,7 +20,7 @@ import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
 import MobileArticleCard from '@/components/mobile/MobileArticleCard';
 import EnhancedMobileNewsCard from '@/components/mobile/EnhancedMobileNewsCard';
 import MobileStatsBar from '@/components/mobile/MobileStatsBar';
-import EnhancedMobileStatsBar from '@/components/mobile/EnhancedMobileStatsBar';
+import CompactStatsBar from '@/components/mobile/CompactStatsBar';
 
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -346,7 +346,7 @@ function NewspaperHomePage({
 
       {/* شريط الإحصائيات المحسن للموبايل */}
       {isMobile && (
-        <EnhancedMobileStatsBar darkMode={darkMode} />
+        <CompactStatsBar darkMode={darkMode} />
       )}
       
       {/* عرض جميع البلوكات الذكية */}
@@ -375,14 +375,17 @@ function NewspaperHomePage({
       
       {/* بلوك الجرعات الذكي - ثاني بلوك */}
       <SmartDigestBlock />
-      {/* التحليل العميق - ثالث بلوك */}
-      <div className="w-full">
-         <DeepAnalysisBlock className="col-span-1" maxItems={3} />
-      </div>
-      {/* Smart Blocks - قبل المحتوى المخصص (محتوى مخصص لك) */}
+
+      {/* Smart Blocks - المحتوى المخصص (محتوى ذكي مخصص لك) - ثالث بلوك */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="beforePersonalization" />
       </div>
+
+      {/* التحليل العميق - رابع بلوك (بعد المحتوى المخصص) */}
+      <div className="w-full">
+         <DeepAnalysisBlock className="col-span-1" maxItems={3} />
+      </div>
+
       {/* Smart Blocks - Below Deep Analysis */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="below_deep_analysis" />

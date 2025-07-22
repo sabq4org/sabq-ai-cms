@@ -77,22 +77,16 @@ export async function GET(request: NextRequest) {
       where.category_id = categoryId;
     }
 
-    // ترتيب محسن - إصلاح صيغة Prisma
-    let orderBy: any;
+    // ترتيب محسن
+    const orderBy: any = {};
     if (sortBy === 'views') {
-      orderBy = [
-        { views: order },
-        { published_at: 'desc' }
-      ];
+      orderBy.views = order;
+      orderBy.published_at = 'desc'; // ترتيب ثانوي
     } else if (sortBy === 'latest' || sortBy === 'published_at') {
-      orderBy = [
-        { published_at: order },
-        { created_at: order }
-      ];
+      orderBy.published_at = order;
+      orderBy.created_at = order; // ترتيب ثانوي
     } else {
-      orderBy = [
-        { [sortBy]: order }
-      ];
+      orderBy[sortBy] = order;
     }
 
     // جلب البيانات من cache أو قاعدة البيانات
