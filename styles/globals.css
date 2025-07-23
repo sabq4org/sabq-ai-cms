@@ -5,6 +5,12 @@
 /* إلغاء تأثيرات underline على الروابط */
 @import './no-link-underline.css';
 
+/* تحسينات تجربة المستخدم */
+@import './enhanced-responsive.css';
+
+/* معالجة الأخطاء */
+@import './error-handling.css';
+
 * {
   box-sizing: border-box;
   margin: 0;

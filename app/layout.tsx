@@ -4,6 +4,7 @@ import '../styles/minimal-fix.css';
 import '../styles/enhanced-mobile-stats.css';
 import '../styles/compact-stats.css';
 import '../styles/mobile-news.css';
+import '../styles/responsive-ui.css';
 import type { Metadata } from 'next';
 import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import { Providers } from './providers';

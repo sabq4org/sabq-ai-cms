@@ -85,10 +85,16 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
       
       // جلب المقالات لكل بلوك
       for (const block of sortedBlocks) {
-        await fetchArticlesForBlock(block);
+        try {
+          await fetchArticlesForBlock(block);
+        } catch (blockError) {
+          console.error(`[SmartSlot] فشل في جلب المقالات للبلوك ${block.name}:`, blockError);
+          // المتابعة مع البلوكات الأخرى حتى لو فشل أحدها
+        }
       }
     } catch (error) {
-      console.error('Error fetching smart blocks:', error);
+      console.error('[SmartSlot] خطأ في تحميل البلوكات:', error);
+      setBlocks([]);
     } finally {
       setLoading(false);
     }
@@ -124,27 +130,41 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
       // التأكد من أن articlesData دائماً مصفوفة
       let articlesData: any[] = [];
       
+      // معالجة محسنة للبيانات المستلمة
       if (Array.isArray(data)) {
         articlesData = data;
       } else if (data && typeof data === 'object') {
-        articlesData = data.data || data.articles || [];
+        // التحقق من جميع الخصائص المحتملة للمصفوفة
+        articlesData = data.data || data.articles || data.items || data.results || [];
+        
+        // إذا لم نجد مصفوفة، نتحقق من خصائص أخرى
+        if (!Array.isArray(articlesData)) {
+          // البحث عن أي خاصية تحتوي على مصفوفة
+          const keys = Object.keys(data);
+          for (const key of keys) {
+            if (Array.isArray(data[key])) {
+              articlesData = data[key];
+              break;
+            }
+          }
+        }
       }
       
-      // التحقق من أن articlesData مصفوفة قبل استخدام filter
+      // التحقق النهائي من أن articlesData مصفوفة
       if (!Array.isArray(articlesData)) {
-        console.error('[SmartSlot] البيانات المستلمة ليست مصفوفة:', articlesData);
-        setBlockArticles(prev => ({
-          ...prev,
-          [block.id]: []
-        }));
-        return;
+        console.warn('[SmartSlot] البيانات المستلمة ليست مصفوفة، سيتم استخدام مصفوفة فارغة:', data);
+        articlesData = [];
       }
+      
+      console.log(`[SmartSlot] تم جلب ${articlesData.length} مقال للبلوك ${block.name}`);
       
       // فلترة حسب التصنيف أولاً إذا كان block.category مُعطى (باسم التصنيف بالعربية أو الإنجليزية)
       let preFiltered = articlesData;
       if (block.category) {
         const catLower = block.category.toLowerCase();
         preFiltered = preFiltered.filter((a: any) => {
+          if (!a) return false;
+          
           const nameAr = (a.category_name || '').toLowerCase();
           const nameEn = (a.category?.name_en || a.category?.name || '').toLowerCase();
           return nameAr.includes(catLower) || nameEn.includes(catLower);
@@ -218,7 +238,14 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
         }))
       }));
     } catch (error) {
-      console.error('Error fetching articles for block:', error);
+      console.error(`[SmartSlot] خطأ في جلب المقالات للبلوك ${block.name}:`, {
+        blockId: block.id,
+        blockName: block.name,
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
+      // تعيين مصفوفة فارغة في حالة الخطأ
       setBlockArticles(prev => ({
         ...prev,
         [block.id]: []

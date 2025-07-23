@@ -14,10 +14,16 @@ let redis: any = null;
 function createRedisConnection() {
   const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
   
+  // تحقق من تفعيل Redis
+  if (process.env.REDIS_ENABLED === 'false' || process.env.ENABLE_REDIS === 'false') {
+    console.log('🔧 Redis معطل في الإعدادات - العمل في وضع التطوير بدون Redis');
+    return null;
+  }
+  
   // إذا لم تكن ioredis متوفرة، لا تحاول الاتصال
   if (!Redis) {
     console.log('🔧 تم تعطيل Redis - العمل في وضع التطوير بدون Redis');
-    return;
+    return null;
   }
   
   // في بيئة الإنتاج على DigitalOcean
@@ -44,46 +50,56 @@ function createRedisConnection() {
       keepAlive: 10000,
       noDelay: true,
     });
+  } else if (process.env.REDIS_URL && isDevelopment) {
+    // في بيئة التطوير - تحقق من وجود Redis محلي
+    console.log('🔧 محاولة استخدام Redis المحلي للتطوير');
+    try {
+      const host = process.env.REDIS_HOST || 'localhost';
+      const port = parseInt(process.env.REDIS_PORT || '6379');
+      
+      redis = new Redis({
+        host,
+        port,
+        password: process.env.REDIS_PASSWORD,
+        db: parseInt(process.env.REDIS_DB || '0'),
+        retryStrategy: (times: number) => {
+          if (times > 2) {
+            console.log('⚠️ Redis المحلي غير متاح، سيتم العمل بدون cache');
+            return null; // إيقاف المحاولات
+          }
+          const delay = Math.min(times * 30, 500);
+          return delay;
+        },
+        maxRetriesPerRequest: 2,
+        connectTimeout: 2000,
+        commandTimeout: 1000,
+        enableOfflineQueue: false,
+        lazyConnect: true
+      });
+    } catch (error) {
+      console.log('⚠️ فشل في إنشاء اتصال Redis المحلي، العمل بدون cache');
+      redis = null;
+    }
   } else {
-    // في بيئة التطوير - استخدام Redis المحلي
-    console.log('🔧 استخدام Redis المحلي للتطوير');
-    const host = process.env.REDIS_HOST || 'localhost';
-    const port = parseInt(process.env.REDIS_PORT || '6379');
-    
-    redis = new Redis({
-      host,
-      port,
-      password: process.env.REDIS_PASSWORD,
-      db: parseInt(process.env.REDIS_DB || '0'),
-      retryStrategy: (times: number) => {
-        if (times > 2) {
-          console.log('⚠️ Redis المحلي غير متاح، سيتم العمل بدون cache');
-          return null; // إيقاف المحاولات
-        }
-        const delay = Math.min(times * 30, 500);
-        return delay;
-      },
-      maxRetriesPerRequest: 2,
-      connectTimeout: 2000,
-      commandTimeout: 1000,
-      enableOfflineQueue: false,
-      lazyConnect: true
-    });
+    console.log('🔧 Redis غير مُكوَّن، العمل بدون cache');
+    redis = null;
   }
 
-  // معالج الأخطاء
-  redis.on('error', (err: any) => {
-    console.error('❌ خطأ في Redis:', err.message);
-    // لا نوقف التطبيق، نعمل بدون cache
-  });
+  // معالج الأخطاء فقط إذا كان Redis متصلاً
+  if (redis) {
+    redis.on('error', (err: any) => {
+      console.error('❌ خطأ في Redis:', err);
+      // لا نوقف التطبيق، نعمل بدون cache
+    });
 
-  redis.on('connect', () => {
-    console.log('✅ تم الاتصال بـ Redis بنجاح');
-  });
+    redis.on('connect', () => {
+      console.log('✅ تم الاتصال بـ Redis بنجاح');
+    });
 
-  redis.on('ready', () => {
-    console.log('🟢 Redis جاهز للاستخدام');
-  });
+    redis.on('ready', () => {
+      console.log('🟢 Redis جاهز للاستخدام');
+    });
+  }
 
   return redis;
 }
