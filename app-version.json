@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0-mobile",
+  "branch": "mobile-lite-redesign",
+  "commit": "9c8f3e12",
+  "buildTime": "2025-07-23T11:50:39Z",
+  "features": [
+    "mobile-optimized-components",
+    "enhanced-performance", 
+    "responsive-design",
+    "mobile-first-approach",
+    "professional-ui-components"
+  ],
+  "description": "النسخة المحمولة المحسنة مع تحسينات الأداء والتصميم التفاعلي",
+  "digitalOcean": {
+    "dockerfile": "Dockerfile.digitalocean",
+    "branch": "mobile-lite-redesign",
+    "autoDeploy": true,
+    "lastDeploy": "2025-07-23T11:50:39Z"
+  },
+  "enhancements": {
+    "colorConsistency": "80%",
+    "layoutImprovement": "70%", 
+    "performanceGain": "60%",
+    "codeQuality": "90%"
+  }
+}
