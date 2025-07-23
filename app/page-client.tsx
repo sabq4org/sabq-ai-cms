@@ -856,285 +856,6 @@ function NewspaperHomePage({
         </section>
         {/* قسم رأي اليوم */}
         <TodayOpinionsSection darkMode={darkMode} />
-        {/* المقالات التفاعلية - التصميم الجديد */}
-        <section className="mb-8 sm:mb-16">
-          <div className="max-w-7xl mx-auto px-3 sm:px-6">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 mb-6">
-                <MessageSquare className="w-5 h-5 text-purple-600" />
-                <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  تفاعل مباشر
-                </span>
-                <Zap className="w-5 h-5 text-pink-600" />
-              </div>
-              <h2 className={`text-3xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                🎯 شارك رأيك وتفاعل مع المحتوى
-              </h2>
-              <p className={`text-lg max-w-3xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                مقالات مميزة تتيح لك التصويت والمشاركة في استطلاعات الرأي والنقاش المباشر مع القراء
-              </p>
-            </div>
-            {/* التصميم الجديد - Mix */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* بطاقة التصويت السريع */}
-              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                {/* شارة النوع */}
-                <div className="absolute top-4 right-4 z-10">
-                  <span className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
-                    تصويت سريع
-                  </span>
-                </div>
-                {/* الصورة */}
-                <div className="relative h-56 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Brain className="w-8 h-8 text-white" />
-                      </div>
-                      <p className="text-orange-600 font-medium text-sm">الذكاء الاصطناعي في التعليم</p>
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                  {/* عداد المشاركين */}
-                  <div className="absolute bottom-4 left-4">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
-                      <Users className="w-4 h-4" />
-                      <span>2.3K مشارك</span>
-                    </div>
-                  </div>
-                </div>
-                {/* المحتوى */}
-                <div className="p-6">
-                  <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    هل يجب تدريس الذكاء الاصطناعي في المدارس؟
-                  </h3>
-                  <p className={`text-sm mb-6 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    شارك برأيك في أهمية إدخال مناهج الذكاء الاصطناعي في التعليم الأساسي
-                  </p>
-                  {/* أزرار التصويت */}
-                  <div className="space-y-3 mb-6">
-                    <button className={`w-full p-3 rounded-xl border-2 transition-all duration-200 ${
-                      darkMode 
-                        ? 'border-gray-600 hover:border-green-500 bg-gray-800 hover:bg-green-900/10' 
-                        : 'border-gray-200 hover:border-green-500 bg-white hover:bg-green-50'
-                    }`}>
-                      <div className="flex items-center justify-between">
-                        <span className={`font-medium ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>نعم، ضروري</span>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>68%</span>
-                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-green-500 rounded-full" style={{width: '68%'}}></div>
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                    <button className={`w-full p-3 rounded-xl border-2 transition-all duration-200 ${
-                      darkMode 
-                        ? 'border-gray-600 hover:border-red-500 bg-gray-800 hover:bg-red-900/10' 
-                        : 'border-gray-200 hover:border-red-500 bg-white hover:bg-red-50'
-                    }`}>
-                      <div className="flex items-center justify-between">
-                        <span className={`font-medium ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>لا، مبكر جداً</span>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>32%</span>
-                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-red-500 rounded-full" style={{width: '32%'}}></div>
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                  {/* زر المشاركة */}
-                  <button className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg">
-                    صوت الآن
-                  </button>
-                </div>
-              </div>
-              {/* بطاقة الاستطلاع المتعدد */}
-              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                {/* شارة النوع */}
-                <div className="absolute top-4 right-4 z-10">
-                  <span className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
-                    استطلاع متعدد
-                  </span>
-                </div>
-                {/* الصورة */}
-                <div className="relative h-56 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Trophy className="w-8 h-8 text-white" />
-                      </div>
-                      <p className="text-purple-600 font-medium text-sm">كأس آسيا</p>
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                  {/* مؤقت */}
-                  <div className="absolute bottom-4 left-4">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
-                      <Clock className="w-4 h-4" />
-                      <span>ينتهي خلال 4 ساعات</span>
-                    </div>
-                  </div>
-                </div>
-                {/* المحتوى */}
-                <div className="p-6">
-                  <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    من سيفوز بكأس آسيا هذا العام؟
-                  </h3>
-                  <p className={`text-sm mb-6 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    توقع الفريق الفائز وشارك في النقاش مع المشجعين
-                  </p>
-                  {/* خيارات الاستطلاع */}
-                  <div className="space-y-3 mb-6">
-                    {[
-                      {name: 'السعودية', votes: 45, color: 'green'},
-                      {name: 'اليابان', votes: 25, color: 'blue'},
-                      {name: 'كوريا الجنوبية', votes: 20, color: 'red'},
-                      {name: 'أستراليا', votes: 10, color: 'yellow'}
-                    ].map((option, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-purple-300 transition-all cursor-pointer">
-                        <div className={`w-4 h-4 rounded-full bg-${option.color}-500`}></div>
-                        <span className={`flex-1 font-medium ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>{option.name}</span>
-                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{option.votes}%</span>
-                        <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div className={`h-full bg-${option.color}-500 rounded-full`} style={{width: `${option.votes}%`}}></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {/* زر المشاركة */}
-                  <button className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg">
-                    شارك توقعك
-                  </button>
-                </div>
-              </div>
-              {/* بطاقة النقاش المفتوح */}
-              <div className={`group relative rounded-3xl overflow-hidden shadow-2xl dark:shadow-gray-900/50 transition-all duration-300 ${darkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-white to-gray-50'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                {/* شارة النوع */}
-                <div className="absolute top-4 right-4 z-10">
-                  <span className="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm">
-                    نقاش مفتوح
-                  </span>
-                </div>
-                {/* الصورة */}
-                <div className="relative h-56 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-green-100 to-teal-100 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <TrendingUp className="w-8 h-8 text-white" />
-                      </div>
-                      <p className="text-green-600 font-medium text-sm">رؤية 2030</p>
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                  {/* عدد التعليقات */}
-                  <div className="absolute bottom-4 left-4">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>134 تعليق</span>
-                    </div>
-                  </div>
-                </div>
-                {/* المحتوى */}
-                <div className="p-6">
-                  <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    تأثير رؤية 2030 على الاقتصاد المحلي
-                  </h3>
-                  <p className={`text-sm mb-6 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    ناقش التحولات الاقتصادية وشارك تجربتك الشخصية مع القراء
-                  </p>
-                  {/* آخر التعليقات */}
-                  <div className="space-y-3 mb-6">
-                    <div className={`p-3 rounded-xl ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">أ</div>
-                        <div className="flex-1">
-                          <p className={`text-sm ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                            "شهدت تحسناً كبيراً في فرص العمل..."
-                          </p>
-                          <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>أحمد محمد - منذ ساعة</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className={`p-3 rounded-xl ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">س</div>
-                        <div className="flex-1">
-                          <p className={`text-sm ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                            "الاستثمارات الأجنبية زادت بشكل ملحوظ"
-                          </p>
-                          <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>سارة أحمد - منذ 3 ساعات</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* زر المشاركة */}
-                  <Link href="/article/interactive/vision-2030-impact" className="block">
-                    <button className="w-full py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl font-medium hover:from-green-600 hover:to-teal-600 transition-all duration-200 shadow-lg">
-                      انضم للنقاش
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            {/* شريط الإحصائيات */}
-            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-              <Link href="/moment-by-moment" className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 cursor-pointer`}>
-                <div className="text-2xl md:text-3xl font-bold text-red-500 mb-2">
-                  {!stats || stats.loading ? (
-                    <span className="inline-block w-20 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
-                  ) : (
-                    '15K+'
-                  )}
-                </div>
-                <div className={`flex items-center justify-center gap-1 text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  <Clock className="w-3 h-3 md:w-4 md:h-4" />
-                  <span>أخبار اليوم</span>
-                </div>
-              </Link>
-              <Link href="/categories" className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 cursor-pointer`}>
-                <div className="text-2xl md:text-3xl font-bold text-purple-500 mb-2">
-                  {!stats || stats.loading ? (
-                    <span className="inline-block w-20 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
-                  ) : (
-                    '12'
-                  )}
-                </div>
-                <div className={`flex items-center justify-center gap-1 text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  <Tag className="w-3 h-3 md:w-4 md:h-4" />
-                  <span>الأقسام</span>
-                </div>
-              </Link>
-              <div className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
-                <div className="text-2xl md:text-3xl font-bold text-green-500 mb-2">
-                  {!stats || stats.loading ? (
-                    <span className="inline-block w-20 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
-                  ) : (
-                    '2.1K'
-                  )}
-                </div>
-                <div className={`flex items-center justify-center gap-1 text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
-                  <span>تعليق جديد</span>
-                </div>
-              </div>
-              <div className={`text-center p-4 md:p-6 rounded-2xl ${darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white border border-gray-200'} shadow-lg`}>
-                <div className="text-2xl md:text-3xl font-bold text-blue-500 mb-2">
-                  {!stats || stats.loading ? (
-                    <span className="inline-block w-20 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
-                  ) : (
-                    '94%'
-                  )}
-                </div>
-                <div className={`flex items-center justify-center gap-1 text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  <BarChart3 className="w-3 h-3 md:w-4 md:h-4" />
-                  <span>معدل التفاعل</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
       {/* Smart Blocks - Below Personalized Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
