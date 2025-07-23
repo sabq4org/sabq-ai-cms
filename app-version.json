@@ -1,5 +1,5 @@
 {
-  "version": "2.0.5-cloudinary-fix",
+  "version": "2.0.6-article-url-fix",
   "branch": "main",
   "commit": "009e8462",
   "buildTime": "2025-07-23T15:45:00Z",
@@ -13,9 +13,10 @@
     "webpack-errors-fixed",
     "interface-repair-complete",
     "jsx-syntax-fixed",
-    "cloudinary-upload-fixed"
+    "cloudinary-upload-fixed",
+    "article-url-production-fix"
   ],
-  "description": "النسخة المحمولة المحسنة مع إصلاح رفع الصور إلى Cloudinary",
+  "description": "إصلاح URL المقالات في البيئة الإنتاجية مع تحديث متغيرات البيئة",
   "digitalOcean": {
     "dockerfile": "Dockerfile.digitalocean",
     "branch": "main",
@@ -25,7 +26,8 @@
     "interfaceRepairComplete": true,
     "jsxSyntaxFixed": true,
     "mergedToMain": true,
-    "cloudinaryFixed": true
+    "cloudinaryFixed": true,
+    "articleUrlProductionFix": true
   },
   "enhancements": {
     "colorConsistency": "80%",
