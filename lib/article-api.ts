@@ -38,13 +38,27 @@ export interface ArticleData {
 // جلب المقال للسيرفر (SSR)
 export async function getArticleData(id: string): Promise<ArticleData | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002';
+    // تحديد URL بناءً على البيئة
+    let baseUrl: string;
+    
+    if (typeof window !== 'undefined') {
+      // في المتصفح - استخدم النطاق الحالي
+      baseUrl = window.location.origin;
+    } else {
+      // في السيرفر - استخدم متغيرات البيئة أو الافتراضي
+      baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
+                process.env.APP_URL ||
+                'http://localhost:3002';
+    }
     
     // ترميز المعرف للتأكد من صحة URL
     const encodedId = encodeURIComponent(id);
     const apiUrl = `${baseUrl}/api/articles/${encodedId}`;
     
     console.log(`[getArticleData] محاولة جلب مقال بالمعرف:`, id);
+    console.log(`[getArticleData] البيئة:`, process.env.NODE_ENV);
+    console.log(`[getArticleData] Base URL:`, baseUrl);
     console.log(`[getArticleData] API URL:`, apiUrl);
     
     const response = await fetch(apiUrl, {
@@ -61,6 +75,29 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
         return null;
       }
       console.error(`[getArticleData] خطأ HTTP عند جلب المقال:`, response.status, response.statusText);
+      
+      // في حالة فشل الاستدعاء، حاول مع localhost (للـ SSR الداخلي)
+      if (typeof window === 'undefined' && !baseUrl.includes('localhost')) {
+        console.log(`[getArticleData] محاولة بديلة مع localhost...`);
+        try {
+          const fallbackUrl = `http://localhost:3002/api/articles/${encodedId}`;
+          const fallbackResponse = await fetch(fallbackUrl, {
+            headers: { 'Content-Type': 'application/json' },
+            cache: 'no-store'
+          });
+          
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            if (fallbackData && fallbackData.id) {
+              console.log(`[getArticleData] تم جلب المقال بنجاح من localhost`);
+              return fallbackData;
+            }
+          }
+        } catch (fallbackError) {
+          console.warn(`[getArticleData] فشلت المحاولة البديلة:`, fallbackError);
+        }
+      }
+      
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -94,7 +131,17 @@ export function getFullImageUrl(imageUrl?: string): string {
 
 // إنشاء URL كامل للمقال
 export function getFullArticleUrl(id: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002';
+  let baseUrl: string;
+  
+  if (typeof window !== 'undefined') {
+    baseUrl = window.location.origin;
+  } else {
+    baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+              process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
+              process.env.APP_URL ||
+              'https://sabq.io';
+  }
+  
   return `${baseUrl}/article/${id}`;
 }
 

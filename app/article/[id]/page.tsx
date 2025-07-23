@@ -103,6 +103,30 @@ export default async function ArticlePage({
 
   if (!article) {
     console.error(`[ArticlePage] لم يتم العثور على مقال بالمعرف:`, articleId);
+    console.error(`[ArticlePage] البيئة:`, process.env.NODE_ENV);
+    console.error(`[ArticlePage] APP_URL:`, process.env.NEXT_PUBLIC_APP_URL);
+    
+    // محاولة استدعاء مباشر للـ API كتجربة أخيرة
+    if (typeof process !== 'undefined') {
+      try {
+        console.log(`[ArticlePage] محاولة استدعاء مباشر للـ API...`);
+        const directResponse = await fetch(`https://sabq.io/api/articles/${articleId}`, {
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (directResponse.ok) {
+          const directData = await directResponse.json();
+          if (directData && directData.id) {
+            console.log(`[ArticlePage] تم العثور على المقال بالاستدعاء المباشر`);
+            return <ArticleClientComponent initialArticle={directData} articleId={articleId} />;
+          }
+        }
+        console.log(`[ArticlePage] فشل الاستدعاء المباشر:`, directResponse.status);
+      } catch (directError) {
+        console.error(`[ArticlePage] خطأ في الاستدعاء المباشر:`, directError);
+      }
+    }
+    
     return (
       <div style={{
         padding: '3rem', 
