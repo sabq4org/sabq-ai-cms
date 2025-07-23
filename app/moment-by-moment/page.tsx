@@ -71,10 +71,24 @@ export default function MomentByMomentPage() {
         limit: ITEMS_PER_PAGE.toString()
       });
 
-      const response = await fetch(`/api/timeline?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch timeline');
+      const response = await fetch(`/api/timeline?${params}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || 'فشل في جلب البيانات');
+      }
       
       const data = await response.json();
+      
+      // التحقق من نجاح الاستجابة
+      if (!data.success) {
+        throw new Error(data.error || 'فشل في جلب بيانات الخط الزمني');
+      }
       
       if (reset) {
         setTimelineItems(data.items || []);
@@ -86,7 +100,13 @@ export default function MomentByMomentPage() {
       setHasMore(data.pagination?.hasMore || false);
     } catch (error) {
       console.error('Error fetching timeline:', error);
-      setError('فشل في تحميل الخط الزمني');
+      setError(error instanceof Error ? error.message : 'فشل في تحميل الخط الزمني');
+      
+      // في حالة الخطأ، تعيين بيانات فارغة
+      if (reset) {
+        setTimelineItems([]);
+      }
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
@@ -358,9 +378,17 @@ export default function MomentByMomentPage() {
               <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 لا توجد أحداث
               </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                لا توجد أحداث مطابقة للفلتر المحدد
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                {error ? 'حدث خطأ في تحميل البيانات' : 'لا توجد أحداث مطابقة للفلتر المحدد'}
               </p>
+              {error && (
+                <button
+                  onClick={() => fetchTimeline(true)}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  إعادة المحاولة
+                </button>
+              )}
             </div>
           ) : (
             <>

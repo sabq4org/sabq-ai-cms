@@ -1,36 +1,72 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma, ensureConnection } from '@/lib/prisma';
+
+interface TimelineArticle {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  featured_image: string | null;
+  breaking?: boolean;
+  published_at: Date | null;
+  created_at: Date;
+  metadata?: any;
+  categories?: {
+    id: string;
+    name: string;
+    slug: string;
+    color: string | null;
+  } | null;
+  authors?: {
+    id: string;
+    name: string;
+  } | null;
+}
 
 export async function GET(request: NextRequest) {
   try {
+    // التحقق من اتصال قاعدة البيانات أولاً
+    const isConnected = await ensureConnection();
+    if (!isConnected) {
+      console.error('❌ فشل اتصال قاعدة البيانات في /api/timeline');
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'خطأ في الاتصال بقاعدة البيانات',
+          items: [],
+          pagination: {
+            page: 1,
+            limit: 20,
+            total: 0,
+            hasMore: false,
+            totalPages: 0
+          }
+        },
+        { status: 503 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
 
-    // جلب جميع المقالات مع بيانات الفئة والمؤلف
-    const articlesPromise = prisma.articles.findMany({
+    // جلب جميع المقالات مع بيانات الفئة
+    const articles = await prisma.articles.findMany({
       where: {
         status: 'published'
-      },
-      include: {
-        categories: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            color: true
-          }
-        }
       },
       orderBy: {
         published_at: 'desc'
       },
       take: limit * 2 // نجلب ضعف العدد لنقسمها لاحقاً
+    }).catch(error => {
+      console.error('خطأ في جلب المقالات:', error);
+      return []; // إرجاع مصفوفة فارغة في حالة الخطأ
     });
 
     // جلب التصنيفات الجديدة
-    const categoriesPromise = prisma.categories.findMany({
+    const categories = await prisma.categories.findMany({
       where: {
         is_active: true
       },
@@ -47,66 +83,96 @@ export async function GET(request: NextRequest) {
         created_at: 'desc'
       },
       take: limit
+    }).catch(error => {
+      console.error('خطأ في جلب التصنيفات:', error);
+      return []; // إرجاع مصفوفة فارغة في حالة الخطأ
     });
 
-    // تنفيذ جميع الاستعلامات بالتوازي
-    const [articles, categories] = await Promise.all([
-      articlesPromise,
-      categoriesPromise
-    ]);
+    // جلب معلومات التصنيفات للمقالات
+    const categoryIds = [...new Set(articles.map(a => a.category_id).filter(Boolean))];
+    const categoriesMap = new Map();
+    
+    if (categoryIds.length > 0) {
+      const articleCategories = await prisma.categories.findMany({
+        where: {
+          id: { in: categoryIds as string[] }
+        },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          color: true
+        }
+      });
+      
+      articleCategories.forEach(cat => {
+        categoriesMap.set(cat.id, cat);
+      });
+    }
 
     // تصنيف المقالات إلى أخبار ومقالات رأي
-    const news = [];
-    const opinionArticles = [];
+    const news: any[] = [];
+    const opinionArticles: any[] = [];
     
     for (const article of articles) {
+      const categoryData = article.category_id ? categoriesMap.get(article.category_id) : null;
+      
       // تحديد نوع المقال بناءً على الفئة أو البيانات الوصفية
       const isOpinion = 
-        article.categories?.name === 'رأي' || 
-        article.categories?.name === 'Opinion' ||
-        article.categories?.slug === 'opinion' ||
+        categoryData?.name === 'رأي' || 
+        categoryData?.name === 'Opinion' ||
+        categoryData?.slug === 'opinion' ||
         (article.metadata && typeof article.metadata === 'object' && 
          'type' in article.metadata && (article.metadata as any).type === 'opinion');
       
+      const articleWithCategory = { 
+        ...article, 
+        category: categoryData 
+      };
+      
       if (isOpinion) {
-        opinionArticles.push(article);
+        opinionArticles.push(articleWithCategory);
       } else {
-        news.push(article);
+        news.push(articleWithCategory);
       }
     }
 
     // دمج وتنسيق البيانات
     const timelineItems = [
       // تنسيق الأخبار
-      ...news.slice(0, limit).map(item => ({
+      ...news.slice(0, limit).map((item: any) => ({
         id: `news-${item.id}`,
         type: 'news' as const,
         title: item.title,
         slug: item.slug,
         excerpt: item.excerpt,
         image: item.featured_image,
-        category: item.categories,
+        category: item.category,
         author: null,
         timestamp: item.published_at || item.created_at,
         tag: '📢',
         label: 'خبر جديد',
-        color: 'green'
+        color: 'green',
+        is_breaking: item.breaking || false,
+        breaking: item.breaking || false
       })),
       
       // تنسيق المقالات
-      ...opinionArticles.slice(0, limit).map(item => ({
+      ...opinionArticles.slice(0, limit).map((item: any) => ({
         id: `article-${item.id}`,
         type: 'article' as const,
         title: item.title,
         slug: item.slug,
         excerpt: item.excerpt,
         image: item.featured_image,
-        category: item.categories,
+        category: item.category,
         author: null,
         timestamp: item.published_at || item.created_at,
         tag: '📝',
         label: 'مقال جديد',
-        color: 'orange'
+        color: 'orange',
+        is_breaking: item.breaking || false,
+        breaking: item.breaking || false
       })),
       
       // تنسيق التصنيفات
@@ -126,7 +192,9 @@ export async function GET(request: NextRequest) {
         categoryData: {
           color: item.color,
           icon: item.icon
-        }
+        },
+        is_breaking: false,
+        breaking: false
       }))
     ];
 
@@ -160,7 +228,15 @@ export async function GET(request: NextRequest) {
       { 
         success: false,
         error: 'فشل في جلب بيانات الخط الزمني',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        items: [],
+        pagination: {
+          page: 1,
+          limit: 20,
+          total: 0,
+          hasMore: false,
+          totalPages: 0
+        }
       },
       { status: 500 }
     );
