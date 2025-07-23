@@ -46,10 +46,16 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
       baseUrl = window.location.origin;
     } else {
       // في السيرفر - استخدم متغيرات البيئة أو الافتراضي
-      baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
-                process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
-                process.env.APP_URL ||
-                'http://localhost:3002';
+      // إضافة إصلاح مباشر لموقع sabq.io
+      const isProduction = process.env.NODE_ENV === 'production';
+      if (isProduction) {
+        baseUrl = 'https://sabq.io';
+      } else {
+        baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
+                  process.env.APP_URL ||
+                  'http://localhost:3002';
+      }
     }
     
     // ترميز المعرف للتأكد من صحة URL

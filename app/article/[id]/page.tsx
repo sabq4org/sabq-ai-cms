@@ -110,8 +110,14 @@ export default async function ArticlePage({
     if (typeof process !== 'undefined') {
       try {
         console.log(`[ArticlePage] محاولة استدعاء مباشر للـ API...`);
-        const directResponse = await fetch(`https://sabq.io/api/articles/${articleId}`, {
-          headers: { 'Content-Type': 'application/json' }
+        
+        // استخدام URL المباشر لـ sabq.io
+        const directApiUrl = `https://sabq.io/api/articles/${articleId}`;
+        console.log(`[ArticlePage] Direct API URL: ${directApiUrl}`);
+        
+        const directResponse = await fetch(directApiUrl, {
+          headers: { 'Content-Type': 'application/json' },
+          cache: 'no-store' // تجنب cache للتأكد من أحدث البيانات
         });
         
         if (directResponse.ok) {
