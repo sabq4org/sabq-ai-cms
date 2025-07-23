@@ -120,15 +120,36 @@ async function getDeepAnalyses() {
     });
     
     if (!res.ok) {
-      console.error('فشل جلب التحليلات العميقة:', res.status);
+      console.error('❌ فشل جلب التحليلات العميقة - HTTP Status:', res.status);
+      // محاولة قراءة رسالة الخطأ من الاستجابة
+      try {
+        const errorData = await res.json();
+        console.error('❌ Error details:', errorData);
+      } catch {
+        // تجاهل أخطاء parsing
+      }
       return [];
     }
     
     const json = await res.json();
+    
+    // التحقق من نجاح العملية
+    if (json.success === false) {
+      console.error('❌ API returned error:', json.error || json.errorMessage);
+      return [];
+    }
+    
     const analyses = Array.isArray(json) ? json : (json.data ?? json.analyses ?? []);
+    
+    // التحقق من وجود بيانات صحيحة
+    if (!Array.isArray(analyses)) {
+      console.error('❌ Invalid data format from API');
+      return [];
+    }
+    
     return analyses;
   } catch (error) {
-    console.error('خطأ في جلب التحليلات العميقة من الخادم:', error);
+    console.error('❌ خطأ في جلب التحليلات العميقة من الخادم:', error);
     return [];
   }
 }

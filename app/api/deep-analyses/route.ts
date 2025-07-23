@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma, ensureConnection } from '@/lib/prisma';
+import { logDatabaseError, logApiError } from '@/lib/services/monitoring';
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,6 +21,12 @@ export async function GET(request: NextRequest) {
 
     try {
       console.log('🔍 جلب التحليلات العميقة من قاعدة البيانات...');
+      
+      // التحقق من اتصال قاعدة البيانات أولاً
+      const isConnected = await ensureConnection();
+      if (!isConnected) {
+        throw new Error('Database connection failed');
+      }
 
     // بناء شروط البحث
     const where: any = {};
@@ -121,40 +128,45 @@ export async function GET(request: NextRequest) {
     });
 
     } catch (dbError) {
-      console.error('Error accessing database:', dbError);
+      console.error('❌ Database Error in deep-analyses API:', dbError);
       
+      // تسجيل الخطأ في خدمة المراقبة
+      logDatabaseError(dbError, 'SELECT', 'deep_analyses');
+      
+      // في حالة خطأ قاعدة البيانات، نرجع مصفوفة فارغة مع رسالة خطأ
       return NextResponse.json({
-        success: true,
-        analyses: [{
-          id: 'fallback-1',
-          title: 'خطأ في الاتصال بقاعدة البيانات',
-          summary: 'حدث خطأ أثناء جلب البيانات من قاعدة البيانات. يرجى المحاولة لاحقاً.',
-          slug: 'database-error',
-          featuredImage: '/images/error.jpg',
-          status: 'draft',
-          sourceType: 'manual',
-          qualityScore: 0,
-          analyzed_at: new Date().toISOString(),
-          article: null
-        }],
-        total: 1,
+        success: false,
+        analyses: [],
+        total: 0,
         totalInDb: 0,
         limit,
         offset,
         page,
         hasNext: false,
         hasPrev: false,
-        error: 'Database connection error'
+        error: 'Database connection error',
+        errorMessage: 'فشل الاتصال بقاعدة البيانات. يرجى المحاولة لاحقاً.',
+        errorDetails: process.env.NODE_ENV === 'development' ? 
+          (dbError instanceof Error ? dbError.message : 'Unknown database error') : 
+          undefined
       });
     }
 
   } catch (error) {
-    console.error('Error fetching deep analyses:', error);
+    console.error('❌ General Error in deep-analyses API:', error);
+    
+    // تسجيل الخطأ في خدمة المراقبة
+    logApiError(error, '/api/deep-analyses', 'GET', 500);
+    
     return NextResponse.json(
       { 
         success: false,
+        analyses: [],
         error: 'Failed to fetch deep analyses',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        errorMessage: 'حدث خطأ في جلب التحليلات العميقة',
+        details: process.env.NODE_ENV === 'development' ? 
+          (error instanceof Error ? error.message : 'Unknown error') : 
+          undefined
       },
       { status: 500 }
     );
@@ -166,6 +178,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     try {
+      // التحقق من اتصال قاعدة البيانات أولاً
+      const isConnected = await ensureConnection();
+      if (!isConnected) {
+        throw new Error('Database connection failed');
+      }
+      
     const newAnalysis = await prisma.deep_analyses.create({
       data: {
           id: `analysis-${Date.now()}`,
@@ -186,25 +204,43 @@ export async function POST(request: NextRequest) {
       data: newAnalysis
     });
     } catch (dbError) {
-      console.error('Database error:', dbError);
+      console.error('❌ Database error in POST deep-analyses:', dbError);
+      
+      // تسجيل الخطأ في خدمة المراقبة
+      logDatabaseError(dbError, 'INSERT', 'deep_analyses');
+      
+      // في production، نسجل الخطأ ونرجع استجابة عامة
+      if (process.env.NODE_ENV === 'production') {
+        // يمكن إرسال الخطأ إلى خدمة مراقبة مثل Sentry
+        console.error('Production DB Error:', {
+          error: dbError instanceof Error ? dbError.message : 'Unknown error',
+          stack: dbError instanceof Error ? dbError.stack : undefined,
+          timestamp: new Date().toISOString()
+        });
+      }
       
       return NextResponse.json({
-        success: true,
-        data: {
-          id: `analysis-${Date.now()}`,
-          ...body,
-          analyzed_at: new Date().toISOString()
-        }
-      });
+        success: false,
+        error: 'Database operation failed',
+        errorMessage: 'فشلت العملية. يرجى المحاولة لاحقاً.',
+        data: null
+      }, { status: 500 });
     }
 
   } catch (error) {
-    console.error('Error creating deep analysis:', error);
+    console.error('❌ General Error in POST deep-analyses:', error);
+    
+    // تسجيل الخطأ في خدمة المراقبة
+    logApiError(error, '/api/deep-analyses', 'POST', 500);
+    
     return NextResponse.json(
       { 
         success: false,
         error: 'Failed to create deep analysis',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        errorMessage: 'حدث خطأ في إنشاء التحليل',
+        details: process.env.NODE_ENV === 'development' ? 
+          (error instanceof Error ? error.message : 'Unknown error') : 
+          undefined
       },
       { status: 500 }
     );

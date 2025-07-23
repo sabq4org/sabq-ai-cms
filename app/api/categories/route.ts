@@ -102,8 +102,10 @@ function normalizeMetadata(md: any): any {
 // معالجات API
 // ===============================
 
-// GET: جلب جميع الفئات
+// GET: جلب جميع الفئات محسن للأداء
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     console.log('🔍 بدء جلب التصنيفات...')
     
@@ -150,15 +152,33 @@ export async function GET(request: NextRequest) {
       where.slug = slug;
     }
     
+    // مفتاح cache محسن
+    const cacheKey = `categories:${isActive || 'all'}:${parentId || 'all'}:${slug || 'all'}:${limit || 'all'}`;
+    
     // جلب الفئات مع عدد المقالات باستخدام cache
     const categories = await getCachedData(
-      ENHANCED_CACHE_KEYS.CATEGORIES_ACTIVE,
+      cacheKey,
       async () => {
         console.log('🔍 جلب التصنيفات من قاعدة البيانات...')
         
-        // جلب الفئات
+        // جلب الفئات بطريقة محسنة
         const categoriesData = await prisma.categories.findMany({
           where,
+          select: {
+            id: true,
+            name: true,
+            name_en: true,
+            slug: true,
+            description: true,
+            color: true,
+            icon: true,
+            parent_id: true,
+            display_order: true,
+            is_active: true,
+            created_at: true,
+            updated_at: true,
+            metadata: true
+          },
           orderBy: [
             { display_order: 'asc' },
             { name: 'asc' }
@@ -166,67 +186,83 @@ export async function GET(request: NextRequest) {
           ...(limit && { take: parseInt(limit) })
         });
         
-        // جلب عدد المقالات لكل فئة بشكل متوازي
-        const categoriesWithCount = await Promise.all(
-          categoriesData.map(async (category) => {
-            const articlesCount = await prisma.articles.count({
-              where: {
-                category_id: category.id,
-                status: 'published'
-              }
-            });
-            
-            // معالجة metadata
-            let parsedMetadata: any = {};
-            if (category.metadata && typeof category.metadata === 'object') {
-          parsedMetadata = normalizeMetadata(category.metadata);
-        }
+        // حساب عدد المقالات لكل فئة بطريقة محسنة
+        const categoryIds = categoriesData.map(cat => cat.id);
+        const articleCounts = await prisma.articles.groupBy({
+          by: ['category_id'],
+          where: {
+            category_id: { in: categoryIds },
+            status: 'published'
+          },
+          _count: {
+            id: true
+          }
+        });
         
-        // استخراج البيانات من metadata أو استخدام القيم الافتراضية
-        const name_ar = parsedMetadata.name_ar || category.name || '';
-        const name_en = parsedMetadata.name_en || category.name_en || '';
-        const description_ar = parsedMetadata.ar || category.description || '';
-        const description_en = parsedMetadata.en || '';
-        const color_hex = parsedMetadata.color_hex || category.color || '#6B7280';
-        const icon = parsedMetadata.icon || category.icon || '📁';
-        const cover_image = parsedMetadata.cover_image || '';
+        // إنشاء خريطة للعدد
+        const countMap = new Map(
+          articleCounts.map(item => [item.category_id, item._count.id])
+        );
         
-        return {
-          id: category.id,
-          name: category.name || name_ar,
-          name_ar: name_ar,
-          name_en: name_en,
-          slug: category.slug,
-          description: description_ar,
-          description_en: description_en,
-          color: color_hex,
-          color_hex: color_hex,
-          icon: icon,
-          cover_image: cover_image,
-          parent_id: category.parent_id,
-          display_order: category.display_order,
-          is_active: category.is_active,
-          articles_count: articlesCount,
-          created_at: category.created_at,
-          updated_at: category.updated_at,
-          metadata: parsedMetadata
-        };
-      })
-    );
+        // دمج البيانات
+        const categoriesWithCount = categoriesData.map((category) => {
+          // معالجة metadata
+          let parsedMetadata: any = {};
+          if (category.metadata && typeof category.metadata === 'object') {
+            parsedMetadata = normalizeMetadata(category.metadata);
+          }
+          
+          // استخراج البيانات من metadata أو استخدام القيم الافتراضية
+          const name_ar = parsedMetadata.name_ar || category.name || '';
+          const name_en = parsedMetadata.name_en || category.name_en || '';
+          const description_ar = parsedMetadata.ar || category.description || '';
+          const description_en = parsedMetadata.en || '';
+          const color_hex = parsedMetadata.color_hex || category.color || '#6B7280';
+          const icon = parsedMetadata.icon || category.icon || '📁';
+          const cover_image = parsedMetadata.cover_image || '';
+          
+          return {
+            id: category.id,
+            name: category.name || name_ar,
+            name_ar: name_ar,
+            name_en: name_en,
+            slug: category.slug,
+            description: description_ar,
+            description_en: description_en,
+            color: color_hex,
+            color_hex: color_hex,
+            icon: icon,
+            cover_image: cover_image,
+            parent_id: category.parent_id,
+            display_order: category.display_order,
+            is_active: category.is_active,
+            articles_count: countMap.get(category.id) || 0,
+            created_at: category.created_at,
+            updated_at: category.updated_at,
+            metadata: parsedMetadata
+          };
+        });
         
         return categoriesWithCount
       },
-      ENHANCED_CACHE_TTL.CATEGORIES
+      ENHANCED_CACHE_TTL.CATEGORIES || 300 // 5 دقائق
     )
     
-    console.log(`✅ تم جلب ${categories.length} تصنيف بنجاح`)
+    const endTime = Date.now();
+    console.log(`✅ تم جلب ${categories.length} تصنيف في ${endTime - startTime}ms`)
     
-    return corsResponse({
+    const response = corsResponse({
       success: true,
       data: categories,
       categories: categories, // للتوافق مع الكود القديم
       total: categories.length
     });
+    
+    // إضافة headers للأداء
+    response.headers.set('X-Response-Time', `${endTime - startTime}ms`);
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60');
+    
+    return response;
     
   } catch (error) {
     console.error('❌ خطأ في جلب الفئات:', error);

@@ -11,10 +11,11 @@ function addCorsHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-// Cache مُحسن للأداء
-function setCacheHeaders(response: NextResponse, ttl: number = 180): NextResponse {
-  response.headers.set('Cache-Control', `public, s-maxage=${ttl}, stale-while-revalidate=${ttl * 2}`);
-  response.headers.set('X-Cached', 'MISS');
+// دالة لإضافة cache headers
+function setCacheHeaders(response: NextResponse, seconds: number): NextResponse {
+  response.headers.set('Cache-Control', `public, s-maxage=${seconds}, stale-while-revalidate=60`);
+  response.headers.set('CDN-Cache-Control', `max-age=${seconds}`);
+  response.headers.set('Vercel-CDN-Cache-Control', `max-age=${seconds}`);
   return response;
 }
 
@@ -44,9 +45,16 @@ async function getCachedArticles(cacheKey: string, fetcher: () => Promise<any>, 
   return { data, fromCache: false };
 }
 
-// معالج طلب OPTIONS
+// معالج OPTIONS للـ CORS
 export async function OPTIONS() {
-  return addCorsHeaders(new NextResponse(null, { status: 200 }));
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, Accept',
+    },
+  });
 }
 
 // معالج GET محسن للغاية
@@ -74,39 +82,23 @@ export async function GET(request: NextRequest) {
     // بناء شروط البحث المحسنة
     const where: any = {};
     
-    // إضافة فلترة الحالة - دعم "all" للداشبورد
+    // إضافة فلترة الحالة
     if (status && status !== 'all') {
       where.status = status;
-    } else if (!status || status === 'published') {
-      // افتراضي: فقط المنشورة للصفحة الرئيسية
-      where.status = 'published';
-    } else if (status === 'all') {
-      // للداشبورد: كل الحالات عدا المحذوفة
-      where.status = {
-        not: 'deleted'
-      };
     }
     
     if (categoryId && categoryId !== 'all') {
       where.category_id = categoryId;
     }
 
-    // ترتيب محسن - إصلاح صيغة Prisma
-    let orderBy: any;
+    // ترتيب محسن
+    let orderBy: any = {};
     if (sortBy === 'views') {
-      orderBy = [
-        { views: order },
-        { published_at: 'desc' }
-      ];
+      orderBy = { views: order };
     } else if (sortBy === 'latest' || sortBy === 'published_at') {
-      orderBy = [
-        { published_at: order },
-        { created_at: order }
-      ];
+      orderBy = { published_at: order };
     } else {
-      orderBy = [
-        { [sortBy]: order }
-      ];
+      orderBy = { [sortBy]: order };
     }
 
     // جلب البيانات من cache أو قاعدة البيانات
@@ -118,12 +110,12 @@ export async function GET(request: NextRequest) {
         
         const skip = (page - 1) * limit;
 
-        // جلب المقالات والعدد بالتوازي (optimized query)
+        // جلب المقالات والعدد بالتوازي
         const [articles, totalCount] = await Promise.all([
           prisma.articles.findMany({
             where,
             select: {
-              // Select محددة فقط للسرعة
+              // حقول أساسية فقط لتحسين السرعة
               id: true,
               title: true,
               slug: true,
@@ -137,25 +129,11 @@ export async function GET(request: NextRequest) {
               saves: true,
               featured: true,
               breaking: true,
-              status: true, // إضافة حقل الحالة
-              // علاقات محدودة
-              categories: {
-                select: {
-                  id: true,
-                  name: true,
-                  slug: true,
-                  color: true,
-                  icon: true
-                }
-              },
-              // المؤلف (إذا كان متاح في schema)
-              // author: {
-              //   select: {
-              //     id: true,
-              //     name: true,
-              //     avatar: true
-              //   }
-              // }
+              reading_time: true,
+              status: true,
+              author_id: true,
+              category_id: true,
+              metadata: true
             },
             orderBy,
             take: limit,
@@ -166,11 +144,28 @@ export async function GET(request: NextRequest) {
           prisma.articles.count({ where })
         ]);
 
+        // معالجة البيانات
+        const processedArticles = articles.map(article => {
+          const metadata = (article.metadata || {}) as any;
+          return {
+            ...article,
+            author: {
+              id: article.author_id || 'unknown',
+              name: metadata.author_name || 'فريق التحرير'
+            },
+            author_name: metadata.author_name || 'فريق التحرير',
+            category_id: article.category_id,
+            is_featured: article.featured || false,
+            is_breaking: article.breaking || false,
+            views_count: article.views || 0
+          };
+        });
+
         const queryEnd = Date.now();
         console.log(`✅ تم جلب المقالات في ${queryEnd - queryStart}ms`);
         
         return {
-          articles,
+          articles: processedArticles,
           total: totalCount,
           page,
           totalPages: Math.ceil(totalCount / limit),
@@ -193,6 +188,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       data: result.articles,
+      articles: result.articles, // للتوافق
       pagination: {
         page: result.page,
         totalPages: result.totalPages,

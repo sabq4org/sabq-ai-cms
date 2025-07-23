@@ -1,56 +1,40 @@
-import { NextResponse } from 'next/server';
-import { prisma, ensureConnection } from '@/lib/prisma';
-import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma, ensureConnection } from '@/lib/prisma'
+import { cache, CACHE_TTL } from '@/lib/redis-improved'
 
-export const runtime = 'nodejs';
+// دالة مساعدة لإضافة cache headers
+function setCacheHeaders(response: NextResponse, maxAge: number = 300) {
+  response.headers.set('Cache-Control', `public, s-maxage=${maxAge}, stale-while-revalidate=60`);
+  response.headers.set('CDN-Cache-Control', `max-age=${maxAge}`);
+  response.headers.set('Vercel-CDN-Cache-Control', `max-age=${maxAge}`);
+  return response;
+}
 
 // GET - جلب مقال واحد مع معالجة محسنة للأخطاء
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
+  
   try {
-    // التأكد من الاتصال بقاعدة البيانات مع إعادة المحاولة
-    let isConnected = false;
-    let retryCount = 0;
-    const maxRetries = 3;
+    const { id } = await params;
     
-    while (!isConnected && retryCount < maxRetries) {
-      try {
-        isConnected = await ensureConnection();
-        if (!isConnected) {
-          retryCount++;
-          console.warn(`⚠️ فشل الاتصال بقاعدة البيانات، المحاولة ${retryCount}/${maxRetries}`);
-          if (retryCount < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // انتظار ثانية
-          }
-        }
-      } catch (connError) {
-        console.error(`❌ خطأ في الاتصال بقاعدة البيانات (المحاولة ${retryCount + 1}):`, connError);
-        retryCount++;
-        if (retryCount < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
+    if (!id) {
+      return NextResponse.json({
+        success: false,
+        error: 'معرف المقال مطلوب'
+      }, { status: 400 });
     }
-    
+
+    // التأكد من الاتصال بقاعدة البيانات
+    const isConnected = await ensureConnection();
     if (!isConnected) {
       return NextResponse.json({
         success: false,
         error: 'فشل الاتصال بقاعدة البيانات',
         code: 'DATABASE_CONNECTION_FAILED'
       }, { status: 503 });
-    }
-
-    const { id } = await params;
-    
-    // التحقق من هوية المستخدم للسماح بعرض المسودات للمحررين
-    const authHeader = request.headers.get('Authorization');
-    let isEditor = false;
-    
-    const cookieHeader = request.headers.get('cookie');
-    if (cookieHeader && cookieHeader.includes('user=')) {
-      isEditor = true;
     }
     
     // محاولة جلب من Redis cache أولاً
@@ -63,55 +47,64 @@ export async function GET(
         console.log(`✅ تم جلب المقال ${id} من Redis cache`);
         
         // زيادة عدد المشاهدات بشكل غير متزامن
-        prisma.articles.updateMany({
-          where: { 
-            OR: [{ id }, { slug: id }]
-          },
+        prisma.articles.update({
+          where: { id: (cachedArticle as any).id },
           data: { views: { increment: 1 } }
-        }).catch((err: Error) => console.error('خطأ في تحديث المشاهدات:', err));
+        }).catch(() => {});
         
         const response = NextResponse.json(cachedArticle);
-        response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=59');
         response.headers.set('X-Cache', 'HIT');
-        return response;
+        response.headers.set('X-Response-Time', `${Date.now() - startTime}ms`);
+        return setCacheHeaders(response);
       }
     } catch (cacheError) {
       console.warn('⚠️ خطأ في جلب البيانات من cache:', cacheError);
     }
     
-    // جلب المقال من قاعدة البيانات مع معالجة الأخطاء
-    let dbArticle = null;
-    
-    try {
-      dbArticle = await prisma.articles.findFirst({
-        where: {
-          OR: [
-            { id },
-            { slug: id }
-          ]
-        },
-        include: {
-          categories: {
-            select: {
-              id: true,
-              name: true,
-              name_en: true,
-              slug: true,
-              color: true,
-              icon: true
-            }
+    // جلب المقال من قاعدة البيانات بطريقة محسنة
+    const dbArticle = await prisma.articles.findFirst({
+      where: {
+        OR: [
+          { id },
+          { slug: id }
+        ]
+      },
+      select: {
+        // حقول أساسية فقط لسرعة الاستجابة
+        id: true,
+        title: true,
+        content: true,
+        excerpt: true,
+        slug: true,
+        published_at: true,
+        created_at: true,
+        updated_at: true,
+        featured_image: true,
+        views: true,
+        likes: true,
+        shares: true,
+        saves: true,
+        featured: true,
+        breaking: true,
+        reading_time: true,
+        status: true,
+        author_id: true,
+        category_id: true,
+        seo_keywords: true,
+        seo_description: true,
+        metadata: true,
+        // علاقة واحدة فقط
+        categories: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            color: true,
+            icon: true
           }
         }
-      });
-    } catch (dbError) {
-      console.error('❌ خطأ في جلب المقال من قاعدة البيانات:', dbError);
-      return NextResponse.json({ 
-        success: false,
-        error: 'فشل في جلب المقال من قاعدة البيانات',
-        code: 'DATABASE_QUERY_FAILED',
-        details: dbError instanceof Error ? dbError.message : 'خطأ غير معروف'
-      }, { status: 500 });
-    }
+      }
+    });
     
     if (!dbArticle) {
       return NextResponse.json({ 
@@ -123,163 +116,80 @@ export async function GET(
     }
     
     // التحقق من حالة المقال
-    if (dbArticle.status !== 'published' && !isEditor) {
-      return NextResponse.json({ 
-        success: false,
-        error: 'Article not published',
-        message: 'هذه المقالة غير منشورة',
-        code: 'ARTICLE_NOT_PUBLISHED',
-        status: dbArticle.status,
-        articleTitle: dbArticle.title
-      }, { status: 403 });
-    }
-    
-    if (dbArticle.status !== 'published' && isEditor) {
-      console.log(`⚠️ المحرر يعرض مقال غير منشور: ${dbArticle.title} (${dbArticle.status})`);
-    }
-    
-    // جلب بيانات المؤلف مع معالجة محسنة للأخطاء
-    let author = null;
-    
-    if (dbArticle.author_id) {
-      try {
-        author = await prisma.users.findUnique({
-          where: { id: dbArticle.author_id },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            role: true
-          }
-        });
-        
-        if (!author) {
-          console.warn(`⚠️ لم يتم العثور على المؤلف بالمعرف: ${dbArticle.author_id}`);
-        }
-      } catch (authorError) {
-        console.error('❌ خطأ في جلب بيانات المؤلف:', authorError);
-        // لا نفشل الطلب بسبب خطأ في جلب المؤلف
-        author = null;
-      }
-    }
-    
-    // إنشاء بيانات مؤلف افتراضية إذا لم يتم العثور عليه
-    const authorData = author || {
-      id: dbArticle.author_id || 'unknown',
-      name: (dbArticle.metadata as any)?.author_name || 'كاتب غير محدد',
-      email: null,
-      avatar: null,
-      role: 'writer'
-    };
-    
-    // استخراج الكلمات المفتاحية من metadata
-    let keywords: string[] = [];
-    try {
-      if (dbArticle.metadata && typeof dbArticle.metadata === 'object') {
-        const metadata = dbArticle.metadata as any;
-        if (metadata.keywords) {
-          keywords = Array.isArray(metadata.keywords) ? metadata.keywords : [];
-        }
-      }
+    if (dbArticle.status !== 'published') {
+      const cookieHeader = request.headers.get('cookie');
+      const isEditor = cookieHeader && cookieHeader.includes('user=');
       
-      // دمج الكلمات المفتاحية من seo_keywords
-      if (dbArticle.seo_keywords) {
-        if (typeof dbArticle.seo_keywords === 'string') {
-          const seoKeywords = dbArticle.seo_keywords.split(',').map((k: string) => k.trim()).filter((k: string) => k);
-          keywords = [...new Set([...keywords, ...seoKeywords])];
-        }
+      if (!isEditor) {
+        return NextResponse.json({ 
+          success: false,
+          error: 'Article not published',
+          message: 'هذه المقالة غير منشورة',
+          code: 'ARTICLE_NOT_PUBLISHED',
+          status: dbArticle.status
+        }, { status: 403 });
       }
-    } catch (keywordsError) {
-      console.warn('⚠️ خطأ في استخراج الكلمات المفتاحية:', keywordsError);
-      keywords = [];
     }
     
-    // استخراج شرح الصورة من metadata
-    let imageCaption = '';
-    try {
-      if (dbArticle.metadata && typeof dbArticle.metadata === 'object') {
-        const metadata = dbArticle.metadata as any;
-        imageCaption = metadata.image_caption || '';
-      }
-    } catch (captionError) {
-      console.warn('⚠️ خطأ في استخراج شرح الصورة:', captionError);
-    }
-
-    // إعداد البيانات الحقيقية من قاعدة البيانات
-    const articleWithEnhancedData = {
+    // تحضير البيانات للإرسال
+    const metadata = (dbArticle.metadata || {}) as any;
+    const keywords = dbArticle.seo_keywords ? 
+      dbArticle.seo_keywords.split(',').map(k => k.trim()) : [];
+    
+    const articleData = {
       ...dbArticle,
       success: true,
-      title: dbArticle.title,
-      content: dbArticle.content,
-      excerpt: dbArticle.excerpt,
+      keywords,
       summary: dbArticle.excerpt,
-      subtitle: (dbArticle.metadata as any)?.subtitle || null,
-      featured_image: dbArticle.featured_image,
-      featured_image_alt: (dbArticle.metadata as any)?.featured_image_alt || null,
-      views_count: dbArticle.views || 0,
-      seo_keywords: keywords,
-      description: dbArticle.excerpt || dbArticle.seo_description,
-      image_caption: imageCaption,
-      featured_image_caption: imageCaption,
-      author: authorData,
-      author_name: authorData.name,
-      category: dbArticle.categories || null,
+      ai_summary: metadata.ai_summary,
+      author: {
+        id: dbArticle.author_id || 'unknown',
+        name: metadata.author_name || 'فريق التحرير',
+        avatar: metadata.author_avatar
+      },
+      author_name: metadata.author_name || 'فريق التحرير',
+      category: dbArticle.categories,
       category_name: dbArticle.categories?.name,
       category_color: dbArticle.categories?.color,
-      reading_time: dbArticle.reading_time,
       is_breaking: dbArticle.breaking || false,
       is_featured: dbArticle.featured || false,
-      likes_count: dbArticle.likes || 0,
-      shares_count: dbArticle.shares || 0,
       stats: {
         views: dbArticle.views || 0,
         likes: dbArticle.likes || 0,
         shares: dbArticle.shares || 0,
-        comments: 0,
-        saves: dbArticle.saves || 0
+        saves: dbArticle.saves || 0,
+        comments: 0
       }
     };
     
     // زيادة عدد المشاهدات بشكل غير متزامن
-    try {
+    if (dbArticle.status === 'published') {
       prisma.articles.update({
         where: { id: dbArticle.id },
         data: { views: { increment: 1 } }
-      }).catch((err: Error) => console.error('خطأ في تحديث المشاهدات:', err));
-    } catch (viewsError) {
-      console.warn('⚠️ خطأ في تحديث المشاهدات:', viewsError);
-    }
-    
-    // حفظ في Redis cache فقط إذا كان المقال منشوراً
-    if (dbArticle.status === 'published') {
+      }).catch(() => {});
+      
+      // حفظ في cache
       try {
-        await cache.set(cacheKey, articleWithEnhancedData, CACHE_TTL.ARTICLES);
-        console.log(`💾 تم حفظ المقال ${id} في Redis cache`);
-      } catch (cacheError) {
-        console.warn('⚠️ خطأ في حفظ البيانات في cache:', cacheError);
+        await cache.set(cacheKey, articleData, CACHE_TTL.ARTICLES);
+      } catch (error) {
+        console.warn('⚠️ فشل حفظ المقال في cache');
       }
     }
     
-    const response = NextResponse.json(articleWithEnhancedData);
-    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=59');
+    const response = NextResponse.json(articleData);
     response.headers.set('X-Cache', 'MISS');
-    
-    return response;
+    response.headers.set('X-Response-Time', `${Date.now() - startTime}ms`);
+    return setCacheHeaders(response);
     
   } catch (error: any) {
-    console.error('❌ خطأ عام في جلب المقال:', {
-      message: error.message,
-      stack: error.stack,
-      code: error.code
-    });
+    console.error('❌ خطأ في جلب المقال:', error);
     
     return NextResponse.json({ 
       success: false,
       error: 'خطأ داخلي في الخادم',
       message: 'حدث خطأ أثناء محاولة جلب المقال',
-      code: 'INTERNAL_SERVER_ERROR',
-      details: process.env.NODE_ENV === 'development' ? error.message : 'خطأ غير متوقع'
+      code: 'INTERNAL_SERVER_ERROR'
     }, { status: 500 });
   }
 }

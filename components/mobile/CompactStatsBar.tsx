@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Newspaper, Tag, Calendar, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Newspaper, Tag, Calendar } from 'lucide-react';
 
 interface StatsData {
   totalArticles: number;
@@ -44,128 +44,106 @@ export default function CompactStatsBar({ darkMode }: MobileStatsBarProps) {
     }
   };
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up':
-        return <TrendingUp className="w-3 h-3 text-green-500" />;
-      case 'down':
-        return <TrendingDown className="w-3 h-3 text-red-500" />;
-      default:
-        return <Minus className="w-3 h-3 text-gray-500" />;
-    }
-  };
-
   if (!stats && !loading) {
     return null;
   }
 
-  // تحقق من صحة البيانات وتجنب NaN
-  const isCompactMobileStats = true;
+  // تحقق من صحة البيانات
   const safeStats = {
     totalArticles: stats?.totalArticles || 0,
     totalCategories: stats?.totalCategories || 0,
     todayArticles: stats?.todayArticles || 0,
-    trend: stats?.trend || 'stable',
-    dailyChangePercentage: typeof stats?.dailyChangePercentage === 'number' && !isNaN(stats.dailyChangePercentage) ? stats.dailyChangePercentage : 0
   };
 
   return (
-    <div className={`w-full py-2 px-3 ${
+    <div className={`w-full py-1.5 px-3 ${
       darkMode 
-        ? 'bg-gradient-to-r from-gray-800/95 to-gray-900/95 border-b border-gray-700/50' 
-        : 'bg-gradient-to-r from-blue-50/80 to-purple-50/80 border-b border-gray-200/50'
-    } backdrop-blur-sm`}>
-      {/* Grid Layout متوازن للموبايل */}
-      <div className="grid grid-cols-3 gap-2 max-w-md mx-auto">
+        ? 'bg-gray-800/30 border-b border-gray-700/20' 
+        : 'bg-white border-b border-gray-200/40'
+    }`}>
+      {/* خلية واحدة متناسقة */}
+      <div className={`flex items-center justify-around py-2 px-4 rounded-lg ${
+        darkMode 
+          ? 'bg-gray-900/20' 
+          : 'bg-[#f5f5f5]'
+      } shadow-sm`}>
         
-        {/* عدد الأخبار */}
-        <a href="/news" className="group block text-center hover:scale-[1.02] transition-all duration-200">
-          <div className={`px-2 py-1.5 rounded-lg ${
-            darkMode ? 'bg-blue-900/20 group-hover:bg-blue-900/30' : 'bg-blue-100/70 group-hover:bg-blue-100'
-          } transition-colors`}>
-            {/* الأيقونة أعلى */}
-            <div className="flex justify-center mb-1">
-              <Newspaper className={`w-4 h-4 ${
-                darkMode ? 'text-blue-400' : 'text-blue-600'
-              }`} />
-            </div>
-            {/* الرقم بخط عريض */}
-            <div className={`text-lg font-bold leading-none ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+        {/* عدد الأقسام */}
+        <a href="/categories" className="flex items-center gap-1.5 hover:opacity-70 transition-opacity">
+          <Tag className={`w-3.5 h-3.5 ${
+            darkMode ? 'text-gray-500' : 'text-gray-500'
+          }`} />
+          <div className="flex flex-col">
+            <span className={`text-[10px] leading-tight ${
+              darkMode ? 'text-gray-500' : 'text-gray-500'
+            }`}>
+              الأقسام
+            </span>
+            <span className={`text-base font-semibold leading-tight ${
+              darkMode ? 'text-gray-100' : 'text-gray-800'
+            }`}>
               {loading ? (
-                <div className="w-8 h-4 bg-gray-300 dark:bg-gray-600 rounded mx-auto animate-pulse"></div>
+                <span className="inline-block w-4 h-3.5 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
+              ) : (
+                safeStats.totalCategories
+              )}
+            </span>
+          </div>
+        </a>
+
+        {/* فاصل */}
+        <div className={`h-6 w-[1px] ${
+          darkMode ? 'bg-gray-700/50' : 'bg-gray-300/50'
+        }`}></div>
+
+        {/* عدد الأخبار */}
+        <a href="/news" className="flex items-center gap-1.5 hover:opacity-70 transition-opacity">
+          <Newspaper className={`w-3.5 h-3.5 ${
+            darkMode ? 'text-gray-500' : 'text-gray-500'
+          }`} />
+          <div className="flex flex-col">
+            <span className={`text-[10px] leading-tight ${
+              darkMode ? 'text-gray-500' : 'text-gray-500'
+            }`}>
+              الأخبار
+            </span>
+            <span className={`text-base font-semibold leading-tight ${
+              darkMode ? 'text-gray-100' : 'text-gray-800'
+            }`}>
+              {loading ? (
+                <span className="inline-block w-8 h-3.5 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
               ) : (
                 safeStats.totalArticles.toLocaleString('ar')
               )}
-            </div>
-            {/* التسمية أسفل الرقم */}
-            <div className={`text-xs mt-0.5 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              الأخبار
-            </div>
+            </span>
           </div>
         </a>
 
-        {/* عدد الأقسام */}
-        <a href="/categories" className="group block text-center hover:scale-[1.02] transition-all duration-200">
-          <div className={`px-2 py-1.5 rounded-lg ${
-            darkMode ? 'bg-purple-900/20 group-hover:bg-purple-900/30' : 'bg-purple-100/70 group-hover:bg-purple-100'
-          } transition-colors`}>
-            {/* الأيقونة أعلى */}
-            <div className="flex justify-center mb-1">
-              <Tag className={`w-4 h-4 ${
-                darkMode ? 'text-purple-400' : 'text-purple-600'
-              }`} />
-            </div>
-            {/* الرقم بخط عريض */}
-            <div className={`text-lg font-bold leading-none ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+        {/* فاصل */}
+        <div className={`h-6 w-[1px] ${
+          darkMode ? 'bg-gray-700/50' : 'bg-gray-300/50'
+        }`}></div>
+
+        {/* أخبار اليوم */}
+        <a href="/moment-by-moment" className="flex items-center gap-1.5 hover:opacity-70 transition-opacity">
+          <Calendar className={`w-3.5 h-3.5 ${
+            darkMode ? 'text-gray-500' : 'text-gray-500'
+          }`} />
+          <div className="flex flex-col">
+            <span className={`text-[10px] leading-tight ${
+              darkMode ? 'text-gray-500' : 'text-gray-500'
+            }`}>
+              أخبار اليوم
+            </span>
+            <span className={`text-base font-semibold leading-tight ${
+              darkMode ? 'text-gray-100' : 'text-gray-800'
+            }`}>
               {loading ? (
-                <div className="w-6 h-4 bg-gray-300 dark:bg-gray-600 rounded mx-auto animate-pulse"></div>
+                <span className="inline-block w-4 h-3.5 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></span>
               ) : (
-                safeStats.totalCategories.toLocaleString('ar')
+                safeStats.todayArticles
               )}
-            </div>
-            {/* التسمية أسفل الرقم */}
-            <div className={`text-xs mt-0.5 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              الأقسام
-            </div>
-          </div>
-        </a>
-
-        {/* أخبار اليوم مع مؤشر التغيير */}
-        <a href="/moment-by-moment" className="group block text-center hover:scale-[1.02] transition-all duration-200">
-          <div className={`px-2 py-1.5 rounded-lg ${
-            darkMode ? 'bg-green-900/20 group-hover:bg-green-900/30' : 'bg-green-100/70 group-hover:bg-green-100'
-          } transition-colors`}>
-            {/* الأيقونة أعلى */}
-            <div className="flex justify-center mb-1">
-              <Calendar className={`w-4 h-4 ${
-                darkMode ? 'text-green-400' : 'text-green-600'
-              }`} />
-            </div>
-            {/* الرقم مع المؤشر */}
-            <div className="flex items-center justify-center gap-1">
-              <span className={`text-lg font-bold leading-none ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {loading ? (
-                  <div className="w-6 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
-                ) : (
-                  safeStats.todayArticles.toLocaleString('ar')
-                )}
-              </span>
-              {/* مؤشر التغيير - يظهر فقط إذا كان صالح */}
-              {!loading && safeStats.trend !== 'stable' && safeStats.dailyChangePercentage > 0 && (
-                <div className="flex items-center">
-                  {getTrendIcon(safeStats.trend)}
-                  <span className={`text-xs ${
-                    safeStats.trend === 'up' ? 'text-green-500' : 'text-red-500'
-                  }`}>
-                    {Math.abs(safeStats.dailyChangePercentage).toFixed(0)}%
-                  </span>
-                </div>
-              )}
-            </div>
-            {/* التسمية أسفل الرقم */}
-            <div className={`text-xs mt-0.5 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              اليوم
-            </div>
+            </span>
           </div>
         </a>
       </div>

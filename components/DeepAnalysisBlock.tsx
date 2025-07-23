@@ -128,6 +128,13 @@ export default function DeepAnalysisBlock({
             const data = await response.json();
             console.log('📊 Deep Analysis API Response:', data); // للتشخيص
             
+            // التحقق من نجاح العملية
+            if (data.success === false) {
+              // في حالة خطأ من API
+              console.error('❌ API returned error:', data.error);
+              throw new Error(data.errorMessage || data.error || 'حدث خطأ في جلب التحليلات');
+            }
+            
             // إصلاح قراءة البيانات من API
             const analyses = data.analyses || data.data || [];
             setRealAnalyses(analyses);
@@ -148,7 +155,15 @@ export default function DeepAnalysisBlock({
               console.log('🔍 مثال كامل للتحليل الأول:', analyses[0]);
             }
           } else {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            // في حالة خطأ HTTP
+            let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.errorMessage || errorData.error || errorMessage;
+            } catch {
+              // إذا فشل parsing الخطأ، نستخدم الرسالة الافتراضية
+            }
+            throw new Error(errorMessage);
           }
         } catch (fetchError: any) {
           clearTimeout(timeoutId);

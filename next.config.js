@@ -1,10 +1,41 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // إضافة معرف فريد للملفات الثابتة
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
   
-  serverExternalPackages: ['prisma', '@prisma/client'],
+  experimental: {
+    optimizeCss: true,
+    cssChunking: 'strict'
+  },
+  
+  // منع التخزين المؤقت في بيئة التطوير
+  async headers() {
+    if (process.env.NODE_ENV === 'development') {
+      return [
+        {
+          source: '/:path*',
+          headers: [
+            {
+              key: 'Cache-Control',
+              value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+            },
+            {
+              key: 'Pragma',
+              value: 'no-cache',
+            },
+            {
+              key: 'Expires',
+              value: '0',
+            },
+          ],
+        },
+      ];
+    }
+    return [];
+  },
 
-  // إعدادات الصور محسنة للأداء والاستقرار
   images: {
     formats: ['image/webp'], // تبسيط الفورمات
     minimumCacheTTL: 300, // cache لمدة 5 دقائق
@@ -85,30 +116,6 @@ const nextConfig = {
     }
     
     return config;
-  },
-
-  // Headers للتحميل السريع
-  async headers() {
-    return [
-      {
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/images/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400',
-          },
-        ],
-      },
-    ];
   },
 };
 

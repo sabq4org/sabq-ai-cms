@@ -50,6 +50,7 @@ import {
   Maximize2,
   RotateCcw
 } from 'lucide-react';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 interface DeepAnalysisPageProps {
   id: string;
@@ -135,6 +136,12 @@ export default function DeepAnalysisPage() {
   const [showMobileAudioControls, setShowMobileAudioControls] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const tocRef = useRef<HTMLDivElement>(null);
+  
+  // استخدام hook تتبع اتجاه التمرير
+  const { scrollDirection, isScrolled } = useScrollDirection();
+  
+  // تشخيص المشكلة
+  console.log('[DeepAnalysisPage] Component rendered with params:', params, 'loading:', loading);
 
   // تحديث dark mode بعد التحميل لتجنب مشكلة Hydration
   useEffect(() => {
@@ -187,12 +194,52 @@ export default function DeepAnalysisPage() {
     return cleaned;
   }, []);
 
+  // استخراج محتوى HTML من rawContent إذا كان كائن JSON
+  const getContentHtml = useCallback(() => {
+    if (!analysis) return '';
+    
+    // إذا كان contentHtml موجود، استخدمه
+    if (analysis.contentHtml) {
+      return analysis.contentHtml;
+    }
+    
+    // إذا كان rawContent موجود
+    if (analysis.rawContent) {
+      // إذا كان rawContent نص عادي
+      if (typeof analysis.rawContent === 'string') {
+        // تحقق إذا كان JSON
+        try {
+          const parsed = JSON.parse(analysis.rawContent);
+          if (parsed.sections && Array.isArray(parsed.sections)) {
+            // استخرج المحتوى من sections
+            const content = parsed.sections.map((section: any) => section.content || '').join('\n');
+            return content;
+          }
+        } catch (e) {
+          // إذا لم يكن JSON، أعده كما هو
+          return analysis.rawContent;
+        }
+      }
+      
+      // إذا كان rawContent كائن JSON مع sections
+      if (typeof analysis.rawContent === 'object' && (analysis.rawContent as any).sections) {
+        // استخرج المحتوى من sections
+        const sections = (analysis.rawContent as any).sections || [];
+        const content = sections.map((section: any) => section.content || '').join('\n');
+        return content;
+      }
+    }
+    
+    return '';
+  }, [analysis]);
+
   // دالة إنشاء فهرس المحتويات
   const generateTableOfContents = useCallback(() => {
-    if (!analysis?.contentHtml && !analysis?.rawContent) return;
+    const content = getContentHtml();
+    if (!content) return;
 
-    const content = sanitizeHtml(analysis.contentHtml || analysis.rawContent || '');
-    const headings = content.match(/<h[1-6][^>]*>.*?<\/h[1-6]>/gi) || [];
+    const sanitizedContent = sanitizeHtml(content);
+    const headings = sanitizedContent.match(/<h[1-6][^>]*>.*?<\/h[1-6]>/gi) || [];
     
     const toc: TableOfContentsItem[] = headings.map((heading, index) => {
       const level = parseInt(heading.match(/<h([1-6])/)?.[1] || '2');
@@ -211,7 +258,15 @@ export default function DeepAnalysisPage() {
   }, [analysis?.contentHtml, analysis?.rawContent, sanitizeHtml]);
 
   useEffect(() => {
-    fetchAnalysisDetails();
+    console.log('تغيير معرف التحليل:', params?.id);
+    if (params?.id) {
+      // تأخير بسيط لضمان تحميل الصفحة بشكل كامل
+      const timer = setTimeout(() => {
+        fetchAnalysisDetails();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
   }, [params?.id]);
 
   useEffect(() => {
@@ -381,11 +436,27 @@ export default function DeepAnalysisPage() {
 
   const fetchAnalysisDetails = async () => {
     try {
-      const response = await fetch(`/api/deep-analyses/${params?.id}`);
+      console.log('بدء جلب التحليل للمعرف:', params?.id);
+      
+      // التحقق من وجود params.id
+      if (!params?.id) {
+        throw new Error('معرف التحليل غير موجود');
+      }
+      
+      // إضافة timeout لمنع الانتظار الطويل
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
+      
+      const response = await fetch(`/api/deep-analyses/${params?.id}`, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
       
       // تحقق من النجاح أولاً
       if (response.ok) {
         const data = await response.json();
+        console.log('تم جلب بيانات التحليل بنجاح:', data);
         // معالجة البيانات من API
         const analysisData: DeepAnalysisPageProps = {
           id: data.id,
@@ -416,11 +487,13 @@ export default function DeepAnalysisPage() {
         };
 
         setAnalysis(analysisData);
+        console.log('تم تعيين بيانات التحليل');
         return; // انتهى بنجاح
       }
       
       // إذا لم ينجح API، جرب البحث عن المقال
       if (!response.ok) {
+        console.log('فشل جلب التحليل، حالة الاستجابة:', response.status);
         if (response.status === 404) {
           // جرب البحث عن المقال بطرق متعددة
           const articleData = await searchForArticle(params?.id as string);
@@ -468,8 +541,17 @@ export default function DeepAnalysisPage() {
         // إذا لم يتم العثور على أي شيء، استخدم المحتوى الاحتياطي
         throw new Error('لم يتم العثور على المحتوى');
       }
-    } catch (error) {
-      console.error('Error fetching analysis:', error);
+    } catch (error: any) {
+      console.error('خطأ في جلب التحليل:', error);
+      
+      // معالجة أنواع الأخطاء المختلفة
+      if (error.name === 'AbortError') {
+        toast.error('انتهت مهلة جلب البيانات. يرجى المحاولة مرة أخرى');
+      } else if (error.message === 'معرف التحليل غير موجود') {
+        toast.error('معرف التحليل غير صحيح');
+      } else {
+        toast.error('حدث خطأ في جلب التحليل');
+      }
       
       // إنشاء تحليل افتراضي كحل أخير
       const fallbackAnalysis: DeepAnalysisPageProps = {
@@ -525,7 +607,9 @@ export default function DeepAnalysisPage() {
       
       setAnalysis(fallbackAnalysis);
       toast.success('تم تحميل محتوى احتياطي للمقال');
+      console.log('تم تعيين المحتوى الاحتياطي');
     } finally {
+      console.log('إنهاء التحميل');
       setLoading(false);
     }
   };
@@ -594,27 +678,27 @@ export default function DeepAnalysisPage() {
             </h2>
             
             <div className={`text-sm mb-6 space-y-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              <p className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
                 البحث في قاعدة بيانات التحليلات...
-              </p>
-              <p className="flex items-center justify-center gap-2">
+              </div>
+              <div className="flex items-center justify-center gap-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce delay-100"></div>
                 البحث في المقالات...
-              </p>
-              <p className="flex items-center justify-center gap-2">
+              </div>
+              <div className="flex items-center justify-center gap-2">
                 <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce delay-200"></div>
                 إنشاء تحليل ذكي...
-              </p>
+              </div>
             </div>
 
             <div className={`w-full bg-gray-200 rounded-full h-2 mb-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
               <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-2 rounded-full animate-pulse" style={{width: '75%'}}></div>
             </div>
             
-            <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+            <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
               نظام البحث المتقدم يجرب طرق متعددة للعثور على المحتوى
-            </p>
+            </div>
           </div>
         </div>
       </div>
@@ -840,10 +924,10 @@ export default function DeepAnalysisPage() {
                   </div>
                 )}
                 <div>
-                  <p className="font-bold text-sm">{analysis.author}</p>
-                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <div className="font-bold text-sm">{analysis.author}</div>
+                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {analysis.authorRole || 'محرر'}
-                  </p>
+                  </div>
                 </div>
               </div>
 
@@ -855,10 +939,10 @@ export default function DeepAnalysisPage() {
                   <Calendar className={`w-5 h-5 ${darkMode ? 'text-blue-300' : 'text-blue-600'}`} />
                 </div>
                 <div>
-                  <p className="font-bold text-sm">{analysis.publishedAt}</p>
-                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <div className="font-bold text-sm">{analysis.publishedAt}</div>
+                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     تاريخ النشر
-                  </p>
+                  </div>
                 </div>
               </div>
 
@@ -870,10 +954,10 @@ export default function DeepAnalysisPage() {
                   <Clock className={`w-5 h-5 ${darkMode ? 'text-purple-300' : 'text-purple-600'}`} />
                 </div>
                 <div>
-                  <p className="font-bold text-sm">{analysis.readTime} دقيقة</p>
-                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <div className="font-bold text-sm">{analysis.readTime} دقيقة</div>
+                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     وقت القراءة
-                  </p>
+                  </div>
                 </div>
               </div>
 
@@ -885,10 +969,10 @@ export default function DeepAnalysisPage() {
                   <Eye className={`w-5 h-5 ${darkMode ? 'text-green-300' : 'text-green-600'}`} />
                 </div>
                 <div>
-                  <p className="font-bold text-sm">{analysis.views.toLocaleString()}</p>
-                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <div className="font-bold text-sm">{analysis.views.toLocaleString()}</div>
+                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     مشاهدة
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1081,7 +1165,7 @@ export default function DeepAnalysisPage() {
                 <div 
                   ref={contentRef}
                   className={`${isReading ? 'leading-relaxed' : ''}`}
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(analysis.contentHtml || analysis.rawContent || '') }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(getContentHtml()) }}
                 />
               </article>
 
@@ -1312,100 +1396,221 @@ export default function DeepAnalysisPage() {
             </button>
           </div>
         ) : (
-          /* شريط أدوات للموبايل */
-          <div className={`fixed bottom-6 left-4 right-4 z-40`}>
-            <div className={`flex items-center justify-between p-3 rounded-2xl shadow-lg ${
+          /* شريط أدوات محسّن للموبايل مع إخفاء ذكي */
+          <div className={`fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 ${
+            scrollDirection === 'down' && isScrolled 
+              ? 'translate-y-full' 
+              : 'translate-y-0'
+          }`}>
+            {/* خلفية شفافة للحماية */}
+            <div className={`absolute inset-0 ${
+              darkMode 
+                ? 'bg-gradient-to-t from-gray-900/50 to-transparent' 
+                : 'bg-gradient-to-t from-white/50 to-transparent'
+            } pointer-events-none`} />
+            
+            {/* شريط الأدوات الرئيسي */}
+            <div className={`relative mx-2 mb-2 rounded-2xl shadow-xl ${
               darkMode 
                 ? 'bg-gray-800/95 backdrop-blur-md border border-gray-700' 
                 : 'bg-white/95 backdrop-blur-md border border-gray-200'
             }`}>
+              <div className="flex items-center justify-around p-2">
+                
+                {/* زر فهرس المحتويات */}
+                <button
+                  onClick={() => setShowMobileToc(!showMobileToc)}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+                    showMobileToc
+                      ? 'bg-blue-500/20 text-blue-500'
+                      : darkMode
+                      ? 'text-gray-400 active:bg-gray-700'
+                      : 'text-gray-600 active:bg-gray-100'
+                  }`}
+                  title="فهرس المحتويات"
+                >
+                  <Menu className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">الفهرس</span>
+                </button>
+
+                {/* زر الاستماع الصوتي */}
+                <button
+                  onClick={() => {
+                    setShowMobileAudioControls(!showMobileAudioControls);
+                    toast.success(showMobileAudioControls ? 'تم إخفاء التحكم الصوتي' : 'تم إظهار التحكم الصوتي');
+                  }}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+                    showMobileAudioControls
+                      ? 'bg-orange-500/20 text-orange-500'
+                      : darkMode
+                      ? 'text-gray-400 active:bg-gray-700'
+                      : 'text-gray-600 active:bg-gray-100'
+                  }`}
+                  title="استماع صوتي"
+                >
+                  <Volume2 className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">استماع</span>
+                </button>
+
+                {/* زر وضع القراءة */}
+                <button
+                  onClick={toggleReadingMode}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+                    isReadingMode
+                      ? 'bg-green-500/20 text-green-500'
+                      : darkMode
+                      ? 'text-gray-400 active:bg-gray-700'
+                      : 'text-gray-600 active:bg-gray-100'
+                  }`}
+                  title="وضع القراءة"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">قراءة</span>
+                </button>
+
+                {/* زر التحليل الذكي */}
+                <button
+                  onClick={() => setShowAnalysisPanel(true)}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+                    showAnalysisPanel
+                      ? 'bg-purple-500/20 text-purple-500'
+                      : darkMode
+                      ? 'text-gray-400 active:bg-gray-700'
+                      : 'text-gray-600 active:bg-gray-100'
+                  }`}
+                  title="التحليل الذكي"
+                >
+                  <Brain className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">تحليل</span>
+                </button>
+
+                {/* زر المشاركة */}
+                <button
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: analysis?.title,
+                        text: analysis?.summary,
+                        url: window.location.href
+                      }).catch(() => {
+                        // في حالة إلغاء المشاركة
+                      });
+                    } else {
+                      navigator.clipboard.writeText(window.location.href);
+                      toast.success('تم نسخ الرابط');
+                    }
+                  }}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+                    darkMode
+                      ? 'text-gray-400 active:bg-gray-700'
+                      : 'text-gray-600 active:bg-gray-100'
+                  }`}
+                  title="مشاركة"
+                >
+                  <Share2 className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">مشاركة</span>
+                </button>
+
+                {/* زر الإعجاب */}
+                <button
+                  onClick={() => {
+                    setLiked(!liked);
+                    toast.success(liked ? 'تم إلغاء الإعجاب' : 'تم الإعجاب بالمقال');
+                  }}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+                    liked
+                      ? 'bg-red-500/20 text-red-500'
+                      : darkMode
+                      ? 'text-gray-400 active:bg-gray-700'
+                      : 'text-gray-600 active:bg-gray-100'
+                  }`}
+                  title="إعجاب"
+                >
+                  <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+                  <span className="text-[10px] font-medium">إعجاب</span>
+                </button>
+              </div>
               
-              {/* زر فهرس المحتويات */}
-              <button
-                onClick={() => setShowMobileToc(!showMobileToc)}
-                className={`p-2 rounded-xl transition-all ${
-                  showMobileToc
-                    ? 'bg-blue-500 text-white'
-                    : darkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title="فهرس المحتويات"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
+              {/* مؤشر التقدم في القراءة */}
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-200 dark:bg-gray-700">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
+                  style={{ width: `${readingProgress}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
-              {/* زر وضع القراءة */}
-              <button
-                onClick={toggleReadingMode}
-                className={`p-2 rounded-xl transition-all ${
-                  isReadingMode
-                    ? 'bg-green-500 text-white'
-                    : darkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title="وضع القراءة المريح"
-              >
-                <BookOpen className="w-5 h-5" />
-              </button>
-
-              {/* زر لوحة التحليل الذكي */}
-              <button
-                onClick={() => setShowAnalysisPanel(true)}
-                className={`p-2 rounded-xl transition-all ${
-                  showAnalysisPanel
-                    ? 'bg-purple-500 text-white'
-                    : darkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title="التحليل الذكي"
-              >
-                <Brain className="w-5 h-5" />
-              </button>
-
-              {/* زر المشاركة */}
-              <button
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: analysis?.title,
-                      text: analysis?.summary,
-                      url: window.location.href
-                    });
-                  } else {
-                    navigator.clipboard.writeText(window.location.href);
-                    toast.success('تم نسخ الرابط');
-                  }
-                }}
-                className={`p-2 rounded-xl transition-all ${
-                  darkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title="مشاركة"
-              >
-                <Share2 className="w-5 h-5" />
-              </button>
-
-              {/* زر الحفظ/الإعجاب */}
-              <button
-                onClick={() => {
-                  setLiked(!liked);
-                  toast.success(liked ? 'تم إلغاء الإعجاب' : 'تم الإعجاب بالمقال');
-                }}
-                className={`p-2 rounded-xl transition-all ${
-                  liked
-                    ? 'bg-red-500 text-white'
-                    : darkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title="إعجاب"
-              >
-                <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-              </button>
+        {/* شريط التحكم الصوتي للموبايل */}
+        {isMobile && showMobileAudioControls && (
+          <div className={`fixed bottom-20 left-2 right-2 z-50 animate-slideUp`}>
+            <div className={`rounded-2xl shadow-2xl p-4 ${
+              darkMode 
+                ? 'bg-gray-800/95 backdrop-blur-md border border-gray-700' 
+                : 'bg-white/95 backdrop-blur-md border border-gray-200'
+            }`}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <Volume2 className="w-4 h-4 text-orange-500" />
+                  التحكم الصوتي
+                </h3>
+                <button
+                  onClick={() => setShowMobileAudioControls(false)}
+                  className={`p-1 rounded-lg ${
+                    darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="space-y-3">
+                {/* شريط التحكم بالسرعة */}
+                <div className="flex items-center gap-3">
+                  <span className="text-xs">السرعة</span>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="2"
+                    step="0.1"
+                    value={speechRate}
+                    onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  />
+                  <span className="text-xs font-mono min-w-[35px] text-center">
+                    {speechRate}×
+                  </span>
+                </div>
+                
+                {/* شريط التحكم بالصوت */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSpeechVolume(speechVolume > 0 ? 0 : 1)}
+                    className="p-1"
+                  >
+                    {speechVolume > 0 ? (
+                      <Volume2 className="w-4 h-4" />
+                    ) : (
+                      <VolumeX className="w-4 h-4" />
+                    )}
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={speechVolume}
+                    onChange={(e) => setSpeechVolume(parseFloat(e.target.value))}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  />
+                </div>
+                
+                {/* ملاحظة */}
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                  قريباً: ميزة القراءة الصوتية الكاملة
+                </p>
+              </div>
             </div>
           </div>
         )}

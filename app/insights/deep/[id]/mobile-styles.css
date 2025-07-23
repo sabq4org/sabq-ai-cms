@@ -1,5 +1,21 @@
 /* تحسينات خاصة للهواتف المحمولة */
 
+/* الأنيميشن المخصص */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
 /* تحسينات الشاشات الصغيرة */
 @media (max-width: 640px) {
   /* تحسين شريط التقدم للموبايل */

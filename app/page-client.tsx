@@ -843,7 +843,11 @@ function NewspaperHomePage({
         
         {/* بلوك المحتوى - خلفية ممتدة بالكامل */}
         <div className="relative z-10 w-full">
-          <DeepAnalysisBlock maxItems={3} showTitle={false} />
+          <DeepAnalysisBlock 
+            maxItems={3} 
+            showTitle={false} 
+            insights={initialDeepAnalyses as any}
+          />
         </div>
       </section>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { 
   Newspaper, Loader2, Grid3X3, List, Calendar, Clock, Eye, Home,
@@ -54,24 +54,24 @@ interface Article {
 
 interface Category {
   id: number;
-  name?: string;
+  name: string;
   name_ar: string;
-  name_en?: string;
   slug: string;
-  color?: string;
-  color_hex?: string;
-  articles_count?: number;
-  is_active?: boolean;
+  color: string | null;
+  color_hex: string | null;
+  icon: string | null;
 }
 
 interface NewsStats {
   totalArticles: number;
-  totalLikes: number;
   totalViews: number;
+  totalLikes: number;
   totalSaves: number;
-  totalShares?: number;
-  totalComments?: number;
 }
+
+// كاش بسيط للبيانات
+const categoriesCache = new Map();
+const statsCache = new Map();
 
 export default function NewsPage() {
   const { darkMode } = useDarkModeContext();
@@ -87,64 +87,83 @@ export default function NewsPage() {
   const [stats, setStats] = useState<NewsStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const ITEMS_PER_PAGE = 20;
 
-  // Fetch categories
-  const fetchCategories = async () => {
+  // Fetch categories with caching
+  const fetchCategories = useCallback(async () => {
+    // تحقق من الكاش أولاً
+    const cacheKey = 'categories';
+    const cached = categoriesCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) { // 5 دقائق
+      setCategories(cached.data);
+      return;
+    }
+
     try {
       const response = await fetch('/api/categories?active=true');
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
-      setCategories(data.categories || []);
+      const categoriesData = data.categories || data.data || [];
+      
+      // حفظ في الكاش
+      categoriesCache.set(cacheKey, {
+        data: categoriesData,
+        timestamp: Date.now()
+      });
+      
+      setCategories(categoriesData);
     } catch (error) {
       console.error('Error fetching categories:', error);
       setError('فشل في تحميل التصنيفات');
     }
-  };
+  }, []);
 
-  // Fetch stats
-  const fetchStats = async () => {
+  // Fetch stats with caching
+  const fetchStats = useCallback(async () => {
+    const cacheKey = `stats-${selectedCategory || 'all'}`;
+    const cached = statsCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) { // 5 دقائق
+      setStats(cached.data);
+      return;
+    }
+
     try {
       setStatsLoading(true);
-      const params = new URLSearchParams();
-      if (selectedCategory) {
-        params.append('category_id', selectedCategory.toString());
-      }
-      
-      // دعم timeout للإحصائيات أيضًا
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 ثواني للإحصائيات
-      
-      try {
-        const response = await fetch(`/api/news/stats?${params}`, {
-          signal: controller.signal
+      const params = selectedCategory ? `?category_id=${selectedCategory}` : '';
+      const response = await fetch(`/api/news/stats${params}`);
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      const data = await response.json();
+      if (data.success) {
+        statsCache.set(cacheKey, {
+          data: data.stats,
+          timestamp: Date.now()
         });
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) throw new Error('Failed to fetch stats');
-        const data = await response.json();
-        
-        if (data.success && data.stats) {
-          setStats(data.stats);
-        }
-      } catch (fetchError: any) {
-        clearTimeout(timeoutId);
-        // لا نظهر خطأ للمستخدم في حالة فشل الإحصائيات، فقط نسجل في console
-        console.warn('فشل في تحميل الإحصائيات:', fetchError.message);
+        setStats(data.stats);
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
-      // لا نظهر خطأ للمستخدم في حالة فشل الإحصائيات
+      // في حالة الفشل، نستخدم إحصائيات بديلة
+      setStats({
+        totalArticles: articles.length,
+        totalLikes: 0,
+        totalViews: articles.reduce((sum, article) => sum + (article.views || article.views_count || 0), 0),
+        totalSaves: 0
+      });
     } finally {
       setStatsLoading(false);
     }
-  };
+  }, [selectedCategory, articles]);
 
-  // Fetch articles
-  const fetchArticles = async (reset = false) => {
+  // Fetch articles - محسن للأداء
+  const fetchArticles = useCallback(async (reset = false) => {
     try {
-      setLoading(true);
+      if (reset) {
+        setLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
       setError(null);
       
       const currentPage = reset ? 1 : page;
@@ -197,12 +216,13 @@ export default function NewsPage() {
       setError(error instanceof Error ? error.message : 'فشل في تحميل المقالات');
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
-  };
+  }, [page, selectedCategory, sortBy]);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   // كشف الموبايل
   useEffect(() => {
@@ -220,25 +240,31 @@ export default function NewsPage() {
 
   useEffect(() => {
     fetchArticles(true);
-    fetchStats();
   }, [selectedCategory, sortBy]);
 
-  const loadMore = () => {
-    if (!loading && hasMore) {
+  useEffect(() => {
+    if (articles.length > 0) {
+      fetchStats();
+    }
+  }, [articles, fetchStats]);
+
+  const loadMore = useCallback(() => {
+    if (!loading && !isLoadingMore && hasMore) {
       setPage(prev => prev + 1);
       fetchArticles(false);
     }
-  };
+  }, [loading, isLoadingMore, hasMore, fetchArticles]);
 
-  const getCategoryName = (categoryId: number) => {
+  // محسنة مع useMemo
+  const getCategoryName = useMemo(() => (categoryId: number) => {
     const category = categories.find(cat => cat.id === categoryId);
     return category?.name || category?.name_ar || 'غير مصنف';
-  };
+  }, [categories]);
 
-  const getCategoryColor = (categoryId: number) => {
+  const getCategoryColor = useMemo(() => (categoryId: number) => {
     const category = categories.find(cat => cat.id === categoryId);
     return category?.color || category?.color_hex || '#3B82F6';
-  };
+  }, [categories]);
 
   return (
     <>
@@ -307,19 +333,6 @@ export default function NewsPage() {
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">حفظ</div>
                   </div>
-                  
-                  {stats.totalShares !== undefined && stats.totalShares > 0 && (
-                    <>
-                      <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
-                      <div className="text-center px-2">
-                        <div className="flex items-center gap-2">
-                          <Share2 className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
-                          <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalShares}</div>
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">مشاركة</div>
-                      </div>
-                    </>
-                  )}
                 </div>
               )}
               
@@ -532,10 +545,10 @@ export default function NewsPage() {
                 <div className="mt-12 text-center">
                   <button
                     onClick={loadMore}
-                    disabled={loading}
+                    disabled={loading || isLoadingMore}
                     className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? (
+                    {loading || isLoadingMore ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
                         جاري التحميل...

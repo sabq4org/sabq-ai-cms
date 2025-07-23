@@ -18,7 +18,7 @@ import { Share2, Eye, Clock, Calendar,
   Play, Pause, Volume2, CheckCircle, Sparkles
 } from 'lucide-react';
 import { SmartInteractionButtons } from '@/components/article/SmartInteractionButtons';
-import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
+// import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
 import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
 import ArticleStatsBlock from '@/components/article/ArticleStatsBlock';
@@ -33,18 +33,43 @@ interface ArticleClientComponentProps {
 }
 
 export default function ArticleClientComponent({ 
-  initialArticle, 
-  articleId 
+  initialArticle,
+  articleId
 }: ArticleClientComponentProps) {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
-  const [article, setArticle] = useState<ArticleData>(initialArticle);
+  const [article] = useState<ArticleData>(initialArticle);
+  const [loading, setLoading] = useState(false);
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  
+  // نظام تتبع التفاعل الذكي - معطل مؤقتاً لتجنب خطأ AuthProvider
+  // const interactionTracking = useUserInteractionTracking(articleId);
 
-  // استخدام hook تتبع التفاعلات
-  const interactionTracking = useUserInteractionTracking(articleId);
+  // إصلاح مشكلة استخدام marked
+  const [contentHtml, setContentHtml] = useState('');
+  
+  useEffect(() => {
+    // تحويل المحتوى إلى HTML
+    const processContent = async () => {
+      if (article.content) {
+        // استخدام المحتوى كما هو إذا كان HTML
+        if (article.content.includes('<p>') || article.content.includes('<div>')) {
+          setContentHtml(article.content);
+        } else {
+          // تحويل النص العادي إلى HTML بسيط
+          const paragraphs = article.content.split('\n\n');
+          const html = paragraphs.map(p => `<p>${p}</p>`).join('');
+          setContentHtml(html);
+        }
+      }
+    };
+    
+    processContent();
+  }, [article.content]);
 
   // معالجة الإعجاب
   const handleLike = async () => {
@@ -261,7 +286,7 @@ export default function ArticleClientComponent({
           {/* محتوى المقال */}
           <div 
             className="prose prose-sm sm:prose-base lg:prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: article.content }}
+            dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
           
           {/* إحصائيات المقال */}
