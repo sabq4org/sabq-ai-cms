@@ -197,22 +197,14 @@ export default function EnhancedMobileNewsCard({
                   </span>
                 )}
                 
-                {news.category_name && (
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    darkMode 
-                      ? 'bg-blue-900/30 text-blue-400' 
-                      : 'bg-blue-100 text-blue-700'
-                  }`}>
-                    {news.category_name}
-                  </span>
-                )}
+                {/* تم إزالة التصنيف */}
                 <span className="text-xs text-gray-500 dark:text-gray-400">
                   {getTimeAgo(news.published_at || news.created_at)}
                 </span>
               </div>
 
               {/* العنوان */}
-              <h3 className={`font-bold text-base leading-tight line-clamp-2 mb-2 ${
+              <h3 className={`font-semibold text-base leading-tight line-clamp-3 mb-2 ${
                 darkMode ? 'text-white' : 'text-gray-900'
               }`}>
                 {news.title}
@@ -274,23 +266,12 @@ export default function EnhancedMobileNewsCard({
             }}
           />
           
-          {/* التصنيف على الصورة */}
-          {news.category_name && (
-            <div className="absolute bottom-3 right-3">
-              <span className={`px-2.5 py-1 text-xs font-medium rounded-lg backdrop-blur-md ${
-                darkMode 
-                  ? 'bg-black/50 text-white' 
-                  : 'bg-white/90 text-gray-900'
-              }`}>
-                {news.category_name}
-              </span>
-            </div>
-          )}
+          {/* تم إزالة التصنيف من الصورة */}
         </div>
 
         {/* المحتوى */}
         <div className="p-4">
-          <h3 className={`font-bold text-base leading-snug line-clamp-2 mb-3 ${
+          <h3 className={`font-semibold text-base leading-snug line-clamp-3 mb-3 ${
             darkMode ? 'text-white' : 'text-gray-900'
           }`}>
             {news.title}

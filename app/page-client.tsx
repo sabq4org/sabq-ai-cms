@@ -187,20 +187,12 @@ function NewspaperHomePage({
               priority={false}
             />
             {/* تم حذف طبقة التدرج فوق الصورة */}
-            {/* Category Badge */}
-            {news.category_name && (
-              <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-                <span className={`inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${darkMode ? 'bg-blue-900/80 text-blue-200 backdrop-blur-sm' : 'bg-blue-500/90 text-white backdrop-blur-sm'}`}>
-                  <Tag className="w-2 h-2 sm:w-3 sm:h-3" />
-                  {news.category_name}
-                </span>
-              </div>
-            )}
+            {/* تم إزالة التصنيف */}
           </div>
           {/* محتوى البطاقة */}
           <div className="p-4 sm:p-5">
-            {/* العنوان - محدود بسطرين */}
-            <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 ${
+            {/* العنوان - محدود بثلاث أسطر */}
+            <h4 className={`font-semibold text-base sm:text-lg mb-3 line-clamp-3 ${
               darkMode 
                 ? 'text-white' 
                 : 'text-gray-900 dark:text-white'

@@ -354,34 +354,11 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
 
                     {/* محتوى البطاقة */}
                     <div className="ml-4 flex-1 flex flex-col">
-                      {/* نوع المحتوى مع badge محسّن */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                          darkMode 
-                            ? content.contentType === 'article' ? 'bg-blue-500/20 text-blue-400' :
-                              content.contentType === 'analysis' ? 'bg-purple-500/20 text-purple-400' :
-                              content.contentType === 'tip' ? 'bg-green-500/20 text-green-400' :
-                              content.contentType === 'quote' ? 'bg-amber-500/20 text-amber-400' :
-                              content.contentType === 'audio' ? 'bg-indigo-500/20 text-indigo-400' :
-                              'bg-gray-500/20 text-gray-400'
-                            : content.contentType === 'article' ? 'bg-blue-100 text-blue-700' :
-                              content.contentType === 'analysis' ? 'bg-purple-100 text-purple-700' :
-                              content.contentType === 'tip' ? 'bg-green-100 text-green-700' :
-                              content.contentType === 'quote' ? 'bg-amber-100 text-amber-700' :
-                              content.contentType === 'audio' ? 'bg-indigo-100 text-indigo-700' :
-                              'bg-gray-100 text-gray-700'
-                        }`}>
-                          {getContentTypeLabel(content.contentType)}
-                        </span>
-                        {content.article?.category && (
-                          <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                            • {String(content.article.category.name_ar || content.article.category.name || '')}
-                          </span>
-                        )}
-                      </div>
+                      {/* تم إزالة التصنيف واستبداله بمساحة فارغة بسيطة */}
+                      <div className="mb-2"></div>
 
                       {/* العنوان مع تأثير hover */}
-                      <h3 className={`text-sm font-bold line-clamp-2 mb-1 ${
+                      <h3 className={`text-sm font-semibold line-clamp-3 mb-1 ${
                         darkMode ? 'text-white' : 'text-gray-900'
                       } group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r ${
                         content.contentType === 'article' ? 'group-hover:from-blue-600 group-hover:to-blue-700' :

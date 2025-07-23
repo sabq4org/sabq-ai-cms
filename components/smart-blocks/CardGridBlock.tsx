@@ -39,7 +39,7 @@ export function CardGridBlock({ block, articles }: CardGridBlockProps) {
         {/* محتوى المقال */}
         <Link href={`/article/${article.id}`} className="block group">
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold leading-snug text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+            <h3 className="text-lg font-medium leading-snug line-clamp-3 text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
               {article.title}
             </h3>
             

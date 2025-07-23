@@ -108,21 +108,10 @@ export default function MobileNewsCard({ article, darkMode = false }: MobileNews
 
           {/* المحتوى النصي */}
           <div className="flex-1 min-w-0">
-            {/* التصنيف */}
-            {category && (
-              <span 
-                className="inline-block text-xs font-medium px-2 py-1 rounded-full mb-1"
-                style={{
-                  backgroundColor: category.color ? `${category.color}20` : '#3B82F620',
-                  color: category.color || '#3B82F6'
-                }}
-              >
-                {category.name}
-              </span>
-            )}
+            {/* تم إزالة التصنيف */}
 
             {/* العنوان */}
-            <h3 className={`font-bold text-sm line-clamp-2 mb-1 ${
+            <h3 className={`font-semibold text-sm line-clamp-3 mb-1 ${
               darkMode ? 'text-white' : 'text-gray-900'
             }`}>
               {title}
