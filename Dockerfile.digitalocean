@@ -1,5 +1,6 @@
-# Digital Ocean Dockerfile محسن للنسخة المحمولة
-# تحديث: 2025-07-23 - تحفيز النشر التلقائي
+# Digital Ocean Production Dockerfile
+# Last updated: 2025-07-23 15:30:00 - Interface Fix Deployment
+# Force Deploy Trigger: v2.0.2-interface-fix
 FROM node:20-alpine AS base
 
 # تثبيت التبعيات الضرورية
