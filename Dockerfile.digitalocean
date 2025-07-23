@@ -1,6 +1,6 @@
 # Digital Ocean Production Dockerfile
-# Last updated: 2025-07-23 15:30:00 - Interface Fix Deployment
-# Force Deploy Trigger: v2.0.2-interface-fix
+# Last updated: 2025-07-23 15:40:00 - MAIN BRANCH DEPLOYMENT
+# Force Deploy Trigger: v2.0.4-main-deploy
 FROM node:20-alpine AS base
 
 # تثبيت التبعيات الضرورية
