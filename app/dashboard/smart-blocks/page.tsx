@@ -1648,42 +1648,44 @@ export default function SmartBlocksPage() {
                 </div>
               </div>
             </div>
-          </DialogContent>
+          </div>
+          
           <DialogFooter>
-            <div className="flex items-center justify-between w-full">
-              <Button
-                variant="outline"
-                onClick={() => editingBlock && editBlockInline(editingBlock)}
-                className="flex items-center gap-2"
-              >
-                <Edit3 className="h-4 w-4" />
-                تعديل متقدم
-              </Button>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between w-full">
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    setShowEditModal(false);
-                    setEditingBlock(null);
-                  }}
+                  onClick={() => editingBlock && editBlockInline(editingBlock)}
+                  className="flex items-center gap-2"
                 >
-                  إلغاء
+                  <Edit3 className="h-4 w-4" />
+                  تعديل متقدم
                 </Button>
-                <Button 
-                  onClick={saveQuickEdit} 
-                  className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white"
-                  disabled={!editingBlock?.name?.trim()}
-                >
-                  <Save className="h-4 w-4" />
-                  حفظ التعديلات
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setEditingBlock(null);
+                    }}
+                  >
+                    إلغاء
+                  </Button>
+                  <Button 
+                    onClick={saveQuickEdit} 
+                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white"
+                    disabled={!editingBlock?.name?.trim()}
+                  >
+                    <Save className="h-4 w-4" />
+                    حفظ التعديلات
+                  </Button>
+                </div>
               </div>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      {/* Alert Dialog تأكيد تغيير الحالة */}
-      <AlertDialog open={showStatusConfirm} onOpenChange={setShowStatusConfirm}>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Alert Dialog تأكيد تغيير الحالة */}
+        <AlertDialog open={showStatusConfirm} onOpenChange={setShowStatusConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
