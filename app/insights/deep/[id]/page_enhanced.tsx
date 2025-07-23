@@ -1,9 +1,7 @@
 'use client';
 
-import '@/app/insights/deep/[id]/enhanced-styles.css';
-import '@/app/insights/deep/[id]/mobile-styles.css';
 import Image from 'next/image';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -122,17 +120,6 @@ export default function DeepAnalysisPage() {
   const [estimatedTimeLeft, setEstimatedTimeLeft] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showAnalysisPanel, setShowAnalysisPanel] = useState(false);
-  const [isReadingMode, setIsReadingMode] = useState(false);
-  const [textToSpeech, setTextToSpeech] = useState<SpeechSynthesis | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
-  const [speechRate, setSpeechRate] = useState(1);
-  const [speechVolume, setSpeechVolume] = useState(1);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const [screenOrientation, setScreenOrientation] = useState('portrait');
-  const [showMobileAudioControls, setShowMobileAudioControls] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const tocRef = useRef<HTMLDivElement>(null);
 
@@ -140,75 +127,6 @@ export default function DeepAnalysisPage() {
   useEffect(() => {
     setDarkMode(contextDarkMode);
   }, [contextDarkMode]);
-
-  // كشف نوع الجهاز والشاشة
-  useEffect(() => {
-    const detectDevice = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      
-      setIsMobile(width <= 640);
-      setIsTablet(width > 640 && width <= 768);
-      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
-      setScreenOrientation(width > height ? 'landscape' : 'portrait');
-      
-      // إضافة فئات CSS للجسم
-      document.body.classList.toggle('mobile-device', width <= 640);
-      document.body.classList.toggle('tablet-device', width > 640 && width <= 768);
-      document.body.classList.toggle('touch-device', 'ontouchstart' in window);
-      document.body.classList.toggle('landscape-mode', width > height);
-    };
-
-    detectDevice();
-    window.addEventListener('resize', detectDevice);
-    window.addEventListener('orientationchange', detectDevice);
-
-    return () => {
-      window.removeEventListener('resize', detectDevice);
-      window.removeEventListener('orientationchange', detectDevice);
-    };
-  }, []);
-
-  // دالة تنظيف المحتوى HTML
-  const sanitizeHtml = useCallback((html: string) => {
-    if (!html) return '';
-    
-    // إزالة العناصر المتداخلة بشكل خاطئ
-    let cleaned = html
-      .replace(/<div[^>]*><div[^>]*>/gi, '<div>')
-      .replace(/<\/div><\/div>/gi, '</div>')
-      .replace(/<p[^>]*><p[^>]*>/gi, '<p>')
-      .replace(/<\/p><\/p>/gi, '</p>')
-      .replace(/<span[^>]*><span[^>]*>/gi, '<span>')
-      .replace(/<\/span><\/span>/gi, '</span>')
-      .replace(/<h([1-6])[^>]*><h[1-6][^>]*>/gi, '<h$1>')
-      .replace(/<\/h[1-6]><\/h[1-6]>/gi, '</h$1>');
-    
-    return cleaned;
-  }, []);
-
-  // دالة إنشاء فهرس المحتويات
-  const generateTableOfContents = useCallback(() => {
-    if (!analysis?.contentHtml && !analysis?.rawContent) return;
-
-    const content = sanitizeHtml(analysis.contentHtml || analysis.rawContent || '');
-    const headings = content.match(/<h[1-6][^>]*>.*?<\/h[1-6]>/gi) || [];
-    
-    const toc: TableOfContentsItem[] = headings.map((heading, index) => {
-      const level = parseInt(heading.match(/<h([1-6])/)?.[1] || '2');
-      const text = heading.replace(/<[^>]*>/g, '').trim();
-      const id = `heading-${index}`;
-      
-      return {
-        id,
-        title: text,
-        level,
-        wordCount: text.split(' ').length
-      };
-    });
-
-    setTableOfContents(toc);
-  }, [analysis?.contentHtml, analysis?.rawContent, sanitizeHtml]);
 
   useEffect(() => {
     fetchAnalysisDetails();
@@ -218,7 +136,7 @@ export default function DeepAnalysisPage() {
     if (analysis?.rawContent || analysis?.contentHtml) {
       generateTableOfContents();
     }
-  }, [analysis?.rawContent, analysis?.contentHtml, generateTableOfContents]);
+  }, [analysis?.rawContent, analysis?.contentHtml]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -260,274 +178,72 @@ export default function DeepAnalysisPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [tableOfContents, activeSection, analysis, readingProgress]);
 
-  // تهيئة التشغيل الصوتي
-  useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      setTextToSpeech(window.speechSynthesis);
-    }
-  }, []);
-
-  // إيقاف التشغيل الصوتي عند مغادرة الصفحة
-  useEffect(() => {
-    return () => {
-      if (currentUtterance) {
-        textToSpeech?.cancel();
-      }
-    };
-  }, [currentUtterance, textToSpeech]);
-
-  // دالة بدء/إيقاف التشغيل الصوتي
-  const toggleTextToSpeech = () => {
-    if (!textToSpeech || !analysis) return;
-
-    if (isPlaying) {
-      textToSpeech.pause();
-      setIsPlaying(false);
-    } else if (textToSpeech.paused && currentUtterance) {
-      textToSpeech.resume();
-      setIsPlaying(true);
-    } else {
-      // بدء تشغيل جديد
-      const textToRead = analysis.rawContent || analysis.summary || '';
-      const utterance = new SpeechSynthesisUtterance(textToRead);
-      
-      utterance.rate = speechRate;
-      utterance.volume = speechVolume;
-      utterance.lang = 'ar-SA';
-      
-      utterance.onend = () => {
-        setIsPlaying(false);
-        setCurrentUtterance(null);
-      };
-      
-      utterance.onerror = () => {
-        setIsPlaying(false);
-        toast.error('حدث خطأ في التشغيل الصوتي');
-      };
-      
-      textToSpeech.speak(utterance);
-      setCurrentUtterance(utterance);
-      setIsPlaying(true);
-    }
-  };
-
-  // دالة إيقاف التشغيل الصوتي
-  const stopTextToSpeech = () => {
-    if (textToSpeech) {
-      textToSpeech.cancel();
-      setIsPlaying(false);
-      setCurrentUtterance(null);
-    }
-  };
-
-  // دالة تغيير وضع القراءة
-  const toggleReadingMode = () => {
-    setIsReadingMode(!isReadingMode);
-    if (!isReadingMode) {
-      document.body.classList.add('reading-mode');
-    } else {
-      document.body.classList.remove('reading-mode');
-    }
-  };
-
-  // دالة تغيير الوضع الكامل للشاشة
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  };
-
   // باقي الدوال... (سأضعها في الجزء التالي)
-  // دالة البحث عن المقال بطرق متعددة
-  const searchForArticle = async (identifier: string) => {
-    // طرق البحث المختلفة
-    const searchMethods = [
-      // البحث بالمعرف الأصلي
-      () => fetch(`/api/articles/${identifier}`),
-      // البحث باستخدام API البحث الجديد
-      () => fetch(`/api/articles/search?q=${encodeURIComponent(identifier)}`),
-      // البحث بالعنوان
-      () => fetch(`/api/articles/search?title=${encodeURIComponent(identifier.replace(/-/g, ' '))}`)
-    ];
-
-    for (const searchMethod of searchMethods) {
-      try {
-        const response = await searchMethod();
-        if (response.ok) {
-          const data = await response.json();
-          
-          // إذا كانت النتيجة من API البحث
-          if (data.success && data.data && data.data.length > 0) {
-            return data.data[0];
-          }
-          
-          // إذا كانت النتيجة مقال واحد
-          if (data.id) {
-            return data;
-          }
-        }
-      } catch (error) {
-        console.log(`فشل في طريقة البحث:`, error);
-        continue;
-      }
-    }
-    
-    return null;
-  };
-
   const fetchAnalysisDetails = async () => {
     try {
       const response = await fetch(`/api/deep-analyses/${params?.id}`);
-      
-      // تحقق من النجاح أولاً
-      if (response.ok) {
-        const data = await response.json();
-        // معالجة البيانات من API
-        const analysisData: DeepAnalysisPageProps = {
-          id: data.id,
-          title: data.title,
-          lead: data.summary,
-          summary: data.summary,
-          contentHtml: data.rawContent || data.content,
-          rawContent: data.rawContent || data.content,
-          content: data.content,
-          tags: data.tags || [],
-          author: data.authorName || 'فريق التحرير',
-          authorName: data.authorName || 'فريق التحرير',
-          authorRole: data.authorRole || 'محرر أول',
-          authorAvatar: data.authorAvatar || '/images/default-avatar.jpg',
-          publishedAt: data.publishedAt ? new Date(data.publishedAt).toLocaleDateString('ar-SA') : new Date().toLocaleDateString('ar-SA'),
-          publishedAtHijri: data.publishedAtHijri,
-          readTime: data.readTime || Math.ceil((data.rawContent || data.content || '').length / 1000) || 5,
-          views: data.views || 0,
-          likes: data.likes || 0,
-          shares: data.shares || 0,
-          rating: data.rating || 4.5,
-          category: data.category || 'تحليل عام',
-          categorySlug: data.categorySlug || 'general',
-          aiSummary: data.aiSummary,
-          aiQuestions: data.aiQuestions || [],
-          relatedArticles: data.relatedArticles || [],
-          featuredImage: data.featuredImage || '/images/default-analysis.jpg'
-        };
-
-        setAnalysis(analysisData);
-        return; // انتهى بنجاح
-      }
-      
-      // إذا لم ينجح API، جرب البحث عن المقال
       if (!response.ok) {
-        if (response.status === 404) {
-          // جرب البحث عن المقال بطرق متعددة
-          const articleData = await searchForArticle(params?.id as string);
-          
-          if (articleData) {
-            // إنشاء تحليل من بيانات المقال
-            const mockAnalysisData: DeepAnalysisPageProps = {
-              id: articleData.id,
-              title: articleData.title,
-              lead: articleData.content?.substring(0, 200) + '...',
-              summary: articleData.content?.substring(0, 300) + '...',
-              contentHtml: articleData.content,
-              rawContent: articleData.content,
-              content: articleData.content,
-              tags: articleData.tags || ['تحليل', 'سبق'],
-              author: articleData.author || 'فريق التحرير',
-              authorName: articleData.author || 'فريق التحرير',
-              authorRole: 'محرر أول',
-              authorAvatar: '/images/default-avatar.jpg',
-              publishedAt: new Date(articleData.published_at || articleData.created_at).toLocaleDateString('ar-SA'),
-              publishedAtHijri: '',
-              readTime: Math.ceil((articleData.content?.length || 0) / 250) || 5,
-              views: articleData.views || Math.floor(Math.random() * 1000) + 100,
-              likes: Math.floor(Math.random() * 50) + 10,
-              shares: Math.floor(Math.random() * 25) + 5,
-              rating: 4.5,
-              category: articleData.category || 'تحليل عام',
-              categorySlug: 'general',
-              aiSummary: `هذا تحليل عميق لمقال "${articleData.title}" يستكشف الجوانب المختلفة للموضوع ويقدم رؤى متعمقة حول التطورات والتأثيرات المحتملة.`,
-              aiQuestions: [
-                'ما هي النقاط الرئيسية في هذا التحليل؟',
-                'كيف يمكن تطبيق هذه المعلومات؟',
-                'ما هي التوجهات المستقبلية المتوقعة؟'
-              ],
-              relatedArticles: [],
-              featuredImage: articleData.image_url || '/images/default-analysis.jpg'
-            };
-
-            setAnalysis(mockAnalysisData);
-            toast.success('تم العثور على المقال وإنشاء التحليل');
-            return;
-          }
-        }
-        
-        // إذا لم يتم العثور على أي شيء، استخدم المحتوى الاحتياطي
-        throw new Error('لم يتم العثور على المحتوى');
+        throw new Error('Failed to fetch analysis');
       }
+      const data = await response.json();
+
+      const analysisData: DeepAnalysisPageProps = {
+        id: data.id,
+        title: data.title,
+        lead: data.summary,
+        summary: data.summary,
+        contentHtml: data.rawContent || data.content,
+        rawContent: data.rawContent || data.content,
+        content: data.content,
+        tags: data.tags || [],
+        author: data.authorName || 'فريق التحرير',
+        authorName: data.authorName || 'فريق التحرير',
+        authorRole: data.authorRole || 'محرر أول',
+        authorAvatar: data.authorAvatar || '/images/default-avatar.jpg',
+        publishedAt: data.publishedAt ? new Date(data.publishedAt).toLocaleDateString('ar-SA') : new Date().toLocaleDateString('ar-SA'),
+        publishedAtHijri: data.publishedAtHijri,
+        readTime: data.readTime || Math.ceil((data.rawContent || data.content || '').length / 1000) || 5,
+        views: data.views || 0,
+        likes: data.likes || 0,
+        shares: data.shares || 0,
+        rating: data.rating || 4.5,
+        category: data.category || 'تحليل عام',
+        categorySlug: data.categorySlug || 'general',
+        aiSummary: data.aiSummary,
+        aiQuestions: data.aiQuestions || [],
+        relatedArticles: data.relatedArticles || [],
+        featuredImage: data.featuredImage || '/images/default-analysis.jpg'
+      };
+
+      setAnalysis(analysisData);
     } catch (error) {
       console.error('Error fetching analysis:', error);
-      
-      // إنشاء تحليل افتراضي كحل أخير
-      const fallbackAnalysis: DeepAnalysisPageProps = {
-        id: params?.id as string || 'unknown',
-        title: 'من جرعات الأطفال إلى تقسيم القرص - 4 أخطاء شائعة في تناول الأدوية قد تعرض حياتك للخطر',
-        lead: 'تعرف على الأخطاء الشائعة في تناول الأدوية وكيفية تجنبها للحفاظ على سلامتك وصحتك.',
-        summary: 'يعتبر الاستخدام الخاطئ للأدوية من أكثر المشاكل الصحية شيوعاً، حيث يرتكب الكثير من الأشخاص أخطاء قد تعرض حياتهم للخطر دون أن يدركوا ذلك.',
-        contentHtml: `
-          <h2>المقدمة</h2>
-          <p>يعتبر الاستخدام الآمن للأدوية من أهم الجوانب في الرعاية الصحية، إلا أن العديد من الأشخاص يرتكبون أخطاء شائعة قد تؤثر على فعالية العلاج أو تسبب مضاعفات خطيرة.</p>
-          
-          <h2>الخطأ الأول: استخدام جرعات الأطفال للبالغين</h2>
-          <p>من الأخطاء الشائعة هو اعتقاد البعض أن جرعات الأطفال أكثر أماناً للبالغين، وهذا خطأ فادح يمكن أن يؤدي إلى عدم فعالية العلاج.</p>
-          
-          <h2>الخطأ الثاني: تقسيم الأقراص دون استشارة</h2>
-          <p>تقسيم الأقراص قد يؤثر على آلية عمل الدواء، خاصة الأقراص المغلفة أو ممتدة المفعول.</p>
-          
-          <h2>الخطأ الثالث: عدم إكمال دورة العلاج</h2>
-          <p>إيقاف العلاج عند الشعور بالتحسن قد يؤدي إلى عودة المرض أو تطوير مقاومة للدواء.</p>
-          
-          <h2>الخطأ الرابع: تناول الأدوية مع المشروبات الخاطئة</h2>
-          <p>بعض المشروبات قد تؤثر على امتصاص الدواء أو تسبب تفاعلات خطيرة.</p>
-          
-          <h2>الخلاصة</h2>
-          <p>الاستخدام الآمن للأدوية يتطلب اتباع إرشادات الطبيب والصيدلي بدقة، وعدم التردد في السؤال عند وجود أي شكوك.</p>
-        `,
-        rawContent: 'المحتوى الكامل للمقال حول أخطاء تناول الأدوية...',
-        content: {},
-        tags: ['صحة', 'أدوية', 'سلامة', 'طب'],
-        author: 'فريق التحرير الطبي',
-        authorName: 'فريق التحرير الطبي',
-        authorRole: 'محرر طبي',
-        authorAvatar: '/images/medical-team.jpg',
-        publishedAt: new Date().toLocaleDateString('ar-SA'),
-        publishedAtHijri: '',
-        readTime: 8,
-        views: 1247,
-        likes: 89,
-        shares: 23,
-        rating: 4.7,
-        category: 'الصحة والطب',
-        categorySlug: 'health',
-        aiSummary: 'تحليل شامل لأهم الأخطاء الشائعة في استخدام الأدوية والطرق الصحيحة لتجنبها، مع التركيز على أهمية اتباع الإرشادات الطبية.',
-        aiQuestions: [
-          'ما هي أهم الأخطاء في تناول الأدوية؟',
-          'كيف يمكن تجنب المضاعفات الدوائية؟',
-          'متى يجب استشارة الصيدلي أو الطبيب؟',
-          'ما هي الطريقة الصحيحة لحفظ الأدوية؟'
-        ],
-        relatedArticles: [],
-        featuredImage: '/images/medicine-safety.jpg'
-      };
-      
-      setAnalysis(fallbackAnalysis);
-      toast.success('تم تحميل محتوى احتياطي للمقال');
+      toast.error('حدث خطأ في تحميل التحليل');
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateTableOfContents = () => {
+    if (!analysis?.contentHtml && !analysis?.rawContent) return;
+
+    const content = analysis.contentHtml || analysis.rawContent || '';
+    const headings = content.match(/<h[1-6][^>]*>.*?<\/h[1-6]>/gi) || [];
+    
+    const toc: TableOfContentsItem[] = headings.map((heading, index) => {
+      const level = parseInt(heading.match(/<h([1-6])/)?.[1] || '2');
+      const text = heading.replace(/<[^>]*>/g, '').trim();
+      const id = `heading-${index}`;
+      
+      return {
+        id,
+        title: text,
+        level,
+        wordCount: text.split(' ').length
+      };
+    });
+
+    setTableOfContents(toc);
   };
 
   const handleShare = async () => {
@@ -573,6 +289,16 @@ export default function DeepAnalysisPage() {
     }
   };
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -581,39 +307,16 @@ export default function DeepAnalysisPage() {
     return (
       <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="flex items-center justify-center h-screen">
-          <div className="text-center max-w-md mx-auto p-6">
-            <div className="relative mb-8">
+          <div className="text-center">
+            <div className="relative">
               <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Brain className="w-8 h-8 text-blue-600 animate-pulse" />
-              </div>
+              <Brain className="absolute inset-0 m-auto w-6 h-6 text-blue-600 animate-pulse" />
             </div>
-            
-            <h2 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              جارٍ تحميل التحليل العميق
-            </h2>
-            
-            <div className={`text-sm mb-6 space-y-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              <p className="flex items-center justify-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                البحث في قاعدة بيانات التحليلات...
-              </p>
-              <p className="flex items-center justify-center gap-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce delay-100"></div>
-                البحث في المقالات...
-              </p>
-              <p className="flex items-center justify-center gap-2">
-                <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce delay-200"></div>
-                إنشاء تحليل ذكي...
-              </p>
-            </div>
-
-            <div className={`w-full bg-gray-200 rounded-full h-2 mb-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-              <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-2 rounded-full animate-pulse" style={{width: '75%'}}></div>
-            </div>
-            
-            <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              نظام البحث المتقدم يجرب طرق متعددة للعثور على المحتوى
+            <p className={`mt-6 text-lg font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              جاري تحميل التحليل العميق...
+            </p>
+            <p className={`mt-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              يتم تحضير المحتوى والتحليلات
             </p>
           </div>
         </div>
@@ -655,9 +358,7 @@ export default function DeepAnalysisPage() {
       } ${isReading ? 'bg-amber-50 dark:bg-gray-800' : ''}`}>
         
         {/* شريط التقدم المحسن */}
-        <div className={`fixed top-0 left-0 right-0 z-50 ${
-          isMobile ? 'h-3' : 'h-2'
-        } bg-gradient-to-r from-gray-200/50 to-gray-300/50 dark:from-gray-700/50 dark:to-gray-600/50`}>
+        <div className="fixed top-0 left-0 right-0 z-50 h-2 bg-gradient-to-r from-gray-200/50 to-gray-300/50 dark:from-gray-700/50 dark:to-gray-600/50">
           <div 
             className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-300 relative"
             style={{ width: `${readingProgress}%` }}
@@ -666,13 +367,10 @@ export default function DeepAnalysisPage() {
           </div>
           
           {/* معلومات التقدم */}
-          <div className={`absolute ${
-            isMobile ? 'top-3 right-2 text-xs' : 'top-2 right-4 text-xs'
-          } font-medium px-2 py-1 rounded-md ${
-            darkMode ? 'bg-gray-800/90 text-gray-300' : 'bg-white/90 text-gray-700'
-          } shadow-sm backdrop-blur-sm`}>
-            {Math.round(readingProgress)}%
-            {!isMobile && ` • ${estimatedTimeLeft} دقائق متبقية`}
+          <div className={`absolute top-2 right-4 text-xs font-medium px-2 py-1 rounded-md ${
+            darkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700'
+          } shadow-sm`}>
+            {Math.round(readingProgress)}% • {estimatedTimeLeft} دقائق متبقية
           </div>
         </div>
 
@@ -1081,7 +779,7 @@ export default function DeepAnalysisPage() {
                 <div 
                   ref={contentRef}
                   className={`${isReading ? 'leading-relaxed' : ''}`}
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(analysis.contentHtml || analysis.rawContent || '') }}
+                  dangerouslySetInnerHTML={{ __html: analysis.contentHtml || analysis.rawContent || '' }}
                 />
               </article>
 
@@ -1152,264 +850,6 @@ export default function DeepAnalysisPage() {
           </button>
         )}
 
-        {/* لوحة التحكم في التشغيل الصوتي */}
-        {textToSpeech && (
-          <div className={`${
-            isMobile 
-              ? 'mobile-audio-controls fixed bottom-20 left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm'
-              : 'fixed bottom-6 right-6'
-          } p-4 rounded-2xl shadow-2xl transition-all duration-300 z-40 ${
-            darkMode 
-              ? 'bg-gray-800/95 backdrop-blur-md border border-gray-700' 
-              : 'bg-white/95 backdrop-blur-md border border-gray-200'
-          }`}>
-            <div className={`${
-              isMobile ? 'flex flex-col gap-3' : 'flex items-center gap-3'
-            }`}>
-              
-              {/* الصف الأول: زر التشغيل والإيقاف */}
-              <div className="flex items-center justify-center gap-3">
-                <button
-                  onClick={toggleTextToSpeech}
-                  className={`${
-                    isMobile ? 'w-12 h-12' : 'p-3'
-                  } rounded-xl transition-all duration-300 ${
-                    isPlaying
-                      ? 'bg-red-500 hover:bg-red-600 text-white'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  } shadow-lg hover:scale-105 flex items-center justify-center`}
-                >
-                  {isPlaying ? (
-                    <Pause className={`${isMobile ? 'w-6 h-6' : 'w-5 h-5'}`} />
-                  ) : (
-                    <Play className={`${isMobile ? 'w-6 h-6' : 'w-5 h-5'}`} />
-                  )}
-                </button>
-
-                {/* زر إيقاف كامل */}
-                {currentUtterance && (
-                  <button
-                    onClick={stopTextToSpeech}
-                    className={`${
-                      isMobile ? 'w-10 h-10' : 'p-2'
-                    } rounded-lg transition-all ${
-                      darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                    } flex items-center justify-center`}
-                  >
-                    <RotateCcw className={`${isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
-                  </button>
-                )}
-              </div>
-
-              {/* الصف الثاني: التحكم في السرعة والصوت */}
-              <div className={`${
-                isMobile ? 'flex flex-col gap-2' : 'flex items-center gap-2'
-              }`}>
-                {/* التحكم في السرعة */}
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs ${
-                    darkMode ? 'text-gray-300' : 'text-gray-600'
-                  } ${isMobile ? 'min-w-[40px]' : ''}`}>
-                    السرعة
-                  </span>
-                  <input
-                    type="range"
-                    min="0.5"
-                    max="2"
-                    step="0.1"
-                    value={speechRate}
-                    onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                    className={`${
-                      isMobile ? 'flex-1' : 'w-16'
-                    } h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700`}
-                  />
-                  <span className={`text-xs font-mono ${
-                    darkMode ? 'text-gray-300' : 'text-gray-600'
-                  } ${isMobile ? 'min-w-[35px] text-center' : ''}`}>
-                    {speechRate}×
-                  </span>
-                </div>
-
-                {/* التحكم في الصوت */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setSpeechVolume(speechVolume > 0 ? 0 : 1)}
-                    className={`${
-                      isMobile ? 'w-8 h-8' : 'p-2'
-                    } rounded-lg transition-all ${
-                      darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                    } flex items-center justify-center`}
-                  >
-                    {speechVolume > 0 ? (
-                      <Volume2 className="w-4 h-4" />
-                    ) : (
-                      <VolumeX className="w-4 h-4" />
-                    )}
-                  </button>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    value={speechVolume}
-                    onChange={(e) => setSpeechVolume(parseFloat(e.target.value))}
-                    className={`${
-                      isMobile ? 'flex-1' : 'w-16'
-                    } h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700`}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* أزرار التحكم الإضافية */}
-        {!isMobile ? (
-          <div className={`fixed top-1/2 right-4 transform -translate-y-1/2 flex flex-col gap-2 z-40`}>
-            {/* زر وضع القراءة */}
-            <button
-              onClick={toggleReadingMode}
-              className={`p-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-110 ${
-                isReadingMode
-                  ? 'bg-green-500 text-white'
-                  : darkMode
-                  ? 'bg-gray-700 text-white hover:bg-gray-600'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-              } border border-gray-200 dark:border-gray-600`}
-              title="وضع القراءة المريح"
-            >
-              <BookOpen className="w-5 h-5" />
-            </button>
-
-            {/* زر الشاشة الكاملة */}
-            <button
-              onClick={toggleFullscreen}
-              className={`p-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-110 ${
-                isFullscreen
-                  ? 'bg-blue-500 text-white'
-                  : darkMode
-                  ? 'bg-gray-700 text-white hover:bg-gray-600'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-              } border border-gray-200 dark:border-gray-600`}
-              title="الشاشة الكاملة"
-            >
-              <Maximize2 className="w-5 h-5" />
-            </button>
-
-            {/* زر لوحة التحليل الذكي */}
-            <button
-              onClick={() => setShowAnalysisPanel(true)}
-              className={`p-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-110 ${
-                showAnalysisPanel
-                  ? 'bg-purple-500 text-white'
-                  : darkMode
-                  ? 'bg-gray-700 text-white hover:bg-gray-600'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-              } border border-gray-200 dark:border-gray-600`}
-              title="التحليل الذكي"
-            >
-              <Brain className="w-5 h-5" />
-            </button>
-          </div>
-        ) : (
-          /* شريط أدوات للموبايل */
-          <div className={`fixed bottom-6 left-4 right-4 z-40`}>
-            <div className={`flex items-center justify-between p-3 rounded-2xl shadow-lg ${
-              darkMode 
-                ? 'bg-gray-800/95 backdrop-blur-md border border-gray-700' 
-                : 'bg-white/95 backdrop-blur-md border border-gray-200'
-            }`}>
-              
-              {/* زر فهرس المحتويات */}
-              <button
-                onClick={() => setShowMobileToc(!showMobileToc)}
-                className={`p-2 rounded-xl transition-all ${
-                  showMobileToc
-                    ? 'bg-blue-500 text-white'
-                    : darkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title="فهرس المحتويات"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-
-              {/* زر وضع القراءة */}
-              <button
-                onClick={toggleReadingMode}
-                className={`p-2 rounded-xl transition-all ${
-                  isReadingMode
-                    ? 'bg-green-500 text-white'
-                    : darkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title="وضع القراءة المريح"
-              >
-                <BookOpen className="w-5 h-5" />
-              </button>
-
-              {/* زر لوحة التحليل الذكي */}
-              <button
-                onClick={() => setShowAnalysisPanel(true)}
-                className={`p-2 rounded-xl transition-all ${
-                  showAnalysisPanel
-                    ? 'bg-purple-500 text-white'
-                    : darkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title="التحليل الذكي"
-              >
-                <Brain className="w-5 h-5" />
-              </button>
-
-              {/* زر المشاركة */}
-              <button
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: analysis?.title,
-                      text: analysis?.summary,
-                      url: window.location.href
-                    });
-                  } else {
-                    navigator.clipboard.writeText(window.location.href);
-                    toast.success('تم نسخ الرابط');
-                  }
-                }}
-                className={`p-2 rounded-xl transition-all ${
-                  darkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title="مشاركة"
-              >
-                <Share2 className="w-5 h-5" />
-              </button>
-
-              {/* زر الحفظ/الإعجاب */}
-              <button
-                onClick={() => {
-                  setLiked(!liked);
-                  toast.success(liked ? 'تم إلغاء الإعجاب' : 'تم الإعجاب بالمقال');
-                }}
-                className={`p-2 rounded-xl transition-all ${
-                  liked
-                    ? 'bg-red-500 text-white'
-                    : darkMode
-                    ? 'text-gray-300 hover:bg-gray-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title="إعجاب"
-              >
-                <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* لوحة التحليل الذكي المنبثقة */}
         {showAnalysisPanel && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -1469,130 +909,6 @@ export default function DeepAnalysisPage() {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* فهرس المحتويات للموبايل */}
-        {isMobile && showMobileToc && (
-          <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setShowMobileToc(false);
-              }
-            }}
-          >
-            <div className={`w-full max-h-[60vh] rounded-t-2xl ${
-              darkMode ? 'bg-gray-800 border-t border-gray-700' : 'bg-white border-t border-gray-200'
-            } shadow-2xl transition-transform duration-300`}>
-              
-              {/* مقبض الإغلاق */}
-              <div className="flex justify-center py-3 border-b border-gray-200 dark:border-gray-700">
-                <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-              </div>
-
-              {/* رأس فهرس المحتويات */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  <ListFilter className="w-5 h-5 text-blue-500" />
-                  فهرس المحتويات
-                </h3>
-                
-                <button
-                  onClick={() => setShowMobileToc(false)}
-                  className={`p-2 rounded-lg transition-all ${
-                    darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                  }`}
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* قائمة العناوين */}
-              <div className="p-4 overflow-y-auto max-h-[40vh]">
-                {tableOfContents.length > 0 ? (
-                  <div className="space-y-2">
-                    {tableOfContents.map((item, index) => (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          const element = document.getElementById(item.id);
-                          if (element) {
-                            element.scrollIntoView({ 
-                              behavior: 'smooth',
-                              block: 'start'
-                            });
-                            setShowMobileToc(false);
-                          }
-                        }}
-                        className={`w-full text-right p-3 rounded-xl transition-all duration-200 ${
-                          activeSection === item.id
-                            ? darkMode
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-blue-100 text-blue-800 border border-blue-200'
-                            : darkMode
-                              ? 'hover:bg-gray-700 text-gray-300'
-                              : 'hover:bg-gray-50 text-gray-700'
-                        } ${item.level === 2 ? 'mr-4' : item.level === 3 ? 'mr-8' : ''}`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-sm leading-relaxed">
-                            {item.title}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            {item.wordCount && (
-                              <span className={`text-xs px-2 py-1 rounded-full ${
-                                darkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-200 text-gray-600'
-                              }`}>
-                                {item.wordCount} كلمة
-                              </span>
-                            )}
-                            <ChevronRight className="w-4 h-4 opacity-60" />
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <FileText className={`w-12 h-12 mx-auto mb-3 ${
-                      darkMode ? 'text-gray-600' : 'text-gray-400'
-                    }`} />
-                    <p className={`text-sm ${
-                      darkMode ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      لا توجد عناوين في هذا المحتوى
-                    </p>
-                  </div>
-                )}
-
-                {/* إحصائيات القراءة */}
-                <div className={`mt-6 p-4 rounded-xl ${
-                  darkMode ? 'bg-gray-700' : 'bg-gray-50'
-                }`}>
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-blue-500" />
-                      <span>التقدم: {Math.round(readingProgress)}%</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-green-500" />
-                      <span>{estimatedTimeLeft} دقائق متبقية</span>
-                    </div>
-                  </div>
-                  
-                  {/* شريط التقدم المصغر */}
-                  <div className={`mt-3 h-2 rounded-full overflow-hidden ${
-                    darkMode ? 'bg-gray-600' : 'bg-gray-300'
-                  }`}>
-                    <div 
-                      className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
-                      style={{ width: `${readingProgress}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         )}

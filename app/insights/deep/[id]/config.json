@@ -1,0 +1,128 @@
+{
+  "features": {
+    "textToSpeech": {
+      "enabled": true,
+      "defaultRate": 1.0,
+      "defaultVolume": 1.0,
+      "language": "ar-SA",
+      "fallbackLanguage": "ar"
+    },
+    "readingMode": {
+      "enabled": true,
+      "defaultFontSize": "1.125rem",
+      "defaultLineHeight": 1.8,
+      "defaultLetterSpacing": "0.025em"
+    },
+    "progressBar": {
+      "enabled": true,
+      "showTimeEstimate": true,
+      "showPercentage": true,
+      "gradientColors": ["#3b82f6", "#8b5cf6", "#ec4899"]
+    },
+    "floatingControls": {
+      "enabled": true,
+      "position": "right",
+      "showTooltips": true,
+      "animationDuration": 300
+    },
+    "analysisPanel": {
+      "enabled": true,
+      "defaultOpen": false,
+      "showAISummary": true,
+      "showQuestions": true
+    },
+    "darkMode": {
+      "enabled": true,
+      "autoSwitch": false,
+      "scheduleTime": {
+        "start": "18:00",
+        "end": "06:00"
+      }
+    }
+  },
+  "ui": {
+    "animations": {
+      "enabled": true,
+      "reducedMotion": false,
+      "duration": {
+        "fast": 150,
+        "normal": 300,
+        "slow": 500
+      }
+    },
+    "colors": {
+      "primary": "#3b82f6",
+      "secondary": "#8b5cf6",
+      "accent": "#ec4899",
+      "success": "#10b981",
+      "warning": "#f59e0b",
+      "error": "#ef4444"
+    },
+    "typography": {
+      "fontFamily": {
+        "arabic": ["Cairo", "Tajawal", "Almarai"],
+        "fallback": ["-apple-system", "BlinkMacSystemFont", "sans-serif"]
+      },
+      "sizes": {
+        "xs": "0.75rem",
+        "sm": "0.875rem",
+        "base": "1rem",
+        "lg": "1.125rem",
+        "xl": "1.25rem",
+        "2xl": "1.5rem",
+        "3xl": "1.875rem"
+      }
+    },
+    "spacing": {
+      "sections": "2.5rem",
+      "paragraphs": "1.5rem",
+      "elements": "1rem"
+    }
+  },
+  "performance": {
+    "lazyLoading": true,
+    "imageOptimization": true,
+    "debounceDelay": 100,
+    "intersectionThreshold": 0.1
+  },
+  "accessibility": {
+    "focusVisible": true,
+    "screenReaderSupport": true,
+    "keyboardNavigation": true,
+    "highContrast": false,
+    "fontSize": {
+      "min": "0.875rem",
+      "max": "1.5rem",
+      "step": "0.125rem"
+    }
+  },
+  "social": {
+    "sharing": {
+      "enabled": true,
+      "platforms": ["twitter", "facebook", "linkedin", "whatsapp", "telegram"],
+      "includeImage": true,
+      "includeExcerpt": true
+    },
+    "bookmarking": {
+      "enabled": true,
+      "syncWithAccount": false
+    },
+    "rating": {
+      "enabled": true,
+      "allowAnonymous": true,
+      "stars": 5
+    }
+  },
+  "analytics": {
+    "trackReadingProgress": true,
+    "trackTimeSpent": true,
+    "trackScrollDepth": true,
+    "trackInteractions": true
+  },
+  "experimental": {
+    "aiSuggestions": false,
+    "voiceCommands": false,
+    "gestureControls": false,
+    "eyeTracking": false
+  }
+}

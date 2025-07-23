@@ -1,0 +1,450 @@
+/* تحسينات المقالات للأجهزة المحمولة - محسن */
+
+/* تحسينات عامة للمقالات */
+.article-enhanced {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* شريط التقدم المتقدم */
+.progress-bar-enhanced {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+  z-index: 9999;
+  opacity: 0.9;
+  transition: all 0.3s ease;
+}
+
+.progress-bar-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255,255,255,0.3) 50%, 
+    transparent 100%);
+  animation: progress-shimmer 2s infinite;
+}
+
+@keyframes progress-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* تحسينات الأجهزة المحمولة */
+@media (max-width: 768px) {
+  
+  /* تحسين الخطوط للمحمول */
+  .article-content-mobile {
+    font-size: 1.125rem;
+    line-height: 1.75;
+    letter-spacing: 0.025em;
+  }
+
+  /* تحسين المسافات */
+  .article-spacing-mobile {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* الأزرار العائمة المحسنة */
+  .floating-controls {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 50;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 1.5rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .dark .floating-controls {
+    background: rgba(31, 41, 55, 0.95);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+  }
+
+  /* أزرار التفاعل المحسنة */
+  .interaction-button {
+    min-height: 48px;
+    min-width: 48px;
+    border-radius: 1rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .interaction-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    transform: translate(-50%, -50%);
+  }
+
+  .interaction-button:active::before {
+    width: 200%;
+    height: 200%;
+  }
+
+  /* تأثيرات الاهتزاز للتفاعل */
+  .interaction-button.liked {
+    animation: heart-beat 0.6s ease-in-out;
+  }
+
+  .interaction-button.saved {
+    animation: bookmark-pop 0.4s ease-out;
+  }
+
+  .interaction-button.shared {
+    animation: share-pulse 0.5s ease-in-out;
+  }
+
+  @keyframes heart-beat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.25); }
+  }
+
+  @keyframes bookmark-pop {
+    0% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.2) rotate(-5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  @keyframes share-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  /* تحسين الصور للمحمول */
+  .article-image-mobile {
+    width: 100%;
+    height: auto;
+    border-radius: 1rem;
+    object-fit: cover;
+  }
+
+  /* تحسين الفيديو للمحمول */
+  .article-video-mobile {
+    width: 100%;
+    height: auto;
+    border-radius: 1rem;
+  }
+
+  /* تحسين الجداول للمحمول */
+  .article-table-mobile {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .article-table-mobile table {
+    min-width: 100%;
+    font-size: 0.875rem;
+  }
+
+  /* تحسين الاقتباسات */
+  .article-quote-mobile {
+    border-right: 4px solid #3b82f6;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: 0.5rem;
+    font-style: italic;
+    position: relative;
+  }
+
+  .article-quote-mobile::before {
+    content: '"';
+    position: absolute;
+    top: -0.5rem;
+    right: 0.5rem;
+    font-size: 3rem;
+    color: #3b82f6;
+    opacity: 0.3;
+    font-family: serif;
+  }
+}
+
+/* تحسينات الأجهزة اللوحية */
+@media (min-width: 769px) and (max-width: 1024px) {
+  
+  .article-content-tablet {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    max-width: 65ch;
+    margin: 0 auto;
+  }
+
+  .floating-sidebar {
+    position: fixed;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border-radius: 1rem;
+    padding: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .floating-sidebar {
+    background: rgba(31, 41, 55, 0.95);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+  }
+}
+
+/* تحسينات الشاشات الكبيرة */
+@media (min-width: 1025px) {
+  
+  .article-content-desktop {
+    font-size: 1.375rem;
+    line-height: 1.8;
+    max-width: 70ch;
+    margin: 0 auto;
+  }
+
+  /* شريط جانبي للتنقل */
+  .article-navigation-sidebar {
+    position: fixed;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 280px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .article-navigation-sidebar {
+    background: rgba(31, 41, 55, 0.95);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+  }
+
+  .article-toc {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .article-toc li {
+    margin-bottom: 0.5rem;
+  }
+
+  .article-toc a {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-right: 3px solid transparent;
+  }
+
+  .article-toc a:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-right-color: #3b82f6;
+  }
+
+  .article-toc a.active {
+    background: rgba(59, 130, 246, 0.15);
+    border-right-color: #3b82f6;
+    font-weight: 600;
+  }
+}
+
+/* تحسينات وضع القراءة */
+.reading-mode-enhanced {
+  background: #faf7f2 !important;
+  color: #2d2d2d !important;
+  line-height: 1.8 !important;
+  font-size: 1.25rem !important;
+}
+
+.dark .reading-mode-enhanced {
+  background: #1a1a1a !important;
+  color: #e5e5e5 !important;
+}
+
+.reading-mode-enhanced .article-content {
+  max-width: 65ch;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.reading-mode-enhanced img {
+  filter: sepia(10%) contrast(90%);
+}
+
+.dark .reading-mode-enhanced img {
+  filter: brightness(85%) contrast(95%);
+}
+
+/* تحسينات الوصولية */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* تحسين الطباعة */
+@media print {
+  .floating-controls,
+  .floating-sidebar,
+  .article-navigation-sidebar,
+  .progress-bar-enhanced {
+    display: none !important;
+  }
+
+  .article-content {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: black !important;
+    background: white !important;
+  }
+
+  .article-image-mobile,
+  .article-content img {
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid;
+  }
+}
+
+/* تحسينات الوضع المظلم */
+.dark .article-enhanced {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.dark .article-quote-mobile {
+  background: rgba(59, 130, 246, 0.1);
+  border-right-color: #60a5fa;
+}
+
+/* تحسينات اللمس */
+@media (hover: none) and (pointer: coarse) {
+  .interaction-button {
+    transform: scale(1.1);
+  }
+
+  .interaction-button:active {
+    transform: scale(0.95);
+  }
+}
+
+/* تحسينات الخطوط العربية */
+.arabic-text-optimized {
+  font-feature-settings: "liga" 1, "calt" 1, "kern" 1, "mark" 1, "mkmk" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* تحسينات الأداء */
+.article-enhanced * {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.article-enhanced img {
+  will-change: transform;
+}
+
+.article-enhanced .interaction-button {
+  will-change: transform, background-color;
+}
+
+/* تحسينات التمرير */
+.article-enhanced {
+  scroll-padding-top: 2rem;
+}
+
+.article-enhanced .smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* تنسيقات خاصة للمحتوى */
+.article-content h2 {
+  scroll-margin-top: 6rem;
+  position: relative;
+}
+
+.article-content h2::before {
+  content: '';
+  position: absolute;
+  right: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 2rem;
+  background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+  border-radius: 2px;
+}
+
+.article-content h3 {
+  scroll-margin-top: 6rem;
+}
+
+/* تحسينات خاصة للاستجابة */
+@media (max-width: 480px) {
+  .article-enhanced {
+    padding: 0.5rem;
+  }
+
+  .floating-controls {
+    bottom: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .interaction-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .floating-controls {
+    bottom: 0.25rem;
+    padding: 0.25rem;
+  }
+
+  .interaction-button {
+    min-height: 36px;
+    min-width: 36px;
+  }
+}
