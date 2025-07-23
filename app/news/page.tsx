@@ -8,10 +8,11 @@ import {
   Share2, MessageSquare, Layers
 } from 'lucide-react';
 import ArticleCard from '@/components/ArticleCard';
-import MobileNewsCard from '../../components/mobile/MobileNewsCard';
+import UnifiedMobileNewsCard from '@/components/mobile/UnifiedMobileNewsCard';
 import Footer from '@/components/Footer';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import '@/components/mobile/mobile-news.css';
+import '@/styles/unified-mobile-news.css';
 import './news-styles.css';
 import '../categories/categories-fixes.css';
 
@@ -478,34 +479,29 @@ export default function NewsPage() {
             <>
               {/* Articles Grid/List - محسن للموبايل */}
               {isMobile ? (
-                // عرض الموبايل - قائمة كاملة العرض
-                <div className="mobile-news-container">
-                  <div className="mobile-news-list">
-                    {articles.map((article) => (
-                      <MobileNewsCard
-                        key={article.id}
-                        article={{
-                          ...article,
-                          category: article.category || (article.category_id ? {
-                            id: article.category_id.toString(),
-                            name: article.category_name || getCategoryName(article.category_id),
-                            slug: '',
-                            color: getCategoryColor(article.category_id),
-                            icon: null
-                          } : null),
-                          author: article.author || (article.author_name ? {
-                            id: article.author_id || '',
-                            name: article.author_name,
-                            email: ''
-                          } : null),
-                          views: article.views || article.views_count || 0,
-                          featured: article.featured || article.is_featured || false,
-                          breaking: article.breaking || article.is_breaking || false
-                        }}
-                        darkMode={darkMode}
-                      />
-                    ))}
-                  </div>
+                // عرض الموبايل - قائمة كاملة العرض بتنسيق بلوك المحتوى الذكي
+                <div className="mobile-news-container space-y-4">
+                  {articles.map((article) => (
+                    <UnifiedMobileNewsCard
+                      key={article.id}
+                      article={article}
+                      darkMode={darkMode}
+                      variant="smart-block"
+                      onBookmark={(id) => {
+                        // إضافة منطق الحفظ
+                        console.log('Bookmark article:', id);
+                      }}
+                      onShare={(article) => {
+                        // إضافة منطق المشاركة
+                        if (navigator.share) {
+                          navigator.share({
+                            title: article.title,
+                            url: window.location.origin + `/articles/${article.slug || article.id}`
+                          });
+                        }
+                      }}
+                    />
+                  ))}
                 </div>
               ) : (
                 // عرض سطح المكتب - الشبكة العادية
