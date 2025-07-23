@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+import { generateUniqueId, getArticleIdentifier } from './slug-utils'
+
 /**
  * دالة مساعدة لدمج فئات CSS مع دعم Tailwind
  */
@@ -163,11 +165,11 @@ export function getArticleLink(article: any): string {
     return '/'; // إرجاع رابط احتياطي آمن
   }
 
-  // استخدام slug إذا كان متاحاً، وإلا استخدام id
-  const identifier = article.slug || article.id;
+  // استخدام معرف فريد آمن بدلاً من slug عربي
+  const identifier = getArticleIdentifier(article);
   
   if (!identifier) {
-    console.warn('getArticleLink: Neither slug nor id found. Returning fallback link.', { article });
+    console.warn('getArticleLink: Could not generate identifier. Returning fallback link.', { article });
     return '/'; // إرجاع رابط احتياطي آمن
   }
 

@@ -104,10 +104,34 @@ export default async function ArticlePage({
   if (!article) {
     console.error(`[ArticlePage] لم يتم العثور على مقال بالمعرف:`, articleId);
     return (
-      <div style={{padding: '3rem', textAlign: 'center', color: '#b91c1c', background: '#fff0f0', borderRadius: '16px', margin: '2rem auto', maxWidth: 600}}>
-        <h1>المقال غير متوفر</h1>
-        <p>عذراً، لم يتم العثور على هذا المقال أو حدث خطأ في جلب البيانات.</p>
-        <p style={{fontSize: '0.9em', color: '#888'}}>المعرف: {articleId}</p>
+      <div style={{
+        padding: '3rem', 
+        textAlign: 'center', 
+        background: '#f8f9fa', 
+        borderRadius: '12px', 
+        margin: '4rem auto', 
+        maxWidth: 600,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+      }}>
+        <h1 style={{color: '#1f2937', marginBottom: '1rem'}}>المقال غير متوفر</h1>
+        <p style={{color: '#6b7280', fontSize: '1.1rem', lineHeight: 1.8}}>
+          عذراً، لم نتمكن من العثور على المقال المطلوب.
+        </p>
+        <a 
+          href="/" 
+          style={{
+            display: 'inline-block',
+            marginTop: '2rem',
+            padding: '0.75rem 2rem',
+            background: '#2563eb',
+            color: 'white',
+            textDecoration: 'none',
+            borderRadius: '8px',
+            fontWeight: 500
+          }}
+        >
+          العودة للرئيسية
+        </a>
       </div>
     );
   }

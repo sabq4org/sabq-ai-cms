@@ -40,6 +40,42 @@ export function generateSlug(text: string): string {
 }
 
 /**
+ * توليد معرف فريد قصير للمقالات
+ * يستخدم تاريخ وأحرف عشوائية لضمان الفرادة
+ * مثال: "art-2024-abcd123"
+ */
+export function generateUniqueId(prefix: string = 'art'): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  
+  // توليد جزء عشوائي قصير
+  const randomPart = Math.random().toString(36).substring(2, 9);
+  
+  // إنشاء المعرف النهائي
+  return `${prefix}-${year}${month}-${randomPart}`;
+}
+
+/**
+ * تحويل معرف المقال إلى رابط
+ * يفضل استخدام المعرف الفريد بدلاً من slug العربي
+ */
+export function getArticleIdentifier(article: { id?: string; slug?: string; title?: string }): string {
+  // إذا كان المقال له معرف UUID، استخدمه
+  if (article.id && article.id.length === 36 && article.id.includes('-')) {
+    return article.id;
+  }
+  
+  // إذا كان المقال له slug إنجليزي صحيح، استخدمه
+  if (article.slug && /^[a-z0-9-]+$/.test(article.slug)) {
+    return article.slug;
+  }
+  
+  // خلاف ذلك، ولّد معرف جديد
+  return generateUniqueId();
+}
+
+/**
  * توليد slug فريد بإضافة رقم عشوائي
  */
 export function generateUniqueSlug(text: string): string {

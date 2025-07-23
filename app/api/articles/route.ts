@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma, ensureConnection } from '@/lib/prisma'
 import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved'
+import { generateUniqueId } from '@/lib/slug-utils'
 
 // تحسين CORS headers
 function addCorsHeaders(response: NextResponse): NextResponse {
@@ -243,6 +244,82 @@ export async function DELETE(request: NextRequest) {
     return addCorsHeaders(NextResponse.json({
       success: false,
       error: 'فشل في مسح cache'
+    }, { status: 500 }));
+  }
+}
+
+// معالج POST لإنشاء مقال جديد
+export async function POST(request: NextRequest) {
+  try {
+    await ensureConnection();
+    console.log('📝 بدء إنشاء مقال جديد...');
+    
+    const body = await request.json();
+    
+    // التحقق من البيانات المطلوبة
+    if (!body.title || !body.content) {
+      return addCorsHeaders(NextResponse.json({
+        success: false,
+        error: 'العنوان والمحتوى مطلوبان'
+      }, { status: 400 }));
+    }
+    
+    // توليد معرف فريد آمن بدلاً من slug عربي
+    const uniqueId = generateUniqueId('art');
+    
+    // تجهيز بيانات المقال
+    const articleData = {
+      id: uniqueId, // استخدام المعرف الفريد كـ id
+      slug: uniqueId, // نفس المعرف كـ slug لتجنب المشاكل
+      title: body.title.trim(),
+      content: body.content,
+      excerpt: body.excerpt || body.summary || body.content.substring(0, 200) + '...',
+      status: body.status || 'draft',
+      author_id: body.author_id || 'system',
+      category_id: body.category_id || null,
+      featured_image: body.featured_image || null,
+      seo_title: body.seo_title || body.title,
+      seo_description: body.seo_description || body.excerpt || '',
+      seo_keywords: body.seo_keywords || body.keywords || '',
+      featured: body.featured || body.is_featured || false,
+      breaking: body.breaking || body.is_breaking || false,
+      reading_time: body.reading_time || Math.ceil(body.content.length / 1000) || 5,
+      published_at: body.status === 'published' ? new Date() : null,
+      scheduled_for: body.scheduled_for ? new Date(body.scheduled_for) : null,
+      metadata: {
+        author_name: body.author_name || 'فريق التحرير',
+        keywords: body.keywords || [],
+        image_caption: body.image_caption || '',
+        gallery: body.gallery || [],
+        ...body.metadata
+      },
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    
+    // إنشاء المقال في قاعدة البيانات
+    const newArticle = await prisma.articles.create({
+      data: articleData
+    });
+    
+    console.log(`✅ تم إنشاء المقال بنجاح: ${newArticle.title} (${newArticle.id})`);
+    
+    // مسح cache المقالات
+    await cache.clearPattern('articles:*');
+    
+    return addCorsHeaders(NextResponse.json({
+      success: true,
+      data: newArticle,
+      message: 'تم إنشاء المقال بنجاح'
+    }, { status: 201 }));
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في إنشاء المقال:', error);
+    
+    return addCorsHeaders(NextResponse.json({
+      success: false,
+      error: 'فشل في إنشاء المقال',
+      details: process.env.NODE_ENV === 'development' ? error?.message : undefined
     }, { status: 500 }));
   }
 }

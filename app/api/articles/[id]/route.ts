@@ -522,6 +522,7 @@ export async function PUT(
       breaking: is_breaking,
       featured: is_featured,
       updated_at: new Date()
+      // ملاحظة: لا نسمح بتحديث slug أو id للحفاظ على المعرفات الفريدة
     };
 
     // معالجة content_blocks إذا كان موجوداً
