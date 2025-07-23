@@ -136,18 +136,37 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // الطريقة 2: Cloudinary المباشر (fallback)
-    try {
-      console.log('📤 المحاولة 2: رفع مباشر إلى Cloudinary...');
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', 'ml_default');
-
-      const response = await fetch('https://api.cloudinary.com/v1_1/demo/image/upload', {
-        method: 'POST',
-        body: formData
-      });
+    // الطريقة 2: Cloudinary المباشر بـ API (fallback)
+    if (hasCloudinary) {
+      try {
+        console.log('📤 المحاولة 2: رفع مباشر إلى Cloudinary API...');
+        
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64Data = buffer.toString('base64');
+        const dataUrl = `data:${file.type};base64,${base64Data}`;
+        
+        const formData = new FormData();
+        formData.append('file', dataUrl);
+        formData.append('api_key', process.env.CLOUDINARY_API_KEY!);
+        formData.append('timestamp', Math.round(Date.now() / 1000).toString());
+        formData.append('folder', `sabq-cms/${type}`);
+        
+        // توقيع الطلب
+        const crypto = require('crypto');
+        const paramsToSign = `folder=sabq-cms/${type}&timestamp=${Math.round(Date.now() / 1000)}`;
+        const signature = crypto
+          .createHash('sha1')
+          .update(paramsToSign + process.env.CLOUDINARY_API_SECRET)
+          .digest('hex');
+        
+        formData.append('signature', signature);
+        
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dybhezmvb';
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: 'POST',
+          body: formData
+        });
 
       if (response.ok) {
         const result = await response.json();
@@ -179,6 +198,7 @@ export async function POST(request: NextRequest) {
       }
     } catch (fallbackError) {
       console.error('❌ فشلت المحاولة 2:', fallbackError);
+    }
     }
 
     // تسجيل الفشل النهائي
