@@ -6,7 +6,7 @@ services:
   source_dir: /
   github:
     repo: sabq4org/sabq-ai-cms
-    branch: main
+    branch: mobile-lite-redesign
     deploy_on_push: true
   build_command: |
     echo "🚀 Starting DigitalOcean build..." && \
