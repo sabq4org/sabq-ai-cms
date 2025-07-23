@@ -251,7 +251,7 @@ export default function MobileCreateDeepAnalysis() {
         updated_at: new Date().toISOString()
       };
 
-      const response = await fetch('/api/deep-analysis', {
+      const response = await fetch('/api/deep-analyses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

@@ -421,10 +421,10 @@ export default function MobileDeepAnalysisManagement() {
       if (showLoading) setLoading(true);
       else setRefreshing(true);
       
-      const response = await fetch('/api/deep-analysis');
+      const response = await fetch('/api/deep-analyses?limit=50&sortBy=analyzed_at&sortOrder=desc');
       if (response.ok) {
         const data = await response.json();
-        setAnalyses(data.analyses || []);
+        setAnalyses(data.analyses || data.data || []);
       } else {
         throw new Error('فشل في جلب التحليلات');
       }
@@ -464,7 +464,7 @@ export default function MobileDeepAnalysisManagement() {
   // إنشاء تحليل جديد
   const handleCreateAnalysis = async (data: any) => {
     try {
-      const response = await fetch('/api/deep-analysis', {
+      const response = await fetch('/api/deep-analyses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -488,7 +488,7 @@ export default function MobileDeepAnalysisManagement() {
     if (!confirm('هل أنت متأكد من حذف هذا التحليل؟')) return;
 
     try {
-      const response = await fetch(`/api/deep-analysis/${id}`, {
+      const response = await fetch(`/api/deep-analyses/${id}`, {
         method: 'DELETE'
       });
 
