@@ -39,8 +39,15 @@ export interface ArticleData {
 export async function getArticleData(id: string): Promise<ArticleData | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002';
-    console.log(`[getArticleData] محاولة جلب مقال بالمعرف:`, id, 'من', `${baseUrl}/api/articles/${id}`);
-    const response = await fetch(`${baseUrl}/api/articles/${id}`, {
+    
+    // ترميز المعرف للتأكد من صحة URL
+    const encodedId = encodeURIComponent(id);
+    const apiUrl = `${baseUrl}/api/articles/${encodedId}`;
+    
+    console.log(`[getArticleData] محاولة جلب مقال بالمعرف:`, id);
+    console.log(`[getArticleData] API URL:`, apiUrl);
+    
+    const response = await fetch(apiUrl, {
       headers: {
         'Content-Type': 'application/json',
       },

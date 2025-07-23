@@ -27,6 +27,15 @@ export async function GET(
       }, { status: 400 });
     }
 
+    // فك ترميز المعرف إذا كان مُرمز (للعناوين العربية)
+    let decodedId = id;
+    try {
+      decodedId = decodeURIComponent(id);
+      console.log(`🔍 معالجة معرف المقال: ${id} -> ${decodedId}`);
+    } catch (error) {
+      console.warn('⚠️ تعذر فك ترميز المعرف، استخدام القيمة الأصلية:', id);
+    }
+
     // التأكد من الاتصال بقاعدة البيانات
     const isConnected = await ensureConnection();
     if (!isConnected) {
@@ -38,19 +47,19 @@ export async function GET(
     }
     
     // محاولة جلب من Redis cache أولاً
-    const cacheKey = `article:${id}`;
+    const cacheKey = `article:${decodedId}`;
     let cachedArticle = null;
     
     try {
       cachedArticle = await cache.get(cacheKey);
       if (cachedArticle && (cachedArticle as any).status === 'published') {
-        console.log(`✅ تم جلب المقال ${id} من Redis cache`);
+        console.log(`✅ تم جلب المقال ${decodedId} من Redis cache`);
         
         // زيادة عدد المشاهدات بشكل غير متزامن
         prisma.articles.update({
           where: { id: (cachedArticle as any).id },
           data: { views: { increment: 1 } }
-        }).catch(() => {});
+        }).catch(err => console.error('خطأ في تحديث عدد المشاهدات:', err));
         
         const response = NextResponse.json(cachedArticle);
         response.headers.set('X-Cache', 'HIT');
@@ -65,8 +74,10 @@ export async function GET(
     const dbArticle = await prisma.articles.findFirst({
       where: {
         OR: [
-          { id },
-          { slug: id }
+          { id: decodedId },
+          { slug: decodedId },
+          // إضافة بحث إضافي للتعامل مع التباينات في الترميز
+          { slug: id } // البحث بالقيمة الأصلية أيضاً
         ]
       },
       select: {
@@ -212,7 +223,15 @@ export async function PATCH(
     }
 
     const { id: idFromParams } = await context.params;
-    articleId = idFromParams;
+    
+    // فك ترميز المعرف إذا كان مُرمز (للعناوين العربية)
+    try {
+      articleId = decodeURIComponent(idFromParams);
+      console.log(`🔍 معالجة معرف المقال في PATCH: ${idFromParams} -> ${articleId}`);
+    } catch (error) {
+      console.warn('⚠️ تعذر فك ترميز المعرف، استخدام القيمة الأصلية:', idFromParams);
+      articleId = idFromParams;
+    }
     
     let updates;
     try {
@@ -394,10 +413,54 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    await prisma.articles.delete({ where: { id } });
-    return NextResponse.json({ message: 'Article deleted successfully' });
+    
+    // فك ترميز المعرف إذا كان مُرمز (للعناوين العربية)
+    let decodedId = id;
+    try {
+      decodedId = decodeURIComponent(id);
+      console.log(`🗑️ معالجة معرف المقال للحذف: ${id} -> ${decodedId}`);
+    } catch (error) {
+      console.warn('⚠️ تعذر فك ترميز المعرف، استخدام القيمة الأصلية:', id);
+    }
+    
+    // البحث أولاً للتأكد من وجود المقال
+    const article = await prisma.articles.findFirst({
+      where: {
+        OR: [
+          { id: decodedId },
+          { slug: decodedId },
+          { slug: id }
+        ]
+      }
+    });
+    
+    if (!article) {
+      return NextResponse.json({ 
+        error: 'المقال غير موجود',
+        code: 'ARTICLE_NOT_FOUND'
+      }, { status: 404 });
+    }
+    
+    await prisma.articles.delete({ where: { id: article.id } });
+    
+    // مسح المقال من cache
+    try {
+      await cache.del(`article:${decodedId}`);
+      await cache.del(`article:${id}`);
+    } catch (error) {
+      console.warn('⚠️ فشل حذف المقال من cache');
+    }
+    
+    return NextResponse.json({ 
+      message: 'تم حذف المقال بنجاح',
+      success: true
+    });
   } catch (error: any) {
-    return NextResponse.json({ error: 'Failed to delete article' }, { status: 500 });
+    console.error('❌ خطأ في حذف المقال:', error);
+    return NextResponse.json({ 
+      error: 'فشل حذف المقال',
+      code: 'DELETE_FAILED'
+    }, { status: 500 });
   }
 }
 
