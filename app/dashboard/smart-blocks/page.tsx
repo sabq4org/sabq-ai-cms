@@ -829,12 +829,12 @@ export default function SmartBlocksPage() {
                           </span>
                           <span className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
-                            {formatFullDate(block.createdAt, { format: 'short' })}
+                            {formatFullDate(block.createdAt)}
                           </span>
                           {block.updatedAt && block.updatedAt !== block.createdAt && (
                             <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
                               <Clock className="w-4 h-4" />
-                              محدث {formatFullDate(block.updatedAt, { format: 'short' })}
+                              محدث {formatFullDate(block.updatedAt)}
                             </span>
                           )}
                           {block.schedule && (
@@ -843,7 +843,7 @@ export default function SmartBlocksPage() {
                               {block.schedule.isAlwaysActive 
                                 ? 'دائم' 
                                 : block.schedule.startDate && block.schedule.endDate
-                                  ? `${formatFullDate(block.schedule.startDate, { format: 'short' })} - ${formatFullDate(block.schedule.endDate, { format: 'short' })}`
+                                  ? `${formatFullDate(block.schedule.startDate)} - ${formatFullDate(block.schedule.endDate)}`
                                   : 'غير محدد'
                               }
                             </span>

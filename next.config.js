@@ -42,15 +42,10 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // إعدادات تجريبية للأداء
+  // إعدادات تجريبية للأداء - تم التبسيط
   experimental: {
     optimizeCss: true,
     cssChunking: 'strict',
-    optimizePackageImports: [
-      'lucide-react',
-      '@heroicons/react',
-      'framer-motion'
-    ],
   },
 
   // تحسين الكمبايل
@@ -60,9 +55,17 @@ const nextConfig = {
     } : false,
   },
 
-  // تحسين Webpack للأداء
+  // تحسين Webpack للأداء - مبسط للتطوير
   webpack: (config, { dev, isServer }) => {
-    // تحسين bundle size
+    // إضافة استثناءات للمكتبات المشاكسة
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
+
+    // تحسين bundle size للإنتاج فقط
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
