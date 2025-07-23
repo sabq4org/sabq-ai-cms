@@ -1,4 +1,5 @@
 # Digital Ocean Dockerfile محسن للنسخة المحمولة
+# تحديث: 2025-07-23 - تحفيز النشر التلقائي
 FROM node:20-alpine AS base
 
 # تثبيت التبعيات الضرورية

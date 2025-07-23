@@ -8,6 +8,7 @@ services:
     repo: sabq4org/sabq-ai-cms
     branch: mobile-lite-redesign
     deploy_on_push: true
+    auto_deploy: true
   build_command: |
     echo "🚀 Starting DigitalOcean build..." && \
     export BUILDING=true && \

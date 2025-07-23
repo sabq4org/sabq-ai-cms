@@ -1,21 +1,23 @@
 {
-  "version": "2.0.0-mobile",
+  "version": "2.0.1-mobile-force-deploy",
   "branch": "mobile-lite-redesign",
-  "commit": "9c8f3e12",
-  "buildTime": "2025-07-23T11:50:39Z",
+  "commit": "781df031",
+  "buildTime": "2025-07-23T14:58:47Z",
   "features": [
     "mobile-optimized-components",
     "enhanced-performance", 
     "responsive-design",
     "mobile-first-approach",
-    "professional-ui-components"
+    "professional-ui-components",
+    "digitalocean-force-deploy"
   ],
-  "description": "النسخة المحمولة المحسنة مع تحسينات الأداء والتصميم التفاعلي",
+  "description": "النسخة المحمولة المحسنة مع تحسينات الأداء والتصميم التفاعلي - تحفيز النشر",
   "digitalOcean": {
     "dockerfile": "Dockerfile.digitalocean",
     "branch": "mobile-lite-redesign",
     "autoDeploy": true,
-    "lastDeploy": "2025-07-23T11:50:39Z"
+    "lastDeploy": "2025-07-23T14:58:47Z",
+    "forceDeployTrigger": "2025-07-23T14:58:47Z"
   },
   "enhancements": {
     "colorConsistency": "80%",
