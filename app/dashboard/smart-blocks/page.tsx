@@ -1650,6 +1650,7 @@ export default function SmartBlocksPage() {
             </div>
           </div>
           
+          </DialogContent>
           <DialogFooter>
               <div className="flex items-center justify-between w-full">
                 <Button
@@ -1681,7 +1682,6 @@ export default function SmartBlocksPage() {
                 </div>
               </div>
             </DialogFooter>
-          </DialogContent>
         </Dialog>
         
         {/* Alert Dialog تأكيد تغيير الحالة */}
