@@ -105,6 +105,23 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
   }) as T;
 }
 
+// دالة حساب عدد الكلمات
+function countWords(text: string): number {
+  if (!text) return 0;
+  // إزالة علامات HTML
+  const cleanText = text.replace(/<[^>]*>/g, '');
+  // حساب الكلمات
+  const words = cleanText.trim().split(/\s+/).filter(word => word.length > 0);
+  return words.length;
+}
+
+// دالة حساب عدد الكلمات لعنصر HTML
+function countWordsInElement(element: HTMLElement | null): number {
+  if (!element) return 0;
+  const text = element.textContent || '';
+  return countWords(text);
+}
+
 export default function DeepAnalysisPage() {
   const params = useParams();
   const { darkMode: contextDarkMode } = useDarkModeContext();
@@ -894,75 +911,69 @@ export default function DeepAnalysisPage() {
             )}
 
             {/* شريط المعلومات المحسن */}
-            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10`}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
               
-              {/* الكاتب */}
-              <div className={`flex items-center gap-3 p-4 rounded-xl backdrop-blur ${
+              {/* المؤلف */}
+              <div className={`flex items-center gap-2 p-3 rounded-xl backdrop-blur ${
                 darkMode ? 'bg-gray-800/60 border border-gray-700' : 'bg-white/80 border border-gray-200'
               }`}>
                 {analysis.authorAvatar ? (
                   <Image 
                     src={analysis.authorAvatar} 
                     alt={analysis.author || ''}
-                    width={48} 
-                    height={48}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-600"
+                    width={36} 
+                    height={36}
+                    className="w-9 h-9 rounded-full object-cover border border-white dark:border-gray-600"
                   />
                 ) : (
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
                     darkMode ? 'bg-gray-700' : 'bg-blue-100'
                   }`}>
-                    <User className={`w-6 h-6 ${darkMode ? 'text-gray-300' : 'text-blue-700'}`} />
+                    <User className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-blue-700'}`} />
                   </div>
                 )}
                 <div>
-                  <div className="font-bold text-sm">{analysis.author}</div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <div className="font-bold text-xs">{analysis.author}</div>
+                  <div className={`text-[10px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {analysis.authorRole || 'محرر'}
                   </div>
                 </div>
               </div>
 
               {/* التاريخ */}
-              <div className={`flex items-center gap-3 p-4 rounded-xl backdrop-blur ${
+              <div className={`flex items-center gap-2 p-3 rounded-xl backdrop-blur ${
                 darkMode ? 'bg-gray-800/60 border border-gray-700' : 'bg-white/80 border border-gray-200'
               }`}>
-                <div className={`p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-blue-50'}`}>
-                  <Calendar className={`w-5 h-5 ${darkMode ? 'text-blue-300' : 'text-blue-600'}`} />
-                </div>
+                <Calendar className={`w-5 h-5 flex-shrink-0 ${darkMode ? 'text-blue-300' : 'text-blue-600'}`} />
                 <div>
-                  <div className="font-bold text-sm">{analysis.publishedAt}</div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <div className="font-bold text-xs">{analysis.publishedAt}</div>
+                  <div className={`text-[10px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     تاريخ النشر
                   </div>
                 </div>
               </div>
 
               {/* وقت القراءة */}
-              <div className={`flex items-center gap-3 p-4 rounded-xl backdrop-blur ${
+              <div className={`flex items-center gap-2 p-3 rounded-xl backdrop-blur ${
                 darkMode ? 'bg-gray-800/60 border border-gray-700' : 'bg-white/80 border border-gray-200'
               }`}>
-                <div className={`p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-purple-50'}`}>
-                  <Clock className={`w-5 h-5 ${darkMode ? 'text-purple-300' : 'text-purple-600'}`} />
-                </div>
+                <Clock className={`w-5 h-5 flex-shrink-0 ${darkMode ? 'text-purple-300' : 'text-purple-600'}`} />
                 <div>
-                  <div className="font-bold text-sm">{analysis.readTime} دقيقة</div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <div className="font-bold text-xs">{analysis.readTime} دقيقة</div>
+                  <div className={`text-[10px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     وقت القراءة
                   </div>
                 </div>
               </div>
 
-              {/* الإحصائيات */}
-              <div className={`flex items-center gap-3 p-4 rounded-xl backdrop-blur ${
+              {/* المشاهدات */}
+              <div className={`flex items-center gap-2 p-3 rounded-xl backdrop-blur ${
                 darkMode ? 'bg-gray-800/60 border border-gray-700' : 'bg-white/80 border border-gray-200'
               }`}>
-                <div className={`p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-green-50'}`}>
-                  <Eye className={`w-5 h-5 ${darkMode ? 'text-green-300' : 'text-green-600'}`} />
-                </div>
+                <Eye className={`w-5 h-5 flex-shrink-0 ${darkMode ? 'text-green-300' : 'text-green-600'}`} />
                 <div>
-                  <div className="font-bold text-sm">{analysis.views.toLocaleString()}</div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <div className="font-bold text-xs">{analysis.views.toLocaleString()}</div>
+                  <div className={`text-[10px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     مشاهدة
                   </div>
                 </div>
@@ -1004,76 +1015,6 @@ export default function DeepAnalysisPage() {
             {/* الشريط الجانبي الأيمن - فهرس المحتويات */}
             <aside className="lg:col-span-3 lg:order-2">
               <div className="sticky top-8 space-y-6">
-                
-                {/* أدوات التفاعل السريع */}
-                <div className={`p-4 rounded-2xl backdrop-blur ${
-                  darkMode ? 'bg-gray-800/80 border border-gray-700' : 'bg-white/90 border border-gray-200'
-                } shadow-lg`}>
-                  
-                  <h3 className="font-bold mb-4 flex items-center gap-2">
-                    <Target className="w-5 h-5 text-blue-500" />
-                    تفاعل مع التحليل
-                  </h3>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    
-                    {/* إعجاب */}
-                    <button
-                      onClick={handleLike}
-                      className={`flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${
-                        liked
-                          ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg'
-                          : darkMode
-                            ? 'bg-gray-700 text-gray-300 hover:bg-red-600 hover:text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600'
-                      }`}
-                    >
-                      <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
-                      <span className="text-xs font-medium">{analysis.likes}</span>
-                    </button>
-
-                    {/* مشاركة */}
-                    <button
-                      onClick={handleShare}
-                      className={`flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${
-                        darkMode
-                          ? 'bg-gray-700 text-gray-300 hover:bg-blue-600 hover:text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                      }`}
-                    >
-                      <Share2 className="w-4 h-4" />
-                      <span className="text-xs font-medium">{analysis.shares}</span>
-                    </button>
-
-                    {/* حفظ */}
-                    <button
-                      onClick={handleSave}
-                      className={`flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${
-                        saved
-                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                          : darkMode
-                            ? 'bg-gray-700 text-gray-300 hover:bg-green-600 hover:text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-green-50 hover:text-green-600'
-                      }`}
-                    >
-                      <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
-                      <span className="text-xs font-medium">حفظ</span>
-                    </button>
-
-                    {/* طباعة */}
-                    <button
-                      onClick={() => window.print()}
-                      className={`flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${
-                        darkMode
-                          ? 'bg-gray-700 text-gray-300 hover:bg-purple-600 hover:text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-purple-50 hover:text-purple-600'
-                      }`}
-                    >
-                      <Printer className="w-4 h-4" />
-                      <span className="text-xs font-medium">طباعة</span>
-                    </button>
-                  </div>
-                </div>
 
                 {/* فهرس المحتويات */}
                 {tableOfContents.length > 0 && (
@@ -1185,6 +1126,166 @@ export default function DeepAnalysisPage() {
                   </div>
                 </div>
               )}
+
+              {/* تفاعل مع التحليل */}
+              <div className={`mt-8 p-6 rounded-2xl ${
+                darkMode ? 'bg-gray-800/80 border border-gray-700' : 'bg-white/90 border border-gray-200'
+              } shadow-lg`}>
+                
+                <h3 className="font-bold mb-4 flex items-center gap-2">
+                  <Target className="w-5 h-5 text-blue-500" />
+                  تفاعل مع التحليل
+                </h3>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  
+                  {/* إعجاب */}
+                  <button
+                    onClick={handleLike}
+                    className={`flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${
+                      liked
+                        ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg'
+                        : darkMode
+                          ? 'bg-gray-700 text-gray-300 hover:bg-red-600 hover:text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600'
+                    }`}
+                  >
+                    <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
+                    <span className="text-sm font-medium">{analysis.likes}</span>
+                  </button>
+
+                  {/* مشاركة */}
+                  <button
+                    onClick={handleShare}
+                    className={`flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${
+                      darkMode
+                        ? 'bg-gray-700 text-gray-300 hover:bg-blue-600 hover:text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                    }`}
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span className="text-sm font-medium">{analysis.shares}</span>
+                  </button>
+
+                  {/* حفظ */}
+                  <button
+                    onClick={handleSave}
+                    className={`flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${
+                      saved
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                        : darkMode
+                          ? 'bg-gray-700 text-gray-300 hover:bg-green-600 hover:text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-green-50 hover:text-green-600'
+                    }`}
+                  >
+                    <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
+                    <span className="text-sm font-medium">حفظ</span>
+                  </button>
+
+                  {/* طباعة */}
+                  <button
+                    onClick={() => window.print()}
+                    className={`flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${
+                      darkMode
+                        ? 'bg-gray-700 text-gray-300 hover:bg-purple-600 hover:text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-purple-50 hover:text-purple-600'
+                    }`}
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span className="text-sm font-medium">طباعة</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* فهرس المحتويات - نسخة كاملة */}
+              {tableOfContents.length > 0 && (
+                <div className={`mt-8 p-6 rounded-2xl ${
+                  darkMode ? 'bg-gray-800/80 border border-gray-700' : 'bg-white/90 border border-gray-200'
+                } shadow-lg`}>
+                  
+                  <h3 className="font-bold mb-4 flex items-center gap-2">
+                    <ListFilter className="w-5 h-5 text-purple-500" />
+                    فهرس المحتويات
+                  </h3>
+                  
+                  <nav className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {tableOfContents.map((item, index) => {
+                      // حساب عدد الكلمات الحقيقي لكل قسم
+                      const element = typeof document !== 'undefined' ? document.getElementById(item.id) : null;
+                      const wordCount = countWordsInElement(element);
+                      
+                      return (
+                        <a
+                          key={item.id}
+                          href={`#${item.id}`}
+                          className={`flex items-center justify-between p-3 rounded-lg transition-all text-sm ${
+                            activeSection === item.id
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                              : darkMode
+                                ? 'text-gray-300 hover:text-white hover:bg-gray-700'
+                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                          }`}
+                          style={{ paddingRight: `${item.level * 8 + 8}px` }}
+                        >
+                          <span className="line-clamp-1">{item.title}</span>
+                          <span className={`text-xs ${
+                            activeSection === item.id ? 'text-white' : 'text-gray-400'
+                          }`}>
+                            {wordCount} كلمة
+                          </span>
+                        </a>
+                      );
+                    })}
+                  </nav>
+                </div>
+              )}
+
+              {/* إحصائيات القراءة */}
+              <div className={`mt-8 p-6 rounded-2xl ${
+                darkMode ? 'bg-gray-800/80 border border-gray-700' : 'bg-white/90 border border-gray-200'
+              } shadow-lg`}>
+                
+                <h3 className="font-bold mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-green-500" />
+                  إحصائيات القراءة
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* التقدم */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">التقدم في القراءة</span>
+                      <span className="font-bold text-blue-500">{Math.round(readingProgress)}%</span>
+                    </div>
+                    <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2`}>
+                      <div 
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${readingProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* الوقت المتبقي */}
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-purple-500" />
+                      <span className="text-sm">الوقت المتبقي</span>
+                    </div>
+                    <span className="font-bold text-purple-500">{estimatedTimeLeft} دقيقة</span>
+                  </div>
+                  
+                  {/* إجمالي الكلمات */}
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-green-500" />
+                      <span className="text-sm">إجمالي الكلمات</span>
+                    </div>
+                    <span className="font-bold text-green-500">
+                      {countWordsInElement(contentRef.current).toLocaleString()} كلمة
+                    </span>
+                  </div>
+                </div>
+              </div>
 
               {/* تقييم التحليل */}
               <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-700">
