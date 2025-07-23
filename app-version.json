@@ -1,8 +1,8 @@
 {
-  "version": "2.0.4-main-deploy",
+  "version": "2.0.5-cloudinary-fix",
   "branch": "main",
-  "commit": "de5198f0",
-  "buildTime": "2025-07-23T15:40:00Z",
+  "commit": "009e8462",
+  "buildTime": "2025-07-23T15:45:00Z",
   "features": [
     "mobile-optimized-components",
     "enhanced-performance", 
@@ -12,18 +12,20 @@
     "digitalocean-force-deploy",
     "webpack-errors-fixed",
     "interface-repair-complete",
-    "jsx-syntax-fixed"
+    "jsx-syntax-fixed",
+    "cloudinary-upload-fixed"
   ],
-  "description": "النسخة المحمولة المحسنة مع إصلاح أخطاء JSX والواجهة - تحفيز النشر",
+  "description": "النسخة المحمولة المحسنة مع إصلاح رفع الصور إلى Cloudinary",
   "digitalOcean": {
     "dockerfile": "Dockerfile.digitalocean",
     "branch": "main",
     "autoDeploy": true,
-    "lastDeploy": "2025-07-23T15:40:00Z",
-    "forceDeployTrigger": "2025-07-23T15:40:00Z",
+    "lastDeploy": "2025-07-23T15:45:00Z",
+    "forceDeployTrigger": "2025-07-23T15:45:00Z",
     "interfaceRepairComplete": true,
     "jsxSyntaxFixed": true,
-    "mergedToMain": true
+    "mergedToMain": true,
+    "cloudinaryFixed": true
   },
   "enhancements": {
     "colorConsistency": "80%",
