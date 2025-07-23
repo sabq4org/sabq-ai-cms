@@ -4,7 +4,7 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { getArticleLink } from '@/lib/utils';
-import { formatDateOnly } from '@/lib/date-utils';
+import { formatDateShort } from '@/lib/date-utils';
 import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
 
 import { 
@@ -154,7 +154,7 @@ export default function EnhancedArticleCard({
               </Link>
               <span className="text-xs text-gray-400">•</span>
               <span className="text-xs text-gray-500">
-                {formatDateOnly(article.published_at || article.created_at)}
+                {formatDateShort(article.published_at || article.created_at)}
               </span>
             </div>
 
@@ -238,7 +238,7 @@ export default function EnhancedArticleCard({
                   {article.author_name}
                 </p>
                 <p className="text-sm text-gray-500">
-                  {article.author_specialization || 'كاتب رأي'} • {formatDateOnly(article.published_at || article.created_at)}
+                  {article.author_specialization || 'كاتب رأي'} • {formatDateShort(article.published_at || article.created_at)}
                 </p>
               </div>
             </Link>

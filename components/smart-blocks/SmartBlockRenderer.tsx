@@ -10,6 +10,7 @@ import { CarouselBlock } from './CarouselBlock'
 import { AlHilalWorldCupBlock } from './AlHilalWorldCupBlock'
 import { HeroSliderBlock } from './HeroSliderBlock'
 import { Activity, TrendingUp, Lightbulb, Target, Compass, Volume2, Star } from 'lucide-react'
+import { NewsCopilotButton } from '@/components/ai/NewsCopilotButton'
 
 interface SmartBlockRendererProps {
   block: SmartBlock;
@@ -187,19 +188,21 @@ export default function SmartBlockRenderer({ block, articles = [], darkMode = fa
             <div className="flex items-start gap-3">
               <div className={`w-2 h-2 rounded-full mt-2 ${index === 0 ? 'bg-green-500' : 'bg-gray-400'}`}></div>
               <div className="flex-1">
-                <h4 className={`text-sm font-medium leading-relaxed mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                <h4 className={`text-sm font-medium leading-relaxed mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}> 
                   {article.title}
                 </h4>
                 <div className="flex items-center justify-between">
-                  <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}> 
                     {article.category || 'عام'}
                   </span>
                   {article.views && (
-                    <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}> 
                       {article.views} قراءة
                     </span>
                   )}
                 </div>
+                {/* زر المساعد الذكي يظهر فقط إذا كانت الميزة مفعلة */}
+                <NewsCopilotButton articleId={article.id} articleTitle={article.title} />
               </div>
             </div>
           </div>
@@ -207,4 +210,4 @@ export default function SmartBlockRenderer({ block, articles = [], darkMode = fa
       </div>
     );
   }
-} 
+}

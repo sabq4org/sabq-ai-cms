@@ -30,7 +30,7 @@ import {
   BarChart3,
   Sparkles
 } from 'lucide-react';
-import { formatDate, formatDateTime, formatRelativeDate, formatDateSafe } from '@/lib/date-utils';
+import { formatFullDate, formatDateTime, formatRelativeDate } from '@/lib/date-utils';
 type NewsStatus = 'published' | 'draft' | 'pending' | 'deleted' | 'scheduled';
 type NewsItem = {
   id: string;
@@ -885,7 +885,7 @@ export default function NewsManagementPage() {
                             <span>مجدول للنشر</span>
                           </div>
                           <div className="text-xs">
-                            {formatDateSafe(news.publishAt, 'full', '—')}
+                            {formatFullDate(news.publishAt, '—')}
                           </div>
                         </div>
                       ) : news.status === 'published' ? (
@@ -893,7 +893,7 @@ export default function NewsManagementPage() {
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3 text-green-600 dark:text-green-400" />
                             <span className="font-medium text-green-600 dark:text-green-400">
-                              {formatDateSafe(news.publishAt || news.publishTime, 'full', 'منشور')}
+                              {formatFullDate(news.publishAt || news.publishTime, 'منشور')}
                             </span>
                           </div>
                           {news.publishAt && (

@@ -25,6 +25,11 @@ const prismaClientSingleton = () => {
       },
     },
     errorFormat: 'minimal',
+    // إضافة timeout settings لتحسين الأداء
+    transactionOptions: {
+      timeout: 10000, // 10 seconds
+      maxWait: 5000,  // 5 seconds
+    },
   })
 
   // معالجة إغلاق الاتصال عند إيقاف التطبيق

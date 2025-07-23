@@ -38,7 +38,8 @@ export interface ArticleData {
 // جلب المقال للسيرفر (SSR)
 export async function getArticleData(id: string): Promise<ArticleData | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002';
+    console.log(`[getArticleData] محاولة جلب مقال بالمعرف:`, id, 'من', `${baseUrl}/api/articles/${id}`);
     const response = await fetch(`${baseUrl}/api/articles/${id}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -49,16 +50,21 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
 
     if (!response.ok) {
       if (response.status === 404) {
-        console.warn(`المقال ${id} غير موجود`);
+        console.warn(`[getArticleData] المقال غير موجود:`, id);
         return null;
       }
+      console.error(`[getArticleData] خطأ HTTP عند جلب المقال:`, response.status, response.statusText);
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
+    if (!data || !data.id) {
+      console.error(`[getArticleData] البيانات المستلمة للمقال فارغة أو غير صحيحة:`, data);
+      return null;
+    }
     return data;
   } catch (error) {
-    console.error('خطأ في جلب بيانات المقال:', {
+    console.error('[getArticleData] خطأ في جلب بيانات المقال:', {
       id,
       error: error instanceof Error ? error.message : 'خطأ غير معروف',
       timestamp: new Date().toISOString()
@@ -75,13 +81,13 @@ export function getFullImageUrl(imageUrl?: string): string {
     return imageUrl;
   }
   
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002';
   return `${baseUrl}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`;
 }
 
 // إنشاء URL كامل للمقال
 export function getFullArticleUrl(id: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002';
   return `${baseUrl}/article/${id}`;
 }
 

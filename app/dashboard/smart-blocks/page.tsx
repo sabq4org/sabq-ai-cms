@@ -55,7 +55,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { formatDate, formatDateTime, formatRelativeDate } from '@/lib/date-utils';
+import { formatFullDate } from '@/lib/date-utils';
 interface SmartBlock {
   id: string;
   name: string;
@@ -829,12 +829,12 @@ export default function SmartBlocksPage() {
                           </span>
                           <span className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
-                            {formatDate(block.createdAt, { format: 'short' })}
+                            {formatFullDate(block.createdAt, { format: 'short' })}
                           </span>
                           {block.updatedAt && block.updatedAt !== block.createdAt && (
                             <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
                               <Clock className="w-4 h-4" />
-                              محدث {formatDate(block.updatedAt, { format: 'short' })}
+                              محدث {formatFullDate(block.updatedAt, { format: 'short' })}
                             </span>
                           )}
                           {block.schedule && (
@@ -843,7 +843,7 @@ export default function SmartBlocksPage() {
                               {block.schedule.isAlwaysActive 
                                 ? 'دائم' 
                                 : block.schedule.startDate && block.schedule.endDate
-                                  ? `${formatDate(block.schedule.startDate, { format: 'short' })} - ${formatDate(block.schedule.endDate, { format: 'short' })}`
+                                  ? `${formatFullDate(block.schedule.startDate, { format: 'short' })} - ${formatFullDate(block.schedule.endDate, { format: 'short' })}`
                                   : 'غير محدد'
                               }
                             </span>
@@ -1648,7 +1648,7 @@ export default function SmartBlocksPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </DialogContent>
           <DialogFooter>
             <div className="flex items-center justify-between w-full">
               <Button

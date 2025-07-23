@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, User, Award, Zap, Heart, Bookmark, Share2 } from 'lucide-react';
-import { formatDateOnly } from '@/lib/date-utils';
+import { formatDateShort } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -180,7 +180,7 @@ export default function MobileArticleCard({
               
               <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                 <Clock className="w-3 h-3" />
-                <span>{String(formatDateOnly(article.created_at) || '')}</span>
+                <span>{String(formatDateShort(article.created_at) || '')}</span>
                 {article.views_count > 0 && (
                   <>
                     <Eye className="w-3 h-3" />
@@ -312,7 +312,7 @@ export default function MobileArticleCard({
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                <span>{formatDateOnly(article.created_at)}</span>
+                <span>{formatDateShort(article.created_at)}</span>
               </div>
               
               {article.reading_time && (

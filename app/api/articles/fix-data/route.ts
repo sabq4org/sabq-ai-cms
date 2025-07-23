@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { validateAndFixDate } from '@/lib/date-utils'
 
 // دالة لإصلاح بيانات المقالات الموجودة
 export async function POST(request: NextRequest) {
@@ -28,8 +27,8 @@ export async function POST(request: NextRequest) {
         
         // إصلاح التاريخ
         if (!article.published_at && article.created_at) {
-          const fixedDate = validateAndFixDate(article.created_at)
-          if (fixedDate) {
+          const fixedDate = new Date(article.created_at)
+          if (!isNaN(fixedDate.getTime())) {
             updates.published_at = fixedDate
           }
         }
@@ -169,4 +168,4 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'خطأ غير معروف'
     }, { status: 500 })
   }
-} 
+}

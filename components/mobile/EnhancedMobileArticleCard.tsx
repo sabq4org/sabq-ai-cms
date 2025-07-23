@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, User, Heart, Bookmark, Share2 } from 'lucide-react';
-import { formatDateOnly } from '@/lib/date-utils';
+import { formatDateShort } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { getArticleLink } from '@/lib/utils';
@@ -174,7 +174,7 @@ export default function EnhancedMobileArticleCard({
               <div className="card-meta">
                 <div className="meta-item">
                   <Clock className="w-3 h-3" />
-                  <span>{formatDateOnly(article.created_at)}</span>
+                  <span>{formatDateShort(article.created_at)}</span>
                 </div>
                 {article.views_count > 0 && (
                   <div className="meta-item">
@@ -249,7 +249,7 @@ export default function EnhancedMobileArticleCard({
         <div className="card-meta">
           <div className="meta-item">
             <Clock className="w-4 h-4" />
-            <span>{formatDateOnly(article.created_at)}</span>
+            <span>{formatDateShort(article.created_at)}</span>
           </div>
           {article.views_count > 0 && (
             <div className="meta-item">
@@ -336,4 +336,4 @@ export function EnhancedMobileArticleGrid({ articles }: { articles: Article[] })
       </div>
     </div>
   );
-} 
+}

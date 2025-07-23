@@ -85,14 +85,35 @@ export default async function ArticlePage({
 }) {
   // جلب البيانات في السيرفر
   const resolvedParams = await params;
-  const article = await getArticleData(resolvedParams.id);
+  
+  // معالجة URL-encoded IDs
+  let articleId = resolvedParams.id;
+  try {
+    // فك ترميز URL إذا كان مُرمزاً
+    const decodedId = decodeURIComponent(articleId);
+    console.log(`[ArticlePage] معالجة المعرف: ${articleId} -> ${decodedId}`);
+    
+    // استخدام المعرف المُفكك بدون قيود - API يدعم البحث بـ ID أو slug
+    articleId = decodedId;
+  } catch (error) {
+    console.error(`[ArticlePage] خطأ في فك ترميز المعرف:`, error);
+  }
+  
+  const article = await getArticleData(articleId);
 
   if (!article) {
-    notFound();
+    console.error(`[ArticlePage] لم يتم العثور على مقال بالمعرف:`, articleId);
+    return (
+      <div style={{padding: '3rem', textAlign: 'center', color: '#b91c1c', background: '#fff0f0', borderRadius: '16px', margin: '2rem auto', maxWidth: 600}}>
+        <h1>المقال غير متوفر</h1>
+        <p>عذراً، لم يتم العثور على هذا المقال أو حدث خطأ في جلب البيانات.</p>
+        <p style={{fontSize: '0.9em', color: '#888'}}>المعرف: {articleId}</p>
+      </div>
+    );
   }
 
   // تمرير البيانات للـ Client Component
-  return <ArticleClientComponent initialArticle={article} articleId={resolvedParams.id} />;
+  return <ArticleClientComponent initialArticle={article} articleId={articleId} />;
 }
 
 // تحسين الأداء - إنشاء صفحات ثابتة للمقالات الشائعة

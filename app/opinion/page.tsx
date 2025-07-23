@@ -4,7 +4,7 @@ import Image from 'next/image';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { getArticleLink } from '@/lib/utils';
-import { formatDateOnly } from '@/lib/date-utils';
+import { formatDateShort } from '@/lib/date-utils';
 import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
 import CloudImage from '@/components/ui/CloudImage';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';

@@ -5,7 +5,7 @@ import React, { useState, useEffect, use } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { formatDateOnly, formatRelativeDate } from '@/lib/date-utils';
+import { formatRelativeDate } from '@/lib/date-utils';
 import { 
   Star, Calendar, Eye, Heart, Share2, MessageSquare, Clock, 
   TrendingUp, BarChart3, Brain, Headphones, Quote, Copy,

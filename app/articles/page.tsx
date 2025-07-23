@@ -4,7 +4,7 @@ import Image from 'next/image';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { getArticleLink } from '@/lib/utils';
-import { formatDateOnly } from '@/lib/date-utils';
+import { formatDateShort } from '@/lib/date-utils';
 import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
 import { 
   Search, Filter, Grid, List, ChevronDown, Sparkles, 
@@ -314,7 +314,7 @@ export default function ArticlesPage() {
                     {article.author_name}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {formatDateOnly(article.published_at || article.created_at)}
+                    {formatDateShort(article.published_at || article.created_at)}
                   </p>
                 </div>
               </div>
@@ -407,7 +407,7 @@ export default function ArticlesPage() {
                 {article.author_name}
               </p>
               <p className="text-xs text-gray-500">
-                {formatDateOnly(article.published_at || article.created_at)}
+                {formatDateShort(article.published_at || article.created_at)}
               </p>
             </div>
           </div>

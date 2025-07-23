@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, Zap } from 'lucide-react';
-import { formatDateOnly } from '@/lib/date-utils';
+import { formatDateShort } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 import { getArticleLink } from '@/lib/utils';
 
@@ -88,7 +88,7 @@ export default function CompactArticleCard({ article }: CompactArticleCardProps)
                 </span>
               )}
               <span className="text-gray-500 dark:text-gray-400">
-                {formatDateOnly(article.published_at || article.created_at)}
+                {formatDateShort(article.published_at || article.created_at)}
               </span>
             </div>
 
@@ -124,4 +124,4 @@ export default function CompactArticleCard({ article }: CompactArticleCardProps)
       </article>
     </Link>
   );
-} 
+}

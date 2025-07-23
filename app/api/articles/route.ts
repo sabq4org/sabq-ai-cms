@@ -113,7 +113,8 @@ export async function GET(request: NextRequest) {
     const { data: result, fromCache } = await getCachedArticles(
       cacheKey,
       async () => {
-        console.time('⚡ جلب المقالات من قاعدة البيانات');
+        const queryStart = Date.now();
+        console.log('⚡ بدء جلب المقالات من قاعدة البيانات...');
         
         const skip = (page - 1) * limit;
 
@@ -165,7 +166,8 @@ export async function GET(request: NextRequest) {
           prisma.articles.count({ where })
         ]);
 
-        console.timeEnd('⚡ جلب المقالات من قاعدة البيانات');
+        const queryEnd = Date.now();
+        console.log(`✅ تم جلب المقالات في ${queryEnd - queryStart}ms`);
         
         return {
           articles,

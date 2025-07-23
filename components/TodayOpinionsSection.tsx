@@ -21,7 +21,6 @@ import {
   ArrowRight,
   Headphones
 } from 'lucide-react';
-import { formatDateOnly } from '@/lib/date-utils';
 import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
 import MobileOpinionCard from './mobile/MobileOpinionCard';
 
