@@ -24,12 +24,7 @@
     top: 0 !important;
   }
   
-  .mobile-progress-info {
-    font-size: 0.75rem !important;
-    padding: 0.25rem 0.5rem !important;
-    top: 4px !important;
-    right: 8px !important;
-  }
+  /* تم إزالة .mobile-progress-info لأننا حذفنا النسبة المئوية */
 
   /* تحسين العناصر العائمة للموبايل */
   .mobile-floating-controls {
@@ -42,33 +37,7 @@
     border-radius: 16px !important;
   }
 
-  /* تحسين لوحة التشغيل الصوتي للموبايل */
-  .mobile-audio-controls {
-    position: fixed !important;
-    bottom: 80px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: calc(100% - 20px) !important;
-    max-width: 350px !important;
-    padding: 16px !important;
-    border-radius: 20px !important;
-  }
-
-  .mobile-audio-controls .audio-control-row {
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-  }
-
-  .mobile-audio-controls .play-button {
-    width: 48px !important;
-    height: 48px !important;
-    border-radius: 50% !important;
-  }
-
-  .mobile-audio-controls .control-slider {
-    flex: 1 !important;
-    min-width: 80px !important;
-  }
+  /* تم إزالة أنماط mobile-audio-controls لأننا حذفنا أدوات التحكم الصوتي من الموبايل */
 
   /* تحسين النصوص للموبايل */
   .mobile-text-optimized {

@@ -748,68 +748,60 @@ export default function DeepAnalysisPage() {
           >
             <div className="absolute right-0 top-0 h-full w-2 bg-white dark:bg-gray-200 opacity-80 animate-pulse"></div>
           </div>
-          
-          {/* معلومات التقدم */}
-          <div className={`absolute ${
-            isMobile ? 'top-3 right-2 text-xs' : 'top-2 right-4 text-xs'
-          } font-medium px-2 py-1 rounded-md ${
-            darkMode ? 'bg-gray-800/90 text-gray-300' : 'bg-white/90 text-gray-700'
-          } shadow-sm backdrop-blur-sm`}>
-            {Math.round(readingProgress)}%
-            {!isMobile && ` • ${estimatedTimeLeft} دقائق متبقية`}
-          </div>
         </div>
 
-        {/* أدوات التحكم العائمة */}
-        <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-40 space-y-2">
-          <div className={`flex flex-col gap-2 p-2 rounded-xl backdrop-blur ${
-            darkMode ? 'bg-gray-800/90 border border-gray-700' : 'bg-white/90 border border-gray-200'
-          } shadow-lg`}>
-            
-            {/* وضع القراءة */}
-            <button
-              onClick={toggleReading}
-              className={`p-2 rounded-lg transition-all ${
-                isReading
-                  ? 'bg-orange-500 text-white'
-                  : darkMode
-                    ? 'text-gray-400 hover:text-orange-400 hover:bg-gray-700'
-                    : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50'
-              }`}
-              title="وضع القراءة المركزة"
-            >
-              <BookOpen className="w-5 h-5" />
-            </button>
+        {/* أدوات التحكم العائمة - إخفاؤها للموبايل */}
+        {!isMobile && (
+          <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-40 space-y-2">
+            <div className={`flex flex-col gap-2 p-2 rounded-xl backdrop-blur ${
+              darkMode ? 'bg-gray-800/90 border border-gray-700' : 'bg-white/90 border border-gray-200'
+            } shadow-lg`}>
+              
+              {/* وضع القراءة */}
+              <button
+                onClick={toggleReading}
+                className={`p-2 rounded-lg transition-all ${
+                  isReading
+                    ? 'bg-orange-500 text-white'
+                    : darkMode
+                      ? 'text-gray-400 hover:text-orange-400 hover:bg-gray-700'
+                      : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50'
+                }`}
+                title="وضع القراءة المركزة"
+              >
+                <BookOpen className="w-5 h-5" />
+              </button>
 
-            {/* ملء الشاشة */}
-            <button
-              onClick={toggleFullscreen}
-              className={`p-2 rounded-lg transition-all ${
-                darkMode
-                  ? 'text-gray-400 hover:text-blue-400 hover:bg-gray-700'
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-              }`}
-              title="ملء الشاشة"
-            >
-              <Maximize2 className="w-5 h-5" />
-            </button>
+              {/* ملء الشاشة */}
+              <button
+                onClick={toggleFullscreen}
+                className={`p-2 rounded-lg transition-all ${
+                  darkMode
+                    ? 'text-gray-400 hover:text-blue-400 hover:bg-gray-700'
+                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                }`}
+                title="ملء الشاشة"
+              >
+                <Maximize2 className="w-5 h-5" />
+              </button>
 
-            {/* لوحة التحليل */}
-            <button
-              onClick={() => setShowAnalysisPanel(!showAnalysisPanel)}
-              className={`p-2 rounded-lg transition-all ${
-                showAnalysisPanel
-                  ? 'bg-purple-500 text-white'
-                  : darkMode
-                    ? 'text-gray-400 hover:text-purple-400 hover:bg-gray-700'
-                    : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
-              }`}
-              title="لوحة التحليل الذكي"
-            >
-              <Brain className="w-5 h-5" />
-            </button>
+              {/* لوحة التحليل */}
+              <button
+                onClick={() => setShowAnalysisPanel(!showAnalysisPanel)}
+                className={`p-2 rounded-lg transition-all ${
+                  showAnalysisPanel
+                    ? 'bg-purple-500 text-white'
+                    : darkMode
+                      ? 'text-gray-400 hover:text-purple-400 hover:bg-gray-700'
+                      : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+                }`}
+                title="لوحة التحليل الذكي"
+              >
+                <Brain className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Hero Section محسن */}
         <div className={`relative overflow-hidden ${
@@ -1236,37 +1228,21 @@ export default function DeepAnalysisPage() {
           </button>
         )}
 
-        {/* لوحة التحكم في التشغيل الصوتي */}
-        {textToSpeech && (
-          <div className={`${
-            isMobile 
-              ? 'mobile-audio-controls fixed bottom-20 left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm'
-              : 'fixed bottom-6 right-6'
-          } p-4 rounded-2xl shadow-2xl transition-all duration-300 z-40 ${
-            darkMode 
-              ? 'bg-gray-800/95 backdrop-blur-md border border-gray-700' 
-              : 'bg-white/95 backdrop-blur-md border border-gray-200'
-          }`}>
-            <div className={`${
-              isMobile ? 'flex flex-col gap-3' : 'flex items-center gap-3'
-            }`}>
+        {/* أدوات التحكم الصوتي المحسنة - سطح المكتب فقط */}
+        {textToSpeech && !isMobile && (
+          <div className="fixed bottom-6 right-6 p-4 rounded-2xl shadow-2xl transition-all duration-300 z-40 bg-white/95 backdrop-blur-md border border-gray-200 dark:bg-gray-800/95 dark:border-gray-700">
+            <div className="flex items-center gap-3">
               
               {/* الصف الأول: زر التشغيل والإيقاف */}
               <div className="flex items-center justify-center gap-3">
                 <button
                   onClick={toggleTextToSpeech}
-                  className={`${
-                    isMobile ? 'w-12 h-12' : 'p-3'
-                  } rounded-xl transition-all duration-300 ${
-                    isPlaying
-                      ? 'bg-red-500 hover:bg-red-600 text-white'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  } shadow-lg hover:scale-105 flex items-center justify-center`}
+                  className="p-3 rounded-xl transition-all duration-300 bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:scale-105 flex items-center justify-center"
                 >
                   {isPlaying ? (
-                    <Pause className={`${isMobile ? 'w-6 h-6' : 'w-5 h-5'}`} />
+                    <Pause className="w-5 h-5" />
                   ) : (
-                    <Play className={`${isMobile ? 'w-6 h-6' : 'w-5 h-5'}`} />
+                    <Play className="w-5 h-5" />
                   )}
                 </button>
 
@@ -1274,26 +1250,18 @@ export default function DeepAnalysisPage() {
                 {currentUtterance && (
                   <button
                     onClick={stopTextToSpeech}
-                    className={`${
-                      isMobile ? 'w-10 h-10' : 'p-2'
-                    } rounded-lg transition-all ${
-                      darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                    } flex items-center justify-center`}
+                    className="p-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center"
                   >
-                    <RotateCcw className={`${isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                    <RotateCcw className="w-4 h-4" />
                   </button>
                 )}
               </div>
 
               {/* الصف الثاني: التحكم في السرعة والصوت */}
-              <div className={`${
-                isMobile ? 'flex flex-col gap-2' : 'flex items-center gap-2'
-              }`}>
+              <div className="flex items-center gap-2">
                 {/* التحكم في السرعة */}
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs ${
-                    darkMode ? 'text-gray-300' : 'text-gray-600'
-                  } ${isMobile ? 'min-w-[40px]' : ''}`}>
+                  <span className="text-xs text-gray-600 dark:text-gray-300">
                     السرعة
                   </span>
                   <input
@@ -1303,13 +1271,9 @@ export default function DeepAnalysisPage() {
                     step="0.1"
                     value={speechRate}
                     onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                    className={`${
-                      isMobile ? 'flex-1' : 'w-16'
-                    } h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700`}
+                    className="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                   />
-                  <span className={`text-xs font-mono ${
-                    darkMode ? 'text-gray-300' : 'text-gray-600'
-                  } ${isMobile ? 'min-w-[35px] text-center' : ''}`}>
+                  <span className="text-xs font-mono text-gray-600 dark:text-gray-300">
                     {speechRate}×
                   </span>
                 </div>
@@ -1318,11 +1282,7 @@ export default function DeepAnalysisPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setSpeechVolume(speechVolume > 0 ? 0 : 1)}
-                    className={`${
-                      isMobile ? 'w-8 h-8' : 'p-2'
-                    } rounded-lg transition-all ${
-                      darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                    } flex items-center justify-center`}
+                    className="p-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center"
                   >
                     {speechVolume > 0 ? (
                       <Volume2 className="w-4 h-4" />
@@ -1337,9 +1297,7 @@ export default function DeepAnalysisPage() {
                     step="0.1"
                     value={speechVolume}
                     onChange={(e) => setSpeechVolume(parseFloat(e.target.value))}
-                    className={`${
-                      isMobile ? 'flex-1' : 'w-16'
-                    } h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700`}
+                    className="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                   />
                 </div>
               </div>
@@ -1431,57 +1389,6 @@ export default function DeepAnalysisPage() {
                 >
                   <Menu className="w-5 h-5" />
                   <span className="text-[10px] font-medium">الفهرس</span>
-                </button>
-
-                {/* زر الاستماع الصوتي */}
-                <button
-                  onClick={() => {
-                    setShowMobileAudioControls(!showMobileAudioControls);
-                    toast.success(showMobileAudioControls ? 'تم إخفاء التحكم الصوتي' : 'تم إظهار التحكم الصوتي');
-                  }}
-                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
-                    showMobileAudioControls
-                      ? 'bg-orange-500/20 text-orange-500'
-                      : darkMode
-                      ? 'text-gray-400 active:bg-gray-700'
-                      : 'text-gray-600 active:bg-gray-100'
-                  }`}
-                  title="استماع صوتي"
-                >
-                  <Volume2 className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">استماع</span>
-                </button>
-
-                {/* زر وضع القراءة */}
-                <button
-                  onClick={toggleReadingMode}
-                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
-                    isReadingMode
-                      ? 'bg-green-500/20 text-green-500'
-                      : darkMode
-                      ? 'text-gray-400 active:bg-gray-700'
-                      : 'text-gray-600 active:bg-gray-100'
-                  }`}
-                  title="وضع القراءة"
-                >
-                  <BookOpen className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">قراءة</span>
-                </button>
-
-                {/* زر التحليل الذكي */}
-                <button
-                  onClick={() => setShowAnalysisPanel(true)}
-                  className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
-                    showAnalysisPanel
-                      ? 'bg-purple-500/20 text-purple-500'
-                      : darkMode
-                      ? 'text-gray-400 active:bg-gray-700'
-                      : 'text-gray-600 active:bg-gray-100'
-                  }`}
-                  title="التحليل الذكي"
-                >
-                  <Brain className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">تحليل</span>
                 </button>
 
                 {/* زر المشاركة */}
