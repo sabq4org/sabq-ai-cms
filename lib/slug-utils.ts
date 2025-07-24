@@ -58,22 +58,22 @@ export function generateUniqueId(prefix: string = 'art'): string {
 
 /**
  * تحويل معرف المقال إلى رابط
- * يفضل استخدام المعرف الفريد بدلاً من slug العربي
+ * يفضل استخدام المعرف الفريد UUID بدلاً من slug العربي
  */
 export function getArticleIdentifier(article: { id?: string; slug?: string; title?: string }): string {
-  // أولاً: التحقق من وجود معرف فريد في slug (لأن هذا هو المكان الذي حفظناه فيه)
+  // أولوية للـ UUID دائماً - أكثر استقراراً من الروابط العربية
+  if (article.id && article.id.length === 36 && article.id.includes('-')) {
+    return article.id;
+  }
+  
+  // ثانياً: التحقق من وجود معرف فريد في slug
   if (article.slug && /^art-\d{6}-[a-z0-9]{7}$/.test(article.slug)) {
     return article.slug;
   }
   
-  // إذا كان المقال له slug إنجليزي صحيح، استخدمه
-  if (article.slug && /^[a-z0-9-]+$/.test(article.slug)) {
+  // إذا كان المقال له slug إنجليزي صحيح (بدون عربي)، استخدمه
+  if (article.slug && /^[a-z0-9-]+$/.test(article.slug) && !/[\u0600-\u06FF]/.test(article.slug)) {
     return article.slug;
-  }
-  
-  // إذا كان المقال له معرف UUID، استخدمه
-  if (article.id && article.id.length === 36 && article.id.includes('-')) {
-    return article.id;
   }
   
   // خلاف ذلك، ولّد معرف جديد
