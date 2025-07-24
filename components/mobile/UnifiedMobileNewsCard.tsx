@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, Eye, User, Clock, Zap, Star, Heart, MessageSquare, Bookmark, Share2 } from 'lucide-react';
 import { formatRelativeDate } from '@/lib/date-utils';
+import { getArticleLink } from '@/lib/utils';
 
 // واجهة موحدة للبيانات
 interface UnifiedNewsData {
@@ -102,10 +103,6 @@ export default function UnifiedMobileNewsCard({
     return num.toString();
   };
 
-  const getArticleLink = () => {
-    return `/article/${data.slug || data.id}`;
-  };
-
   const generatePlaceholderImage = (title: string) => {
     const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
     const color = colors[title.length % colors.length];
@@ -122,7 +119,7 @@ export default function UnifiedMobileNewsCard({
   // بطاقة بتنسيق "بلوك المحتوى الذكي المخصص للاهتمامات"
   if (variant === 'smart-block') {
     return (
-      <Link href={getArticleLink()} className={`block w-full ${className}`}>
+      <Link href={getArticleLink(data)} className={`block w-full ${className}`}>
         <article className={`
           relative overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-lg group
           ${darkMode 
@@ -299,7 +296,7 @@ export default function UnifiedMobileNewsCard({
   // البطاقة المضغوطة
   if (variant === 'compact') {
     return (
-      <Link href={getArticleLink()} className={`block w-full ${className}`}>
+      <Link href={getArticleLink(data)} className={`block w-full ${className}`}>
         <article className={`
           flex gap-4 p-4 rounded-xl transition-all duration-200 hover:shadow-md
           ${darkMode 
@@ -372,7 +369,7 @@ export default function UnifiedMobileNewsCard({
 
   // البطاقة الافتراضية
   return (
-    <Link href={getArticleLink()} className={`block w-full ${className}`}>
+    <Link href={getArticleLink(data)} className={`block w-full ${className}`}>
       <article className={`
         overflow-hidden rounded-xl transition-all duration-200 hover:shadow-lg
         ${darkMode 

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { getArticleLink } from '@/lib/utils';
 import { 
   FileText, Edit, Trash2, Eye, Clock, Calendar, 
   TrendingUp, MessageSquare, MoreVertical, Image,
@@ -248,7 +249,7 @@ const ArticleCard = ({
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => window.open(`/article/${article.id}`, '_blank')}
+            onClick={() => window.open(getArticleLink(article), '_blank')}
             className="flex-1 h-8 text-xs"
           >
             <ExternalLink className="w-3 h-3 mr-1" />

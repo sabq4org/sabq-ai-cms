@@ -8,6 +8,7 @@ import MobileDashboardLayout from '@/components/mobile/MobileDashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getArticleLink } from '@/lib/utils';
 import { 
   Edit, Trash2, Eye, Clock, Calendar, Zap, 
   TrendingUp, MessageSquare, MoreVertical,
@@ -267,7 +268,7 @@ export default function MobileNewsManagement() {
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => router.push(`/article/${item.id}`)}
+                onClick={() => router.push(getArticleLink(item))}
                 className="flex-1 h-8 text-xs"
               >
                 <Eye className="w-3 h-3 mr-1" />

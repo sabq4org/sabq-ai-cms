@@ -6,6 +6,7 @@ import UnifiedMobileNewsCard from '@/components/mobile/UnifiedMobileNewsCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Smartphone, Tablet, Monitor, RefreshCw } from 'lucide-react';
+import { getArticleLink } from '@/lib/utils';
 
 // بيانات تجريبية لاختبار المكون
 const sampleNewsData = [
@@ -101,12 +102,12 @@ export default function UnifiedNewsCardDemo() {
       navigator.share({
         title: article.title,
         text: article.excerpt,
-        url: window.location.origin + `/article/${article.id}`
+        url: window.location.origin + getArticleLink(article)
       });
     } else {
       // Fallback للمتصفحات التي لا تدعم Web Share API
       navigator.clipboard.writeText(
-        `${article.title}\n${window.location.origin}/article/${article.id}`
+        `${article.title}\n${window.location.origin}${getArticleLink(article)}`
       );
       alert('تم نسخ رابط المقال!');
     }
