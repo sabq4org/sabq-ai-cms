@@ -213,7 +213,7 @@ export default function PersonalizedFeed({ userId, limit = 10 }: PersonalizedFee
               {/* الصورة البارزة */}
               {article.featured_image && (
                 <Link 
-                  href={`/articles/${article.id}`}
+                  href={`/article/${article.id}`}
                   onClick={() => recordInteraction(article.id, 'view')}
                   className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0"
                 >
@@ -237,7 +237,7 @@ export default function PersonalizedFeed({ userId, limit = 10 }: PersonalizedFee
               <div className="flex-1 min-w-0">
                 {/* العنوان والوصف */}
                 <Link 
-                  href={`/articles/${article.id}`}
+                  href={`/article/${article.id}`}
                   onClick={() => recordInteraction(article.id, 'view')}
                   className="block"
                 >

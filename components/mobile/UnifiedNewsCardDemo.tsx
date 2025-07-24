@@ -101,12 +101,12 @@ export default function UnifiedNewsCardDemo() {
       navigator.share({
         title: article.title,
         text: article.excerpt,
-        url: window.location.origin + `/articles/${article.id}`
+        url: window.location.origin + `/article/${article.id}`
       });
     } else {
       // Fallback للمتصفحات التي لا تدعم Web Share API
       navigator.clipboard.writeText(
-        `${article.title}\n${window.location.origin}/articles/${article.id}`
+        `${article.title}\n${window.location.origin}/article/${article.id}`
       );
       alert('تم نسخ رابط المقال!');
     }

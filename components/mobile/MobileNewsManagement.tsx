@@ -267,7 +267,7 @@ export default function MobileNewsManagement() {
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => router.push(`/articles/${item.id}`)}
+                onClick={() => router.push(`/article/${item.id}`)}
                 className="flex-1 h-8 text-xs"
               >
                 <Eye className="w-3 h-3 mr-1" />

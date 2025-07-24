@@ -103,7 +103,7 @@ export default function UnifiedMobileNewsCard({
   };
 
   const getArticleLink = () => {
-    return `/articles/${data.slug || data.id}`;
+    return `/article/${data.slug || data.id}`;
   };
 
   const generatePlaceholderImage = (title: string) => {

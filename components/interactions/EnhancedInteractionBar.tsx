@@ -256,7 +256,7 @@ export default function EnhancedInteractionBar({
   };
 
   const handleShare = async (platform: string) => {
-    const url = `${window.location.origin}/articles/${articleSlug}`;
+    const url = `${window.location.origin}/article/${articleSlug}`;
     const text = `${articleTitle} - من موقع سبق`;
 
     switch (platform) {

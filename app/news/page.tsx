@@ -496,7 +496,7 @@ export default function NewsPage() {
                         if (navigator.share) {
                           navigator.share({
                             title: article.title,
-                            url: window.location.origin + `/articles/${article.slug || article.id}`
+                            url: window.location.origin + `/article/${article.slug || article.id}`
                           });
                         }
                       }}

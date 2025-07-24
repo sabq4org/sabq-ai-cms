@@ -248,7 +248,7 @@ const ArticleCard = ({
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => window.open(`/articles/${article.id}`, '_blank')}
+            onClick={() => window.open(`/article/${article.id}`, '_blank')}
             className="flex-1 h-8 text-xs"
           >
             <ExternalLink className="w-3 h-3 mr-1" />
