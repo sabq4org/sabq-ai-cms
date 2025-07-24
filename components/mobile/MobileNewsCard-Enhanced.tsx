@@ -8,6 +8,7 @@ import {
   Bookmark, Share2, MessageSquare, TrendingUp, Award
 } from 'lucide-react';
 import { formatRelativeDate } from '@/lib/date-utils';
+import { getArticleLink } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 
@@ -403,7 +404,7 @@ const MobileNewsCard = memo(({
 
   return (
     <Link 
-      href={`/article/${slug}`}
+      href={getArticleLink(article)}
       className={cardStyles}
       onClick={handleClick}
     >

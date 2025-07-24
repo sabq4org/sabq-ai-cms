@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, Eye, User, Clock, Zap, Star } from 'lucide-react';
 import { formatRelativeDate } from '@/lib/date-utils';
+import { getArticleLink } from '@/lib/utils';
 
 interface Article {
   id: string;
@@ -60,7 +61,7 @@ export default function MobileNewsCard({ article, darkMode = false }: MobileNews
 
   return (
     <Link 
-      href={`/article/${slug}`}
+      href={getArticleLink(article)}
       className={`block w-full mb-3 ${
         darkMode ? 'bg-gray-800' : 'bg-white'
       } rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border ${

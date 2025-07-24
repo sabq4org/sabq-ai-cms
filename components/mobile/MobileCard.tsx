@@ -5,6 +5,7 @@ import { formatDateShort } from '@/lib/date-utils';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, Share2, Bookmark, MessageSquare } from 'lucide-react';
+import { getArticleLink } from '@/lib/utils';
 
 interface MobileCardProps {
   article: {
@@ -62,7 +63,7 @@ export default function MobileCard({
   if (variant === 'compact') {
     return (
       <div className="mobile-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden tap-highlight">
-        <Link href={`/article/${article.id}`} className="block">
+        <Link href={getArticleLink(article)} className="block">
           <div className="flex gap-3 p-4">
             {showImage && article.featured_image && (
               <div className="flex-shrink-0">
@@ -116,7 +117,7 @@ export default function MobileCard({
   if (variant === 'featured') {
     return (
       <div className="mobile-card bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-700 overflow-hidden tap-highlight">
-        <Link href={`/article/${article.id}`} className="block">
+        <Link href={getArticleLink(article)} className="block">
           {showImage && article.featured_image && (
             <div className="relative">
               <Image
@@ -218,7 +219,7 @@ export default function MobileCard({
   // Default variant
   return (
     <div className="mobile-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden tap-highlight">
-      <Link href={`/article/${article.id}`} className="block">
+      <Link href={getArticleLink(article)} className="block">
         {showImage && article.featured_image && (
           <div className="relative">
             <Image
