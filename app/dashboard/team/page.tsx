@@ -43,14 +43,32 @@ export default function TeamPage() {
   });
   const availableDepartments = ['التحرير', 'المراسلين', 'التقنية', 'التسويق', 'المراجعة والتدقيق', 'الإدارة'];
   useEffect(() => {
+    console.log('🚀 تحميل صفحة إدارة الفريق...');
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
     // جلب البيانات
+    console.log('📥 بدء جلب البيانات...');
     fetchTeamMembers();
     fetchRoles();
+    
+    // للتأكد من تحميل الأدوار، إعادة المحاولة بعد ثانيتين
+    setTimeout(() => {
+      if (roles.length === 0) {
+        console.log('⚠️ لم يتم تحميل الأدوار، إعادة المحاولة...');
+        fetchRoles();
+      }
+    }, 2000);
   }, []);
+
+  // useEffect منفصل لمراقبة تحميل الأدوار
+  useEffect(() => {
+    console.log('🔄 تغيير في حالة الأدوار:', roles.length, 'أدوار محملة');
+    if (roles.length > 0) {
+      console.log('✅ الأدوار متاحة:', roles.map((r: any) => r.display_name || r.name));
+    }
+  }, [roles]);
   // جلب أعضاء الفريق
   const fetchTeamMembers = async () => {
     try {
@@ -69,21 +87,24 @@ export default function TeamPage() {
   // جلب الأدوار
   const fetchRoles = async () => {
     try {
-      console.log('🔄 جلب الأدوار...');
+      console.log('🔄 بدء جلب الأدوار...');
       const response = await fetch('/api/roles');
-      const data = await response.json();
-      console.log('📦 استجابة API للأدوار:', data);
+      console.log('📡 استجابة الخادم:', response.status, response.statusText);
       
-      if (data.success && data.data) {
+      const data = await response.json();
+      console.log('📦 بيانات الأدوار المستلمة:', data);
+      
+      if (data.success && data.data && Array.isArray(data.data)) {
         setRoles(data.data);
-        console.log('✅ تم تحميل الأدوار بنجاح:', data.data.length);
+        console.log('✅ تم تحميل الأدوار بنجاح:', data.data.length, 'أدوار');
+        console.log('📋 قائمة الأدوار:', data.data.map((r: any) => `${r.name} (${r.display_name})`));
       } else {
-        console.error('❌ فشل في جلب الأدوار:', data.error);
-        addNotification('فشل في تحميل الأدوار', 'warning');
+        console.error('❌ فشل في جلب الأدوار - البيانات غير صحيحة:', data);
+        addNotification('فشل في تحميل الأدوار - بيانات غير صحيحة', 'warning');
       }
     } catch (error) {
-      console.error('❌ خطأ في جلب الأدوار:', error);
-      addNotification('خطأ في تحميل الأدوار', 'warning');
+      console.error('❌ خطأ شبكة في جلب الأدوار:', error);
+      addNotification('خطأ في الاتصال بالخادم لجلب الأدوار', 'warning');
     }
   };
   const addNotification = (message: string, type: 'success' | 'info' | 'warning') => {
@@ -651,9 +672,23 @@ export default function TeamPage() {
                       )}
                     </select>
                     {roles.length === 0 && (
-                      <p className={`text-xs mt-1 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>
-                        ⚠️ لا توجد أدوار متاحة. يرجى إنشاء الأدوار أولاً.
-                      </p>
+                      <div className={`text-xs mt-1 space-y-1`}>
+                        <p className={`${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>
+                          ⚠️ لا توجد أدوار متاحة. يرجى إنشاء الأدوار أولاً.
+                        </p>
+                        <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          📊 عدد الأدوار المحملة: {roles.length}
+                        </p>
+                        <button 
+                          onClick={() => {
+                            console.log('🔄 إعادة تحميل الأدوار...');
+                            fetchRoles();
+                          }}
+                          className={`text-blue-500 hover:text-blue-600 underline`}
+                        >
+                          🔄 إعادة تحميل الأدوار
+                        </button>
+                      </div>
                     )}
                     {formData.roleId && (
                       <p className={`text-xs mt-1 ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
