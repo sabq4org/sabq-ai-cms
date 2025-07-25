@@ -1,10 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import type { OpinionAnalytics } from '@/types/opinions'
 
-const prisma = new PrismaClient()
+// استيراد آمن لـ Prisma
+let prisma: any;
+try {
+  const prismaModule = require('@/lib/prisma');
+  prisma = prismaModule.prisma;
+} catch (importError) {
+  console.error('❌ فشل في استيراد Prisma في opinions/analytics:', importError);
+}
 
 export async function GET(request: NextRequest) {
+  // التحقق من وجود Prisma
+  if (!prisma) {
+    console.error('❌ API: Prisma غير متاح في opinions/analytics');
+    return NextResponse.json({
+      success: false,
+      error: 'خطأ في الاتصال بقاعدة البيانات',
+      details: 'Prisma client not available',
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
+  }
+
   try {
     const searchParams = request.nextUrl.searchParams
     const period = searchParams.get('period') || '30' // آخر 30 يوم
@@ -373,6 +390,14 @@ export async function GET(request: NextRequest) {
       error: 'فشل في توليد تحليلات مقالات الرأي',
       details: error instanceof Error ? error.message : 'خطأ غير معروف'
     }, { status: 500 })
+  } finally {
+    if (prisma) {
+      try {
+        await prisma.$disconnect();
+      } catch (disconnectError) {
+        console.warn('⚠️ API: تعذر قطع الاتصال في opinions/analytics:', disconnectError);
+      }
+    }
   }
 }
 

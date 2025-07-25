@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
 import jwt from 'jsonwebtoken';
 
-const prisma = new PrismaClient();
+// استيراد آمن لـ Prisma
+let prisma: any;
+try {
+  const prismaModule = require('@/lib/prisma');
+  prisma = prismaModule.prisma;
+} catch (importError) {
+  console.error('❌ فشل في استيراد Prisma في user/reading-sessions:', importError);
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
 // POST: إنشاء جلسة قراءة جديدة

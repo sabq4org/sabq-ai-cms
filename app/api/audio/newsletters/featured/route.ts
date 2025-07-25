@@ -1,7 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "../../../../../lib/generated/prisma";
+import { NextRequest, NextResponse } from 'next/server';
 
-const prisma = new PrismaClient();
+// استيراد آمن لـ Prisma
+let prisma: any;
+try {
+  const prismaModule = require('@/lib/prisma');
+  prisma = prismaModule.prisma;
+} catch (importError) {
+  console.error('❌ فشل في استيراد Prisma في audio/newsletters/featured:', importError);
+}
 
 export async function GET() {
   try {

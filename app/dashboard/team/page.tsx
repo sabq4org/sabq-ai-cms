@@ -230,14 +230,6 @@ export default function TeamPage() {
       }
     }
   };
-      addNotification('خطأ في الاتصال بالخادم لجلب الأدوار', 'warning');
-      
-      // محاولة التشخيص أكثر
-      if (fallbackError instanceof Error) {
-        console.error('🔍 رسالة الخطأ:', fallbackError.message);
-      }
-    }
-  };
 
   const addNotification = (message: string, type: 'success' | 'info' | 'warning') => {
     const newNotification: Notification = {
@@ -251,6 +243,7 @@ export default function TeamPage() {
       setNotifications(prev => prev.filter(n => n.id !== newNotification.id));
     }, 5000);
   };
+
   const handleAddMember = async () => {
     if (!formData.name || !formData.email || !formData.password || !formData.roleId) {
       addNotification('يرجى ملء جميع الحقول المطلوبة', 'warning');
