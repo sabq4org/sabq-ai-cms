@@ -18,6 +18,8 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "clean": "rm -rf .next && rm -rf node_modules/.cache",
+    "check-roles": "node scripts/check-roles.js",
+    "seed-roles": "node scripts/seed-roles.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

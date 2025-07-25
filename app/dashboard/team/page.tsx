@@ -84,6 +84,72 @@ export default function TeamPage() {
       setLoading(false);
     }
   };
+  // دالة تشخيص النظام
+  const diagnoseSystem = async () => {
+    console.log('🔍 بدء تشخيص شامل للنظام...');
+    
+    try {
+      // اختبار الاتصال بقاعدة البيانات
+      console.log('1️⃣ اختبار API التشخيص...');
+      const debugResponse = await fetch('/api/debug/roles');
+      const debugData = await debugResponse.json();
+      console.log('� نتائج التشخيص:', debugData);
+      
+      // اختبار API الأدوار مباشرة
+      console.log('2️⃣ اختبار API الأدوار...');
+      const rolesResponse = await fetch('/api/roles');
+      console.log('📡 رد API الأدوار:', {
+        status: rolesResponse.status,
+        statusText: rolesResponse.statusText,
+        headers: Object.fromEntries(rolesResponse.headers.entries())
+      });
+      
+      const rolesText = await rolesResponse.text();
+      console.log('📄 نص الاستجابة الخام:', rolesText.substring(0, 500) + (rolesText.length > 500 ? '...' : ''));
+      
+      try {
+        const rolesData = JSON.parse(rolesText);
+        console.log('📦 البيانات المحللة:', rolesData);
+        
+        // تحليل مفصل للبيانات
+        if (rolesData.success && rolesData.data) {
+          console.log('✅ البيانات صحيحة - عدد الأدوار:', rolesData.data.length);
+          rolesData.data.forEach((role: any, index: number) => {
+            console.log(`📋 الدور ${index + 1}:`, {
+              id: role.id,
+              name: role.name,
+              display_name: role.display_name,
+              hasPermissions: !!role.permissions
+            });
+          });
+        } else {
+          console.error('❌ البيانات غير صحيحة:', rolesData);
+        }
+        
+      } catch (parseError) {
+        console.error('❌ خطأ في تحليل JSON:', parseError);
+        console.log('📄 محتوى الاستجابة:', rolesText);
+      }
+      
+      // معلومات المتصفح والبيئة
+      console.log('3️⃣ معلومات البيئة:', {
+        userAgent: navigator.userAgent,
+        currentURL: window.location.href,
+        timestamp: new Date().toISOString(),
+        rolesState: {
+          currentRolesCount: roles.length,
+          rolesList: roles.map(r => ({ id: r.id, name: r.name, display_name: r.display_name }))
+        }
+      });
+      
+      addNotification('تم إجراء التشخيص الشامل - تحقق من Console للتفاصيل', 'info');
+      
+    } catch (error) {
+      console.error('❌ خطأ في التشخيص:', error);
+      addNotification('فشل في التشخيص', 'warning');
+    }
+  };
+
   // جلب الأدوار
   const fetchRoles = async () => {
     try {
@@ -91,20 +157,43 @@ export default function TeamPage() {
       const response = await fetch('/api/roles');
       console.log('📡 استجابة الخادم:', response.status, response.statusText);
       
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const data = await response.json();
       console.log('📦 بيانات الأدوار المستلمة:', data);
       
-      if (data.success && data.data && Array.isArray(data.data)) {
-        setRoles(data.data);
-        console.log('✅ تم تحميل الأدوار بنجاح:', data.data.length, 'أدوار');
-        console.log('📋 قائمة الأدوار:', data.data.map((r: any) => `${r.name} (${r.display_name})`));
+      if (data.success) {
+        if (data.data && Array.isArray(data.data)) {
+          setRoles(data.data);
+          console.log('✅ تم تحميل الأدوار بنجاح:', data.data.length, 'أدوار');
+          console.log('📋 قائمة الأدوار:', data.data.map((r: any) => `${r.name} (${r.display_name || r.name})`));
+          
+          if (data.data.length === 0) {
+            addNotification('لا توجد أدوار مُعرَّفة في النظام', 'info');
+          }
+        } else {
+          console.error('❌ البيانات المستلمة ليست مصفوفة:', data.data);
+          addNotification('تنسيق البيانات غير صحيح', 'warning');
+        }
       } else {
-        console.error('❌ فشل في جلب الأدوار - البيانات غير صحيحة:', data);
-        addNotification('فشل في تحميل الأدوار - بيانات غير صحيحة', 'warning');
+        console.error('❌ فشل في جلب الأدوار من الخادم:', data);
+        addNotification(`فشل في تحميل الأدوار: ${data.error || 'خطأ غير معروف'}`, 'warning');
+        
+        // إضافة تفاصيل إضافية للتشخيص
+        if (data.details) {
+          console.error('🔍 تفاصيل الخطأ:', data.details);
+        }
       }
     } catch (error) {
       console.error('❌ خطأ شبكة في جلب الأدوار:', error);
       addNotification('خطأ في الاتصال بالخادم لجلب الأدوار', 'warning');
+      
+      // محاولة التشخيص أكثر
+      if (error instanceof Error) {
+        console.error('🔍 رسالة الخطأ:', error.message);
+      }
     }
   };
   const addNotification = (message: string, type: 'success' | 'info' | 'warning') => {
@@ -672,22 +761,30 @@ export default function TeamPage() {
                       )}
                     </select>
                     {roles.length === 0 && (
-                      <div className={`text-xs mt-1 space-y-1`}>
+                      <div className={`text-xs mt-1 space-y-2`}>
                         <p className={`${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>
                           ⚠️ لا توجد أدوار متاحة. يرجى إنشاء الأدوار أولاً.
                         </p>
                         <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                           📊 عدد الأدوار المحملة: {roles.length}
                         </p>
-                        <button 
-                          onClick={() => {
-                            console.log('🔄 إعادة تحميل الأدوار...');
-                            fetchRoles();
-                          }}
-                          className={`text-blue-500 hover:text-blue-600 underline`}
-                        >
-                          🔄 إعادة تحميل الأدوار
-                        </button>
+                        <div className="flex gap-2 flex-wrap">
+                          <button 
+                            onClick={() => {
+                              console.log('🔄 إعادة تحميل الأدوار...');
+                              fetchRoles();
+                            }}
+                            className={`text-blue-500 hover:text-blue-600 underline text-xs`}
+                          >
+                            🔄 إعادة تحميل الأدوار
+                          </button>
+                          <button 
+                            onClick={diagnoseSystem}
+                            className={`text-purple-500 hover:text-purple-600 underline text-xs`}
+                          >
+                            🔍 تشخيص النظام
+                          </button>
+                        </div>
                       </div>
                     )}
                     {formData.roleId && (
