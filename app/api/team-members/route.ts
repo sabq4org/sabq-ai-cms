@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { prisma, ensureConnection } from '@/lib/prisma';
-
 
 export const runtime = 'nodejs';
 
 // GET: جلب قائمة أعضاء الفريق
 export async function GET() {
   try {
+    // استيراد آمن لـ Prisma
+    const { prisma, ensureConnection } = await import('@/lib/prisma');
+    
     // التأكد من الاتصال بقاعدة البيانات
     const isConnected = await ensureConnection();
     if (!isConnected) {
@@ -51,14 +52,15 @@ export async function GET() {
       { success: false, error: 'حدث خطأ في جلب أعضاء الفريق' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 // POST: إضافة عضو جديد
 export async function POST(request: NextRequest) {
   try {
+    // استيراد آمن لـ Prisma
+    const { prisma } = await import('@/lib/prisma');
+    
     const body = await request.json();
     
     // التحقق من البيانات المطلوبة
@@ -141,7 +143,5 @@ export async function POST(request: NextRequest) {
       { success: false, error: 'حدث خطأ في إضافة عضو الفريق' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 } 
