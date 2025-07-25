@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import type { OpinionFilters, CreateOpinionRequest, UpdateOpinionRequest, BulkOpinionAction } from '@/types/opinions'
 
 const prisma = new PrismaClient()
 
@@ -189,7 +190,7 @@ export async function GET(request: NextRequest) {
     const totalPages = Math.ceil(totalCount / limit)
 
     // تحويل البيانات للشكل المطلوب
-    const transformedArticles = articles.map(article => ({
+    const transformedArticles = articles.map((article: any) => ({
       id: article.id,
       title: article.title,
       slug: article.slug,

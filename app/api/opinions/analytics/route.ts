@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import type { OpinionAnalytics } from '@/types/opinions'
 
 const prisma = new PrismaClient()
 
@@ -137,7 +138,7 @@ export async function GET(request: NextRequest) {
 
     // جلب تفاصيل الكتاب
     const authorsDetails = await Promise.all(
-      topAuthors.map(async (author) => {
+      topAuthors.map(async (author: any) => {
         const authorData = await prisma.opinion_authors.findUnique({
           where: { id: author.opinion_author_id || '' },
           select: {
