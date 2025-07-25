@@ -234,8 +234,14 @@ export default function TeamPage() {
         throw new Error(result.error || 'فشل رفع الصورة');
       }
       // تحديث معاينة الصورة ورابط الصورة
-      console.log('تحديث معاينة الصورة:', result.data.url);
-      const imageUrl = result.data.url; // استخدام URL الملف وليس data URL
+      // معالجة structure مختلفة للـ response
+      const imageUrl = result.data?.url || result.url;
+      console.log('تحديث معاينة الصورة:', imageUrl);
+      
+      if (!imageUrl) {
+        throw new Error('لم يتم الحصول على رابط الصورة من الخادم');
+      }
+      
       setAvatarPreview(imageUrl);
       setFormData(prev => ({ ...prev, avatar: imageUrl }));
       addNotification('تم رفع الصورة بنجاح', 'success');

@@ -477,11 +477,18 @@ export default function ContentEditor({
                                 
                                 if (data.success) {
                                   console.log('✅ تم رفع الصورة بنجاح');
-                                  // استخدام URL الدائم من الخادم
+                                  // استخدام URL الدائم من الخادم - معالجة structures مختلفة
+                                  const imageUrl = data.data?.url || data.url;
+                                  const originalName = data.data?.originalName || data.originalName || file.name;
+                                  
+                                  if (!imageUrl) {
+                                    throw new Error('لم يتم الحصول على رابط الصورة من الخادم');
+                                  }
+                                  
                                   setFormData((prev: any) => ({ 
                                     ...prev, 
-                                    featured_image: data.data.url,
-                                    featured_image_alt: data.data.originalName.split('.')[0]
+                                    featured_image: imageUrl,
+                                    featured_image_alt: originalName.split('.')[0]
                                   }));
                                 } else {
                                   throw new Error(data.error || 'حدث خطأ أثناء رفع الصورة');
