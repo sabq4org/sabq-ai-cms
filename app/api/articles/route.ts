@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma, ensureConnection } from '@/lib/prisma'
 import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved'
 import { generateUniqueId } from '@/lib/slug-utils'
 
@@ -63,6 +62,9 @@ export async function GET(request: NextRequest) {
   const startTime = performance.now();
   
   try {
+    // استيراد آمن لـ Prisma
+    const { prisma, ensureConnection } = await import('@/lib/prisma');
+    
     // التحقق من اتصال قاعدة البيانات
     await ensureConnection();
     
@@ -251,6 +253,9 @@ export async function DELETE(request: NextRequest) {
 // معالج POST لإنشاء مقال جديد
 export async function POST(request: NextRequest) {
   try {
+    // استيراد آمن لـ Prisma
+    const { prisma, ensureConnection } = await import('@/lib/prisma');
+    
     await ensureConnection();
     console.log('📝 بدء إنشاء مقال جديد...');
     
