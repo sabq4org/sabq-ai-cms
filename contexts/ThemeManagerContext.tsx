@@ -245,22 +245,33 @@ export function ThemeManagerProvider({ children }: { children: React.ReactNode }
   // تطبيق الثيم على الصفحة
   const applyTheme = useCallback(() => {
     try {
+      console.log('🎨 بدء تطبيق الثيم:', settings.currentScheme);
+      
       const root = document.documentElement;
       const currentSchemeData = predefinedSchemes.find(s => s.id === settings.currentScheme) || 
                                 customScheme || 
                                 predefinedSchemes[0];
       
+      console.log('📦 بيانات الثيم المحدد:', currentSchemeData);
+      
       const colors = resolvedTheme === 'dark' ? currentSchemeData.darkMode : currentSchemeData.colors;
+      
+      console.log('🎯 الألوان المطبقة:', colors);
+      console.log('🌙 الوضع الحالي:', resolvedTheme === 'dark' ? 'ليلي' : 'نهاري');
       
       // تطبيق متغيرات CSS للألوان
       Object.entries(colors).forEach(([key, value]) => {
         root.style.setProperty(`--theme-${key}`, value);
+        console.log(`✅ تم تطبيق: --theme-${key} = ${value}`);
       });
       
       // تطبيق كلاس الثيم
       root.classList.remove('theme-sabq', 'theme-emerald', 'theme-purple', 'theme-rose', 'theme-orange');
       if (currentSchemeData.id !== 'sabq') {
         root.classList.add(`theme-${currentSchemeData.id}`);
+        console.log(`🏷️ تم إضافة كلاس: theme-${currentSchemeData.id}`);
+      } else {
+        console.log('🏷️ إزالة جميع كلاسات الثيم (الثيم الافتراضي)');
       }
       
       // تطبيق إعدادات إضافية
@@ -288,8 +299,19 @@ export function ThemeManagerProvider({ children }: { children: React.ReactNode }
         root.classList.remove('theme-no-animations');
       }
       
+      // إجبار إعادة تطبيق الأنماط
+      console.log('🔄 إجبار إعادة تطبيق الأنماط...');
+      setTimeout(() => {
+        document.body.style.display = 'none';
+        document.body.offsetHeight; // trigger reflow
+        document.body.style.display = '';
+        console.log('✨ تم إجبار إعادة التطبيق');
+      }, 50);
+      
+      console.log('🎉 تم تطبيق الثيم بنجاح!');
+      
     } catch (error) {
-      console.error('خطأ في تطبيق الثيم:', error);
+      console.error('❌ خطأ في تطبيق الثيم:', error);
     }
   }, [settings, customScheme, resolvedTheme]);
 
@@ -301,17 +323,25 @@ export function ThemeManagerProvider({ children }: { children: React.ReactNode }
   // حفظ الإعدادات
   const saveSettings = useCallback(async () => {
     try {
+      console.log('💾 بدء حفظ الإعدادات:', settings);
       setIsLoading(true);
+      
       localStorage.setItem('theme-manager-settings', JSON.stringify(settings));
+      console.log('✅ تم حفظ الإعدادات في localStorage');
+      
       if (customScheme) {
         localStorage.setItem('theme-manager-custom-scheme', JSON.stringify(customScheme));
+        console.log('✅ تم حفظ الثيم المخصص في localStorage');
       }
       
       // تطبيق الثيم فوراً
+      console.log('🔄 تطبيق الثيم بعد الحفظ...');
       applyTheme();
       
+      console.log('🎉 تم حفظ وتطبيق الثيم بنجاح!');
+      
     } catch (error) {
-      console.error('خطأ في حفظ إعدادات الثيم:', error);
+      console.error('❌ خطأ في حفظ إعدادات الثيم:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -399,17 +429,33 @@ export function useThemeManager() {
 
 // دالة مساعدة لتطبيق الثيم بشكل عام
 export function applyGlobalTheme(schemeId: string, isDark: boolean = false) {
+  console.log('🌍 تطبيق الثيم العام:', schemeId, isDark ? 'ليلي' : 'نهاري');
+  
   const scheme = predefinedSchemes.find(s => s.id === schemeId) || predefinedSchemes[0];
   const colors = isDark ? scheme.darkMode : scheme.colors;
   const root = document.documentElement;
   
+  // إزالة جميع كلاسات الثيم السابقة
+  root.classList.remove('theme-sabq', 'theme-emerald', 'theme-purple', 'theme-rose', 'theme-orange');
+  
+  // تطبيق متغيرات الألوان
   Object.entries(colors).forEach(([key, value]) => {
     root.style.setProperty(`--theme-${key}`, value);
+    console.log(`🎨 تطبيق: --theme-${key} = ${value}`);
   });
   
+  // إضافة كلاس الثيم الجديد
   if (schemeId !== 'sabq') {
     root.classList.add(`theme-${schemeId}`);
+    console.log(`✅ تم إضافة كلاس: theme-${schemeId}`);
   }
+  
+  // إجبار إعادة تطبيق الأنماط
+  setTimeout(() => {
+    document.body.style.display = 'none';
+    document.body.offsetHeight; // trigger reflow
+    document.body.style.display = '';
+  }, 100);
 }
 
 // Hook للحصول على الثيم الحالي

@@ -52,8 +52,8 @@
 
 /* ===== تطبيق الثيم على العناصر ===== */
 body {
-  background-color: var(--theme-background);
-  color: var(--theme-text);
+  background-color: var(--theme-background) !important;
+  color: var(--theme-text) !important;
   font-size: var(--theme-font-size);
   transition: background-color var(--theme-transition-duration) var(--theme-transition-timing),
               color var(--theme-transition-duration) var(--theme-transition-timing);
@@ -63,10 +63,34 @@ body {
 .theme-card,
 .dashboard-card,
 .card {
-  background-color: var(--theme-surface);
-  border: 1px solid var(--theme-border);
+  background-color: var(--theme-surface) !important;
+  border: 1px solid var(--theme-border) !important;
   border-radius: var(--theme-border-radius);
   transition: all var(--theme-transition-duration) var(--theme-transition-timing);
+  color: var(--theme-text) !important;
+}
+
+/* تطبيق على العناصر الرئيسية للوحة التحكم */
+.min-h-screen,
+[class*="bg-slate-50"],
+[class*="bg-gray-"],
+[class*="bg-white"] {
+  background-color: var(--theme-background) !important;
+  color: var(--theme-text) !important;
+}
+
+/* تطبيق على البطاقات */
+[class*="bg-white"],
+[class*="bg-gray-50"],
+[class*="bg-slate-"] {
+  background-color: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+}
+
+/* تطبيق على الحدود */
+[class*="border-gray"],
+[class*="border-slate"] {
+  border-color: var(--theme-border) !important;
 }
 
 .theme-card:hover,
