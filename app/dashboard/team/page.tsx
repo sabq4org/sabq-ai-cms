@@ -69,13 +69,21 @@ export default function TeamPage() {
   // جلب الأدوار
   const fetchRoles = async () => {
     try {
+      console.log('🔄 جلب الأدوار...');
       const response = await fetch('/api/roles');
       const data = await response.json();
+      console.log('📦 استجابة API للأدوار:', data);
+      
       if (data.success && data.data) {
         setRoles(data.data);
+        console.log('✅ تم تحميل الأدوار بنجاح:', data.data.length);
+      } else {
+        console.error('❌ فشل في جلب الأدوار:', data.error);
+        addNotification('فشل في تحميل الأدوار', 'warning');
       }
     } catch (error) {
-      console.error('Error fetching roles:', error);
+      console.error('❌ خطأ في جلب الأدوار:', error);
+      addNotification('خطأ في تحميل الأدوار', 'warning');
     }
   };
   const addNotification = (message: string, type: 'success' | 'info' | 'warning') => {
@@ -619,17 +627,39 @@ export default function TeamPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الدور</label>
+                    <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      الدور *
+                    </label>
                     <select
                       value={formData.roleId}
-                      onChange={(e) => setFormData({...formData, roleId: e.target.value})}
+                      onChange={(e) => {
+                        console.log('🔄 تم اختيار دور:', e.target.value);
+                        setFormData({...formData, roleId: e.target.value});
+                      }}
                       className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} focus:ring-2 focus:ring-blue-500`}
+                      required
                     >
                       <option value="">اختر الدور</option>
-                      {roles.map(role => (
-                        <option key={role.id} value={role.id}>{role.display_name || role.name}</option>
-                      ))}
+                      {roles.length === 0 ? (
+                        <option disabled>جاري تحميل الأدوار...</option>
+                      ) : (
+                        roles.map(role => (
+                          <option key={role.id} value={role.id}>
+                            {role.display_name || role.name}
+                          </option>
+                        ))
+                      )}
                     </select>
+                    {roles.length === 0 && (
+                      <p className={`text-xs mt-1 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>
+                        ⚠️ لا توجد أدوار متاحة. يرجى إنشاء الأدوار أولاً.
+                      </p>
+                    )}
+                    {formData.roleId && (
+                      <p className={`text-xs mt-1 ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
+                        ✅ تم اختيار الدور: {roles.find(r => r.id === formData.roleId)?.display_name}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>القسم</label>
