@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { useDarkModeContext } from '@/contexts/DarkModeContext'
-import { EditorErrorBoundary } from '@/components/ErrorBoundary'
+import EditorErrorBoundary from '@/components/ErrorBoundary'
 import SimpleDashboardLayout from '@/components/layout/SimpleDashboardLayout'
 import MobileNewsManagement from '@/components/mobile/MobileNewsManagement'
 import { 
@@ -29,7 +29,8 @@ import {
   FileText,
   BarChart3,
   Sparkles,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Layers
 } from 'lucide-react';
 import { formatFullDate, formatDateTime, formatRelativeDate } from '@/lib/date-utils';
 type NewsStatus = 'published' | 'draft' | 'pending' | 'deleted' | 'scheduled';
@@ -494,117 +495,160 @@ export default function NewsManagementPage() {
           </Link>
         </div>
       </div>
-      {/* قسم النظام التحريري */}
+      {/* قسم النظام التحريري - محسّن */}
       <div className="mb-6 sm:mb-8">
-        <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
+        <div className={`relative overflow-hidden rounded-2xl p-6 sm:p-8 shadow-lg border transition-all duration-300 ${
           darkMode 
-            ? 'bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border-blue-700' 
-            : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100'
+            ? 'bg-gradient-to-br from-blue-900/40 via-indigo-900/30 to-purple-900/40 border-blue-700/50' 
+            : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-blue-200'
         }`}>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Newspaper className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          {/* خلفية متحركة */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute -top-4 -right-4 w-72 h-72 bg-blue-500 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute -bottom-4 -left-4 w-72 h-72 bg-indigo-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          </div>
+          
+          <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur-lg group-hover:blur-xl transition-all duration-300 opacity-75"></div>
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform duration-300">
+                  <Newspaper className="w-8 h-8 sm:w-9 sm:h-9 text-white" />
+                </div>
               </div>
               <div>
-                <h2 className={`text-lg sm:text-xl font-bold transition-colors duration-300 ${
-                  darkMode ? 'text-white' : 'text-gray-800'
-                }`}>نظام إدارة المحتوى الصحفي</h2>
-                <p className={`text-xs sm:text-sm transition-colors duration-300 ${
+                <h2 className={`text-xl sm:text-2xl font-bold transition-colors duration-300 ${
+                  darkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  مركز إدارة المحتوى الإخباري
+                </h2>
+                <p className={`text-sm sm:text-base transition-colors duration-300 ${
                   darkMode ? 'text-gray-300' : 'text-gray-600'
-                }`}>أدوات متقدمة لإنشاء ونشر ومتابعة المحتوى الإخباري بكفاءة عالية</p>
+                }`}>
+                  أدوات متقدمة لإنشاء ونشر ومتابعة المحتوى الإخباري بكفاءة عالية
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <Link 
                 href="/dashboard/news/insights"
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
+                className="group flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm font-medium"
               >
-                <BarChart3 className="w-4 h-4" />
+                <BarChart3 className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
                 <span className="hidden sm:inline">تحليلات متقدمة</span>
                 <span className="sm:hidden">تحليلات</span>
               </Link>
               <Link 
-                href="/dashboard/news/unified/page-redesigned"
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm animate-pulse"
+                href="/dashboard/article/unified/new"
+                className="group flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm font-medium"
               >
-                <Sparkles className="w-4 h-4" />
-                <span className="hidden sm:inline">✨ واجهة محسنة</span>
-                <span className="sm:hidden">محسن!</span>
+                <Sparkles className="w-4 h-4 animate-pulse" />
+                <span className="hidden sm:inline">✨ واجهة موحدة</span>
+                <span className="sm:hidden">موحد!</span>
               </Link>
               <Link 
-                href="/dashboard/news/create-enhanced"
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-red-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:from-orange-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
+                href="/dashboard/article/unified/new"
+                className="group flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm font-medium"
               >
-                <ImageIcon className="w-4 h-4" />
-                <span className="hidden sm:inline">📸 خبر بصور</span>
-                <span className="sm:hidden">بصور</span>
-              </Link>
-              <Link 
-                href="/dashboard/news/create"
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
-              >
-                <PenTool className="w-4 h-4" />
+                <PenTool className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
                 مقال جديد
               </Link>
             </div>
           </div>
         </div>
       </div>
-      {/* بطاقات الإحصائيات المحسّنة */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
-        <EnhancedStatsCard
-          title="إجمالي المحتوى"
-          value={newsData.filter(item => item.status !== 'deleted').length.toString()}
-          subtitle="مقال"
-          icon={FileText}
-          bgGradient="bg-gradient-to-br from-blue-500 to-blue-600"
-          iconColor="text-white"
-          trend="up"
-          trendValue="+12% هذا الشهر"
-        />
-        <EnhancedStatsCard
-          title="المحتوى المنشور"
-          value={newsData.filter(item => item.status === 'published').length.toString()}
-          subtitle="متاح للقراء"
-          icon={Eye}
-          bgGradient="bg-gradient-to-br from-green-500 to-emerald-600"
-          iconColor="text-white"
-          trend="up"
-          trendValue="+8% هذا الأسبوع"
-        />
-        <EnhancedStatsCard
-          title="المحتوى المجدول"
-          value={newsData.filter(item => item.status === 'scheduled').length.toString()}
-          subtitle="بانتظار النشر"
-          icon={Calendar}
-          bgGradient="bg-gradient-to-br from-purple-500 to-indigo-600"
-          iconColor="text-white"
-        />
-        <EnhancedStatsCard
-          title="المسودات"
-          value={newsData.filter(item => item.status === 'draft').length.toString()}
-          subtitle="قيد التحرير"
-          icon={Edit}
-          bgGradient="bg-gradient-to-br from-orange-500 to-amber-600"
-          iconColor="text-white"
-        />
-        <EnhancedStatsCard
-          title="الأخبار العاجلة"
-          value={newsData.filter(item => item.isBreaking && item.status !== 'deleted').length.toString()}
-          subtitle="خبر عاجل"
-          icon={Zap}
-          bgGradient="bg-gradient-to-br from-yellow-500 to-amber-600"
-          iconColor="text-white"
-        />
+      {/* بطاقات الإحصائيات المحسّنة بتصميم حديث */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 mb-8">
+        <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className={`absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10 ${darkMode ? 'dark:from-blue-500/20 dark:to-blue-600/20' : ''}`}></div>
+          <div className={`relative p-5 ${darkMode ? 'bg-gray-800/90 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm'}`}>
+            <div className="flex items-start justify-between mb-3">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex items-center gap-1 text-green-500 text-xs font-medium">
+                <TrendingUp className="w-3 h-3" />
+                +12%
+              </div>
+            </div>
+            <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {newsData.filter(item => item.status !== 'deleted').length}
+            </h3>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>إجمالي المحتوى</p>
+          </div>
+        </div>
+
+        <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className={`absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/10 ${darkMode ? 'dark:from-green-500/20 dark:to-emerald-600/20' : ''}`}></div>
+          <div className={`relative p-5 ${darkMode ? 'bg-gray-800/90 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm'}`}>
+            <div className="flex items-start justify-between mb-3">
+              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                <Eye className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex items-center gap-1 text-green-500 text-xs font-medium">
+                <TrendingUp className="w-3 h-3" />
+                +8%
+              </div>
+            </div>
+            <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {newsData.filter(item => item.status === 'published').length}
+            </h3>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>المحتوى المنشور</p>
+          </div>
+        </div>
+
+        <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className={`absolute inset-0 bg-gradient-to-br from-purple-500/10 to-indigo-600/10 ${darkMode ? 'dark:from-purple-500/20 dark:to-indigo-600/20' : ''}`}></div>
+          <div className={`relative p-5 ${darkMode ? 'bg-gray-800/90 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm'}`}>
+            <div className="flex items-start justify-between mb-3">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-lg">
+                <Calendar className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {newsData.filter(item => item.status === 'scheduled').length}
+            </h3>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>المحتوى المجدول</p>
+          </div>
+        </div>
+
+        <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className={`absolute inset-0 bg-gradient-to-br from-orange-500/10 to-amber-600/10 ${darkMode ? 'dark:from-orange-500/20 dark:to-amber-600/20' : ''}`}></div>
+          <div className={`relative p-5 ${darkMode ? 'bg-gray-800/90 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm'}`}>
+            <div className="flex items-start justify-between mb-3">
+              <div className="p-3 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl shadow-lg">
+                <Edit className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {newsData.filter(item => item.status === 'draft').length}
+            </h3>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>المسودات</p>
+          </div>
+        </div>
+
+        <div className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className={`absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-amber-600/10 ${darkMode ? 'dark:from-yellow-500/20 dark:to-amber-600/20' : ''}`}></div>
+          <div className={`relative p-5 ${darkMode ? 'bg-gray-800/90 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm'}`}>
+            <div className="flex items-start justify-between mb-3">
+              <div className="p-3 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-xl shadow-lg animate-pulse">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {newsData.filter(item => item.isBreaking && item.status !== 'deleted').length}
+            </h3>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الأخبار العاجلة</p>
+          </div>
+        </div>
       </div>
-      {/* أزرار التنقل المحسّنة */}
-      <div className={`rounded-2xl p-2 shadow-sm border mb-6 sm:mb-8 w-full transition-colors duration-300 ${
+      {/* أزرار التنقل المحسّنة بتصميم حديث */}
+      <div className={`rounded-2xl p-3 shadow-md border mb-8 w-full transition-all duration-300 ${
         darkMode 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-100'
+          ? 'bg-gradient-to-r from-gray-800 to-gray-900 border-gray-700' 
+          : 'bg-gradient-to-r from-white to-gray-50 border-gray-200'
       }`}>
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {statusTabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -649,115 +693,167 @@ export default function NewsManagementPage() {
           })}
         </div>
       </div>
-      {/* شريط البحث والفلاتر - خارج الجدول */}
-      <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border mb-6 sm:mb-8 transition-colors duration-300 ${
+      {/* شريط البحث والفلاتر المحسّن */}
+      <div className={`relative overflow-hidden rounded-2xl shadow-lg border mb-8 transition-all duration-300 ${
         darkMode 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-100'
+          ? 'bg-gradient-to-r from-gray-800/95 to-gray-900/95 border-gray-700/50' 
+          : 'bg-gradient-to-r from-white to-gray-50 border-gray-200'
       }`}>
-        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-          <div className="flex items-center gap-3 w-full lg:w-auto">
-            <div className="relative flex-1 lg:w-96">
-              <Search className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${
-                darkMode ? 'text-gray-400' : 'text-gray-500'
-              }`} />
-              <input
-                type="text"
-                placeholder="البحث في المحتوى..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full px-3 sm:px-4 py-2 sm:py-2.5 pr-10 sm:pr-11 text-sm rounded-lg border transition-all duration-300 ${
-                  darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400 focus:border-blue-500 focus:bg-gray-600' 
-                    : 'bg-white border-gray-200 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-white'
-                } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
-              />
+        {/* خلفية متحركة خفيفة */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute -top-4 -left-4 w-72 h-72 bg-purple-500 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="relative p-5 sm:p-6">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-3 w-full lg:w-auto">
+              <div className="relative flex-1 lg:w-96 group">
+                <Search className={`absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-all duration-300 ${
+                  darkMode ? 'text-gray-400 group-focus-within:text-blue-400' : 'text-gray-500 group-focus-within:text-blue-600'
+                }`} />
+                <input
+                  type="text"
+                  placeholder="البحث في المحتوى..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={`w-full px-5 py-3.5 pr-12 text-sm rounded-xl border-2 transition-all duration-300 ${
+                    darkMode 
+                      ? 'bg-gray-900/50 border-gray-700 text-white placeholder-gray-400 hover:border-gray-600 focus:border-blue-500 focus:bg-gray-800/50' 
+                      : 'bg-white border-gray-200 text-gray-900 placeholder-gray-500 hover:border-gray-300 focus:border-blue-500'
+                  } focus:outline-none focus:ring-4 focus:ring-blue-500/20`}
+                />
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2 w-full lg:w-auto">
-            <select 
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className={`flex-1 lg:flex-initial px-3 sm:px-4 py-2 sm:py-2.5 text-sm rounded-lg border transition-all duration-300 ${
+            <div className="flex items-center gap-3 w-full lg:w-auto">
+              <div className="relative group">
+                <select 
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className={`appearance-none flex-1 lg:flex-initial px-5 py-3.5 pr-10 text-sm rounded-xl border-2 font-medium transition-all duration-300 cursor-pointer ${
+                    darkMode 
+                      ? 'bg-gray-900/50 border-gray-700 text-white hover:border-gray-600 focus:border-blue-500' 
+                      : 'bg-white border-gray-200 text-gray-900 hover:border-gray-300 focus:border-blue-500'
+                  } focus:outline-none focus:ring-4 focus:ring-blue-500/20`}
+                >
+                  <option value="all">جميع التصنيفات</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.icon} {category.name_ar}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none ${
+                  darkMode ? 'text-gray-400' : 'text-gray-500'
+                }`} />
+              </div>
+              
+              <div className="relative group">
+                <select 
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className={`appearance-none flex-1 lg:flex-initial px-5 py-3.5 pr-10 text-sm rounded-xl border-2 font-medium transition-all duration-300 cursor-pointer ${
+                    darkMode 
+                      ? 'bg-gray-900/50 border-gray-700 text-white hover:border-gray-600 focus:border-blue-500' 
+                      : 'bg-white border-gray-200 text-gray-900 hover:border-gray-300 focus:border-blue-500'
+                  } focus:outline-none focus:ring-4 focus:ring-blue-500/20`}
+                >
+                  <option value="all">جميع الحالات</option>
+                  <option value="published">منشور</option>
+                  <option value="draft">مسودة</option>
+                  <option value="scheduled">مجدول</option>
+                  <option value="pending">في الانتظار</option>
+                </select>
+                <ChevronDown className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none ${
+                  darkMode ? 'text-gray-400' : 'text-gray-500'
+                }`} />
+              </div>
+              
+              <button className={`group px-4 py-3.5 rounded-xl border-2 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${
                 darkMode 
-                  ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                  : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500'
-              } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
-            >
-              <option value="all">جميع التصنيفات</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.icon} {category.name_ar}
-                </option>
-              ))}
-            </select>
-            <select 
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className={`flex-1 lg:flex-initial px-3 sm:px-4 py-2 sm:py-2.5 text-sm rounded-lg border transition-all duration-300 ${
-                darkMode 
-                  ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
-                  : 'bg-white border-gray-200 text-gray-900 focus:border-blue-500'
-              } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
-            >
-              <option value="all">جميع الحالات</option>
-              <option value="published">منشور</option>
-              <option value="draft">مسودة</option>
-              <option value="scheduled">مجدول</option>
-              <option value="pending">في الانتظار</option>
-            </select>
-            <button className={`p-2.5 rounded-lg border transition-all duration-300 hover:shadow-md ${
-              darkMode 
-                ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
-                : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-            }`}>
-              <Sparkles className="w-4 h-4" />
-            </button>
+                  ? 'border-gray-700 text-gray-300 hover:bg-gray-700 hover:border-gray-600' 
+                  : 'border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300'
+              }`}>
+                <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      {/* Loading State */}
+      {/* Loading State محسّن */}
       {loading && (
-        <div className="flex items-center justify-center py-12">
+        <div className="flex flex-col items-center justify-center py-16">
           <div className="relative">
-            <div className="w-20 h-20 border-4 border-blue-200 rounded-full animate-pulse"></div>
-            <div className="w-20 h-20 border-4 border-transparent border-t-blue-500 rounded-full animate-spin absolute top-0 left-0"></div>
+            <div className="w-24 h-24 border-4 border-blue-200 rounded-full animate-pulse"></div>
+            <div className="w-24 h-24 border-4 border-transparent border-t-blue-600 rounded-full animate-spin absolute top-0 left-0"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Newspaper className="w-10 h-10 text-blue-600 animate-pulse" />
+            </div>
           </div>
-          <span className={`mr-4 text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            جارٍ تحميل المحتوى الإخباري...
-          </span>
+          <h3 className={`mt-6 text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            جارٍ تحميل المحتوى الإخباري
+          </h3>
+          <p className={`mt-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            يتم جلب أحدث المقالات والأخبار...
+          </p>
         </div>
       )}
-      {/* Error State */}
+      {/* Error State محسّن */}
       {error && (
-        <div className={`rounded-2xl p-6 mb-8 border-2 ${
+        <div className={`relative overflow-hidden rounded-2xl shadow-lg border-2 p-8 mb-8 ${
           darkMode 
-            ? 'bg-red-900/20 border-red-700' 
-            : 'bg-red-50 border-red-200'
+            ? 'bg-gradient-to-br from-red-900/20 to-red-800/20 border-red-700' 
+            : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200'
         }`}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-white" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-red-500 rounded-full blur-3xl opacity-10"></div>
+          <div className="relative flex items-center gap-4">
+            <div className="p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-lg">
+              <AlertTriangle className="w-8 h-8 text-white" />
             </div>
-            <div>
-              <h3 className={`text-lg font-semibold ${
+            <div className="flex-1">
+              <h3 className={`text-xl font-bold mb-2 ${
                 darkMode ? 'text-red-400' : 'text-red-800'
-              }`}>خطأ في تحميل البيانات</h3>
-              <p className={`${darkMode ? 'text-red-300' : 'text-red-600'}`}>{error}</p>
+              }`}>
+                حدث خطأ في تحميل البيانات
+              </h3>
+              <p className={`text-sm mb-4 ${darkMode ? 'text-red-300' : 'text-red-600'}`}>
+                {error}
+              </p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                  darkMode 
+                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                    : 'bg-red-500 hover:bg-red-600 text-white'
+                }`}
+              >
+                إعادة المحاولة
+              </button>
             </div>
           </div>
         </div>
       )}
-      {/* جدول البيانات المحسّن */}
+      {/* جدول البيانات المحسّن بتصميم حديث */}
       {!loading && !error && (
-        <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-100'} overflow-hidden transition-colors duration-300`}>
-          <div className="px-6 py-4" style={{ borderBottom: darkMode ? '1px solid #374151' : '1px solid #f4f8fe' }}>
+        <div className={`relative rounded-2xl shadow-lg border overflow-hidden transition-all duration-300 ${
+          darkMode ? 'bg-gray-800/95 border-gray-700/50' : 'bg-white/95 border-gray-200'
+        }`}>
+          {/* رأس الجدول */}
+          <div className={`px-6 py-5 border-b backdrop-blur-sm ${
+            darkMode ? 'bg-gray-900/50 border-gray-700/50' : 'bg-gray-50/80 border-gray-200'
+          }`}>
             <div className="flex items-center justify-between">
-              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'} transition-colors duration-300`}>
-                قائمة المحتوى الإخباري
-              </h3>
-              <div className="flex items-center gap-2">
-                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  <Layers className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  قائمة المحتوى الإخباري
+                </h3>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`text-sm font-medium px-3 py-1 rounded-lg ${
+                  darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'
+                }`}>
                   {newsData.filter(item => {
                     if (activeTab === 'deleted') return item.status === 'deleted';
                     if (item.status === 'deleted') return false;
@@ -770,22 +866,59 @@ export default function NewsManagementPage() {
               </div>
             </div>
           </div>
-          {/* رأس الجدول المحسّن */}
-          <div 
-            style={{ 
-              backgroundColor: darkMode ? '#1e3a5f' : '#f0f9ff',
-              borderBottom: darkMode ? '2px solid #2563eb' : '2px solid #dde9fc'
-            }}
-          >
-            <div className="grid grid-cols-12 gap-4 px-6 py-4">
-              <div className={`col-span-3 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>العنوان</div>
-              <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>التصنيف</div>
-              <div className={`col-span-2 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>تاريخ النشر</div>
-              <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>المشاهدات</div>
-              <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>عاجل؟</div>
-              <div className={`col-span-2 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>آخر تعديل</div>
-              <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>الحالة</div>
-              <div className={`col-span-1 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} transition-colors duration-300`}>الإجراءات</div>
+          {/* رأس الجدول المحسّن بتصميم حديث */}
+          <div className={`${
+            darkMode 
+              ? 'bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700' 
+              : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100'
+          }`}>
+            <div className="grid grid-cols-12 gap-4 px-6 py-5">
+              <div className={`col-span-3 text-sm font-semibold flex items-center gap-2 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                <FileText className="w-4 h-4 opacity-50" />
+                العنوان
+              </div>
+              <div className={`col-span-1 text-sm font-semibold flex items-center gap-2 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                <Copy className="w-4 h-4 opacity-50" />
+                التصنيف
+              </div>
+              <div className={`col-span-2 text-sm font-semibold flex items-center gap-2 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                <Calendar className="w-4 h-4 opacity-50" />
+                تاريخ النشر
+              </div>
+              <div className={`col-span-1 text-sm font-semibold flex items-center gap-2 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                <Eye className="w-4 h-4 opacity-50" />
+                المشاهدات
+              </div>
+              <div className={`col-span-1 text-sm font-semibold flex items-center gap-2 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                <Zap className="w-4 h-4 opacity-50" />
+                عاجل؟
+              </div>
+              <div className={`col-span-2 text-sm font-semibold flex items-center gap-2 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                <Clock className="w-4 h-4 opacity-50" />
+                آخر تعديل
+              </div>
+              <div className={`col-span-1 text-sm font-semibold ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                الحالة
+              </div>
+              <div className={`col-span-1 text-sm font-semibold ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                الإجراءات
+              </div>
             </div>
           </div>
           {/* بيانات الجدول */}
@@ -829,12 +962,16 @@ export default function NewsManagementPage() {
               .map((news, index) => (
                 <div 
                   key={news.id} 
-                  className={`grid grid-cols-12 gap-4 px-6 py-4 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-slate-50'} transition-all duration-300 ${
-                    news.isPinned ? 'border-r-4 border-blue-500 bg-blue-50/10' : ''
+                  className={`group grid grid-cols-12 gap-4 px-6 py-5 transition-all duration-300 ${
+                    darkMode 
+                      ? 'hover:bg-gray-700/50 hover:shadow-md' 
+                      : 'hover:bg-blue-50/30 hover:shadow-md'
+                  } ${
+                    news.isPinned ? 'border-r-4 border-blue-500 bg-gradient-to-r from-blue-500/5 to-transparent' : ''
                   } ${
                     news.createdAt && new Date(news.createdAt).getTime() > Date.now() - 86400000 ? 'border-l-4 border-green-500' : ''
-                  }`}
-                  style={{ borderBottom: index < newsData.length - 1 ? (darkMode ? '1px solid #374151' : '1px solid #f4f8fe') : 'none' }}
+                  } relative overflow-hidden`}
+                  style={{ borderBottom: index < newsData.length - 1 ? (darkMode ? '1px solid #374151' : '1px solid #e5e7eb') : 'none' }}
                 >
                   {/* العنوان */}
                   <div className="col-span-3">

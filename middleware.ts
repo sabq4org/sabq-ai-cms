@@ -2,6 +2,20 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+  
+  // تحسين الأداء للصفحات الثابتة
+  if (request.nextUrl.pathname.startsWith('/_next/static')) {
+    response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    return response;
+  }
+  
+  // تحسين الأداء للصور
+  if (request.nextUrl.pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|webp)$/)) {
+    response.headers.set('Cache-Control', 'public, max-age=86400');
+    return response;
+  }
+  
   // معالجة CORS لطلبات API
   if (request.nextUrl.pathname.startsWith('/api/')) {
     // معالجة OPTIONS requests
@@ -19,17 +33,28 @@ export function middleware(request: NextRequest) {
     }
     
     // إضافة CORS headers للطلبات العادية
-    const response = NextResponse.next()
     response.headers.set('Access-Control-Allow-Origin', '*')
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
     response.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept, Cookie')
     response.headers.set('Access-Control-Allow-Credentials', 'true')
     
+    // تحسين الأداء لـ API
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    
     return response
   }
   
-  // السماح لكل الطلبات الأخرى بالمرور
-  return NextResponse.next()
+  // تحسين headers للصفحات
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // ضغط المحتوى
+  if (!response.headers.get('Content-Encoding')) {
+    response.headers.set('Accept-Encoding', 'gzip, deflate, br');
+  }
+  
+  return response;
 }
 
 // تحديد المسارات التي يعمل عليها middleware

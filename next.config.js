@@ -7,7 +7,48 @@ const nextConfig = {
   
   experimental: {
     optimizeCss: true,
-    cssChunking: 'strict'
+    cssChunking: 'strict',
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+    webpackBuildWorker: true,
+    // تحسين التحميل
+    ppr: false,
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
+  },
+  
+  // تحسين الترقيم والتجميع
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // تحسين تجميع المكتبات
+    config.optimization.splitChunks = {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+        common: {
+          name: 'common',
+          minChunks: 2,
+          chunks: 'all',
+        },
+      },
+    };
+    
+    // تحسين الذاكرة
+    config.optimization.usedExports = true;
+    config.optimization.sideEffects = false;
+    
+    return config;
   },
   
   // منع التخزين المؤقت في بيئة التطوير

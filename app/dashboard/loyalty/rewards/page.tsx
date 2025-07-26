@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { Gift, Plus, Edit, Trash2, Star, Crown } from 'lucide-react';
 export default function RewardsPage() {
   const [darkMode, setDarkMode] = useState(false);
@@ -41,9 +42,13 @@ export default function RewardsPage() {
     }
   ];
   return (
-  <div className={`p-8 transition-colors duration-300 ${
-      darkMode ? 'bg-gray-900' : ''
-    }`}>
+    <DashboardLayout 
+      pageTitle="مكافآت برنامج الولاء"
+      pageDescription="إدارة وتنسيق مكافآت برنامج الولاء"
+    >
+      <div className={`transition-colors duration-300 ${
+        darkMode ? 'bg-gray-900' : ''
+      }`}>
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
@@ -114,6 +119,7 @@ export default function RewardsPage() {
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

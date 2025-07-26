@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { DeepAnalysis, AnalysisStatus, SourceType } from '@/types/deep-analysis';
 import { 
   Brain, 
@@ -298,9 +299,13 @@ export default function DeepAnalysisPage() {
     return { label: 'يحتاج تحسين', color: 'text-red-600', bgColor: 'bg-red-100' };
   };
   return (
-  <div className={`p-4 sm:p-6 lg:p-8 transition-colors duration-300 ${
-      darkMode ? 'bg-gray-900' : ''
-    }`}>
+    <DashboardLayout 
+      pageTitle="التحليل العميق المتقدم"
+      pageDescription="منصة ذكية لإنتاج وإدارة التحليلات العميقة بتقنيات الذكاء الاصطناعي"
+    >
+      <div className={`transition-colors duration-300 ${
+        darkMode ? 'bg-gray-900' : ''
+      }`}>
       {/* عنوان وتعريف الصفحة المحسن */}
       <div className="mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
@@ -1592,6 +1597,7 @@ export default function DeepAnalysisPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

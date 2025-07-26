@@ -20,7 +20,7 @@ import { Share2, Eye, Clock, Calendar,
 import { SmartInteractionButtons } from '@/components/article/SmartInteractionButtons';
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
-import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
+import ArticleAISummary from '@/components/article/ArticleAISummary';
 import ArticleStatsBlock from '@/components/article/ArticleStatsBlock';
 import SmartPersonalizedContent from '@/components/article/SmartPersonalizedContent';
 import '@/styles/mobile-article.css';
@@ -205,48 +205,16 @@ export default function ArticleClientComponent({
             </div>
           </header>
 
-          {/* الموجز الموحد */}
-          {(article.excerpt || article.summary || article.ai_summary) && (
-            <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl border border-blue-200 dark:border-blue-700">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                    🧠 الملخص الذكي
-                  </h3>
-                  <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {article.excerpt || article.summary || article.ai_summary}
-                  </p>
-                </div>
-                
-                {/* زر الاستماع - يظهر دائماً إذا كان هناك موجز */}
-                <button
-                  onClick={toggleAudioPlayer}
-                  className={`flex-shrink-0 p-2 rounded-lg transition-all ${
-                    showAudioPlayer 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50'
-                  }`}
-                  title="استمع للملخص"
-                >
-                  <Headphones className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              </div>
-
-              {/* مشغل الصوت الذكي */}
-              {showAudioPlayer && (
-                <div className="mt-4">
-                  <AudioSummaryPlayer
-                    articleId={article.id}
-                    excerpt={article.excerpt || article.summary || article.ai_summary}
-                    audioUrl={article.audio_summary_url}
-                  />
-                </div>
-              )}
-            </div>
-          )}
+          {/* الملخص الذكي مع التحويل الصوتي */}
+          <div className="mb-6 sm:mb-8">
+            <ArticleAISummary
+              articleId={article.id}
+              title={article.title}
+              content={article.content || ''}
+              existingSummary={article.ai_summary || article.summary || article.excerpt}
+              className="shadow-lg"
+            />
+          </div>
 
           {/* شريط التفاعل الذكي */}
           <div className="mb-6 sm:mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">

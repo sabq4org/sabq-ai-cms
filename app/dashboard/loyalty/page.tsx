@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { getMembershipLevel } from '@/lib/loyalty';
 import { Trophy, Gift, Users, TrendingUp, Crown, Award, Eye, 
          Settings, Target, Share2, Heart, 
@@ -758,9 +759,13 @@ export default function LoyaltyPage() {
     }
   };
   return (
-  <div className={`p-8 transition-colors duration-300 ${
-      darkMode ? 'bg-gray-900' : ''
-    }`}>
+    <DashboardLayout 
+      pageTitle="برنامج الولاء"
+      pageDescription="إدارة برنامج الولاء والمكافآت للمستخدمين"
+    >
+      <div className={`transition-colors duration-300 ${
+        darkMode ? 'bg-gray-900' : ''
+      }`}>
       {/* رسالة النجاح */}
       {showSuccess && (
         <div className="fixed top-4 right-4 z-50">
@@ -829,6 +834,7 @@ export default function LoyaltyPage() {
       </div>
       <NavigationTabs />
       {renderTabContent()}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

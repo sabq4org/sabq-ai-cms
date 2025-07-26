@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import UserDropdown from './UserDropdown';
+import ClientOnly from './ClientOnly';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useAuth as useAuthContext } from '@/contexts/AuthContext';
 import { 
@@ -48,7 +49,21 @@ export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [liveEventCount, setLiveEventCount] = useState(3);
+  const [clientMounted, setClientMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // التأكد من التحميل على العميل لتجنب hydration errors
+  useEffect(() => {
+    setClientMounted(true);
+    
+    // تحديث عداد الأحداث المباشرة فقط بعد التحميل
+    const updateEventCount = () => {
+      setLiveEventCount(Math.floor(Math.random() * 10) + 1);
+    };
+
+    const interval = setInterval(updateEventCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // عناصر المينيو الرئيسية
   const navigationItems = [
@@ -62,20 +77,10 @@ export default function Header() {
       label: '', 
       icon: Activity, 
       highlight: true,
-      showBadge: true,
+      showBadge: clientMounted,
       badgeCount: liveEventCount
     }
   ];
-
-  // تحديث عداد الأحداث المباشرة
-  useEffect(() => {
-    const updateEventCount = () => {
-      setLiveEventCount(Math.floor(Math.random() * 10) + 1);
-    };
-
-    const interval = setInterval(updateEventCount, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -161,16 +166,22 @@ export default function Header() {
           {/* أدوات الهيدر */}
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
             {/* الوضع الليلي */}
-            <button
-              onClick={toggleDarkMode}
-              className={`p-2 rounded-md transition-colors duration-200 ${
-                darkMode 
-                  ? 'text-yellow-400 hover:text-yellow-300 hover:bg-gray-800' 
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
-              }`}
-            >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
+            <ClientOnly fallback={
+              <button className="p-2 rounded-md transition-colors duration-200 text-gray-600 hover:text-gray-800 hover:bg-gray-100">
+                <Moon className="w-5 h-5" />
+              </button>
+            }>
+              <button
+                onClick={toggleDarkMode}
+                className={`p-2 rounded-md transition-colors duration-200 ${
+                  darkMode 
+                    ? 'text-yellow-400 hover:text-yellow-300 hover:bg-gray-800' 
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                }`}
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            </ClientOnly>
 
             {/* معلومات المستخدم */}
             {user ? (

@@ -146,7 +146,7 @@ export default function InsightsPage() {
   <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
       {/* الهيدر */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className={`text-3xl font-bold mb-2 flex items-center gap-3 ${
               darkMode ? 'text-white' : 'text-gray-800'
@@ -158,21 +158,33 @@ export default function InsightsPage() {
               تحليل شامل لأداء المنصة والمحتوى
             </p>
           </div>
-          {/* فلتر الفترة الزمنية */}
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-            className={`px-4 py-2 rounded-lg border ${
-              darkMode 
-                ? 'bg-gray-800 border-gray-700 text-white' 
-                : 'bg-white border-gray-300 text-gray-900'
-            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-          >
-            <option value="today">اليوم</option>
-            <option value="week">هذا الأسبوع</option>
-            <option value="month">هذا الشهر</option>
-            <option value="year">هذه السنة</option>
-          </select>
+          
+          <div className="flex items-center gap-3">
+            {/* زر إنشاء تحليل جديد */}
+            <button
+              onClick={() => router.push('/dashboard/insights/create')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors duration-200"
+            >
+              <Activity className="w-4 h-4" />
+              إنشاء تحليل جديد
+            </button>
+            
+            {/* فلتر الفترة الزمنية */}
+            <select
+              value={timeRange}
+              onChange={(e) => setTimeRange(e.target.value)}
+              className={`px-4 py-2 rounded-lg border ${
+                darkMode 
+                  ? 'bg-gray-800 border-gray-700 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            >
+              <option value="today">اليوم</option>
+              <option value="week">هذا الأسبوع</option>
+              <option value="month">هذا الشهر</option>
+              <option value="year">هذه السنة</option>
+            </select>
+          </div>
         </div>
       </div>
       {/* البطاقات الإحصائية الرئيسية */}

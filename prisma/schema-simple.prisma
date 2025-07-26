@@ -1,0 +1,33 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../lib/generated/prisma"
+  binaryTargets = ["native"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model articles {
+  id              String   @id
+  title           String
+  slug            String?  @unique
+  excerpt         String?
+  content         String?
+  published_at    DateTime?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now())
+  featured_image  String?
+  views           Int      @default(0)
+  likes           Int      @default(0)
+  shares          Int      @default(0)
+  saves           Int      @default(0)
+  featured        Boolean  @default(false)
+  breaking        Boolean  @default(false)
+  reading_time    Int?
+  status          String   @default("draft")
+  author_id       String?
+  category_id     String?
+  metadata        String?
+} 

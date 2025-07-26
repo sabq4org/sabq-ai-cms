@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { 
   Users, Crown, Star, Award, AlertTriangle, CheckCircle, 
   Search, Filter, Mail, Calendar, Eye, 
@@ -202,7 +203,11 @@ export default function LoyaltyUsersPage() {
     );
   }
   return (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8">
+    <DashboardLayout 
+      pageTitle="مستخدمو برنامج الولاء"
+      pageDescription="إدارة ومتابعة مستخدمي برنامج الولاء"
+    >
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-8 mb-8 shadow-2xl relative overflow-hidden">
@@ -495,6 +500,7 @@ export default function LoyaltyUsersPage() {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

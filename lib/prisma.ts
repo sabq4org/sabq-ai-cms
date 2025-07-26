@@ -1,31 +1,45 @@
-import { PrismaClient } from '@/lib/generated/prisma'
+import { PrismaClient } from '../lib/generated/prisma';
 
-// استخدام global variable بطريقة أفضل
 declare global {
-  var __prisma: PrismaClient | undefined
+  var prisma: PrismaClient | undefined;
 }
 
-// إنشاء instance واحد فقط
-export const prisma = globalThis.__prisma ?? new PrismaClient({
-  log: ['error'],
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-})
+if (!global.prisma) {
+  global.prisma = new PrismaClient({
+    log: ['error'],
+  });
 
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.__prisma = prisma
+  // تأكد من الاتصال عند بدء التطبيق
+  global.prisma.$connect()
+    .then(() => console.log('✅ تم الاتصال بقاعدة البيانات بنجاح'))
+    .catch((error: Error) => console.error('❌ خطأ في الاتصال بقاعدة البيانات:', error));
+
+  // تنظيف الاتصال عند إغلاق التطبيق
+  process.on('beforeExit', async () => {
+    await global.prisma?.$disconnect();
+  });
 }
 
-// دالة اتصال محسنة
+export const prisma = global.prisma;
+
+// دالة للتحقق من الاتصال بقاعدة البيانات
 export async function ensureConnection(): Promise<boolean> {
   try {
-    await prisma.$queryRaw`SELECT 1`
-    return true
+    // التحقق من متغير البيئة
+    if (!process.env.DATABASE_URL) {
+      console.error('❌ DATABASE_URL غير محدد');
+      return false;
+    }
+
+    // محاولة الاتصال
+    await prisma.$connect();
+    
+    // اختبار الاتصال
+    await prisma.$queryRaw`SELECT 1 as test`;
+    
+    return true;
   } catch (error) {
-    console.error('❌ فشل الاتصال:', error)
-    return false
+    console.error('❌ خطأ في الاتصال بقاعدة البيانات:', error);
+    return false;
   }
 }

@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { Target, Plus, Calendar, Users, TrendingUp, Play, Pause, Edit } from 'lucide-react';
 export default function CampaignsPage() {
   const [darkMode, setDarkMode] = useState(false);
@@ -65,9 +66,13 @@ export default function CampaignsPage() {
     }
   };
   return (
-  <div className={`p-8 transition-colors duration-300 ${
-      darkMode ? 'bg-gray-900' : ''
-    }`}>
+    <DashboardLayout 
+      pageTitle="حملات برنامج الولاء"
+      pageDescription="إدارة وتنظيم حملات برنامج الولاء"
+    >
+      <div className={`transition-colors duration-300 ${
+        darkMode ? 'bg-gray-900' : ''
+      }`}>
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
@@ -186,6 +191,7 @@ export default function CampaignsPage() {
           );
         })}
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

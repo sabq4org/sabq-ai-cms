@@ -1,168 +1,122 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-export const runtime = 'nodejs';
+interface CategoryWithCount {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  color?: string | null;
+  icon?: string | null;
+  parent_id?: string | null;
+  display_order: number;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+  _count: {
+    articles: number;
+  };
+}
 
 // GET: جلب جميع الفئات من قاعدة البيانات
 export async function GET(request: NextRequest) {
   try {
-    // استيراد آمن لـ Prisma
-    const { prisma } = await import('@/lib/prisma');
+    const searchParams = request.nextUrl.searchParams;
+    const isActiveParam = searchParams.get('is_active');
+    const statusParam = searchParams.get('status');
+
+    // تحديد الفلترة بناءً على المعاملات
+    let where: any = {};
     
-    console.log('🏷️ [Categories API] بدء جلب الفئات من قاعدة البيانات...');
-    
-    // محاولة مباشرة بدون ensureConnection
-    try {
-      // استخراج معاملات البحث
-      const { searchParams } = new URL(request.url);
-      const isActive = searchParams.get('is_active');
-      
-      // بناء شروط البحث
-      const whereConditions: any = {};
-      if (isActive === 'true') {
-        whereConditions.is_active = true;
-      }
-      
-      // جلب الفئات من قاعدة البيانات
-      const categories = await prisma.categories.findMany({
-        where: whereConditions,
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
-          color: true,
-          icon: true,
-          parent_id: true,
-          display_order: true,
-          is_active: true,
-          created_at: true,
-          updated_at: true,
-          _count: {
-            select: {
-              articles: {
-                where: {
-                  status: 'published'
-                }
-              }
-            }
-          }
-        },
-        orderBy: [
-          { display_order: 'asc' },
-          { name: 'asc' }
-        ]
-      });
-      
-      console.log(`✅ [Categories API] تم جلب ${categories.length} فئة من قاعدة البيانات`);
-      
-      // تحويل البيانات للتوافق مع الواجهة
-      const formattedCategories = categories.map((category: any) => ({
-        id: category.id,
-        name: category.name,
-        slug: category.slug,
-        description: category.description,
-        color: category.color || '#3B82F6',
-        icon: category.icon || '📂',
-        parent_id: category.parent_id,
-        display_order: category.display_order || 0,
-        is_active: category.is_active,
-        articles_count: category._count?.articles || 0,
-        created_at: category.created_at,
-        updated_at: category.updated_at
-      }));
-      
-      const response = NextResponse.json({
-        success: true,
-        data: formattedCategories,
-        categories: formattedCategories,
-        count: formattedCategories.length
-      });
-      
-      // إضافة headers للـ CORS
-      response.headers.set('Access-Control-Allow-Origin', '*');
-      response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
-      
-      return response;
-      
-    } catch (dbError: any) {
-      console.error('❌ [Categories API] خطأ في قاعدة البيانات:', dbError);
-      return NextResponse.json({
-        success: false,
-        error: 'خطأ في قاعدة البيانات',
-        details: process.env.NODE_ENV === 'development' ? dbError?.message : undefined
-      }, { status: 500 });
+    // إذا كان هناك معامل is_active
+    if (isActiveParam !== null) {
+      where.is_active = isActiveParam === 'true';
     }
     
-  } catch (error) {
-    console.error('❌ [Categories API] خطأ غير متوقع:', error);
-    
+    // إذا كان هناك معامل status='active' نعتبره is_active=true
+    if (statusParam === 'active') {
+      where.is_active = true;
+    } else if (statusParam === 'inactive') {
+      where.is_active = false;
+    }
+
+    // تأكد من الاتصال قبل تنفيذ الاستعلام
+    await prisma.$connect();
+
+    const categories = await prisma.categories.findMany({
+      where,
+      orderBy: {
+        display_order: 'asc'
+      },
+      include: {
+        _count: {
+          select: { articles: true }
+        }
+      }
+    });
+
+    // تحويل البيانات إلى الشكل المطلوب
+    const formattedCategories = categories.map((category: CategoryWithCount) => ({
+      ...category,
+      articles_count: category._count.articles
+    }));
+
     return NextResponse.json({
-      success: false,
-      error: 'حدث خطأ في جلب الفئات',
-      details: process.env.NODE_ENV === 'development' ? String(error) : undefined
-    }, { status: 500 });
+      success: true,
+      categories: formattedCategories
+    });
+  } catch (error) {
+    console.error('خطأ في جلب التصنيفات:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'فشل في جلب التصنيفات' 
+      },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
-// POST: إضافة فئة جديدة
+// POST: إنشاء تصنيف جديد
 export async function POST(request: NextRequest) {
   try {
-    console.log('➕ [Categories API] بدء إضافة فئة جديدة...');
-    
     const body = await request.json();
-    const { name, slug, description, color, icon, parent_id } = body;
     
-    if (!name || !slug) {
-      return NextResponse.json({
-        success: false,
-        error: 'اسم الفئة والرابط مطلوبان'
-      }, { status: 400 });
-    }
+    // تأكد من الاتصال قبل تنفيذ الاستعلام
+    await prisma.$connect();
 
-    // استيراد آمن لـ Prisma
-    const { prisma, ensureConnection } = await import('@/lib/prisma');
-    
-    // التأكد من الاتصال بقاعدة البيانات
-    const isConnected = await ensureConnection();
-    if (!isConnected) {
-      return NextResponse.json({
-        success: false,
-        error: 'فشل الاتصال بقاعدة البيانات'
-      }, { status: 503 });
-    }
-    
-    // إنشاء الفئة الجديدة
-    const newCategory = await prisma.categories.create({
+    const category = await prisma.categories.create({
       data: {
-        id: `cat-${Date.now()}`, // إنشاء ID فريد
-        name,
-        slug,
-        description,
-        color: color || '#3B82F6',
-        icon: icon || '📂',
-        parent_id,
-        is_active: true,
-        created_at: new Date(),
+        id: Math.random().toString(36).substr(2, 9), // توليد معرف فريد
+        name: body.name,
+        slug: body.slug,
+        description: body.description,
+        color: body.color,
+        icon: body.icon,
+        parent_id: body.parent_id || null,
+        is_active: body.is_active ?? true,
+        display_order: body.display_order || 0,
         updated_at: new Date()
       }
     });
-    
-    console.log('✅ [Categories API] تم إضافة الفئة بنجاح');
-    
+
     return NextResponse.json({
       success: true,
-      data: newCategory,
-      message: 'تم إضافة الفئة بنجاح'
+      data: category
     });
-    
   } catch (error) {
-    console.error('❌ [Categories API] خطأ في إضافة الفئة:', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: 'فشل في إضافة الفئة',
-      details: process.env.NODE_ENV === 'development' ? String(error) : undefined
-    }, { status: 500 });
+    console.error('خطأ في إنشاء التصنيف:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'فشل في إنشاء التصنيف' 
+      },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
