@@ -7,6 +7,11 @@ declare global {
 if (!global.prisma) {
   global.prisma = new PrismaClient({
     log: ['error'],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
   });
 
   // تأكد من الاتصال عند بدء التطبيق
