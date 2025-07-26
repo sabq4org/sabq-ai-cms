@@ -415,8 +415,3 @@ export default function AdminCommentsPage() {
     </DashboardLayout>
   );
 }
-
-export const metadata = {
-  title: 'إدارة التعليقات - لوحة الإدارة',
-  description: 'مراجعة وإدارة التعليقات على المقالات'
-};

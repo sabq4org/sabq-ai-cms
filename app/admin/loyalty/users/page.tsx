@@ -462,8 +462,3 @@ export default function AdminLoyaltyUsersPage() {
     </DashboardLayout>
   );
 }
-
-export const metadata = {
-  title: 'مستخدمو برنامج الولاء - لوحة الإدارة',
-  description: 'إدارة المستخدمين المشتركين في برنامج الولاء'
-};

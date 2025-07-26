@@ -38,7 +38,8 @@ import {
   BookOpen,
   Timer,
   MapPin,
-  Star
+  Star,
+  AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

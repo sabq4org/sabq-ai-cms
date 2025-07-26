@@ -3,7 +3,7 @@
  * AI Models Management Service
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma-simple';
 import {
   MLModel,
   MLTrainingJob,
@@ -19,8 +19,6 @@ import {
   TRAINING_STATUS,
   SUPPORTED_ALGORITHMS
 } from './types';
-
-const prisma = new PrismaClient();
 
 export class AIModelsService {
 

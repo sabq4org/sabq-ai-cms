@@ -3,7 +3,7 @@
  * Arabic Sentiment Analysis Service
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma-simple';
 import {
   SentimentAnalysisRequest,
   SentimentAnalysisResponse,
@@ -18,8 +18,6 @@ import {
   KEYWORD_CATEGORIES,
   EmotionType
 } from './types';
-
-const prisma = new PrismaClient();
 
 export class ArabicSentimentAnalysisService {
   private modelConfig: SentimentModelConfig;

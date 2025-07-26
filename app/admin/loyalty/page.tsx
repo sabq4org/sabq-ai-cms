@@ -387,8 +387,3 @@ export default function AdminLoyaltyPage() {
     </DashboardLayout>
   );
 }
-
-export const metadata = {
-  title: 'برنامج الولاء - لوحة الإدارة',
-  description: 'نظرة عامة على برنامج الولاء والمكافآت'
-};

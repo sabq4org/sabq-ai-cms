@@ -1,8 +1,6 @@
 import nodemailer from 'nodemailer';
-import { PrismaClient } from '@/lib/generated/prisma';
-
-const prisma = new PrismaClient();
-import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses';
+import { prisma } from '@/lib/prisma-simple';
+// import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses';
 
 // أنواع مزودي البريد
 type EmailProvider = 'smtp' | 'sendgrid' | 'mailgun' | 'ses';

@@ -3,9 +3,7 @@
  * Advanced Settings System - Settings Service (Updated for Prisma)
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma-simple';
 
 import { 
   SettingsUpdatePayload,

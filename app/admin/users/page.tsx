@@ -421,8 +421,3 @@ export default function AdminUsersPage() {
     </DashboardLayout>
   );
 }
-
-export const metadata = {
-  title: 'إدارة المستخدمين - لوحة الإدارة',
-  description: 'إدارة حسابات المستخدمين والصلاحيات'
-};
