@@ -890,7 +890,7 @@ export default function PageClient({
 
   // استخدام الإحصائيات الأولية
   useEffect(() => {
-    if (initialStats.loading === false) {
+    if (initialStats && initialStats.loading === false) {
       setStats(initialStats);
     }
   }, [initialStats]);
