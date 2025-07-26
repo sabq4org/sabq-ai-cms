@@ -6,92 +6,91 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   try {
     // استيراد آمن لـ Prisma
-    const { prisma } = await import('@/lib/prisma');
+    const { prisma, ensureConnection } = await import('@/lib/prisma');
     
     console.log('🏷️ [Categories API] بدء جلب الفئات من قاعدة البيانات...');
     
-    // محاولة مباشرة بدون ensureConnection
-    try {
-      // استخراج معاملات البحث
-      const { searchParams } = new URL(request.url);
-      const isActive = searchParams.get('is_active');
-      
-      // بناء شروط البحث
-      const whereConditions: any = {};
-      if (isActive === 'true') {
-        whereConditions.is_active = true;
-      }
-      
-      // جلب الفئات من قاعدة البيانات
-      const categories = await prisma.categories.findMany({
-        where: whereConditions,
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
-          color: true,
-          icon: true,
-          parent_id: true,
-          display_order: true,
-          is_active: true,
-          created_at: true,
-          updated_at: true,
-          _count: {
-            select: {
-              articles: {
-                where: {
-                  status: 'published'
-                }
+    // التحقق من اتصال قاعدة البيانات
+    const isConnected = await ensureConnection();
+    if (!isConnected) {
+      console.error('❌ [Categories API] فشل الاتصال بقاعدة البيانات');
+      return NextResponse.json({
+        success: false,
+        error: 'فشل الاتصال بقاعدة البيانات'
+      }, { status: 500 });
+    }
+    
+    // استخراج معاملات البحث
+    const { searchParams } = new URL(request.url);
+    const isActive = searchParams.get('is_active');
+    
+    // بناء شروط البحث
+    const whereConditions: any = {};
+    if (isActive === 'true') {
+      whereConditions.is_active = true;
+    }
+    
+    // جلب الفئات من قاعدة البيانات
+    const categories = await prisma.categories.findMany({
+      where: whereConditions,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        color: true,
+        icon: true,
+        parent_id: true,
+        display_order: true,
+        is_active: true,
+        created_at: true,
+        updated_at: true,
+        _count: {
+          select: {
+            articles: {
+              where: {
+                status: 'published'
               }
             }
           }
-        },
-        orderBy: [
-          { display_order: 'asc' },
-          { name: 'asc' }
-        ]
-      });
-      
-      console.log(`✅ [Categories API] تم جلب ${categories.length} فئة من قاعدة البيانات`);
-      
-      // تحويل البيانات للتوافق مع الواجهة
-      const formattedCategories = categories.map((category: any) => ({
-        id: category.id,
-        name: category.name,
-        slug: category.slug,
-        description: category.description,
-        color: category.color || '#3B82F6',
-        icon: category.icon || '📂',
-        parent_id: category.parent_id,
-        display_order: category.display_order || 0,
-        is_active: category.is_active,
-        articles_count: category._count?.articles || 0,
-        created_at: category.created_at,
-        updated_at: category.updated_at
-      }));
-      
-      const response = NextResponse.json({
-        success: true,
-        data: formattedCategories,
-        categories: formattedCategories,
-        count: formattedCategories.length
-      });
-      
-      // إضافة headers للـ CORS
-      response.headers.set('Access-Control-Allow-Origin', '*');
-      response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
-      
-      return response;
-      
-    } catch (dbError: any) {
-      console.error('❌ [Categories API] خطأ في قاعدة البيانات:', dbError);
-      return NextResponse.json({
-        success: false,
-        error: 'خطأ في قاعدة البيانات',
-        details: process.env.NODE_ENV === 'development' ? dbError?.message : undefined
-      }, { status: 500 });
-    }
+        }
+      },
+      orderBy: [
+        { display_order: 'asc' },
+        { name: 'asc' }
+      ]
+    });
+    
+    console.log(`✅ [Categories API] تم جلب ${categories.length} فئة من قاعدة البيانات`);
+    
+    // تحويل البيانات للتوافق مع الواجهة
+    const formattedCategories = categories.map((category: any) => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+      description: category.description,
+      color: category.color || '#3B82F6',
+      icon: category.icon || '📂',
+      parent_id: category.parent_id,
+      display_order: category.display_order || 0,
+      is_active: category.is_active,
+      articles_count: category._count?.articles || 0,
+      created_at: category.created_at,
+      updated_at: category.updated_at
+    }));
+    
+    const response = NextResponse.json({
+      success: true,
+      data: formattedCategories,
+      categories: formattedCategories,
+      count: formattedCategories.length
+    });
+    
+    // إضافة headers للـ CORS
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+    
+    return response;
     
   } catch (error) {
     console.error('❌ [Categories API] خطأ غير متوقع:', error);
