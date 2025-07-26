@@ -52,8 +52,8 @@ class NotificationService {
     // تحميل الإشعارات المحفوظة
     this.loadPersistedNotifications();
 
-    // طلب إذن الإشعارات من المتصفح
-    this.requestNotificationPermission();
+    // لا نطلب إذن الإشعارات تلقائياً - يجب أن يكون من خلال تفاعل المستخدم
+    // this.requestNotificationPermission();
 
     // حفظ الإشعارات عند إغلاق الصفحة
     window.addEventListener('beforeunload', () => {
