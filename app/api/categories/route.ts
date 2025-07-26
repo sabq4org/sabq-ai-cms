@@ -1,10 +1,81 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, ensureConnection } from '@/lib/prisma'; // استخدام singleton
-import { 
-  getCachedData, 
-  ENHANCED_CACHE_KEYS, 
-  ENHANCED_CACHE_TTL 
-} from '@/lib/cache-manager'
+
+export const runtime = 'nodejs';
+
+// استيراد التخزين المؤقت (اختياري)
+async function getCachedData(key: string) {
+  try {
+    const { getCachedData } = await import('@/lib/cache-manager');
+    return await getCachedData(key);
+  } catch {
+    return null;
+  }
+}
+
+// دالة مساعدة لإضافة CORS headers
+function addCorsHeaders(response: NextResponse): NextResponse {
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept');
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
+  return response;
+}
+
+// دالة لإنشاء response مع CORS headers
+function corsResponse(data: any, status: number = 200): NextResponse {
+  const response = NextResponse.json(data, { status });
+  return addCorsHeaders(response);
+}
+
+// دالة لمعالجة طلبات OPTIONS
+function handleOptions(): NextResponse {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, Accept',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+}
+
+// معالجة طلبات OPTIONS للـ CORS
+export async function OPTIONS() {
+  return handleOptions();
+}
+
+// GET: جلب جميع الفئات مع معالجة أخطاء محسنة
+export async function GET(request: NextRequest) {
+  try {
+    console.log('🏷️ [Categories API] بدء جلب الفئات...');
+    
+    // استيراد آمن لـ Prisma
+    const { prisma, ensureConnection } = await import('@/lib/prisma');
+    
+    // التأكد من الاتصال بقاعدة البيانات
+    const isConnected = await ensureConnection();
+    if (!isConnected) {
+      console.error('❌ [Categories API] فشل الاتصال بقاعدة البيانات');
+      
+      // إرجاع فئات افتراضية
+      const fallbackCategories = [
+        { id: '1', name: 'عام', slug: 'general', color: '#3B82F6', icon: '📰' },
+        { id: '2', name: 'رياضة', slug: 'sports', color: '#10B981', icon: '⚽' },
+        { id: '3', name: 'تقنية', slug: 'tech', color: '#8B5CF6', icon: '💻' },
+        { id: '4', name: 'سياسة', slug: 'politics', color: '#EF4444', icon: '🏛️' },
+        { id: '5', name: 'اقتصاد', slug: 'economy', color: '#F59E0B', icon: '💰' }
+      ];
+      
+      return corsResponse({
+        success: true,
+        data: fallbackCategories,
+        categories: fallbackCategories,
+        message: 'تم استخدام فئات افتراضية',
+        fallback: true
+      });
+    }
 
 
 

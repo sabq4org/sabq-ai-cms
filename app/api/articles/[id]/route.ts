@@ -1,14 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma, ensureConnection } from '@/lib/prisma'
-import { cache, CACHE_TTL } from '@/lib/redis-improved'
+import { NextRequest, NextResponse } from 'next/server';
 
-// دالة مساعدة لإضافة cache headers
-function setCacheHeaders(response: NextResponse, maxAge: number = 300) {
-  response.headers.set('Cache-Control', `public, s-maxage=${maxAge}, stale-while-revalidate=60`);
-  response.headers.set('CDN-Cache-Control', `max-age=${maxAge}`);
-  response.headers.set('Vercel-CDN-Cache-Control', `max-age=${maxAge}`);
-  return response;
-}
+export const runtime = 'nodejs';
 
 // GET - جلب مقال واحد مع معالجة محسنة للأخطاء
 export async function GET(
@@ -18,27 +10,54 @@ export async function GET(
   const startTime = Date.now();
   
   try {
+    console.log('🔍 [Article API] بدء جلب المقال...');
+    
     const { id } = await params;
     
     if (!id) {
+      console.error('❌ [Article API] معرف المقال مفقود');
       return NextResponse.json({
         success: false,
         error: 'معرف المقال مطلوب'
       }, { status: 400 });
     }
 
-    // فك ترميز المعرف إذا كان مُرمز (للعناوين العربية)
+    // فك ترميز المعرف
     let decodedId = id;
     try {
       decodedId = decodeURIComponent(id);
-      console.log(`🔍 معالجة معرف المقال: ${id} -> ${decodedId}`);
+      console.log(`� [Article API] معالجة المعرف: ${id} -> ${decodedId}`);
     } catch (error) {
-      console.warn('⚠️ تعذر فك ترميز المعرف، استخدام القيمة الأصلية:', id);
+      console.warn('⚠️ [Article API] تعذر فك ترميز المعرف:', id);
+    }
+
+    // استيراد آمن لـ Prisma
+    let prisma, ensureConnection;
+    try {
+      const prismaModule = await import('@/lib/prisma');
+      prisma = prismaModule.prisma;
+      ensureConnection = prismaModule.ensureConnection;
+      console.log('✅ [Article API] تم تحميل Prisma بنجاح');
+    } catch (error) {
+      console.error('❌ [Article API] فشل تحميل Prisma:', error);
+      return NextResponse.json({
+        success: false,
+        error: 'خطأ في النظام - فشل تحميل قاعدة البيانات',
+        code: 'PRISMA_IMPORT_FAILED'
+      }, { status: 500 });
     }
 
     // التأكد من الاتصال بقاعدة البيانات
-    const isConnected = await ensureConnection();
+    let isConnected = false;
+    try {
+      isConnected = await ensureConnection();
+      console.log('🔗 [Article API] حالة الاتصال بقاعدة البيانات:', isConnected);
+    } catch (error) {
+      console.error('❌ [Article API] خطأ في فحص الاتصال:', error);
+    }
+    
     if (!isConnected) {
+      console.error('❌ [Article API] فشل الاتصال بقاعدة البيانات');
       return NextResponse.json({
         success: false,
         error: 'فشل الاتصال بقاعدة البيانات',
