@@ -51,9 +51,10 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
       if (isProduction) {
         baseUrl = 'https://sabq.io';
       } else {
-        baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
-                  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
-                  process.env.APP_URL ||
+        // ترتيب أولوية متغيرات البيئة
+        baseUrl = process.env.APP_URL || 
+                  process.env.NEXT_PUBLIC_APP_URL || 
+                  (process.env.VERCEL_URL && process.env.VERCEL_URL !== 'undefined' ? `https://${process.env.VERCEL_URL}` : null) ||
                   'http://localhost:3002';
       }
     }

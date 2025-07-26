@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cache, CACHE_TTL } from '@/lib/redis-improved';
 
 export const runtime = 'nodejs';
+
+// دالة إضافة headers التخزين المؤقت
+function setCacheHeaders(response: NextResponse, ttl: number = 300): NextResponse {
+  response.headers.set('Cache-Control', `public, s-maxage=${ttl}, stale-while-revalidate=${ttl * 2}`);
+  response.headers.set('CDN-Cache-Control', `public, max-age=${ttl}`);
+  response.headers.set('Vercel-CDN-Cache-Control', `public, max-age=${ttl}`);
+  return response;
+}
 
 // GET - جلب مقال واحد مع معالجة محسنة للأخطاء
 export async function GET(
