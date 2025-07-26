@@ -516,46 +516,13 @@ export default function DeepAnalysisPage() {
           const articleData = await searchForArticle(params?.id as string);
           
           if (articleData) {
-            // إنشاء تحليل من بيانات المقال
-            const mockAnalysisData: DeepAnalysisPageProps = {
-              id: articleData.id,
-              title: articleData.title,
-              lead: articleData.content?.substring(0, 200) + '...',
-              summary: articleData.content?.substring(0, 300) + '...',
-              contentHtml: articleData.content,
-              rawContent: articleData.content,
-              content: articleData.content,
-              tags: articleData.tags || ['تحليل', 'سبق'],
-              author: articleData.author || 'فريق التحرير',
-              authorName: articleData.author || 'فريق التحرير',
-              authorRole: 'محرر أول',
-              authorAvatar: '/images/default-avatar.jpg',
-              publishedAt: new Date(articleData.published_at || articleData.created_at).toLocaleDateString('ar-SA'),
-              publishedAtHijri: '',
-              readTime: Math.ceil((articleData.content?.length || 0) / 250) || 5,
-              views: articleData.views || Math.floor(Math.random() * 1000) + 100,
-              likes: Math.floor(Math.random() * 50) + 10,
-              shares: Math.floor(Math.random() * 25) + 5,
-              rating: 4.5,
-              category: articleData.category || 'تحليل عام',
-              categorySlug: 'general',
-              aiSummary: `هذا تحليل عميق لمقال "${articleData.title}" يستكشف الجوانب المختلفة للموضوع ويقدم رؤى متعمقة حول التطورات والتأثيرات المحتملة.`,
-              aiQuestions: [
-                'ما هي النقاط الرئيسية في هذا التحليل؟',
-                'كيف يمكن تطبيق هذه المعلومات؟',
-                'ما هي التوجهات المستقبلية المتوقعة؟'
-              ],
-              relatedArticles: [],
-              featuredImage: articleData.image_url || '/images/default-analysis.jpg'
-            };
-
-            setAnalysis(mockAnalysisData);
-            toast.success('تم العثور على المقال وإنشاء التحليل');
+            toast.error('المقال موجود لكن التحليل غير متوفر حالياً');
+            console.log('تم العثور على المقال لكن التحليل غير متوفر');
             return;
           }
         }
         
-        // إذا لم يتم العثور على أي شيء، استخدم المحتوى الاحتياطي
+        // إذا لم يتم العثور على أي شيء
         throw new Error('لم يتم العثور على المحتوى');
       }
     } catch (error: any) {
@@ -570,61 +537,9 @@ export default function DeepAnalysisPage() {
         toast.error('حدث خطأ في جلب التحليل');
       }
       
-      // إنشاء تحليل افتراضي كحل أخير
-      const fallbackAnalysis: DeepAnalysisPageProps = {
-        id: params?.id as string || 'unknown',
-        title: 'من جرعات الأطفال إلى تقسيم القرص - 4 أخطاء شائعة في تناول الأدوية قد تعرض حياتك للخطر',
-        lead: 'تعرف على الأخطاء الشائعة في تناول الأدوية وكيفية تجنبها للحفاظ على سلامتك وصحتك.',
-        summary: 'يعتبر الاستخدام الخاطئ للأدوية من أكثر المشاكل الصحية شيوعاً، حيث يرتكب الكثير من الأشخاص أخطاء قد تعرض حياتهم للخطر دون أن يدركوا ذلك.',
-        contentHtml: `
-          <h2>المقدمة</h2>
-          <p>يعتبر الاستخدام الآمن للأدوية من أهم الجوانب في الرعاية الصحية، إلا أن العديد من الأشخاص يرتكبون أخطاء شائعة قد تؤثر على فعالية العلاج أو تسبب مضاعفات خطيرة.</p>
-          
-          <h2>الخطأ الأول: استخدام جرعات الأطفال للبالغين</h2>
-          <p>من الأخطاء الشائعة هو اعتقاد البعض أن جرعات الأطفال أكثر أماناً للبالغين، وهذا خطأ فادح يمكن أن يؤدي إلى عدم فعالية العلاج.</p>
-          
-          <h2>الخطأ الثاني: تقسيم الأقراص دون استشارة</h2>
-          <p>تقسيم الأقراص قد يؤثر على آلية عمل الدواء، خاصة الأقراص المغلفة أو ممتدة المفعول.</p>
-          
-          <h2>الخطأ الثالث: عدم إكمال دورة العلاج</h2>
-          <p>إيقاف العلاج عند الشعور بالتحسن قد يؤدي إلى عودة المرض أو تطوير مقاومة للدواء.</p>
-          
-          <h2>الخطأ الرابع: تناول الأدوية مع المشروبات الخاطئة</h2>
-          <p>بعض المشروبات قد تؤثر على امتصاص الدواء أو تسبب تفاعلات خطيرة.</p>
-          
-          <h2>الخلاصة</h2>
-          <p>الاستخدام الآمن للأدوية يتطلب اتباع إرشادات الطبيب والصيدلي بدقة، وعدم التردد في السؤال عند وجود أي شكوك.</p>
-        `,
-        rawContent: 'المحتوى الكامل للمقال حول أخطاء تناول الأدوية...',
-        content: {},
-        tags: ['صحة', 'أدوية', 'سلامة', 'طب'],
-        author: 'فريق التحرير الطبي',
-        authorName: 'فريق التحرير الطبي',
-        authorRole: 'محرر طبي',
-        authorAvatar: '/images/medical-team.jpg',
-        publishedAt: new Date().toLocaleDateString('ar-SA'),
-        publishedAtHijri: '',
-        readTime: 8,
-        views: 1247,
-        likes: 89,
-        shares: 23,
-        rating: 4.7,
-        category: 'الصحة والطب',
-        categorySlug: 'health',
-        aiSummary: 'تحليل شامل لأهم الأخطاء الشائعة في استخدام الأدوية والطرق الصحيحة لتجنبها، مع التركيز على أهمية اتباع الإرشادات الطبية.',
-        aiQuestions: [
-          'ما هي أهم الأخطاء في تناول الأدوية؟',
-          'كيف يمكن تجنب المضاعفات الدوائية؟',
-          'متى يجب استشارة الصيدلي أو الطبيب؟',
-          'ما هي الطريقة الصحيحة لحفظ الأدوية؟'
-        ],
-        relatedArticles: [],
-        featuredImage: '/images/medicine-safety.jpg'
-      };
-      
-      setAnalysis(fallbackAnalysis);
-      toast.success('تم تحميل محتوى احتياطي للمقال');
-      console.log('تم تعيين المحتوى الاحتياطي');
+      // عرض رسالة خطأ واضحة للمستخدم
+      toast.error('لم يتم العثور على التحليل المطلوب');
+      console.log('لم يتم العثور على التحليل - انتهى التحميل');
     } finally {
       console.log('إنهاء التحميل');
       setLoading(false);

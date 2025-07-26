@@ -59,58 +59,10 @@ export default function EnhancedDeepAnalysis({ className = '' }: EnhancedDeepAna
           }
         }
       } catch (error) {
-        console.log('استخدام البيانات الافتراضية للتحليل العميق');
+        console.log('لا توجد تحليلات متاحة حالياً:', error);
+        setAnalyses([]);
       }
-
-      // البيانات الافتراضية المحسنة
-      const mockAnalyses: DeepAnalysisItem[] = [
-        {
-          id: '1',
-          title: 'رؤية 2030: تحليل شامل للتقدم الاقتصادي والاجتماعي',
-          summary: 'دراسة معمقة حول الإنجازات المحققة في إطار رؤية المملكة 2030 والتحديات المستقبلية',
-          author: 'د. عبدالله السالم',
-          createdAt: new Date().toISOString(),
-          readTime: 18,
-          views: 4250,
-          reactions: 189,
-          category: 'اقتصاد',
-          tags: ['رؤية 2030', 'اقتصاد', 'تنمية', 'استراتيجية'],
-          isExclusive: true,
-          slug: 'vision-2030-comprehensive-analysis',
-          confidence: 94
-        },
-        {
-          id: '2',
-          title: 'الذكاء الاصطناعي في المملكة: الواقع والطموحات',
-          summary: 'تحليل لحالة الذكاء الاصطناعي في السعودية ودوره في التحول الرقمي',
-          author: 'م. فاطمة الزهراني',
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-          readTime: 15,
-          views: 3180,
-          reactions: 142,
-          category: 'تقنية',
-          tags: ['ذكاء اصطناعي', 'تقنية', 'ابتكار'],
-          isPremium: true,
-          slug: 'ai-in-saudi-reality-and-ambitions',
-          confidence: 91
-        },
-        {
-          id: '3',
-          title: 'السياحة السعودية: نمو استثنائي وفرص واعدة',
-          summary: 'تحليل لقطاع السياحة وإنجازاته الأخيرة ودوره في تنويع الاقتصاد',
-          author: 'أ. أحمد المالكي',
-          createdAt: new Date(Date.now() - 172800000).toISOString(),
-          readTime: 12,
-          views: 2950,
-          reactions: 98,
-          category: 'سياحة',
-          tags: ['سياحة', 'اقتصاد', 'ترفيه'],
-          slug: 'saudi-tourism-exceptional-growth',
-          confidence: 88
-        }
-      ];
-
-      setAnalyses(mockAnalyses);
+      
       setLoading(false);
     };
 

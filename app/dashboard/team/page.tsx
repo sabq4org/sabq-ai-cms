@@ -171,12 +171,7 @@ export default function TeamPage() {
           console.log('📋 قائمة الأدوار:', data.data.map((r: any) => `${r.name} (${r.display_name || r.name})`));
           
           if (data.data.length === 0) {
-            addNotification('لا توجد أدوار مُعرَّفة في النظام', 'info');
-          }
-          
-          // إشعار إذا كانت أدوار احتياطية
-          if (data.fallback) {
-            addNotification('تم تحميل أدوار افتراضية - يرجى إعداد قاعدة البيانات', 'warning');
+            addNotification('لا توجد أدوار مُعرَّفة في النظام - يرجى إضافة أدوار في قاعدة البيانات', 'warning');
           }
         } else {
           console.error('❌ البيانات المستلمة ليست مصفوفة:', data.data);
@@ -184,50 +179,11 @@ export default function TeamPage() {
         }
       } else {
         console.error('❌ فشل في جلب الأدوار من الخادم:', data);
-        
-        // محاولة استخدام API الاحتياطي
-        console.log('🔄 محاولة استخدام API الاحتياطي...');
-        await tryFallbackRoles();
+        addNotification('فشل في جلب الأدوار من قاعدة البيانات', 'warning');
       }
     } catch (error) {
       console.error('❌ خطأ شبكة في جلب الأدوار:', error);
-      
-      // محاولة استخدام API الاحتياطي
-      console.log('🔄 محاولة استخدام API الاحتياطي بعد خطأ الشبكة...');
-      await tryFallbackRoles();
-    }
-  };
-
-  // محاولة جلب الأدوار من API الاحتياطي
-  const tryFallbackRoles = async () => {
-    try {
-      console.log('🔄 استخدام API الاحتياطي...');
-      const fallbackResponse = await fetch('/api/roles-fallback');
-      
-      if (fallbackResponse.ok) {
-        const fallbackData = await fallbackResponse.json();
-        console.log('� بيانات الأدوار الاحتياطية:', fallbackData);
-        
-        if (fallbackData.success && fallbackData.data && Array.isArray(fallbackData.data)) {
-          setRoles(fallbackData.data);
-          console.log('✅ تم تحميل الأدوار الاحتياطية بنجاح');
-          addNotification('تم تحميل أدوار افتراضية - يرجى إعداد قاعدة البيانات', 'warning');
-          return;
-        }
-      }
-      
-      // إذا فشل كل شيء
-      console.error('❌ فشل في جميع محاولات جلب الأدوار');
-      addNotification('فشل في تحميل الأدوار - يرجى إعادة تحميل الصفحة', 'warning');
-      
-    } catch (fallbackError) {
-      console.error('❌ فشل API الاحتياطي:', fallbackError);
       addNotification('خطأ في الاتصال بالخادم لجلب الأدوار', 'warning');
-      
-      // محاولة التشخيص أكثر
-      if (fallbackError instanceof Error) {
-        console.error('🔍 رسالة الخطأ:', fallbackError.message);
-      }
     }
   };
 
