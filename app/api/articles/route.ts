@@ -17,8 +17,11 @@ export async function GET(request: NextRequest) {
     // استخدام مدير الاتصال لضمان استقرار الاستعلام
     const result = await dbConnectionManager.executeWithConnection(async () => {
       // بناء شروط البحث
-      const where: any = {
-        status: status
+      const where: any = {}
+      
+      // إضافة شرط الحالة فقط إذا لم تكن "all"
+      if (status && status !== 'all') {
+        where.status = status
       }
       
       if (category) {
@@ -67,9 +70,9 @@ export async function GET(request: NextRequest) {
     
     // إضافة معلومات التصنيفات من cache للمقالات التي لا تحتوي عليها
     const categoriesResult = await getCachedCategories()
-    const categoriesMap = new Map(categoriesResult.categories.map(c => [c.id, c]))
+    const categoriesMap = new Map(categoriesResult.categories.map((c: any) => [c.id, c]))
     
-    const articlesWithCategories = result.articles.map(article => {
+    const articlesWithCategories = result.articles.map((article: any) => {
       if (!article.categories && article.category_id) {
         const categoryInfo = categoriesMap.get(article.category_id)
         if (categoryInfo) {
