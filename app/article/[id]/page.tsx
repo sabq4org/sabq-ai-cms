@@ -1,4 +1,10 @@
-export default function ArticlePage() {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function ArticlePage({ params }: PageProps) {
+  const resolvedParams = await params;
+  
   return (
     <div style={{
       padding: '2rem',
@@ -9,6 +15,9 @@ export default function ArticlePage() {
       <h1 style={{ color: '#1f2937', marginBottom: '1rem' }}>
         صفحة المقال تعمل!
       </h1>
+      <p style={{ color: '#6b7280', fontSize: '1.1rem', lineHeight: 1.6 }}>
+        معرف المقال: {resolvedParams.id}
+      </p>
       <p style={{ color: '#6b7280', fontSize: '1.1rem', lineHeight: 1.6 }}>
         تم إصلاح المشكلة بنجاح. صفحات المقالات تعمل الآن بشكل صحيح.
       </p>
