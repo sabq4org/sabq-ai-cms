@@ -44,12 +44,19 @@ export async function GET(request: NextRequest) {
       prisma.articles.findMany({
         where,
         include: {
-          categories: {
+          category: {
             select: {
               id: true,
               name: true,
               slug: true,
               color: true
+            }
+          },
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true
             }
           },
           _count: {

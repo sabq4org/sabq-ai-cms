@@ -158,9 +158,17 @@ export default function CategoryDetailPage({ params }: PageProps) {
 
       console.log('✅ تم جلب', categories.length, 'تصنيف');
       
-      const foundCategory = categories.find((cat: Category) => 
-        cat.slug === slug || cat.name_ar.toLowerCase().replace(/\s+/g, '-') === slug
-      );
+      const foundCategory = categories.find((cat: Category) => {
+        if (cat.slug === slug) return true;
+        
+        // استخدام name بدلاً من name_ar لأنه غير موجود في قاعدة البيانات
+        const categoryName = cat.metadata?.name_ar || cat.name || cat.name_en || '';
+        if (categoryName && typeof categoryName === 'string') {
+          return categoryName.toLowerCase().replace(/\s+/g, '-') === slug;
+        }
+        
+        return false;
+      });
       
       if (!foundCategory) {
         console.error('❌ التصنيف غير موجود:', slug);
@@ -284,7 +292,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
     };
     
     // البحث المباشر
-    const directMatch = categoryImages[category.name_ar];
+    const directMatch = categoryImages[category.name];
     if (directMatch) return directMatch;
     
     // البحث الجزئي في الكلمات المفتاحية
@@ -308,7 +316,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
     };
     
     for (const [keyword, image] of Object.entries(keywords)) {
-      if (category.name_ar.includes(keyword)) return image;
+      if (category.name.includes(keyword)) return image;
     }
     
     return categoryImages['default'];
@@ -404,8 +412,8 @@ export default function CategoryDetailPage({ params }: PageProps) {
       </>
     );
   }
-  const Icon = getIcon(category.name_ar);
-  const colorGradient = getColor(category.name_ar);
+  const Icon = getIcon(category.name);
+  const colorGradient = getColor(category.name);
   return (
   <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       
@@ -413,11 +421,16 @@ export default function CategoryDetailPage({ params }: PageProps) {
       <section className="relative h-[300px] md:h-[500px] overflow-hidden">
         <Image 
           src={getCategoryImage(category)} 
-          alt={category.name_ar}
+          alt={category.name}
           fill
           className="object-cover"
           sizes="100vw"
           priority
+          onError={(e) => {
+            // إذا فشل تحميل الصورة، استخدم صورة افتراضية
+            const target = e.target as HTMLImageElement;
+            target.src = 'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?auto=format&fit=crop&w=1200&q=80';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
         {/* Animated Background Pattern */}
@@ -430,7 +443,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
             {/* Mobile Layout */}
             <div className="md:hidden text-center">
               <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-2xl">
-                {category.name_ar}
+                {category.name}
               </h1>
               {category.description && (
                 <p className="text-base text-white/90 drop-shadow-lg">
@@ -449,7 +462,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-2xl">
-                  {category.name_ar}
+                  {category.name}
                 </h1>
                 {category.description && (
                   <p className="text-xl md:text-2xl text-white/90 max-w-4xl drop-shadow-lg">

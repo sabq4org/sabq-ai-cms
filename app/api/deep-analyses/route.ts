@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, ensureConnection } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { logDatabaseError, logApiError } from '@/lib/services/monitoring';
 
 export async function GET(request: NextRequest) {
@@ -22,13 +22,7 @@ export async function GET(request: NextRequest) {
     try {
       console.log('🔍 جلب التحليلات العميقة من قاعدة البيانات...');
       
-      // التحقق من اتصال قاعدة البيانات أولاً
-      const isConnected = await ensureConnection();
-      if (!isConnected) {
-        throw new Error('Database connection failed');
-      }
-
-    // بناء شروط البحث
+      // بناء شروط البحث
     const where: any = {};
       if (search) {
         where.OR = [
@@ -106,11 +100,11 @@ export async function GET(request: NextRequest) {
       let filteredAnalyses = enrichedAnalyses;
       
       if (status && status !== 'all') {
-        filteredAnalyses = enrichedAnalyses.filter(a => a.status === status);
+        filteredAnalyses = enrichedAnalyses.filter((a: any) => a.status === status);
       }
       
       if (sourceType && sourceType !== 'all') {
-        filteredAnalyses = enrichedAnalyses.filter(a => a.sourceType === sourceType);
+        filteredAnalyses = enrichedAnalyses.filter((a: any) => a.sourceType === sourceType);
       }
 
       console.log(`✅ تم جلب ${filteredAnalyses.length} تحليل من أصل ${totalCount}`);
@@ -178,13 +172,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     try {
-      // التحقق من اتصال قاعدة البيانات أولاً
-      const isConnected = await ensureConnection();
-      if (!isConnected) {
-        throw new Error('Database connection failed');
-      }
-      
-    const newAnalysis = await prisma.deep_analyses.create({
+      const newAnalysis = await prisma.deep_analyses.create({
       data: {
           id: `analysis-${Date.now()}`,
           article_id: body.article_id || `article-${Date.now()}`,

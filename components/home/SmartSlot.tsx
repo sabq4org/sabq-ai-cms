@@ -88,12 +88,12 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
         try {
           await fetchArticlesForBlock(block);
         } catch (blockError) {
-          console.error(`[SmartSlot] فشل في جلب المقالات للبلوك ${block.name}:`, blockError);
+          console.warn(`[SmartSlot] فشل في جلب المقالات للبلوك ${block.name}:`, blockError instanceof Error ? blockError.message : String(blockError));
           // المتابعة مع البلوكات الأخرى حتى لو فشل أحدها
         }
       }
     } catch (error) {
-      console.error('[SmartSlot] خطأ في تحميل البلوكات:', error);
+      console.warn('[SmartSlot] خطأ في تحميل البلوكات:', error instanceof Error ? error.message : String(error));
       setBlocks([]);
     } finally {
       setLoading(false);
@@ -114,10 +114,25 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
         url += `&category=${encodeURIComponent(block.category)}`;
       }
       
-      const response = await fetch(url);
+      // إضافة timeout للـ fetch لتجنب انتظار طويل
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني timeout
       
-      if (!response.ok) {
-        console.error(`[SmartSlot] خطأ في جلب المقالات: ${response.status} ${response.statusText}`);
+      let response;
+      try {
+        response = await fetch(url, {
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          console.warn(`[SmartSlot] انتهت مهلة جلب المقالات للبلوك ${block.name}`);
+        } else {
+          console.warn(`[SmartSlot] خطأ في fetch للبلوك ${block.name}:`, fetchError);
+        }
         setBlockArticles(prev => ({
           ...prev,
           [block.id]: []
@@ -125,7 +140,28 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
         return;
       }
       
-      const data = await response.json();
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        console.warn(`[SmartSlot] خطأ في جلب المقالات: ${response.status} ${response.statusText}`);
+        setBlockArticles(prev => ({
+          ...prev,
+          [block.id]: []
+        }));
+        return;
+      }
+      
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.warn(`[SmartSlot] خطأ في تحليل JSON للبلوك ${block.name}:`, jsonError);
+        setBlockArticles(prev => ({
+          ...prev,
+          [block.id]: []
+        }));
+        return;
+      }
       
       // التأكد من أن articlesData دائماً مصفوفة
       let articlesData: any[] = [];
@@ -238,11 +274,10 @@ export function SmartSlot({ position, className = '' }: SmartSlotProps) {
         }))
       }));
     } catch (error) {
-      console.error(`[SmartSlot] خطأ في جلب المقالات للبلوك ${block.name}:`, {
+      console.warn(`[SmartSlot] خطأ في جلب المقالات للبلوك ${block.name}:`, {
         blockId: block.id,
         blockName: block.name,
-        error: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined
+        errorMessage: error instanceof Error ? error.message : String(error)
       });
       
       // تعيين مصفوفة فارغة في حالة الخطأ

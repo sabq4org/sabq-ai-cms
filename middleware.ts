@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   
   // تحسين الأداء للصفحات الثابتة
@@ -38,9 +38,6 @@ export function middleware(request: NextRequest) {
     response.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept, Cookie')
     response.headers.set('Access-Control-Allow-Credentials', 'true')
     
-    // تحسين الأداء لـ API
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    
     return response
   }
   
@@ -48,13 +45,8 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
-  // ضغط المحتوى
-  if (!response.headers.get('Content-Encoding')) {
-    response.headers.set('Accept-Encoding', 'gzip, deflate, br');
-  }
-  
-  return response;
+
+  return response
 }
 
 // تحديد المسارات التي يعمل عليها middleware

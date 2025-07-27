@@ -160,7 +160,7 @@ export default function NewsPage() {
         setCategories(fallbackCategories);
       }
     }
-  }, [error, categories.length]);
+  }, []);
 
   // Fetch stats with caching
   const fetchStats = useCallback(async () => {
@@ -196,7 +196,7 @@ export default function NewsPage() {
     } finally {
       setStatsLoading(false);
     }
-  }, [selectedCategory, articles]);
+  }, [selectedCategory, articles.length]);
 
   // Fetch articles - محسن للأداء
   const fetchArticles = useCallback(async (reset = false) => {
@@ -260,7 +260,7 @@ export default function NewsPage() {
       setLoading(false);
       setIsLoadingMore(false);
     }
-  }, [page, selectedCategory, sortBy]);
+  }, [page, selectedCategory, sortBy, ITEMS_PER_PAGE]);
 
   useEffect(() => {
     fetchCategories();

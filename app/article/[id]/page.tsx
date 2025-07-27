@@ -96,15 +96,15 @@ export default async function ArticlePage({
     // استخدام المعرف المُفكك بدون قيود - API يدعم البحث بـ ID أو slug
     articleId = decodedId;
   } catch (error) {
-    console.error(`[ArticlePage] خطأ في فك ترميز المعرف:`, error);
+    console.warn(`[ArticlePage] خطأ في فك ترميز المعرف:`, error);
   }
   
   const article = await getArticleData(articleId);
 
   if (!article) {
-    console.error(`[ArticlePage] لم يتم العثور على مقال بالمعرف:`, articleId);
-    console.error(`[ArticlePage] البيئة:`, process.env.NODE_ENV);
-    console.error(`[ArticlePage] APP_URL:`, process.env.NEXT_PUBLIC_APP_URL);
+    console.warn(`[ArticlePage] لم يتم العثور على مقال بالمعرف:`, articleId);
+    console.warn(`[ArticlePage] البيئة:`, process.env.NODE_ENV);
+    console.warn(`[ArticlePage] APP_URL:`, process.env.NEXT_PUBLIC_APP_URL);
     
     // محاولة استدعاء مباشر للـ API كتجربة أخيرة
     if (typeof process !== 'undefined') {
@@ -129,7 +129,7 @@ export default async function ArticlePage({
         }
         console.log(`[ArticlePage] فشل الاستدعاء المباشر:`, directResponse.status);
       } catch (directError) {
-        console.error(`[ArticlePage] خطأ في الاستدعاء المباشر:`, directError);
+        console.warn(`[ArticlePage] خطأ في الاستدعاء المباشر:`, directError);
       }
     }
     

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, ensureConnection } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 interface TimelineArticle {
   id: string;
@@ -25,27 +25,6 @@ interface TimelineArticle {
 
 export async function GET(request: NextRequest) {
   try {
-    // التحقق من اتصال قاعدة البيانات أولاً
-    const isConnected = await ensureConnection();
-    if (!isConnected) {
-      console.error('❌ فشل اتصال قاعدة البيانات في /api/timeline');
-      return NextResponse.json(
-        { 
-          success: false,
-          error: 'خطأ في الاتصال بقاعدة البيانات',
-          items: [],
-          pagination: {
-            page: 1,
-            limit: 20,
-            total: 0,
-            hasMore: false,
-            totalPages: 0
-          }
-        },
-        { status: 503 }
-      );
-    }
-
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
@@ -60,7 +39,7 @@ export async function GET(request: NextRequest) {
         published_at: 'desc'
       },
       take: limit * 2 // نجلب ضعف العدد لنقسمها لاحقاً
-    }).catch(error => {
+    }).catch((error: any) => {
       console.error('خطأ في جلب المقالات:', error);
       return []; // إرجاع مصفوفة فارغة في حالة الخطأ
     });
@@ -83,13 +62,13 @@ export async function GET(request: NextRequest) {
         created_at: 'desc'
       },
       take: limit
-    }).catch(error => {
+    }).catch((error: any) => {
       console.error('خطأ في جلب التصنيفات:', error);
       return []; // إرجاع مصفوفة فارغة في حالة الخطأ
     });
 
     // جلب معلومات التصنيفات للمقالات
-    const categoryIds = [...new Set(articles.map(a => a.category_id).filter(Boolean))];
+    const categoryIds = [...new Set(articles.map((a: any) => a.category_id).filter(Boolean))];
     const categoriesMap = new Map();
     
     if (categoryIds.length > 0) {
@@ -105,7 +84,7 @@ export async function GET(request: NextRequest) {
         }
       });
       
-      articleCategories.forEach(cat => {
+      articleCategories.forEach((cat: any) => {
         categoriesMap.set(cat.id, cat);
       });
     }
@@ -176,7 +155,7 @@ export async function GET(request: NextRequest) {
       })),
       
       // تنسيق التصنيفات
-      ...categories.map(item => ({
+      ...categories.map((item: any) => ({
         id: `category-${item.id}`,
         type: 'category' as const,
         title: item.name,

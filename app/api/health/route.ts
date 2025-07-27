@@ -1,91 +1,127 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma, ensureConnection } from '@/lib/prisma';
-import { corsResponse } from '@/lib/cors';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { getConnectionStats } from '@/lib/database-monitoring';
 
 export const runtime = 'nodejs';
 
-export async function GET(request: NextRequest) {
-  const startTime = Date.now();
-
+async function getDatabasePoolInfo() {
   try {
-    console.log('🏥 Health check requested...');
-
-    // Quick response for Kubernetes/Docker health checks
-    const basicHealth = {
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV,
-      port: process.env.PORT || '3000',
-      uptime: process.uptime(),
-      responseTime: Date.now() - startTime
-    };
-
-    // فحص الاتصال بقاعدة البيانات مع قياس الوقت (اختياري للسرعة)
-    const dbStart = Date.now();
-    let dbConnected = false;
-    try {
-      dbConnected = await ensureConnection();
-    } catch (error) {
-      console.log('Database check skipped for speed:', error instanceof Error ? error.message : 'Unknown error');
-    }
-    const dbLatency = Date.now() - dbStart;
-
-    let dbTestResult = null;
-    if (dbConnected) {
-      try {
-        dbTestResult = await prisma.$queryRaw`SELECT 1 as test, NOW() as current_time`;
-      } catch (error) {
-        console.error('خطأ في اختبار قاعدة البيانات:', error);
-      }
-    }
-
-    const healthCheck = {
-      status: dbConnected ? 'صحي' : 'منخفض الأداء',
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV,
-      uptime: process.uptime(),
-      checks: {
-        api: true,
-        database: dbConnected,
-        database_latency: dbLatency,
-        env_vars: {
-          DATABASE_URL: !!process.env.DATABASE_URL,
-          JWT_SECRET: !!process.env.JWT_SECRET,
-          NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'not set',
-          NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'not set',
-        }
-      },
-      performance: {
-        total_response_time: Date.now() - startTime,
-        database_response_time: dbLatency
-      }
-    };
-
-    const statusCode = dbConnected ? 200 : 503;
-    console.log(`🏥 فحص صحة النظام: ${healthCheck.status} (${Date.now() - startTime}ms)`);
-
-    return corsResponse(healthCheck, statusCode);
+    const result = await prisma.$queryRaw`
+      SELECT 
+        count(*)::int as total_connections,
+        count(*) FILTER (WHERE state = 'active')::int as active_connections,
+        count(*) FILTER (WHERE state = 'idle')::int as idle_connections,
+        count(*) FILTER (WHERE state = 'idle in transaction')::int as idle_in_transaction
+      FROM pg_stat_activity 
+      WHERE datname = current_database()
+    ` as any[];
     
+    return result[0];
   } catch (error) {
-    console.error('❌ خطأ في فحص صحة النظام:', error);
-    
-    const errorCheck = {
-      status: 'خطأ',
-      timestamp: new Date().toISOString(),
-      error: {
-        message: error instanceof Error ? error.message : 'خطأ غير معروف',
-        type: error instanceof Error ? error.name : 'UnknownError'
-      },
-      performance: {
-        total_response_time: Date.now() - startTime
-      }
-    };
-
-    return corsResponse(errorCheck, 500);
+    return { error: 'فشل في جلب معلومات Pool' };
   }
 }
 
-// معالجة طلبات OPTIONS للـ CORS
-export async function OPTIONS() {
-  return corsResponse(null, 200);
-} 
+export async function GET() {
+  const startTime = Date.now();
+
+  try {
+    console.log('🏥 فحص شامل لحالة النظام...');
+
+    // فحص الاتصال بقاعدة البيانات
+    await prisma.$queryRaw`SELECT 1`;
+    const queryTime = Date.now() - startTime;
+    
+    const poolInfo = await getDatabasePoolInfo();
+    const connectionStats = getConnectionStats();
+    
+    // تحديد حالة النظام
+    const isHealthy = connectionStats.successRate > 95 && connectionStats.averageResponseTime < 2000;
+    const status = isHealthy ? 'healthy' : 'degraded';
+    
+    const healthData = {
+      timestamp: new Date().toISOString(),
+      status,
+      services: {
+        database: {
+          status: 'connected',
+          query_time: `${queryTime}ms`,
+          pool_info: poolInfo,
+          connection_stats: {
+            total_requests: connectionStats.totalRequests,
+            successful: connectionStats.successful,
+            failed: connectionStats.failed,
+            success_rate: connectionStats.successRate,
+            avg_response_time: connectionStats.averageResponseTime,
+            last_success: connectionStats.lastSuccess,
+            last_error: connectionStats.lastError,
+            slow_queries: connectionStats.slowQueries,
+            recent_slow_queries: connectionStats.recentSlowQueries
+          }
+        },
+        api: {
+          status: 'operational',
+          version: process.env.APP_VERSION || '1.0.0'
+        }
+      },
+      system: {
+        memory: {
+          used: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`,
+          total: `${Math.round(process.memoryUsage().heapTotal / 1024 / 1024)}MB`
+        },
+        uptime: `${Math.round(process.uptime())}s`,
+        environment: process.env.NODE_ENV || 'development'
+      },
+      recommendations: [] as string[],
+      response_time: `${Date.now() - startTime}ms`
+    };
+
+    // إضافة التوصيات بناءً على الأداء
+    if (queryTime > 1000) {
+      healthData.recommendations.push('Database query time is high - consider optimization');
+    }
+    
+    if (poolInfo.active_connections && poolInfo.active_connections > 15) {
+      healthData.recommendations.push('High number of active connections - monitor for leaks');
+    }
+    
+    if (connectionStats.failed > 0) {
+      healthData.recommendations.push(`${connectionStats.failed} database errors detected - check logs`);
+    }
+
+    if (connectionStats.slowQueries > 10) {
+      healthData.recommendations.push(`${connectionStats.slowQueries} slow queries detected - optimize database`);
+    }
+
+    if (connectionStats.successRate < 95) {
+      healthData.recommendations.push('Database success rate is below 95% - investigate connection issues');
+    }
+
+    console.log(`✅ فحص الصحة مكتمل في ${Date.now() - startTime}ms`);
+    
+    return NextResponse.json(healthData);
+    
+  } catch (error) {
+    console.error('❌ خطأ في فحص الصحة:', error);
+    
+    return NextResponse.json({
+      timestamp: new Date().toISOString(),
+      status: 'error',
+      services: {
+        database: {
+          status: 'disconnected',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        }
+      },
+      system: {
+        memory: {
+          used: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`,
+          total: `${Math.round(process.memoryUsage().heapTotal / 1024 / 1024)}MB`
+        },
+        uptime: `${Math.round(process.uptime())}s`,
+        environment: process.env.NODE_ENV || 'development'
+      },
+      response_time: `${Date.now() - startTime}ms`
+    }, { status: 503 });
+  }
+}

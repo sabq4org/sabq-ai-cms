@@ -1,12 +1,13 @@
 generator client {
-  provider      = "prisma-client-js"
-  output        = "../lib/generated/prisma"
-  binaryTargets = ["native"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native"]
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
 }
 
 model EmailJob {
@@ -153,6 +154,9 @@ model articles {
   // Existing relationships
   categories        categories?         @relation(fields: [category_id], references: [id])
   interactions      interactions[]
+  
+  // Author relationship
+  author            users?              @relation("ArticleAuthor", fields: [author_id], references: [id])
   
   // New AI system relationships
   ml_predictions    MLPredictions[]
@@ -799,6 +803,9 @@ model users {
   audio_episodes       audio_episodes[]
   audio_programs       audio_programs[]
   interactions         interactions[]
+  
+  // Articles authored by this user
+  authored_articles    articles[]             @relation("ArticleAuthor")
   
   // New AI system relationships
   user_settings        UserSettings[]

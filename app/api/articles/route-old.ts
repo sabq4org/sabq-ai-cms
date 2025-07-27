@@ -27,19 +27,22 @@ export async function GET(request: NextRequest) {
   }
 
   if (featured) {
-    where.is_featured = true;
+    where.featured = true;
   }
 
+  // تحديد ترتيب النتائج
   const orderBy: any = {};
   if (sortBy === 'latest') {
     orderBy.published_at = 'desc';
+  } else if (sortBy === 'published_at') {
+    orderBy.published_at = order;
   } else if (sortBy === 'views') {
     orderBy.views = order;
   } else {
-    orderBy[sortBy] = order;
+    orderBy.published_at = 'desc';
   }
 
-  try {
+  const result = await safeQuery(async () => {
     const [articles, total] = await Promise.all([
       prisma.articles.findMany({
         where,
@@ -50,6 +53,14 @@ export async function GET(request: NextRequest) {
               name: true,
               slug: true,
               color: true
+            }
+          },
+          // إضافة معلومات المؤلف
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true
             }
           },
           _count: {
@@ -65,27 +76,31 @@ export async function GET(request: NextRequest) {
       prisma.articles.count({ where })
     ]);
 
-    console.log(`✅ تم جلب ${articles.length} خبر من أصل ${total}`);
+    return { articles, total };
+  }, { articles: [], total: 0 });
+
+  if (result.success && result.data) {
+    console.log(`✅ تم جلب ${result.data.articles.length} خبر من أصل ${result.data.total}`);
 
     return NextResponse.json({
       success: true,
-      articles,
+      articles: result.data.articles || [],
       pagination: {
         page,
         limit,
-        total,
-        pages: Math.ceil(total / limit)
+        total: result.data.total,
+        pages: Math.ceil(result.data.total / limit)
       },
       timestamp: new Date().toISOString()
     });
-  } catch (error: any) {
-    console.error('❌ خطأ في جلب الأخبار:', error);
+  } else {
+    console.warn('❌ خطأ في جلب الأخبار:', result.error);
     
     return NextResponse.json({
       success: false,
       articles: [],
-      error: 'فشل في جلب الأخبار',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: result.error || 'فشل في جلب الأخبار',
+      details: process.env.NODE_ENV === 'development' ? result.error : undefined
     }, { status: 503 });
   }
 }

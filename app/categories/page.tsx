@@ -201,9 +201,6 @@ export default function CategoriesPage() {
         if (data.success) {
           const categoriesData = data.categories || data.data || [];
           
-          // تسجيل البيانات للتشخيص
-          console.log('بيانات التصنيفات المستلمة:', categoriesData);
-          
           // تحويل البيانات للتأكد من وجود name_ar في المكان الصحيح
           const normalizedCategories = categoriesData.map((cat: any) => {
             const normalized = { ...cat };
@@ -218,12 +215,6 @@ export default function CategoriesPage() {
             return normalized;
           });
           
-          // تسجيل تحذير للتصنيفات بدون أسماء
-          const invalidCategories = normalizedCategories.filter((cat: Category) => !cat.name_ar && !cat.name);
-          if (invalidCategories.length > 0) {
-            console.warn('تصنيفات بدون أسماء بعد التطبيع:', invalidCategories);
-          }
-          
           // فلترة التصنيفات النشطة والتحقق من وجود البيانات المطلوبة
           const activeCategories = normalizedCategories
             .filter((cat: Category) => cat && typeof cat === 'object') // التأكد من أنه كائن صالح
@@ -231,7 +222,6 @@ export default function CategoriesPage() {
               return cat.is_active && (cat.name_ar || cat.name);
             });
           
-          console.log('التصنيفات النشطة بعد الفلترة:', activeCategories);
           setCategories(activeCategories);
         } else {
           setError(data.message || 'فشل في تحميل التصنيفات');
@@ -253,10 +243,13 @@ export default function CategoriesPage() {
   const filteredCategories = React.useMemo(() => {
     // التحقق من وجود البيانات أولاً
     if (!categories || !Array.isArray(categories) || categories.length === 0) {
+      console.log('لا توجد تصنيفات للفلترة:', { categories, isArray: Array.isArray(categories), length: categories?.length });
       return [];
     }
     
-    return categories
+    console.log('بدء فلترة التصنيفات:', { totalCategories: categories.length, searchTerm });
+    
+    const filtered = categories
       .filter(category => {
         // التحقق من وجود الكائن أولاً
         if (!category || typeof category !== 'object') {
@@ -269,7 +262,6 @@ export default function CategoriesPage() {
         try {
           categoryNameAr = category.name_ar || category.metadata?.name_ar || category.name || '';
         } catch (e) {
-          console.error('خطأ في الوصول لاسم التصنيف:', e, category);
           return false;
         }
         
@@ -277,7 +269,6 @@ export default function CategoriesPage() {
         
         // التحقق من أن categoryNameAr هو string قبل استخدام toLowerCase
         if (typeof categoryNameAr !== 'string') {
-          console.warn('اسم التصنيف ليس نصاً:', categoryNameAr, category);
           return false;
         }
         
@@ -290,7 +281,6 @@ export default function CategoriesPage() {
         try {
           return categoryNameAr.toLowerCase().includes(searchValue.toLowerCase());
         } catch (e) {
-          console.error('خطأ في المقارنة:', e, categoryNameAr, searchValue);
           return false;
         }
       })
@@ -305,10 +295,11 @@ export default function CategoriesPage() {
             return (b?.articles_count || 0) - (a?.articles_count || 0);
           }
         } catch (e) {
-          console.error('خطأ في الترتيب:', e);
           return 0;
         }
       });
+    
+    return filtered;
   }, [categories, searchTerm, sortBy]);
 
   const getCategoryData = (name: string) => {

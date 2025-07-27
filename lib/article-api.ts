@@ -81,7 +81,7 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
         console.warn(`[getArticleData] المقال غير موجود:`, id);
         return null;
       }
-      console.error(`[getArticleData] خطأ HTTP عند جلب المقال:`, response.status, response.statusText);
+      console.warn(`[getArticleData] خطأ HTTP عند جلب المقال:`, response.status, response.statusText);
       
       // في حالة فشل الاستدعاء، حاول مع localhost (للـ SSR الداخلي)
       if (typeof window === 'undefined' && !baseUrl.includes('localhost')) {
@@ -95,9 +95,9 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
           
           if (fallbackResponse.ok) {
             const fallbackData = await fallbackResponse.json();
-            if (fallbackData && fallbackData.id) {
+            if (fallbackData && fallbackData.success && fallbackData.article && fallbackData.article.id) {
               console.log(`[getArticleData] تم جلب المقال بنجاح من localhost`);
-              return fallbackData;
+              return fallbackData.article;
             }
           }
         } catch (fallbackError) {
@@ -109,13 +109,13 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
     }
 
     const data = await response.json();
-    if (!data || !data.id) {
-      console.error(`[getArticleData] البيانات المستلمة للمقال فارغة أو غير صحيحة:`, data);
+    if (!data || !data.success || !data.article || !data.article.id) {
+      console.warn(`[getArticleData] البيانات المستلمة للمقال فارغة أو غير صحيحة:`, data);
       return null;
     }
-    return data;
+    return data.article;
   } catch (error) {
-    console.error('[getArticleData] خطأ في جلب بيانات المقال:', {
+    console.warn('[getArticleData] خطأ في جلب بيانات المقال:', {
       id,
       error: error instanceof Error ? error.message : 'خطأ غير معروف',
       timestamp: new Date().toISOString()
