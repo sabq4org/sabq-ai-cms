@@ -38,8 +38,59 @@ export default function ArticleClientComponent({
 }: ArticleClientComponentProps) {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
-  const [article] = useState<ArticleData>(initialArticle);
-  const [loading, setLoading] = useState(false);
+  const [article, setArticle] = useState<ArticleData | null>(initialArticle || null);
+  const [loading, setLoading] = useState(!initialArticle);
+  
+  // جلب المقال إذا لم يتم تمريره
+  useEffect(() => {
+    if (!initialArticle) {
+      const fetchArticle = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch(`/api/articles/${articleId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setArticle(data);
+          } else {
+            console.error('Failed to fetch article:', response.status);
+          }
+        } catch (error) {
+          console.error('Error fetching article:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchArticle();
+    }
+  }, [initialArticle, articleId]);
+  
+  // إذا لا يوجد مقال وجاري التحميل
+  if (loading || !article) {
+    return (
+      <div style={{
+        padding: '3rem', 
+        textAlign: 'center',
+        minHeight: '400px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '3px solid #e5e7eb',
+            borderTop: '3px solid #2563eb',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }}></div>
+          <p style={{color: '#6b7280'}}>جاري تحميل المقال...</p>
+        </div>
+      </div>
+    );
+  }
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
