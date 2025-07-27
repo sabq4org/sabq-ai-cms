@@ -464,7 +464,7 @@ export default function DeepAnalysisPage() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
       
-      const response = await fetch(`/api/deep-analyses/${params?.id}`, {
+      const response = await fetch(`/api/deep-analyses/${params.id}`, {
         signal: controller.signal
       });
       

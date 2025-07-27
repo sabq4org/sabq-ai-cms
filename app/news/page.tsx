@@ -92,7 +92,7 @@ export default function NewsPage() {
 
   const ITEMS_PER_PAGE = 20;
 
-  // Fetch categories with caching
+  // تحسين جلب التصنيفات مع معالجة أفضل للأخطاء والكاش
   const fetchCategories = useCallback(async () => {
     // تحقق من الكاش أولاً
     const cacheKey = 'categories';
@@ -103,10 +103,33 @@ export default function NewsPage() {
     }
 
     try {
-      const response = await fetch('/api/categories?active=true');
-      if (!response.ok) throw new Error('Failed to fetch categories');
+      console.log('🔍 جلب التصنيفات من:', '/api/categories?is_active=true');
+      
+      // استخدام timeout لتجنب انتظار الطلب إلى ما لا نهاية
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 ثواني كحد أقصى
+
+      // محاولة جلب البيانات
+      const response = await fetch('/api/categories?is_active=true', { 
+        signal: controller.signal,
+        cache: 'no-store' // تجنب مشكلات التخزين المؤقت
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
+      }
+      
       const data = await response.json();
+      
+      // التعامل مع مختلف أشكال البيانات المُرجعة
       const categoriesData = data.categories || data.data || [];
+      console.log(`✅ التصنيفات المُستلمة: ${categoriesData.length}`);
+      
+      if (categoriesData.length === 0 && data.error) {
+        throw new Error(`API error: ${data.error}`);
+      }
       
       // حفظ في الكاش
       categoriesCache.set(cacheKey, {
@@ -115,11 +138,29 @@ export default function NewsPage() {
       });
       
       setCategories(categoriesData);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      setError('فشل في تحميل التصنيفات');
+      
+      // إزالة رسالة الخطأ إذا كانت موجودة
+      if (error) setError(null);
+    } catch (err: any) {
+      console.error('Error fetching categories:', err);
+      
+      // رسالة خطأ أكثر تفصيلاً
+      const errorMessage = err.name === 'AbortError' 
+        ? 'استغرق تحميل التصنيفات وقتاً طويلاً، يرجى المحاولة مرة أخرى.' 
+        : `فشل في تحميل التصنيفات: ${err.message}`;
+      
+      setError(errorMessage);
+      
+      // استخدام بيانات احتياطية إذا كان لدينا
+      if (categories.length === 0) {
+        const fallbackCategories: Category[] = [
+          { id: 1, name: 'عام', name_ar: 'عام', slug: 'general', color: '#1a73e8', color_hex: '#1a73e8', icon: '📰' },
+          { id: 2, name: 'رياضة', name_ar: 'رياضة', slug: 'sports', color: '#34a853', color_hex: '#34a853', icon: '⚽' },
+        ];
+        setCategories(fallbackCategories);
+      }
     }
-  }, []);
+  }, [error, categories.length]);
 
   // Fetch stats with caching
   const fetchStats = useCallback(async () => {

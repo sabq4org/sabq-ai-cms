@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma, ensureConnection } from '@/lib/prisma';
 
 interface CategoryWithCount {
   id: string;
@@ -18,17 +18,17 @@ interface CategoryWithCount {
   };
 }
 
-// GET: جلب جميع الفئات من قاعدة البيانات
+// GET: جلب جميع الفئات من قاعدة البيانات مع تحسين معالجة الأخطاء
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const isActiveParam = searchParams.get('is_active');
+    const isActiveParam = searchParams.get('is_active') || searchParams.get('active');
     const statusParam = searchParams.get('status');
 
     // تحديد الفلترة بناءً على المعاملات
     let where: any = {};
     
-    // إذا كان هناك معامل is_active
+    // إذا كان هناك معامل is_active أو active
     if (isActiveParam !== null) {
       where.is_active = isActiveParam === 'true';
     }
@@ -41,9 +41,21 @@ export async function GET(request: NextRequest) {
     }
 
     // تأكد من الاتصال قبل تنفيذ الاستعلام
-    await prisma.$connect();
-
-    const categories = await prisma.categories.findMany({
+    console.log('🔍 جلب التصنيفات من قاعدة البيانات...');
+    
+    // إنشاء الاتصال مع محاولات إعادة المحاولة
+    const isConnected = await ensureConnection();
+    if (!isConnected) {
+      throw new Error('فشل الاتصال بقاعدة البيانات بعد عدة محاولات');
+    }
+    
+    // استخدام معامل timeout لتجنب مشاكل الانتظار الطويل
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('استغرق الاستعلام وقتًا طويلاً')), 5000);
+    });
+    
+    // تنفيذ الاستعلام مع معالجة timeout
+    const queryPromise = prisma.categories.findMany({
       where,
       orderBy: {
         display_order: 'asc'
@@ -54,6 +66,10 @@ export async function GET(request: NextRequest) {
         }
       }
     });
+    
+    // انتظار أول عملية تنتهي (الاستعلام أو الـtimeout)
+    const categories = await Promise.race([queryPromise, timeoutPromise]) as any[];
+    console.log(`✅ تم جلب ${categories.length} تصنيف`);
 
     // تحويل البيانات إلى الشكل المطلوب
     const formattedCategories = categories.map((category: CategoryWithCount) => ({
@@ -70,12 +86,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        error: 'فشل في جلب التصنيفات' 
+        error: `فشل في جلب التصنيفات: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`
       },
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
+    // لا نفصل الاتصال هنا، سنتركه للإدارة العالمية
+    // await prisma.$disconnect();
   }
 }
 

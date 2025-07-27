@@ -53,18 +53,23 @@ export default function ArticleClientComponent({
   const [contentHtml, setContentHtml] = useState('');
   
   useEffect(() => {
-    // تحويل المحتوى إلى HTML
+    // تحويل المحتوى إلى HTML مع معالجة أفضل للحالات الخاصة
     const processContent = async () => {
-      if (article.content) {
-        // استخدام المحتوى كما هو إذا كان HTML
-        if (article.content.includes('<p>') || article.content.includes('<div>')) {
-          setContentHtml(article.content);
-        } else {
-          // تحويل النص العادي إلى HTML بسيط
-          const paragraphs = article.content.split('\n\n');
-          const html = paragraphs.map(p => `<p>${p}</p>`).join('');
-          setContentHtml(html);
-        }
+      // التعامل مع المحتوى الفارغ
+      if (!article.content) {
+        console.log('⚠️ محتوى المقال فارغ، عرض رسالة افتراضية');
+        setContentHtml('<p>المحتوى غير متوفر حالياً.</p>');
+        return;
+      }
+      
+      // استخدام المحتوى كما هو إذا كان HTML
+      if (article.content.includes('<p>') || article.content.includes('<div>')) {
+        setContentHtml(article.content);
+      } else {
+        // تحويل النص العادي إلى HTML بسيط
+        const paragraphs = article.content.split('\n\n');
+        const html = paragraphs.map(p => `<p>${p}</p>`).join('');
+        setContentHtml(html || '<p>المحتوى غير متوفر بشكل كامل.</p>');
       }
     };
     
@@ -105,10 +110,16 @@ export default function ArticleClientComponent({
     }
   };
 
-  // حساب وقت القراءة
-  const calculateReadingTime = (content: string) => {
+  // حساب وقت القراءة - مع معالجة شاملة للحالات الخاصة
+  const calculateReadingTime = (content: string | null | undefined) => {
+    // معالجة الحالات الخاصة
+    if (!content) {
+      return 1; // قيمة افتراضية (دقيقة واحدة) للمحتوى الفارغ
+    }
+    
+    // حساب وقت القراءة
     const wordsPerMinute = 200;
-    const wordCount = content.split(' ').length;
+    const wordCount = content.split(/\s+/).filter(Boolean).length;
     return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
   };
 
@@ -193,7 +204,7 @@ export default function ArticleClientComponent({
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span>{article.reading_time || calculateReadingTime(article.content)} د</span>
+                <span>{article.reading_time || calculateReadingTime(article.content || '')} د</span>
               </div>
               {article.views !== undefined && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
@@ -209,9 +220,9 @@ export default function ArticleClientComponent({
           <div className="mb-6 sm:mb-8">
             <ArticleAISummary
               articleId={article.id}
-              title={article.title}
+              title={article.title || 'مقال بدون عنوان'}
               content={article.content || ''}
-              existingSummary={article.ai_summary || article.summary || article.excerpt}
+              existingSummary={article.ai_summary || article.summary || article.excerpt || ''}
               className="shadow-lg"
             />
           </div>
