@@ -1,91 +1,153 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
+import { getCachedCategories } from '@/lib/services/categoriesCache'
+import { dbConnectionManager } from '@/lib/db-connection-manager'
 
 export async function GET(request: NextRequest) {
-  console.log('📰 بدء جلب الأخبار...');
+  const searchParams = request.nextUrl.searchParams
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '10')
+  const category = searchParams.get('category')
+  const search = searchParams.get('search')
+  const status = searchParams.get('status') || 'published'
   
-  const { searchParams } = new URL(request.url);
+  const skip = (page - 1) * limit
   
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
-  const category = searchParams.get('category');
-  const status = searchParams.get('status') || 'published';
-  const sortBy = searchParams.get('sortBy') || 'published_at';
-  const order = searchParams.get('order') || 'desc';
-  const featured = searchParams.get('featured') === 'true';
-  const offset = (page - 1) * limit;
-
-  const where: any = {};
-
-  // إضافة شرط الحالة فقط إذا لم تكن "all"
-  if (status && status !== 'all') {
-    where.status = status;
-  }
-
-  if (category) {
-    where.category_id = category;
-  }
-
-  if (featured) {
-    where.is_featured = true;
-  }
-
-  const orderBy: any = {};
-  if (sortBy === 'latest') {
-    orderBy.published_at = 'desc';
-  } else if (sortBy === 'views') {
-    orderBy.views = order;
-  } else {
-    orderBy[sortBy] = order;
-  }
-
   try {
-    const [articles, total] = await Promise.all([
-      prisma.articles.findMany({
-        where,
-        include: {
-          categories: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              color: true
-            }
+    // استخدام مدير الاتصال لضمان استقرار الاستعلام
+    const result = await dbConnectionManager.executeWithConnection(async () => {
+      // بناء شروط البحث
+      const where: any = {
+        status: status
+      }
+      
+      if (category) {
+        where.category_id = category
+      }
+      
+      if (search) {
+        where.OR = [
+          { title: { contains: search } },
+          { excerpt: { contains: search } }
+        ]
+      }
+      
+      // جلب المقالات والعدد الإجمالي بشكل متوازي
+      const [articles, total] = await Promise.all([
+        prisma.articles.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: {
+            published_at: 'desc'
           },
-          _count: {
-            select: {
-              interactions: true
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                avatar: true
+              }
+            },
+            categories: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                color: true
+              }
             }
           }
-        },
-        orderBy,
-        skip: offset,
-        take: limit
-      }),
-      prisma.articles.count({ where })
-    ]);
-
-    console.log(`✅ تم جلب ${articles.length} خبر من أصل ${total}`);
-
+        }),
+        prisma.articles.count({ where })
+      ])
+      
+      return { articles, total }
+    })
+    
+    // إضافة معلومات التصنيفات من cache للمقالات التي لا تحتوي عليها
+    const categoriesResult = await getCachedCategories()
+    const categoriesMap = new Map(categoriesResult.categories.map(c => [c.id, c]))
+    
+    const articlesWithCategories = result.articles.map(article => {
+      if (!article.categories && article.category_id) {
+        const categoryInfo = categoriesMap.get(article.category_id)
+        if (categoryInfo) {
+          return { ...article, categories: categoryInfo }
+        }
+      }
+      return article
+    })
+    
     return NextResponse.json({
       success: true,
-      articles,
+      articles: articlesWithCategories,
       pagination: {
         page,
         limit,
-        total,
-        pages: Math.ceil(total / limit)
+        total: result.total,
+        totalPages: Math.ceil(result.total / limit)
       },
-      timestamp: new Date().toISOString()
-    });
+      cache: {
+        categoriesFromCache: categoriesResult.fromCache,
+        categoriesCacheAge: categoriesResult.cacheAge
+      }
+    })
+    
   } catch (error: any) {
-    console.error('❌ خطأ في جلب الأخبار:', error);
+    console.error('❌ خطأ في جلب المقالات:', error)
+    
+    // معالجة أخطاء الاتصال
+    if (error.message?.includes('connection') || error.code === 'P2024') {
+      return NextResponse.json({
+        success: false,
+        error: 'مشكلة في الاتصال بقاعدة البيانات',
+        details: 'يرجى المحاولة مرة أخرى',
+        code: 'DB_CONNECTION_ERROR'
+      }, { status: 503 })
+    }
     
     return NextResponse.json({
       success: false,
-      articles: [],
-      error: 'فشل في جلب الأخبار',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    }, { status: 503 });
+      error: 'فشل في جلب المقالات',
+      details: error.message || 'خطأ غير معروف'
+    }, { status: 500 })
   }
+}
+
+// إنشاء مقال جديد
+export async function POST(request: NextRequest) {
+  try {
+    const data = await request.json()
+    
+    const article = await dbConnectionManager.executeWithConnection(async () => {
+      return await prisma.articles.create({
+        data: {
+          ...data,
+          id: data.id || generateId(),
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      })
+    })
+    
+    return NextResponse.json({
+      success: true,
+      article
+    }, { status: 201 })
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في إنشاء المقال:', error)
+    
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في إنشاء المقال',
+      details: error.message || 'خطأ غير معروف'
+    }, { status: 500 })
+  }
+}
+
+// دالة مساعدة لتوليد ID
+function generateId() {
+  return `article_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }

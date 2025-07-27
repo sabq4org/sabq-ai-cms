@@ -1,60 +1,128 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
+import { executeWithRetry } from '@/lib/prisma'
+import { getCachedCategories } from '@/lib/services/categoriesCache'
+import { dbConnectionManager } from '@/lib/db-connection-manager'
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  request: Request,
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params
+  console.log(`📰 جلب المقال: ${id}`)
+  
   try {
-    const { id } = await params;
-    console.log(`📰 بدء جلب المقال: ${id}`);
-    
-    const article = await prisma.articles.findUnique({
-      where: {
-        id: id
-      },
-      include: {
-        categories: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            color: true
-          }
+    // استخدام مدير الاتصال لضمان الاتصال
+    const article = await dbConnectionManager.executeWithConnection(async () => {
+      return await prisma.articles.findFirst({
+        where: {
+          OR: [
+            { id: id },
+            { slug: id }
+          ],
+          status: 'published'
         },
-        _count: {
-          select: {
-            interactions: true
+        include: {
+          categories: true,
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatar: true
+            }
           }
         }
-      }
-    });
-
+      })
+    })
+    
     if (!article) {
       return NextResponse.json({
         success: false,
-        error: 'المقال غير موجود',
-        article: null
-      }, { status: 404 });
+        error: 'المقال غير موجود'
+      }, { status: 404 })
     }
-
-    console.log(`✅ تم جلب المقال بنجاح: ${article.title}`);
-
+    
+    // تحديث عدد المشاهدات بشكل غير متزامن
+    dbConnectionManager.executeWithConnection(async () => {
+      await prisma.articles.update({
+        where: { id: article.id },
+        data: { views: { increment: 1 } }
+      })
+    }).catch(error => {
+      console.error('⚠️ فشل تحديث المشاهدات:', error)
+    })
+    
+    // إضافة معلومات التصنيف من الـ cache إذا لزم الأمر
+    let categoryInfo = article.categories
+    if (!categoryInfo && article.category_id) {
+      try {
+        const categoriesResult = await getCachedCategories()
+        categoryInfo = categoriesResult.categories.find(c => c.id === article.category_id)
+      } catch (error) {
+        console.error('⚠️ فشل جلب التصنيف من cache:', error)
+      }
+    }
+    
     return NextResponse.json({
       success: true,
-      article,
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    const { id } = await params;
-    console.warn(`❌ خطأ في جلب المقال ${id}:`, error);
+      ...article,
+      category: categoryInfo
+    })
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في جلب المقال:', error)
+    
+    // معالجة أخطاء الاتصال بشكل خاص
+    if (error.message?.includes('connection') || error.code === 'P2024') {
+      return NextResponse.json({
+        success: false,
+        error: 'مشكلة في الاتصال بقاعدة البيانات',
+        details: 'يرجى المحاولة مرة أخرى بعد قليل',
+        code: 'DB_CONNECTION_ERROR'
+      }, { status: 503 })
+    }
     
     return NextResponse.json({
       success: false,
-      article: null,
-      error: 'فشل في جلب المقال',
-      details: process.env.NODE_ENV === 'development' ? String(error) : undefined
-    }, { status: 503 });
+      error: 'حدث خطأ في جلب المقال',
+      details: error.message || 'خطأ غير معروف'
+    }, { status: 500 })
+  }
+}
+
+// تحديث المقال
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params
+  
+  try {
+    const data = await request.json()
+    
+    const updatedArticle = await dbConnectionManager.executeWithConnection(async () => {
+      return await prisma.articles.update({
+        where: { id },
+        data: {
+          ...data,
+          updated_at: new Date()
+        }
+      })
+    })
+    
+    return NextResponse.json({
+      success: true,
+      article: updatedArticle
+    })
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في تحديث المقال:', error)
+    
+    return NextResponse.json({
+      success: false,
+      error: 'فشل تحديث المقال',
+      details: error.message || 'خطأ غير معروف'
+    }, { status: 500 })
   }
 }
