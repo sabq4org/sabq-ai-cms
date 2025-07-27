@@ -52,8 +52,8 @@ export default function ArticlePage({ params }: PageProps) {
         const response = await fetch(`/api/articles/${resolved.id}`);
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.article) {
-            setArticle(data.article);
+          if (data.success) {
+            setArticle(data);
           } else {
             setError('المقال غير متوفر');
           }
