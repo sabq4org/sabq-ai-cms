@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma, ensureConnection } from '@/lib/prisma'
+import prisma, { ensureConnection  } from '@/lib/prisma';
 import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved'
 
 // تحسين CORS headers

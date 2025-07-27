@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma, ensureConnection } from '@/lib/prisma'
+import prisma, { ensureConnection  } from '@/lib/prisma';
 import { cache } from '@/lib/redis-improved'
 
 // Cache مُحسن لتفاصيل المقال

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 // محاكاة توليد الملخص - يمكن استبدالها بـ OpenAI API أو خدمة AI أخرى
 function generateAISummary(title: string, content: string): string {
