@@ -4,24 +4,68 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-if (!global.prisma) {
-  global.prisma = new PrismaClient({
-    log: ['error'],
+// دالة إنشاء Prisma Client جديد مع معالجة أخطاء محسنة
+function createPrismaClient(): PrismaClient {
+  console.log('🔧 إنشاء Prisma Client جديد...');
+  
+  const client = new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     datasources: {
       db: {
         url: process.env.DATABASE_URL,
       },
     },
+    // إضافة خيارات إضافية للاتصال
+    errorFormat: 'pretty',
   });
 
-  // تأكد من الاتصال عند بدء التطبيق
-  global.prisma.$connect()
-    .then(() => console.log('✅ تم الاتصال بقاعدة البيانات بنجاح'))
-    .catch((error: Error) => console.error('❌ خطأ في الاتصال بقاعدة البيانات:', error));
+  // محاولة الاتصال مع إعادة المحاولة
+  const connectWithRetry = async (retries = 3): Promise<void> => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        await client.$connect();
+        console.log('✅ تم الاتصال بقاعدة البيانات بنجاح');
+        return;
+      } catch (error) {
+        console.error(`❌ محاولة الاتصال ${i + 1}/${retries} فشلت:`, error);
+        if (i === retries - 1) {
+          console.error('❌ فشل في جميع محاولات الاتصال');
+          throw error;
+        }
+        // انتظار ثانية قبل إعادة المحاولة
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+  };
+
+  // محاولة الاتصال
+  connectWithRetry().catch((error: Error) => {
+    console.error('❌ خطأ نهائي في الاتصال بقاعدة البيانات:', error);
+  });
+
+  return client;
+}
+
+// إنشاء أو إعادة استخدام Prisma Client
+if (!global.prisma) {
+  global.prisma = createPrismaClient();
 
   // تنظيف الاتصال عند إغلاق التطبيق
   process.on('beforeExit', async () => {
+    console.log('🔌 إغلاق اتصال قاعدة البيانات...');
     await global.prisma?.$disconnect();
+  });
+
+  process.on('SIGINT', async () => {
+    console.log('🔌 إغلاق اتصال قاعدة البيانات (SIGINT)...');
+    await global.prisma?.$disconnect();
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', async () => {
+    console.log('🔌 إغلاق اتصال قاعدة البيانات (SIGTERM)...');
+    await global.prisma?.$disconnect();
+    process.exit(0);
   });
 }
 
