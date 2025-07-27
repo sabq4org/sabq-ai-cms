@@ -45,18 +45,11 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
       // في المتصفح - استخدم النطاق الحالي
       baseUrl = window.location.origin;
     } else {
-      // في السيرفر - استخدم متغيرات البيئة أو الافتراضي
-      // إضافة إصلاح مباشر لموقع sabq.io
-      const isProduction = process.env.NODE_ENV === 'production';
-      if (isProduction) {
-        baseUrl = 'https://sabq.io';
-      } else {
-        // ترتيب أولوية متغيرات البيئة
-        baseUrl = process.env.APP_URL || 
-                  process.env.NEXT_PUBLIC_APP_URL || 
-                  (process.env.VERCEL_URL && process.env.VERCEL_URL !== 'undefined' ? `https://${process.env.VERCEL_URL}` : null) ||
-                  'http://localhost:3002';
-      }
+      // في السيرفر - استخدم دائماً localhost للاتصال الداخلي
+      // هذا يتجنب مشاكل SSL والاتصال الخارجي في الإنتاج
+      baseUrl = 'http://localhost:3002';
+      
+      console.log(`[getArticleData] استخدام localhost للاتصال الداخلي في السيرفر`);
     }
     
     // ترميز المعرف للتأكد من صحة URL
