@@ -106,6 +106,7 @@ const sidebarItems: SidebarItem[] = [
     href: '/admin/news',
     badge: '45',
     children: [
+      { id: 'news-advanced', title: 'إدارة الأخبار المتقدمة', icon: Newspaper, href: '/dashboard/news' },
       { id: 'articles', title: 'إدارة المقالات', icon: FileText, href: '/admin/articles' },
       { id: 'news-unified', title: 'الأخبار الموحد', icon: Newspaper, href: '/dashboard/news/unified' },
       { id: 'news-mobile', title: 'أخبار الموبايل', icon: Newspaper, href: '/dashboard/news/mobile' },

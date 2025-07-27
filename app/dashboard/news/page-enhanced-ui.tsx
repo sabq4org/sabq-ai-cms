@@ -428,71 +428,28 @@ export default function NewsManagementPageEnhanced() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* هيدر مبسط - يحتوي فقط على اللوجو واسم الصحيفة والتحكم */}
-        <header className={`sticky top-0 z-50 border-b transition-all duration-300 ${
-          darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-        }`}>
-          <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              {/* اللوجو واسم الصحيفة */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <Newspaper className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h1 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      صحيفة سبق
-                    </h1>
-                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      الإدارة الذكية للمحتوى
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* أدوات التحكم */}
-              <div className="flex items-center gap-3">
-                <Button variant="ghost" size="sm">
-                  <Bell className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Settings className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <User className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
+      <div className="space-y-6">
+        {/* عنوان القسم وأزرار الإجراءات */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              إدارة الأخبار المتقدمة
+            </h1>
+            <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              إدارة وتحرير المحتوى الإعلامي بكفاءة عالية
+            </p>
           </div>
-        </header>
-
-        {/* عنوان القسم مباشرة تحت الهيدر */}
-        <div className={`border-b ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-          <div className="px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  إدارة الأخبار المتقدمة
-                </h2>
-                <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  إدارة وتحرير المحتوى الإعلامي بكفاءة عالية
-                </p>
-              </div>
-              
-              <Link href="/dashboard/news/unified">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <Plus className="w-4 h-4 ml-2" />
-                  مقال جديد
-                </Button>
-              </Link>
-            </div>
-          </div>
+          
+          <Link href="/dashboard/news/unified">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Plus className="w-4 h-4 ml-2" />
+              مقال جديد
+            </Button>
+          </Link>
         </div>
 
         {/* المحتوى الرئيسي */}
-        <div className="px-4 sm:px-6 lg:px-8 py-6">
+        <div className="space-y-6">
           {/* إحصائيات سريعة */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
             <div className={`rounded-xl p-4 border ${
