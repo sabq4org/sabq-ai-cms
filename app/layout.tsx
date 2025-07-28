@@ -42,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
         {/* Preconnect لتحسين الأداء */}
         <link rel="preconnect" href="https://sabq-cms-content.s3.amazonaws.com" />
@@ -52,7 +52,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://sabq-cms-content.s3.us-east-1.amazonaws.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
       </head>
-      <body className={`${ibmPlexArabic.variable} font-arabic`}>
+      <body className={`${ibmPlexArabic.variable} font-arabic`} suppressHydrationWarning>
         <ErrorBoundary>
           <Providers>
             <GlobalErrorHandler />

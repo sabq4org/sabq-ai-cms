@@ -14,6 +14,7 @@ import { getCookie, setCookie } from '@/lib/cookies';
 import { getImageUrl } from '@/lib/image-utils';
 import CloudImage, { ArticleImage, CloudAvatar } from '@/components/ui/CloudImage';
 import { getArticleLink, formatDate } from '@/lib/utils';
+import { SafeDate } from '@/lib/safe-date';
 import CategoryBadge from './components/CategoryBadge';
 import { SmartSlot } from '@/components/home/SmartSlot';
 import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
@@ -213,7 +214,7 @@ function NewspaperHomePage({
                 <div className="flex items-center gap-2 sm:gap-3 text-xs">
                                       <div className="text-sm text-gray-500 flex items-center gap-2">
                       <Clock className="w-4 h-4" />
-                      {formatDate(news.published_at || news.created_at)}
+                                                <SafeDate date={news.published_at || news.created_at} />
                     </div>
                   {news.reading_time && (
                     <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
@@ -555,7 +556,7 @@ function NewspaperHomePage({
                                     <div className="flex items-center gap-2 sm:gap-3 text-xs">
                                                                               <div className="text-sm text-gray-500 flex items-center gap-2">
                                           <Clock className="w-4 h-4" />
-                                          {formatDate(article.published_at || article.created_at)}
+                                          <SafeDate date={article.published_at || article.created_at} />
                                         </div>
                                       {article.reading_time && (
                                         <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>

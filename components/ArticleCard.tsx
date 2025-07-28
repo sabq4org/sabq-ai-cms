@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { getImageUrl, cleanS3Url } from '@/lib/image-utils';
 import { isBrokenImage, getQuickPlaceholder } from '@/lib/performance-config';
+import { SafeDate } from '@/lib/safe-date';
 
 interface ArticleCardProps {
   article: any;
@@ -112,7 +113,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
 
   // Publish date
   const publishDate = article.published_at || article.created_at;
-  const formattedDate = publishDate ? new Date(publishDate).toLocaleDateString('ar-SA') : '';
+
 
   if (viewMode === 'list') {
     // List View - مطابق لتصميم صفحة التصنيف
@@ -173,7 +174,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
             <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                {formattedDate}
+                <SafeDate date={publishDate} />
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
@@ -255,7 +256,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-auto">
             <span className="flex items-center gap-1">
               <Calendar className="w-3 h-3" />
-              {formattedDate}
+              <SafeDate date={publishDate} />
             </span>
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
