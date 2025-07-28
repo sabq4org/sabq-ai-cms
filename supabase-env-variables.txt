@@ -1,0 +1,30 @@
+# 🔄 Updated Environment Variables for Supabase Database
+# Last updated: 2025-07-28
+
+# ======= DATABASE CONFIGURATION =======
+DATABASE_URL=postgresql://postgres:AVNS_Br4uKMaWR6wxTIpZ7xj@db.uopckyrdhlvsxnvcobbw.supabase.co:5432/postgres
+DIRECT_URL=postgresql://postgres:AVNS_Br4uKMaWR6wxTIpZ7xj@db.uopckyrdhlvsxnvcobbw.supabase.co:5432/postgres
+
+# ======= AUTHENTICATION =======
+NEXTAUTH_SECRET=your-super-secret-key-here-min-32-chars
+NEXTAUTH_URL=http://localhost:3000
+JWT_SECRET=your-jwt-secret-here
+
+# ======= PRODUCTION SETTINGS =======
+NODE_ENV=development
+SKIP_EMAIL_VERIFICATION=true
+
+# ======= AWS S3 CONFIGURATION =======
+S3_ACCESS_KEY_ID=your-s3-access-key
+S3_SECRET_ACCESS_KEY=your-s3-secret-key
+S3_REGION=us-east-1
+S3_BUCKET_NAME=sabq-uploader
+
+# ======= OPTIONAL SERVICES =======
+OPENAI_API_KEY=your-openai-api-key
+CLOUDINARY_CLOUD_NAME=your-cloudinary-name
+CLOUDINARY_API_KEY=your-cloudinary-key
+CLOUDINARY_API_SECRET=your-cloudinary-secret
+
+# ======= PRISMA =======
+PRISMA_QUERY_ENGINE_BINARY=./node_modules/.prisma/client/query-engine-*

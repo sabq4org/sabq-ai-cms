@@ -1,0 +1,12 @@
+# 🔄 Supabase Environment Variables for AWS Amplify
+# Copy this to AWS Amplify Console → Environment Variables
+
+DATABASE_URL=postgresql://postgres:AVNS_Br4uKMaWR6wxTIpZ7xj@db.uopckyrdhlvsxnvcobbw.supabase.co:5432/postgres
+DIRECT_URL=postgresql://postgres:AVNS_Br4uKMaWR6wxTIpZ7xj@db.uopckyrdhlvsxnvcobbw.supabase.co:5432/postgres
+NEXTAUTH_SECRET=sabq-ai-cms-secret-key-2025
+NEXTAUTH_URL=https://main.dvdwfd4vy831i.amplifyapp.com
+NODE_ENV=production
+S3_ACCESS_KEY_ID=your-s3-access-key
+S3_SECRET_ACCESS_KEY=your-s3-secret-key
+S3_REGION=us-east-1
+S3_BUCKET_NAME=sabq-uploader

@@ -1,7 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["relationJoins"]
   binaryTargets   = ["native", "rhel-openssl-1.0.x"]
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -123,38 +123,44 @@ model article_keywords {
 
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model articles {
-  id                 String              @id
-  title              String              @db.VarChar(500)
-  slug               String              @db.VarChar(500)
-  content            String
-  excerpt            String?
-  author_id          String
-  category_id        String?
-  status             String              @default("draft")
-  featured           Boolean             @default(false)
-  breaking           Boolean             @default(false)
-  featured_image     String?
-  published_at       DateTime?
-  scheduled_for      DateTime?
-  views              Int                 @default(0)
-  reading_time       Int?
-  seo_title          String?
-  seo_description    String?
-  seo_keywords       String?
-  social_image       String?
-  allow_comments     Boolean             @default(true)
-  metadata           Json?
-  created_at         DateTime            @default(now())
-  updated_at         DateTime
-  audio_summary_url  String?
-  likes              Int                 @default(0)
-  saves              Int                 @default(0)
-  shares             Int                 @default(0)
-  ml_predictions     MLPredictions[]
+  id                String              @id
+  title             String              @db.VarChar(500)
+  slug              String              @db.VarChar(500)
+  content           String
+  excerpt           String?
+  author_id         String
+  category_id       String?
+  status            String              @default("draft")
+  featured          Boolean             @default(false)
+  breaking          Boolean             @default(false)
+  featured_image    String?
+  published_at      DateTime?
+  scheduled_for     DateTime?
+  views             Int                 @default(0)
+  reading_time      Int?
+  seo_title         String?
+  seo_description   String?
+  seo_keywords      String?
+  social_image      String?
+  allow_comments    Boolean             @default(true)
+  metadata          Json?
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  audio_summary_url String?
+  likes             Int                 @default(0)
+  saves             Int                 @default(0)
+  shares            Int                 @default(0)
+  
+  // Existing relationships
+  categories        categories?         @relation(fields: [category_id], references: [id])
+  interactions      interactions[]
+  
+  // Author relationship
+  author            users?              @relation("ArticleAuthor", fields: [author_id], references: [id])
+  
+  // New AI system relationships
+  ml_predictions    MLPredictions[]
   sentiment_analyses SentimentAnalysis[]
-  author             users               @relation("ArticleAuthor", fields: [author_id], references: [id])
-  categories         categories?         @relation(fields: [category_id], references: [id])
-  interactions       interactions[]
 }
 
 model audio_episodes {
@@ -779,29 +785,35 @@ model user_similar_readers {
 }
 
 model users {
-  id                   String                @id
-  email                String                @unique
+  id                   String                 @id
+  email                String                 @unique
   password_hash        String?
   name                 String?
   avatar               String?
-  role                 String                @default("user")
-  is_admin             Boolean               @default(false)
-  is_verified          Boolean               @default(false)
+  role                 String                 @default("user")
+  is_admin             Boolean                @default(false)
+  is_verified          Boolean                @default(false)
   verification_token   String?
   reset_token          String?
   reset_token_expiry   DateTime?
-  created_at           DateTime              @default(now())
+  created_at           DateTime               @default(now())
   updated_at           DateTime
-  ml_predictions       MLPredictions[]
-  search_queries       SearchQueries[]
-  sentiment_analyses   SentimentAnalysis[]
-  smart_notifications  SmartNotifications[]
-  user_recommendations UserRecommendations[]
-  user_settings        UserSettings[]
-  authored_articles    articles[]            @relation("ArticleAuthor")
+  
+  // Existing relationships
   audio_episodes       audio_episodes[]
   audio_programs       audio_programs[]
   interactions         interactions[]
+  
+  // Articles authored by this user
+  authored_articles    articles[]             @relation("ArticleAuthor")
+  
+  // New AI system relationships
+  user_settings        UserSettings[]
+  ml_predictions       MLPredictions[]
+  sentiment_analyses   SentimentAnalysis[]
+  smart_notifications  SmartNotifications[]
+  user_recommendations UserRecommendations[]
+  search_queries       SearchQueries[]
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
@@ -832,261 +844,6 @@ model was_news {
   @@index([is_imported])
   @@index([news_DT])
   @@index([news_basket_CD])
-}
-
-model SystemSettings {
-  id               String   @id @default(cuid())
-  module           String
-  category         String
-  key              String
-  value            Json
-  data_type        String
-  description      String?
-  is_public        Boolean  @default(false)
-  is_user_editable Boolean  @default(false)
-  default_value    Json?
-  validation_rules Json?
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-
-  @@unique([module, category, key])
-  @@index([module, category])
-}
-
-model UserSettings {
-  id         String   @id @default(cuid())
-  user_id    String
-  module     String
-  key        String
-  value      Json
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, module, key])
-  @@index([user_id, module])
-}
-
-model MLModels {
-  id                  String           @id @default(cuid())
-  name                String           @unique
-  type                MLModelType
-  version             String
-  description         String?
-  status              MLModelStatus    @default(training)
-  config              Json
-  hyperparameters     Json?
-  training_data       Json?
-  performance_metrics Json?
-  model_path          String?
-  api_endpoint        String?
-  is_active           Boolean          @default(false)
-  created_at          DateTime         @default(now())
-  updated_at          DateTime         @updatedAt
-  predictions         MLPredictions[]
-  training_jobs       MLTrainingJobs[]
-}
-
-model MLTrainingJobs {
-  id              String         @id @default(cuid())
-  model_id        String
-  status          TrainingStatus @default(queued)
-  dataset_config  Json
-  training_config Json
-  progress        Float          @default(0)
-  metrics         Json?
-  error_log       String?
-  started_at      DateTime?
-  completed_at    DateTime?
-  created_at      DateTime       @default(now())
-  model           MLModels       @relation(fields: [model_id], references: [id], onDelete: Cascade)
-
-  @@index([model_id, status])
-}
-
-model MLPredictions {
-  id               String    @id @default(cuid())
-  model_id         String
-  input_data       Json
-  prediction       Json
-  confidence_score Float?
-  processing_time  Int?
-  user_id          String?
-  article_id       String?
-  created_at       DateTime  @default(now())
-  article          articles? @relation(fields: [article_id], references: [id])
-  model            MLModels  @relation(fields: [model_id], references: [id], onDelete: Cascade)
-  user             users?    @relation(fields: [user_id], references: [id])
-
-  @@index([model_id, created_at])
-  @@index([user_id, created_at])
-}
-
-model SentimentAnalysis {
-  id              String         @id @default(cuid())
-  content_id      String
-  content_type    String
-  text_content    String
-  sentiment_score Float
-  sentiment_label SentimentLabel
-  confidence      Float
-  emotions        Json?
-  keywords        String[]
-  language        String         @default("ar")
-  model_version   String
-  processed_at    DateTime       @default(now())
-  user_id         String?
-  article_id      String?
-  article         articles?      @relation(fields: [article_id], references: [id])
-  user            users?         @relation(fields: [user_id], references: [id])
-
-  @@index([content_type, sentiment_label])
-  @@index([processed_at])
-  @@index([user_id])
-  @@index([article_id])
-}
-
-model SmartNotifications {
-  id                    String               @id @default(cuid())
-  user_id               String?
-  title                 String
-  message               String
-  type                  NotificationType
-  priority              NotificationPriority @default(medium)
-  category              String?
-  data                  Json?
-  scheduled_at          DateTime?
-  sent_at               DateTime?
-  read_at               DateTime?
-  clicked_at            DateTime?
-  status                NotificationStatus   @default(pending)
-  delivery_channels     String[]
-  ai_optimized          Boolean              @default(false)
-  personalization_score Float?
-  created_at            DateTime             @default(now())
-  user                  users?               @relation(fields: [user_id], references: [id])
-
-  @@index([user_id, status])
-  @@index([scheduled_at, status])
-  @@index([type, priority])
-}
-
-model PerformanceMetrics {
-  id          String   @id @default(cuid())
-  metric_type String
-  metric_name String
-  value       Float
-  unit        String?
-  context     Json?
-  timestamp   DateTime @default(now())
-  tags        String[]
-
-  @@index([metric_type, timestamp])
-  @@index([metric_name, timestamp])
-}
-
-model RecommendationModels {
-  id                String                @id @default(cuid())
-  name              String                @unique
-  type              RecommendationType
-  algorithm         String
-  config            Json
-  is_active         Boolean               @default(false)
-  performance_score Float?
-  created_at        DateTime              @default(now())
-  updated_at        DateTime              @updatedAt
-  recommendations   UserRecommendations[]
-}
-
-model UserRecommendations {
-  id                String               @id @default(cuid())
-  user_id           String
-  model_id          String
-  recommended_items Json
-  confidence_scores Json
-  reason            String?
-  clicked_items     String[]
-  feedback_score    Float?
-  created_at        DateTime             @default(now())
-  expires_at        DateTime?
-  model             RecommendationModels @relation(fields: [model_id], references: [id], onDelete: Cascade)
-  user              users                @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id, created_at])
-  @@index([model_id, created_at])
-}
-
-model SearchQueries {
-  id              String   @id @default(cuid())
-  user_id         String?
-  query           String
-  query_vector    Json?
-  filters         Json?
-  results_count   Int      @default(0)
-  clicked_results String[]
-  search_time_ms  Int?
-  result_quality  Float?
-  session_id      String?
-  ip_address      String?
-  user_agent      String?
-  created_at      DateTime @default(now())
-  user            users?   @relation(fields: [user_id], references: [id])
-
-  @@index([user_id, created_at])
-  @@index([query, created_at])
-}
-
-model AdvancedAnalytics {
-  id                String   @id @default(cuid())
-  metric_category   String
-  metric_name       String
-  dimensions        Json
-  measures          Json
-  time_period       String
-  aggregation_level String
-  filters           Json?
-  raw_data          Json?
-  computed_at       DateTime @default(now())
-
-  @@index([metric_category, time_period])
-  @@index([metric_name, computed_at])
-}
-
-model ExternalDataSources {
-  id               String            @id @default(cuid())
-  name             String            @unique
-  type             String
-  url              String
-  config           Json
-  last_sync        DateTime?
-  sync_frequency   String
-  is_active        Boolean           @default(true)
-  error_count      Int               @default(0)
-  success_count    Int               @default(0)
-  created_at       DateTime          @default(now())
-  updated_at       DateTime          @updatedAt
-  imported_content ExternalContent[]
-}
-
-model ExternalContent {
-  id            String              @id @default(cuid())
-  source_id     String
-  external_id   String
-  title         String
-  content       String?
-  summary       String?
-  url           String?
-  published_at  DateTime?
-  category      String?
-  tags          String[]
-  metadata      Json?
-  import_status ImportStatus        @default(pending)
-  processed_at  DateTime?
-  created_at    DateTime            @default(now())
-  source        ExternalDataSources @relation(fields: [source_id], references: [id], onDelete: Cascade)
-
-  @@unique([source_id, external_id])
-  @@index([source_id, import_status])
 }
 
 enum EmailJob_status {
@@ -1199,6 +956,294 @@ enum interactions_type {
   view
   reading_session
 }
+
+// ==============================================
+// 🧠 نماذج الأنظمة المتقدمة - سبق الذكية
+// ==============================================
+
+// ⚙️ الإعدادات المتقدمة
+model SystemSettings {
+  id                String   @id @default(cuid())
+  module            String   // 'general', 'typography', 'theme', 'ai'
+  category          String   // فئة فرعية للإعداد
+  key               String   // مفتاح الإعداد
+  value             Json     // قيمة الإعداد (مرنة)
+  data_type         String   // نوع البيانات: string, number, boolean, json
+  description       String?  // وصف الإعداد
+  is_public         Boolean  @default(false) // هل يمكن للمستخدمين رؤيته
+  is_user_editable  Boolean  @default(false) // هل يمكن للمستخدمين تعديله
+  default_value     Json?    // القيمة الافتراضية
+  validation_rules  Json?    // قواعد التحقق
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  @@unique([module, category, key])
+  @@index([module, category])
+}
+
+// 🎨 إعدادات المستخدم الشخصية
+model UserSettings {
+  id                String   @id @default(cuid())
+  user_id           String
+  module            String
+  key               String
+  value             Json
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  users             users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, module, key])
+  @@index([user_id, module])
+}
+
+// 🧪 نماذج التعلم الآلي
+model MLModels {
+  id                String           @id @default(cuid())
+  name              String           @unique
+  type              MLModelType      // نوع النموذج
+  version           String
+  description       String?
+  status            MLModelStatus    @default(training)
+  config            Json             // تكوين النموذج
+  hyperparameters   Json?            // المعاملات الفائقة
+  training_data     Json?            // معلومات بيانات التدريب
+  performance_metrics Json?          // مقاييس الأداء
+  model_path        String?          // مسار ملف النموذج
+  api_endpoint      String?          // نقطة نهاية API
+  is_active         Boolean          @default(false)
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+
+  // العلاقات
+  training_jobs     MLTrainingJobs[]
+  predictions       MLPredictions[]
+}
+
+model MLTrainingJobs {
+  id                String            @id @default(cuid())
+  model_id          String
+  status            TrainingStatus    @default(queued)
+  dataset_config    Json              // تكوين مجموعة البيانات
+  training_config   Json              // تكوين التدريب
+  progress          Float             @default(0)
+  metrics           Json?             // مقاييس التدريب
+  error_log         String?
+  started_at        DateTime?
+  completed_at      DateTime?
+  created_at        DateTime          @default(now())
+
+  model             MLModels          @relation(fields: [model_id], references: [id], onDelete: Cascade)
+
+  @@index([model_id, status])
+}
+
+model MLPredictions {
+  id                String           @id @default(cuid())
+  model_id          String
+  input_data        Json             // البيانات المدخلة
+  prediction        Json             // النتيجة المتوقعة
+  confidence_score  Float?           // مستوى الثقة
+  processing_time   Int?             // وقت المعالجة بالميلي ثانية
+  user_id           String?          // المستخدم المرتبط
+  article_id        String?          // المقال المرتبط
+  created_at        DateTime         @default(now())
+
+  model             MLModels         @relation(fields: [model_id], references: [id], onDelete: Cascade)
+  user              users?           @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  article           articles?        @relation(fields: [article_id], references: [id], onDelete: SetNull)
+
+  @@index([model_id, created_at])
+  @@index([user_id, created_at])
+}
+
+// 💭 تحليل المشاعر
+model SentimentAnalysis {
+  id                String           @id @default(cuid())
+  content_id        String           // معرف المحتوى (مقال، تعليق، إلخ)
+  content_type      String           // نوع المحتوى
+  text_content      String           // النص المحلل
+  sentiment_score   Float            // نتيجة المشاعر (-1 إلى 1)
+  sentiment_label   SentimentLabel   // تصنيف المشاعر
+  confidence        Float            // مستوى الثقة
+  emotions          Json?            // المشاعر التفصيلية
+  keywords          String[]         // الكلمات المفتاحية المؤثرة
+  language          String           @default("ar")
+  model_version     String           // إصدار نموذج التحليل
+  processed_at      DateTime         @default(now())
+  
+  // User relationships (optional)
+  user_id           String?
+  user              users?           @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  
+  // Article relationships (optional) 
+  article_id        String?
+  article           articles?        @relation(fields: [article_id], references: [id], onDelete: SetNull)
+
+  @@index([content_type, sentiment_label])
+  @@index([processed_at])
+  @@index([user_id])
+  @@index([article_id])
+}
+
+// 🔔 نظام الإشعارات المتقدم
+model SmartNotifications {
+  id                String              @id @default(cuid())
+  user_id           String?
+  title             String
+  message           String
+  type              NotificationType
+  priority          NotificationPriority @default(medium)
+  category          String?             // فئة الإشعار
+  data              Json?               // بيانات إضافية
+  scheduled_at      DateTime?           // وقت الإرسال المجدول
+  sent_at           DateTime?
+  read_at           DateTime?
+  clicked_at        DateTime?
+  status            NotificationStatus  @default(pending)
+  delivery_channels String[]            // قنوات التوصيل
+  ai_optimized      Boolean            @default(false) // محسن بالذكاء الاصطناعي
+  personalization_score Float?          // نتيجة التخصيص
+  created_at        DateTime           @default(now())
+
+  user              users?             @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id, status])
+  @@index([scheduled_at, status])
+  @@index([type, priority])
+}
+
+// ⚡ مراقبة الأداء
+model PerformanceMetrics {
+  id                String           @id @default(cuid())
+  metric_type       String           // نوع المقياس
+  metric_name       String           // اسم المقياس
+  value             Float            // القيمة
+  unit              String?          // الوحدة
+  context           Json?            // سياق إضافي
+  timestamp         DateTime         @default(now())
+  tags              String[]         // علامات للتصفية
+
+  @@index([metric_type, timestamp])
+  @@index([metric_name, timestamp])
+}
+
+// 🎯 نظام التوصيات
+model RecommendationModels {
+  id                String           @id @default(cuid())
+  name              String           @unique
+  type              RecommendationType
+  algorithm         String           // خوارزمية التوصية
+  config            Json             // تكوين النموذج
+  is_active         Boolean          @default(false)
+  performance_score Float?           // نتيجة الأداء
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+
+  recommendations   UserRecommendations[]
+}
+
+model UserRecommendations {
+  id                String              @id @default(cuid())
+  user_id           String
+  model_id          String
+  recommended_items Json                // العناصر الموصى بها
+  confidence_scores Json                // نتائج الثقة
+  reason            String?             // سبب التوصية
+  clicked_items     String[]            // العناصر التي تم النقر عليها
+  feedback_score    Float?              // تقييم المستخدم
+  created_at        DateTime            @default(now())
+  expires_at        DateTime?           // انتهاء صلاحية التوصية
+
+  user              users               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  model             RecommendationModels @relation(fields: [model_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, created_at])
+  @@index([model_id, created_at])
+}
+
+// 🔍 البحث الذكي
+model SearchQueries {
+  id                String           @id @default(cuid())
+  user_id           String?
+  query             String
+  query_vector      Json?            // تمثيل vectorial للاستعلام
+  filters           Json?            // فلاتر البحث
+  results_count     Int              @default(0)
+  clicked_results   String[]         // النتائج التي تم النقر عليها
+  search_time_ms    Int?             // وقت البحث
+  result_quality    Float?           // جودة النتائج
+  session_id        String?          // معرف الجلسة
+  ip_address        String?
+  user_agent        String?
+  created_at        DateTime         @default(now())
+
+  user              users?           @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id, created_at])
+  @@index([query, created_at])
+}
+
+// 📊 التحليلات المتقدمة
+model AdvancedAnalytics {
+  id                String           @id @default(cuid())
+  metric_category   String           // فئة المقياس
+  metric_name       String           // اسم المقياس
+  dimensions        Json             // الأبعاد (تصنيفات، مستخدمين، إلخ)
+  measures          Json             // القياسات (عدد، مجموع، متوسط، إلخ)
+  time_period       String           // الفترة الزمنية
+  aggregation_level String           // مستوى التجميع
+  filters           Json?            // فلاتر مطبقة
+  raw_data          Json?            // البيانات الخام
+  computed_at       DateTime         @default(now())
+
+  @@index([metric_category, time_period])
+  @@index([metric_name, computed_at])
+}
+
+// 🌐 البيانات الخارجية
+model ExternalDataSources {
+  id                String           @id @default(cuid())
+  name              String           @unique
+  type              String           // RSS, API, WebScraping
+  url               String
+  config            Json             // تكوين المصدر
+  last_sync         DateTime?
+  sync_frequency    String           // تكرار المزامنة
+  is_active         Boolean          @default(true)
+  error_count       Int              @default(0)
+  success_count     Int              @default(0)
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+
+  imported_content  ExternalContent[]
+}
+
+model ExternalContent {
+  id                String              @id @default(cuid())
+  source_id         String
+  external_id       String              // معرف في المصدر الخارجي
+  title             String
+  content           String?
+  summary           String?
+  url               String?
+  published_at      DateTime?
+  category          String?
+  tags              String[]
+  metadata          Json?
+  import_status     ImportStatus        @default(pending)
+  processed_at      DateTime?
+  created_at        DateTime            @default(now())
+
+  source            ExternalDataSources @relation(fields: [source_id], references: [id], onDelete: Cascade)
+
+  @@unique([source_id, external_id])
+  @@index([source_id, import_status])
+}
+
+// ==============================================
+// 🔧 التعدادات (Enums) للأنظمة الجديدة
+// ==============================================
 
 enum MLModelType {
   classification
