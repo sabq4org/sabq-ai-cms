@@ -30,15 +30,15 @@ export const S3_FOLDERS = {
  */
 function getDefaultExpirationTime(folder: string): number {
   const expirationTimes = {
-    'articles': 3600 * 24 * 30,    // شهر واحد - مقالات تحتاج صلاحية طويلة
-    'avatars': 3600 * 24 * 7,      // أسبوع - صور شخصية
-    'banners': 3600 * 24 * 14,     // أسبوعان - بانرات إعلانية
-    'thumbnails': 3600 * 24 * 7,   // أسبوع - صور مصغرة
-    'uploads': 3600 * 24 * 3,      // 3 أيام - رفعات عامة (أقصر مدة للأمان)
-    'temp': 3600 * 2,              // ساعتان - ملفات مؤقتة
+    'articles': 3600 * 24 * 365,   // سنة كاملة - مقالات دائمة
+    'avatars': 3600 * 24 * 90,     // 3 أشهر - صور شخصية
+    'banners': 3600 * 24 * 180,    // 6 أشهر - بانرات إعلانية
+    'thumbnails': 3600 * 24 * 90,  // 3 أشهر - صور مصغرة
+    'uploads': 3600 * 24 * 30,     // شهر - رفعات عامة
+    'temp': 3600 * 24,             // يوم واحد - ملفات مؤقتة
   };
   
-  return expirationTimes[folder as keyof typeof expirationTimes] || 3600 * 24 * 7; // افتراضي: أسبوع
+  return expirationTimes[folder as keyof typeof expirationTimes] || 3600 * 24 * 30; // افتراضي: شهر
 }
 
 /**
@@ -222,32 +222,32 @@ export function validateImageFile(file: File): { isValid: boolean; error?: strin
 export function getExpirationInfo() {
   return {
     articles: { 
-      duration: '30 يوم', 
-      reason: 'مقالات تحتاج صلاحية طويلة للمشاركة والأرشفة' 
+      duration: 'سنة كاملة', 
+      reason: 'مقالات دائمة تحتاج صلاحية طويلة جداً للأرشفة والمشاركة' 
     },
     avatars: { 
-      duration: '7 أيام', 
-      reason: 'صور شخصية تتغير بشكل منتظم' 
+      duration: '3 أشهر', 
+      reason: 'صور شخصية شبه ثابتة' 
     },
     banners: { 
-      duration: '14 يوم', 
-      reason: 'بانرات إعلانية لحملات متوسطة المدى' 
+      duration: '6 أشهر', 
+      reason: 'بانرات إعلانية لحملات طويلة المدى' 
     },
     thumbnails: { 
-      duration: '7 أيام', 
-      reason: 'صور مصغرة للمعاينة السريعة' 
+      duration: '3 أشهر', 
+      reason: 'صور مصغرة للمعاينة المستمرة' 
     },
     uploads: { 
-      duration: '3 أيام', 
-      reason: 'رفعات عامة - مدة قصيرة للأمان' 
+      duration: 'شهر', 
+      reason: 'رفعات عامة بصلاحية معقولة' 
     },
     temp: { 
-      duration: '2 ساعة', 
-      reason: 'ملفات مؤقتة للمعالجة السريعة' 
+      duration: 'يوم واحد', 
+      reason: 'ملفات مؤقتة للمعالجة' 
     },
     default: { 
-      duration: '7 أيام', 
-      reason: 'المدة الافتراضية المتوازنة' 
+      duration: 'شهر', 
+      reason: 'المدة الافتراضية المحسنة' 
     }
   };
 }

@@ -1,11 +1,23 @@
 /**
  * نظام مركزي لمعالجة الصور
- * يمنع حفظ الصور محلياً ويستخدم CDN فقط
+ * يدعم S3, CloudFront, Cloudinary وغيرها
  */
 
 // Cloudinary configuration
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/sabq/image/upload';
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'sabq';
+
+// CloudFront configuration
+const CLOUDFRONT_DOMAIN = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || '';
+
+// S3 domains المعروفة
+const S3_DOMAINS = [
+  'sabq-cms-content.s3.amazonaws.com',
+  'sabq-cms-content.s3.us-east-1.amazonaws.com',
+  'sabq-uploader.s3.amazonaws.com',
+  's3.amazonaws.com',
+  's3.us-east-1.amazonaws.com'
+];
 
 // Fallback images - تأكد من صحة الروابط
 const FALLBACK_IMAGES = {
@@ -14,6 +26,50 @@ const FALLBACK_IMAGES = {
   category: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&auto=format&fit=crop&q=60',
   default: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&auto=format&fit=crop&q=60'
 };
+
+// تنظيف رابط S3 من معاملات التوقيع
+export function cleanS3Url(url: string): string {
+  if (!url) return url;
+  
+  try {
+    const urlObj = new URL(url);
+    
+    // إذا كان رابط S3
+    if (S3_DOMAINS.some(domain => urlObj.hostname.includes(domain))) {
+      // إزالة معاملات التوقيع
+      const paramsToRemove = ['X-Amz-Algorithm', 'X-Amz-Credential', 'X-Amz-Date', 
+                             'X-Amz-Expires', 'X-Amz-SignedHeaders', 'X-Amz-Signature'];
+      
+      paramsToRemove.forEach(param => urlObj.searchParams.delete(param));
+      
+      // إذا كان هناك CloudFront، استخدمه
+      if (CLOUDFRONT_DOMAIN) {
+        const path = urlObj.pathname;
+        return `https://${CLOUDFRONT_DOMAIN}${path}`;
+      }
+      
+      return urlObj.toString();
+    }
+    
+    return url;
+  } catch {
+    return url;
+  }
+}
+
+// معالجة رابط S3 لإضافة تحسينات الصور
+export function processS3Url(url: string, options: { width?: number; height?: number } = {}): string {
+  const cleanUrl = cleanS3Url(url);
+  
+  // إذا كان CloudFront متاح وفيه image resizing
+  if (CLOUDFRONT_DOMAIN && cleanUrl.includes(CLOUDFRONT_DOMAIN)) {
+    const { width = 800, height = 600 } = options;
+    // يمكن إضافة معاملات التحجيم حسب إعدادات CloudFront
+    return `${cleanUrl}?w=${width}&h=${height}&fit=cover`;
+  }
+  
+  return cleanUrl;
+}
 
 // تحويل الصورة إلى رابط CDN
 export function getImageUrl(
@@ -45,6 +101,11 @@ export function getImageUrl(
   ) {
     console.log(`🖼️ استخدام fallback image للنوع: ${fallbackType}`);
     return FALLBACK_IMAGES[fallbackType];
+  }
+
+  // معالجة روابط S3
+  if (imageUrl.includes('s3.amazonaws.com') || imageUrl.includes('s3.us-east-1.amazonaws.com')) {
+    return processS3Url(imageUrl, { width, height });
   }
 
   // إذا كانت الصورة محلية (تبدأ بـ /)
