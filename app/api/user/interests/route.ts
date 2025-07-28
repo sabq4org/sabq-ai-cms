@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 // Helper function للاستجابة مع CORS
 function corsResponse(data: any, status: number = 200) {

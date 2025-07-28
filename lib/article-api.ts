@@ -95,9 +95,9 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
           
           if (fallbackResponse.ok) {
             const fallbackData = await fallbackResponse.json();
-            if (fallbackData && fallbackData.success && fallbackData.article && fallbackData.article.id) {
+            if (fallbackData && fallbackData.success && fallbackData.id) {
               console.log(`[getArticleData] تم جلب المقال بنجاح من localhost`);
-              return fallbackData.article;
+              return fallbackData;
             }
           }
         } catch (fallbackError) {
@@ -109,11 +109,11 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
     }
 
     const data = await response.json();
-    if (!data || !data.success || !data.article || !data.article.id) {
+    if (!data || !data.success || !data.id) {
       console.warn(`[getArticleData] البيانات المستلمة للمقال فارغة أو غير صحيحة:`, data);
       return null;
     }
-    return data.article;
+    return data;
   } catch (error) {
     console.warn('[getArticleData] خطأ في جلب بيانات المقال:', {
       id,

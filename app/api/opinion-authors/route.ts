@@ -1,20 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    // استيراد آمن لـ Prisma
-    let prisma;
-    try {
-      const prismaModule = await import('@/lib/prisma');
-      prisma = prismaModule.prisma;
-    } catch (error) {
-      console.error('❌ فشل تحميل Prisma:', error);
-      return NextResponse.json({
-        success: false,
-        error: 'خطأ في النظام',
-        authors: []
-      }, { status: 500 });
-    }
 
     // محاولة جلب كتاب الرأي
     try {

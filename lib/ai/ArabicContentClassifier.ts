@@ -4,7 +4,7 @@
  * تحليل وتصنيف المقالات الإخبارية تلقائياً
  */
 
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 // أنواع البيانات
 export interface ClassificationResult {

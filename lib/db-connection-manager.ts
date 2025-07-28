@@ -1,4 +1,4 @@
-import prisma, { executeWithRetry } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 
 interface ConnectionStats {
   lastCheck: Date
@@ -171,8 +171,8 @@ class DatabaseConnectionManager {
       }
     }
     
-    // تنفيذ العملية مع retry
-    return executeWithRetry(operation)
+    // تنفيذ العملية مباشرة
+    return operation()
   }
 }
 

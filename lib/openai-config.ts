@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import OpenAI from 'openai';
 
 // متغير لحفظ الإعدادات في الذاكرة لتجنب استعلامات قاعدة البيانات المتكررة

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { recordInteraction } from '@/lib/user-interactions';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 
 

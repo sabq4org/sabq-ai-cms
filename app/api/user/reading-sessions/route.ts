@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
 // استيراد آمن لـ Prisma
 let prisma: any;
 try {
-  const prismaModule = require('@/lib/prisma');
-  prisma = prismaModule.prisma;
+  
+  prisma = prisma;
 } catch (importError) {
   console.error('❌ فشل في استيراد Prisma في user/reading-sessions:', importError);
 }

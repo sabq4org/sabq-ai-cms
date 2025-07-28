@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -7,8 +8,8 @@ let prisma: any = null;
 let prismaImportError: any = null;
 
 try {
-  const prismaModule = require('@/lib/prisma');
-  prisma = prismaModule.prisma;
+  
+  prisma = prisma;
   console.log('✅ [Analytics Categories API] تم تحميل Prisma بنجاح');
 } catch (importError) {
   console.error('❌ [Analytics Categories API] فشل في استيراد Prisma:', importError);

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
-import { executeWithRetry } from '@/lib/prisma'
+import prisma, { executeWithRetry } from '@/lib/prisma'
 import { getCachedCategories } from '@/lib/services/categoriesCache'
 import { dbConnectionManager } from '@/lib/db-connection-manager'
 

@@ -11,7 +11,6 @@ import { getImageUrl, getOptimizedImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
 
-import UltimateImage from '@/components/UltimateImage';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { cache } from '@/lib/redis-improved';
 
 const CACHE_KEY = 'site:stats:summary';

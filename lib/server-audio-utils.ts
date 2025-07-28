@@ -1,3 +1,4 @@
+import prisma from '@/lib/prisma';
 /**
  * مساعد لقراءة البيانات الوصفية للملفات الصوتية من الخادم
  */
@@ -48,7 +49,6 @@ export const getServerAudioDuration = async (filePath: string): Promise<number> 
  */
 export const updateAllAudioDurations = async () => {
   try {
-    const { prisma } = require('@/lib/prisma');
     
     const newsletters = await prisma.audio_newsletters.findMany({
       select: { id: true, audioUrl: true, duration: true }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { DeepAnalysis } from '@/types/deep-analysis';
 
 export const runtime = 'nodejs';

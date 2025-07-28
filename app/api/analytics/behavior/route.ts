@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
 // استيراد آمن لـ Prisma مع معالجة شاملة للأخطاء
 let prisma: any = null;
 let prismaImportError: any = null;
 
 try {
-  const prismaModule = require('@/lib/prisma');
-  prisma = prismaModule.prisma;
+  
+  prisma = prisma;
   console.log('✅ [Analytics Behavior API] تم تحميل Prisma بنجاح');
 } catch (importError) {
   console.error('❌ [Analytics Behavior API] فشل في استيراد Prisma:', importError);

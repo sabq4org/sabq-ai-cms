@@ -41,12 +41,10 @@ export async function getCachedCategories(forceRefresh = false) {
   try {
     console.log('🔄 جلب التصنيفات من قاعدة البيانات...')
     
-    const categories = await executeWithRetry(async () => {
-      return await prisma.categories.findMany({
-        orderBy: {
-          display_order: 'asc'
-        }
-      })
+    const categories = await prisma.categories.findMany({
+      orderBy: {
+        display_order: 'asc'
+      }
     })
     
     // تحديث الـ cache
