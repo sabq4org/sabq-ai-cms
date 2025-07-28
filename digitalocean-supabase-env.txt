@@ -1,8 +1,9 @@
-# 🔄 Supabase Environment Variables for DigitalOcean
+# 🔄 Supabase Environment Variables for DigitalOcean (sabq.io)
 # Copy this to DigitalOcean App Platform → Environment Variables
 
 DATABASE_URL=postgresql://postgres:AVNS_Br4uKMaWR6wxTIpZ7xj@db.uopckyrdhlvsxnvcobbw.supabase.co:5432/postgres
 DIRECT_URL=postgresql://postgres:AVNS_Br4uKMaWR6wxTIpZ7xj@db.uopckyrdhlvsxnvcobbw.supabase.co:5432/postgres
 NEXTAUTH_SECRET=sabq-ai-cms-secret-key-2025
-NEXTAUTH_URL=https://your-app.ondigitalocean.app
+NEXTAUTH_URL=https://sabq.io
 NODE_ENV=production
+PORT=3000
