@@ -1,0 +1,1280 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+  binaryTargets   = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model EmailJob {
+  id            String          @id
+  template_id   String?
+  scheduled_at  DateTime?
+  started_at    DateTime?
+  completed_at  DateTime?
+  status        EmailJob_status @default(queued)
+  target_filter Json?
+  metadata      Json?
+  stats         Json?
+  created_at    DateTime        @default(now())
+  updated_at    DateTime
+
+  @@index([status, scheduled_at])
+}
+
+model EmailLog {
+  id              String          @id
+  job_id          String?
+  subscriber_id   String
+  provider_msg_id String?
+  message_id      String?
+  status          EmailLog_status @default(pending)
+  error           String?
+  opened_at       DateTime?
+  clicked_at      DateTime?
+  unsubscribed_at DateTime?
+  meta            Json?
+  event_at        DateTime        @default(now())
+
+  @@index([status])
+  @@index([subscriber_id])
+}
+
+model EmailProviderConfig {
+  id              String                   @id
+  type            EmailProviderConfig_type @default(smtp)
+  sender_name     String
+  sender_email    String
+  api_key         String?
+  host            String?
+  port            Int?
+  username        String?
+  password        String?
+  footer_html     String?
+  unsubscribe_url String?
+  created_at      DateTime                 @default(now())
+  updated_at      DateTime
+}
+
+model EmailTemplate {
+  id           String   @id
+  name         String   @db.VarChar(255)
+  subject      String   @db.VarChar(500)
+  html_content String
+  text_content String?
+  metadata     Json?
+  created_at   DateTime @default(now())
+  updated_at   DateTime
+}
+
+model Subscriber {
+  id          String            @id
+  email       String            @unique
+  name        String?           @db.VarChar(255)
+  status      Subscriber_status @default(active)
+  preferences Json?
+  metadata    Json?
+  created_at  DateTime          @default(now())
+  updated_at  DateTime
+}
+
+model activity_logs {
+  id          String   @id
+  user_id     String?
+  action      String
+  entity_type String?
+  entity_id   String?
+  old_value   Json?
+  new_value   Json?
+  metadata    Json?
+  ip_address  String?  @db.VarChar(45)
+  user_agent  String?
+  created_at  DateTime @default(now())
+}
+
+model analytics_data {
+  id           String   @id
+  date         DateTime @db.Date
+  metric_name  String   @db.VarChar(100)
+  metric_value Decimal  @db.Decimal(15, 2)
+  dimensions   Json?
+  metadata     Json?
+  created_at   DateTime @default(now())
+
+  @@unique([date, metric_name])
+  @@index([date])
+  @@index([metric_name])
+}
+
+model article_keywords {
+  id         String   @id
+  article_id String
+  keyword_id String
+  created_at DateTime @default(now())
+
+  @@unique([article_id, keyword_id])
+  @@index([article_id])
+  @@index([keyword_id])
+}
+
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model articles {
+  id                 String              @id
+  title              String              @db.VarChar(500)
+  slug               String              @db.VarChar(500)
+  content            String
+  excerpt            String?
+  author_id          String
+  category_id        String?
+  status             String              @default("draft")
+  featured           Boolean             @default(false)
+  breaking           Boolean             @default(false)
+  featured_image     String?
+  published_at       DateTime?
+  scheduled_for      DateTime?
+  views              Int                 @default(0)
+  reading_time       Int?
+  seo_title          String?
+  seo_description    String?
+  seo_keywords       String?
+  social_image       String?
+  allow_comments     Boolean             @default(true)
+  metadata           Json?
+  created_at         DateTime            @default(now())
+  updated_at         DateTime
+  audio_summary_url  String?
+  likes              Int                 @default(0)
+  saves              Int                 @default(0)
+  shares             Int                 @default(0)
+  ml_predictions     MLPredictions[]
+  sentiment_analyses SentimentAnalysis[]
+  author             users               @relation("ArticleAuthor", fields: [author_id], references: [id])
+  categories         categories?         @relation(fields: [category_id], references: [id])
+  interactions       interactions[]
+}
+
+model audio_episodes {
+  id                String         @id
+  program_id        String
+  episode_number    Int?
+  title             String
+  content           String
+  audio_url         String?
+  duration          Int?
+  voice_model       String         @default("bradford")
+  scheduled_at      DateTime?
+  published_at      DateTime?
+  status            String         @default("draft")
+  generation_status String         @default("pending")
+  views             Int            @default(0)
+  metadata          Json?
+  created_at        DateTime       @default(now())
+  updated_at        DateTime
+  created_by        String?
+  users             users?         @relation(fields: [created_by], references: [id])
+  audio_programs    audio_programs @relation(fields: [program_id], references: [id], onDelete: Cascade)
+
+  @@index([program_id])
+  @@index([scheduled_at])
+  @@index([status])
+}
+
+model audio_newsletters {
+  id           String   @id
+  title        String
+  content      String
+  audioUrl     String
+  duration     Int
+  voice_id     String
+  voice_name   String
+  language     String   @default("ar")
+  category     String?
+  is_published Boolean  @default(false)
+  is_featured  Boolean  @default(false)
+  play_count   Int      @default(0)
+  created_at   DateTime @default(now()) @db.Timestamp(6)
+  updated_at   DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([created_at])
+  @@index([is_featured])
+  @@index([is_published])
+}
+
+model audio_programs {
+  id                 String           @id
+  name               String
+  description        String?
+  short_description  String?
+  logo_url           String?
+  thumbnail_url      String?
+  preferred_duration Int?
+  voice_model        String           @default("bradford")
+  display_position   String           @default("header")
+  display_order      Int              @default(0)
+  status             String           @default("active")
+  slug               String           @unique
+  settings           Json?
+  created_at         DateTime         @default(now())
+  updated_at         DateTime
+  created_by         String?
+  audio_episodes     audio_episodes[]
+  users              users?           @relation(fields: [created_by], references: [id])
+
+  @@index([slug])
+  @@index([status])
+}
+
+model audio_scheduled_jobs {
+  id              String    @id
+  episode_id      String
+  job_type        String
+  scheduled_for   DateTime
+  status          String    @default("pending")
+  attempts        Int       @default(0)
+  last_attempt_at DateTime?
+  error_message   String?
+  completed_at    DateTime?
+  created_at      DateTime  @default(now())
+
+  @@index([episode_id])
+  @@index([scheduled_for])
+  @@index([status])
+}
+
+model categories {
+  id            String     @id
+  name          String
+  slug          String     @unique
+  description   String?
+  display_order Int        @default(0)
+  is_active     Boolean    @default(true)
+  color         String?    @db.VarChar(50)
+  icon          String?    @db.VarChar(50)
+  metadata      Json?
+  name_en       String?
+  parent_id     String?
+  created_at    DateTime   @default(now())
+  updated_at    DateTime
+  articles      articles[]
+}
+
+model comments {
+  id         String   @id
+  article_id String
+  user_id    String?
+  parent_id  String?
+  content    String
+  status     String   @default("pending")
+  likes      Int      @default(0)
+  metadata   Json?
+  created_at DateTime @default(now())
+  updated_at DateTime
+}
+
+model daily_doses {
+  id          String             @id
+  period      daily_doses_period
+  title       String             @db.VarChar(500)
+  subtitle    String             @db.VarChar(500)
+  date        DateTime           @db.Date
+  status      daily_doses_status @default(draft)
+  publishedAt DateTime?
+  views       Int                @default(0)
+  metadata    Json?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime
+
+  @@unique([date, period])
+  @@index([date])
+  @@index([period])
+  @@index([status])
+}
+
+model deep_analyses {
+  id                  String   @id
+  article_id          String
+  ai_summary          String?
+  key_topics          Json?
+  tags                Json?
+  sentiment           String?
+  readability_score   Decimal? @db.Decimal(5, 2)
+  engagement_score    Int?
+  suggested_headlines Json?
+  related_articles    Json?
+  metadata            Json?
+  analyzed_at         DateTime @default(now())
+  updated_at          DateTime
+}
+
+model dose_contents {
+  id           String                    @id
+  doseId       String
+  articleId    String?
+  contentType  dose_contents_contentType
+  title        String                    @db.VarChar(500)
+  summary      String
+  audioUrl     String?
+  imageUrl     String?
+  displayOrder Int                       @default(0)
+  metadata     Json?
+  createdAt    DateTime                  @default(now())
+
+  @@index([articleId])
+  @@index([doseId])
+}
+
+model email_verification_codes {
+  id         String    @id
+  email      String    @db.VarChar(255)
+  code       String    @db.VarChar(6)
+  user_id    String?
+  expires_at DateTime
+  used_at    DateTime?
+  created_at DateTime  @default(now())
+
+  @@index([code])
+  @@index([email])
+  @@index([expires_at])
+}
+
+model forum_badges {
+  id           String    @id
+  name         String    @db.VarChar(255)
+  name_ar      String    @db.VarChar(255)
+  description  String?
+  icon         String?   @db.VarChar(50)
+  color        String?   @db.VarChar(50)
+  requirements Json?
+  points       Int?      @default(0)
+  is_active    Boolean?  @default(true)
+  created_at   DateTime? @default(now())
+  updated_at   DateTime? @default(now())
+}
+
+model forum_categories {
+  id            String    @id
+  name          String    @db.VarChar(255)
+  name_ar       String    @db.VarChar(255)
+  slug          String    @unique(map: "slug") @db.VarChar(255)
+  description   String?
+  icon          String?   @db.VarChar(50)
+  color         String?   @db.VarChar(50)
+  display_order Int?      @default(0)
+  is_active     Boolean?  @default(true)
+  created_at    DateTime? @default(now())
+  updated_at    DateTime? @default(now())
+
+  @@index([display_order])
+  @@index([slug])
+}
+
+model forum_follows {
+  id          String                    @id
+  user_id     String
+  target_type forum_follows_target_type
+  target_id   String
+  created_at  DateTime?                 @default(now())
+
+  @@unique([user_id, target_type, target_id])
+  @@index([target_type, target_id])
+  @@index([user_id])
+}
+
+model forum_notifications {
+  id          String    @id
+  user_id     String
+  type        String    @db.VarChar(50)
+  target_type String?   @db.VarChar(50)
+  target_id   String?
+  data        Json?
+  is_read     Boolean?  @default(false)
+  created_at  DateTime? @default(now())
+
+  @@index([created_at])
+  @@index([user_id, is_read])
+}
+
+model forum_replies {
+  id          String                @id
+  topic_id    String
+  parent_id   String?
+  author_id   String
+  content     String
+  is_accepted Boolean?              @default(false)
+  status      forum_replies_status? @default(active)
+  edited_at   DateTime?
+  edited_by   String?
+  created_at  DateTime?             @default(now())
+  updated_at  DateTime?             @default(now())
+
+  @@index([author_id])
+  @@index([created_at])
+  @@index([parent_id])
+  @@index([topic_id])
+}
+
+model forum_reports {
+  id          String                    @id
+  reporter_id String
+  target_type forum_reports_target_type
+  target_id   String
+  reason      String                    @db.VarChar(255)
+  description String?
+  status      forum_reports_status?     @default(pending)
+  resolved_by String?
+  resolved_at DateTime?
+  created_at  DateTime?                 @default(now())
+
+  @@index([reporter_id])
+  @@index([status])
+  @@index([target_type, target_id])
+}
+
+model forum_reputation {
+  id          String    @id
+  user_id     String
+  points      Int?      @default(0)
+  action_type String    @db.VarChar(50)
+  target_type String?   @db.VarChar(50)
+  target_id   String?
+  description String?
+  created_at  DateTime? @default(now())
+
+  @@index([created_at])
+  @@index([user_id])
+}
+
+model forum_topics {
+  id            String               @id
+  title         String               @db.VarChar(500)
+  content       String
+  author_id     String
+  category_id   String
+  is_pinned     Boolean?             @default(false)
+  is_locked     Boolean?             @default(false)
+  is_featured   Boolean?             @default(false)
+  status        forum_topics_status? @default(active)
+  views         Int?                 @default(0)
+  last_reply_at DateTime?
+  last_reply_by String?
+  created_at    DateTime?            @default(now())
+  updated_at    DateTime?            @default(now())
+
+  @@index([author_id])
+  @@index([category_id])
+  @@index([last_reply_at])
+  @@index([status, created_at])
+}
+
+model forum_user_badges {
+  id        String    @id
+  user_id   String
+  badge_id  String
+  earned_at DateTime? @default(now())
+
+  @@unique([user_id, badge_id])
+  @@index([badge_id])
+  @@index([user_id])
+}
+
+model forum_votes {
+  id          String                  @id
+  user_id     String
+  target_type forum_votes_target_type
+  target_id   String
+  vote_type   forum_votes_vote_type
+  created_at  DateTime?               @default(now())
+
+  @@unique([user_id, target_type, target_id])
+  @@index([target_type, target_id])
+  @@index([user_id])
+}
+
+model home_blocks_config {
+  id            String   @id
+  block_type    String   @db.VarChar(50)
+  title         String   @db.VarChar(255)
+  subtitle      String?  @db.VarChar(255)
+  settings      Json
+  display_order Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+}
+
+model interactions {
+  id         String            @id
+  user_id    String
+  article_id String
+  type       interactions_type
+  created_at DateTime          @default(now())
+  articles   articles          @relation(fields: [article_id], references: [id])
+  users      users             @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, article_id, type])
+  @@index([article_id, type, created_at(sort: Desc)], map: "idx_interactions_article_type")
+  @@index([article_id])
+  @@index([user_id])
+}
+
+model keywords {
+  id         String   @id
+  name       String
+  slug       String
+  count      Int      @default(0)
+  created_at DateTime @default(now())
+}
+
+model loyalty_points {
+  id             String   @id
+  user_id        String
+  points         Int
+  action         String   @db.VarChar(100)
+  reference_id   String?
+  reference_type String?
+  metadata       Json?
+  created_at     DateTime @default(now())
+}
+
+model messages {
+  id            String    @id
+  from_user_id  String?
+  to_user_id    String?
+  email         String
+  subject       String?   @db.VarChar(500)
+  message       String
+  status        String    @default("unread")
+  replied_at    DateTime?
+  reply_content String?
+  metadata      Json?
+  created_at    DateTime  @default(now())
+}
+
+model opinion_articles {
+  id              String                @id
+  title           String
+  content         String
+  excerpt         String?
+  authorId        String
+  category        String
+  status          OpinionArticle_status @default(draft)
+  isActive        Boolean               @default(true)
+  views           Int                   @default(0)
+  likes           Int                   @default(0)
+  shares          Int                   @default(0)
+  saves           Int                   @default(0)
+  readingTime     Int?
+  featuredImage   String?
+  audioUrl        String?
+  seoKeywords     String[]
+  publishedAt     DateTime?
+  metadata        Json?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime
+  opinion_authors opinion_authors       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([category])
+  @@index([publishedAt])
+  @@index([status, isActive])
+}
+
+model opinion_authors {
+  id               String             @id
+  name             String
+  email            String?            @unique
+  title            String?
+  avatarUrl        String?
+  bio              String?
+  category         String?
+  twitterUrl       String?
+  linkedinUrl      String?
+  websiteUrl       String?
+  isActive         Boolean            @default(true)
+  displayOrder     Int?
+  metadata         Json?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  opinion_articles opinion_articles[]
+}
+
+model password_reset_tokens {
+  id         String    @id
+  user_id    String
+  token      String    @unique @db.VarChar(255)
+  expires_at DateTime
+  used_at    DateTime?
+  created_at DateTime  @default(now())
+
+  @@index([expires_at])
+  @@index([token])
+  @@index([user_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model roles {
+  id           String   @id
+  name         String   @unique @db.VarChar(100)
+  slug         String?
+  display_name String?
+  description  String?
+  permissions  Json?
+  is_system    Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime
+}
+
+model site_settings {
+  id         String   @id
+  section    String   @db.VarChar(50)
+  data       Json
+  created_at DateTime @default(now())
+  updated_at DateTime
+}
+
+model smart_blocks {
+  id            String    @id
+  name          String    @db.VarChar(255)
+  type          String    @db.VarChar(50)
+  config        Json
+  ai_config     Json?
+  display_rules Json?
+  is_active     Boolean   @default(true)
+  last_updated  DateTime?
+  performance   Json?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime
+}
+
+model team_members {
+  id            String   @id
+  name          String   @db.VarChar(255)
+  role          String   @db.VarChar(100)
+  department    String?  @db.VarChar(100)
+  bio           String?
+  avatar        String?
+  email         String?  @db.VarChar(255)
+  phone         String?  @db.VarChar(50)
+  social_links  Json?
+  is_active     Boolean  @default(true)
+  display_order Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+}
+
+model template_previews {
+  id          String   @id
+  template_id String
+  title       String   @db.VarChar(500)
+  content     String
+  metadata    Json?
+  created_at  DateTime @default(now())
+
+  @@index([template_id])
+}
+
+model templates {
+  id           String   @id
+  name         String   @db.VarChar(255)
+  slug         String   @db.VarChar(255)
+  description  String?
+  category     String   @db.VarChar(50)
+  content      Json
+  variables    Json?
+  preview_data Json?
+  is_active    Boolean  @default(true)
+  usage_count  Int      @default(0)
+  created_by   String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime
+}
+
+model timeline_events {
+  id             String   @id
+  event_type     String   @db.VarChar(50)
+  entity_type    String   @db.VarChar(50)
+  entity_id      String?
+  title          String   @db.VarChar(500)
+  description    String?
+  icon           String?  @db.VarChar(50)
+  url            String?  @db.VarChar(500)
+  user_id        String?
+  author_name    String?  @db.VarChar(255)
+  author_avatar  String?
+  category_name  String?  @db.VarChar(255)
+  category_color String?  @db.VarChar(50)
+  metadata       Json?
+  is_important   Boolean  @default(false)
+  created_at     DateTime @default(now())
+}
+
+model user_insights {
+  id                      String    @id @db.VarChar(36)
+  user_id                 String    @unique @db.VarChar(36)
+  total_reads             Int?      @default(0)
+  total_saved             Int?      @default(0)
+  total_interactions      Int?      @default(0)
+  avg_read_time           Float?
+  preferred_reading_time  String?   @db.VarChar(50)
+  reader_type             String?   @db.VarChar(50)
+  diversity_score         Float?
+  preferred_categories    Json?
+  preferred_article_types Json?
+  avg_article_length      Int?
+  weekly_reads            Int?      @default(0)
+  weekly_streak           Int?      @default(0)
+  last_read_date          DateTime? @db.Timestamptz(6)
+  calculated_at           DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model user_preferences {
+  id         String   @id
+  user_id    String
+  key        String
+  value      Json
+  created_at DateTime @default(now())
+  updated_at DateTime
+
+  @@unique([user_id, key])
+  @@index([user_id])
+}
+
+model user_reading_sessions {
+  id               String    @id @db.VarChar(36)
+  user_id          String    @db.VarChar(36)
+  article_id       String    @db.VarChar(36)
+  started_at       DateTime? @default(now()) @db.Timestamptz(6)
+  ended_at         DateTime? @db.Timestamptz(6)
+  duration_seconds Int?
+  read_percentage  Float?
+  scroll_depth     Float?
+  device_type      String?   @db.VarChar(50)
+  time_of_day      Int?
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model user_roles {
+  id         String    @id
+  user_id    String
+  role_id    String
+  granted_by String?
+  granted_at DateTime  @default(now())
+  expires_at DateTime?
+}
+
+model user_similar_readers {
+  id                String    @id @db.VarChar(36)
+  user_id           String    @db.VarChar(36)
+  similar_user_id   String    @db.VarChar(36)
+  similarity_score  Float?
+  common_categories Json?
+  calculated_at     DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@unique([user_id, similar_user_id])
+}
+
+model users {
+  id                   String                @id
+  email                String                @unique
+  password_hash        String?
+  name                 String?
+  avatar               String?
+  role                 String                @default("user")
+  is_admin             Boolean               @default(false)
+  is_verified          Boolean               @default(false)
+  verification_token   String?
+  reset_token          String?
+  reset_token_expiry   DateTime?
+  created_at           DateTime              @default(now())
+  updated_at           DateTime
+  ml_predictions       MLPredictions[]
+  search_queries       SearchQueries[]
+  sentiment_analyses   SentimentAnalysis[]
+  smart_notifications  SmartNotifications[]
+  user_recommendations UserRecommendations[]
+  user_settings        UserSettings[]
+  authored_articles    articles[]            @relation("ArticleAuthor")
+  audio_episodes       audio_episodes[]
+  audio_programs       audio_programs[]
+  interactions         interactions[]
+
+  @@index([email], map: "idx_users_email")
+  @@index([role], map: "idx_users_role")
+  @@index([email])
+  @@index([role])
+}
+
+model was_news {
+  id               String   @id
+  news_NUM         Int      @unique
+  news_DT          DateTime
+  news_basket_CD   Int
+  news_class_CD    Int
+  news_priority_CD Int
+  is_Report        Boolean  @default(false)
+  title_TXT        String
+  story_TXT        String?
+  media            Json?
+  royalType        Int?
+  keywords         Json?
+  related_news_CD  Int?
+  is_imported      Boolean  @default(false)
+  imported_to_id   String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @default(now())
+
+  @@index([created_at])
+  @@index([is_imported])
+  @@index([news_DT])
+  @@index([news_basket_CD])
+}
+
+model SystemSettings {
+  id               String   @id @default(cuid())
+  module           String
+  category         String
+  key              String
+  value            Json
+  data_type        String
+  description      String?
+  is_public        Boolean  @default(false)
+  is_user_editable Boolean  @default(false)
+  default_value    Json?
+  validation_rules Json?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@unique([module, category, key])
+  @@index([module, category])
+}
+
+model UserSettings {
+  id         String   @id @default(cuid())
+  user_id    String
+  module     String
+  key        String
+  value      Json
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, module, key])
+  @@index([user_id, module])
+}
+
+model MLModels {
+  id                  String           @id @default(cuid())
+  name                String           @unique
+  type                MLModelType
+  version             String
+  description         String?
+  status              MLModelStatus    @default(training)
+  config              Json
+  hyperparameters     Json?
+  training_data       Json?
+  performance_metrics Json?
+  model_path          String?
+  api_endpoint        String?
+  is_active           Boolean          @default(false)
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
+  predictions         MLPredictions[]
+  training_jobs       MLTrainingJobs[]
+}
+
+model MLTrainingJobs {
+  id              String         @id @default(cuid())
+  model_id        String
+  status          TrainingStatus @default(queued)
+  dataset_config  Json
+  training_config Json
+  progress        Float          @default(0)
+  metrics         Json?
+  error_log       String?
+  started_at      DateTime?
+  completed_at    DateTime?
+  created_at      DateTime       @default(now())
+  model           MLModels       @relation(fields: [model_id], references: [id], onDelete: Cascade)
+
+  @@index([model_id, status])
+}
+
+model MLPredictions {
+  id               String    @id @default(cuid())
+  model_id         String
+  input_data       Json
+  prediction       Json
+  confidence_score Float?
+  processing_time  Int?
+  user_id          String?
+  article_id       String?
+  created_at       DateTime  @default(now())
+  article          articles? @relation(fields: [article_id], references: [id])
+  model            MLModels  @relation(fields: [model_id], references: [id], onDelete: Cascade)
+  user             users?    @relation(fields: [user_id], references: [id])
+
+  @@index([model_id, created_at])
+  @@index([user_id, created_at])
+}
+
+model SentimentAnalysis {
+  id              String         @id @default(cuid())
+  content_id      String
+  content_type    String
+  text_content    String
+  sentiment_score Float
+  sentiment_label SentimentLabel
+  confidence      Float
+  emotions        Json?
+  keywords        String[]
+  language        String         @default("ar")
+  model_version   String
+  processed_at    DateTime       @default(now())
+  user_id         String?
+  article_id      String?
+  article         articles?      @relation(fields: [article_id], references: [id])
+  user            users?         @relation(fields: [user_id], references: [id])
+
+  @@index([content_type, sentiment_label])
+  @@index([processed_at])
+  @@index([user_id])
+  @@index([article_id])
+}
+
+model SmartNotifications {
+  id                    String               @id @default(cuid())
+  user_id               String?
+  title                 String
+  message               String
+  type                  NotificationType
+  priority              NotificationPriority @default(medium)
+  category              String?
+  data                  Json?
+  scheduled_at          DateTime?
+  sent_at               DateTime?
+  read_at               DateTime?
+  clicked_at            DateTime?
+  status                NotificationStatus   @default(pending)
+  delivery_channels     String[]
+  ai_optimized          Boolean              @default(false)
+  personalization_score Float?
+  created_at            DateTime             @default(now())
+  user                  users?               @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, status])
+  @@index([scheduled_at, status])
+  @@index([type, priority])
+}
+
+model PerformanceMetrics {
+  id          String   @id @default(cuid())
+  metric_type String
+  metric_name String
+  value       Float
+  unit        String?
+  context     Json?
+  timestamp   DateTime @default(now())
+  tags        String[]
+
+  @@index([metric_type, timestamp])
+  @@index([metric_name, timestamp])
+}
+
+model RecommendationModels {
+  id                String                @id @default(cuid())
+  name              String                @unique
+  type              RecommendationType
+  algorithm         String
+  config            Json
+  is_active         Boolean               @default(false)
+  performance_score Float?
+  created_at        DateTime              @default(now())
+  updated_at        DateTime              @updatedAt
+  recommendations   UserRecommendations[]
+}
+
+model UserRecommendations {
+  id                String               @id @default(cuid())
+  user_id           String
+  model_id          String
+  recommended_items Json
+  confidence_scores Json
+  reason            String?
+  clicked_items     String[]
+  feedback_score    Float?
+  created_at        DateTime             @default(now())
+  expires_at        DateTime?
+  model             RecommendationModels @relation(fields: [model_id], references: [id], onDelete: Cascade)
+  user              users                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, created_at])
+  @@index([model_id, created_at])
+}
+
+model SearchQueries {
+  id              String   @id @default(cuid())
+  user_id         String?
+  query           String
+  query_vector    Json?
+  filters         Json?
+  results_count   Int      @default(0)
+  clicked_results String[]
+  search_time_ms  Int?
+  result_quality  Float?
+  session_id      String?
+  ip_address      String?
+  user_agent      String?
+  created_at      DateTime @default(now())
+  user            users?   @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, created_at])
+  @@index([query, created_at])
+}
+
+model AdvancedAnalytics {
+  id                String   @id @default(cuid())
+  metric_category   String
+  metric_name       String
+  dimensions        Json
+  measures          Json
+  time_period       String
+  aggregation_level String
+  filters           Json?
+  raw_data          Json?
+  computed_at       DateTime @default(now())
+
+  @@index([metric_category, time_period])
+  @@index([metric_name, computed_at])
+}
+
+model ExternalDataSources {
+  id               String            @id @default(cuid())
+  name             String            @unique
+  type             String
+  url              String
+  config           Json
+  last_sync        DateTime?
+  sync_frequency   String
+  is_active        Boolean           @default(true)
+  error_count      Int               @default(0)
+  success_count    Int               @default(0)
+  created_at       DateTime          @default(now())
+  updated_at       DateTime          @updatedAt
+  imported_content ExternalContent[]
+}
+
+model ExternalContent {
+  id            String              @id @default(cuid())
+  source_id     String
+  external_id   String
+  title         String
+  content       String?
+  summary       String?
+  url           String?
+  published_at  DateTime?
+  category      String?
+  tags          String[]
+  metadata      Json?
+  import_status ImportStatus        @default(pending)
+  processed_at  DateTime?
+  created_at    DateTime            @default(now())
+  source        ExternalDataSources @relation(fields: [source_id], references: [id], onDelete: Cascade)
+
+  @@unique([source_id, external_id])
+  @@index([source_id, import_status])
+}
+
+enum EmailJob_status {
+  queued
+  sending
+  completed
+  cancelled
+  failed
+}
+
+enum EmailLog_status {
+  pending
+  sent
+  delivered
+  bounced
+  opened
+  clicked
+  unsubscribed
+  failed
+}
+
+enum EmailProviderConfig_type {
+  smtp
+  sendgrid
+  mailgun
+  ses
+}
+
+enum OpinionArticle_status {
+  draft
+  published
+  archived
+}
+
+enum Subscriber_status {
+  active
+  inactive
+  unsubscribed
+}
+
+enum daily_doses_period {
+  morning
+  afternoon
+  evening
+  night
+}
+
+enum daily_doses_status {
+  draft
+  published
+  scheduled
+  archived
+}
+
+enum dose_contents_contentType {
+  article
+  weather
+  quote
+  tip
+  audio
+  analysis
+}
+
+enum forum_follows_target_type {
+  topic
+  user
+  category
+}
+
+enum forum_replies_status {
+  active
+  pending
+  hidden
+  deleted
+}
+
+enum forum_reports_status {
+  pending
+  resolved
+  dismissed
+}
+
+enum forum_reports_target_type {
+  topic
+  reply
+}
+
+enum forum_topics_status {
+  active
+  pending
+  hidden
+  deleted
+}
+
+enum forum_votes_target_type {
+  topic
+  reply
+}
+
+enum forum_votes_vote_type {
+  like
+  dislike
+}
+
+enum interactions_type {
+  like
+  save
+  share
+  comment
+  view
+  reading_session
+}
+
+enum MLModelType {
+  classification
+  regression
+  clustering
+  recommendation
+  nlp
+  computer_vision
+  time_series
+  neural_network
+  transformer
+}
+
+enum MLModelStatus {
+  training
+  trained
+  deployed
+  failed
+  deprecated
+}
+
+enum TrainingStatus {
+  queued
+  running
+  completed
+  failed
+  cancelled
+}
+
+enum SentimentLabel {
+  very_negative
+  negative
+  neutral
+  positive
+  very_positive
+}
+
+enum NotificationType {
+  breaking_news
+  article_recommendation
+  system_alert
+  user_engagement
+  performance_warning
+  content_moderation
+  ai_insight
+}
+
+enum NotificationPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum NotificationStatus {
+  pending
+  scheduled
+  sent
+  delivered
+  read
+  failed
+}
+
+enum RecommendationType {
+  content_based
+  collaborative_filtering
+  hybrid
+  deep_learning
+  knowledge_based
+}
+
+enum ImportStatus {
+  pending
+  processing
+  completed
+  failed
+  duplicate
+  rejected
+}
