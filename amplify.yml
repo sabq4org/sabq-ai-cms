@@ -4,14 +4,18 @@ frontend:
     preBuild:
       commands:
         - echo "Installing packages..."
-        - npm ci
+        - npm install
         - echo "Setting up environment..."
         - node scripts/amplify-env-setup.js
         - echo "Setting up Prisma for Amplify..."
         - rm -rf node_modules/.prisma
         - rm -rf node_modules/@prisma/client
+        - echo "🔧 Updating Prisma binary targets for AWS Lambda..."
+        - sed -i 's/binaryTargets.*=.*\[.*\]/binaryTargets   = ["native", "rhel-openssl-1.0.x"]/' prisma/schema.prisma
+        - echo "📄 Current generator config:"
+        - head -5 prisma/schema.prisma
         - echo "Generating Prisma Client with correct binaries..."
-        - npx prisma generate --force
+        - npx prisma generate
         - echo "Checking Prisma engine..."
         - ls -la node_modules/.prisma/client/ || echo "Prisma client directory not found"
     build:
