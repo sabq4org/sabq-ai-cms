@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import sharp from 'sharp';
 
 /**
- * خدمة تحسين وتعديل الصور عند الطلب
- * تدعم تحميل صور من مصادر خارجية وتحسينها
- * مع دعم تغيير الحجم والجودة والتنسيق
+ * خدمة تحسين الصور البسيطة باستخدام Cloudinary
+ * تحويل الصور إلى Cloudinary للتحسين التلقائي
  */
 export async function GET(request: NextRequest) {
   try {
@@ -13,88 +11,64 @@ export async function GET(request: NextRequest) {
     
     // معاملات الصورة
     const url = searchParams.get('url');
-    const width = Number(searchParams.get('w')) || undefined;
-    const height = Number(searchParams.get('h')) || undefined;
-    const quality = Number(searchParams.get('q')) || 80;
-    const format = searchParams.get('f') || 'webp';
-    const fit = searchParams.get('fit') || 'cover';
+    const width = searchParams.get('w') || '800';
+    const height = searchParams.get('h') || '600';
+    const quality = searchParams.get('q') || 'auto';
+    const format = searchParams.get('f') || 'auto';
     
     // التحقق من وجود رابط الصورة
     if (!url) {
       return NextResponse.json({ error: 'Missing URL parameter' }, { status: 400 });
     }
-    
-    // تحميل الصورة من المصدر
-    const imageResponse = await fetch(url);
-    if (!imageResponse.ok) {
-      // إذا فشل تحميل الصورة، استخدم صورة احتياطية
-      const fallbackUrl = '/images/placeholder.jpg';
-      const fallbackResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}${fallbackUrl}`);
-      if (!fallbackResponse.ok) {
-        return NextResponse.json({ error: 'Failed to load image' }, { status: 404 });
+
+    // إذا كانت الصورة من Cloudinary بالفعل، أعدها كما هي
+    if (url.includes('cloudinary.com')) {
+      return NextResponse.redirect(url);
+    }
+
+    // إذا كانت من Unsplash، استخدم تحسينات Unsplash
+    if (url.includes('unsplash.com')) {
+      try {
+        const unsplashUrl = new URL(url);
+        unsplashUrl.searchParams.set('w', width);
+        unsplashUrl.searchParams.set('h', height);
+        unsplashUrl.searchParams.set('q', quality === 'auto' ? '80' : quality);
+        unsplashUrl.searchParams.set('auto', 'format');
+        unsplashUrl.searchParams.set('fit', 'crop');
+        
+        return NextResponse.redirect(unsplashUrl.toString());
+      } catch {
+        return NextResponse.redirect(url);
       }
-      
-      const fallbackBuffer = await fallbackResponse.arrayBuffer();
-      return new NextResponse(fallbackBuffer, {
-        headers: {
-          'Content-Type': 'image/jpeg',
-          'Cache-Control': 'public, max-age=3600'
-        }
-      });
     }
+
+    // استخدام Cloudinary fetch API لتحسين الصور الخارجية
+    const cloudinaryBaseUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'demo'}/image/fetch`;
     
-    // الحصول على بيانات الصورة
-    const imageBuffer = await imageResponse.arrayBuffer();
+    const transformations = [
+      `w_${width}`,
+      `h_${height}`,
+      `c_fill`,
+      `q_${quality}`,
+      `f_${format}`,
+      'fl_progressive',
+      'fl_immutable_cache'
+    ].join(',');
+
+    const cloudinaryUrl = `${cloudinaryBaseUrl}/${transformations}/${encodeURIComponent(url)}`;
     
-    // معالجة الصورة باستخدام sharp
-    let sharpInstance = sharp(Buffer.from(imageBuffer));
-    
-    // تغيير الحجم إذا تم تحديده
-    if (width || height) {
-      sharpInstance = sharpInstance.resize({
-        width,
-        height,
-        fit: fit as keyof sharp.FitEnum,
-      });
-    }
-    
-    // تحويل التنسيق
-    let outputFormat: any;
-    let contentType = '';
-    
-    switch (format) {
-      case 'webp':
-        outputFormat = sharpInstance.webp({ quality });
-        contentType = 'image/webp';
-        break;
-      case 'avif':
-        outputFormat = sharpInstance.avif({ quality });
-        contentType = 'image/avif';
-        break;
-      case 'png':
-        outputFormat = sharpInstance.png();
-        contentType = 'image/png';
-        break;
-      case 'jpg':
-      case 'jpeg':
-      default:
-        outputFormat = sharpInstance.jpeg({ quality });
-        contentType = 'image/jpeg';
-    }
-    
-    // الحصول على الصورة المحسنة
-    const optimizedImageBuffer = await outputFormat.toBuffer();
-    
-    // إعادة الصورة المحسنة
-    return new NextResponse(optimizedImageBuffer, {
-      headers: {
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=86400', // 24 ساعة
-      }
-    });
+    // إعادة توجيه إلى Cloudinary
+    return NextResponse.redirect(cloudinaryUrl);
     
   } catch (error) {
-    console.error('Error optimizing image:', error);
+    console.error('Error in image optimization:', error);
+    
+    // في حالة الخطأ، أعد الصورة الأصلية
+    const originalUrl = new URL(request.url).searchParams.get('url');
+    if (originalUrl) {
+      return NextResponse.redirect(originalUrl);
+    }
+    
     return NextResponse.json({ error: 'Failed to optimize image' }, { status: 500 });
   }
 }
