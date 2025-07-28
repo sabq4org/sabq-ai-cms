@@ -1,84 +1,37 @@
 version: '3.8'
 
 services:
-  # Next.js Application
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: sabq-ai-cms
-    restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
+      - "3000:3000"
     environment:
+      - DATABASE_URL=postgresql://postgres:%2A7gzOMPcDco8l4If%3AO-CVb9Ehztq@database-1.cluster-cluyg244y2cj.eu-north-1.rds.amazonaws.com:5432/sabqcms
+      - NEXTAUTH_SECRET=sabq-ai-cms-secret-key-2025
+      - NEXTAUTH_URL=http://localhost:3000
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3000}
-      - JWT_SECRET=${JWT_SECRET}
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-    volumes:
-      - ./public/uploads:/app/public/uploads
-      - ./data:/app/data
-    networks:
-      - sabq-network
-    depends_on:
-      - redis
-
-  # Redis for caching (optional)
-  redis:
-    image: redis:7-alpine
-    container_name: sabq-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
     networks:
       - sabq-network
-    command: redis-server --appendonly yes
 
-  # Nginx Reverse Proxy (optional for production)
+  # خدمة Nginx للإنتاج (اختياري)
   nginx:
     image: nginx:alpine
-    container_name: sabq-nginx
-    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-      - ./public/uploads:/usr/share/nginx/html/uploads:ro
-    networks:
-      - sabq-network
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - app
+    restart: unless-stopped
+    networks:
+      - sabq-network
     profiles:
       - production
 
-  postgres:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      POSTGRES_DB: sabq_cms
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-db:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
 networks:
   sabq-network:
-    driver: bridge
-
-volumes:
-  redis-data:
-    driver: local
-  postgres_data: 
+    driver: bridge 
