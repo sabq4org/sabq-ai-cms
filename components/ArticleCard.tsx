@@ -6,9 +6,9 @@ import Image from 'next/image';
 import { Calendar, Clock, Eye, MessageSquare, Zap, Newspaper } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { getImageUrl, cleanS3Url } from '@/lib/image-utils';
-import { isBrokenImage, getQuickPlaceholder } from '@/lib/performance-config';
+import { getImageUrl } from '@/lib/image-utils';
 import { SafeDate } from '@/lib/safe-date';
+import OptimizedImage from '@/components/OptimizedImage';
 
 interface ArticleCardProps {
   article: any;
@@ -17,74 +17,7 @@ interface ArticleCardProps {
 
 
 
-// مكون الصورة مع معالجة أفضل للأخطاء
-function ArticleImage({ 
-  src, 
-  alt, 
-  sizes, 
-  className,
-  priority = false 
-}: { 
-  src: string | null;
-  alt: string;
-  sizes: string;
-  className?: string;
-  priority?: boolean;
-}) {
-  const [imageError, setImageError] = useState(false);
-  const [imageSrc, setImageSrc] = useState(() => {
-    // التحقق المسبق من الصور المعطلة
-    if (!src || isBrokenImage(src)) {
-      return null;
-    }
-    return src;
-  });
-  const [retryCount, setRetryCount] = useState(0);
 
-  // معالجة الخطأ في تحميل الصورة
-  const handleImageError = () => {
-    console.log(`❌ فشل تحميل الصورة: ${src}`);
-    
-    // محاولة تنظيف رابط S3 إذا كان يحتوي على توقيع منتهي
-    if (src && src.includes('X-Amz-Signature') && retryCount === 0) {
-      const cleanUrl = cleanS3Url(src);
-      if (cleanUrl !== src) {
-        console.log('🔄 محاولة تحميل الصورة بدون توقيع...');
-        setImageSrc(cleanUrl);
-        setRetryCount(1);
-        return;
-      }
-    }
-    
-    // إذا فشلت كل المحاولات
-    setImageError(true);
-  };
-
-  // إذا فشلت الصورة نهائياً، عرض placeholder
-  if (imageError || !imageSrc) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-        <Newspaper className="w-12 h-12 text-gray-400 dark:text-gray-600" />
-      </div>
-    );
-  }
-
-  return (
-    <Image
-      src={imageSrc}
-      alt={alt}
-      fill
-      sizes={sizes}
-      className={className}
-      loading={priority ? "eager" : "lazy"}
-      placeholder="blur"
-      blurDataURL={getQuickPlaceholder('article')}
-      onError={handleImageError}
-      quality={75}
-      unoptimized={false}
-    />
-  );
-}
 
 export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardProps) {
   // Get article metadata
@@ -125,10 +58,10 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
         )}>
           {/* Image محسنة للأداء */}
           <div className="relative w-48 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
-            <ArticleImage
-              src={imageUrl}
+            <OptimizedImage
+              src={imageUrl || ''}
               alt={article.title || 'صورة المقال'}
-              sizes="(max-width: 768px) 100vw, 192px"
+              fill
               className="object-cover group-hover:scale-110 transition-transform duration-500"
             />
           </div>
@@ -206,10 +139,10 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
       )}>
         {/* Image Container */}
         <div className="relative h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-          <ArticleImage
-            src={imageUrl}
+          <OptimizedImage
+            src={imageUrl || ''}
             alt={article.title || 'صورة المقال'}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            fill
             className="object-cover group-hover:scale-110 transition-transform duration-500"
             priority={article.featured || isBreaking}
           />

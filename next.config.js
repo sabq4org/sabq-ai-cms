@@ -91,7 +91,7 @@ const nextConfig = {
     // تقليل التايم أوت
     loader: 'default',
     loaderFile: undefined,
-    // تحسين الأداء
+    // تمكين التحسين لحل مشكلة عرض الصور
     unoptimized: false,
     remotePatterns: [
       {

@@ -59,6 +59,29 @@ export default function OptimizedImage({
       return;
     }
 
+    // معالجة روابط S3 بطريقة خاصة
+    if (src.includes('amazonaws.com')) {
+      try {
+        // استخدام API الصور الداخلية مباشرة
+        const apiUrl = `/api/images/optimize?url=${encodeURIComponent(src)}&w=${width}&h=${height}&f=webp&q=${quality}`;
+        setImgSrc(apiUrl);
+      } catch (error) {
+        console.warn('خطأ في معالجة صورة S3:', error);
+        // مواصلة المعالجة العادية
+        const optimizedUrl = ImageService.getOptimizedImageUrl(src, {
+          width,
+          height,
+          quality,
+          format: 'webp',
+          fit: 'cover'
+        });
+
+        setImgSrc(optimizedUrl);
+      }
+      setHasError(false);
+      return;
+    }
+
     // تحسين الصورة باستخدام الخدمة الجديدة
     const optimizedUrl = ImageService.getOptimizedImageUrl(src, {
       width,
@@ -70,7 +93,7 @@ export default function OptimizedImage({
 
     setImgSrc(optimizedUrl);
     setHasError(false);
-  }, [src]);
+  }, [src, width, height, quality, category]);
   
   const handleError = () => {
     console.warn(`فشل تحميل الصورة: ${src}`);
