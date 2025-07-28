@@ -124,3 +124,17 @@ export async function executeWithRetry<T>(
 }
 
 export default prisma
+
+// Named export أيضاً لأن بعض الملفات تستورد بهذه الطريقة
+export { prisma }
+
+// دالة للتأكد من الاتصال (تستخدم في بعض الملفات)
+export async function ensureConnection() {
+  try {
+    await prisma.$connect()
+    return true
+  } catch (error) {
+    console.error('❌ فشل الاتصال بقاعدة البيانات:', error)
+    return false
+  }
+}
