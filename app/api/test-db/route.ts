@@ -4,14 +4,34 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     console.log('🔍 اختبار اتصال قاعدة البيانات...');
+    
+    // فحص Environment Variables أولاً
+    const dbUrl = process.env.DATABASE_URL;
+    console.log('📊 DATABASE_URL exists:', !!dbUrl);
+    console.log('📊 DATABASE_URL preview:', dbUrl ? dbUrl.substring(0, 60) + '...' : 'undefined');
+    
+    if (!dbUrl) {
+      return NextResponse.json({
+        success: false,
+        error: 'DATABASE_URL environment variable is missing',
+        environment: {
+          NODE_ENV: process.env.NODE_ENV,
+          DATABASE_URL_EXISTS: false
+        }
+      }, { status: 500 });
+    }
 
     // اختبار الاتصال الأساسي
     await prisma.$connect();
     console.log('✅ تم الاتصال بقاعدة البيانات بنجاح');
 
-    // اختبار عدد المستخدمين
-    const usersCount = await prisma.users.count();
-    console.log(`👥 عدد المستخدمين: ${usersCount}`);
+    // اختبار قاعدة البيانات بـ raw query
+    const testQuery = await prisma.$queryRaw`SELECT 1 as test, NOW() as timestamp`;
+    console.log('🔧 Test query result:', testQuery);
+
+    // اختبار عدد الفئات (Categories)
+    const categoriesCount = await prisma.categories.count();
+    console.log(`� عدد الفئات: ${categoriesCount}`);
 
     // اختبار عدد المقالات
     const articlesCount = await prisma.articles.count();
