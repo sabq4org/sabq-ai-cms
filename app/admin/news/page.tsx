@@ -110,7 +110,7 @@ export default function AdminNewsPage() {
     try {
       const params = new URLSearchParams({
         status: filterStatus === 'all' ? 'all' : filterStatus,
-        limit: '200',
+        limit: '50', // تقليل عدد المقالات
         sort: 'published_at',
         order: 'desc'
       });
