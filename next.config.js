@@ -6,8 +6,11 @@ const nextConfig = {
   },
   
   experimental: {
-    optimizeCss: true,
-    cssChunking: 'strict',
+    // Experimental support for optimizing stylesheets
+    optimizeCss: {
+      files: ["styles/globals.css", "styles/ArabicStyles.css"],
+    },
+    cssChunking: "strict",
     turbo: {
       rules: {
         '*.svg': {
@@ -94,19 +97,33 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'placehold.co',
+        hostname: 'sabq-cms-content.s3.amazonaws.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'ui-avatars.com',
-      }
+        hostname: 'sabq-cms-content.s3.us-east-1.amazonaws.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'd2kdkzp4dtcikk.cloudfront.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.cloudinary.com',
+        pathname: '/**',
+      },
     ],
   },
 
@@ -162,6 +179,7 @@ const nextConfig = {
     
     return config;
   },
+  serverExternalPackages: ['sharp'],
 };
 
 module.exports = nextConfig; 
