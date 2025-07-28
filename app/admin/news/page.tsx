@@ -30,11 +30,9 @@ import {
   Clock,
   Zap,
   Users,
-  MessageSquare,
   Plus,
   MoreVertical,
   FileText,
-  AlertTriangle,
   CheckCircle,
   XCircle,
   PauseCircle,
@@ -52,23 +50,24 @@ import {
 } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 
-// دالة تحويل الأرقام إلى العربية
-const toArabicNumbers = (num: number | string): string => {
-  const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  return num.toString().replace(/[0-9]/g, (digit) => arabicNumbers[parseInt(digit)]);
+// دالة تنسيق الأرقام (إبقاؤها بالإنجليزية)
+const formatNumber = (num: number): string => {
+  return num.toLocaleString('en-US');
 };
 
-// دالة حساب الوقت
-const getRelativeTime = (date: string | Date) => {
-  const now = new Date();
+// دالة تنسيق التاريخ والوقت
+const formatDateTime = (date: string | Date) => {
   const publishDate = new Date(date);
-  const diffInSeconds = Math.floor((now.getTime() - publishDate.getTime()) / 1000);
-  
-  if (diffInSeconds < 3600) return `منذ ${toArabicNumbers(Math.floor(diffInSeconds / 60))} دقيقة`;
-  if (diffInSeconds < 86400) return `منذ ${toArabicNumbers(Math.floor(diffInSeconds / 3600))} ساعة`;
-  if (diffInSeconds < 2592000) return `منذ ${toArabicNumbers(Math.floor(diffInSeconds / 86400))} يوم`;
-  
-  return publishDate.toLocaleDateString('ar-SA');
+  const dateStr = publishDate.toLocaleDateString('ar-SA', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  const timeStr = publishDate.toLocaleTimeString('ar-SA', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  return { date: dateStr, time: timeStr };
 };
 
 interface Article {
@@ -77,13 +76,14 @@ interface Article {
   status: 'published' | 'draft' | 'archived' | 'scheduled';
   author?: { name: string };
   author_name?: string;
-  category?: { name: string };
+  category?: { name: string; id: string };
+  category_id?: string;
   created_at: string;
   published_at?: string;
   views?: number;
-  comments?: any[];
   breaking?: boolean;
   image?: string;
+  featured_image?: string;
   reactions?: { like?: number; share?: number };
 }
 
@@ -112,8 +112,8 @@ export default function AdminNewsPage() {
     try {
       const params = new URLSearchParams({
         status: filterStatus === 'all' ? 'all' : filterStatus,
-        limit: '100',
-        sort: 'created_at',
+        limit: '200',
+        sort: 'published_at',
         order: 'desc'
       });
 
@@ -125,8 +125,16 @@ export default function AdminNewsPage() {
       const data = await response.json();
       
       if (data.articles) {
-        setArticles(data.articles);
-        calculateStats(data.articles);
+        // فلترة المقالات التجريبية
+        const realArticles = data.articles.filter((article: Article) => {
+          const title = article.title.toLowerCase();
+          return !title.includes('test') && 
+                 !title.includes('تجربة') && 
+                 !title.includes('demo') &&
+                 !title.includes('example');
+        });
+        setArticles(realArticles);
+        calculateStats(realArticles);
       }
     } catch (error) {
       console.error('خطأ في جلب المقالات:', error);
@@ -251,6 +259,16 @@ export default function AdminNewsPage() {
     return matchesSearch;
   });
 
+  // الحصول على التصنيف الحقيقي
+  const getCategoryName = (article: Article) => {
+    if (article.category?.name) return article.category.name;
+    if (article.category_id) {
+      const cat = categories.find(c => c.id === article.category_id);
+      return cat?.name || 'غير مصنف';
+    }
+    return 'غير مصنف';
+  };
+
   return (
     <DashboardLayout>
       <TooltipProvider>
@@ -265,8 +283,8 @@ export default function AdminNewsPage() {
             </div>
             
             <Link href="/dashboard/news/unified">
-              <Button className="bg-green-600 hover:bg-green-700">
-                <Plus className="w-4 h-4 ml-2" />
+              <Button className="bg-green-600 hover:bg-green-700" size="lg">
+                <Plus className="w-5 h-5 ml-2" />
                 مقال جديد
               </Button>
             </Link>
@@ -279,7 +297,7 @@ export default function AdminNewsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">إجمالي</p>
-                    <p className="text-2xl font-bold">{toArabicNumbers(stats.total)}</p>
+                    <p className="text-2xl font-bold">{formatNumber(stats.total)}</p>
                   </div>
                   <FileText className="w-8 h-8 text-blue-500" />
                 </div>
@@ -291,7 +309,7 @@ export default function AdminNewsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">منشور</p>
-                    <p className="text-2xl font-bold text-green-600">{toArabicNumbers(stats.published)}</p>
+                    <p className="text-2xl font-bold text-green-600">{formatNumber(stats.published)}</p>
                   </div>
                   <CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
@@ -303,7 +321,7 @@ export default function AdminNewsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">مسودة</p>
-                    <p className="text-2xl font-bold text-yellow-600">{toArabicNumbers(stats.draft)}</p>
+                    <p className="text-2xl font-bold text-yellow-600">{formatNumber(stats.draft)}</p>
                   </div>
                   <PauseCircle className="w-8 h-8 text-yellow-500" />
                 </div>
@@ -315,7 +333,7 @@ export default function AdminNewsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">مؤرشف</p>
-                    <p className="text-2xl font-bold text-gray-600">{toArabicNumbers(stats.archived)}</p>
+                    <p className="text-2xl font-bold text-gray-600">{formatNumber(stats.archived)}</p>
                   </div>
                   <XCircle className="w-8 h-8 text-gray-500" />
                 </div>
@@ -327,7 +345,7 @@ export default function AdminNewsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">مجدول</p>
-                    <p className="text-2xl font-bold text-purple-600">{toArabicNumbers(stats.scheduled)}</p>
+                    <p className="text-2xl font-bold text-purple-600">{formatNumber(stats.scheduled)}</p>
                   </div>
                   <Calendar className="w-8 h-8 text-purple-500" />
                 </div>
@@ -339,7 +357,7 @@ export default function AdminNewsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">عاجل</p>
-                    <p className="text-2xl font-bold text-red-600">{toArabicNumbers(stats.breaking)}</p>
+                    <p className="text-2xl font-bold text-red-600">{formatNumber(stats.breaking)}</p>
                   </div>
                   <Zap className="w-8 h-8 text-red-500" />
                 </div>
@@ -393,153 +411,148 @@ export default function AdminNewsPage() {
                         <TableHead className="text-center">عاجل</TableHead>
                         <TableHead className="text-center">الحالة</TableHead>
                         <TableHead className="text-center">التصنيف</TableHead>
-                        <TableHead className="text-center">الكاتب</TableHead>
                         <TableHead className="text-center">المشاهدات</TableHead>
-                        <TableHead className="text-center">التعليقات</TableHead>
-                        <TableHead className="text-center">التاريخ</TableHead>
+                        <TableHead className="text-center">تاريخ النشر</TableHead>
                         <TableHead className="text-center">الإجراءات</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredArticles.map((article, index) => (
-                        <TableRow key={article.id}>
-                          <TableCell className="text-right font-medium">
-                            {toArabicNumbers(index + 1)}
-                          </TableCell>
-                          
-                          <TableCell className="text-right">
-                            <div className="flex items-center gap-2">
-                              {article.image && (
-                                <img 
-                                  src={article.image} 
-                                  alt="" 
-                                  className="w-10 h-10 rounded object-cover"
-                                />
-                              )}
-                              <div>
-                                <p className="font-medium line-clamp-1">{article.title}</p>
+                      {filteredArticles.map((article, index) => {
+                        const dateTime = formatDateTime(article.published_at || article.created_at);
+                        return (
+                          <TableRow key={article.id}>
+                            <TableCell className="text-right font-medium">
+                              {index + 1}
+                            </TableCell>
+                            
+                            <TableCell className="text-right">
+                              <div className="flex items-start gap-3">
+                                {(article.image || article.featured_image) && (
+                                  <img 
+                                    src={article.image || article.featured_image} 
+                                    alt="" 
+                                    className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                                  />
+                                )}
+                                <div className="flex-1">
+                                  <p className="font-semibold text-gray-900 line-clamp-2">{article.title}</p>
+                                  <p className="text-sm text-gray-600 mt-1">
+                                    <Users className="w-3 h-3 inline-block ml-1" />
+                                    {article.author?.name || article.author_name || 'غير محدد'}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          </TableCell>
+                            </TableCell>
 
-                          <TableCell className="text-center">
-                            <Switch
-                              checked={article.breaking || false}
-                              onCheckedChange={() => toggleBreakingNews(article.id, article.breaking || false)}
-                              className="data-[state=checked]:bg-red-500"
-                            />
-                          </TableCell>
+                            <TableCell className="text-center">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="inline-flex">
+                                    <Switch
+                                      checked={article.breaking || false}
+                                      onCheckedChange={() => toggleBreakingNews(article.id, article.breaking || false)}
+                                      className="data-[state=checked]:bg-red-600"
+                                    />
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{article.breaking ? 'إلغاء العاجل' : 'تفعيل كعاجل'}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TableCell>
 
-                          <TableCell className="text-center">
-                            <Badge
-                              variant={
-                                article.status === 'published' ? 'default' :
-                                article.status === 'draft' ? 'secondary' :
-                                article.status === 'archived' ? 'outline' :
-                                'destructive'
-                              }
-                              className={
-                                article.status === 'published' ? 'bg-green-100 text-green-800' :
-                                article.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-                                article.status === 'archived' ? 'bg-gray-100 text-gray-800' :
-                                'bg-purple-100 text-purple-800'
-                              }
-                            >
-                              {article.status === 'published' ? 'منشور' :
-                               article.status === 'draft' ? 'مسودة' :
-                               article.status === 'archived' ? 'مؤرشف' :
-                               'مجدول'}
-                            </Badge>
-                          </TableCell>
+                            <TableCell className="text-center">
+                              <Badge
+                                variant={
+                                  article.status === 'published' ? 'default' :
+                                  article.status === 'draft' ? 'secondary' :
+                                  article.status === 'archived' ? 'outline' :
+                                  'destructive'
+                                }
+                                className={
+                                  article.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' :
+                                  article.status === 'draft' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                                  article.status === 'archived' ? 'bg-gray-100 text-gray-800 border-gray-200' :
+                                  'bg-purple-100 text-purple-800 border-purple-200'
+                                }
+                              >
+                                {article.status === 'published' ? 'منشور' :
+                                 article.status === 'draft' ? 'مسودة' :
+                                 article.status === 'archived' ? 'مؤرشف' :
+                                 'مجدول'}
+                              </Badge>
+                            </TableCell>
 
-                          <TableCell className="text-center">
-                            <Badge variant="outline">
-                              {article.category?.name || 'بدون تصنيف'}
-                            </Badge>
-                          </TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">
+                                {getCategoryName(article)}
+                              </Badge>
+                            </TableCell>
 
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <Users className="w-4 h-4 text-gray-400" />
-                              <span className="text-sm">
-                                {article.author?.name || article.author_name || 'غير محدد'}
-                              </span>
-                            </div>
-                          </TableCell>
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <Eye className="w-4 h-4 text-gray-400" />
+                                <span className="text-sm font-medium">
+                                  {formatNumber(article.views || 0)}
+                                </span>
+                              </div>
+                            </TableCell>
 
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <Eye className="w-4 h-4 text-gray-400" />
-                              <span className="text-sm font-medium">
-                                {toArabicNumbers(article.views || 0)}
-                              </span>
-                            </div>
-                          </TableCell>
+                            <TableCell className="text-center">
+                              <div className="text-sm">
+                                <div className="font-medium text-gray-900">{dateTime.date}</div>
+                                <div className="text-gray-500 text-xs mt-0.5">{dateTime.time}</div>
+                              </div>
+                            </TableCell>
 
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <MessageSquare className="w-4 h-4 text-gray-400" />
-                              <span className="text-sm font-medium">
-                                {toArabicNumbers(article.comments?.length || 0)}
-                              </span>
-                            </div>
-                          </TableCell>
-
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <Clock className="w-4 h-4 text-gray-400" />
-                              <span className="text-sm text-gray-600">
-                                {getRelativeTime(article.published_at || article.created_at)}
-                              </span>
-                            </div>
-                          </TableCell>
-
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <MoreVertical className="w-4 h-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem onClick={() => router.push(`/article/${article.id}`)}>
-                                  <Eye className="w-4 h-4 ml-2" />
-                                  عرض
-                                </DropdownMenuItem>
-                                
-                                <DropdownMenuItem onClick={() => router.push(`/dashboard/news/unified?id=${article.id}`)}>
-                                  <Edit className="w-4 h-4 ml-2" />
-                                  تعديل
-                                </DropdownMenuItem>
-
-                                {article.status === 'draft' && (
-                                  <DropdownMenuItem onClick={() => publishArticle(article.id)}>
-                                    <PlayCircle className="w-4 h-4 ml-2 text-green-600" />
-                                    نشر
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm" className="h-9 px-3">
+                                    <MoreVertical className="w-4 h-4 ml-1" />
+                                    إجراءات
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56">
+                                  <DropdownMenuItem onClick={() => router.push(`/article/${article.id}`)} className="py-3">
+                                    <Eye className="w-4 h-4 ml-3 text-blue-600" />
+                                    <span className="font-medium">عرض المقال</span>
                                   </DropdownMenuItem>
-                                )}
-
-                                {article.status === 'published' && (
-                                  <DropdownMenuItem onClick={() => archiveArticle(article.id)}>
-                                    <PauseCircle className="w-4 h-4 ml-2 text-yellow-600" />
-                                    أرشفة
+                                  
+                                  <DropdownMenuItem onClick={() => router.push(`/dashboard/news/unified?id=${article.id}`)} className="py-3">
+                                    <Edit className="w-4 h-4 ml-3 text-yellow-600" />
+                                    <span className="font-medium">تعديل المقال</span>
                                   </DropdownMenuItem>
-                                )}
 
-                                <DropdownMenuSeparator />
-                                
-                                <DropdownMenuItem 
-                                  onClick={() => deleteArticle(article.id)}
-                                  className="text-red-600"
-                                >
-                                  <Trash2 className="w-4 h-4 ml-2" />
-                                  حذف
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                                  {article.status === 'draft' && (
+                                    <DropdownMenuItem onClick={() => publishArticle(article.id)} className="py-3">
+                                      <PlayCircle className="w-4 h-4 ml-3 text-green-600" />
+                                      <span className="font-medium text-green-600">نشر المقال</span>
+                                    </DropdownMenuItem>
+                                  )}
+
+                                  {article.status === 'published' && (
+                                    <DropdownMenuItem onClick={() => archiveArticle(article.id)} className="py-3">
+                                      <PauseCircle className="w-4 h-4 ml-3 text-orange-600" />
+                                      <span className="font-medium text-orange-600">أرشفة المقال</span>
+                                    </DropdownMenuItem>
+                                  )}
+
+                                  <DropdownMenuSeparator />
+                                  
+                                  <DropdownMenuItem 
+                                    onClick={() => deleteArticle(article.id)}
+                                    className="py-3 text-red-600 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="w-4 h-4 ml-3" />
+                                    <span className="font-medium">حذف المقال</span>
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
