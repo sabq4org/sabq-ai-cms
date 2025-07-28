@@ -68,4 +68,3 @@ export async function POST() {
     );
   }
 }
-git push origin production-final-cleangit push origin production-final-clean
