@@ -349,3 +349,13 @@ test-*.js
 AMPLIFY_ENV_COPY_PASTE.txt
 aws-s3-env-variables.txt
 *-env-variables.txt
+
+# Security: Files with exposed keys
+*.s3.js
+aws-s3-env-variables.txt
+create-s3-bucket.js
+test-s3-direct.js
+make-bucket-public.js
+check-s3-connection.js
+test-comprehensive-upload.js
+AWS_S3_*_REPORT.md
