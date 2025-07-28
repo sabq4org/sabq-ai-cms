@@ -3,7 +3,7 @@
  * Arabic Sentiment Analysis Service
  */
 
-import { prisma } from '@/lib/prisma-simple';
+import { prisma } from '@/lib/prisma';
 import {
   SentimentAnalysisRequest,
   SentimentAnalysisResponse,

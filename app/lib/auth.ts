@@ -86,7 +86,7 @@ export async function getCurrentUser(): Promise<User | null> {
     if (!payload) return null;
     
     // استعلام قاعدة البيانات للحصول على بيانات المستخدم الكاملة
-    const { PrismaClient } = await import('@/lib/generated/prisma');
+    const { PrismaClient } = await import('@prisma/client');
     const prisma = new PrismaClient();
     
     const user = await prisma.users.findUnique({
