@@ -1,9 +1,45 @@
 # 🔍 استكشاف أخطاء AWS Amplify - خطأ 503 مستمر
 
-## 🚨 الحالة الحالية
+## 🚨 الحالة الحالية (مُحدثة: 28 يوليو 2025)
 ```
-Status: 503 Service Unavailable
-Error: Prisma Client could not locate the Query Engine
+Status: 503 Service Unavailable ❌ (مش متحل لسه)
+Error: Prisma Client could not locate the Query Engine for runtime "rhel-openssl-1.0.x"
+تأكيد: AWS Amplify مش مطبق عليه إصلاح Prisma
+```
+
+## ⚠️ الحل المطلوب فوراً
+
+### 🚨 أنت لازم تعمل هذا في AWS Amplify Console:
+**الرابط المباشر:** https://console.aws.amazon.com/amplify/
+
+```
+1. اختر: sabq-ai-cms
+2. App settings → Build settings  
+3. اضغط: Edit build specification
+4. في Build specification، أضف الكود التالي بالضبط:
+```
+
+```yaml
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+        - echo "🔧 تطبيق إصلاح Prisma..."
+        - sed -i 's/binaryTargets.*=.*\["native"\]/binaryTargets = ["native", "rhel-openssl-1.0.x"]/' prisma/schema.prisma
+        - npx prisma generate
+        - echo "✅ Prisma client مُحدث للـ AWS Lambda"
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
 ```
 
 ## 📋 خطوات استكشاف الأخطاء
@@ -58,14 +94,68 @@ postgresql://postgres:%2A7gzOMPcDco8l4If%3AO-CVb9Ehztq@database-1.cluster-cluyg2
 - ✅ `:5432` (المنفذ)
 - ✅ `/sabqcms` (اسم قاعدة البيانات)
 
-## 🛠️ حلول محتملة
+## 🛠️ خطة الحل الصحيحة (بالترتيب)
 
-### الحل 1: إعادة Build من الصفر
+### خطوة 1: تطبيق إصلاح Prisma في Build Settings ⚠️
+```yaml
+# اذهب إلى: App settings → Build settings → Edit
+# أضف في preBuild commands:
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+        - sed -i 's/binaryTargets   = \["native"\]/binaryTargets   = ["native", "rhel-openssl-1.0.x"]/' prisma/schema.prisma
+        - npx prisma generate
+    build:
+      commands:
+        - npm run build
 ```
-1. AWS Amplify → Hosting
-2. Actions → Redeploy app
-3. انتظار 5-10 دقائق
+
+### خطوة 2: إعادة النشر
+**جرب هذه الطرق بالترتيب:**
+1. **App overview** → Deploy dropdown → Redeploy
+2. **Hosting** → View builds → Latest build → Actions → Redeploy  
+3. **App settings** → General → Manual deploy section
+4. **اجبار build جديد**: غير أي environment variable مؤقت ثم ارجعه
+
+### خطوة 5: احفظ ونشّط التغييرات
 ```
+1. Save build specification
+2. اذهب إلى: Hosting → View builds
+3. اضغط: "Deploy latest" أو أي زر deploy
+4. انتظر 5-10 دقائق للـ build
+5. راقب logs للتأكد من ظهور "rhel-openssl-1.0.x"
+```
+
+### 📞 بعد Build يخلص:
+- اختبر: https://main.dvdwfd4vy831i.amplifyapp.com/api/categories
+- يجب أن ترجع: `{"success":true,"categories":[...]}` 
+- بدلاً من: 503 Service Unavailable
+
+## 🔴 إذا مش شغال برضه:
+1. ارجع هنا واكتب "مش شغال"
+2. ارسل screenshot من Build logs
+3. سنجرب حل آخر
+
+### الحل 1: تطبيق إصلاح Prisma أولاً ⚠️ (مهم جداً)
+```
+1. AWS Amplify → sabq-ai-cms
+2. App settings → Build settings  
+3. Edit build specification
+4. أضف هذا الكود في preBuild:
+   - sed -i 's/binaryTargets   = \["native"\]/binaryTargets   = ["native", "rhel-openssl-1.0.x"]/' prisma/schema.prisma
+   - npx prisma generate
+5. Save
+```
+
+### الحل 2: إعادة Build بعد التعديل
+**خيارات إعادة النشر:**
+- **الطريقة 1**: App overview → Deploy dropdown → Redeploy
+- **الطريقة 2**: Hosting → View builds → Latest build → Redeploy  
+- **الطريقة 3**: App settings → General → Manual deploy
+- **الطريقة 4**: استخدم أي commit جديد للتشغيل التلقائي
 
 ### الحل 2: تحديث Environment Variables
 ```

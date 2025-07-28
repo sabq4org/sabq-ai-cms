@@ -344,3 +344,8 @@ test-*.js
 # سجلات الأخطاء
 /logs/*.log
 !/logs/.gitkeep
+
+# Sensitive files
+AMPLIFY_ENV_COPY_PASTE.txt
+aws-s3-env-variables.txt
+*-env-variables.txt
