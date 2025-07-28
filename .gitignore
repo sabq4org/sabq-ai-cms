@@ -348,3 +348,6 @@ test-*.js
 # Amplify environment variables
 AMPLIFY_ENV_COPY_PASTE.txt
 AMPLIFY_DIRECT_ENV_VARS.txt
+
+# DigitalOcean environment
+digitalocean-aws-db.env
