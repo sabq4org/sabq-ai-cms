@@ -359,3 +359,4 @@ make-bucket-public.js
 check-s3-connection.js
 test-comprehensive-upload.js
 AWS_S3_*_REPORT.md
+aws-s3-env-variables-secure.txt
