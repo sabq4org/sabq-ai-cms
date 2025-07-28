@@ -11,10 +11,13 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install dependencies
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
-# Generate Prisma Client
-RUN npx prisma generate
+# Generate Prisma Client with DigitalOcean fix
+RUN echo "🔧 Applying Prisma fix for DigitalOcean..." && \
+    sed -i 's/binaryTargets.*=.*\[.*\]/binaryTargets = ["native", "linux-musl-openssl-3.0.x"]/' prisma/schema.prisma && \
+    npx prisma generate && \
+    echo "✅ Prisma client generated for DigitalOcean"
 
 # Copy source code
 COPY . .
