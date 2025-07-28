@@ -31,9 +31,9 @@ async function getArticles() {
     const baseUrl = `${protocol}://${host}`;
     
     const res = await fetch(`${baseUrl}/api/articles?status=published&limit=16&sortBy=published_at&order=desc`, {
-      next: { revalidate: 180 }, // cache لـ 3 دقائق
+      next: { revalidate: 300 }, // cache لـ 5 دقائق
       headers: {
-        'Cache-Control': 'public, s-maxage=180, stale-while-revalidate=300'
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
       }
     });
     

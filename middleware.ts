@@ -1,65 +1,59 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
+export async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+  
+  // إضافة cache headers للملفات الثابتة
   const response = NextResponse.next();
   
-  // تحسين الأداء للصفحات الثابتة
-  if (request.nextUrl.pathname.startsWith('/_next/static')) {
-    response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
-    return response;
+  // للصور الثابتة
+  if (pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i)) {
+    response.headers.set(
+      'Cache-Control',
+      'public, max-age=31536000, immutable'
+    );
   }
   
-  // تحسين الأداء للصور
-  if (request.nextUrl.pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|webp)$/)) {
-    response.headers.set('Cache-Control', 'public, max-age=86400');
-    return response;
+  // للملفات CSS و JS
+  if (pathname.match(/\.(css|js)$/i)) {
+    response.headers.set(
+      'Cache-Control',
+      'public, max-age=31536000, immutable'
+    );
   }
   
-  // معالجة CORS لطلبات API
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    // معالجة OPTIONS requests
-    if (request.method === 'OPTIONS') {
-      return new NextResponse(null, {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, Accept, Cookie',
-          'Access-Control-Allow-Credentials': 'true',
-          'Access-Control-Max-Age': '86400',
-        },
-      })
+  // للـ API endpoints - cache ديناميكي
+  if (pathname.startsWith('/api/')) {
+    // لا نضع cache للـ auth endpoints
+    if (!pathname.includes('/auth')) {
+      response.headers.set(
+        'Cache-Control',
+        'public, s-maxage=60, stale-while-revalidate=300'
+      );
     }
-    
-    // إضافة CORS headers للطلبات العادية
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    response.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept, Cookie')
-    response.headers.set('Access-Control-Allow-Credentials', 'true')
-    
-    return response
   }
   
-  // تحسين headers للصفحات
+  // Security headers
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Compression hint
+  response.headers.set('Accept-Encoding', 'gzip, deflate, br');
 
-  return response
+  return response;
 }
 
-// تحديد المسارات التي يعمل عليها middleware
 export const config = {
   matcher: [
-    '/api/:path*', // جميع طلبات API
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
      */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
   ],
-} 
+}; 

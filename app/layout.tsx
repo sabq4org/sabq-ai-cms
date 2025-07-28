@@ -26,6 +26,14 @@ const ibmPlexArabic = IBM_Plex_Sans_Arabic({
 export const metadata: Metadata = {
   title: 'صحيفة سبق الالكترونية AI',
   description: 'صحيفة سبق الإلكترونية - أخبار ومقالات بتقنية الذكاء الاصطناعي',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+  themeColor: '#ffffff',
+  applicationName: 'صحيفة سبق',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'صحيفة سبق',
+  },
 };
 
 export default function RootLayout({
@@ -35,6 +43,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
+      <head>
+        {/* Preconnect لتحسين الأداء */}
+        <link rel="preconnect" href="https://sabq-cms-content.s3.amazonaws.com" />
+        <link rel="preconnect" href="https://sabq-cms-content.s3.us-east-1.amazonaws.com" />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://sabq-cms-content.s3.amazonaws.com" />
+        <link rel="dns-prefetch" href="https://sabq-cms-content.s3.us-east-1.amazonaws.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+      </head>
       <body className={`${ibmPlexArabic.variable} font-arabic`}>
         <ErrorBoundary>
           <Providers>
