@@ -3,25 +3,25 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "🔄 تثبيت الحزم..."
+        - echo "Installing packages..."
         - npm ci
-        - echo "🔧 إصلاح متغيرات البيئة و Prisma..."
+        - echo "Fixing environment variables..."
         - node scripts/fix-amplify-env.js
-        - echo "🔄 تنظيف Prisma القديم..."
+        - echo "Cleaning old Prisma..."
         - rm -rf node_modules/.prisma
         - rm -rf node_modules/@prisma/client
-        - echo "🔄 توليد Prisma Client بـ targets الصحيحة..."
+        - echo "Generating Prisma Client..."
         - npx prisma generate --force
-        - echo "🔍 فحص Prisma Engine..."
+        - echo "Checking Prisma files..."
         - ls -la node_modules/.prisma/client/
-        - echo "✅ انتهاء preBuild"
+        - echo "PreBuild completed"
     build:
       commands:
-        - echo "🔍 فحص متغيرات البيئة..."
-        - echo "DATABASE_URL is set: $(if [ -z \"$DATABASE_URL\" ]; then echo 'NO ❌'; else echo 'YES ✅'; fi)"
-        - echo "🏗️ بناء التطبيق..."
+        - echo "Checking environment..."
+        - node -e "console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET')"
+        - echo "Building application..."
         - npm run build
-        - echo "✅ انتهاء البناء"
+        - echo "Build completed"
   artifacts:
     baseDirectory: .next
     files:
@@ -30,4 +30,3 @@ frontend:
     paths:
       - node_modules/**/*
       - .next/cache/**/*
-      - lib/generated/**/*
