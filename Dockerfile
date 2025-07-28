@@ -17,14 +17,16 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # تثبيت التبعيات مع دعم sharp للـ Alpine
-RUN npm ci --include=optional
-RUN npm install sharp@0.33.2 --platform=linuxmusl --arch=x64
+RUN npm ci --legacy-peer-deps --include=optional
+RUN npm install sharp@0.33.2 --platform=linuxmusl --arch=x64 --legacy-peer-deps
 RUN npx prisma generate
 
 # نسخ باقي الملفات
 COPY . .
 
 # بناء التطبيق
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 RUN npm run build
 
 # ---- Production Stage ----
