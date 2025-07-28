@@ -423,6 +423,29 @@ export default function CategoriesPage() {
     // الحصول على الاسم العربي من المكان المناسب
     const categoryNameAr = category.name_ar || category.metadata?.name_ar || category.name || '';
     const categoryData = getCategoryData(categoryNameAr);
+    
+    // استخدام صورة افتراضية آمنة بدلاً من unsplash
+    if (!categoryData.image || categoryData.image.includes('unsplash.com')) {
+      // استخدام UI Avatars كصورة افتراضية
+      const bgColor = categoryData.bgColor.replace('bg-', '').replace('-500', '');
+      const colorMap: { [key: string]: string } = {
+        'blue': '0D8ABC',
+        'green': '00A86B',
+        'red': 'DC2626',
+        'purple': '9333EA',
+        'yellow': 'F59E0B',
+        'pink': 'EC4899',
+        'indigo': '6366F1',
+        'cyan': '06B6D4',
+        'orange': 'F97316',
+        'teal': '14B8A6',
+        'emerald': '10B981',
+        'rose': 'F43F5E'
+      };
+      const hexColor = colorMap[bgColor] || '1E40AF';
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(categoryNameAr)}&background=${hexColor}&color=fff&size=800&font-size=0.33&rounded=false`;
+    }
+    
     return categoryData.image;
   };
 

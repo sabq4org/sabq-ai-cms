@@ -19,12 +19,12 @@ const S3_DOMAINS = [
   's3.us-east-1.amazonaws.com'
 ];
 
-// Fallback images - تأكد من صحة الروابط
+// Fallback images - روابط صحيحة وموثوقة
 const FALLBACK_IMAGES = {
-  article: 'https://images.unsplash.com/photo-1585241645927-c7a8e5840c42?w=800&auto=format&fit=crop&q=60',
-  author: 'https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff&size=200',
-  category: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&auto=format&fit=crop&q=60',
-  default: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&auto=format&fit=crop&q=60'
+  article: 'https://ui-avatars.com/api/?name=مقال&background=0D8ABC&color=fff&size=800&font-size=0.33&rounded=false',
+  author: 'https://ui-avatars.com/api/?name=كاتب&background=0D8ABC&color=fff&size=200&font-size=0.33&rounded=true',
+  category: 'https://ui-avatars.com/api/?name=تصنيف&background=00A86B&color=fff&size=800&font-size=0.33&rounded=false',
+  default: 'https://ui-avatars.com/api/?name=سبق&background=1E40AF&color=fff&size=800&font-size=0.33&rounded=false'
 };
 
 // تنظيف رابط S3 من معاملات التوقيع
@@ -145,13 +145,20 @@ export function getImageUrl(
 
   // إذا كانت الصورة من Unsplash
   if (imageUrl.includes('unsplash.com')) {
-    const url = new URL(imageUrl);
-    url.searchParams.set('w', width.toString());
-    url.searchParams.set('h', height.toString());
-    url.searchParams.set('q', quality.toString());
-    url.searchParams.set('auto', 'format');
-    url.searchParams.set('fit', 'crop');
-    return url.toString();
+    try {
+      const url = new URL(imageUrl);
+      // تنظيف المعاملات القديمة
+      url.search = '';
+      // إضافة معاملات جديدة
+      url.searchParams.set('w', width.toString());
+      url.searchParams.set('q', quality.toString());
+      url.searchParams.set('auto', 'format');
+      url.searchParams.set('fit', 'crop');
+      return url.toString();
+    } catch {
+      console.log(`❌ رابط Unsplash غير صحيح: ${imageUrl}`);
+      return FALLBACK_IMAGES[fallbackType];
+    }
   }
 
   // إذا كانت الصورة من مصدر آخر

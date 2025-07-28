@@ -7,19 +7,14 @@ import { Calendar, Clock, Eye, MessageSquare, Zap, Newspaper } from 'lucide-reac
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { getImageUrl, cleanS3Url } from '@/lib/image-utils';
+import { isBrokenImage, getQuickPlaceholder } from '@/lib/performance-config';
 
 interface ArticleCardProps {
   article: any;
   viewMode?: 'grid' | 'list';
 }
 
-// دالة لإنشاء blur placeholder
-function getBlurDataUrl(): string {
-  // SVG blur placeholder أبيض/رمادي
-  return `data:image/svg+xml;base64,${Buffer.from(
-    '<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#f3f4f6"/></svg>'
-  ).toString('base64')}`;
-}
+
 
 // مكون الصورة مع معالجة أفضل للأخطاء
 function ArticleImage({ 
@@ -36,23 +31,32 @@ function ArticleImage({
   priority?: boolean;
 }) {
   const [imageError, setImageError] = useState(false);
-  const [imageSrc, setImageSrc] = useState(src);
+  const [imageSrc, setImageSrc] = useState(() => {
+    // التحقق المسبق من الصور المعطلة
+    if (!src || isBrokenImage(src)) {
+      return null;
+    }
+    return src;
+  });
+  const [retryCount, setRetryCount] = useState(0);
 
   // معالجة الخطأ في تحميل الصورة
   const handleImageError = () => {
     console.log(`❌ فشل تحميل الصورة: ${src}`);
-    setImageError(true);
     
     // محاولة تنظيف رابط S3 إذا كان يحتوي على توقيع منتهي
-    if (src && src.includes('X-Amz-Signature')) {
+    if (src && src.includes('X-Amz-Signature') && retryCount === 0) {
       const cleanUrl = cleanS3Url(src);
       if (cleanUrl !== src) {
         console.log('🔄 محاولة تحميل الصورة بدون توقيع...');
         setImageSrc(cleanUrl);
-        setImageError(false);
+        setRetryCount(1);
         return;
       }
     }
+    
+    // إذا فشلت كل المحاولات
+    setImageError(true);
   };
 
   // إذا فشلت الصورة نهائياً، عرض placeholder
@@ -73,9 +77,10 @@ function ArticleImage({
       className={className}
       loading={priority ? "eager" : "lazy"}
       placeholder="blur"
-      blurDataURL={getBlurDataUrl()}
+      blurDataURL={getQuickPlaceholder('article')}
       onError={handleImageError}
-      quality={85}
+      quality={75}
+      unoptimized={false}
     />
   );
 }
