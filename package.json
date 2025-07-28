@@ -12,6 +12,7 @@
     "build": "prisma generate && next build",
     "build:analyze": "ANALYZE=true npm run build",
     "start": "next start",
+    "postinstall": "node scripts/fix-amplify-env.js || echo 'Postinstall script completed'",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
