@@ -3,23 +3,25 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Installing system dependencies..."
-        - yum install -y openssl-devel
         - echo "Installing Node packages..."
         - npm ci
-        - echo "Creating .env file..."
+        - echo "Setting up environment..."
         - echo "DATABASE_URL=$DATABASE_URL" > .env
         - echo "NEXTAUTH_SECRET=$NEXTAUTH_SECRET" >> .env
         - echo "NEXTAUTH_URL=$NEXTAUTH_URL" >> .env
-        - echo "Fixing Prisma..."
-        - node scripts/fix-amplify-env.js
-        - chmod +x scripts/amplify-prisma-fix.sh
-        - ./scripts/amplify-prisma-fix.sh
+        - echo "NODE_ENV=production" >> .env
+        - echo "Fixing Prisma schema..."
+        - sed -i 's/binaryTargets.*=.*/binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-1.1.x", "linux-musl", "linux-musl-openssl-3.0.x"]/' prisma/schema.prisma
+        - echo "Cleaning Prisma..."
+        - rm -rf node_modules/.prisma
+        - rm -rf node_modules/@prisma/client
+        - echo "Generating Prisma Client..."
+        - npx prisma generate --force
+        - echo "Checking generated files..."
+        - ls -la node_modules/.prisma/client/ || echo "Prisma client not found"
         - echo "PreBuild completed"
     build:
       commands:
-        - echo "Checking environment..."
-        - cat .env | grep -E "DATABASE_URL|NEXTAUTH" | sed 's/=.*/=***/'
         - echo "Building application..."
         - npm run build
         - echo "Build completed"
@@ -30,4 +32,3 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
-      - .next/cache/**/*
