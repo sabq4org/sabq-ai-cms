@@ -5,11 +5,20 @@ frontend:
       commands:
         - echo "🔄 تثبيت الحزم..."
         - npm ci
-        - echo "🔄 توليد Prisma Client..."
-        - npx prisma generate
+        - echo "🔧 إصلاح متغيرات البيئة و Prisma..."
+        - node scripts/fix-amplify-env.js
+        - echo "🔄 تنظيف Prisma القديم..."
+        - rm -rf node_modules/.prisma
+        - rm -rf node_modules/@prisma/client
+        - echo "🔄 توليد Prisma Client بـ targets الصحيحة..."
+        - npx prisma generate --force
+        - echo "🔍 فحص Prisma Engine..."
+        - ls -la node_modules/.prisma/client/
         - echo "✅ انتهاء preBuild"
     build:
       commands:
+        - echo "🔍 فحص متغيرات البيئة..."
+        - echo "DATABASE_URL is set: $(if [ -z \"$DATABASE_URL\" ]; then echo 'NO ❌'; else echo 'YES ✅'; fi)"
         - echo "🏗️ بناء التطبيق..."
         - npm run build
         - echo "✅ انتهاء البناء"
