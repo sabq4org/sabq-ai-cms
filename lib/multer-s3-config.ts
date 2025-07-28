@@ -8,8 +8,8 @@ import AWS from 'aws-sdk';
 
 // إعداد AWS S3
 const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'AKIA5ODCY47IRLKNVZ7H',
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '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',
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: process.env.AWS_REGION || 'us-east-1',
 });
 
