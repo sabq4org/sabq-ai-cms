@@ -1,0 +1,25 @@
+# 🔐 متغيرات البيئة لـ Amazon S3
+# استخدم هذه القيم في ملف .env أو AWS Amplify Environment Variables
+
+# AWS S3 Configuration
+AWS_ACCESS_KEY_ID=AKIA5ODCY47IRLKNVZ7H
+AWS_SECRET_ACCESS_KEY=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
+AWS_REGION=us-east-1
+S3_BUCKET=sabq-uploader
+
+# ملاحظات مهمة:
+# 1. هذه المفاتيح للاستخدام المؤقت - يفضل إنشاء IAM User جديد للإنتاج
+# 2. تأكد من أن S3 Bucket له Public Read Access للصور
+# 3. المنطقة us-east-1 هي الافتراضية لـ S3
+
+# لـ AWS Amplify - أضف هذه المتغيرات في Console:
+# AWS Amplify → App → Environment variables → Manage variables
+
+# الإعدادات الحالية (قاعدة البيانات):
+DATABASE_URL=postgresql://postgres:%2A7gzOMPcDco8l4If%3AO-CVb9Ehztq@database-1.cluster-cluyg244y2cj.eu-north-1.rds.amazonaws.com:5432/sabqcms
+NEXTAUTH_SECRET=sabq-ai-cms-secret-key-2025
+NEXTAUTH_URL=https://main.dvdwfd4vy831i.amplifyapp.com
+
+# إعدادات أخرى (إذا كانت مطلوبة):
+NEXT_PUBLIC_APP_URL=https://main.dvdwfd4vy831i.amplifyapp.com
+NEXT_PUBLIC_SITE_URL=https://main.dvdwfd4vy831i.amplifyapp.com
