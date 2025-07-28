@@ -15,7 +15,16 @@ RUN npm install --legacy-peer-deps
 
 # Generate Prisma Client with DigitalOcean fix
 RUN echo "🔧 Applying Prisma fix for DigitalOcean..." && \
-    sed -i 's/binaryTargets.*=.*\[.*\]/binaryTargets = ["native", "linux-musl-openssl-3.0.x"]/' prisma/schema.prisma && \
+    echo 'generator client {' > /tmp/generator.txt && \
+    echo '  provider        = "prisma-client-js"' >> /tmp/generator.txt && \
+    echo '  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]' >> /tmp/generator.txt && \
+    echo '  previewFeatures = ["relationJoins"]' >> /tmp/generator.txt && \
+    echo '}' >> /tmp/generator.txt && \
+    tail -n +6 prisma/schema.prisma > /tmp/rest.txt && \
+    cat /tmp/generator.txt /tmp/rest.txt > prisma/schema.prisma && \
+    echo "📄 Updated schema:" && \
+    head -5 prisma/schema.prisma && \
+    echo "🚀 Generating Prisma client..." && \
     npx prisma generate && \
     echo "✅ Prisma client generated for DigitalOcean"
 
