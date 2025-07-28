@@ -41,16 +41,12 @@ async function fixBrokenImages() {
     console.log('📝 فحص صور المقالات...');
     const articles = await prisma.articles.findMany({
       where: {
-        OR: [
-          { featured_image: { not: null } },
-          { image: { not: null } }
-        ]
+        featured_image: { not: null }
       },
       select: {
         id: true,
         title: true,
-        featured_image: true,
-        image: true
+        featured_image: true
       }
     });
     
@@ -61,11 +57,6 @@ async function fixBrokenImages() {
       
       if (article.featured_image && isBrokenImage(article.featured_image)) {
         updates.featured_image = getDefaultImage('article', article.title);
-        needsUpdate = true;
-      }
-      
-      if (article.image && isBrokenImage(article.image)) {
-        updates.image = getDefaultImage('article', article.title);
         needsUpdate = true;
       }
       
@@ -81,61 +72,36 @@ async function fixBrokenImages() {
     
     console.log(`\n✨ تم إصلاح ${fixedArticles} مقال من أصل ${articles.length}\n`);
     
-    // إصلاح صور المؤلفين  
-    console.log('👤 فحص صور المؤلفين...');
-    const authors = await prisma.authors.findMany({
-      where: {
-        avatar: { not: null }
-      },
-      select: {
-        id: true,
-        name: true,
-        avatar: true
-      }
-    });
-    
-    let fixedAuthors = 0;
-    for (const author of authors) {
-      if (isBrokenImage(author.avatar)) {
-        await prisma.authors.update({
-          where: { id: author.id },
-          data: { 
-            avatar: getDefaultImage('author', author.name)
-          }
-        });
-        fixedAuthors++;
-        console.log(`✅ تم إصلاح صورة المؤلف: ${author.name}`);
-      }
-    }
-    
-    console.log(`\n✨ تم إصلاح ${fixedAuthors} مؤلف من أصل ${authors.length}\n`);
-    
-    // إصلاح صور التصنيفات
-    console.log('📁 فحص صور التصنيفات...');
+    // إصلاح metadata التصنيفات
+    console.log('📁 فحص metadata التصنيفات...');
     const categories = await prisma.categories.findMany({
-      where: {
-        cover_image: { not: null }
-      },
       select: {
         id: true,
         name: true,
-        name_ar: true,
-        cover_image: true
+        metadata: true
       }
     });
     
     let fixedCategories = 0;
     for (const category of categories) {
-      if (isBrokenImage(category.cover_image)) {
-        const categoryName = category.name_ar || category.name;
-        await prisma.categories.update({
-          where: { id: category.id },
-          data: { 
+      if (category.metadata && typeof category.metadata === 'object') {
+        const meta = category.metadata;
+        if (meta.cover_image && isBrokenImage(meta.cover_image)) {
+          const categoryName = meta.name_ar || category.name;
+          const updatedMetadata = {
+            ...meta,
             cover_image: getDefaultImage('category', categoryName)
-          }
-        });
-        fixedCategories++;
-        console.log(`✅ تم إصلاح صورة التصنيف: ${categoryName}`);
+          };
+          
+          await prisma.categories.update({
+            where: { id: category.id },
+            data: { 
+              metadata: updatedMetadata
+            }
+          });
+          fixedCategories++;
+          console.log(`✅ تم إصلاح صورة التصنيف: ${categoryName}`);
+        }
       }
     }
     
