@@ -150,3 +150,148 @@ input, textarea, select {
   margin-bottom: 1.5rem;
   text-align: right;
 }
+
+/* Dark mode improvements */
+@layer components {
+  /* لوحة التحكم - ألوان الوضع الليلي */
+  .dark {
+    color-scheme: dark;
+  }
+
+  /* تحسين التمرير في الوضع الليلي */
+  .dark ::-webkit-scrollbar {
+    background-color: #1f2937;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    background-color: #1f2937;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 0.25rem;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background-color: #6b7280;
+  }
+
+  /* الظلال في الوضع الليلي */
+  .dark .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  }
+
+  /* تحسين الحواف والإطارات */
+  .dark .border {
+    border-color: rgba(75, 85, 99, 0.5);
+  }
+
+  /* أزرار الوضع الليلي */
+  .dark .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white;
+  }
+
+  .dark .btn-secondary {
+    @apply bg-gray-700 hover:bg-gray-600 text-gray-100;
+  }
+
+  /* البطاقات في الوضع الليلي */
+  .dark .card {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  /* الإدخالات في الوضع الليلي */
+  .dark input,
+  .dark textarea,
+  .dark select {
+    @apply bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400;
+  }
+
+  .dark input:focus,
+  .dark textarea:focus,
+  .dark select:focus {
+    @apply bg-gray-600 border-blue-500;
+  }
+
+  /* الجداول في الوضع الليلي */
+  .dark table {
+    @apply border-gray-700;
+  }
+
+  .dark th {
+    @apply bg-gray-900 text-gray-300 border-gray-700;
+  }
+
+  .dark td {
+    @apply border-gray-700;
+  }
+
+  .dark tr:hover {
+    @apply bg-gray-800/50;
+  }
+
+  /* القوائم المنسدلة في الوضع الليلي */
+  .dark [role="menu"],
+  .dark [role="listbox"] {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .dark [role="menuitem"]:hover,
+  .dark [role="option"]:hover {
+    @apply bg-gray-700;
+  }
+
+  /* التحولات السلسة */
+  * {
+    @apply transition-colors duration-200;
+  }
+
+  /* منع التحول في الصور والأيقونات */
+  img, svg, video, canvas, audio, iframe, embed, object {
+    transition: none !important;
+  }
+}
+
+/* تحسينات RTL مع الوضع الليلي */
+.dark [dir="rtl"] .sidebar {
+  @apply border-l-0 border-r border-gray-700;
+}
+
+.dark [dir="rtl"] .dropdown-menu {
+  @apply origin-top-left;
+}
+
+/* تحسين الألوان للقراءة في الوضع الليلي */
+.dark .text-muted {
+  @apply text-gray-400;
+}
+
+.dark .text-primary {
+  @apply text-blue-400;
+}
+
+.dark .text-success {
+  @apply text-green-400;
+}
+
+.dark .text-warning {
+  @apply text-yellow-400;
+}
+
+.dark .text-danger {
+  @apply text-red-400;
+}
+
+/* نهاية التحسينات */

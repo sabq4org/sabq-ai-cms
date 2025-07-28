@@ -309,14 +309,14 @@ export default function AdminNewsPage() {
           {/* العنوان والإجراءات */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">إدارة الأخبار</h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">إدارة الأخبار</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 إدارة وتحرير المحتوى الإخباري
               </p>
             </div>
             
             <Link href="/dashboard/news/unified">
-              <Button className="bg-green-600 hover:bg-green-700" size="lg">
+              <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600" size="lg">
                 <Plus className="w-5 h-5 ml-2" />
                 مقال جديد
               </Button>
@@ -325,62 +325,62 @@ export default function AdminNewsPage() {
 
           {/* بطاقات الإحصائيات */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setFilterStatus('all')}>
+            <Card className="cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => setFilterStatus('all')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">نشط</p>
-                    <p className="text-2xl font-bold">{formatNumber(stats.published + stats.draft)}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">نشط</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(stats.published + stats.draft)}</p>
                   </div>
-                  <FileText className="w-8 h-8 text-blue-500" />
+                  <FileText className="w-8 h-8 text-blue-500 dark:text-blue-400" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setFilterStatus('published')}>
+            <Card className="cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => setFilterStatus('published')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">منشور</p>
-                    <p className="text-2xl font-bold text-green-600">{formatNumber(stats.published)}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">منشور</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatNumber(stats.published)}</p>
                   </div>
-                  <CheckCircle className="w-8 h-8 text-green-500" />
+                  <CheckCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setFilterStatus('draft')}>
+            <Card className="cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => setFilterStatus('draft')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">مسودة</p>
-                    <p className="text-2xl font-bold text-yellow-600">{formatNumber(stats.draft)}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">مسودة</p>
+                    <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{formatNumber(stats.draft)}</p>
                   </div>
-                  <PauseCircle className="w-8 h-8 text-yellow-500" />
+                  <PauseCircle className="w-8 h-8 text-yellow-500 dark:text-yellow-400" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setFilterStatus('archived')}>
+            <Card className="cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => setFilterStatus('archived')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">مؤرشف</p>
-                    <p className="text-2xl font-bold text-gray-600">{formatNumber(stats.archived)}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">مؤرشف</p>
+                    <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">{formatNumber(stats.archived)}</p>
                   </div>
-                  <XCircle className="w-8 h-8 text-gray-500" />
+                  <XCircle className="w-8 h-8 text-gray-500 dark:text-gray-400" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+            <Card className="cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">عاجل</p>
-                    <p className="text-2xl font-bold text-red-600">{formatNumber(stats.breaking)}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">عاجل</p>
+                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatNumber(stats.breaking)}</p>
                   </div>
-                  <Zap className="w-8 h-8 text-red-500" />
+                  <Zap className="w-8 h-8 text-red-500 dark:text-red-400" />
                 </div>
               </CardContent>
             </Card>
@@ -389,19 +389,19 @@ export default function AdminNewsPage() {
           {/* شريط البحث والفلاتر */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <Input
                 placeholder="البحث في المقالات..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10"
+                className="pr-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
             
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 border rounded-lg"
+              className="px-4 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white"
             >
               <option value="all">جميع التصنيفات</option>
               {categories.map(cat => (
@@ -411,38 +411,38 @@ export default function AdminNewsPage() {
           </div>
 
           {/* جدول المقالات */}
-          <Card>
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardContent className="p-0">
               {loading ? (
                 <div className="p-8 text-center">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                  <p className="mt-2 text-gray-600">جاري التحميل...</p>
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
+                  <p className="mt-2 text-gray-600 dark:text-gray-400">جاري التحميل...</p>
                 </div>
               ) : filteredArticles.length === 0 ? (
                 <div className="p-8 text-center">
-                  <p className="text-gray-600">لا توجد مقالات</p>
+                  <p className="text-gray-600 dark:text-gray-400">لا توجد مقالات</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
                       <TableRow>
-                        <TableHead className="text-right w-12">#</TableHead>
-                        <TableHead className="text-right">العنوان</TableHead>
-                        <TableHead className="text-center">عاجل</TableHead>
-                        <TableHead className="text-center">الحالة</TableHead>
-                        <TableHead className="text-center">التصنيف</TableHead>
-                        <TableHead className="text-center">المشاهدات</TableHead>
-                        <TableHead className="text-center">تاريخ النشر</TableHead>
-                        <TableHead className="text-center">الإجراءات</TableHead>
+                        <TableHead className="text-right w-12 text-gray-700 dark:text-gray-300">#</TableHead>
+                        <TableHead className="text-right text-gray-700 dark:text-gray-300">العنوان</TableHead>
+                        <TableHead className="text-center text-gray-700 dark:text-gray-300">عاجل</TableHead>
+                        <TableHead className="text-center text-gray-700 dark:text-gray-300">الحالة</TableHead>
+                        <TableHead className="text-center text-gray-700 dark:text-gray-300">التصنيف</TableHead>
+                        <TableHead className="text-center text-gray-700 dark:text-gray-300">المشاهدات</TableHead>
+                        <TableHead className="text-center text-gray-700 dark:text-gray-300">تاريخ النشر</TableHead>
+                        <TableHead className="text-center text-gray-700 dark:text-gray-300">الإجراءات</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredArticles.map((article, index) => {
                         const dateTime = formatDateTime(article.published_at || article.created_at);
                         return (
-                          <TableRow key={article.id}>
-                            <TableCell className="text-right font-medium">
+                          <TableRow key={article.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                            <TableCell className="text-right font-medium text-gray-900 dark:text-white">
                               {index + 1}
                             </TableCell>
                             
@@ -456,8 +456,8 @@ export default function AdminNewsPage() {
                                   />
                                 )}
                                 <div className="flex-1">
-                                  <p className="font-semibold text-gray-900 line-clamp-2">{article.title}</p>
-                                  <p className="text-sm text-gray-600 mt-1">
+                                  <p className="font-semibold text-gray-900 dark:text-white line-clamp-2">{article.title}</p>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                     <Users className="w-3 h-3 inline-block ml-1" />
                                     {article.author?.name || article.author_name || 'غير محدد'}
                                   </p>
@@ -472,7 +472,7 @@ export default function AdminNewsPage() {
                                     <Switch
                                       checked={article.breaking || false}
                                       onCheckedChange={() => toggleBreakingNews(article.id, article.breaking || false)}
-                                      className="data-[state=checked]:bg-red-600"
+                                      className="data-[state=checked]:bg-red-600 dark:data-[state=checked]:bg-red-500"
                                     />
                                   </div>
                                 </TooltipTrigger>
@@ -490,9 +490,9 @@ export default function AdminNewsPage() {
                                   'outline'
                                 }
                                 className={
-                                  article.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' :
-                                  article.status === 'draft' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
-                                  'bg-gray-100 text-gray-800 border-gray-200'
+                                  article.status === 'published' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700' :
+                                  article.status === 'draft' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700' :
+                                  'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700'
                                 }
                               >
                                 {article.status === 'published' ? 'منشور' :
@@ -502,15 +502,15 @@ export default function AdminNewsPage() {
                             </TableCell>
 
                             <TableCell className="text-center">
-                              <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">
+                              <Badge variant="outline" className="border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30">
                                 {getCategoryName(article)}
                               </Badge>
                             </TableCell>
 
                             <TableCell className="text-center">
                               <div className="flex items-center justify-center gap-1">
-                                <Eye className="w-4 h-4 text-gray-400" />
-                                <span className="text-sm font-medium">
+                                <Eye className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                                <span className="text-sm font-medium text-gray-900 dark:text-white">
                                   {formatNumber(article.views || 0)}
                                 </span>
                               </div>
@@ -518,41 +518,41 @@ export default function AdminNewsPage() {
 
                             <TableCell className="text-center">
                               <div className="text-sm">
-                                <div className="font-medium text-gray-900">{dateTime.date}</div>
-                                <div className="text-gray-500 text-xs mt-0.5">{dateTime.time}</div>
+                                <div className="font-medium text-gray-900 dark:text-white">{dateTime.date}</div>
+                                <div className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">{dateTime.time}</div>
                               </div>
                             </TableCell>
 
                             <TableCell>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="outline" size="sm" className="h-9 px-3">
+                                  <Button variant="outline" size="sm" className="h-9 px-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
                                     <MoreVertical className="w-4 h-4 ml-1" />
                                     إجراءات
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56">
-                                  <DropdownMenuItem onClick={() => router.push(`/article/${article.id}`)} className="py-3">
-                                    <Eye className="w-4 h-4 ml-3 text-blue-600" />
+                                <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                                  <DropdownMenuItem onClick={() => router.push(`/article/${article.id}`)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <Eye className="w-4 h-4 ml-3 text-blue-600 dark:text-blue-400" />
                                     <span className="font-medium">عرض المقال</span>
                                   </DropdownMenuItem>
                                   
-                                  <DropdownMenuItem onClick={() => router.push(`/dashboard/news/unified?id=${article.id}`)} className="py-3">
-                                    <Edit className="w-4 h-4 ml-3 text-yellow-600" />
+                                  <DropdownMenuItem onClick={() => router.push(`/dashboard/news/unified?id=${article.id}`)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <Edit className="w-4 h-4 ml-3 text-yellow-600 dark:text-yellow-400" />
                                     <span className="font-medium">تعديل المقال</span>
                                   </DropdownMenuItem>
 
                                   {article.status === 'draft' && (
-                                    <DropdownMenuItem onClick={() => publishArticle(article.id)} className="py-3">
-                                      <PlayCircle className="w-4 h-4 ml-3 text-green-600" />
-                                      <span className="font-medium text-green-600">نشر المقال</span>
+                                    <DropdownMenuItem onClick={() => publishArticle(article.id)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                      <PlayCircle className="w-4 h-4 ml-3 text-green-600 dark:text-green-400" />
+                                      <span className="font-medium text-green-600 dark:text-green-400">نشر المقال</span>
                                     </DropdownMenuItem>
                                   )}
 
                                   {article.status === 'published' && (
-                                    <DropdownMenuItem onClick={() => archiveArticle(article.id)} className="py-3">
-                                      <PauseCircle className="w-4 h-4 ml-3 text-orange-600" />
-                                      <span className="font-medium text-orange-600">أرشفة المقال</span>
+                                    <DropdownMenuItem onClick={() => archiveArticle(article.id)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                      <PauseCircle className="w-4 h-4 ml-3 text-orange-600 dark:text-orange-400" />
+                                      <span className="font-medium text-orange-600 dark:text-orange-400">أرشفة المقال</span>
                                     </DropdownMenuItem>
                                   )}
 
@@ -560,7 +560,7 @@ export default function AdminNewsPage() {
                                   
                                   <DropdownMenuItem 
                                     onClick={() => deleteArticle(article.id)}
-                                    className="py-3 text-red-600 hover:bg-red-50"
+                                    className="py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                                   >
                                     <Trash2 className="w-4 h-4 ml-3" />
                                     <span className="font-medium">حذف المقال</span>
