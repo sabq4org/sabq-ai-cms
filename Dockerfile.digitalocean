@@ -16,7 +16,7 @@ RUN npm config set ignore-scripts true && \
     if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
     elif [ -f package-lock.json ]; then npm install --legacy-peer-deps --ignore-scripts; \
     elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-    else echo "Lockfile not found." && exit 1; \
+    else echo "Lockfile not found." && npm install; \
     fi && \
     npm config set ignore-scripts false
 
@@ -51,10 +51,13 @@ RUN echo "🚀 تحضير Prisma للإنتاج..." && \
         node scripts/prepare-prisma-for-production.js; \
     fi
 
-# توليد Prisma Client
+# توليد Prisma Client مع إصلاح AWS Lambda
 RUN echo "🔧 توليد Prisma Client..." && \
+    echo "🚀 تطبيق إصلاح Prisma للـ DigitalOcean..." && \
+    sed -i 's/binaryTargets.*=.*\["native"\]/binaryTargets = ["native", "linux-musl-openssl-3.0.x"]/' prisma/schema.prisma && \
+    cat prisma/schema.prisma | grep binaryTargets && \
     npx prisma generate && \
-    echo "✅ تم توليد Prisma Client"
+    echo "✅ تم توليد Prisma Client مع Binary الصحيح"
 
 # بناء التطبيق
 RUN echo "🏗️ بناء Next.js..." && \
