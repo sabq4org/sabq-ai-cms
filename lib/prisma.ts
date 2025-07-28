@@ -6,11 +6,9 @@ const prismaClientSingleton = () => {
     log: process.env.NODE_ENV === 'development' 
       ? ['query', 'error', 'warn'] 
       : ['error'],
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL,
-      },
-    },
+    // لا نحدد datasources يدوياً مع Prisma Accelerate
+    // لأنها تستخدم DATABASE_URL تلقائياً بالطريقة الصحيحة
+    
     // إعدادات timeout محسنة
     transactionOptions: {
       maxWait: 5000, // 5 ثواني
