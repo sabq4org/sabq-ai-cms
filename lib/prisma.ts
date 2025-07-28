@@ -123,12 +123,7 @@ export async function executeWithRetry<T>(
   throw lastError || new Error('فشلت جميع المحاولات')
 }
 
-export default prisma
-
-// Named export أيضاً لأن بعض الملفات تستورد بهذه الطريقة
-export { prisma }
-
-// دالة للتأكد من الاتصال (تستخدم في بعض الملفات)
+// دالة للتأكد من الاتصال
 export async function ensureConnection() {
   try {
     await prisma.$connect()
@@ -137,4 +132,12 @@ export async function ensureConnection() {
     console.error('❌ فشل الاتصال بقاعدة البيانات:', error)
     return false
   }
+}
+
+// التصدير الافتراضي
+export default prisma
+
+// Named exports للتوافق مع جميع الملفات
+export { 
+  prisma
 }
