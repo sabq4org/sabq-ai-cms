@@ -344,3 +344,7 @@ test-*.js
 # سجلات الأخطاء
 /logs/*.log
 !/logs/.gitkeep
+
+# Amplify environment variables
+AMPLIFY_ENV_COPY_PASTE.txt
+AMPLIFY_DIRECT_ENV_VARS.txt

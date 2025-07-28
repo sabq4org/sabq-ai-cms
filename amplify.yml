@@ -5,8 +5,13 @@ frontend:
       commands:
         - echo "Installing packages..."
         - npm ci
-        - echo "Generating Prisma Client..."
-        - npx prisma generate
+        - echo "Setting up Prisma for Amplify..."
+        - rm -rf node_modules/.prisma
+        - rm -rf node_modules/@prisma/client
+        - echo "Generating Prisma Client with correct binaries..."
+        - npx prisma generate --force
+        - echo "Checking Prisma engine..."
+        - ls -la node_modules/.prisma/client/ || echo "Prisma client directory not found"
     build:
       commands:
         - echo "Building application..."
