@@ -1,10 +1,11 @@
 import AWS from 'aws-sdk';
 
-// إعداد بيانات AWS
+// إعداد بيانات AWS - استخدم Environment Variables للأمان
+// تجنب AWS_ prefix للتوافق مع AWS Amplify
 AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'AKIA5ODCY47IRLKNVZ7H',
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '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',
-  region: process.env.AWS_REGION || 'us-east-1', // تأكد من تطابق المنطقة
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: process.env.S3_REGION || 'us-east-1',
 });
 
 const s3 = new AWS.S3();
@@ -15,7 +16,7 @@ export const uploadToS3 = async (
   mimeType: string
 ): Promise<string> => {
   const params = {
-    Bucket: process.env.S3_BUCKET || 'sabq-uploader',
+    Bucket: process.env.S3_BUCKET_NAME || 'sabq-uploader',
     Key: `uploads/${Date.now()}-${fileName}`, // يحفظ الصور داخل مجلد uploads مع توقيت
     Body: fileBuffer,
     ContentType: mimeType,
@@ -40,7 +41,7 @@ export const deleteFromS3 = async (fileUrl: string): Promise<boolean> => {
     const key = urlParts.slice(3).join('/'); // يحذف https://bucket.s3.region.amazonaws.com/
 
     const params = {
-      Bucket: process.env.S3_BUCKET || 'sabq-uploader',
+      Bucket: process.env.S3_BUCKET_NAME || 'sabq-uploader',
       Key: key
     };
 
@@ -56,7 +57,7 @@ export const deleteFromS3 = async (fileUrl: string): Promise<boolean> => {
 // دالة للحصول على URL موقع مؤقت للرفع
 export const getSignedUploadUrl = async (fileName: string, mimeType: string): Promise<string> => {
   const params = {
-    Bucket: process.env.S3_BUCKET || 'sabq-uploader',
+    Bucket: process.env.S3_BUCKET_NAME || 'sabq-uploader',
     Key: `uploads/${Date.now()}-${fileName}`,
     ContentType: mimeType,
     ACL: 'public-read',

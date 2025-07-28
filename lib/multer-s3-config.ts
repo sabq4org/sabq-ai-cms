@@ -57,10 +57,10 @@ import AWS from 'aws-sdk';
 
 // تكوين S3 للاستخدام العام
 export const s3Config = {
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'AKIA5ODCY47IRLKNVZ7H',
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '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',
-  region: process.env.AWS_REGION || 'us-east-1',
-  bucket: process.env.S3_BUCKET || 'sabq-uploader'
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: process.env.S3_REGION || 'us-east-1',
+  bucket: process.env.S3_BUCKET_NAME || 'sabq-uploader'
 };
 
 // مثال على Express route للمشاريع الأخرى:
@@ -73,15 +73,15 @@ import AWS from 'aws-sdk';
 const router = express.Router();
 
 const s3 = new AWS.S3({
-  accessKeyId: '${s3Config.accessKeyId}',
-  secretAccessKey: '${s3Config.secretAccessKey}',
-  region: '${s3Config.region}',
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: process.env.S3_REGION,
 });
 
 const upload = multer({
   storage: multerS3({
     s3,
-    bucket: '${s3Config.bucket}',
+    bucket: process.env.S3_BUCKET_NAME,
     acl: 'public-read',
     contentType: multerS3.AUTO_CONTENT_TYPE,
     key: (req, file, cb) => {
