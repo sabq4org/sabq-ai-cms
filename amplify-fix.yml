@@ -4,9 +4,25 @@ frontend:
     preBuild:
       commands:
         - npm install
-        - echo "🔧 Applying Prisma fix for AWS Lambda using script..."
-        - chmod +x scripts/fix-prisma-aws-lambda.sh
-        - ./scripts/fix-prisma-aws-lambda.sh
+        - echo "🔧 Applying Prisma fix for AWS Lambda (direct approach)..."
+        - echo "📄 Current schema generator:"
+        - head -5 prisma/schema.prisma
+        - echo "🛠️ Creating AWS Lambda optimized schema..."
+        - cp prisma/schema.prisma prisma/schema.prisma.backup
+        - |
+          cat > prisma/schema.prisma.new << 'EOF'
+          generator client {
+            provider        = "prisma-client-js"
+            binaryTargets   = ["native", "rhel-openssl-1.0.x"]
+            previewFeatures = ["relationJoins"]
+          }
+          EOF
+        - tail -n +6 prisma/schema.prisma >> prisma/schema.prisma.new
+        - mv prisma/schema.prisma.new prisma/schema.prisma
+        - echo "📄 Updated schema generator:"
+        - head -5 prisma/schema.prisma
+        - echo "🚀 Generating Prisma client..."
+        - npx prisma generate
         - echo "✅ Prisma AWS Lambda fix completed"
     build:
       commands:
