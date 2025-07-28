@@ -123,17 +123,38 @@ export default function AdminNewsPage() {
       const data = await response.json();
       
       if (data.articles) {
-        // فلترة المقالات التجريبية والمجدولة
+        // فلترة المقالات التجريبية والمجدولة والمؤرشفة (إلا إذا تم اختيار عرض المؤرشفة)
         const realArticles = data.articles.filter((article: any) => {
+          const title = article.title.toLowerCase();
+          const isTestArticle = title.includes('test') || 
+                                title.includes('تجربة') || 
+                                title.includes('demo') ||
+                                title.includes('example');
+          
+          // إذا كان الفلتر "all" لا نعرض المؤرشفة
+          if (filterStatus === 'all' && article.status === 'archived') {
+            return false;
+          }
+          
+          return !isTestArticle && article.status !== 'scheduled';
+        });
+        
+        // ترتيب المقالات حسب التاريخ (الأحدث أولاً)
+        const sortedArticles = realArticles.sort((a: any, b: any) => {
+          const dateA = new Date(a.published_at || a.created_at).getTime();
+          const dateB = new Date(b.published_at || b.created_at).getTime();
+          return dateB - dateA; // الأحدث أولاً
+        });
+        
+        setArticles(sortedArticles);
+        calculateStats(data.articles.filter((article: any) => {
           const title = article.title.toLowerCase();
           return !title.includes('test') && 
                  !title.includes('تجربة') && 
                  !title.includes('demo') &&
                  !title.includes('example') &&
                  article.status !== 'scheduled';
-        });
-        setArticles(realArticles);
-        calculateStats(realArticles);
+        }));
       }
     } catch (error) {
       console.error('خطأ في جلب المقالات:', error);
@@ -188,8 +209,11 @@ export default function AdminNewsPage() {
       if (response.ok) {
         toast.success(!currentStatus ? '✅ تم تفعيل الخبر العاجل' : '⏸️ تم إلغاء الخبر العاجل');
         fetchArticles();
+      } else {
+        toast.error('حدث خطأ في تحديث حالة الخبر');
       }
     } catch (error) {
+      console.error('خطأ في تبديل الخبر العاجل:', error);
       toast.error('حدث خطأ في تحديث حالة الخبر');
     }
   };
@@ -206,8 +230,11 @@ export default function AdminNewsPage() {
       if (response.ok) {
         toast.success('✅ تم حذف المقال بنجاح');
         fetchArticles();
+      } else {
+        toast.error('فشل حذف المقال - تحقق من الصلاحيات');
       }
     } catch (error) {
+      console.error('خطأ في حذف المقال:', error);
       toast.error('حدث خطأ في حذف المقال');
     }
   };
@@ -227,8 +254,12 @@ export default function AdminNewsPage() {
       if (response.ok) {
         toast.success('✅ تم نشر المقال بنجاح');
         fetchArticles();
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || 'فشل نشر المقال');
       }
     } catch (error) {
+      console.error('خطأ في نشر المقال:', error);
       toast.error('حدث خطأ في نشر المقال');
     }
   };
@@ -245,8 +276,12 @@ export default function AdminNewsPage() {
       if (response.ok) {
         toast.success('📦 تم أرشفة المقال بنجاح');
         fetchArticles();
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || 'فشل أرشفة المقال');
       }
     } catch (error) {
+      console.error('خطأ في أرشفة المقال:', error);
       toast.error('حدث خطأ في أرشفة المقال');
     }
   };
@@ -294,8 +329,8 @@ export default function AdminNewsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">إجمالي</p>
-                    <p className="text-2xl font-bold">{formatNumber(stats.total)}</p>
+                    <p className="text-sm text-gray-600">نشط</p>
+                    <p className="text-2xl font-bold">{formatNumber(stats.published + stats.draft)}</p>
                   </div>
                   <FileText className="w-8 h-8 text-blue-500" />
                 </div>

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { executeWithRetry } from '@/lib/prisma'
 import { getCachedCategories } from '@/lib/services/categoriesCache'
 import { dbConnectionManager } from '@/lib/db-connection-manager'
 
@@ -122,6 +121,48 @@ export async function PATCH(
     return NextResponse.json({
       success: false,
       error: 'فشل تحديث المقال',
+      details: error.message || 'خطأ غير معروف'
+    }, { status: 500 })
+  }
+}
+
+// حذف المقال
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params
+  
+  try {
+    const deletedArticle = await dbConnectionManager.executeWithConnection(async () => {
+      return await prisma.articles.update({
+        where: { id },
+        data: {
+          status: 'deleted' as any,
+          updated_at: new Date()
+        }
+      })
+    })
+    
+    return NextResponse.json({
+      success: true,
+      message: 'تم حذف المقال بنجاح',
+      article: deletedArticle
+    })
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في حذف المقال:', error)
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json({
+        success: false,
+        error: 'المقال غير موجود'
+      }, { status: 404 })
+    }
+    
+    return NextResponse.json({
+      success: false,
+      error: 'فشل حذف المقال',
       details: error.message || 'خطأ غير معروف'
     }, { status: 500 })
   }
