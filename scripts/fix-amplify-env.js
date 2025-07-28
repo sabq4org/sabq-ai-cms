@@ -9,23 +9,32 @@ const fs = require('fs');
 const path = require('path');
 
 console.log('🔧 Fixing environment variables for Amplify...');
+console.log('📍 Current environment:', process.env.NODE_ENV);
+console.log('📍 AWS Region:', process.env.AWS_REGION || 'Not set');
 
-// Check if DATABASE_URL is set
-if (!process.env.DATABASE_URL) {
-  console.error('❌ DATABASE_URL is not set!');
-  
-  // Try to set it from known value
-  const dbUrl = 'postgresql://postgres:%2A7gzOMPcDco8l4If%3AO-CVb9Ehztq@database-1.cluster-cluyg244y2cj.eu-north-1.rds.amazonaws.com:5432/sabqcms';
-  process.env.DATABASE_URL = dbUrl;
-  
-  // Write to .env file for Next.js to pick up
-  const envContent = `DATABASE_URL=${dbUrl}\nNEXTAUTH_SECRET=sabq-ai-cms-secret-key-2025\n`;
-  fs.writeFileSync(path.join(process.cwd(), '.env'), envContent);
-  
-  console.log('✅ DATABASE_URL has been set');
-} else {
-  console.log('✅ DATABASE_URL is already set');
+// Force set environment variables
+const envVars = {
+  DATABASE_URL: process.env.DATABASE_URL || 'postgresql://postgres:%2A7gzOMPcDco8l4If%3AO-CVb9Ehztq@database-1.cluster-cluyg244y2cj.eu-north-1.rds.amazonaws.com:5432/sabqcms',
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'sabq-ai-cms-secret-key-2025',
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'https://production-branch.dvdwfd4vy831i.amplifyapp.com',
+  NODE_ENV: 'production',
+  PRISMA_QUERY_ENGINE_BINARY: '/var/task/node_modules/.prisma/client/libquery_engine-rhel-openssl-1.0.x.so.node'
+};
+
+// Write all env vars to .env file
+let envContent = '';
+for (const [key, value] of Object.entries(envVars)) {
+  process.env[key] = value;
+  envContent += `${key}=${value}\n`;
+  console.log(`✅ ${key} set`);
 }
+
+// Write to multiple locations to ensure Next.js finds it
+fs.writeFileSync(path.join(process.cwd(), '.env'), envContent);
+fs.writeFileSync(path.join(process.cwd(), '.env.production'), envContent);
+fs.writeFileSync(path.join(process.cwd(), '.env.local'), envContent);
+
+console.log('✅ Environment variables written to .env files');
 
 // Fix Prisma binary target
 const schemaPath = path.join(process.cwd(), 'prisma', 'schema.prisma');

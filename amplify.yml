@@ -3,22 +3,23 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Installing packages..."
+        - echo "Installing system dependencies..."
+        - yum install -y openssl-devel
+        - echo "Installing Node packages..."
         - npm ci
-        - echo "Fixing environment variables..."
+        - echo "Creating .env file..."
+        - echo "DATABASE_URL=$DATABASE_URL" > .env
+        - echo "NEXTAUTH_SECRET=$NEXTAUTH_SECRET" >> .env
+        - echo "NEXTAUTH_URL=$NEXTAUTH_URL" >> .env
+        - echo "Fixing Prisma..."
         - node scripts/fix-amplify-env.js
-        - echo "Cleaning old Prisma..."
-        - rm -rf node_modules/.prisma
-        - rm -rf node_modules/@prisma/client
-        - echo "Generating Prisma Client..."
-        - npx prisma generate --force
-        - echo "Checking Prisma files..."
-        - ls -la node_modules/.prisma/client/
+        - chmod +x scripts/amplify-prisma-fix.sh
+        - ./scripts/amplify-prisma-fix.sh
         - echo "PreBuild completed"
     build:
       commands:
         - echo "Checking environment..."
-        - node -e "console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET')"
+        - cat .env | grep -E "DATABASE_URL|NEXTAUTH" | sed 's/=.*/=***/'
         - echo "Building application..."
         - npm run build
         - echo "Build completed"
