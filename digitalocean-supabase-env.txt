@@ -1,8 +1,17 @@
-# 🔄 Supabase Environment Variables for DigitalOcean (sabq.io)
-# Copy this to DigitalOcean App Platform → Environment Variables
+# 🔄 Complete Supabase Environment Variables for DigitalOcean (sabq.io)
+# Copy ALL variables below to DigitalOcean App Platform → Environment Variables
 
+# Database Configuration
 DATABASE_URL=postgresql://postgres:AVNS_Br4uKMaWR6wxTIpZ7xj@db.uopckyrdhlvsxnvcobbw.supabase.co:5432/postgres
 DIRECT_URL=postgresql://postgres:AVNS_Br4uKMaWR6wxTIpZ7xj@db.uopckyrdhlvsxnvcobbw.supabase.co:5432/postgres
+
+# Supabase API Keys
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcGNreXJkaGx2c3hudmNvYmJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgwNjE0OSwiZXhwIjoyMDY3MzgyMTQ5fQ.iilpTh2E6XwkGyKnFzG7a_xRjyt9ORaT3saJKSHhgYw
+SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcGNreXJkaGx2c3hudmNvYmJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTgwNjE0OSwiZXhwIjoyMDY3MzgyMTQ5fQ.iilpTh2E6XwkGyKnFzG7a_xRjyt9ORaT3saJKSHhgYw
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcGNreXJkaGx2c3hudmNvYmJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDYxNDksImV4cCI6MjA2NzM4MjE0OX0.CcFv-usNHho5NZD_HiGLVT9wF-CYCyv9xwaNEcvDRa4
+NEXT_PUBLIC_SUPABASE_URL=https://uopckyrdhlvsxnvcobbw.supabase.co
+
+# Application Configuration
 NEXTAUTH_SECRET=sabq-ai-cms-secret-key-2025
 NEXTAUTH_URL=https://sabq.io
 NODE_ENV=production
