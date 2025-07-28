@@ -19,6 +19,7 @@ interface Category {
   id: number;
   name: string;
   name_ar: string;
+  name_en?: string;
   slug: string;
   description?: string;
   icon?: string;
@@ -183,7 +184,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
       // جلب المقالات الخاصة بالتصنيف مع معالجة أخطاء
       let articlesResponse;
       try {
-        articlesResponse = await fetch(`/api/articles?category_id=${foundCategory.id}&status=published`, {
+        articlesResponse = await fetch(`/api/articles?category=${foundCategory.id}&status=published`, {
           headers: {
             'Content-Type': 'application/json',
           },
