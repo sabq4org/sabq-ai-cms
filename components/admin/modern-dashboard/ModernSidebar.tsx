@@ -124,7 +124,7 @@ const sidebarItems: SidebarItem[] = [
     badgeVariant: 'secondary',
     children: [
       { id: 'audio-programs', title: 'البرامج الصوتية', icon: Globe, href: '/admin/audio-programs' },
-      { id: 'audio-newsletters', title: 'النشرات الصوتية', icon: Bell, href: '/admin/audio-test' },
+      { id: 'audio-newsletters', title: 'النشرات الصوتية', icon: Bell, href: '/dashboard/audio-enhance' },
     ]
   },
   {

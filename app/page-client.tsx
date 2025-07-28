@@ -179,8 +179,8 @@ function NewspaperHomePage({
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden">
             <CloudImage
-              src={news.featured_image}
-              alt={news.title || 'صورة المقال'}
+              src={news?.featured_image || null}
+              alt={news?.title || 'صورة المقال'}
               fill
               className="w-full h-full object-cover transition-transform duration-500"
               fallbackType="article"
@@ -313,13 +313,23 @@ function NewspaperHomePage({
     setSelectedCategory(categoryId);
     setCategoryArticlesLoading(true);
     try {
+      console.log(`🔍 جلب مقالات التصنيف ID: ${categoryId}`);
       const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=20&sortBy=published_at&order=desc`);
       const json = await res.json();
-      // 💡 FIX: The API returns { data: [...] } or { articles: [...] }
-      const list = Array.isArray(json) ? json : (json.data ?? json.articles ?? []);
-      setCategoryArticles(list);
+      
+      console.log(`📊 استجابة API للتصنيف ${categoryId}:`, json);
+      
+      if (json.success) {
+        const list = json.articles || [];
+        console.log(`✅ تم جلب ${list.length} مقال للتصنيف ${categoryId}`);
+        setCategoryArticles(list);
+      } else {
+        console.error(`❌ فشل جلب مقالات التصنيف ${categoryId}:`, json.error);
+        setCategoryArticles([]);
+      }
     } catch (err) {
       console.error('خطأ في جلب مقالات التصنيف:', err);
+      setCategoryArticles([]);
     } finally {
       setCategoryArticlesLoading(false);
     }
@@ -505,8 +515,8 @@ function NewspaperHomePage({
                               {/* صورة المقال */}
                               <div className="relative h-40 sm:h-48 overflow-hidden">
                                 <CloudImage
-                                  src={article.featured_image}
-                                  alt={article.title || ''}
+                                  src={article?.featured_image || null}
+                                  alt={article?.title || 'صورة المقال'}
                                   fill
                                   className="w-full h-full object-cover transition-transform duration-500"
                                   fallbackType="article"

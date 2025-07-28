@@ -15,6 +15,7 @@ import Header from '../components/Header';
 import ErrorBoundary from '../components/ErrorBoundary';
 import GlobalErrorHandler from '../components/GlobalErrorHandler';
 import ConditionalHeader from '../components/ConditionalHeader';
+import ContentWrapper from '../components/layout/ContentWrapper';
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({ 
   subsets: ['arabic'],
@@ -39,7 +40,9 @@ export default function RootLayout({
           <Providers>
             <GlobalErrorHandler />
             <ConditionalHeader />
-            {children}
+            <ContentWrapper>
+              {children}
+            </ContentWrapper>
           </Providers>
         </ErrorBoundary>
       </body>

@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1')
   const limit = parseInt(searchParams.get('limit') || '10')
   const category = searchParams.get('category')
+  const category_id = searchParams.get('category_id')
   const search = searchParams.get('search')
   const status = searchParams.get('status') || 'published'
   
@@ -24,8 +25,15 @@ export async function GET(request: NextRequest) {
         where.status = status
       }
       
-      if (category) {
-        where.category_id = category
+      // دعم فلترة التصنيف بطريقتين: category_id (رقم أو string) أو category (slug/name)
+      if (category_id) {
+        // إذا كان category_id عدد، تحويله إلى عدد، وإلا استخدامه كما هو
+        const categoryIdValue = !isNaN(Number(category_id)) ? parseInt(category_id) : category_id;
+        where.category_id = categoryIdValue;
+        console.log(`🔍 فلترة المقالات حسب category_id: ${categoryIdValue} (${typeof categoryIdValue})`);
+      } else if (category) {
+        where.category_id = category;
+        console.log(`🔍 فلترة المقالات حسب category: ${category}`);
       }
       
       if (search) {

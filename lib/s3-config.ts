@@ -1,11 +1,11 @@
 import AWS from 'aws-sdk';
 
-// إعداد بيانات AWS - استخدم Environment Variables للأمان
-// تجنب AWS_ prefix للتوافق مع AWS Amplify
+// إعداد بيانات AWS - متوافق مع DigitalOcean Environment Variables
+// استخدام ACCESS_KEY و SECRET_ACCESS_KEY للتوافق مع DigitalOcean
 AWS.config.update({
-  accessKeyId: process.env.S3_ACCESS_KEY_ID,
-  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-  region: process.env.S3_REGION || 'us-east-1',
+  accessKeyId: process.env.ACCESS_KEY || process.env.S3_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY || process.env.S3_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.S3_REGION || process.env.AWS_REGION || 'us-east-1',
 });
 
 const s3 = new AWS.S3();

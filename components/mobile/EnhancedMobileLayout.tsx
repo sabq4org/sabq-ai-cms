@@ -40,6 +40,7 @@ export default function EnhancedMobileLayout({
             <div className="footer-links">
               <a href="/about" className="footer-link">حول سبق</a>
               <a href="/loyalty-program" className="footer-link">🔁 نظام الولاء</a>
+              <a href="/audio-archive" className="footer-link">📻 النشرات الصوتية</a>
               <a href="/user-guide" className="footer-link">دليل المستخدم</a>
               <a href="/privacy-policy" className="footer-link">سياسة الخصوصية</a>
               <a href="/terms-of-use" className="footer-link">شروط الاستخدام</a>

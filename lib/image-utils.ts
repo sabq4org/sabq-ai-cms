@@ -7,7 +7,7 @@
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/sabq/image/upload';
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'sabq';
 
-// Fallback images
+// Fallback images - تأكد من صحة الروابط
 const FALLBACK_IMAGES = {
   article: 'https://images.unsplash.com/photo-1585241645927-c7a8e5840c42?w=800&auto=format&fit=crop&q=60',
   author: 'https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff&size=200',
@@ -34,8 +34,16 @@ export function getImageUrl(
     fallbackType = 'default'
   } = options;
 
-  // إذا لم توجد صورة، استخدم fallback
-  if (!imageUrl || imageUrl === '' || imageUrl.includes('/api/placeholder')) {
+  // إذا لم توجد صورة أو كانت فارغة أو undefined أو null
+  if (!imageUrl || 
+      imageUrl === '' || 
+      imageUrl === 'undefined' || 
+      imageUrl === 'null' || 
+      imageUrl.includes('/api/placeholder') ||
+      imageUrl.includes('undefined') ||
+      imageUrl.includes('null')
+  ) {
+    console.log(`🖼️ استخدام fallback image للنوع: ${fallbackType}`);
     return FALLBACK_IMAGES[fallbackType];
   }
 

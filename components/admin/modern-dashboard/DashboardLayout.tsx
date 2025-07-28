@@ -149,7 +149,8 @@ export default function DashboardLayout({
 
           {/* محتوى الصفحة */}
           <main className={cn(
-            "p-4 lg:p-6 pt-24", // pt-24 لترك مساحة أكبر للترويسة الثابتة
+            "p-4 lg:p-6", 
+            "pt-[calc(var(--dashboard-header-height)+1rem)]", // padding ديناميكي باستخدام CSS variable
             className
           )}>
             {children}

@@ -34,15 +34,23 @@ export default function CloudImage({
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // الحصول على رابط الصورة المحسن
-  const imageUrl = getImageUrl(hasError ? null : src, {
-    width,
-    height,
-    quality,
-    fallbackType
-  });
+  // الحصول على رابط الصورة المحسن مع معالجة أفضل للأخطاء
+  const imageUrl = React.useMemo(() => {
+    try {
+      return getImageUrl(hasError ? null : src, {
+        width,
+        height,
+        quality,
+        fallbackType
+      });
+    } catch (error) {
+      console.error('خطأ في معالجة رابط الصورة:', error);
+      return getImageUrl(null, { fallbackType });
+    }
+  }, [src, hasError, width, height, quality, fallbackType]);
 
   const handleError = () => {
+    console.log(`❌ فشل تحميل الصورة: ${src} - التبديل إلى fallback`);
     setHasError(true);
     setIsLoading(false);
     onError?.();

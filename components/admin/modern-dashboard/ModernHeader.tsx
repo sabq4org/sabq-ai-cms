@@ -59,8 +59,8 @@ export default function ModernHeader({
   const unreadCount = notifications.filter(n => n.unread).length;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-      <div className="px-4 lg:px-6 h-16 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 h-[var(--dashboard-header-height)]">
+      <div className="px-4 lg:px-6 h-full flex items-center justify-between">
         {/* الجانب الأيمن */}
         <div className="flex items-center gap-4">
           {/* زر القائمة للهواتف */}

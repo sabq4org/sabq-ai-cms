@@ -1,3 +1,77 @@
+/* متغيرات CSS لأبعاد العناصر الثابتة */
+:root {
+  --header-height: 64px; /* ارتفاع الهيدر الرئيسي */
+  --mobile-header-height: 56px; /* ارتفاع الهيدر للموبايل */
+  --dashboard-header-height: 64px; /* ارتفاع هيدر لوحة التحكم */
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: 56px;
+  }
+}
+
+/* التطبيق الموحّد للهيدر - تجنب التراكب */
+.page-content-wrapper {
+  padding-top: var(--header-height);
+  min-height: calc(100vh - var(--header-height));
+}
+
+.dashboard-content-wrapper {
+  padding-top: var(--dashboard-header-height);
+  min-height: calc(100vh - var(--dashboard-header-height));
+}
+
+/* تصحيح موضع الهيدر الثابت */
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  z-index: 50;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  height: var(--header-height);
+  z-index: 50;
+}
+
+/* تصحيحات إضافية للصفحات الداخلية */
+.dashboard-page-header {
+  /* لا يحتاج padding لأن DashboardLayout يعالجه */
+  margin-bottom: 1.5rem;
+}
+
+/* تصحيح z-index conflicts */
+.fixed-header,
+.sticky-header {
+  z-index: 40; /* أقل من modals وdropdowns */
+}
+
+/* Modal و Dropdown z-indexes */
+.modal-overlay {
+  z-index: 50;
+}
+
+.dropdown-menu {
+  z-index: 45;
+}
+
+/* تصحيح للصفحات التي تستخدم scroll */
+html {
+  scroll-padding-top: var(--header-height);
+}
+
+/* دعم الأجهزة بشاشات صغيرة */
+@supports (padding: max(0px)) {
+  .page-content-wrapper {
+    padding-top: max(var(--header-height), env(safe-area-inset-top));
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

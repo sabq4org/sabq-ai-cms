@@ -63,13 +63,28 @@ export default function WelcomeFeedPage() {
           // استخدام categoryIds إذا كانت متوفرة، وإلا استخدم interests
           const userCategoryIds = parsedUser.categoryIds || parsedUser.interests || [];
           
+          console.log('🔍 فحص اهتمامات المستخدم:', {
+            categoryIds: parsedUser.categoryIds,
+            interests: parsedUser.interests,
+            finalUserCategoryIds: userCategoryIds,
+            loadedCategoriesCount: loadedCategories.length
+          });
+          
           // تحديث التصنيفات المطابقة للمستخدم
           if (loadedCategories.length > 0 && userCategoryIds.length > 0) {
             const matchedCategories = loadedCategories.filter(cat => 
               userCategoryIds.includes(cat.id)
             );
             setUserCategories(matchedCategories);
-            console.log('✅ تم تحديد اهتمامات المستخدم:', matchedCategories.length);
+            console.log('✅ تم تحديد اهتمامات المستخدم:', {
+              matchedCount: matchedCategories.length,
+              matchedCategories: matchedCategories.map(c => ({id: c.id, name: c.name_ar}))
+            });
+          } else {
+            console.log('⚠️ لم يتم العثور على اهتمامات:', {
+              loadedCategoriesCount: loadedCategories.length,
+              userCategoryIdsCount: userCategoryIds.length
+            });
           }
           
           // تم إلغاء جلب المقالات المقترحة حسب طلب المستخدم
@@ -108,10 +123,10 @@ export default function WelcomeFeedPage() {
       const response = await fetch('/api/categories');
       if (response.ok) {
         const result = await response.json();
-        if (result.success && result.data) {
-          console.log('✅ تم جلب التصنيفات بنجاح:', result.data.length);
-          setCategories(result.data);
-          return result.data;
+        if (result.success && result.categories) {
+          console.log('✅ تم جلب التصنيفات بنجاح:', result.categories.length);
+          setCategories(result.categories);
+          return result.categories;
         }
       }
       

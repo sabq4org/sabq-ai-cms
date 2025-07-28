@@ -1,58 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// استيراد آمن لـ Prisma
-let prisma: any;
-try {
-  const prismaModule = require('@/lib/prisma');
-  prisma = prismaModule.prisma;
-} catch (importError) {
-  console.error('❌ فشل في استيراد Prisma في audio/newsletters/featured:', importError);
-}
-
 export async function GET() {
   try {
-    const featuredNewsletter = await prisma.audio_newsletters.findFirst({
-      where: {
-        is_published: true,
-        is_featured: true
-      },
-      orderBy: {
-        created_at: 'desc'
-      }
-    });
-
-    if (featuredNewsletter) {
-      return NextResponse.json({
-        success: true,
-        newsletter: featuredNewsletter
-      });
-    }
-
-    const latestNewsletter = await prisma.audio_newsletters.findFirst({
-      where: {
-        is_published: true
-      },
-      orderBy: {
-        created_at: 'desc'
-      }
-    });
-
+    // تم تعطيل هذا API مؤقتاً لعدم وجود جدول audio_newsletters
+    console.log('⚠️ API audio/newsletters/featured معطل مؤقتاً - جدول audio_newsletters غير موجود');
+    
     return NextResponse.json({
-      success: latestNewsletter ? true : false,
-      newsletter: latestNewsletter,
-      message: latestNewsletter ? null : 'لا توجد نشرات صوتية منشورة'
-    });
-
-  } catch (error) {
-    console.error('Error fetching featured newsletter:', error);
-    return NextResponse.json(
-      { 
-        success: false,
-        error: 'Failed to fetch featured newsletter' 
-      },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
+      success: false,
+      error: 'API معطل مؤقتاً',
+      message: 'جدول audio_newsletters غير موجود في قاعدة البيانات'
+    }, { status: 404 });
+    
+  } catch (error: any) {
+    console.error('Error in audio/newsletters/featured:', error);
+    
+    return NextResponse.json({
+      success: false,
+      error: 'حدث خطأ في النظام',
+      details: error.message || 'خطأ غير معروف'
+    }, { status: 500 });
   }
 }

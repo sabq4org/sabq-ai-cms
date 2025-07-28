@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { ImageService } from '@/lib/services/imageService';
 
 interface OptimizedImageProps {
   src: string;
@@ -15,6 +16,7 @@ interface OptimizedImageProps {
   placeholder?: 'blur' | 'empty';
   blurDataURL?: string;
   onError?: () => void;
+  category?: string; // إضافة category للصور الاحتياطية المناسبة
 }
 
 // توليد placeholder بسيط
@@ -44,25 +46,39 @@ export default function OptimizedImage({
   quality = 85,
   placeholder = 'blur',
   blurDataURL,
-  onError
+  onError,
+  category
 }: OptimizedImageProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   
-  // Fallback للصور المفقودة
-  const fallbackSrc = '/placeholder.jpg';
-  
   useEffect(() => {
-    setImgSrc(src);
+    if (!src) {
+      setImgSrc(ImageService.getFallbackImage(category));
+      return;
+    }
+
+    // تحسين الصورة باستخدام الخدمة الجديدة
+    const optimizedUrl = ImageService.getOptimizedImageUrl(src, {
+      width,
+      height,
+      quality,
+      format: 'webp',
+      fit: 'cover'
+    });
+
+    setImgSrc(optimizedUrl);
     setHasError(false);
   }, [src]);
   
   const handleError = () => {
     console.warn(`فشل تحميل الصورة: ${src}`);
-    setHasError(true);
-    setImgSrc(fallbackSrc);
-    onError?.();
+    if (!hasError) {
+      setHasError(true);
+      setImgSrc(ImageService.getFallbackImage(category));
+      onError?.();
+    }
   };
   
   const handleLoad = () => {

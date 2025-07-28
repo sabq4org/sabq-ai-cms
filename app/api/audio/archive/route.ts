@@ -1,109 +1,81 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
+import prisma from '@/lib/prisma';
+import { v4 as uuidv4 } from 'uuid';
 
-// مسار ملف حفظ البيانات
-const PODCASTS_FILE = path.join(process.cwd(), 'data', 'audio-podcasts.json');
-
-// التأكد من وجود الملف
-async function ensureFile() {
+export async function POST(req: NextRequest) {
   try {
-    await fs.access(PODCASTS_FILE);
-  } catch {
-    await fs.mkdir(path.dirname(PODCASTS_FILE), { recursive: true });
-    await fs.writeFile(PODCASTS_FILE, JSON.stringify({ podcasts: [] }));
-  }
-}
-
-// جلب النشرات الصوتية المحفوظة
-export async function GET(request: NextRequest) {
-  try {
-    await ensureFile();
+    const data = await req.json();
     
-    // التحقق من معامل is_daily
-    const url = new URL(request.url);
-    const isDailyOnly = url.searchParams.get('daily') === 'true';
-    const publishedOnly = url.searchParams.get('published') === 'true';
-    const latest = url.searchParams.get('latest') === 'true';
+    console.log('📥 حفظ نشرة صوتية في الأرشيف:', data);
     
-    const data = await fs.readFile(PODCASTS_FILE, 'utf-8');
-    const { podcasts } = JSON.parse(data);
-    
-    // فلترة النشرات اليومية أو المنشورة
-    let filteredPodcasts = podcasts;
-    if (isDailyOnly) {
-      filteredPodcasts = podcasts.filter((p: any) => p.is_daily === true);
-    }
-    if (publishedOnly) {
-      filteredPodcasts = podcasts.filter((p: any) => p.is_published === true);
-    }
-    
-    // ترتيب حسب التاريخ الأحدث
-    filteredPodcasts.sort((a: any, b: any) => 
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-
-    // إرجاع آخر نشرة منشورة فقط إذا طُلب ذلك
-    if (latest && filteredPodcasts.length > 0) {
-      return NextResponse.json({
-        success: true,
-        podcast: filteredPodcasts[0]
-      });
-    }
-
-    return NextResponse.json({ 
-      success: true, 
-      podcasts: filteredPodcasts.slice(0, 50) // آخر 50 نشرة
+    // إنشاء نشرة صوتية جديدة
+    const newsletter = await prisma.audio_newsletters.create({
+      data: {
+        id: uuidv4(),
+        title: data.title || `نشرة صوتية - ${new Date().toLocaleDateString('ar')}`,
+        content: data.content || '',
+        audioUrl: data.url,
+        duration: parseInt(data.duration) || 0,
+        voice_id: data.voice_id || data.voice || 'default',
+        voice_name: data.voice_name || 'صوت افتراضي',
+        language: data.language || 'ar',
+        category: data.category || 'عام',
+        is_published: data.is_published || false,
+        is_featured: data.is_featured || false,
+        play_count: 0
+      }
     });
-  } catch (error) {
-    console.error('❌ خطأ في جلب النشرات:', error);
-    return NextResponse.json({ 
-      error: 'Failed to fetch podcasts',
-      podcasts: [] 
-    }, { status: 200 });
-  }
-}
-
-// حفظ نشرة صوتية جديدة
-export async function POST(request: NextRequest) {
-  try {
-    await ensureFile();
     
-    const body = await request.json();
-    const { filename, url, size, duration, voice, text_length, is_daily, is_published } = body;
-
-    // قراءة البيانات الحالية
-    const data = await fs.readFile(PODCASTS_FILE, 'utf-8');
-    const { podcasts } = JSON.parse(data);
+    console.log('✅ تم حفظ النشرة في الأرشيف:', newsletter.id);
     
-    // إضافة النشرة الجديدة
-    const newPodcast = {
-      id: `podcast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      filename,
-      url,
-      size,
-      duration: duration || '0 ثانية',
-      voice,
-      text_length,
-      is_daily: is_daily || false,
-      is_published: is_published || false, // إضافة حقل is_published
-      created_at: new Date().toISOString(),
-      created_by: 'user'
-    };
-    
-    podcasts.unshift(newPodcast); // إضافة في البداية
-    
-    // حفظ البيانات
-    await fs.writeFile(PODCASTS_FILE, JSON.stringify({ podcasts }, null, 2));
-
-    return NextResponse.json({ 
-      success: true, 
-      podcast: newPodcast 
+    return NextResponse.json({
+      success: true,
+      newsletter,
+      message: 'تم حفظ النشرة الصوتية بنجاح'
     });
-  } catch (error) {
+    
+  } catch (error: any) {
     console.error('❌ خطأ في حفظ النشرة:', error);
-    return NextResponse.json({ 
-      error: 'Failed to save podcast' 
+    
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في حفظ النشرة الصوتية',
+      details: error.message
+    }, { status: 500 });
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const is_featured = searchParams.get('is_featured') === 'true';
+    const is_published = searchParams.get('is_published') === 'true';
+    const limit = parseInt(searchParams.get('limit') || '10');
+    
+    const newsletters = await prisma.audio_newsletters.findMany({
+      where: {
+        ...(is_featured && { is_featured: true }),
+        ...(is_published && { is_published: true })
+      },
+      orderBy: {
+        created_at: 'desc'
+      },
+      take: limit
+    });
+    
+    return NextResponse.json({
+      success: true,
+      newsletters,
+      count: newsletters.length
+    });
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في جلب النشرات:', error);
+    
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في جلب النشرات الصوتية',
+      details: error.message
     }, { status: 500 });
   }
 } 

@@ -6,11 +6,11 @@ import multer from 'multer';
 import multerS3 from 'multer-s3';
 import AWS from 'aws-sdk';
 
-// إعداد AWS S3
+// إعداد AWS S3 - متوافق مع DigitalOcean Environment Variables
 const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION || 'us-east-1',
+  accessKeyId: process.env.ACCESS_KEY || process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION || process.env.S3_REGION || 'us-east-1',
 });
 
 // إعداد multer مع S3

@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-
-
-
-
-
-
-
-
-
+import prisma from '../../../../lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,55 +12,37 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // التحقق من أن المستخدم موجود
-    const user = await prisma.users.findUnique({
-      where: { id: userId }
-    });
+    console.log('🔄 تحديث الصورة الشخصية:', { userId, avatarUrl });
 
-    if (!user) {
-      return NextResponse.json({
-        success: false,
-        error: 'المستخدم غير موجود'
-      }, { status: 404 });
-    }
-
-    // تحديث صورة الملف الشخصي
+    // تحديث الصورة الشخصية في قاعدة البيانات
     const updatedUser = await prisma.users.update({
       where: { id: userId },
-      data: { avatar: avatarUrl }
+      data: { 
+        avatar: avatarUrl,
+        updated_at: new Date()
+      }
     });
 
-    console.log('✅ تم تحديث صورة الملف الشخصي للمستخدم:', userId);
+    console.log('✅ تم تحديث الصورة الشخصية بنجاح:', {
+      userId: updatedUser.id,
+      avatarUrl: updatedUser.avatar
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'تم تحديث صورة الملف الشخصي بنجاح',
-      data: {
+      message: 'تم تحديث الصورة الشخصية بنجاح',
+      user: {
         id: updatedUser.id,
-        name: updatedUser.name,
-        email: updatedUser.email,
         avatar: updatedUser.avatar
       }
     });
 
   } catch (error) {
-    console.error('❌ خطأ في تحديث صورة الملف الشخصي:', error);
+    console.error('❌ خطأ في تحديث الصورة الشخصية:', error);
+    
     return NextResponse.json({
       success: false,
-      error: 'حدث خطأ في تحديث صورة الملف الشخصي',
-      details: error instanceof Error ? error.message : 'خطأ غير معروف'
+      error: 'خطأ في تحديث الصورة الشخصية'
     }, { status: 500 });
   }
 }
-
-// دعم OPTIONS للـ CORS
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
-} 

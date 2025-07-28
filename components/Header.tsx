@@ -112,13 +112,13 @@ export default function Header() {
   }
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${
+    <header className={`fixed-header transition-all duration-300 ${
       darkMode 
         ? 'bg-gray-900/95 border-gray-700' 
         : 'bg-white/95 border-gray-200'
     } backdrop-blur-md border-b shadow-sm`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+        <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
