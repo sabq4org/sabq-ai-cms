@@ -26,7 +26,6 @@ import {
   Edit,
   Trash2,
   Eye,
-  Calendar,
   Clock,
   Zap,
   Users,
@@ -73,7 +72,7 @@ const formatDateTime = (date: string | Date) => {
 interface Article {
   id: string;
   title: string;
-  status: 'published' | 'draft' | 'archived' | 'scheduled';
+  status: 'published' | 'draft' | 'archived';
   author?: { name: string };
   author_name?: string;
   category?: { name: string; id: string };
@@ -102,7 +101,6 @@ export default function AdminNewsPage() {
     published: 0,
     draft: 0,
     archived: 0,
-    scheduled: 0,
     breaking: 0,
   });
 
@@ -125,13 +123,14 @@ export default function AdminNewsPage() {
       const data = await response.json();
       
       if (data.articles) {
-        // فلترة المقالات التجريبية
-        const realArticles = data.articles.filter((article: Article) => {
+        // فلترة المقالات التجريبية والمجدولة
+        const realArticles = data.articles.filter((article: any) => {
           const title = article.title.toLowerCase();
           return !title.includes('test') && 
                  !title.includes('تجربة') && 
                  !title.includes('demo') &&
-                 !title.includes('example');
+                 !title.includes('example') &&
+                 article.status !== 'scheduled';
         });
         setArticles(realArticles);
         calculateStats(realArticles);
@@ -164,7 +163,6 @@ export default function AdminNewsPage() {
       published: articles.filter(a => a.status === 'published').length,
       draft: articles.filter(a => a.status === 'draft').length,
       archived: articles.filter(a => a.status === 'archived').length,
-      scheduled: articles.filter(a => a.status === 'scheduled').length,
       breaking: articles.filter(a => a.breaking).length,
     };
     setStats(stats);
@@ -291,7 +289,7 @@ export default function AdminNewsPage() {
           </div>
 
           {/* بطاقات الإحصائيات */}
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setFilterStatus('all')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -336,18 +334,6 @@ export default function AdminNewsPage() {
                     <p className="text-2xl font-bold text-gray-600">{formatNumber(stats.archived)}</p>
                   </div>
                   <XCircle className="w-8 h-8 text-gray-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setFilterStatus('scheduled')}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">مجدول</p>
-                    <p className="text-2xl font-bold text-purple-600">{formatNumber(stats.scheduled)}</p>
-                  </div>
-                  <Calendar className="w-8 h-8 text-purple-500" />
                 </div>
               </CardContent>
             </Card>
@@ -466,20 +452,17 @@ export default function AdminNewsPage() {
                                 variant={
                                   article.status === 'published' ? 'default' :
                                   article.status === 'draft' ? 'secondary' :
-                                  article.status === 'archived' ? 'outline' :
-                                  'destructive'
+                                  'outline'
                                 }
                                 className={
                                   article.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' :
                                   article.status === 'draft' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
-                                  article.status === 'archived' ? 'bg-gray-100 text-gray-800 border-gray-200' :
-                                  'bg-purple-100 text-purple-800 border-purple-200'
+                                  'bg-gray-100 text-gray-800 border-gray-200'
                                 }
                               >
                                 {article.status === 'published' ? 'منشور' :
                                  article.status === 'draft' ? 'مسودة' :
-                                 article.status === 'archived' ? 'مؤرشف' :
-                                 'مجدول'}
+                                 'مؤرشف'}
                               </Badge>
                             </TableCell>
 
