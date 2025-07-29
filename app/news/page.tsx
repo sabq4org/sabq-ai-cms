@@ -9,10 +9,14 @@ import {
 } from 'lucide-react';
 import ArticleCard from '@/components/ArticleCard';
 import UnifiedMobileNewsCard from '@/components/mobile/UnifiedMobileNewsCard';
+import SmartContentNewsCard from '@/components/mobile/SmartContentNewsCard';
 import Footer from '@/components/Footer';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { generatePersonalizedRecommendations } from '@/lib/ai-recommendations';
+import type { RecommendedArticle } from '@/lib/ai-recommendations';
 import '@/components/mobile/mobile-news.css';
 import '@/styles/unified-mobile-news.css';
+import '@/styles/smart-content-cards.css';
 import './news-styles.css';
 import '../categories/categories-fixes.css';
 
@@ -89,6 +93,7 @@ export default function NewsPage() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [smartRecommendations, setSmartRecommendations] = useState<RecommendedArticle[]>([]);
 
   const ITEMS_PER_PAGE = 20;
 
@@ -262,6 +267,43 @@ export default function NewsPage() {
     }
   }, [page, selectedCategory, sortBy, ITEMS_PER_PAGE]);
 
+  // جلب التوصيات الذكية
+  const fetchSmartRecommendations = useCallback(async () => {
+    try {
+      // جلب سلوك المستخدم من localStorage أو استخدام قيم افتراضية
+      const userBehavior = {
+        recentArticles: JSON.parse(localStorage.getItem('recentArticles') || '[]').slice(0, 10),
+        favoriteCategories: JSON.parse(localStorage.getItem('favoriteCategories') || '[]'),
+        readingPatterns: {
+          timeOfDay: [new Date().getHours().toString()],
+          daysOfWeek: [new Date().getDay().toString()],
+          averageReadingTime: 5
+        },
+        interactions: {
+          liked: JSON.parse(localStorage.getItem('likedArticles') || '[]'),
+          shared: JSON.parse(localStorage.getItem('sharedArticles') || '[]'),
+          saved: JSON.parse(localStorage.getItem('savedArticles') || '[]'),
+          commented: []
+        },
+        searchHistory: JSON.parse(localStorage.getItem('searchHistory') || '[]'),
+        deviceType: isMobile ? 'mobile' : 'desktop' as 'mobile' | 'desktop'
+      };
+
+      const recommendations = await generatePersonalizedRecommendations({
+        userBehavior,
+        currentCategory: selectedCategory ? getCategoryName(selectedCategory) : '',
+        currentArticleId: '',
+        limit: 8 // نحتاج 8 توصيات إجمالاً (2 + 3 + 3)
+      });
+
+      setSmartRecommendations(recommendations);
+    } catch (error) {
+      console.error('Error fetching smart recommendations:', error);
+      // استخدام توصيات احتياطية إذا فشل الجلب
+      setSmartRecommendations([]);
+    }
+  }, [selectedCategory, isMobile]);
+
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
@@ -287,8 +329,9 @@ export default function NewsPage() {
   useEffect(() => {
     if (articles.length > 0) {
       fetchStats();
+      fetchSmartRecommendations();
     }
-  }, [articles, fetchStats]);
+  }, [articles, fetchStats, fetchSmartRecommendations]);
 
   const loadMore = useCallback(() => {
     if (!loading && !isLoadingMore && hasMore) {
@@ -307,6 +350,113 @@ export default function NewsPage() {
     const category = categories.find(cat => cat.id === categoryId);
     return category?.color || category?.color_hex || '#3B82F6';
   }, [categories]);
+
+  // دمج البطاقات المخصصة مع بطاقات الأخبار
+  const renderMixedContent = useCallback(() => {
+    const mixedContent: JSX.Element[] = [];
+    let smartCardIndex = 0;
+    
+    articles.forEach((article, index) => {
+      // إضافة بطاقة الخبر
+      if (isMobile) {
+        mixedContent.push(
+          <UnifiedMobileNewsCard
+            key={article.id}
+            article={article}
+            darkMode={darkMode}
+            variant="smart-block"
+            onBookmark={(id) => {
+              console.log('Bookmark article:', id);
+            }}
+            onShare={(article) => {
+              if (navigator.share) {
+                navigator.share({
+                  title: article.title,
+                  url: window.location.origin + `/article/${article.slug || article.id}`
+                });
+              }
+            }}
+          />
+        );
+      } else {
+        mixedContent.push(
+          <ArticleCard
+            key={article.id}
+            article={{
+              ...article,
+              category: article.category || (article.category_id ? {
+                id: article.category_id.toString(),
+                name: article.category_name || getCategoryName(article.category_id),
+                slug: '',
+                color: getCategoryColor(article.category_id),
+                icon: null
+              } : null),
+              author: article.author || (article.author_name ? {
+                id: article.author_id || '',
+                name: article.author_name,
+                email: ''
+              } : null),
+              views: article.views || article.views_count || 0,
+              featured: article.featured || article.is_featured || false,
+              breaking: article.breaking || article.is_breaking || false
+            }}
+            viewMode={viewMode}
+          />
+        );
+      }
+
+      // إضافة البطاقات المخصصة في المواضع المحددة
+      if ((index + 1) === 5) {
+        // بعد 5 بطاقات: إضافة 2 بطاقة مخصصة
+        for (let i = 0; i < 2 && smartCardIndex < smartRecommendations.length; i++) {
+          const recommendation = smartRecommendations[smartCardIndex];
+          if (recommendation) {
+            mixedContent.push(
+              <SmartContentNewsCard
+                key={`smart-${recommendation.id}`}
+                article={{
+                  ...recommendation,
+                  slug: recommendation.url.replace('/article/', ''),
+                  featured_image: recommendation.thumbnail,
+                  category_name: recommendation.category,
+                  excerpt: `اكتشف هذا المحتوى المميز الذي اخترناه لك بعناية بناءً على اهتماماتك`
+                }}
+                darkMode={darkMode}
+                variant={isMobile ? 'full' : 'full'}
+                position={smartCardIndex}
+              />
+            );
+            smartCardIndex++;
+          }
+        }
+      } else if ((index + 1) === 12) {
+        // بعد 12 بطاقة (5 + 2 مخصصة + 5): إضافة 3 بطاقات مخصصة
+        for (let i = 0; i < 3 && smartCardIndex < smartRecommendations.length; i++) {
+          const recommendation = smartRecommendations[smartCardIndex];
+          if (recommendation) {
+            mixedContent.push(
+              <SmartContentNewsCard
+                key={`smart-${recommendation.id}`}
+                article={{
+                  ...recommendation,
+                  slug: recommendation.url.replace('/article/', ''),
+                  featured_image: recommendation.thumbnail,
+                  category_name: recommendation.category,
+                  excerpt: `محتوى مختار خصيصاً لك لإثراء تجربتك القرائية`
+                }}
+                darkMode={darkMode}
+                variant={isMobile ? 'full' : 'full'}
+                position={smartCardIndex}
+              />
+            );
+            smartCardIndex++;
+          }
+        }
+      }
+    });
+
+    return mixedContent;
+  }, [articles, smartRecommendations, darkMode, isMobile, viewMode, getCategoryName, getCategoryColor]);
 
   return (
     <>
@@ -518,62 +668,19 @@ export default function NewsPage() {
             </div>
           ) : (
             <>
-              {/* Articles Grid/List - محسن للموبايل */}
+              {/* Articles Grid/List with Smart Content - محسن للموبايل */}
               {isMobile ? (
-                // عرض الموبايل - قائمة كاملة العرض بتنسيق بلوك المحتوى الذكي
+                // عرض الموبايل - قائمة كاملة العرض مع المحتوى المخصص
                 <div className="mobile-news-container space-y-4">
-                  {articles.map((article) => (
-                    <UnifiedMobileNewsCard
-                      key={article.id}
-                      article={article}
-                      darkMode={darkMode}
-                      variant="smart-block"
-                      onBookmark={(id) => {
-                        // إضافة منطق الحفظ
-                        console.log('Bookmark article:', id);
-                      }}
-                      onShare={(article) => {
-                        // إضافة منطق المشاركة
-                        if (navigator.share) {
-                          navigator.share({
-                            title: article.title,
-                            url: window.location.origin + `/article/${article.slug || article.id}`
-                          });
-                        }
-                      }}
-                    />
-                  ))}
+                  {renderMixedContent()}
                 </div>
               ) : (
-                // عرض سطح المكتب - الشبكة العادية
+                // عرض سطح المكتب - الشبكة مع المحتوى المخصص
                 <div className={viewMode === 'grid' 
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6' 
                   : 'space-y-4'
                 }>
-                  {articles.map((article) => (
-                    <ArticleCard
-                      key={article.id}
-                      article={{
-                        ...article,
-                        category: article.category || (article.category_id ? {
-                          id: article.category_id.toString(),
-                          name: article.category_name || getCategoryName(article.category_id),
-                          slug: '',
-                          color: getCategoryColor(article.category_id),
-                          icon: null
-                        } : null),
-                        author: article.author || (article.author_name ? {
-                          id: article.author_id || '',
-                          name: article.author_name,
-                          email: ''
-                        } : null),
-                        views: article.views || article.views_count || 0,
-                        featured: article.featured || article.is_featured || false,
-                        breaking: article.breaking || article.is_breaking || false
-                      }}
-                      viewMode={viewMode}
-                    />
-                  ))}
+                  {renderMixedContent()}
                 </div>
               )}
 
