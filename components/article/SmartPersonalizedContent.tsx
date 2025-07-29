@@ -8,7 +8,7 @@ import { generatePersonalizedRecommendations, type RecommendedArticle, type User
 import { 
   Clock, User, Eye, Brain, Edit, Newspaper, TrendingUp, 
   ChevronRight, Sparkles, BarChart3, MessageCircle, CheckCircle,
-  Zap, BookOpen, Star, ArrowRight
+  Zap, BookOpen, Star, ArrowRight, RefreshCw
 } from 'lucide-react';
 
 interface SmartPersonalizedContentProps {
@@ -20,16 +20,35 @@ interface SmartPersonalizedContentProps {
   userId?: string;
 }
 
-// دالة للحصول على أيقونة نوع المقال
+// دالة للحصول على أيقونة نوع المقال المحدثة
 const getTypeIcon = (type: RecommendedArticle['type']) => {
   switch (type) {
-    case 'تحليل': return <Brain className="w-4 h-4" />;
-    case 'رأي': return <Edit className="w-4 h-4" />;
-    case 'ملخص': return <BarChart3 className="w-4 h-4" />;
-    case 'عاجل': return <Zap className="w-4 h-4" />;
-    case 'تقرير': return <Newspaper className="w-4 h-4" />;
-    default: return <BookOpen className="w-4 h-4" />;
+    case 'تحليل': return '🧠';
+    case 'رأي': return '🗣️';
+    case 'ملخص': return '📊';
+    case 'عاجل': return '⚡';
+    case 'تقرير': return '📰';
+    case 'مقالة': return '📄';
+    default: return '✨';
   }
+};
+
+// دالة للحصول على العبارات التشويقية حسب نوع المحتوى
+const getCallToActionPhrases = (type: RecommendedArticle['type']) => {
+  const phrases = {
+    'تحليل': ['تحليل موجه لك', 'ربط الأحداث بما تهتم به'],
+    'رأي': ['رأي قد يغير نظرتك', 'وجهات نظر متنوعة بناءً على اختياراتك'],
+    'ملخص': ['خلاصة سريعة', 'أهم النقاط في دقائق معدودة'],
+    'عاجل': ['آخر المستجدات', 'لا تفوت هذا الخبر العاجل'],
+    'تقرير': ['تقرير شامل', 'معلومات مفصلة وموثقة'],
+    'مقالة': ['هل قرأت هذا؟', 'مقترح ذكي من فريقنا التحريري']
+  };
+  
+  const typePhrase = phrases[type] || phrases['مقالة'];
+  return {
+    title: typePhrase[0],
+    subtitle: typePhrase[1]
+  };
 };
 
 // دالة للحصول على ألوان نوع المقال
@@ -52,94 +71,108 @@ const getConfidenceColor = (confidence: number) => {
   return 'bg-gray-500';
 };
 
-// مكون البطاقة الذكية المخصصة
+// مكون البطاقة الذكية المخصصة المحسّن
 const SmartRecommendationCard: React.FC<{ 
   article: RecommendedArticle; 
   darkMode: boolean;
   index: number;
-}> = ({ article, darkMode, index }) => (
-  <Link href={article.url} className="group block">
-    <div className={`flex gap-4 p-4 rounded-xl border transition-all duration-300 hover:shadow-lg relative ${
-      darkMode 
-        ? 'bg-gray-800 border-gray-700 hover:border-gray-600 hover:bg-gray-750' 
-        : 'bg-white border-gray-200 hover:border-blue-200 hover:bg-gray-50'
-    }`}>
-      
-      {/* مؤشر الترتيب */}
-      <div className={`absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-        index === 0 ? 'bg-gold text-white' : 
-        index === 1 ? 'bg-gray-400 text-white' :
-        'bg-gray-300 text-gray-700'
+}> = ({ article, darkMode, index }) => {
+  const ctaPhrase = getCallToActionPhrases(article.type);
+  
+  return (
+    <Link href={article.url} className="group block">
+      <div className={`relative h-full flex flex-col rounded-xl border transition-all duration-300 hover:shadow-xl overflow-hidden ${
+        darkMode 
+          ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
+          : 'bg-white border-gray-200 hover:border-blue-200'
       }`}>
-        {index + 1}
-      </div>
-      
-      {/* الصورة المصغرة */}
-      {article.thumbnail && (
-        <div className="flex-shrink-0 relative w-20 h-20 rounded-lg overflow-hidden">
-          <Image
-            src={article.thumbnail}
-            alt={article.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+        
+        {/* الصورة الرئيسية */}
+        <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+          {article.thumbnail ? (
+            <Image
+              src={article.thumbnail}
+              alt={article.title}
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-6xl opacity-20">{getTypeIcon(article.type)}</span>
+            </div>
+          )}
+          
+          {/* شارة النوع والأيقونة */}
+          <div className="absolute top-3 right-3 flex items-center gap-2">
+            <span className="text-3xl bg-white/90 dark:bg-gray-900/90 rounded-full p-2 shadow-lg">
+              {getTypeIcon(article.type)}
+            </span>
+            <span className={`px-3 py-1 rounded-full text-xs font-bold ${getTypeColors(article.type)}`}>
+              {article.type}
+            </span>
+          </div>
+          
+          {/* مؤشر الترتيب */}
+          {index < 3 && (
+            <div className={`absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-lg ${
+              index === 0 ? 'bg-yellow-400 text-white' : 
+              index === 1 ? 'bg-gray-400 text-white' :
+              'bg-orange-400 text-white'
+            }`}>
+              {index + 1}
+            </div>
+          )}
         </div>
-      )}
-      
-      {/* المحتوى */}
-      <div className="flex-1 min-w-0">
-        {/* شارة النوع ومؤشر الثقة */}
-        <div className="flex items-center justify-between mb-2">
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getTypeColors(article.type)}`}>
-            {getTypeIcon(article.type)}
-            {article.type}
-          </span>
+        
+        {/* المحتوى */}
+        <div className="flex-1 p-5">
+          {/* العبارة التشويقية */}
+          <div className={`mb-3 ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
+            <p className="text-sm font-bold">{ctaPhrase.title}</p>
+            <p className="text-xs opacity-80">{ctaPhrase.subtitle}</p>
+          </div>
+          
+          {/* العنوان */}
+          <h3 className={`font-bold text-lg leading-tight mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
+            darkMode ? 'text-white' : 'text-gray-900'
+          }`}>
+            {article.title}
+          </h3>
+          
+          {/* المعلومات الإضافية */}
+          <div className={`flex items-center justify-between text-sm ${
+            darkMode ? 'text-gray-400' : 'text-gray-500'
+          }`}>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                <span>{article.readingTime} د</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Eye className="w-4 h-4" />
+                <span>{article.viewsCount.toLocaleString('ar-SA')}</span>
+              </div>
+            </div>
+            <span className="text-xs">{formatRelativeDate(article.publishedAt)}</span>
+          </div>
           
           {/* مؤشر الثقة */}
-          <div className="flex items-center gap-1">
-            <div className={`w-2 h-2 rounded-full ${getConfidenceColor(article.confidence)}`}></div>
-            <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              {article.confidence}%
+          <div className="mt-3 flex items-center gap-2">
+            <div className={`flex-1 h-1 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden`}>
+              <div 
+                className={`h-full ${getConfidenceColor(article.confidence)} transition-all duration-1000`}
+                style={{ width: `${article.confidence}%` }}
+              />
+            </div>
+            <span className={`text-xs font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              {article.confidence}% ملائم
             </span>
           </div>
         </div>
-        
-        {/* العنوان */}
-        <h3 className={`font-semibold leading-tight mb-2 line-clamp-2 text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
-          darkMode ? 'text-white' : 'text-gray-900'
-        }`}>
-          {article.title}
-        </h3>
-        
-        {/* سبب التوصية */}
-        <div className={`mb-2 text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'} bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded`}>
-          <CheckCircle className="w-3 h-3 inline mr-1" />
-          {article.reason}
-        </div>
-        
-        {/* المعلومات الإضافية */}
-        <div className={`flex items-center gap-3 text-xs ${
-          darkMode ? 'text-gray-400' : 'text-gray-500'
-        }`}>
-          <div className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            <span>{article.readingTime} د</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Eye className="w-3 h-3" />
-            <span>{article.viewsCount.toLocaleString('ar-SA')}</span>
-          </div>
-          <span>{formatRelativeDate(article.publishedAt)}</span>
-        </div>
       </div>
-      
-      {/* سهم الانتقال */}
-      <div className={`flex-shrink-0 flex items-center ${darkMode ? 'text-gray-500' : 'text-gray-400'} group-hover:text-blue-500`}>
-        <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-      </div>
-    </div>
-  </Link>
-);
+    </Link>
+  );
+};
 
 export default function SmartPersonalizedContent({ 
   articleId, 
@@ -152,67 +185,135 @@ export default function SmartPersonalizedContent({
   const [recommendations, setRecommendations] = useState<RecommendedArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
+
+  // دالة لتحديث التوصيات
+  const fetchPersonalizedRecommendations = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log('🧠 توليد التوصيات الذكية للمقال:', articleId);
+      
+      // توليد التوصيات المخصصة مع زيادة العدد إلى 6
+      const personalizedRecommendations = await generatePersonalizedRecommendations({
+        userId,
+        currentArticleId: articleId,
+        currentTags: tags,
+        currentCategory: categoryName || '',
+        limit: 6 // زيادة من 4 إلى 6
+      });
+      
+      console.log('✅ تم توليد التوصيات:', personalizedRecommendations);
+      setRecommendations(personalizedRecommendations);
+      setLastUpdateTime(new Date());
+      
+    } catch (err) {
+      console.error('❌ خطأ في توليد التوصيات الذكية:', err);
+      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      
+      // بيانات تجريبية محسّنة في حالة الخطأ
+      setRecommendations([
+        {
+          id: 'ai-future-work-backup',
+          title: 'تحليل مباشر: مستقبل العمل مع الذكاء الاصطناعي',
+          url: '/article/ai-future-work-backup',
+          type: 'تحليل',
+          reason: 'بناءً على اهتمامك بالتقنية',
+          confidence: 92,
+          thumbnail: '/images/ai-future.jpg',
+          publishedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+          category: 'تقنية',
+          readingTime: 5,
+          viewsCount: 15420,
+          engagement: 0.25
+        },
+        {
+          id: 'economic-analysis-backup',
+          title: 'رأي: التمكين الاقتصادي في رؤية السعودية 2030',
+          url: '/article/economic-analysis-backup',
+          type: 'رأي',
+          reason: 'مشابه لمقالات أعجبتك سابقاً',
+          confidence: 88,
+          thumbnail: '/images/economic-vision.jpg',
+          publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+          category: 'اقتصاد',
+          readingTime: 4,
+          viewsCount: 8930,
+          engagement: 0.18
+        },
+        {
+          id: 'breaking-news-backup',
+          title: 'عاجل: قرارات جديدة لتسهيل الاستثمار',
+          url: '/article/breaking-news-backup',
+          type: 'عاجل',
+          reason: 'آخر الأخبار في مجال اهتمامك',
+          confidence: 95,
+          thumbnail: '/images/breaking-news.jpg',
+          publishedAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+          category: 'أخبار',
+          readingTime: 2,
+          viewsCount: 25420,
+          engagement: 0.35
+        },
+        {
+          id: 'creative-writing-backup',
+          title: 'قصة نجاح: من فكرة بسيطة إلى مشروع مليوني',
+          url: '/article/creative-writing-backup',
+          type: 'مقالة',
+          reason: 'محتوى إبداعي قد يثير اهتمامك',
+          confidence: 78,
+          thumbnail: '/images/success-story.jpg',
+          publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+          category: 'قصص نجاح',
+          readingTime: 6,
+          viewsCount: 12300,
+          engagement: 0.22
+        },
+        {
+          id: 'tech-report-backup',
+          title: 'تقرير: أبرز التقنيات الناشئة في 2025',
+          url: '/article/tech-report-backup',
+          type: 'تقرير',
+          reason: 'تقرير شامل في مجال التقنية',
+          confidence: 85,
+          thumbnail: '/images/tech-trends.jpg',
+          publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+          category: 'تقنية',
+          readingTime: 8,
+          viewsCount: 18500,
+          engagement: 0.28
+        },
+        {
+          id: 'sports-summary-backup',
+          title: 'ملخص: أهم أحداث الأسبوع الرياضي',
+          url: '/article/sports-summary-backup',
+          type: 'ملخص',
+          reason: 'خلاصة سريعة للأحداث الرياضية',
+          confidence: 72,
+          thumbnail: '/images/sports-week.jpg',
+          publishedAt: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(),
+          category: 'رياضة',
+          readingTime: 3,
+          viewsCount: 9800,
+          engagement: 0.15
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPersonalizedRecommendations = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        console.log('🧠 توليد التوصيات الذكية للمقال:', articleId);
-        
-        // توليد التوصيات المخصصة
-        const personalizedRecommendations = await generatePersonalizedRecommendations({
-          userId,
-          currentArticleId: articleId,
-          currentTags: tags,
-          currentCategory: categoryName || '',
-          limit: 4
-        });
-        
-        console.log('✅ تم توليد التوصيات:', personalizedRecommendations);
-        setRecommendations(personalizedRecommendations);
-        
-      } catch (err) {
-        console.error('❌ خطأ في توليد التوصيات الذكية:', err);
-        setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
-        
-        // بيانات تجريبية في حالة الخطأ
-        setRecommendations([
-          {
-            id: 'ai-future-work-backup',
-            title: 'تحليل مباشر: مستقبل العمل مع الذكاء الاصطناعي',
-            url: '/article/ai-future-work-backup',
-            type: 'تحليل',
-            reason: 'بناءً على اهتمامك بالتقنية',
-            confidence: 92,
-            thumbnail: '/images/ai-future.jpg',
-            publishedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-            category: 'تقنية',
-            readingTime: 5,
-            viewsCount: 15420,
-            engagement: 0.25
-          },
-          {
-            id: 'economic-analysis-backup',
-            title: 'رأي: التمكين الاقتصادي في رؤية السعودية 2030',
-            url: '/article/economic-analysis-backup',
-            type: 'رأي',
-            reason: 'مشابه لمقالات أعجبتك سابقاً',
-            confidence: 88,
-            publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-            category: 'اقتصاد',
-            readingTime: 4,
-            viewsCount: 8930,
-            engagement: 0.18
-          }
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPersonalizedRecommendations();
+    
+    // تحديث التوصيات كل 12 ساعة
+    const updateInterval = setInterval(() => {
+      console.log('🔄 تحديث التوصيات الذكية تلقائياً...');
+      fetchPersonalizedRecommendations();
+    }, 12 * 60 * 60 * 1000); // 12 ساعة
+    
+    return () => clearInterval(updateInterval);
   }, [articleId, categoryId, tags, userId]);
 
   // حالة التحميل
@@ -221,7 +322,7 @@ export default function SmartPersonalizedContent({
       <section className={`w-full py-8 px-4 ${
         darkMode ? 'bg-gray-800' : 'bg-gray-50'
       }`}>
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center py-8">
             <div className="flex items-center gap-3">
               <div className="animate-spin">
@@ -250,33 +351,49 @@ export default function SmartPersonalizedContent({
     <section className={`w-full py-8 px-4 ${
       darkMode ? 'bg-gray-800' : 'bg-gray-50'
     }`}>
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         
         {/* عنوان القسم الذكي */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="relative">
-            <Brain className={`w-6 h-6 ${
-              darkMode ? 'text-blue-400' : 'text-blue-600'
-            }`} />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Brain className={`w-6 h-6 ${
+                darkMode ? 'text-blue-400' : 'text-blue-600'
+              }`} />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+            </div>
+            <div>
+              <h2 className={`text-lg font-bold ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}>
+                مخصص لك بذكاء
+              </h2>
+              <p className={`text-sm ${
+                darkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}>
+                محتوى مختار بناءً على اهتماماتك وسلوكك في القراءة
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className={`text-lg font-bold ${
-              darkMode ? 'text-white' : 'text-gray-900'
-            }`}>
-              مخصص لك بذكاء
-            </h2>
-            <p className={`text-sm ${
-              darkMode ? 'text-gray-400' : 'text-gray-600'
-            }`}>
-              محتوى مختار بناءً على اهتماماتك وسلوكك في القراءة
-            </p>
-          </div>
+          
+          {/* زر التحديث اليدوي */}
+          <button
+            onClick={fetchPersonalizedRecommendations}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              darkMode 
+                ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+            }`}
+            title={`آخر تحديث: ${lastUpdateTime.toLocaleTimeString('ar-SA')}`}
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span className="hidden sm:inline">تحديث</span>
+          </button>
         </div>
 
-        {/* البطاقات الذكية */}
+        {/* البطاقات الذكية - شبكة 2×3 */}
         {recommendations.length > 0 && (
-          <div className="space-y-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {recommendations.map((article, index) => (
               <SmartRecommendationCard 
                 key={article.id} 
@@ -288,51 +405,79 @@ export default function SmartPersonalizedContent({
           </div>
         )}
 
-        {/* إحصائيات الدقة */}
-        <div className={`p-4 rounded-lg border ${
-          darkMode 
-            ? 'bg-gray-700/50 border-gray-600' 
-            : 'bg-blue-50 border-blue-200'
-        }`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Star className={`w-4 h-4 ${darkMode ? 'text-yellow-400' : 'text-yellow-500'}`} />
+        {/* إحصائيات الدقة والمعلومات */}
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4`}>
+          {/* إحصائيات الدقة */}
+          <div className={`p-4 rounded-lg border ${
+            darkMode 
+              ? 'bg-gray-700/50 border-gray-600' 
+              : 'bg-blue-50 border-blue-200'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Star className={`w-4 h-4 ${darkMode ? 'text-yellow-400' : 'text-yellow-500'}`} />
+                <span className={`text-sm font-medium ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  دقة التوصيات
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {recommendations.length > 0 && (
+                  <>
+                    <div className={`text-sm font-bold ${
+                      darkMode ? 'text-green-400' : 'text-green-600'
+                    }`}>
+                      {Math.round(recommendations.reduce((acc, article) => acc + article.confidence, 0) / recommendations.length)}%
+                    </div>
+                    <div className={`w-16 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden`}>
+                      <div 
+                        className="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-1000"
+                        style={{ 
+                          width: `${Math.round(recommendations.reduce((acc, article) => acc + article.confidence, 0) / recommendations.length)}%` 
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* معلومات الكوكتيل الذكي */}
+          <div className={`p-4 rounded-lg border ${
+            darkMode 
+              ? 'bg-gray-700/50 border-gray-600' 
+              : 'bg-purple-50 border-purple-200'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className={`w-4 h-4 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} />
               <span className={`text-sm font-medium ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>
-                دقة التوصيات
+                كوكتيل ذكي
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              {recommendations.length > 0 && (
-                <>
-                  <div className={`text-sm font-bold ${
-                    darkMode ? 'text-green-400' : 'text-green-600'
-                  }`}>
-                    {Math.round(recommendations.reduce((acc, article) => acc + article.confidence, 0) / recommendations.length)}%
-                  </div>
-                  <div className={`w-16 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden`}>
-                    <div 
-                      className="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-1000"
-                      style={{ 
-                        width: `${Math.round(recommendations.reduce((acc, article) => acc + article.confidence, 0) / recommendations.length)}%` 
-                      }}
-                    />
-                  </div>
-                </>
-              )}
+            <div className="flex gap-2 flex-wrap">
+              {['📰 أخبار', '🧠 تحليل', '🗣️ رأي', '✨ إبداعي'].map((item) => (
+                <span key={item} className={`text-xs px-2 py-1 rounded-full ${
+                  darkMode ? 'bg-gray-600 text-gray-300' : 'bg-white text-gray-600'
+                }`}>
+                  {item}
+                </span>
+              ))}
             </div>
           </div>
         </div>
 
         {/* رسالة التوضيح */}
-        <div className={`text-center pt-4 border-t ${
+        <div className={`text-center pt-4 mt-4 border-t ${
           darkMode ? 'border-gray-700' : 'border-gray-200'
         }`}>
           <p className={`text-xs ${
             darkMode ? 'text-gray-400' : 'text-gray-500'
           }`}>
-            🎯 يتحسن نظام التوصيات كلما تفاعلت أكثر مع المحتوى
+            🎯 يتحسن نظام التوصيات كلما تفاعلت أكثر مع المحتوى • يتم التحديث كل 12 ساعة
           </p>
         </div>
 

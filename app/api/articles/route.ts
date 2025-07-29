@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') || 'published_at';
     const order = searchParams.get('order') || 'desc';
     const skip = (page - 1) * limit;
+    const types = searchParams.get('types'); // دعم معامل types الجديد
+    const exclude = searchParams.get('exclude'); // استبعاد مقال معين
 
     console.log(`🔍 فلترة المقالات حسب category: ${category_id}`);
 
@@ -50,6 +52,23 @@ export async function GET(request: NextRequest) {
         { title: { contains: search } },
         { excerpt: { contains: search } }
       ];
+    }
+    
+    // دعم فلترة حسب الأنواع في metadata
+    if (types) {
+      const typeArray = types.split(',').map(t => t.trim());
+      where.OR = where.OR || [];
+      where.OR.push(...typeArray.map(type => ({
+        metadata: {
+          path: ['type'],
+          equals: type
+        }
+      })));
+    }
+    
+    // استبعاد مقال معين
+    if (exclude) {
+      where.id = { not: exclude };
     }
 
     // إنشاء ترتيب ديناميكي

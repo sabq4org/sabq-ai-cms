@@ -50,7 +50,7 @@ export async function generatePersonalizedRecommendations({
   currentTags = [],
   currentCategory = '',
   userBehavior,
-  limit = 4
+  limit = 6
 }: {
   userId?: string;
   currentArticleId: string;
@@ -68,12 +68,14 @@ export async function generatePersonalizedRecommendations({
       behaviorBasedArticles,
       categoryBasedArticles, 
       trendingArticles,
-      semanticSimilarArticles
+      semanticSimilarArticles,
+      mixedContentArticles
     ] = await Promise.all([
       getBehaviorBasedRecommendations(behavior, currentArticleId),
       getCategoryBasedRecommendations(currentCategory, currentArticleId),
       getTrendingRecommendations(currentTags),
-      getSemanticSimilarArticles(currentArticleId, currentTags)
+      getSemanticSimilarArticles(currentArticleId, currentTags),
+      getSmartMixedContent(behavior, currentArticleId) // كوكتيل ذكي جديد
     ]);
 
     // 3. دمج وتسجيل النتائج
@@ -81,7 +83,8 @@ export async function generatePersonalizedRecommendations({
       ...behaviorBasedArticles,
       ...categoryBasedArticles,
       ...trendingArticles,
-      ...semanticSimilarArticles
+      ...semanticSimilarArticles,
+      ...mixedContentArticles
     ];
 
     // 4. إزالة التكرار وترتيب حسب الصلة
@@ -91,8 +94,11 @@ export async function generatePersonalizedRecommendations({
       currentArticleId
     );
 
-    // 5. إرجاع أفضل التوصيات
-    return uniqueRecommendations
+    // 5. ضمان التنوع في أنواع المحتوى
+    const diversifiedRecommendations = ensureContentDiversity(uniqueRecommendations, limit);
+
+    // 6. إرجاع أفضل التوصيات
+    return diversifiedRecommendations
       .sort((a, b) => b.confidence - a.confidence)
       .slice(0, limit);
 
@@ -364,6 +370,188 @@ async function getFallbackRecommendations(
     console.error('فشل في جلب التوصيات الاحتياطية:', error);
     return [];
   }
+}
+
+/**
+ * 🍹 كوكتيل المحتوى الذكي - مزيج متنوع من أنواع المحتوى
+ */
+async function getSmartMixedContent(
+  behavior: UserBehavior,
+  currentArticleId: string
+): Promise<RecommendedArticle[]> {
+  const mixedContent: RecommendedArticle[] = [];
+  
+  try {
+    // 1. محتوى خفيف (أخبار سريعة)
+    const lightContent = await fetchArticlesByType(['عاجل', 'ملخص'], currentArticleId, 2);
+    lightContent.forEach(article => {
+      mixedContent.push({
+        ...article,
+        reason: 'محتوى خفيف لقراءة سريعة',
+        confidence: 75,
+        type: article.type || 'ملخص'
+      });
+    });
+    
+    // 2. محتوى عميق (تحليلات)
+    const deepContent = await fetchArticlesByType(['تحليل', 'تقرير'], currentArticleId, 2);
+    deepContent.forEach(article => {
+      mixedContent.push({
+        ...article,
+        reason: 'تحليل معمق يثري معرفتك',
+        confidence: 80,
+        type: article.type || 'تحليل'
+      });
+    });
+    
+    // 3. محتوى رأي (وجهات نظر)
+    const opinionContent = await fetchArticlesByType(['رأي'], currentArticleId, 1);
+    opinionContent.forEach(article => {
+      mixedContent.push({
+        ...article,
+        reason: 'وجهة نظر قد تغير تفكيرك',
+        confidence: 70,
+        type: article.type || 'رأي'
+      });
+    });
+    
+    // 4. محتوى إبداعي (قصص ومقالات خاصة)
+    const creativeContent = await fetchArticlesByType(['مقالة'], currentArticleId, 1);
+    creativeContent.forEach(article => {
+      mixedContent.push({
+        ...article,
+        reason: 'محتوى إبداعي يلهمك',
+        confidence: 68,
+        type: article.type || 'مقالة'
+      });
+    });
+    
+  } catch (error) {
+    console.error('⚠️ خطأ في توليد الكوكتيل الذكي:', error);
+  }
+  
+  return mixedContent;
+}
+
+/**
+ * 🎯 ضمان التنوع في أنواع المحتوى
+ */
+function ensureContentDiversity(
+  recommendations: RecommendedArticle[],
+  targetCount: number
+): RecommendedArticle[] {
+  const typeGroups: { [key: string]: RecommendedArticle[] } = {};
+  const diversified: RecommendedArticle[] = [];
+  
+  // تجميع حسب النوع
+  recommendations.forEach(article => {
+    const type = article.type || 'مقالة';
+    if (!typeGroups[type]) {
+      typeGroups[type] = [];
+    }
+    typeGroups[type].push(article);
+  });
+  
+  // أخذ عينة متنوعة من كل نوع
+  const typePriority = ['عاجل', 'تحليل', 'رأي', 'تقرير', 'ملخص', 'مقالة'];
+  let addedCount = 0;
+  
+  // جولة أولى: أخذ مقال واحد من كل نوع
+  for (const type of typePriority) {
+    if (typeGroups[type] && typeGroups[type].length > 0 && addedCount < targetCount) {
+      diversified.push(typeGroups[type].shift()!);
+      addedCount++;
+    }
+  }
+  
+  // جولة ثانية: ملء الباقي حسب الثقة
+  const remaining = recommendations
+    .filter(r => !diversified.includes(r))
+    .sort((a, b) => b.confidence - a.confidence);
+  
+  diversified.push(...remaining.slice(0, targetCount - addedCount));
+  
+  return diversified;
+}
+
+/**
+ * 📰 جلب مقالات حسب النوع
+ */
+async function fetchArticlesByType(
+  types: string[],
+  excludeId: string,
+  limit: number
+): Promise<RecommendedArticle[]> {
+  try {
+    const response = await fetch(`/api/articles?types=${types.join(',')}&exclude=${excludeId}&limit=${limit}&status=published`);
+    
+    if (!response.ok) return [];
+    
+    const data = await response.json();
+    
+    if (data.success && data.articles) {
+      return data.articles.map((article: any) => ({
+        id: article.id,
+        title: article.title,
+        url: `/article/${article.id}`,
+        type: article.metadata?.type || 'مقالة',
+        reason: getSmartReason(article.metadata?.type),
+        confidence: Math.floor(Math.random() * 20) + 70, // 70-90
+        thumbnail: article.featured_image || article.thumbnail,
+        publishedAt: article.published_at,
+        category: article.category_name || article.categories?.name || article.category,
+        readingTime: article.reading_time || Math.ceil((article.content?.length || 1000) / 200),
+        viewsCount: article.views || 0,
+        engagement: article.engagement_score || 0
+      }));
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('❌ خطأ في جلب المقالات حسب النوع:', error);
+    return [];
+  }
+}
+
+/**
+ * 💡 توليد أسباب ذكية للتوصية
+ */
+function getSmartReason(type?: string): string {
+  const reasons = {
+    'تحليل': [
+      'تحليل يربط الأحداث بسياقها الأوسع',
+      'رؤية معمقة تكشف ما وراء الخبر',
+      'تحليل ذكي يساعدك على الفهم الأعمق'
+    ],
+    'رأي': [
+      'وجهة نظر جديدة تثري النقاش',
+      'رأي جريء يستحق القراءة',
+      'منظور مختلف قد يغير قناعاتك'
+    ],
+    'عاجل': [
+      'آخر التطورات في الحدث',
+      'خبر عاجل يهمك',
+      'تطور مهم يجب متابعته'
+    ],
+    'تقرير': [
+      'تقرير شامل بالأرقام والحقائق',
+      'معلومات موثقة ومفصلة',
+      'تغطية شاملة للموضوع'
+    ],
+    'ملخص': [
+      'خلاصة مركزة توفر وقتك',
+      'أهم النقاط في دقائق',
+      'ملخص ذكي للأحداث المهمة'
+    ],
+    'مقالة': [
+      'قراءة ممتعة ومفيدة',
+      'محتوى مميز يستحق وقتك',
+      'مقال يجمع بين المتعة والفائدة'
+    ]
+  };
+  
+  const typeReasons = reasons[type as keyof typeof reasons] || reasons['مقالة'];
+  return typeReasons[Math.floor(Math.random() * typeReasons.length)];
 }
 
 // =============================================================================
