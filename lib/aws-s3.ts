@@ -83,21 +83,13 @@ export async function uploadImageToS3(
     // رفع الملف
     await s3Client.send(putCommand);
 
-    // تحديد مدة انتهاء الصلاحية
-    const expiresIn = customExpiresIn || getDefaultExpirationTime(folder);
+    // إنشاء رابط عام مباشر (Public URL)
+    const publicUrl = `${S3_DOMAIN}/${key}`;
 
-    // إنشاء رابط الصورة (presigned URL للبكتات الخاصة)
-    const getCommand = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-    });
+    console.log(`✅ تم رفع الصورة بنجاح: ${publicUrl}`);
+    console.log(`🔗 رابط عام دائم للصورة`);
     
-    const presignedUrl = await getSignedUrl(s3Client, getCommand, { expiresIn });
-
-    console.log(`✅ تم رفع الصورة بنجاح: ${presignedUrl.substring(0, 100)}...`);
-    console.log(`⏰ صلاحية الرابط: ${Math.floor(expiresIn / 3600)} ساعة`);
-    
-    return { url: presignedUrl, key };
+    return { url: publicUrl, key };
   } catch (error) {
     console.error('❌ خطأ في رفع الصورة إلى S3:', error);
     throw new Error('فشل في رفع الصورة');

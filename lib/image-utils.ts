@@ -38,7 +38,8 @@ export function cleanS3Url(url: string): string {
     if (S3_DOMAINS.some(domain => urlObj.hostname.includes(domain))) {
       // إزالة معاملات التوقيع
       const paramsToRemove = ['X-Amz-Algorithm', 'X-Amz-Credential', 'X-Amz-Date', 
-                             'X-Amz-Expires', 'X-Amz-SignedHeaders', 'X-Amz-Signature'];
+                             'X-Amz-Expires', 'X-Amz-SignedHeaders', 'X-Amz-Signature',
+                             'X-Amz-Security-Token'];
       
       paramsToRemove.forEach(param => urlObj.searchParams.delete(param));
       
