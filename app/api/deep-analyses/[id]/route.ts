@@ -183,30 +183,34 @@ export async function PUT(
     const body = await request.json();
     
     // نحاول تحديث في قاعدة البيانات
-    const updated = await prisma.deep_analyses.upsert({
-      where: { id },
-      create: {
-        id,
-        article_id: id, // افترض أن معرف المقال هو نفسه معرف التحليل
-        ai_summary: body.summary || body.title,
-        key_topics: body.tags || [],
-        tags: body.tags || [],
-        sentiment: 'neutral',
-        engagement_score: body.qualityScore || 0,
-        metadata: body,
-        analyzed_at: new Date(), // <-- إضافة الحقل المطلوب
-        updated_at: new Date()
-      },
-      update: {
-        ai_summary: body.summary || body.title,
-        key_topics: body.tags || [],
-        tags: body.tags || [],
-        engagement_score: body.qualityScore || 0,
-        metadata: body,
-        updated_at: new Date(),
-        // يمكن إضافة analyzed_at هنا أيضاً إذا كان منطقياً تحديثه
+    const updated = await dbConnectionManager.executeWithConnection(
+      async () => {
+        return await prisma.deep_analyses.upsert({
+          where: { id },
+          create: {
+            id,
+            article_id: body.article_id || id,
+            ai_summary: body.ai_summary || body.summary || body.title,
+            key_topics: body.key_topics || body.tags || [],
+            tags: body.tags || [],
+            sentiment: body.sentiment || 'neutral',
+            engagement_score: body.engagement_score || body.qualityScore || 0,
+            metadata: body.metadata || body,
+            analyzed_at: new Date(),
+            updated_at: new Date()
+          },
+          update: {
+            ai_summary: body.ai_summary || body.summary || body.title,
+            key_topics: body.key_topics || body.tags || [],
+            tags: body.tags || [],
+            sentiment: body.sentiment,
+            engagement_score: body.engagement_score || body.qualityScore || 0,
+            metadata: body.metadata || body,
+            updated_at: new Date()
+          }
+        });
       }
-    });
+    );
     
     return NextResponse.json({ success: true, analysis: updated });
     
