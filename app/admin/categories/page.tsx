@@ -70,6 +70,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import EditCategoryModal from '@/components/admin/categories/EditCategoryModal';
 
 interface Category {
   id: string;
@@ -100,6 +101,8 @@ export default function CategoriesPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
   // جلب التصنيفات
   const fetchCategories = async () => {
@@ -147,6 +150,24 @@ export default function CategoriesPage() {
       console.error('Error deleting category:', error);
       toast.error('حدث خطأ في حذف التصنيف');
     }
+  };
+
+  // فتح نموذج التحرير
+  const handleEdit = (category: Category) => {
+    setSelectedCategory(category);
+    setShowEditModal(true);
+  };
+
+  // إغلاق نموذج التحرير
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedCategory(null);
+  };
+
+  // نجاح التحرير
+  const handleEditSuccess = () => {
+    fetchCategories();
+    handleCloseEditModal();
   };
 
   // تبديل حالة التصنيف
@@ -608,7 +629,7 @@ export default function CategoriesPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => toast('قريباً: تحرير التصنيف', { icon: '✏️' })}
+                                  onClick={() => handleEdit(category)}
                                   className={`hover:bg-blue-100 dark:hover:bg-blue-900/20`}
                                 >
                                   <Edit className="h-4 w-4 text-blue-600" />
@@ -690,6 +711,14 @@ export default function CategoriesPage() {
           </div>
         </div>
       </div>
+      
+      {/* نموذج تحرير التصنيف */}
+      <EditCategoryModal
+        category={selectedCategory}
+        isOpen={showEditModal}
+        onClose={handleCloseEditModal}
+        onSuccess={handleEditSuccess}
+      />
     </DashboardLayout>
   );
 }
