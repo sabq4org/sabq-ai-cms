@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { TrendingUp, Sparkles, Brain, MessageSquare, Zap, BarChart3 } from 'lucide-react';
 import SafeImage from '@/components/ui/SafeImage';
+import { getProductionImageUrl } from '@/lib/production-image-fix';
 import type { RecommendedArticle } from '@/lib/ai-recommendations';
 
 // توسيع النوع لإضافة خصائص إضافية
@@ -55,6 +56,19 @@ export default function SmartContentNewsCard({
 }: SmartContentNewsCardProps) {
   const { icon: IconComponent, color } = typeIcons[article.type || article.metadata?.type || 'article'] || typeIcons.article;
   const phrase = motivationalPhrases[position % motivationalPhrases.length];
+  
+  // معالجة الصورة للإنتاج
+  const isProduction = process.env.NODE_ENV === 'production' || 
+                      (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
+  
+  const imageUrl = article.featured_image || article.thumbnail;
+  const processedImageUrl = imageUrl && isProduction ? 
+    getProductionImageUrl(imageUrl, {
+      width: 800,
+      height: 600,
+      quality: 85,
+      fallbackType: 'article'
+    }) : imageUrl;
 
   return (
     <Link href={article.slug ? `/article/${article.slug}` : article.url} className="block">
@@ -89,7 +103,7 @@ export default function SmartContentNewsCard({
             ${variant === 'compact' ? 'w-24 h-24 flex-shrink-0' : 'w-full h-48 mb-4'}
           `}>
             <SafeImage
-              src={article.featured_image || article.thumbnail}
+              src={processedImageUrl}
               alt={article.title}
               fill
               className="object-cover"
@@ -116,6 +130,7 @@ export default function SmartContentNewsCard({
             )}
           </div>
 
+          {/* المحتوى */}
           <div className="flex-1">
             {/* أيقونة النوع والعبارة التحفيزية */}
             <div className="flex items-center justify-between mb-2">

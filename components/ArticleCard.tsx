@@ -7,6 +7,7 @@ import { Calendar, Clock, Eye, MessageSquare, Zap, Newspaper } from 'lucide-reac
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { getImageUrl } from '@/lib/image-utils';
+import { getProductionImageUrl } from '@/lib/production-image-fix';
 import { SafeDate } from '@/lib/safe-date';
 import OptimizedImage from '@/components/OptimizedImage';
 
@@ -29,13 +30,27 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
   
   // تحسين رابط الصورة
   const rawImageUrl = article.featured_image || article.image || metadata.image;
-  const imageUrl = rawImageUrl ? getImageUrl(rawImageUrl, {
-    width: viewMode === 'list' ? 400 : 800,
-    height: viewMode === 'list' ? 300 : 600,
-    quality: 85,
-    format: 'webp',
-    fallbackType: 'article'
-  }) : null;
+  
+  // استخدام معالج الإنتاج في بيئة الإنتاج
+  const isProduction = process.env.NODE_ENV === 'production' || 
+                      (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
+  
+  const imageUrl = rawImageUrl ? (
+    isProduction ? 
+      getProductionImageUrl(rawImageUrl, {
+        width: viewMode === 'list' ? 400 : 800,
+        height: viewMode === 'list' ? 300 : 600,
+        quality: 85,
+        fallbackType: 'article'
+      }) :
+      getImageUrl(rawImageUrl, {
+        width: viewMode === 'list' ? 400 : 800,
+        height: viewMode === 'list' ? 300 : 600,
+        quality: 85,
+        format: 'webp',
+        fallbackType: 'article'
+      })
+  ) : null;
 
   // Article link
   const getArticleLink = (article: any) => {
