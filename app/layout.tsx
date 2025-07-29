@@ -28,14 +28,19 @@ const ibmPlexArabic = IBM_Plex_Sans_Arabic({
 export const metadata: Metadata = {
   title: 'صحيفة سبق الالكترونية AI',
   description: 'صحيفة سبق الإلكترونية - أخبار ومقالات بتقنية الذكاء الاصطناعي',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
-  themeColor: '#ffffff',
   applicationName: 'صحيفة سبق',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'صحيفة سبق',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#ffffff',
 };
 
 export default function RootLayout({
