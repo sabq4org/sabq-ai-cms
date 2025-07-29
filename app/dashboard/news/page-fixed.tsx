@@ -682,7 +682,7 @@ export default function NewsManagementPage() {
                   تحديث
                 </Button>
                 
-                <Link href="/admin/news/create">
+                <Link href="/admin/news/create-new">
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
                     <Plus className="w-4 h-4" />
                     مقال جديد

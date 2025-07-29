@@ -607,7 +607,7 @@ export default function NewsManagementPage() {
               </Button>
               
               <Button
-                onClick={() => router.push('/dashboard/news/create')}
+                onClick={() => router.push('/admin/news/create-new')}
                 className={`p-3 rounded-xl flex flex-col items-center gap-2 text-center transition-all duration-300 ${
                   darkMode
                     ? 'bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 border border-gray-600'

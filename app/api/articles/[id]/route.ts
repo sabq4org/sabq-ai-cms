@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { getCachedCategories } from '@/lib/services/categoriesCache'
-import { dbConnectionManager } from '@/lib/db-connection-manager'
+import dbConnectionManager from '@/lib/db-connection-manager'
 
 export async function GET(
   request: Request,

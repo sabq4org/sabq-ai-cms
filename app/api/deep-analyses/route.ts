@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import dbConnectionManager from '@/lib/db-connection-manager';
 import { logDatabaseError, logApiError } from '@/lib/services/monitoring';
 
 export async function GET(request: NextRequest) {
@@ -22,6 +23,13 @@ export async function GET(request: NextRequest) {
     try {
       console.log('🔍 جلب التحليلات العميقة من قاعدة البيانات...');
       
+      // التأكد من الاتصال أولاً
+      try {
+        await prisma.$connect();
+      } catch (connectError) {
+        console.error('❌ فشل الاتصال بقاعدة البيانات:', connectError);
+      }
+      
       // بناء شروط البحث
     const where: any = {};
       if (search) {
@@ -30,16 +38,20 @@ export async function GET(request: NextRequest) {
         ];
       }
 
-      // جلب التحليلات من قاعدة البيانات
-        const [totalCount, deepAnalyses] = await Promise.all([
-          prisma.deep_analyses.count({ where }),
-          prisma.deep_analyses.findMany({
-            where,
-          orderBy: { [sortBy]: sortOrder as 'asc' | 'desc' },
-            take: limit,
-            skip: offset
-          })
-      ]);
+      // جلب التحليلات من قاعدة البيانات مع إعادة المحاولة
+      const [totalCount, deepAnalyses] = await dbConnectionManager.executeWithConnection(
+        async () => {
+          return await Promise.all([
+            prisma.deep_analyses.count({ where }),
+            prisma.deep_analyses.findMany({
+              where,
+              orderBy: { [sortBy]: sortOrder as 'asc' | 'desc' },
+              take: limit,
+              skip: offset
+            })
+          ]);
+        }
+      );
 
       // معالجة البيانات وتنسيقها
       const enrichedAnalyses = deepAnalyses.map((analysis: any) => {
@@ -172,20 +184,24 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     try {
-      const newAnalysis = await prisma.deep_analyses.create({
-      data: {
-          id: `analysis-${Date.now()}`,
-          article_id: body.article_id || `article-${Date.now()}`,
-          ai_summary: body.summary || body.title,
-          key_topics: body.tags || [],
-          tags: body.tags || [],
-          sentiment: 'neutral',
-          engagement_score: body.qualityScore || 0,
-          metadata: body,
-          analyzed_at: new Date(),
-          updated_at: new Date()
-      }
-    });
+      const newAnalysis = await dbConnectionManager.executeWithConnection(
+        async () => {
+          return await prisma.deep_analyses.create({
+            data: {
+              id: `analysis-${Date.now()}`,
+              article_id: body.article_id || `article-${Date.now()}`,
+              ai_summary: body.summary || body.title,
+              key_topics: body.tags || [],
+              tags: body.tags || [],
+              sentiment: 'neutral',
+              engagement_score: body.qualityScore || 0,
+              metadata: body,
+              analyzed_at: new Date(),
+              updated_at: new Date()
+            }
+          });
+        }
+      );
 
     return NextResponse.json({
       success: true,

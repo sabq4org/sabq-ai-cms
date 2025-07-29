@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { dbConnectionManager } from '@/lib/db-connection-manager';
+import dbConnectionManager from '@/lib/db-connection-manager';
 
 // Cache في الذاكرة
 const articleCache = new Map<string, { data: any; timestamp: number }>();

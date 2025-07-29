@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import dbConnectionManager from '@/lib/db-connection-manager';
 import { DeepAnalysis } from '@/types/deep-analysis';
 
 export const runtime = 'nodejs';
@@ -13,9 +14,13 @@ export async function GET(
     const { id } = await context.params;
     
     // البحث في جدول deep_analyses أولاً
-    const dbAnalysis = await prisma.deep_analyses.findUnique({
-      where: { id }
-    });
+    const dbAnalysis = await dbConnectionManager.executeWithConnection(
+      async () => {
+        return await prisma.deep_analyses.findUnique({
+          where: { id }
+        });
+      }
+    );
     
     if (dbAnalysis) {
       // استخراج البيانات من metadata إذا كانت موجودة
@@ -76,14 +81,18 @@ export async function GET(
     }
     
     // إذا لم يوجد في قاعدة البيانات، نحاول البحث عن مقال له تحليل
-    const articleAnalysis = await prisma.articles.findFirst({
-      where: {
-        OR: [
-          { id },
-          { slug: id }
-        ]
+    const articleAnalysis = await dbConnectionManager.executeWithConnection(
+      async () => {
+        return await prisma.articles.findFirst({
+          where: {
+            OR: [
+              { id },
+              { slug: id }
+            ]
+          }
+        });
       }
-    });
+    );
     
     if (articleAnalysis) {
       // استخراج البيانات من metadata إذا كانت موجودة

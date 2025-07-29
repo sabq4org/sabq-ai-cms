@@ -170,6 +170,11 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
     console.error('❌ فشل في تحميل الصورة:', value);
     setImageLoaded(false);
     setUploadError('فشل في تحميل الصورة');
+    
+    // إذا كانت الصورة placeholder خاطئة، استخدم المسار الصحيح
+    if (value === '/placeholder.jpg' || value === '/placeholder-analysis.jpg' || value === '/images/placeholder.jpg') {
+      onChange('/images/deep-analysis-default.svg');
+    }
   };
 
   return (

@@ -377,7 +377,7 @@ export default function DashboardPage() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* إضافة خبر */}
-            <Link href="/dashboard/news/create" className="group">
+            <Link href="/admin/news/create-new" className="group">
               <div className={`relative overflow-hidden rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 ${
                 darkMode 
                   ? 'bg-gradient-to-br from-blue-900/50 to-blue-800/50 border border-blue-700 hover:border-blue-600' 
