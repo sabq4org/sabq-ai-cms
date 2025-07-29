@@ -4,8 +4,7 @@
  * دوال آمنة للتعامل مع التواريخ لتجنب Hydration Mismatch
  */
 
-import React from 'react';
-import { useHydrated } from '@/components/SafeHydration';
+import React, { useState, useEffect } from 'react';
 
 /**
  * تحويل التاريخ إلى نص آمن
@@ -92,7 +91,11 @@ export function SafeDate({
   options?: Intl.DateTimeFormatOptions;
   className?: string;
 }) {
-  const isHydrated = useHydrated();
+  const [isHydrated, setIsHydrated] = useState(false);
+  
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
   
   if (!isHydrated) {
     return React.createElement('span', { className }, placeholder);
