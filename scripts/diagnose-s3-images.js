@@ -5,7 +5,7 @@
  * يساعد في فحص روابط الصور وإعدادات CORS
  */
 
-const fetch = require('node-fetch');
+// Node 18+ has built-in fetch
 const { PrismaClient } = require('@prisma/client');
 const AWS = require('aws-sdk');
 

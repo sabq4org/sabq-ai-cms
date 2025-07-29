@@ -17,6 +17,14 @@ interface SafeImageProps {
   style?: React.CSSProperties;
 }
 
+// الصور الافتراضية حسب النوع
+const FALLBACK_IMAGES = {
+  article: '/images/placeholder-featured.jpg',
+  category: '/images/category-default.jpg',  
+  author: '/images/default-avatar.jpg',
+  default: '/images/placeholder-featured.jpg'
+};
+
 export default function SafeImage({
   src,
   alt,
@@ -29,11 +37,20 @@ export default function SafeImage({
   sizes,
   style
 }: SafeImageProps) {
-  const [imageSrc, setImageSrc] = useState<string>('');
+  // تهيئة imageSrc بالصورة الافتراضية مباشرة
+  const [imageSrc, setImageSrc] = useState<string>(FALLBACK_IMAGES[fallbackType]);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // إذا لم يكن هناك src، استخدم الصورة الافتراضية
+    if (!src) {
+      setImageSrc(FALLBACK_IMAGES[fallbackType]);
+      setIsError(false);
+      setIsLoading(false);
+      return;
+    }
+
     // معالجة مسار الصورة
     const processedSrc = getImageUrl(src, {
       width,
@@ -41,41 +58,30 @@ export default function SafeImage({
       fallbackType
     });
     
-    setImageSrc(processedSrc);
-    setIsError(false);
-    setIsLoading(true);
+    // التأكد من أن processedSrc ليس فارغاً
+    if (processedSrc && processedSrc.trim() !== '') {
+      setImageSrc(processedSrc);
+      setIsError(false);
+      setIsLoading(true);
+    } else {
+      setImageSrc(FALLBACK_IMAGES[fallbackType]);
+      setIsError(true);
+      setIsLoading(false);
+    }
   }, [src, width, height, fallbackType]);
 
   const handleError = () => {
     console.error(`❌ فشل تحميل الصورة: ${imageSrc}`);
     
-    // استخدام صورة احتياطية حسب النوع
-    const fallbacks = {
-      article: '/images/placeholder-featured.jpg',
-      category: '/images/category-default.jpg',
-      author: '/images/default-avatar.jpg',
-      default: '/images/placeholder-featured.jpg'
-    };
-    
-    setImageSrc(fallbacks[fallbackType]);
+    // استخدام صورة احتياطية
+    setImageSrc(FALLBACK_IMAGES[fallbackType]);
     setIsError(true);
+    setIsLoading(false);
   };
 
   const handleLoad = () => {
     setIsLoading(false);
   };
-
-  // في حالة عدم وجود src، استخدم الصورة الافتراضية مباشرة
-  if (!src && !isError) {
-    const fallbacks = {
-      article: '/images/placeholder-featured.jpg',
-      category: '/images/category-default.jpg',
-      author: '/images/default-avatar.jpg',
-      default: '/images/placeholder-featured.jpg'
-    };
-    
-    setImageSrc(fallbacks[fallbackType]);
-  }
 
   return (
     <div className={`relative ${fill ? 'w-full h-full' : ''} ${className}`} style={style}>

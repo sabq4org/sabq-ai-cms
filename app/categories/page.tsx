@@ -667,11 +667,12 @@ export default function CategoriesPage() {
                           {/* Background Image */}
                           <div className="absolute inset-0">
                             <SafeImage 
-                              src={imageSrc} 
+                              src={imageSrc || ''} 
                               alt={categoryName}
                               fill
                               className="object-cover"
                               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                              fallbackType="category"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                           </div>
