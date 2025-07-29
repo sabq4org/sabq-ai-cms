@@ -68,23 +68,30 @@ export default function EditDeepAnalysisPage() {
         if (!response.ok) throw new Error('فشل جلب البيانات');
         
         const data = await response.json();
+        console.log('📊 البيانات المستلمة من API:', data);
+        
         // Handle both wrapped and direct response
         const analysisData = data.analysis || data;
+        console.log('📋 بيانات التحليل:', analysisData);
+        console.log('📦 metadata:', analysisData.metadata);
         
         if (analysisData && analysisData.id) {
           setAnalysis(analysisData);
           
-          // Set form values
-          setTitle(analysisData.metadata?.title || '');
-          setSummary(analysisData.metadata?.summary || analysisData.ai_summary || '');
-          setContent(analysisData.metadata?.content || '');
-          setAuthorName(analysisData.metadata?.authorName || '');
-          setSourceType(analysisData.metadata?.sourceType || 'original');
-          setSentiment(analysisData.sentiment || 'neutral');
-          setCategories(analysisData.metadata?.categories || []);
-          setTags(analysisData.tags || []);
-          setImagePreview(analysisData.metadata?.featuredImage || '/images/deep-analysis-default.svg');
-          setQualityScore(analysisData.metadata?.qualityScore || analysisData.engagement_score || 85);
+          // Set form values - check multiple possible locations including nested metadata
+          const meta = analysisData.metadata || {};
+          const nestedMeta = meta.metadata || {}; // للبيانات المتداخلة
+          
+          setTitle(nestedMeta.title || meta.title || analysisData.title || '');
+          setSummary(nestedMeta.summary || meta.summary || analysisData.summary || analysisData.ai_summary || '');
+          setContent(nestedMeta.content || meta.content || analysisData.content || analysisData.rawContent || '');
+          setAuthorName(nestedMeta.authorName || meta.authorName || analysisData.authorName || '');
+          setSourceType(nestedMeta.sourceType || meta.sourceType || analysisData.sourceType || 'original');
+          setSentiment(nestedMeta.sentiment || meta.sentiment || analysisData.sentiment || 'neutral');
+          setCategories(nestedMeta.categories || meta.categories || analysisData.categories || []);
+          setTags(nestedMeta.tags || meta.tags || analysisData.tags || analysisData.key_topics || []);
+          setImagePreview(nestedMeta.featuredImage || meta.featuredImage || analysisData.featuredImage || '/images/deep-analysis-default.svg');
+          setQualityScore(nestedMeta.qualityScore || meta.qualityScore || analysisData.qualityScore || analysisData.engagement_score || 85);
         } else {
           throw new Error('بيانات التحليل غير صحيحة');
         }
@@ -118,7 +125,6 @@ export default function EditDeepAnalysisPage() {
           sentiment: sentiment,
           engagement_score: qualityScore,
           metadata: {
-            ...analysis?.metadata,
             title,
             summary,
             content,
@@ -128,7 +134,12 @@ export default function EditDeepAnalysisPage() {
             qualityScore,
             featuredImage: imagePreview,
             lastEditedBy: user?.email,
-            lastEditedAt: new Date().toISOString()
+            lastEditedAt: new Date().toISOString(),
+            // حفظ البيانات القديمة المهمة
+            status: (analysis?.metadata as any)?.metadata?.status || (analysis?.metadata as any)?.status || 'published',
+            isActive: (analysis?.metadata as any)?.metadata?.isActive !== false,
+            isFeatured: (analysis?.metadata as any)?.metadata?.isFeatured || false,
+            displayPosition: (analysis?.metadata as any)?.metadata?.displayPosition || 'middle'
           }
         })
       });

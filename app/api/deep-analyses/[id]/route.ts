@@ -23,6 +23,12 @@ export async function GET(
     );
     
     if (dbAnalysis) {
+      console.log('📊 بيانات التحليل من DB:', {
+        id: dbAnalysis.id,
+        ai_summary: dbAnalysis.ai_summary?.substring(0, 100),
+        metadata: dbAnalysis.metadata
+      });
+      
       // استخراج البيانات من metadata إذا كانت موجودة
       const metadata = dbAnalysis.metadata as any || {};
       
@@ -74,6 +80,11 @@ export async function GET(
         analyzed_at: dbAnalysis.analyzed_at,
         publishedAt: dbAnalysis.analyzed_at,
         lastGptUpdate: dbAnalysis.updated_at,
+        // Include original data for compatibility
+        ai_summary: dbAnalysis.ai_summary,
+        key_topics: dbAnalysis.key_topics,
+        sentiment: dbAnalysis.sentiment,
+        engagement_score: dbAnalysis.engagement_score,
         metadata: metadata
       };
       
