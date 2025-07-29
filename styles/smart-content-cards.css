@@ -186,4 +186,69 @@
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* تنسيقات حاوية الصورة مع الوصف */
+.hero-image-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.hero-image-container img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* تدرج الظل الأسود أسفل الصورة - يُطبق بواسطة Tailwind في المكون */
+.hero-image-container .image-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0));
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* وصف الصورة */
+.image-caption {
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+  right: 20px;
+  color: white;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  z-index: 3;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.image-caption p {
+  margin: 0;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* تحسينات للوضع الليلي */
+.dark .image-caption {
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+/* تحسينات للموبايل */
+@media (max-width: 768px) {
+  .image-caption {
+    bottom: 8px;
+    left: 16px;
+    right: 16px;
+    font-size: 0.8125rem;
+  }
 } 

@@ -419,7 +419,11 @@ export default function NewsPage() {
                   slug: recommendation.url.replace('/article/', ''),
                   featured_image: recommendation.thumbnail,
                   category_name: recommendation.category,
-                  excerpt: `اكتشف هذا المحتوى المميز الذي اخترناه لك بعناية بناءً على اهتماماتك`
+                  excerpt: `اكتشف هذا المحتوى المميز الذي اخترناه لك بعناية بناءً على اهتماماتك`,
+                  image_caption: `محتوى ${recommendation.type === 'تحليل' ? 'تحليلي عميق' : 
+                    recommendation.type === 'رأي' ? 'رأي متخصص' : 
+                    recommendation.type === 'تقرير' ? 'تقرير شامل' : 
+                    'مميز'} - ${recommendation.readingTime} دقائق قراءة`
                 }}
                 darkMode={darkMode}
                 variant={isMobile ? 'full' : 'full'}
@@ -442,7 +446,8 @@ export default function NewsPage() {
                   slug: recommendation.url.replace('/article/', ''),
                   featured_image: recommendation.thumbnail,
                   category_name: recommendation.category,
-                  excerpt: `محتوى مختار خصيصاً لك لإثراء تجربتك القرائية`
+                  excerpt: `محتوى مختار خصيصاً لك لإثراء تجربتك القرائية`,
+                  image_caption: `${recommendation.reason} • ${recommendation.category} • ${recommendation.readingTime} دقيقة`
                 }}
                 darkMode={darkMode}
                 variant={isMobile ? 'full' : 'full'}

@@ -12,6 +12,7 @@ interface ExtendedRecommendedArticle extends RecommendedArticle {
   excerpt?: string;
   featured_image?: string;
   category_name?: string;
+  image_caption?: string; // وصف الصورة
   metadata?: {
     type?: string;
   };
@@ -83,22 +84,36 @@ export default function SmartContentNewsCard({
 
         <div className={`p-4 ${variant === 'compact' ? 'flex gap-4' : ''}`}>
           {/* الصورة */}
-                     <div className={`
-             relative overflow-hidden rounded-lg
-             ${variant === 'compact' ? 'w-24 h-24 flex-shrink-0' : 'w-full h-48 mb-4'}
-           `}>
-             <SafeImage
-               src={article.featured_image || article.thumbnail}
-               alt={article.title}
-               fill
-               className="object-cover"
-               fallbackType="article"
-             />
-            {/* تأثير التدرج */}
-            <div className={`
-              absolute inset-0 bg-gradient-to-t from-black/50 to-transparent
-              ${variant === 'compact' ? 'hidden' : ''}
-            `} />
+          <div className={`
+            hero-image-container relative overflow-hidden rounded-lg
+            ${variant === 'compact' ? 'w-24 h-24 flex-shrink-0' : 'w-full h-48 mb-4'}
+          `}>
+            <SafeImage
+              src={article.featured_image || article.thumbnail}
+              alt={article.title}
+              fill
+              className="object-cover"
+              fallbackType="article"
+            />
+            
+            {/* تأثير التدرج المحسن - يظهر فقط إذا كان هناك وصف أو في الوضع الكامل */}
+            {(article.image_caption || variant === 'full') && (
+              <div className={`
+                absolute bottom-0 left-0 right-0 h-[35%]
+                bg-gradient-to-t from-black/45 to-transparent
+                pointer-events-none z-[2]
+                ${variant === 'compact' ? 'hidden' : ''}
+              `} />
+            )}
+            
+            {/* وصف الصورة */}
+            {article.image_caption && variant === 'full' && (
+              <div className="image-caption absolute bottom-2 left-4 right-4 z-[3]">
+                <p className="text-white text-sm font-medium drop-shadow-lg line-clamp-2">
+                  {article.image_caption}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex-1">
