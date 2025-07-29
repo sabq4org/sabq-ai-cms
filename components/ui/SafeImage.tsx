@@ -84,16 +84,29 @@ export default function SafeImage({
         <div className="absolute inset-0 bg-gray-200 animate-pulse z-10" />
       )}
       
-      <Image
-        {...(fill ? { fill } : { width, height })}
-        src={imageSrc}
-        alt={alt}
-        className={`${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300 ${fill ? 'object-cover' : ''}`}
-        onError={handleError}
-        onLoad={handleLoad}
-        priority={priority}
-        {...(sizes ? { sizes } : {})}
-      />
+      {fill ? (
+        <Image
+          fill
+          src={imageSrc}
+          alt={alt}
+          className={`${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300 object-cover`}
+          onError={handleError}
+          onLoad={handleLoad}
+          priority={priority}
+          sizes={sizes || '100vw'}
+        />
+      ) : (
+        <Image
+          width={width}
+          height={height}
+          src={imageSrc}
+          alt={alt}
+          className={`${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+          onError={handleError}
+          onLoad={handleLoad}
+          priority={priority}
+        />
+      )}
     </div>
   );
 } 
