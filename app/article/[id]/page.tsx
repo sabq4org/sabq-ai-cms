@@ -50,15 +50,20 @@ export default function ArticlePage({ params }: PageProps) {
         
         // جلب المقال
         const response = await fetch(`/api/articles/${resolved.id}`);
-        if (response.ok) {
+        
+        if (response.status === 404) {
+          // المقال غير موجود
+          setError(null); // لا نعرض رسالة خطأ إضافية
+        } else if (response.ok) {
           const data = await response.json();
           if (data.success) {
             setArticle(data);
           } else {
-            setError('المقال غير متوفر');
+            setError(null); // المقال غير موجود
           }
         } else {
-          setError('خطأ في تحميل المقال');
+          // خطأ في الخادم
+          setError('حدث خطأ في تحميل المقال. يرجى المحاولة لاحقاً.');
         }
       } catch (err) {
         console.error('Error loading article:', err);
@@ -108,9 +113,34 @@ export default function ArticlePage({ params }: PageProps) {
         maxWidth: 600,
         boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
       }}>
-        <h1 style={{color: '#1f2937', marginBottom: '1rem'}}>المقال غير متوفر</h1>
-        <p style={{color: '#6b7280', fontSize: '1.1rem', lineHeight: 1.8}}>
-          {error || 'عذراً، لم نتمكن من العثور على المقال المطلوب.'}
+        <div style={{
+          fontSize: '3rem',
+          marginBottom: '1rem',
+          opacity: 0.2
+        }}>
+          📄
+        </div>
+        <h1 style={{
+          color: '#1f2937', 
+          marginBottom: '1rem',
+          fontSize: '1.75rem',
+          fontWeight: '600'
+        }}>
+          عذراً، المقال غير موجود
+        </h1>
+        <p style={{
+          color: '#6b7280', 
+          fontSize: '1rem', 
+          lineHeight: 1.8,
+          marginBottom: '0.5rem'
+        }}>
+          المقال الذي تبحث عنه غير متوفر حالياً.
+        </p>
+        <p style={{
+          color: '#9ca3af', 
+          fontSize: '0.875rem'
+        }}>
+          قد يكون المقال قد تم نقله أو حذفه.
         </p>
         <a 
           href="/" 
