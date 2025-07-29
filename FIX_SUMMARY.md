@@ -454,3 +454,30 @@ ImageElement</ownRef<@webpack-internal:///.../image-component.js:146:25
 ✅ الصور تظهر مباشرة بعد التحديث
 ✅ لا حاجة للانتظار 5 دقائق
 ✅ أداء محسّن مع كاش ذكي 
+
+### 26. إصلاح مشكلة عرض الصور الفارغة في SafeImage
+
+**المشكلة**: أخطاء في console متعلقة بـ:
+- `Image is missing required "src" property`
+- `An empty string ("") was passed to the src attribute`
+- فشل تحميل الصور مع src فارغ
+
+**السبب**: 
+- مكون SafeImage كان يبدأ بـ imageSrc كـ string فارغ
+- عدم معالجة القيم الفارغة بشكل صحيح
+- محاولة عرض الصورة حتى مع src فارغ
+
+**الحل**:
+1. تهيئة imageSrc بالصورة الافتراضية مباشرة
+2. معالجة أفضل للقيم الفارغة في useEffect
+3. إضافة fallbackType في استخدام SafeImage
+
+**الملفات المحدثة**:
+- `components/ui/SafeImage.tsx` - تحسين معالجة القيم الفارغة
+- `app/categories/page.tsx` - إضافة fallbackType
+- `IMAGE_DISPLAY_FIX.md` - توثيق الحل
+
+**النتيجة**:
+✅ لا توجد أخطاء في console
+✅ عرض صور احتياطية مناسبة
+✅ تجربة مستخدم محسّنة 
