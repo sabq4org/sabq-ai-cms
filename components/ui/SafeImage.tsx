@@ -77,8 +77,6 @@ export default function SafeImage({
     setImageSrc(fallbacks[fallbackType]);
   }
 
-  const imageProps = fill ? { fill: true } : { width, height };
-
   return (
     <div className={`relative ${fill ? 'w-full h-full' : ''} ${className}`} style={style}>
       {/* شريط التحميل */}
@@ -87,14 +85,14 @@ export default function SafeImage({
       )}
       
       <Image
-        {...imageProps}
+        {...(fill ? { fill } : { width, height })}
         src={imageSrc}
         alt={alt}
         className={`${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300 ${fill ? 'object-cover' : ''}`}
         onError={handleError}
         onLoad={handleLoad}
         priority={priority}
-        sizes={sizes}
+        {...(sizes ? { sizes } : {})}
       />
     </div>
   );
