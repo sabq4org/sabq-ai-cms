@@ -92,10 +92,10 @@ export function getImageUrl(imagePath: string | undefined | null): string {
   
   if (!imagePath) {
     console.log('⚠️ No image path provided, using placeholder');
-    return '/images/placeholder-featured.jpg'; // استخدام الصورة الافتراضية الموجودة
+    return '/images/placeholder-featured.jpg';
   }
   
-  // إذا كان المسار URL كامل، أرجعه كما هو (خاصة Cloudinary)
+  // إذا كان المسار URL كامل، أرجعه كما هو
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     console.log('✅ Using full URL:', imagePath);
     return imagePath;
@@ -103,13 +103,12 @@ export function getImageUrl(imagePath: string | undefined | null): string {
   
   // إذا كان المسار يبدأ بـ /uploads، تحقق من البيئة
   if (imagePath.startsWith('/uploads/')) {
-    // في بيئة الإنتاج، استخدم API route للصور
+    // في بيئة الإنتاج، استخدم URL الكامل
     if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-      // استخدم API route الذي يتعامل مع الصور غير الموجودة
-      const cleanPath = imagePath.replace('/uploads/', '');
-      const apiUrl = `/api/images/${cleanPath}`;
-      console.log('🔄 Converting to API route:', apiUrl);
-      return apiUrl;
+      const siteUrl = 'https://sabq.io';
+      const fullUrl = `${siteUrl}${imagePath}`;
+      console.log('🌐 Production URL:', fullUrl);
+      return fullUrl;
     }
     // في بيئة التطوير، أرجع المسار كما هو
     console.log('🛠️ Development mode, using original path:', imagePath);

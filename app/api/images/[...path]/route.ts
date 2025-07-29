@@ -1,42 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptimizedImageUrl } from '@/lib/cloudinary';
+import fs from 'fs';
+import path from 'path';
 
-export const runtime = 'nodejs';
+// صور احتياطية لكل نوع محتوى
+const FALLBACK_IMAGES = {
+  article: '/images/placeholder-featured.jpg',
+  category: '/images/category-default.jpg',
+  author: '/images/default-avatar.jpg',
+  default: '/images/placeholder-featured.jpg'
+};
 
 export async function GET(
-  request: Request,
-  context: { params: Promise<{ path: string[] }> }
+  request: NextRequest,
+  { params }: { params: { path: string[] } }
 ) {
   try {
-    const resolvedParams = await context.params;
-    const imagePath = resolvedParams.path.join('/');
+    const imagePath = params.path.join('/');
+    console.log('📸 طلب صورة:', imagePath);
     
-    // التحقق من وجود المسار
-    if (!imagePath) {
-      return NextResponse.json(
-        { error: 'مسار الصورة مطلوب' },
-        { status: 400 }
-      );
+    // تحديد نوع المحتوى من المسار
+    let contentType = 'default';
+    if (imagePath.includes('category') || imagePath.includes('categories')) {
+      contentType = 'category';
+    } else if (imagePath.includes('author') || imagePath.includes('avatar')) {
+      contentType = 'author';
+    } else if (imagePath.includes('article') || imagePath.includes('featured')) {
+      contentType = 'article';
     }
     
-    // إنشاء رابط Cloudinary محسن
-    const cloudinaryUrl = getOptimizedImageUrl(imagePath, {
-      width: 800,
-      height: 600,
-      quality: 80,
-      format: 'webp',
-      crop: 'fill'
+    // محاولة قراءة الصورة من المجلد العام
+    const publicPath = path.join(process.cwd(), 'public', 'uploads', imagePath);
+    
+    if (fs.existsSync(publicPath)) {
+      const imageBuffer = fs.readFileSync(publicPath);
+      const ext = path.extname(publicPath).toLowerCase();
+      
+      let mimeType = 'image/jpeg';
+      if (ext === '.png') mimeType = 'image/png';
+      else if (ext === '.webp') mimeType = 'image/webp';
+      else if (ext === '.gif') mimeType = 'image/gif';
+      
+      return new NextResponse(imageBuffer, {
+        headers: {
+          'Content-Type': mimeType,
+          'Cache-Control': 'public, max-age=31536000, immutable'
+        }
+      });
+    }
+    
+    // إذا لم توجد الصورة، إعادة توجيه إلى صورة احتياطية
+    const fallbackImage = FALLBACK_IMAGES[contentType as keyof typeof FALLBACK_IMAGES];
+    console.log('⚠️ الصورة غير موجودة، استخدام الصورة الاحتياطية:', fallbackImage);
+    
+    return NextResponse.redirect(new URL(fallbackImage, request.url), {
+      status: 301,
+      headers: {
+        'Cache-Control': 'public, max-age=3600'
+      }
     });
     
-    // إعادة توجيه إلى Cloudinary
-    return NextResponse.redirect(cloudinaryUrl);
-    
   } catch (error) {
-    console.error('خطأ في معالجة الصورة:', error);
+    console.error('❌ خطأ في معالجة الصورة:', error);
     
-    // إرجاع صورة افتراضية من Cloudinary
-    const defaultImageUrl = `https://res.cloudinary.com/dybhezmvb/image/upload/v1/sabq-cms/defaults/default-image.jpg`;
-    return NextResponse.redirect(defaultImageUrl);
+    // في حالة الخطأ، إعادة توجيه إلى صورة افتراضية
+    return NextResponse.redirect(new URL(FALLBACK_IMAGES.default, request.url), {
+      status: 302
+    });
   }
 }
 

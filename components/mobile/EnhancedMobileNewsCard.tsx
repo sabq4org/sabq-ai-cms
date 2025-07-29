@@ -1,12 +1,14 @@
 'use client';
 
-import React from 'react';
-import { formatDateShort } from '@/lib/date-utils';
+import React, { memo } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Clock, Eye, Bookmark, Share2, Heart, MessageCircle } from 'lucide-react';
+import SafeImage from '@/components/ui/SafeImage';
+import { Clock, Eye, MessageSquare, Share2, Bookmark, TrendingUp, Calendar, Heart, MessageCircle } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { ar } from 'date-fns/locale';
+import { formatDateShort } from '@/lib/date-utils';
 import { getArticleLink } from '@/lib/utils';
-import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
+import { getImageUrl, generatePlaceholder } from '@/lib/image-utils';
 
 interface EnhancedMobileNewsCardProps {
   news: any;
@@ -43,17 +45,14 @@ export default function EnhancedMobileNewsCard({
         }`}>
           {/* الصورة بارتفاع أكبر */}
           <div className="relative h-56 w-full bg-gray-200 dark:bg-gray-700">
-            <Image
-              src={getValidImageUrl(news.featured_image, news.title, 'article')}
+            <SafeImage
+              src={news.featured_image}
               alt={news.title || 'صورة المقال'}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw"
               priority
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = generatePlaceholderImage(news.title, 'article');
-              }}
+              fallbackType="article"
             />
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -161,16 +160,13 @@ export default function EnhancedMobileNewsCard({
           <div className="flex items-start p-4 gap-4">
             {/* الصورة - مربعة مع زوايا دائرية */}
             <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700">
-              <Image
-                src={getValidImageUrl(news.featured_image, news.title, 'article')}
+              <SafeImage
+                src={news.featured_image}
                 alt={news.title || 'صورة المقال'}
                 fill
                 className="object-cover"
                 sizes="96px"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = generatePlaceholderImage(news.title, 'article');
-                }}
+                fallbackType="article"
               />
             </div>
 
@@ -254,16 +250,13 @@ export default function EnhancedMobileNewsCard({
       }`}>
         {/* الصورة مع نسبة 16:9 */}
         <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700">
-          <Image
-            src={getValidImageUrl(news.featured_image, news.title, 'article')}
+          <SafeImage
+            src={news.featured_image}
             alt={news.title || 'صورة المقال'}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = generatePlaceholderImage(news.title, 'article');
-            }}
+            fallbackType="article"
           />
           
           {/* تم إزالة التصنيف من الصورة */}

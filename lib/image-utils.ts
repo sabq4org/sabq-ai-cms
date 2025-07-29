@@ -110,6 +110,16 @@ export function getImageUrl(
 
   // إذا كانت الصورة محلية (تبدأ بـ /)
   if (imageUrl.startsWith('/')) {
+    // معالجة خاصة لمجلد uploads
+    if (imageUrl.startsWith('/uploads/')) {
+      // في بيئة الإنتاج، استخدم رابط مباشر
+      if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+        // إذا كان لدينا NEXT_PUBLIC_SITE_URL، استخدمه
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sabq.io';
+        return `${siteUrl}${imageUrl}`;
+      }
+    }
+    
     // في بيئة الإنتاج، أضف URL الأساسي
     if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SITE_URL) {
       return `${process.env.NEXT_PUBLIC_SITE_URL}${imageUrl}`;

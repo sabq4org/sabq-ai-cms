@@ -66,6 +66,11 @@ export function getArticleIdentifier(article: { id?: string; slug?: string; titl
     return article.id;
   }
   
+  // التحقق من معرف المقال الجديد بصيغة article_timestamp_random
+  if (article.id && /^article_\d+_[a-z0-9]+$/.test(article.id)) {
+    return article.id;
+  }
+  
   // ثانياً: التحقق من وجود معرف فريد في slug
   if (article.slug && /^art-\d{6}-[a-z0-9]{7}$/.test(article.slug)) {
     return article.slug;
