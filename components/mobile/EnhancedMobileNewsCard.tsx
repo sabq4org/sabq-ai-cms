@@ -8,7 +8,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { formatDateShort } from '@/lib/date-utils';
 import { getArticleLink } from '@/lib/utils';
-import { getImageUrl, generatePlaceholder } from '@/lib/image-utils';
 
 interface EnhancedMobileNewsCardProps {
   news: any;
