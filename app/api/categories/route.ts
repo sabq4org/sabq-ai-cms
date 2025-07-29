@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import dbConnectionManager from '@/lib/db-connection-manager';
-
-// Cache في الذاكرة للتصنيفات
-const categoryCache = {
-  data: null as any,
-  timestamp: 0,
-  duration: 5 * 60 * 1000 // 5 دقائق
-};
+import { categoryCache } from '@/lib/category-cache';
 
 export async function GET(request: NextRequest) {
   console.log('📋 بدء جلب التصنيفات...');
   
-  // التحقق من الكاش أولاً
-  if (categoryCache.data && Date.now() - categoryCache.timestamp < categoryCache.duration) {
+  // التحقق من طلب تجاوز الكاش
+  const searchParams = request.nextUrl.searchParams;
+  const skipCache = searchParams.has('t') || searchParams.has('nocache');
+  
+  // التحقق من الكاش أولاً (إلا إذا طُلب تجاوزه)
+  if (!skipCache && categoryCache.isValid()) {
     console.log('✅ إرجاع التصنيفات من الـ cache');
     console.log(`✅ تم جلب ${categoryCache.data.categories.length} تصنيف من الـ cache`);
     
@@ -73,8 +71,7 @@ export async function GET(request: NextRequest) {
     };
 
     // حفظ في الكاش
-    categoryCache.data = response;
-    categoryCache.timestamp = Date.now();
+    categoryCache.set(response);
     
     console.log(`✅ تم جلب ${processedCategories.length} تصنيف مع عدد المقالات وتحديث الـ cache`);
     console.log(`✅ تم جلب ${processedCategories.length} تصنيف من قاعدة البيانات`);

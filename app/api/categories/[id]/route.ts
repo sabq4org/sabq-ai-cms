@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import dbConnectionManager from '@/lib/db-connection-manager';
+import { categoryCache } from '@/lib/category-cache';
 
 // PUT: تحديث التصنيف
 export async function PUT(
@@ -40,6 +41,9 @@ export async function PUT(
     });
 
     console.log('✅ تم تحديث التصنيف بنجاح');
+    
+    // مسح كاش التصنيفات لضمان جلب البيانات المحدثة
+    categoryCache.clear();
 
     return NextResponse.json({
       success: true,
@@ -143,6 +147,9 @@ export async function DELETE(
     });
 
     console.log('✅ تم حذف التصنيف بنجاح');
+    
+    // مسح كاش التصنيفات لضمان جلب البيانات المحدثة
+    categoryCache.clear();
 
     return NextResponse.json({
       success: true,
