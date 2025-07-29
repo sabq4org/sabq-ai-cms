@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Calendar, User, Eye, MessageCircle, Share2, Bookmark, Clock } from 'lucide-react';
+import CloudImage from './CloudImage';
 
 // أنواع البطاقات
 export type CardVariant = 'default' | 'featured' | 'compact' | 'grid' | 'list';
@@ -106,20 +107,23 @@ export default function ResponsiveCard({
       : 'w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover';
 
     return (
-      <div className={variant === 'list' ? '' : 'card-image-container mb-4'}>
-        <img
+      <div className={`relative ${variant === 'list' ? '' : 'card-image-container mb-4'}`}>
+        <CloudImage
           src={article.image}
           alt={article.title}
+          fill={variant !== 'list'}
+          width={variant === 'list' ? 200 : undefined}
+          height={variant === 'list' ? 150 : undefined}
           className={imageClasses}
-          loading="lazy"
+          fallbackType="article"
         />
         {article.featured && (
-          <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
+          <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-semibold z-10">
             مميز
           </div>
         )}
         {article.category && (
-          <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs">
+          <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs z-10">
             {article.category}
           </div>
         )}

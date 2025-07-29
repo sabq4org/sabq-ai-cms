@@ -55,13 +55,16 @@ export async function GET(request: NextRequest) {
       ];
     }
     
-    // دعم معامل types (مثلا: "NORMAL,OPINION")
+    // دعم معامل types - تم التعليق لأن حقل type غير موجود في قاعدة البيانات
+    // يمكن استخدام metadata->type إذا كان مطلوباً
+    /*
     if (types) {
       const typeArray = types.split(',').filter(Boolean);
       if (typeArray.length > 0) {
         where.type = { in: typeArray };
       }
     }
+    */
     
     // التحقق من معامل sortBy=latest
     const sortBy = searchParams.get('sortBy');

@@ -177,7 +177,7 @@ export default function OpinionPage() {
     try {
       setLoading(true);
       // بناء URL مع الفلاتر
-      let url = `/api/articles?type=OPINION&status=published&limit=20`;
+      let url = `/api/articles?status=published&limit=20`;
       if (selectedAuthor) url += `&author_id=${selectedAuthor}`;
       if (filters.topic !== 'all') url += `&tag=${filters.topic}`;
       if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;

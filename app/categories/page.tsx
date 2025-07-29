@@ -42,7 +42,7 @@ const categoryData = {
     hoverColor: 'hover:bg-purple-600',
     lightBg: 'bg-purple-50',
     darkBg: 'dark:bg-purple-900/20',
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1518776245991-cf89dd7fc73a?auto=format&fit=crop&w=800&q=80'
   },
   'رياضة': { 
     icon: Trophy, 
@@ -187,6 +187,69 @@ const categoryData = {
     lightBg: 'bg-yellow-50',
     darkBg: 'dark:bg-yellow-900/20',
     image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=800&q=80'
+  },
+  'محليات': { 
+    icon: Users, 
+    color: 'indigo',
+    bgColor: 'bg-indigo-500',
+    hoverColor: 'hover:bg-indigo-600',
+    lightBg: 'bg-indigo-50',
+    darkBg: 'dark:bg-indigo-900/20',
+    image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=800&q=80'
+  },
+  'العالم': { 
+    icon: Globe, 
+    color: 'cyan',
+    bgColor: 'bg-cyan-500',
+    hoverColor: 'hover:bg-cyan-600',
+    lightBg: 'bg-cyan-50',
+    darkBg: 'dark:bg-cyan-900/20',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80'
+  },
+  'حياتنا': { 
+    icon: Heart, 
+    color: 'pink',
+    bgColor: 'bg-pink-500',
+    hoverColor: 'hover:bg-pink-600',
+    lightBg: 'bg-pink-50',
+    darkBg: 'dark:bg-pink-900/20',
+    image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80'
+  },
+  'محطات': { 
+    icon: Activity, 
+    color: 'orange',
+    bgColor: 'bg-orange-500',
+    hoverColor: 'hover:bg-orange-600',
+    lightBg: 'bg-orange-50',
+    darkBg: 'dark:bg-orange-900/20',
+    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80'
+  },
+  'سياحة': { 
+    icon: Globe, 
+    color: 'sky',
+    bgColor: 'bg-sky-500',
+    hoverColor: 'hover:bg-sky-600',
+    lightBg: 'bg-sky-50',
+    darkBg: 'dark:bg-sky-900/20',
+    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80'
+  },
+  'أعمال': { 
+    icon: TrendingUp, 
+    color: 'green',
+    bgColor: 'bg-green-500',
+    hoverColor: 'hover:bg-green-600',
+    lightBg: 'bg-green-50',
+    darkBg: 'dark:bg-green-900/20',
+    image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=80'
+  },
+  'سيارات': { 
+    icon: Activity, 
+    color: 'blue',
+    bgColor: 'bg-blue-500',
+    hoverColor: 'hover:bg-blue-600',
+    lightBg: 'bg-blue-50',
+    darkBg: 'dark:bg-blue-900/20',
+    image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=800&q=80'
   }
 };
 
@@ -227,11 +290,11 @@ export default function CategoriesPage() {
             return normalized;
           });
           
-          // فلترة التصنيفات النشطة والتحقق من وجود البيانات المطلوبة
+          // فلترة التصنيفات النشطة فقط
           const activeCategories = normalizedCategories
             .filter((cat: Category) => cat && typeof cat === 'object') // التأكد من أنه كائن صالح
             .filter((cat: Category) => {
-              return cat.is_active && (cat.name_ar || cat.name);
+              return cat.is_active;
             });
           
           setCategories(activeCategories);
@@ -341,8 +404,9 @@ export default function CategoriesPage() {
       'سياسي': categoryData['سياسة'],
       'ثقافي': categoryData['ثقافة'],
       'صحي': categoryData['صحة'],
-      'محلي': categoryData['محلي'],
+      'محلي': categoryData['محلي'] || categoryData['محليات'],
       'دولي': categoryData['دولي'],
+      'عالم': categoryData['العالم'],
       'منوع': categoryData['منوعات'],
       'بيئي': categoryData['بيئة'],
       'تعليمي': categoryData['تعليم'],

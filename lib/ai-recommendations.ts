@@ -483,14 +483,22 @@ async function fetchArticlesByType(
   limit: number
 ): Promise<RecommendedArticle[]> {
   try {
-    const response = await fetch(`/api/articles?types=${types.join(',')}&exclude=${excludeId}&limit=${limit}&status=published`);
+    // بدلاً من استخدام types، سنجلب مقالات عشوائية
+    // يمكن تحسين هذا لاحقاً بإضافة منطق أكثر ذكاءً
+    const response = await fetch(`/api/articles?exclude=${excludeId}&limit=${limit}&status=published&sortBy=published_at&order=desc`);
     
     if (!response.ok) return [];
     
     const data = await response.json();
     
     if (data.success && data.articles) {
-      return data.articles.map((article: any) => ({
+      // فلترة المقالات حسب النوع من metadata إن وجد
+      const filteredArticles = data.articles.filter((article: any) => {
+        if (!article.metadata?.type) return true; // إذا لم يكن هناك نوع، اعتبره صالح
+        return types.some(type => article.metadata.type === type);
+      });
+      
+      return filteredArticles.slice(0, limit).map((article: any) => ({
         id: article.id,
         title: article.title,
         url: `/article/${article.id}`,

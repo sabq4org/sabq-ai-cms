@@ -175,7 +175,7 @@ export default function ArticlesPage() {
       let url = `/api/articles?status=published&limit=20&page=${reset ? 1 : page + 1}`;
       if (filters.category !== 'all') url += `&category_id=${filters.category}`;
       if (filters.author !== 'all') url += `&author_id=${filters.author}`;
-      if (filters.type !== 'all') url += `&type=${filters.type.toUpperCase()}`;
+      // if (filters.type !== 'all') url += `&type=${filters.type.toUpperCase()}`; // تم التعليق - حقل type غير موجود
       if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
       // ترتيب النتائج
       switch (filters.sortBy) {

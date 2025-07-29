@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getImageUrl, getOptimizedImageProps } from '@/lib/image-utils';
+import { getImageUrl } from '@/lib/image-utils';
+import { getProductionImageUrl } from '@/lib/production-image-fix';
 
 interface CloudImageProps {
   src?: string | null;
@@ -37,6 +38,21 @@ export default function CloudImage({
   // الحصول على رابط الصورة المحسن مع معالجة أفضل للأخطاء
   const imageUrl = React.useMemo(() => {
     try {
+      // تحديد بيئة التشغيل
+      const isProduction = process.env.NODE_ENV === 'production' || 
+                          (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
+
+      // استخدام معالج الإنتاج في بيئة الإنتاج
+      if (isProduction) {
+        return getProductionImageUrl(hasError ? null : src, {
+          width,
+          height,
+          quality,
+          fallbackType
+        });
+      }
+
+      // في بيئة التطوير، استخدم المعالج العادي
       return getImageUrl(hasError ? null : src, {
         width,
         height,
@@ -45,6 +61,13 @@ export default function CloudImage({
       });
     } catch (error) {
       console.error('خطأ في معالجة رابط الصورة:', error);
+      // استخدام معالج الإنتاج للصور الافتراضية
+      const isProduction = process.env.NODE_ENV === 'production' || 
+                          (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
+      
+      if (isProduction) {
+        return getProductionImageUrl(null, { fallbackType });
+      }
       return getImageUrl(null, { fallbackType });
     }
   }, [src, hasError, width, height, quality, fallbackType]);

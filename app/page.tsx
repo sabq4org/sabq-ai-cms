@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 async function getArticles(limit = 16) {
   try {
     const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
+    const host = headersList.get('host') || 'localhost:3002';
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
@@ -88,7 +88,7 @@ async function getArticles(limit = 16) {
 async function getCategories() {
   try {
     const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
+    const host = headersList.get('host') || 'localhost:3002';
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
@@ -112,7 +112,8 @@ async function getCategories() {
         return [];
       }
       
-      const categories = await res.json();
+      const data = await res.json();
+      const categories = data.categories || data.data || [];
       console.log('✅ التصنيفات المُستلمة:', categories.length);
       return categories;
     } catch (fetchError) {
@@ -129,7 +130,7 @@ async function getCategories() {
 async function getNewsStats() {
   try {
     const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
+    const host = headersList.get('host') || 'localhost:3002';
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
@@ -168,7 +169,7 @@ async function getNewsStats() {
 async function getDeepAnalyses() {
   try {
     const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
+    const host = headersList.get('host') || 'localhost:3002';
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     

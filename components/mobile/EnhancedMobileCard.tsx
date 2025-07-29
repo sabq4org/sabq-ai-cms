@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Clock, Eye, MessageCircle, Share2, Heart } from 'lucide-react';
+import CloudImage from '@/components/ui/CloudImage';
 
 interface EnhancedMobileCardProps {
   title: string;
@@ -69,16 +70,18 @@ export default function EnhancedMobileCard({
     >
       {/* الصورة */}
       {image && (
-        <div className="card-image-container">
-          <img 
+        <div className="card-image-container relative">
+          <CloudImage 
             src={image} 
             alt={title}
-            className="card-image"
-            loading="lazy"
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="card-image object-cover"
+            fallbackType="article"
           />
           {category && (
             <div 
-              className="card-category"
+              className="card-category absolute bottom-2 right-2 z-10"
               style={{ backgroundColor: category.color || '#3b82f6' }}
             >
               {category.name}

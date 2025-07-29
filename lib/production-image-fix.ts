@@ -7,7 +7,7 @@
 const PRODUCTION_DOMAIN = 'https://sabq.io';
 
 // Cloudinary الافتراضي
-const DEFAULT_CLOUDINARY_CLOUD = 'dlaibl7id';
+const DEFAULT_CLOUDINARY_CLOUD = 'dybhezmvb';
 const CLOUDINARY_BASE = `https://res.cloudinary.com/${DEFAULT_CLOUDINARY_CLOUD}/image/upload`;
 
 // صور افتراضية مباشرة من Cloudinary
