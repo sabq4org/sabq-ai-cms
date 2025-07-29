@@ -1,0 +1,90 @@
+/* تجاوز إعدادات Tailwind للتركيز والإطار الأزرق */
+
+/* إلغاء جميع حلقات التركيز من Tailwind */
+.focus\:ring-0:focus,
+.focus\:ring-1:focus,
+.focus\:ring-2:focus,
+.focus\:ring-4:focus,
+.focus\:ring-8:focus,
+.focus\:ring:focus {
+  --tw-ring-shadow: 0 0 #0000 !important;
+  box-shadow: none !important;
+}
+
+/* إلغاء ألوان حدود التركيز */
+.focus\:border-blue-300:focus,
+.focus\:border-blue-400:focus,
+.focus\:border-blue-500:focus,
+.focus\:border-blue-600:focus,
+.focus\:border-blue-700:focus {
+  border-color: inherit !important;
+}
+
+/* إلغاء تأثيرات التركيز للعناصر التفاعلية */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus,
+a:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* إلغاء تأثيرات التركيز المرئية */
+*:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* إلغاء تأثيرات التركيز للبطاقات والعناصر القابلة للنقر */
+[tabindex]:focus,
+[tabindex]:focus-visible,
+.clickable:focus,
+.clickable:focus-visible,
+.cursor-pointer:focus,
+.cursor-pointer:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* إلغاء تأثيرات التركيز للقوائم */
+nav a:focus,
+nav a:focus-visible,
+.nav-link:focus,
+.nav-link:focus-visible,
+.menu-item:focus,
+.menu-item:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
+/* إلغاء تأثيرات التركيز لبطاقات الأخبار */
+article:focus,
+article:focus-visible,
+.article-card:focus,
+.article-card:focus-visible,
+.news-card:focus,
+.news-card:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* تأكيد إلغاء جميع الحلقات */
+.ring-0,
+.ring-1,
+.ring-2,
+.ring-4,
+.ring-8,
+.ring {
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
+
+/* إلغاء offset الحلقة */
+.ring-offset-0,
+.ring-offset-1,
+.ring-offset-2,
+.ring-offset-4,
+.ring-offset-8 {
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+} 

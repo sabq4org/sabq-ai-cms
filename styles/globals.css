@@ -5,6 +5,56 @@
   --dashboard-header-height: 64px; /* ارتفاع هيدر لوحة التحكم */
 }
 
+/* إلغاء الإطار الأزرق عند التركيز */
+* {
+  outline: none !important;
+}
+
+/* إلغاء إطار التركيز للروابط والأزرار */
+a:focus,
+a:focus-visible,
+button:focus,
+button:focus-visible,
+[role="button"]:focus,
+[role="button"]:focus-visible,
+.focus\:outline-none:focus,
+.focus\:ring-0:focus,
+.focus\:ring-2:focus,
+.focus\:ring-4:focus,
+.focus\:ring:focus,
+.focus\:border-blue-500:focus,
+.focus\:border-blue-600:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* إلغاء الحلقة الزرقاء من Tailwind */
+*:focus {
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000) !important;
+}
+
+/* إلغاء تأثيرات التركيز للبطاقات */
+.card:focus,
+.card:focus-visible,
+[class*="card"]:focus,
+[class*="card"]:focus-visible {
+  outline: none !important;
+  border-color: inherit !important;
+}
+
+/* إلغاء تأثيرات التركيز للقوائم المنسدلة */
+.dropdown:focus,
+.dropdown:focus-visible,
+[class*="dropdown"]:focus,
+[class*="dropdown"]:focus-visible,
+select:focus,
+select:focus-visible {
+  outline: none !important;
+  border-color: inherit !important;
+}
+
 @media (max-width: 768px) {
   :root {
     --header-height: 56px;

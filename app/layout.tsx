@@ -1,4 +1,6 @@
 import '../styles/globals.css';
+import '../styles/tailwind-overrides.css';
+import '../styles/no-focus-outline.css';
 import '../styles/smart-recommendations.css';
 import '../styles/minimal-fix.css';
 import '../styles/enhanced-mobile-stats.css';
