@@ -119,6 +119,15 @@ export default function EditCategoryModal({
         })
       });
 
+      // التحقق من نوع المحتوى قبل تحليل JSON
+      const contentType = response.headers.get('content-type');
+      
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('❌ استجابة غير JSON:', text);
+        throw new Error('الخادم أرجع استجابة غير صالحة');
+      }
+
       const data = await response.json();
 
       if (response.ok && data.success) {
