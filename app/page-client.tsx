@@ -395,7 +395,7 @@ function NewspaperHomePage({
                     'مميز'} - ${recommendation.readingTime} دقائق قراءة`
                 }}
                 darkMode={darkMode}
-                variant={isMobileView ? 'full' : 'full'}
+                variant={isMobileView ? 'full' : 'desktop'}
                 position={smartCardIndex}
               />
             );
@@ -419,7 +419,7 @@ function NewspaperHomePage({
                   image_caption: `${recommendation.reason} • ${recommendation.category} • ${recommendation.readingTime} دقيقة`
                 }}
                 darkMode={darkMode}
-                variant={isMobileView ? 'full' : 'full'}
+                variant={isMobileView ? 'full' : 'desktop'}
                 position={smartCardIndex}
               />
             );
