@@ -22,31 +22,65 @@ export const metadata: Metadata = {
   },
 };
 
-// Server Component لجلب البيانات
-async function getArticles() {
+// Server Component لجلب البيانات مع معالجة محسنة للأخطاء
+async function getArticles(limit = 16) {
   try {
     const headersList = await headers();
     const host = headersList.get('host') || 'localhost:3000';
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
-    const res = await fetch(`${baseUrl}/api/articles?status=published&limit=16&sortBy=published_at&order=desc`, {
-      next: { revalidate: 300 }, // cache لـ 5 دقائق
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
-      }
-    });
+    // إضافة timeout للطلب
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
     
-    if (!res.ok) {
-      console.error('فشل جلب المقالات:', res.status);
+    try {
+      const res = await fetch(
+        `${baseUrl}/api/articles?status=published&limit=${limit}&sortBy=published_at&order=desc`,
+        {
+          next: { revalidate: 60 },
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
+          },
+          signal: controller.signal
+        }
+      );
+      
+      clearTimeout(timeoutId);
+      
+      if (!res.ok) {
+        console.warn(`⚠️ API returned ${res.status}: ${res.statusText}`);
+        return [];
+      }
+      
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('⚠️ استجابة غير صالحة من API المقالات');
+        return [];
+      }
+      
+      const json = await res.json();
+      const articles = Array.isArray(json) ? json : (json.data ?? json.articles ?? []);
+      
+      if (!Array.isArray(articles)) {
+        console.warn('⚠️ البيانات المستلمة ليست مصفوفة');
+        return [];
+      }
+      
+      return articles;
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        console.warn('⚠️ انتهت مهلة الطلب');
+      } else {
+        console.warn('⚠️ خطأ في جلب المقالات:', fetchError);
+      }
       return [];
     }
-    
-    const json = await res.json();
-    const articles = Array.isArray(json) ? json : (json.data ?? json.articles ?? []);
-    return articles;
   } catch (error) {
-    console.error('خطأ في جلب المقالات من الخادم:', error);
+    console.warn('⚠️ خطأ في إعداد طلب المقالات:', error);
     return [];
   }
 }
@@ -58,49 +92,75 @@ async function getCategories() {
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
-    console.log('🔍 جلب التصنيفات من:', `${baseUrl}/api/categories?is_active=true`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     
-    const res = await fetch(`${baseUrl}/api/categories?is_active=true`, {
-      next: { revalidate: 600 }, // cache لـ 10 دقائق
-      headers: {
-        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=900'
+    try {
+      const res = await fetch(`${baseUrl}/api/categories?is_active=true`, {
+        next: { revalidate: 600 },
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=900'
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!res.ok) {
+        console.warn(`⚠️ فشل جلب التصنيفات: ${res.status}`);
+        return [];
       }
-    });
-    
-    if (!res.ok) {
-      console.error('فشل جلب التصنيفات:', res.status);
+      
+      const categories = await res.json();
+      console.log('✅ التصنيفات المُستلمة:', categories.length);
+      return categories;
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      console.warn('⚠️ خطأ في جلب التصنيفات:', fetchError);
       return [];
     }
-    
-    const data = await res.json();
-    const categories = Array.isArray(data) ? data : (data.data || data.categories || []);
-    console.log('✅ التصنيفات المُستلمة:', categories.length);
-    
-    return categories;
   } catch (error) {
-    console.error('خطأ في جلب التصنيفات من الخادم:', error);
+    console.warn('⚠️ خطأ في إعداد طلب التصنيفات:', error);
     return [];
   }
 }
 
-async function getStats() {
+async function getNewsStats() {
   try {
     const headersList = await headers();
     const host = headersList.get('host') || 'localhost:3000';
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
-    const res = await fetch(`${baseUrl}/api/news/stats`, {
-      next: { revalidate: 300 },
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
-      }
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     
-    if (!res.ok) return null;
-    return await res.json();
+    try {
+      const res = await fetch(`${baseUrl}/api/news/stats`, {
+        next: { revalidate: 300 },
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!res.ok) {
+        console.warn(`⚠️ فشل جلب إحصائيات الأخبار: ${res.status}`);
+        return null;
+      }
+      
+      return await res.json();
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      console.warn('⚠️ خطأ في جلب إحصائيات الأخبار:', fetchError);
+      return null;
+    }
   } catch (error) {
-    console.error('خطأ في جلب الإحصائيات:', error);
+    console.warn('⚠️ خطأ في إعداد طلب الإحصائيات:', error);
     return null;
   }
 }
@@ -112,44 +172,35 @@ async function getDeepAnalyses() {
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
-    const res = await fetch(`${baseUrl}/api/deep-analyses?limit=5&sortBy=analyzed_at&sortOrder=desc`, {
-      next: { revalidate: 300 }, // cache لـ 5 دقائق
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    
+    try {
+      const res = await fetch(`${baseUrl}/api/deep-analyses?limit=5&sortBy=analyzed_at&sortOrder=desc`, {
+        next: { revalidate: 600 },
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=900'
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!res.ok) {
+        console.warn(`⚠️ فشل جلب التحليلات العميقة: ${res.status}`);
+        return [];
       }
-    });
-    
-    if (!res.ok) {
-      console.error('❌ فشل جلب التحليلات العميقة - HTTP Status:', res.status);
-      // محاولة قراءة رسالة الخطأ من الاستجابة
-      try {
-        const errorData = await res.json();
-        console.error('❌ Error details:', errorData);
-      } catch {
-        // تجاهل أخطاء parsing
-      }
+      
+      const data = await res.json();
+      return data.analyses || [];
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      console.warn('⚠️ خطأ في جلب التحليلات العميقة:', fetchError);
       return [];
     }
-    
-    const json = await res.json();
-    
-    // التحقق من نجاح العملية
-    if (json.success === false) {
-      console.error('❌ API returned error:', json.error || json.errorMessage);
-      return [];
-    }
-    
-    const analyses = Array.isArray(json) ? json : (json.data ?? json.analyses ?? []);
-    
-    // التحقق من وجود بيانات صحيحة
-    if (!Array.isArray(analyses)) {
-      console.error('❌ Invalid data format from API');
-      return [];
-    }
-    
-    return analyses;
   } catch (error) {
-    console.error('❌ خطأ في جلب التحليلات العميقة من الخادم:', error);
+    console.warn('⚠️ خطأ في إعداد طلب التحليلات:', error);
     return [];
   }
 }
@@ -162,17 +213,29 @@ export default async function HomePage() {
     console.log('🚀 بدء تحميل الصفحة الرئيسية...');
     
     // جلب جميع البيانات بالتوازي
-    const [articles, categories, stats, deepAnalyses] = await Promise.all([
-      getArticles(),
-      getCategories(),
-      getStats(),
-      getDeepAnalyses()
+    const [articles = [], categories = [], newsStats = null, deepAnalyses = []] = await Promise.all([
+      getArticles(16).catch((err) => {
+        console.warn('⚠️ فشل جلب المقالات:', err);
+        return [];
+      }),
+      getCategories().catch((err) => {
+        console.warn('⚠️ فشل جلب التصنيفات:', err);
+        return [];
+      }),
+      getNewsStats().catch((err) => {
+        console.warn('⚠️ فشل جلب الإحصائيات:', err);
+        return null;
+      }),
+      getDeepAnalyses().catch((err) => {
+        console.warn('⚠️ فشل جلب التحليلات:', err);
+        return [];
+      })
     ]);
 
     console.log('✅ تم جلب البيانات بنجاح:', {
       articles: articles.length,
       categories: categories.length,
-      stats: !!stats,
+      stats: !!newsStats,
       deepAnalyses: deepAnalyses.length
     });
 
@@ -180,7 +243,7 @@ export default async function HomePage() {
       <PageClient 
         initialArticles={articles}
         initialCategories={categories}
-        initialStats={stats}
+        initialStats={newsStats}
         initialDeepAnalyses={deepAnalyses}
       />
     );

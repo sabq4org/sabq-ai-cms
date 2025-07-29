@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     console.log('✅ إرجاع المقالات من الكاش');
     return NextResponse.json(cached.data, {
       headers: {
+        'Content-Type': 'application/json',
         'X-Cache': 'HIT',
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
       }
@@ -49,31 +50,30 @@ export async function GET(request: NextRequest) {
     
     if (search) {
       where.OR = [
-        { title: { contains: search } },
-        { excerpt: { contains: search } }
+        { title: { contains: search, mode: 'insensitive' } },
+        { content: { contains: search, mode: 'insensitive' } }
       ];
     }
     
-    // دعم فلترة حسب الأنواع في metadata
+    // دعم معامل types (مثلا: "NORMAL,OPINION")
     if (types) {
-      const typeArray = types.split(',').map(t => t.trim());
-      where.OR = where.OR || [];
-      where.OR.push(...typeArray.map(type => ({
-        metadata: {
-          path: ['type'],
-          equals: type
-        }
-      })));
+      const typeArray = types.split(',').filter(Boolean);
+      if (typeArray.length > 0) {
+        where.type = { in: typeArray };
+      }
     }
     
-    // استبعاد مقال معين
-    if (exclude) {
-      where.id = { not: exclude };
-    }
-
-    // إنشاء ترتيب ديناميكي
+    // التحقق من معامل sortBy=latest
+    const sortBy = searchParams.get('sortBy');
     const orderBy: any = {};
-    orderBy[sort] = order;
+    
+    if (sortBy === 'latest' || sort === 'published_at') {
+      orderBy.published_at = order;
+    } else if (sort === 'views') {
+      orderBy.views_count = order;
+    } else {
+      orderBy[sort] = order;
+    }
 
     // جلب المقالات مع العد بشكل متوازي
     const [articles, totalCount] = await Promise.all([
