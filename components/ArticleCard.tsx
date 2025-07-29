@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import SafeImage from '@/components/ui/SafeImage';
 import { Calendar, Clock, Eye, MessageSquare, Zap, Newspaper } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -58,11 +58,13 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
         )}>
           {/* Image محسنة للأداء */}
           <div className="relative w-48 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
-            <OptimizedImage
+            <SafeImage
               src={imageUrl || ''}
               alt={article.title || 'صورة المقال'}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-500"
+              fallbackType="article"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
 
@@ -139,12 +141,13 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
       )}>
         {/* Image Container */}
         <div className="relative h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-          <OptimizedImage
+          <SafeImage
             src={imageUrl || ''}
             alt={article.title || 'صورة المقال'}
             fill
             className="object-cover group-hover:scale-110 transition-transform duration-500"
-            priority={article.featured || isBreaking}
+            fallbackType="article"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           
           {/* Breaking Badge Overlay */}

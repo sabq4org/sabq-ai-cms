@@ -1,13 +1,15 @@
-import { ReactNode, useEffect, useState } from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
 
 interface SafeHydrationProps {
-  children: ReactNode;
-  fallback?: ReactNode;
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
 }
 
 /**
- * مكون لحل مشاكل Hydration Mismatch
- * يؤخر عرض المحتوى الديناميكي حتى يكتمل التحميل
+ * مكون للتعامل مع مشاكل Hydration عن طريق تأخير عرض المحتوى الحساس
+ * حتى يتم تحميل الصفحة بالكامل على جانب العميل
  */
 export default function SafeHydration({ children, fallback = null }: SafeHydrationProps) {
   const [isHydrated, setIsHydrated] = useState(false);
@@ -26,7 +28,7 @@ export default function SafeHydration({ children, fallback = null }: SafeHydrati
 /**
  * Hook للتحقق من حالة Hydration
  */
-export function useIsHydrated() {
+export function useHydrated() {
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {

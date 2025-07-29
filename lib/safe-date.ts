@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { useIsHydrated } from '@/components/SafeHydration';
+import { useHydrated } from '@/components/SafeHydration';
 
 /**
  * تحويل التاريخ إلى نص آمن
@@ -92,7 +92,7 @@ export function SafeDate({
   options?: Intl.DateTimeFormatOptions;
   className?: string;
 }) {
-  const isHydrated = useIsHydrated();
+  const isHydrated = useHydrated();
   
   if (!isHydrated) {
     return React.createElement('span', { className }, placeholder);

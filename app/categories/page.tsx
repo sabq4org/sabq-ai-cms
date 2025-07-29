@@ -1,13 +1,15 @@
 'use client';
 
-import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import SafeImage from '@/components/ui/SafeImage';
 import Footer from '@/components/Footer';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { 
-  Tag, BookOpen, Loader2, Search, TrendingUp, Trophy, Building2, 
-  Heart, Leaf, Globe, Activity, Code, Sparkles, Palette, Users,
-  Grid3X3, List, ArrowLeft, AlertTriangle, Layers
+  Loader2, AlertCircle, Filter, ChevronRight, Search, Grid, List, Sparkles, TrendingUp,
+  Trophy, Building2, Heart, Leaf, Globe, Activity, Code, Palette, Users, BookOpen, Layers, Grid3X3, ArrowLeft, Tag
 } from 'lucide-react';
 
 interface Category {
@@ -618,7 +620,7 @@ export default function CategoriesPage() {
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-6">
               <div className="flex items-center gap-3">
-                <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
                 <p className="text-red-700 dark:text-red-300">{error}</p>
               </div>
             </div>
@@ -662,7 +664,7 @@ export default function CategoriesPage() {
                         <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden h-64">
                           {/* Background Image */}
                           <div className="absolute inset-0">
-                            <Image 
+                            <SafeImage 
                               src={imageSrc} 
                               alt={categoryName}
                               fill

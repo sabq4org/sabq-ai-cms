@@ -91,7 +91,30 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
       });
 
       if (!response.ok) {
-        throw new Error(`فشل رفع الصورة: ${response.status} ${response.statusText}`);
+        const contentType = response.headers.get('content-type');
+        let errorMessage = `فشل رفع الصورة: ${response.status} ${response.statusText}`;
+        
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } catch (e) {
+            console.error('❌ فشل في تحليل رسالة الخطأ:', e);
+          }
+        } else {
+          const textError = await response.text();
+          console.error('❌ استجابة غير متوقعة:', textError);
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      // التحقق من نوع المحتوى قبل تحليل JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('❌ استجابة غير JSON:', text);
+        throw new Error('الخادم أرجع استجابة غير صالحة');
       }
 
       const data = await response.json();

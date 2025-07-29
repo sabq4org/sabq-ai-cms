@@ -26,6 +26,7 @@ import CompactStatsBar from '@/components/mobile/CompactStatsBar';
 
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
+import SafeHydration from '@/components/SafeHydration';
 
 // Dynamic imports for components that appear below the fold
 const SmartContextWidget = dynamic(() => import('@/components/home/SmartContextWidget'), {
@@ -117,21 +118,33 @@ function NewspaperHomePage({
 }: PageClientProps) {
   const { user, loading: authLoading } = useAuth();
   const { darkMode } = useDarkModeContext();
-  const [isMobile, setIsMobile] = useState(false);
+  // حالة الجهاز - نبدأ بقيمة undefined لتجنب مشاكل hydration
+  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
   const isLoggedIn = !!user;
 
   // فحص نوع الجهاز
   useEffect(() => {
     const checkDevice = () => {
-      const userAgent = navigator.userAgent;
-      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-      const isSmallScreen = window.innerWidth <= 768;
-      setIsMobile(isMobileDevice || isSmallScreen);
+      if (typeof window === 'undefined' || typeof navigator === 'undefined') return;
+      
+      try {
+        const userAgent = navigator.userAgent || '';
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+        const isSmallScreen = window.innerWidth <= 768;
+        setIsMobile(isMobileDevice || isSmallScreen);
+      } catch (error) {
+        console.warn('Error detecting device type:', error);
+        setIsMobile(false);
+      }
     };
+    
     checkDevice();
     window.addEventListener('resize', checkDevice);
     return () => window.removeEventListener('resize', checkDevice);
   }, []);
+
+  // استخدم false كقيمة افتراضية فقط عند العرض
+  const isMobileView = isMobile ?? false;
 
   // =============================
   // المتغيرات المساعدة لمنع الأخطاء أثناء التشغيل (قابلة للتحديث مستقبلاً)
@@ -348,10 +361,12 @@ function NewspaperHomePage({
         }}
       >
 
-      {/* شريط الإحصائيات المحسن للموبايل */}
-      {isMobile && (
-        <CompactStatsBar darkMode={darkMode} />
-      )}
+              {/* شريط الإحصائيات المحسن للموبايل */}
+        <SafeHydration>
+          {isMobileView && (
+            <CompactStatsBar darkMode={darkMode} />
+          )}
+        </SafeHydration>
       
       {/* عرض جميع البلوكات الذكية */}
       {getOrderedBlocks().some(block => blocksConfig[block.key]?.enabled) && (
@@ -651,7 +666,7 @@ function NewspaperHomePage({
                         🎯 محتوى ذكي مخصص لاهتماماتك
                       </h2>
                       <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        {isMobile 
+                        {isMobileView 
                           ? 'مقالات مختارة خصيصاً لك'
                           : 'نقدم لك أفضل المقالات المختارة خصيصاً بناءً على اهتماماتك المحددة'
                         }
@@ -752,7 +767,7 @@ function NewspaperHomePage({
               {/* عرض المقالات - تم تعديل العدد ليكون 16 مقال كما هو مطلوب */}
               {(showPersonalized && personalizedArticles.length > 0) ? (
                 // عرض المقالات المخصصة للمستخدمين المسجلين
-                isMobile ? (
+                isMobileView ? (
                   // عرض الموبايل - قائمة عمودية
                   <div className="space-y-3">
                     {personalizedArticles.slice(0, 10).map((news) => (
@@ -791,7 +806,7 @@ function NewspaperHomePage({
                 )
               ) : articles.length > 0 ? (
                 // عرض آخر المقالات للزوار أو المستخدمين بدون تفضيلات
-                isMobile ? (
+                isMobileView ? (
                   // عرض الموبايل - قائمة عمودية
                   <div className="space-y-3">
                     {articles.slice(0, 10).map((news) => (
