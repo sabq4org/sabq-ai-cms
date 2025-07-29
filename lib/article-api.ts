@@ -38,34 +38,128 @@ export interface ArticleData {
 // جلب المقال للسيرفر (SSR)
 export async function getArticleData(id: string): Promise<ArticleData | null> {
   try {
-    // تحديد URL بناءً على البيئة
+    // إذا كنا في السيرفر، استخدم اتصال مباشر بقاعدة البيانات
+    if (typeof window === 'undefined') {
+      console.log(`[getArticleData] استخدام اتصال مباشر بقاعدة البيانات للمعرف:`, id);
+      
+      try {
+        const prisma = (await import('@/lib/prisma')).default;
+        
+        const article = await prisma.articles.findFirst({
+          where: {
+            OR: [
+              { id: id },
+              { slug: id }
+            ],
+            status: 'published'
+          },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                avatar: true
+              }
+            },
+            categories: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                color: true,
+                icon: true
+              }
+            }
+          }
+        });
+
+        if (!article) {
+          console.warn(`[getArticleData] لم يتم العثور على مقال بالمعرف:`, id);
+          return null;
+        }
+
+        // تحديث عداد المشاهدات
+        try {
+          await prisma.articles.update({
+            where: { id: article.id },
+            data: { views: { increment: 1 } }
+          });
+          console.log(`[getArticleData] تم تحديث عداد المشاهدات للمقال:`, article.id);
+        } catch (viewUpdateError) {
+          console.warn(`[getArticleData] فشل في تحديث عداد المشاهدات:`, viewUpdateError);
+        }
+
+        // تحويل البيانات للتنسيق المطلوب
+        const articleData: ArticleData = {
+          id: article.id,
+          title: article.title,
+          content: article.content || '',
+          excerpt: article.excerpt || undefined,
+          summary: undefined, // غير موجود في schema
+          ai_summary: undefined, // غير موجود في schema
+          keywords: (article.metadata as any)?.keywords || [],
+          seo_keywords: article.seo_keywords || undefined,
+          author: article.author ? {
+            name: article.author.name || 'غير محدد',
+            avatar: article.author.avatar || undefined
+          } : undefined,
+          likes: article.likes || 0,
+          saves: article.saves || 0,
+          shares: article.shares || 0,
+          author_id: article.author_id || undefined,
+          category: article.categories ? {
+            name: article.categories.name,
+            slug: article.categories.slug,
+            color: article.categories.color || undefined,
+            icon: article.categories.icon || undefined
+          } : undefined,
+          category_id: article.category_id || undefined,
+          featured_image: article.featured_image || undefined,
+          audio_summary_url: article.audio_summary_url || undefined,
+          published_at: article.published_at?.toISOString(),
+          created_at: article.created_at.toISOString(),
+          updated_at: article.updated_at.toISOString(),
+          slug: article.slug || undefined,
+          views: (article.views || 0) + 1, // إضافة 1 للمشاهدة الحالية
+          reading_time: article.reading_time || undefined,
+          status: article.status,
+          allow_comments: article.allow_comments ?? true,
+          comments_count: 0, // يمكن تحديثه لاحقاً
+          stats: {
+            likes: article.likes || 0,
+            saves: article.saves || 0,
+            shares: article.shares || 0,
+            comments: 0
+          }
+        };
+
+        console.log(`[getArticleData] تم جلب المقال بنجاح من قاعدة البيانات:`, article.title);
+        return articleData;
+
+      } catch (dbError) {
+        console.error(`[getArticleData] خطأ في الاتصال بقاعدة البيانات:`, dbError);
+        
+        // في حالة فشل قاعدة البيانات، حاول مع API
+        console.log(`[getArticleData] محاولة مع API كبديل...`);
+      }
+    }
+
+    // للمتصفح أو في حالة فشل قاعدة البيانات
     let baseUrl: string;
     
     if (typeof window !== 'undefined') {
       // في المتصفح - استخدم النطاق الحالي
       baseUrl = window.location.origin;
     } else {
-      // في السيرفر - استخدم متغيرات البيئة أو الافتراضي
-      // إضافة إصلاح مباشر لموقع sabq.io
-      const isProduction = process.env.NODE_ENV === 'production';
-      if (isProduction) {
-        baseUrl = 'https://sabq.io';
-      } else {
-        // ترتيب أولوية متغيرات البيئة
-        baseUrl = process.env.APP_URL || 
-                  process.env.NEXT_PUBLIC_APP_URL || 
-                  (process.env.VERCEL_URL && process.env.VERCEL_URL !== 'undefined' ? `https://${process.env.VERCEL_URL}` : null) ||
-                  'http://localhost:3002';
-      }
+      // في السيرفر كبديل - استخدم النطاق العام
+      baseUrl = 'https://sabq.io';
     }
     
     // ترميز المعرف للتأكد من صحة URL
     const encodedId = encodeURIComponent(id);
     const apiUrl = `${baseUrl}/api/articles/${encodedId}`;
     
-    console.log(`[getArticleData] محاولة جلب مقال بالمعرف:`, id);
-    console.log(`[getArticleData] البيئة:`, process.env.NODE_ENV);
-    console.log(`[getArticleData] Base URL:`, baseUrl);
+    console.log(`[getArticleData] محاولة جلب مقال بـ API - المعرف:`, id);
     console.log(`[getArticleData] API URL:`, apiUrl);
     
     const response = await fetch(apiUrl, {

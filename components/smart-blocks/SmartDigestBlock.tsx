@@ -239,10 +239,7 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
         {/* طبقة إضافية شفافة خفيفة */}
         <div className="absolute inset-0 bg-black/10"></div>
         
-        {/* دوائر زخرفية بحجم أصغر */}
-        <div className="absolute top-10 left-10 w-24 h-24 bg-white/5 rounded-full blur-lg"></div>
-        <div className="absolute bottom-10 right-10 w-32 h-32 bg-white/5 rounded-full blur-lg"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-white/5 rounded-full blur-lg"></div>
+
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -464,12 +461,9 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
                   ? 'bg-gradient-to-br from-gray-800 to-gray-850 border-gray-700' 
                   : 'bg-white border-gray-200'
               } rounded-2xl shadow-lg p-8 border text-center`}>
-                <div className="relative inline-block">
-                  <BookOpen className={`w-12 h-12 mb-3 mx-auto ${
-                    darkMode ? 'text-gray-600' : 'text-gray-400'
-                  }`} />
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full animate-ping"></div>
-                </div>
+                <BookOpen className={`w-12 h-12 mb-3 mx-auto ${
+                  darkMode ? 'text-gray-600' : 'text-gray-400'
+                }`} />
                 <span className={`text-sm font-bold ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}>سيتم إضافة محتوى جديد قريبًا</span>
@@ -486,18 +480,13 @@ export default function SmartDigestBlock({ forceTimeSlot }: SmartDigestBlockProp
               href="/daily-dose" 
               className="inline-flex items-center gap-2 px-6 py-2.5 bg-white/20 hover:bg-white/30 text-white font-medium text-sm rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-white/30 backdrop-blur-sm group relative overflow-hidden"
             >
-              {/* تأثير موجة عند hover */}
-              <span className="absolute inset-0 w-full h-full bg-white/20 scale-0 group-hover:scale-100 rounded-full transition-transform duration-500 ease-out"></span>
+
               
               <BookOpen className="w-4 h-4 relative z-10" />
               <span className="relative z-10">الجرعة الكاملة</span>
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform relative z-10" />
               
-              {/* نقاط متحركة */}
-              <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
-              </span>
+
             </Link>
           </div>
         </div>

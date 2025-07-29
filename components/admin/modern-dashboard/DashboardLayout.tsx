@@ -9,7 +9,6 @@ import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ThemeProvider } from 'next-themes';
 import { LoadingSpinner } from '@/components/ui/loading';
 import dynamic from 'next/dynamic';
 import { 
@@ -29,7 +28,7 @@ const ModernSidebar = dynamic(() => import('./ModernSidebar'), {
 });
 
 const ModernHeader = dynamic(() => import('./ModernHeader'), {
-  loading: () => <div className="h-16 bg-white border-b animate-pulse" />,
+  loading: () => <div className="h-16 bg-white dark:bg-gray-800 border-b animate-pulse" />,
   ssr: false
 });
 
@@ -90,80 +89,81 @@ export default function DashboardLayout({
   // منع الرندر حتى يتم التحميل على العميل
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="animate-pulse">
-          <div className="h-8 w-32 bg-gray-200 rounded mb-4"></div>
-          <div className="h-4 w-48 bg-gray-200 rounded"></div>
+          <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+          <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* الشريط الجانبي للشاشات الكبيرة */}
-        {!isMobile && (
-          <aside
-            className={cn(
-              "fixed top-0 right-0 z-40 h-screen transition-all duration-300 ease-in-out",
-              "bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700",
-              "shadow-lg",
-              sidebarOpen ? "w-64" : "w-16"
-            )}
-          >
-            <ModernSidebar 
-              isCollapsed={!sidebarOpen} 
-              onToggle={toggleSidebar}
-            />
-          </aside>
-        )}
-
-        {/* الشريط الجانبي للهواتف */}
-        {isMobile && (
-          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetContent side="right" className="w-64 p-0">
-              <ModernSidebar 
-                isCollapsed={false} 
-                onToggle={() => setSidebarOpen(false)}
-                isMobile={true}
-              />
-            </SheetContent>
-          </Sheet>
-        )}
-
-        {/* المحتوى الرئيسي */}
-        <div
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      {/* الشريط الجانبي للشاشات الكبيرة */}
+      {!isMobile && (
+        <aside
           className={cn(
-            "transition-all duration-300 ease-in-out",
-            !isMobile && sidebarOpen ? "mr-64" : !isMobile ? "mr-16" : "mr-0"
+            "fixed top-0 right-0 z-40 h-screen transition-all duration-300 ease-in-out",
+            "bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700",
+            "shadow-lg dark:shadow-gray-900/50",
+            sidebarOpen ? "w-64" : "w-16"
           )}
         >
-          {/* الترويسة */}
-          <ModernHeader 
-            pageTitle={pageTitle}
-            pageDescription={pageDescription}
-            onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-            showMenuButton={isMobile}
+          <ModernSidebar 
+            isCollapsed={!sidebarOpen} 
+            onToggle={toggleSidebar}
           />
+        </aside>
+      )}
 
-          {/* محتوى الصفحة */}
-          <main className={cn(
-            "p-4 lg:p-6 pt-24", // pt-24 لترك مساحة أكبر للترويسة الثابتة
-            className
-          )}>
-            {children}
-          </main>
-        </div>
+      {/* الشريط الجانبي للهواتف */}
+      {isMobile && (
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetContent side="right" className="w-64 p-0 bg-white dark:bg-gray-800">
+            <ModernSidebar 
+              isCollapsed={false} 
+              onToggle={() => setSidebarOpen(false)}
+              isMobile={true}
+            />
+          </SheetContent>
+        </Sheet>
+      )}
 
-        {/* طبقة التداخل للهواتف */}
-        {isMobile && sidebarOpen && (
-          <div 
-            className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
+      {/* المحتوى الرئيسي */}
+      <div
+        className={cn(
+          "transition-all duration-300 ease-in-out",
+          !isMobile && sidebarOpen ? "mr-64" : !isMobile ? "mr-16" : "mr-0"
         )}
+      >
+        {/* الترويسة */}
+        <ModernHeader 
+          pageTitle={pageTitle}
+          pageDescription={pageDescription}
+          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          showMenuButton={isMobile}
+        />
+
+        {/* محتوى الصفحة */}
+        <main className={cn(
+          "p-4 lg:p-6", 
+          "pt-[calc(var(--dashboard-header-height)+1rem)]", // padding ديناميكي باستخدام CSS variable
+          "bg-gray-50 dark:bg-gray-900 min-h-[calc(100vh-var(--dashboard-header-height))]",
+          "transition-colors duration-300",
+          className
+        )}>
+          {children}
+        </main>
       </div>
-    </ThemeProvider>
+
+      {/* طبقة التداخل للهواتف */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-30 bg-black/50 dark:bg-black/70 lg:hidden transition-opacity duration-300"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+    </div>
   );
 }

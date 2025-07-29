@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { getCurrentUser } from '@/app/lib/auth';
 import { quickLocalAnalysis } from '@/lib/comment-moderation';
 import { classifyCommentWithAI } from '@/lib/services/ai-comment-classifier';

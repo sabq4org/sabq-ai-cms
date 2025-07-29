@@ -71,7 +71,6 @@ const CreateDeepAnalysisPage = () => {
   const [isFeatured, setIsFeatured] = useState(false);
   const [displayPosition, setDisplayPosition] = useState<DisplayPosition>('middle');
   const [currentCategory, setCurrentCategory] = useState('');
-  const [currentTag, setCurrentTag] = useState('');
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -116,13 +115,7 @@ const CreateDeepAnalysisPage = () => {
       setCurrentCategory('');
     }
   };
-  // إضافة وسم
-  const addTag = () => {
-    if (currentTag && !tags.includes(currentTag)) {
-      setTags([...tags, currentTag]);
-      setCurrentTag('');
-    }
-  };
+
   // معالجة رفع الصورة
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -159,7 +152,7 @@ const CreateDeepAnalysisPage = () => {
       const formData = new FormData();
       formData.append('file', imageFile);
       
-      const response = await fetch('/api/upload', {
+      const response = await fetch('/api/upload-s3', {
         method: 'POST',
         body: formData,
       });
@@ -167,15 +160,15 @@ const CreateDeepAnalysisPage = () => {
       if (!response.ok) {
         // في حالة فشل رفع الصورة، استخدم صورة افتراضية
         console.warn('فشل رفع الصورة، استخدام صورة افتراضية');
-        return '/placeholder-analysis.jpg';
+        return '/images/deep-analysis-default.svg';
       }
       
       const data = await response.json();
-      return data.url || '/placeholder-analysis.jpg';
+      return data.url || '/images/deep-analysis-default.svg';
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('فشل رفع الصورة، سيتم استخدام صورة افتراضية');
-      return '/placeholder-analysis.jpg';
+      return '/images/deep-analysis-default.svg';
     }
   };
   // توليد المحتوى بالذكاء الاصطناعي
@@ -670,7 +663,11 @@ const CreateDeepAnalysisPage = () => {
             <div className={`mt-2 space-y-4`}>
               {imagePreview ? (
                 <div className="relative">
-                  <Image src="/placeholder.jpg" alt="معاينة الصورة" width={100} height={100} />
+                  <img 
+                    src={imagePreview} 
+                    alt="معاينة الصورة" 
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
                   <button
                     onClick={() => {
                       setImageFile(null);
@@ -830,45 +827,87 @@ const CreateDeepAnalysisPage = () => {
               ))}
             </div>
           </div>
-          {/* الوسوم */}
+          {/* الكلمات المفتاحية - توليد تلقائي */}
           <div>
-            <Label>الوسوم</Label>
-            <div className="flex gap-2 mt-2">
-              <Input
-                placeholder="أضف وسماً..."
-                value={currentTag}
-                onChange={(e) => setCurrentTag(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                className={`flex-1 transition-colors duration-300 ${
-                  darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-gray-200' 
-                    : 'bg-white border-gray-200'
-                }`}
-              />
+            <Label>الكلمات المفتاحية</Label>
+            <div className="mt-2 space-y-3">
               <Button
-                onClick={addTag}
-                disabled={!currentTag}
-                size="sm"
+                onClick={async () => {
+                  if (!content && !summary) {
+                    toast.error('يرجى كتابة المحتوى أو الملخص أولاً');
+                    return;
+                  }
+                  
+                  const textToAnalyze = content || summary;
+                  toast.loading('جارٍ توليد الكلمات المفتاحية...');
+                  
+                  try {
+                    const response = await fetch('/api/ai/keywords', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ 
+                        content: textToAnalyze,
+                        title: title || '',
+                        categoryId: categories[0] || ''
+                      })
+                    });
+                    
+                    const data = await response.json();
+                    toast.dismiss();
+                    
+                    if (response.ok && data.keywords) {
+                      // استخراج الكلمات المفتاحية من النص
+                      const keywords = data.keywords
+                        .split(/[,،]/)
+                        .map((k: string) => k.trim())
+                        .filter((k: string) => k.length > 0)
+                        .slice(0, 8); // أقصى 8 كلمات
+                      
+                      setTags(keywords);
+                      toast.success(`تم توليد ${keywords.length} كلمة مفتاحية`);
+                    } else {
+                      toast.error(data.error || 'فشل توليد الكلمات المفتاحية');
+                    }
+                  } catch (error) {
+                    toast.dismiss();
+                    toast.error('حدث خطأ أثناء توليد الكلمات المفتاحية');
+                  }
+                }}
+                variant="outline"
+                className="w-full"
+                disabled={!content && !summary}
               >
-                <Plus className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 ml-2" />
+                توليد كلمات مفتاحية من المحتوى
               </Button>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {tags.map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="outline"
-                  className="px-3 py-1"
-                >
-                  #{tag}
-                  <button
-                    onClick={() => setTags(tags.filter(t => t !== tag))}
-                    className="mr-2 hover:text-red-500"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              ))}
+              
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="px-3 py-1"
+                    >
+                      {tag}
+                      <button
+                        onClick={() => setTags(tags.filter(t => t !== tag))}
+                        className="mr-2 hover:text-red-500"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              
+              {tags.length === 0 && (
+                <p className={`text-sm text-center py-2 ${
+                  darkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  اضغط على الزر لتوليد كلمات مفتاحية تلقائياً من المحتوى
+                </p>
+              )}
             </div>
           </div>
         </div>

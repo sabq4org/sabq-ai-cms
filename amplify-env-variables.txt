@@ -1,0 +1,5 @@
+DATABASE_URL=postgresql://postgres:%2A7gzOMPcDco8l4If%3AO-CVb9Ehztq@database-1.cluster-cluyg244y2cj.eu-north-1.rds.amazonaws.com:5432/sabqcms
+NEXTAUTH_SECRET=sabq-cms-2025-production-secret-key-very-secure-32chars
+NEXTAUTH_URL=https://main.dvdwfd4vy831i.amplifyapp.com
+OPENAI_API_KEY=sk_8867323770dae548ec436056590d60a04ba9a8e1840ea09c
+ELEVENLABS_API_KEY=sk_8867323770dae548ec436056590d60a04ba9a8e1840ea09c

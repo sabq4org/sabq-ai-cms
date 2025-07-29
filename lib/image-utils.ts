@@ -1,19 +1,75 @@
 /**
  * نظام مركزي لمعالجة الصور
- * يمنع حفظ الصور محلياً ويستخدم CDN فقط
+ * يدعم S3, CloudFront, Cloudinary وغيرها
  */
 
 // Cloudinary configuration
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/sabq/image/upload';
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'sabq';
 
-// Fallback images
+// CloudFront configuration
+const CLOUDFRONT_DOMAIN = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || '';
+
+// S3 domains المعروفة
+const S3_DOMAINS = [
+  'sabq-cms-content.s3.amazonaws.com',
+  'sabq-cms-content.s3.us-east-1.amazonaws.com',
+  'sabq-uploader.s3.amazonaws.com',
+  's3.amazonaws.com',
+  's3.us-east-1.amazonaws.com'
+];
+
+// Fallback images - روابط صحيحة وموثوقة
 const FALLBACK_IMAGES = {
-  article: 'https://images.unsplash.com/photo-1585241645927-c7a8e5840c42?w=800&auto=format&fit=crop&q=60',
-  author: 'https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff&size=200',
-  category: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&auto=format&fit=crop&q=60',
-  default: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&auto=format&fit=crop&q=60'
+  article: 'https://ui-avatars.com/api/?name=مقال&background=0D8ABC&color=fff&size=800&font-size=0.33&rounded=false',
+  author: 'https://ui-avatars.com/api/?name=كاتب&background=0D8ABC&color=fff&size=200&font-size=0.33&rounded=true',
+  category: 'https://ui-avatars.com/api/?name=تصنيف&background=00A86B&color=fff&size=800&font-size=0.33&rounded=false',
+  default: 'https://ui-avatars.com/api/?name=سبق&background=1E40AF&color=fff&size=800&font-size=0.33&rounded=false'
 };
+
+// تنظيف رابط S3 من معاملات التوقيع
+export function cleanS3Url(url: string): string {
+  if (!url) return url;
+  
+  try {
+    const urlObj = new URL(url);
+    
+    // إذا كان رابط S3
+    if (S3_DOMAINS.some(domain => urlObj.hostname.includes(domain))) {
+      // إزالة معاملات التوقيع
+      const paramsToRemove = ['X-Amz-Algorithm', 'X-Amz-Credential', 'X-Amz-Date', 
+                             'X-Amz-Expires', 'X-Amz-SignedHeaders', 'X-Amz-Signature'];
+      
+      paramsToRemove.forEach(param => urlObj.searchParams.delete(param));
+      
+      // إذا كان هناك CloudFront، استخدمه
+      if (CLOUDFRONT_DOMAIN) {
+        const path = urlObj.pathname;
+        return `https://${CLOUDFRONT_DOMAIN}${path}`;
+      }
+      
+      return urlObj.toString();
+    }
+    
+    return url;
+  } catch {
+    return url;
+  }
+}
+
+// معالجة رابط S3 لإضافة تحسينات الصور
+export function processS3Url(url: string, options: { width?: number; height?: number } = {}): string {
+  const cleanUrl = cleanS3Url(url);
+  
+  // إذا كان CloudFront متاح وفيه image resizing
+  if (CLOUDFRONT_DOMAIN && cleanUrl.includes(CLOUDFRONT_DOMAIN)) {
+    const { width = 800, height = 600 } = options;
+    // يمكن إضافة معاملات التحجيم حسب إعدادات CloudFront
+    return `${cleanUrl}?w=${width}&h=${height}&fit=cover`;
+  }
+  
+  return cleanUrl;
+}
 
 // تحويل الصورة إلى رابط CDN
 export function getImageUrl(
@@ -34,9 +90,22 @@ export function getImageUrl(
     fallbackType = 'default'
   } = options;
 
-  // إذا لم توجد صورة، استخدم fallback
-  if (!imageUrl || imageUrl === '' || imageUrl.includes('/api/placeholder')) {
+  // إذا لم توجد صورة أو كانت فارغة أو undefined أو null
+  if (!imageUrl || 
+      imageUrl === '' || 
+      imageUrl === 'undefined' || 
+      imageUrl === 'null' || 
+      imageUrl.includes('/api/placeholder') ||
+      imageUrl.includes('undefined') ||
+      imageUrl.includes('null')
+  ) {
+    console.log(`🖼️ استخدام fallback image للنوع: ${fallbackType}`);
     return FALLBACK_IMAGES[fallbackType];
+  }
+
+  // معالجة روابط S3
+  if (imageUrl.includes('s3.amazonaws.com') || imageUrl.includes('s3.us-east-1.amazonaws.com')) {
+    return processS3Url(imageUrl, { width, height });
   }
 
   // إذا كانت الصورة محلية (تبدأ بـ /)
@@ -76,13 +145,20 @@ export function getImageUrl(
 
   // إذا كانت الصورة من Unsplash
   if (imageUrl.includes('unsplash.com')) {
-    const url = new URL(imageUrl);
-    url.searchParams.set('w', width.toString());
-    url.searchParams.set('h', height.toString());
-    url.searchParams.set('q', quality.toString());
-    url.searchParams.set('auto', 'format');
-    url.searchParams.set('fit', 'crop');
-    return url.toString();
+    try {
+      const url = new URL(imageUrl);
+      // تنظيف المعاملات القديمة
+      url.search = '';
+      // إضافة معاملات جديدة
+      url.searchParams.set('w', width.toString());
+      url.searchParams.set('q', quality.toString());
+      url.searchParams.set('auto', 'format');
+      url.searchParams.set('fit', 'crop');
+      return url.toString();
+    } catch {
+      console.log(`❌ رابط Unsplash غير صحيح: ${imageUrl}`);
+      return FALLBACK_IMAGES[fallbackType];
+    }
   }
 
   // إذا كانت الصورة من مصدر آخر

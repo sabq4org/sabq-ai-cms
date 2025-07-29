@@ -1,4 +1,4 @@
-import prisma, { executeWithRetry } from '@/lib/prisma'
+import prisma from '@/lib/prisma';
 
 interface CategoriesCache {
   data: any[]
@@ -41,26 +41,42 @@ export async function getCachedCategories(forceRefresh = false) {
   try {
     console.log('🔄 جلب التصنيفات من قاعدة البيانات...')
     
-    const categories = await executeWithRetry(async () => {
-      return await prisma.categories.findMany({
-        orderBy: {
-          display_order: 'asc'
+    // جلب التصنيفات مع عدد المقالات
+    const categories = await prisma.categories.findMany({
+      orderBy: {
+        display_order: 'asc'
+      },
+      include: {
+        _count: {
+          select: {
+            articles: {
+              where: {
+                status: 'published'
+              }
+            }
+          }
         }
-      })
+      }
     })
+    
+    // إضافة articles_count لكل تصنيف
+    const categoriesWithCount = categories.map(category => ({
+      ...category,
+      articles_count: category._count.articles
+    }))
     
     // تحديث الـ cache
     categoriesCache = {
-      data: categories,
+      data: categoriesWithCount,
       lastUpdated: now,
       isStale: false
     }
     
-    console.log(`✅ تم جلب ${categories.length} تصنيف وتحديث الـ cache`)
+    console.log(`✅ تم جلب ${categoriesWithCount.length} تصنيف مع عدد المقالات وتحديث الـ cache`)
     
     return {
       success: true,
-      categories,
+      categories: categoriesWithCount,
       fromCache: false,
       cacheAge: 0
     }

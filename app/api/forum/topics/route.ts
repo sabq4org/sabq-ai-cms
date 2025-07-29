@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers, cookies } from 'next/headers';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 
 

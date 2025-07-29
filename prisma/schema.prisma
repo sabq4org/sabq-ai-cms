@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  binaryTargets   = ["native"]
+  binaryTargets   = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
   previewFeatures = ["relationJoins"]
 }
 
@@ -201,6 +201,7 @@ model audio_newsletters {
   category     String?
   is_published Boolean  @default(false)
   is_featured  Boolean  @default(false)
+  is_main_page Boolean  @default(false) // إضافة حقل جديد للصفحة الرئيسية
   play_count   Int      @default(0)
   created_at   DateTime @default(now()) @db.Timestamp(6)
   updated_at   DateTime @default(now()) @db.Timestamp(6)
@@ -208,6 +209,7 @@ model audio_newsletters {
   @@index([created_at])
   @@index([is_featured])
   @@index([is_published])
+  @@index([is_main_page]) // إضافة index للحقل الجديد
 }
 
 model audio_programs {

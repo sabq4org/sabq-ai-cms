@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 // تم إزالة الـ imports المدمرة للـ mapping
 // import { normalizeUserInterests, categorySlugToId, getCategoryInfo } from '@/lib/interests-mapping';
 

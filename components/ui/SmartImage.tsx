@@ -56,14 +56,32 @@ export default function SmartImage({
       currentSrc.includes(domain)
     );
 
+    // تحقق إذا كانت الصورة تأتي من AWS S3
+    const isS3Image = currentSrc.includes('amazonaws.com');
+
     // سجل الخطأ بصمت إذا كان من نطاق معروف
-    if (isProblematicDomain && process.env.NODE_ENV === 'development') {
+    if ((isProblematicDomain || isS3Image) && process.env.NODE_ENV === 'development') {
       logError(new Error(`Image failed to load: ${currentSrc}`), {
         ignored: true,
         type: 'image_404',
         url: currentSrc,
         fallbackUsed: true,
+        source: isS3Image ? 'S3' : 'Other'
       });
+    }
+
+    // بالنسبة للصور من S3، نستخدم مباشرة طريقة تحويل لخدمة الصور
+    if (isS3Image && !hasError) {
+      try {
+        // محاولة تحويل رابط S3 إلى API داخلية
+        const apiUrl = `/api/images/optimize?url=${encodeURIComponent(currentSrc)}&w=800&h=600&f=webp&q=80`;
+        setImgSrc(apiUrl);
+        setRetries(retryCount); // لا نرغب في محاولات أخرى
+        return;
+      } catch (e) {
+        console.warn('فشل تحويل رابط S3:', e);
+        // استمر في معالجة الخطأ العادية
+      }
     }
 
     // محاولة إعادة التحميل

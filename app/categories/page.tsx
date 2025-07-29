@@ -176,6 +176,15 @@ const categoryData = {
     lightBg: 'bg-blue-50',
     darkBg: 'dark:bg-blue-900/20',
     image: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80'
+  },
+  'ميديا': { 
+    icon: Sparkles, 
+    color: 'yellow',
+    bgColor: 'bg-yellow-500',
+    hoverColor: 'hover:bg-yellow-600',
+    lightBg: 'bg-yellow-50',
+    darkBg: 'dark:bg-yellow-900/20',
+    image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=800&q=80'
   }
 };
 
@@ -337,7 +346,9 @@ export default function CategoriesPage() {
       'فني': categoryData['فنون'],
       'سفر': categoryData['سفر'],
       'علمي': categoryData['علوم'],
-      'خبر': categoryData['أخبار']
+      'خبر': categoryData['أخبار'],
+      'ميديا': categoryData['ميديا'],
+      'إعلام': categoryData['ميديا']
     };
     
     for (const [keyword, data] of Object.entries(keywords)) {
@@ -372,13 +383,69 @@ export default function CategoriesPage() {
                        'cover_image' in category.metadata ? 
                        (category.metadata as any).cover_image : null);
     
-    if (coverImage && coverImage.trim() !== '') {
-      return coverImage;
+    // استخدام خدمة تحسين الصور المتقدمة
+    const getOptimizedImageUrl = (imageUrl: string) => {
+      if (!imageUrl) return null;
+      
+      // تجاهل الصور من Amazon S3 خاصة المعقدة أو المكسورة
+      if (imageUrl.includes('amazonaws.com') && (
+          imageUrl.includes('X-Amz-') || 
+          imageUrl.includes('Expires=') ||
+          imageUrl.length > 200
+        )) {
+        console.warn('🚫 تم تجاهل رابط S3 معقد للتصنيف:', category.name);
+        return null;
+      }
+      
+      // تجاهل صورة تصنيف ميديا تحديداً (مؤقتاً حتى يتم إصلاحها)
+      if (category.name === 'ميديا' || category.slug === 'media') {
+        console.warn('🚫 تم تجاهل صورة ميديا مؤقتاً');
+        return null;
+      }
+      
+      // تحسين روابط Cloudinary
+      if (imageUrl.includes('cloudinary.com')) {
+        // إضافة تحسينات للأداء
+        const optimizations = 'q_auto,f_auto,dpr_auto,w_800,h_600,c_fill';
+        if (imageUrl.includes('/upload/')) {
+          return imageUrl.replace('/upload/', `/upload/${optimizations}/`);
+        }
+      }
+      
+      return imageUrl;
+    };
+    
+    const optimizedImage = getOptimizedImageUrl(coverImage);
+    if (optimizedImage) {
+      return optimizedImage;
     }
     
     // الحصول على الاسم العربي من المكان المناسب
     const categoryNameAr = category.name_ar || category.metadata?.name_ar || category.name || '';
     const categoryData = getCategoryData(categoryNameAr);
+    
+    // استخدام صورة افتراضية آمنة بدلاً من unsplash
+    if (!categoryData.image || categoryData.image.includes('unsplash.com')) {
+      // استخدام UI Avatars كصورة افتراضية
+      const bgColor = categoryData.bgColor.replace('bg-', '').replace('-500', '');
+      const colorMap: { [key: string]: string } = {
+        'blue': '0D8ABC',
+        'green': '00A86B',
+        'red': 'DC2626',
+        'purple': '9333EA',
+        'yellow': 'F59E0B',
+        'pink': 'EC4899',
+        'indigo': '6366F1',
+        'cyan': '06B6D4',
+        'orange': 'F97316',
+        'teal': '14B8A6',
+        'emerald': '10B981',
+        'rose': 'F43F5E'
+      };
+      const hexColor = colorMap[bgColor] || '1E40AF';
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(categoryNameAr)}&background=${hexColor}&color=fff&size=800&font-size=0.33&rounded=false`;
+    }
+    
     return categoryData.image;
   };
 

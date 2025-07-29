@@ -15,6 +15,7 @@ import Header from '../components/Header';
 import ErrorBoundary from '../components/ErrorBoundary';
 import GlobalErrorHandler from '../components/GlobalErrorHandler';
 import ConditionalHeader from '../components/ConditionalHeader';
+import ContentWrapper from '../components/layout/ContentWrapper';
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({ 
   subsets: ['arabic'],
@@ -25,6 +26,14 @@ const ibmPlexArabic = IBM_Plex_Sans_Arabic({
 export const metadata: Metadata = {
   title: 'صحيفة سبق الالكترونية AI',
   description: 'صحيفة سبق الإلكترونية - أخبار ومقالات بتقنية الذكاء الاصطناعي',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+  themeColor: '#ffffff',
+  applicationName: 'صحيفة سبق',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'صحيفة سبق',
+  },
 };
 
 export default function RootLayout({
@@ -33,13 +42,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl">
-      <body className={`${ibmPlexArabic.variable} font-arabic`}>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <head>
+        {/* Preconnect لتحسين الأداء */}
+        <link rel="preconnect" href="https://sabq-cms-content.s3.amazonaws.com" />
+        <link rel="preconnect" href="https://sabq-cms-content.s3.us-east-1.amazonaws.com" />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://sabq-cms-content.s3.amazonaws.com" />
+        <link rel="dns-prefetch" href="https://sabq-cms-content.s3.us-east-1.amazonaws.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+      </head>
+      <body className={`${ibmPlexArabic.variable} font-arabic`} suppressHydrationWarning>
         <ErrorBoundary>
           <Providers>
             <GlobalErrorHandler />
             <ConditionalHeader />
-            {children}
+            <ContentWrapper>
+              {children}
+            </ContentWrapper>
           </Providers>
         </ErrorBoundary>
       </body>

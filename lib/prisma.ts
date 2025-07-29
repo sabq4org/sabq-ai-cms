@@ -1,128 +1,119 @@
 import { PrismaClient } from '@prisma/client'
 
-// إعدادات محسنة للإنتاج
-const prismaClientSingleton = () => {
-  return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' 
-      ? ['query', 'error', 'warn'] 
-      : ['error'],
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL,
-      },
-    },
-    // إعدادات timeout محسنة
-    transactionOptions: {
-      maxWait: 5000, // 5 ثواني
-      timeout: 10000, // 10 ثواني
-      isolationLevel: 'ReadCommitted',
-    },
-    errorFormat: 'minimal',
-  })
+// استخدام global variable بطريقة أفضل
+declare global {
+  var __prisma: PrismaClient | undefined
 }
 
-// Global instance مع connection pooling
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-  prismaPromise: Promise<PrismaClient> | undefined
-}
-
-const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma
-}
-
-// Keep-alive mechanism
-let keepAliveInterval: NodeJS.Timeout | null = null
-
-// بدء keep-alive queries
-export function startKeepAlive() {
-  if (keepAliveInterval) return
-  
-  keepAliveInterval = setInterval(async () => {
-    try {
-      await prisma.$queryRaw`SELECT 1`
-      console.log('✅ Keep-alive query تم بنجاح')
-    } catch (error) {
-      console.error('❌ Keep-alive query فشل:', error)
-      // محاولة إعادة الاتصال
-      try {
-        await prisma.$disconnect()
-        await prisma.$connect()
-        console.log('✅ تم إعادة الاتصال بنجاح')
-      } catch (reconnectError) {
-        console.error('❌ فشل إعادة الاتصال:', reconnectError)
-      }
-    }
-  }, 60000) // كل دقيقة
-}
-
-// إيقاف keep-alive
-export function stopKeepAlive() {
-  if (keepAliveInterval) {
-    clearInterval(keepAliveInterval)
-    keepAliveInterval = null
+// تحسين إعدادات URL قاعدة البيانات
+function enhanceDatabaseUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    const params = new URLSearchParams(urlObj.search);
+    
+    // إعدادات connection pool محسنة لـ Supabase
+    params.set('connection_limit', '10');
+    params.set('pool_timeout', '20');
+    params.set('connect_timeout', '30');
+    params.set('pgbouncer', 'true');
+    params.set('sslmode', 'require');
+    
+    urlObj.search = params.toString();
+    return urlObj.toString();
+  } catch (error) {
+    console.error('❌ خطأ في تحسين DATABASE_URL:', error);
+    return url;
   }
 }
 
-// معالجة إغلاق الاتصال عند إيقاف التطبيق
-if (typeof process !== 'undefined') {
-  process.on('beforeExit', async () => {
-    stopKeepAlive()
-    await prisma.$disconnect()
-  })
-  
-  process.on('SIGINT', async () => {
-    stopKeepAlive()
-    await prisma.$disconnect()
-    process.exit(0)
-  })
-  
-  process.on('SIGTERM', async () => {
-    stopKeepAlive()
-    await prisma.$disconnect()
-    process.exit(0)
-  })
-}
+// إنشاء instance واحد فقط مع إعدادات محسّنة
+const enhancedUrl = process.env.DATABASE_URL 
+  ? enhanceDatabaseUrl(process.env.DATABASE_URL)
+  : process.env.DATABASE_URL;
 
-// بدء keep-alive في الإنتاج
-if (process.env.NODE_ENV === 'production') {
-  startKeepAlive()
-}
+export const prisma = globalThis.__prisma ?? new PrismaClient({
+  log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  datasources: {
+    db: {
+      url: enhancedUrl,
+    },
+  },
+  errorFormat: 'pretty',
+})
 
-// دالة مساعدة لتنفيذ queries مع retry
-export async function executeWithRetry<T>(
-  operation: () => Promise<T>,
-  maxRetries = 3,
-  delay = 1000
-): Promise<T> {
-  let lastError: Error | null = null
+// Middleware لإعادة المحاولة التلقائية
+prisma.$use(async (params, next) => {
+  const maxRetries = 3;
+  let retries = 0;
   
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  while (retries < maxRetries) {
     try {
-      return await operation()
-    } catch (error) {
-      lastError = error as Error
-      console.error(`❌ المحاولة ${attempt}/${maxRetries} فشلت:`, error)
+      return await next(params);
+    } catch (error: any) {
+      retries++;
       
-      if (attempt < maxRetries) {
-        // انتظار قبل المحاولة التالية
-        await new Promise(resolve => setTimeout(resolve, delay * attempt))
-        
-        // محاولة إعادة الاتصال
-        try {
-          await prisma.$disconnect()
-          await prisma.$connect()
-          console.log('✅ تم إعادة الاتصال للمحاولة التالية')
-        } catch (reconnectError) {
-          console.error('❌ فشل إعادة الاتصال:', reconnectError)
+      // التحقق من أخطاء الاتصال
+      if (
+        error.code === 'P1001' || // Can't reach database
+        error.code === 'P1002' || // Server terminated connection
+        error.code === 'P2024' || // Timeout
+        error.message?.includes('Engine is not yet connected')
+      ) {
+        if (retries < maxRetries) {
+          console.log(`⚠️ إعادة محاولة ${retries}/${maxRetries} لـ ${params.model}.${params.action}`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+          
+          try {
+            await prisma.$connect();
+          } catch (connectError) {
+            console.error('❌ فشل إعادة الاتصال:', connectError);
+          }
+          
+          continue;
         }
       }
+      
+      throw error;
     }
   }
-  
-  throw lastError || new Error('فشلت جميع المحاولات')
+});
+
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.__prisma = prisma
 }
 
-export default prisma
+// محاولة الاتصال مباشرة مع إعادة المحاولة
+if (process.env.NODE_ENV === 'development') {
+  let connectAttempts = 0;
+  const maxConnectAttempts = 3;
+  
+  const attemptConnection = async () => {
+    try {
+      await prisma.$connect();
+      console.log('✅ Prisma connected successfully');
+    } catch (e) {
+      connectAttempts++;
+      console.error(`❌ Prisma connection error (attempt ${connectAttempts}/${maxConnectAttempts}):`, e);
+      
+      if (connectAttempts < maxConnectAttempts) {
+        setTimeout(attemptConnection, 2000 * connectAttempts);
+      }
+    }
+  };
+  
+  attemptConnection();
+}
+
+// دالة اتصال محسنة
+export async function ensureConnection(): Promise<boolean> {
+  try {
+    await prisma.$queryRaw`SELECT 1`
+    return true
+  } catch (error) {
+    console.error('❌ فشل الاتصال:', error)
+    return false
+  }
+}
+
+// التصدير الافتراضي للتوافق
+export default prisma;

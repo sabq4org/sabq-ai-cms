@@ -34,7 +34,7 @@ interface Category {
   color?: string;
 }
 
-interface Author {
+interface Reporter {
   id: string;
   name: string;
   email?: string;
@@ -51,7 +51,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [authors, setAuthors] = useState<Author[]>([]);
+  const [reporters, setReporters] = useState<Reporter[]>([]);
   const [isAILoading, setIsAILoading] = useState(false);
   
   // حالة رسائل النجاح والخطأ
@@ -99,21 +99,38 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
   const calculateCompletion = useCallback(() => {
     let score = 0;
     const checks = [
-      { field: formData.title, weight: 20 },
-      { field: formData.excerpt, weight: 15 },
-      { field: formData.content, weight: 25 },
-      { field: formData.authorId, weight: 10 },
-      { field: formData.categoryId, weight: 10 },
-      { field: formData.featuredImage, weight: 10 },
-      { field: formData.keywords.length > 0, weight: 5 },
-      { field: formData.seoTitle, weight: 5 }
+      { field: formData.title, weight: 20, name: 'العنوان' },
+      { field: formData.excerpt, weight: 15, name: 'الموجز' },
+      { field: formData.content, weight: 25, name: 'المحتوى' },
+      { field: formData.authorId, weight: 10, name: 'المراسل' },
+      { field: formData.categoryId, weight: 10, name: 'التصنيف' },
+      { field: formData.featuredImage, weight: 10, name: 'الصورة المميزة' },
+      { field: formData.keywords.length > 0, weight: 5, name: 'الكلمات المفتاحية' },
+      { field: formData.seoTitle, weight: 5, name: 'عنوان SEO' }
     ];
     
+    const missingFields: string[] = [];
+    
     checks.forEach(check => {
-      if (check.field) score += check.weight;
+      if (check.field) {
+        score += check.weight;
+      } else {
+        missingFields.push(check.name);
+      }
     });
     
-    setCompletionScore(Math.min(score, 100));
+    const finalScore = Math.min(score, 100);
+    setCompletionScore(finalScore);
+    
+    console.log('📊 حساب الاكتمال:', {
+      score: finalScore,
+      missingFields,
+      details: checks.map(c => ({
+        name: c.name,
+        value: !!c.field,
+        weight: c.weight
+      }))
+    });
   }, [formData]);
 
   // تحديث نسبة الاكتمال عند تغيير البيانات
@@ -314,60 +331,73 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         setLoading(true);
         console.log('🔄 بدء تحميل البيانات...');
         
-        // تحميل التصنيفات والكتّاب بشكل متوازي
-        const [categoriesResponse, authorsResponse] = await Promise.all([
+        // تحميل التصنيفات والمراسلين بشكل متوازي
+        const [categoriesResponse, reportersResponse] = await Promise.all([
           fetch('/api/categories'),
           fetch('/api/team-members')
         ]);
         
+        console.log('📡 استجابات API:', {
+          categories: { status: categoriesResponse.status, ok: categoriesResponse.ok },
+          reporters: { status: reportersResponse.status, ok: reportersResponse.ok }
+        });
+        
         let loadedCategories = [];
-        let loadedAuthors = [];
+        let loadedReporters = [];
         let defaultCategoryId = '';
-        let defaultAuthorId = '';
+        let defaultReporterId = '';
         
         // معالجة التصنيفات
         if (categoriesResponse.ok) {
           const categoriesData = await categoriesResponse.json();
-          loadedCategories = categoriesData.categories || [];
+          console.log('📦 بيانات التصنيفات المستلمة:', categoriesData);
+          loadedCategories = categoriesData.categories || categoriesData || [];
           setCategories(loadedCategories);
-          console.log(`📂 تم جلب ${loadedCategories.length} تصنيف`);
+          console.log(`📂 تم جلب ${loadedCategories.length} تصنيف`, loadedCategories);
           
           if (loadedCategories.length > 0) {
             defaultCategoryId = loadedCategories[0].id;
-            console.log(`🎯 تصنيف افتراضي: ${loadedCategories[0].name} (${defaultCategoryId})`);
+            console.log(`🎯 تصنيف افتراضي: ${loadedCategories[0].name_ar || loadedCategories[0].name} (${defaultCategoryId})`);
           }
         } else {
-          console.log('❌ فشل في تحميل التصنيفات');
+          console.log('❌ فشل في تحميل التصنيفات:', categoriesResponse.status);
+          const errorText = await categoriesResponse.text();
+          console.error('رسالة الخطأ:', errorText);
+          toast.error('فشل في تحميل التصنيفات');
         }
         
-        // معالجة الكتّاب
-        if (authorsResponse.ok) {
-          const authorsData = await authorsResponse.json();
-          loadedAuthors = authorsData.data || [];
-          setAuthors(loadedAuthors);
-          console.log(`👥 تم جلب ${loadedAuthors.length} كاتب`);
+        // معالجة المراسلين
+        if (reportersResponse.ok) {
+          const reportersData = await reportersResponse.json();
+          console.log('📦 بيانات المراسلين المستلمة:', reportersData);
+          loadedReporters = reportersData.data || reportersData || [];
+          setReporters(loadedReporters);
+          console.log(`👥 تم جلب ${loadedReporters.length} مراسل`, loadedReporters);
           
-          if (loadedAuthors.length > 0) {
-            defaultAuthorId = loadedAuthors[0].id;
-            console.log(`👤 كاتب افتراضي: ${loadedAuthors[0].name} (${defaultAuthorId})`);
+          if (loadedReporters.length > 0) {
+            defaultReporterId = loadedReporters[0].id;
+            console.log(`👤 مراسل افتراضي: ${loadedReporters[0].name} (${defaultReporterId})`);
           }
         } else {
-          console.log('❌ فشل في تحميل الكتّاب');
+          console.log('❌ فشل في تحميل المراسلين:', reportersResponse.status);
+          const errorText = await reportersResponse.text();
+          console.error('رسالة الخطأ:', errorText);
+          toast.error('فشل في تحميل المراسلين');
         }
         
         // تعيين القيم الافتراضية دفعة واحدة باستخدام البيانات المحملة
-        if (defaultCategoryId || defaultAuthorId) {
+        if (defaultCategoryId || defaultReporterId) {
           setFormData(prev => {
             const updated = {
               ...prev,
               ...(defaultCategoryId && { categoryId: defaultCategoryId }),
-              ...(defaultAuthorId && { authorId: defaultAuthorId })
+              ...(defaultReporterId && { authorId: defaultReporterId })
             };
             console.log('✅ تم تعيين القيم الافتراضية:', {
               categoryId: updated.categoryId,
               authorId: updated.authorId,
               categoriesCount: loadedCategories.length,
-              authorsCount: loadedAuthors.length
+              reportersCount: loadedReporters.length
             });
             return updated;
           });
@@ -405,6 +435,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       // التحقق من وجود العنوان والمحتوى
       if (!formData.title || (!editorContent && !formData.content)) {
         toast.error('يرجى إدخال العنوان والمحتوى على الأقل');
+        setSaving(false);
         return;
       }
       
@@ -412,11 +443,13 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       const contentText = editorContent.replace(/<[^>]*>/g, '').trim();
       if (!formData.title.trim()) {
         toast.error('يرجى إدخال عنوان للمقال');
+        setSaving(false);
         return;
       }
       
       if (!contentText && !formData.content.trim()) {
         toast.error('يرجى إدخال محتوى للمقال');
+        setSaving(false);
         return;
       }
       
@@ -444,11 +477,11 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       
       const articleData = {
         title: formData.title,
-        subtitle: formData.subtitle,
+        // subtitle: formData.subtitle, // تم إزالته - غير موجود في قاعدة البيانات
         excerpt: formData.excerpt,
         content: editorContent, // HTML من المحرر
         featured_image: formData.featuredImage || null,
-        keywords: keywordsString, // كنص مفصول بفواصل
+        seo_keywords: keywordsString, // تم تغييرها من keywords إلى seo_keywords
         seo_title: formData.seoTitle,
         seo_description: formData.seoDescription,
         category_id: formData.categoryId,
@@ -482,6 +515,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       if (!articleData.category_id) {
         console.error('❌ خطأ: لا يوجد معرف تصنيف! المقال لن يُنشر بدون تصنيف.');
         toast.error('خطأ: يجب اختيار تصنيف للمقال');
+        setSaving(false);
         return;
       }
       
@@ -491,13 +525,28 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         console.log('✅ صورة مميزة موجودة');
       }
       
-      const response = await fetch('/api/articles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(articleData)
+      console.log('🚀 إرسال البيانات إلى API...');
+      let response;
+      try {
+        response = await fetch('/api/articles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(articleData)
+        });
+      } catch (fetchError) {
+        console.error('❌ خطأ في الاتصال بالخادم:', fetchError);
+        toast.error('فشل الاتصال بالخادم');
+        setSaving(false);
+        return;
+      }
+      
+      console.log('📡 تم استلام الاستجابة:', {
+        ok: response?.ok,
+        status: response?.status,
+        statusText: response?.statusText
       });
       
-      if (response.ok) {
+      if (response?.ok) {
         const result = await response.json();
         console.log('✅ استجابة الخادم:', result);
         
@@ -514,9 +563,38 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           router.push('/dashboard/news');
         }, 1500);
       } else {
-        const errorData = await response.json();
-        console.error('❌ خطأ من الخادم:', errorData);
-        throw new Error(errorData.error || 'فشل في الحفظ');
+        console.error('❌ خطأ في الاستجابة:', {
+          status: response?.status || 'غير معروف',
+          statusText: response?.statusText || 'غير معروف',
+          url: response?.url || '/api/articles'
+        });
+        
+        let errorMessage = 'فشل في الحفظ';
+        if (response) {
+          try {
+            const errorData = await response.json();
+            console.error('❌ خطأ من الخادم:', errorData);
+          
+            // معالجة أفضل للأخطاء
+            if (errorData.error) {
+              errorMessage = errorData.error;
+            } else if (errorData.details) {
+              errorMessage = errorData.details;
+            } else if (errorData.message) {
+              errorMessage = errorData.message;
+            } else if (response.status === 404) {
+              errorMessage = 'الصفحة المطلوبة غير موجودة';
+            } else if (response.status === 500) {
+              errorMessage = 'خطأ في الخادم';
+            } else {
+              errorMessage = `خطأ: ${response.status} ${response.statusText}`;
+            }
+          } catch (e) {
+            console.error('❌ خطأ في قراءة رسالة الخطأ:', e);
+            errorMessage = `خطأ HTTP: ${response.status} ${response.statusText}`;
+          }
+        }
+        throw new Error(errorMessage);
       }
       
     } catch (error) {
@@ -538,40 +616,86 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
     try {
       setIsAILoading(true);
       
-      const response = await fetch('/api/ai/suggestions', {
+      console.log(`🤖 بدء توليد ${field} بالذكاء الاصطناعي...`);
+      
+      // تحديد API endpoint المناسب حسب نوع الحقل
+      let endpoint = '/api/ai/editor';
+      let requestBody: any = {};
+      
+      switch (field) {
+        case 'title':
+          requestBody = {
+            service: 'generate_title',
+            content: formData.content || formData.excerpt || '',
+            context: {
+              excerpt: formData.excerpt,
+              category: categories.find(c => c.id === formData.categoryId)?.name
+            }
+          };
+          break;
+          
+        case 'excerpt':
+          requestBody = {
+            service: 'summarize',
+            content: formData.content || '',
+            context: {
+              title: formData.title,
+              targetLength: '100-140'
+            }
+          };
+          break;
+          
+        case 'keywords':
+          endpoint = '/api/ai/keywords';
+          requestBody = {
+            title: formData.title || '',
+            content: formData.content || '',
+            excerpt: formData.excerpt || ''
+          };
+          break;
+      }
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          field,
-          context: {
-            title: formData.title,
-            excerpt: formData.excerpt,
-            content: formData.content
-          }
-        })
+        body: JSON.stringify(requestBody)
       });
       
       if (response.ok) {
-        const suggestion = await response.json();
+        const result = await response.json();
+        console.log(`✅ نتيجة توليد ${field}:`, result);
         
         if (field === 'keywords') {
-          setFormData(prev => ({ 
-            ...prev, 
-            keywords: [...prev.keywords, ...suggestion.keywords] 
-          }));
+          const newKeywords = result.keywords || [];
+          if (newKeywords.length > 0) {
+            setFormData(prev => ({ 
+              ...prev, 
+              keywords: [...new Set([...prev.keywords, ...newKeywords])]
+            }));
+            toast.success(`تم إضافة ${newKeywords.length} كلمة مفتاحية`);
+          } else {
+            toast.error('لم يتم توليد كلمات مفتاحية');
+          }
         } else {
-          setFormData(prev => ({ 
-            ...prev, 
-            [field]: suggestion.text 
-          }));
+          const generatedText = result.result || result.text || '';
+          if (generatedText) {
+            setFormData(prev => ({ 
+              ...prev, 
+              [field]: generatedText 
+            }));
+            toast.success(`تم توليد ${field === 'title' ? 'العنوان' : 'الموجز'} بنجاح`);
+          } else {
+            toast.error('لم يتم توليد محتوى');
+          }
         }
-        
-        toast.success('تم إنشاء الاقتراح بنجاح');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'فشل في التوليد');
       }
       
     } catch (error) {
-      console.error('AI Error:', error);
-      toast.error('حدث خطأ في الذكاء الاصطناعي');
+      console.error('❌ خطأ في الذكاء الاصطناعي:', error);
+      toast.error(error instanceof Error ? error.message : 'حدث خطأ في الذكاء الاصطناعي');
     } finally {
       setIsAILoading(false);
     }
@@ -886,6 +1010,15 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       <Button
         onClick={() => {
           console.log('🖱️ تم الضغط على زر النشر الفوري!');
+          console.log('📊 معلومات الاكتمال:', {
+            completionScore,
+            title: formData.title,
+            excerpt: formData.excerpt,
+            content: formData.content,
+            authorId: formData.authorId,
+            categoryId: formData.categoryId,
+            featuredImage: formData.featuredImage
+          });
           
           if (completionScore < 60) {
             toast.error(`المقال غير مكتمل بما يكفي للنشر (${completionScore}%). يرجى إكمال البيانات المطلوبة.`);
@@ -894,12 +1027,13 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           
           handleSave('published');
         }}
-        disabled={saving}
+        disabled={saving || loading}
         size={position === 'bottom' ? 'lg' : 'sm'}
         className={cn(
-          "gap-2 shadow-md hover:shadow-lg transition-all",
+          "gap-2 shadow-md hover:shadow-lg transition-all relative",
           darkMode ? "bg-emerald-700 hover:bg-emerald-600" : "bg-emerald-600 hover:bg-emerald-700",
-          "text-white"
+          "text-white",
+          (saving || loading) && "opacity-50 cursor-not-allowed"
         )}
       >
         {saving ? (
@@ -921,6 +1055,11 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
               </>
             )}
           </>
+        )}
+        {completionScore < 60 && (
+          <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+            يجب إكمال {60 - completionScore}% إضافية
+          </span>
         )}
       </Button>
     </div>
@@ -969,13 +1108,19 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           
           <div className="flex items-center gap-4">
             <div className="w-40">
-              <Progress value={completionScore} className="h-2" />
+              <Progress 
+                value={completionScore} 
+                className={cn(
+                  "h-2 transition-all",
+                  completionScore >= 60 ? "[&>div]:bg-emerald-500" : "[&>div]:bg-orange-500"
+                )} 
+              />
               <p className={cn(
-                "text-xs mt-1",
+                "text-xs mt-1 font-medium",
                 completionScore >= 60 ? "text-emerald-600" : "text-orange-600"
               )}>
                 {completionScore}% مكتمل
-                {completionScore < 60 && " (60% مطلوب للنشر)"}
+                {completionScore < 60 && ` (يجب ${60 - completionScore}% إضافية للنشر)`}
               </p>
             </div>
             
@@ -1022,10 +1167,17 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                       size="sm"
                       variant="ghost"
                       onClick={() => suggestWithAI('title')}
-                      disabled={isAILoading || !formData.excerpt}
-                      className="h-6 px-2 gap-1"
+                      disabled={isAILoading || (!formData.content && !formData.excerpt)}
+                      className={cn(
+                        "h-6 px-2 gap-1 transition-all",
+                        isAILoading && "animate-pulse"
+                      )}
+                      title={(!formData.content && !formData.excerpt) ? "يجب إدخال المحتوى أو الموجز أولاً" : "توليد عنوان بالذكاء الاصطناعي"}
                     >
-                      <Sparkles className="w-3 h-3" />
+                      <Sparkles className={cn(
+                        "w-3 h-3",
+                        isAILoading && "animate-spin"
+                      )} />
                       اقتراح
                     </Button>
                     {aiAutoSuggestions.isGenerating && (
@@ -1105,10 +1257,17 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                       size="sm"
                       variant="ghost"
                       onClick={() => suggestWithAI('excerpt')}
-                      disabled={isAILoading || !formData.title}
-                      className="h-6 px-2 gap-1"
+                      disabled={isAILoading || !formData.content}
+                      className={cn(
+                        "h-6 px-2 gap-1 transition-all",
+                        isAILoading && "animate-pulse"
+                      )}
+                      title={!formData.content ? "يجب إدخال المحتوى أولاً" : "توليد موجز بالذكاء الاصطناعي"}
                     >
-                      <Sparkles className="w-3 h-3" />
+                      <Sparkles className={cn(
+                        "w-3 h-3",
+                        isAILoading && "animate-spin"
+                      )} />
                       اقتراح
                     </Button>
                   </Label>
@@ -1289,25 +1448,34 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <User className="w-4 h-4" />
-                  المؤلف والتصنيف
+                  المراسل والتصنيف
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="author" className="text-sm mb-2">المؤلف *</Label>
+                  <Label htmlFor="reporter" className="text-sm mb-2">المراسل *</Label>
                   <select
-                    id="author"
+                    id="reporter"
                     value={formData.authorId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, authorId: e.target.value }))}
+                    onChange={(e) => {
+                      console.log('تم اختيار المراسل:', e.target.value);
+                      setFormData(prev => ({ ...prev, authorId: e.target.value }));
+                    }}
                     className={cn(
                       "w-full p-2 border rounded-lg shadow-sm",
                       darkMode ? "bg-slate-700 border-slate-600 text-white" : "bg-white border-slate-200"
                     )}
                   >
-                    <option value="">اختر المؤلف</option>
-                    {authors.map((author) => (
-                      <option key={author.id} value={author.id}>
-                        {author.name}
+                    <option value="">اختر المراسل</option>
+                    {loading && (
+                      <option disabled>جاري التحميل...</option>
+                    )}
+                    {!loading && reporters.length === 0 && (
+                      <option disabled>لا يوجد مراسلين متاحين</option>
+                    )}
+                    {reporters.map((reporter) => (
+                      <option key={reporter.id} value={reporter.id}>
+                        {reporter.name || reporter.email}
                       </option>
                     ))}
                   </select>
@@ -1318,15 +1486,24 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                   <select
                     id="category"
                     value={formData.categoryId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, categoryId: e.target.value }))}
+                    onChange={(e) => {
+                      console.log('تم اختيار التصنيف:', e.target.value);
+                      setFormData(prev => ({ ...prev, categoryId: e.target.value }));
+                    }}
                     className={cn(
                       "w-full p-2 border rounded-lg shadow-sm",
                       darkMode ? "bg-slate-700 border-slate-600 text-white" : "bg-white border-slate-200"
                     )}
                   >
                     <option value="">اختر التصنيف</option>
+                    {loading && (
+                      <option disabled>جاري التحميل...</option>
+                    )}
+                    {!loading && categories.length === 0 && (
+                      <option disabled>لا يوجد تصنيفات متاحة</option>
+                    )}
                     {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
+                      <option key={category.id} value={category.id} style={{ color: category.color || undefined }}>
                         {category.name_ar || category.name}
                       </option>
                     ))}
@@ -1460,10 +1637,17 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                     size="sm"
                     variant="ghost"
                     onClick={() => suggestWithAI('keywords')}
-                    disabled={isAILoading || !formData.title}
-                    className="h-6 px-2 gap-1 ml-auto"
+                    disabled={isAILoading || (!formData.title && !formData.content)}
+                    className={cn(
+                      "h-6 px-2 gap-1 ml-auto transition-all",
+                      isAILoading && "animate-pulse"
+                    )}
+                    title={(!formData.title && !formData.content) ? "يجب إدخال العنوان أو المحتوى أولاً" : "توليد كلمات مفتاحية بالذكاء الاصطناعي"}
                   >
-                    <Sparkles className="w-3 h-3" />
+                    <Sparkles className={cn(
+                      "w-3 h-3",
+                      isAILoading && "animate-spin"
+                    )} />
                     اقتراح
                   </Button>
                 </CardTitle>

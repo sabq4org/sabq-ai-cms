@@ -9,8 +9,8 @@ export default function DashboardRootLayout({
 }) {
   return (
     <DashboardLayout 
-      pageTitle="نظام الذكاء الاصطناعي"
-      pageDescription="إدارة الأنظمة الذكية والمحتوى"
+      pageTitle="لوحة التحكم"
+      pageDescription="إدارة منصة سبق الذكية"
     >
       {children}
     </DashboardLayout>

@@ -80,21 +80,14 @@ export default function PreferencesPage() {
         
         if (response.ok) {
           result = await response.json();
-          if (result.success && result.data) {
-            setCategories(result.data);
+          if (result.success && result.categories) {
+            setCategories(result.categories);
             return;
           }
         }
         
-        // إذا فشل API، جلب من ملف JSON
-        response = await fetch('/data/categories.json');
-        result = await response.json();
-        
-        if (result.categories) {
-          setCategories(result.categories);
-        } else {
-          throw new Error('فشل في جلب التصنيفات');
-        }
+        // إذا فشل API، محاولة من backup (لا نحتاج ملف JSON)
+        throw new Error('فشل في جلب التصنيفات من API');
         
       } catch (error) {
         console.error('خطأ في جلب التصنيفات:', error);

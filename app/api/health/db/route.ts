@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { dbConnectionManager } from '@/lib/db-connection-manager'
+import dbConnectionManager from '@/lib/db-connection-manager'
 import { getCacheInfo } from '@/lib/services/categoriesCache'
 import prisma from '@/lib/prisma'
 

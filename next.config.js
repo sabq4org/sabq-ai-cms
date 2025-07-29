@@ -6,8 +6,11 @@ const nextConfig = {
   },
   
   experimental: {
-    optimizeCss: true,
-    cssChunking: 'strict',
+    // Experimental support for optimizing stylesheets
+    optimizeCss: {
+      files: ["styles/globals.css", "styles/ArabicStyles.css"],
+    },
+    cssChunking: "strict",
     turbo: {
       rules: {
         '*.svg': {
@@ -78,7 +81,7 @@ const nextConfig = {
   },
 
   images: {
-    formats: ['image/webp'], // تبسيط الفورمات
+    formats: ['image/webp', 'image/avif'], // إضافة avif للأداء الأفضل
     minimumCacheTTL: 300, // cache لمدة 5 دقائق
     deviceSizes: [640, 750, 1080, 1920], // تقليل الأحجام
     imageSizes: [16, 32, 64, 128, 256], // تبسيط الأحجام
@@ -88,21 +91,54 @@ const nextConfig = {
     // تقليل التايم أوت
     loader: 'default',
     loaderFile: undefined,
-    // تحسين الأداء
+    // تمكين التحسين لحل مشكلة عرض الصور
     unoptimized: false,
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'placehold.co',
-      }
+        hostname: 'sabq-cms-content.s3.amazonaws.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sabq-cms-content.s3.us-east-1.amazonaws.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sabq-ai-cms-images.s3.amazonaws.com',
+        pathname: '/**',
+      },
+              {
+          protocol: 'https',
+          hostname: 'sabq-ai-cms-images.s3.us-east-1.amazonaws.com',
+          pathname: '/**',
+        },
+        {
+          protocol: 'https',
+          hostname: 'ui-avatars.com',
+          pathname: '/api/**',
+        },
+      {
+        protocol: 'https',
+        hostname: 'd2kdkzp4dtcikk.cloudfront.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.cloudinary.com',
+        pathname: '/**',
+      },
     ],
   },
 
@@ -158,6 +194,7 @@ const nextConfig = {
     
     return config;
   },
+  serverExternalPackages: ['sharp'],
 };
 
 module.exports = nextConfig; 

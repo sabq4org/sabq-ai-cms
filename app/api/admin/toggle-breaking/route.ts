@@ -5,96 +5,48 @@ export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
-    const { articleId } = await request.json();
-    
+    const { articleId, isBreaking } = await request.json();
+
     if (!articleId) {
       return NextResponse.json(
-        { success: false, error: 'Article ID is required' },
+        { success: false, error: 'معرف المقال مطلوب' },
         { status: 400 }
       );
     }
 
-    // جلب المقال الحالي
-    const article = await prisma.articles.findUnique({
-      where: { id: articleId },
-      select: { id: true, metadata: true }
-    });
-
-    if (!article) {
-      return NextResponse.json(
-        { success: false, error: 'Article not found' },
-        { status: 404 }
-      );
-    }
-
-    // قراءة metadata الحالي
-    const currentMetadata = article.metadata as any || {};
-    const currentBreakingStatus = currentMetadata.isBreakingNews || 
-                                 currentMetadata.breaking || 
-                                 currentMetadata.is_breaking || 
-                                 false;
-
-    // تبديل الحالة
-    const newBreakingStatus = !currentBreakingStatus;
-
-    // إذا كان سيصبح خبر عاجل، قم بإلغاء تفعيل الأخبار العاجلة الأخرى أولاً
-    if (newBreakingStatus) {
-      await prisma.articles.updateMany({
-        where: {
-          AND: [
-            { status: 'published' },
-            {
-              OR: [
-                { metadata: { path: ['isBreakingNews'], equals: true } },
-                { metadata: { path: ['breaking'], equals: true } },
-                { metadata: { path: ['is_breaking'], equals: true } }
-              ]
-            }
-          ]
-        },
-        data: {
-          metadata: {
-            ...currentMetadata,
-            isBreakingNews: false,
-            breaking: false,
-            is_breaking: false
-          }
-        }
-      });
-    }
-
-    // تحديث المقال المحدد
-    const updatedMetadata = {
-      ...currentMetadata,
-      isBreakingNews: newBreakingStatus,
-      breaking: newBreakingStatus,
-      is_breaking: newBreakingStatus,
-      breakingNewsUpdatedAt: new Date().toISOString()
-    };
-
-    await prisma.articles.update({
+    // تحديث حالة الخبر العاجل
+    const updatedArticle = await prisma.articles.update({
       where: { id: articleId },
       data: {
-        metadata: updatedMetadata,
+        breaking: isBreaking,
         updated_at: new Date()
       }
     });
 
+    // إذا كان خبر عاجل، قم بإلغاء الأخبار العاجلة الأخرى
+    if (isBreaking) {
+      await prisma.articles.updateMany({
+        where: {
+          id: { not: articleId },
+          breaking: true
+        },
+        data: {
+          breaking: false
+        }
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      data: {
-        articleId,
-        isBreakingNews: newBreakingStatus,
-        message: newBreakingStatus ? 'تم تفعيل الخبر العاجل' : 'تم إلغاء تفعيل الخبر العاجل'
-      }
+      article: updatedArticle
     });
-
-  } catch (error) {
-    console.error('Error toggling breaking news:', error);
+  } catch (error: any) {
+    console.error('خطأ في تحديث حالة الخبر العاجل:', error);
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to toggle breaking news status' 
+        error: 'حدث خطأ في تحديث حالة الخبر',
+        details: error.message 
       },
       { status: 500 }
     );

@@ -7,16 +7,15 @@ export const runtime = 'nodejs';
 export async function GET() {
   try {
     // استيراد آمن لـ Prisma
-    const { prisma, ensureConnection } = await import('@/lib/prisma');
+    const prismaModule = await import('@/lib/prisma');
+    const prisma = prismaModule.prisma || prismaModule.default;
     
-    // التأكد من الاتصال بقاعدة البيانات
-    const isConnected = await ensureConnection();
-    if (!isConnected) {
-      return NextResponse.json({
-        success: false,
-        error: 'فشل الاتصال بقاعدة البيانات'
-      }, { status: 500 });
+    if (!prisma) {
+      throw new Error('Prisma client not available');
     }
+    
+    // التأكد من الاتصال بقاعدة البيانات مباشرة
+    await prisma.$queryRaw`SELECT 1`;
 
     const members = await prisma.users.findMany({
       where: {
@@ -48,8 +47,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching team members:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: 'حدث خطأ في جلب أعضاء الفريق' },
+      { success: false, error: 'حدث خطأ في جلب أعضاء الفريق', details: errorMessage },
       { status: 500 }
     );
   }

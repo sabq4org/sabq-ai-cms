@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import dbConnectionManager from '@/lib/db-connection-manager';
 import { DeepAnalysis } from '@/types/deep-analysis';
 
 export const runtime = 'nodejs';
@@ -13,11 +14,21 @@ export async function GET(
     const { id } = await context.params;
     
     // البحث في جدول deep_analyses أولاً
-    const dbAnalysis = await prisma.deep_analyses.findUnique({
-      where: { id }
-    });
+    const dbAnalysis = await dbConnectionManager.executeWithConnection(
+      async () => {
+        return await prisma.deep_analyses.findUnique({
+          where: { id }
+        });
+      }
+    );
     
     if (dbAnalysis) {
+      console.log('📊 بيانات التحليل من DB:', {
+        id: dbAnalysis.id,
+        ai_summary: dbAnalysis.ai_summary?.substring(0, 100),
+        metadata: dbAnalysis.metadata
+      });
+      
       // استخراج البيانات من metadata إذا كانت موجودة
       const metadata = dbAnalysis.metadata as any || {};
       
@@ -69,6 +80,11 @@ export async function GET(
         analyzed_at: dbAnalysis.analyzed_at,
         publishedAt: dbAnalysis.analyzed_at,
         lastGptUpdate: dbAnalysis.updated_at,
+        // Include original data for compatibility
+        ai_summary: dbAnalysis.ai_summary,
+        key_topics: dbAnalysis.key_topics,
+        sentiment: dbAnalysis.sentiment,
+        engagement_score: dbAnalysis.engagement_score,
         metadata: metadata
       };
       
@@ -76,14 +92,18 @@ export async function GET(
     }
     
     // إذا لم يوجد في قاعدة البيانات، نحاول البحث عن مقال له تحليل
-    const articleAnalysis = await prisma.articles.findFirst({
-      where: {
-        OR: [
-          { id },
-          { slug: id }
-        ]
+    const articleAnalysis = await dbConnectionManager.executeWithConnection(
+      async () => {
+        return await prisma.articles.findFirst({
+          where: {
+            OR: [
+              { id },
+              { slug: id }
+            ]
+          }
+        });
       }
-    });
+    );
     
     if (articleAnalysis) {
       // استخراج البيانات من metadata إذا كانت موجودة
@@ -174,30 +194,34 @@ export async function PUT(
     const body = await request.json();
     
     // نحاول تحديث في قاعدة البيانات
-    const updated = await prisma.deep_analyses.upsert({
-      where: { id },
-      create: {
-        id,
-        article_id: id, // افترض أن معرف المقال هو نفسه معرف التحليل
-        ai_summary: body.summary || body.title,
-        key_topics: body.tags || [],
-        tags: body.tags || [],
-        sentiment: 'neutral',
-        engagement_score: body.qualityScore || 0,
-        metadata: body,
-        analyzed_at: new Date(), // <-- إضافة الحقل المطلوب
-        updated_at: new Date()
-      },
-      update: {
-        ai_summary: body.summary || body.title,
-        key_topics: body.tags || [],
-        tags: body.tags || [],
-        engagement_score: body.qualityScore || 0,
-        metadata: body,
-        updated_at: new Date(),
-        // يمكن إضافة analyzed_at هنا أيضاً إذا كان منطقياً تحديثه
+    const updated = await dbConnectionManager.executeWithConnection(
+      async () => {
+        return await prisma.deep_analyses.upsert({
+          where: { id },
+          create: {
+            id,
+            article_id: body.article_id || id,
+            ai_summary: body.ai_summary || body.summary || body.title,
+            key_topics: body.key_topics || body.tags || [],
+            tags: body.tags || [],
+            sentiment: body.sentiment || 'neutral',
+            engagement_score: body.engagement_score || body.qualityScore || 0,
+            metadata: body.metadata || body,
+            analyzed_at: new Date(),
+            updated_at: new Date()
+          },
+          update: {
+            ai_summary: body.ai_summary || body.summary || body.title,
+            key_topics: body.key_topics || body.tags || [],
+            tags: body.tags || [],
+            sentiment: body.sentiment,
+            engagement_score: body.engagement_score || body.qualityScore || 0,
+            metadata: body.metadata || body,
+            updated_at: new Date()
+          }
+        });
       }
-    });
+    );
     
     return NextResponse.json({ success: true, analysis: updated });
     

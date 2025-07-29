@@ -34,6 +34,7 @@ export default function Footer() {
       title: 'خدماتنا',
       links: [
         { label: '🔁 نظام الولاء', url: '/loyalty-program' },
+        { label: '📻 النشرات الصوتية', url: '/audio-archive' },
         { label: 'إعلانات تجارية', url: '/ads' },
         { label: 'الاشتراكات', url: '/subscriptions' },
         { label: 'النشرة البريدية', url: '/newsletter' },

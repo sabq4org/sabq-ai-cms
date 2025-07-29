@@ -1,138 +1,108 @@
-import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { getArticleData, getFullImageUrl, getFullArticleUrl, prepareKeywords } from '@/lib/article-api';
-import ArticleClientComponent from './ArticleClientComponent';
+'use client';
 
-// إنشاء Metadata ديناميكي للمقال
-export async function generateMetadata({
-  params,
-}: {
+import { ArticleData } from '@/lib/article-api';
+import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+
+// تحميل ديناميكي للمكون لتجنب مشاكل SSR
+const ArticleClientComponent = dynamic(() => import('./ArticleClientComponent'), {
+  ssr: false,
+  loading: () => (
+    <div style={{
+      padding: '3rem', 
+      textAlign: 'center',
+      minHeight: '400px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <div>
+        <div style={{
+          width: '50px',
+          height: '50px',
+          border: '3px solid #e5e7eb',
+          borderTop: '3px solid #2563eb',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 1rem'
+        }}></div>
+        <p style={{color: '#6b7280'}}>جاري تحميل المقال...</p>
+      </div>
+    </div>
+  )
+});
+
+interface PageProps {
   params: Promise<{ id: string }>;
-}): Promise<Metadata> {
-  const resolvedParams = await params;
-  const article = await getArticleData(resolvedParams.id);
-
-  if (!article) {
-    return {
-      title: 'المقال غير متوفر | صحيفة سبق الالكترونية AI',
-      description: 'عذراً، المقال المطلوب غير متاح أو غير موجود.',
-    };
-  }
-
-  const title = `${article.title} | صحيفة سبق الالكترونية AI`;
-  const description = article.excerpt || article.summary || article.ai_summary || 'اقرأ آخر الأخبار والتحليلات على صحيفة سبق الالكترونية AI';
-  const imageUrl = getFullImageUrl(article.featured_image);
-  const articleUrl = getFullArticleUrl(resolvedParams.id);
-  const keywords = prepareKeywords(article.seo_keywords || article.keywords);
-
-  return {
-    title,
-    description,
-    keywords: keywords.join(', '),
-    authors: [{ name: article.author?.name || 'صحيفة سبق' }],
-    category: article.category?.name,
-    
-    // Open Graph
-    openGraph: {
-      title,
-      description,
-      url: articleUrl,
-      siteName: 'صحيفة سبق الالكترونية AI',
-      images: imageUrl
-        ? [
-            {
-              url: imageUrl,
-              width: 1200,
-              height: 630,
-              alt: article.title,
-            },
-          ]
-        : [],
-      locale: 'ar_SA',
-      type: 'article',
-      publishedTime: article.published_at,
-      modifiedTime: article.updated_at,
-      section: article.category?.name,
-      authors: [article.author?.name || 'صحيفة سبق'],
-    },
-
-    // Twitter Card
-    twitter: {
-      card: 'summary_large_image',
-      site: '@sabqorg',
-      creator: '@sabqorg',
-      title,
-      description,
-      images: imageUrl ? [imageUrl] : [],
-    },
-
-    // إضافات أخرى
-    robots: {
-      index: article.status === 'published',
-      follow: true,
-    },
-    alternates: {
-      canonical: articleUrl,
-    },
-  };
 }
 
-// الصفحة الرئيسية - Server Component
-export default async function ArticlePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  // جلب البيانات في السيرفر
-  const resolvedParams = await params;
-  
-  // معالجة URL-encoded IDs
-  let articleId = resolvedParams.id;
-  try {
-    // فك ترميز URL إذا كان مُرمزاً
-    const decodedId = decodeURIComponent(articleId);
-    console.log(`[ArticlePage] معالجة المعرف: ${articleId} -> ${decodedId}`);
-    
-    // استخدام المعرف المُفكك بدون قيود - API يدعم البحث بـ ID أو slug
-    articleId = decodedId;
-  } catch (error) {
-    console.warn(`[ArticlePage] خطأ في فك ترميز المعرف:`, error);
-  }
-  
-  const article = await getArticleData(articleId);
+export default function ArticlePage({ params }: PageProps) {
+  const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
+  const [article, setArticle] = useState<ArticleData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!article) {
-    console.warn(`[ArticlePage] لم يتم العثور على مقال بالمعرف:`, articleId);
-    console.warn(`[ArticlePage] البيئة:`, process.env.NODE_ENV);
-    console.warn(`[ArticlePage] APP_URL:`, process.env.NEXT_PUBLIC_APP_URL);
-    
-    // محاولة استدعاء مباشر للـ API كتجربة أخيرة
-    if (typeof process !== 'undefined') {
+  useEffect(() => {
+    const loadParams = async () => {
       try {
-        console.log(`[ArticlePage] محاولة استدعاء مباشر للـ API...`);
+        const resolved = await params;
+        setResolvedParams(resolved);
         
-        // استخدام URL المباشر لـ sabq.io
-        const directApiUrl = `https://sabq.io/api/articles/${articleId}`;
-        console.log(`[ArticlePage] Direct API URL: ${directApiUrl}`);
+        // جلب المقال
+        const response = await fetch(`/api/articles/${resolved.id}`);
         
-        const directResponse = await fetch(directApiUrl, {
-          headers: { 'Content-Type': 'application/json' },
-          cache: 'no-store' // تجنب cache للتأكد من أحدث البيانات
-        });
-        
-        if (directResponse.ok) {
-          const directData = await directResponse.json();
-          if (directData && directData.id) {
-            console.log(`[ArticlePage] تم العثور على المقال بالاستدعاء المباشر`);
-            return <ArticleClientComponent initialArticle={directData} articleId={articleId} />;
+        if (response.status === 404) {
+          // المقال غير موجود
+          setError(null); // لا نعرض رسالة خطأ إضافية
+        } else if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setArticle(data);
+          } else {
+            setError(null); // المقال غير موجود
           }
+        } else {
+          // خطأ في الخادم
+          setError('حدث خطأ في تحميل المقال. يرجى المحاولة لاحقاً.');
         }
-        console.log(`[ArticlePage] فشل الاستدعاء المباشر:`, directResponse.status);
-      } catch (directError) {
-        console.warn(`[ArticlePage] خطأ في الاستدعاء المباشر:`, directError);
+      } catch (err) {
+        console.error('Error loading article:', err);
+        setError('حدث خطأ في تحميل المقال');
+      } finally {
+        setLoading(false);
       }
-    }
-    
+    };
+
+    loadParams();
+  }, [params]);
+
+  if (loading) {
+    return (
+      <div style={{
+        padding: '3rem', 
+        textAlign: 'center',
+        minHeight: '400px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '3px solid #e5e7eb',
+            borderTop: '3px solid #2563eb',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }}></div>
+          <p style={{color: '#6b7280'}}>جاري تحميل المقال...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !article || !resolvedParams) {
     return (
       <div style={{
         padding: '3rem', 
@@ -143,9 +113,34 @@ export default async function ArticlePage({
         maxWidth: 600,
         boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
       }}>
-        <h1 style={{color: '#1f2937', marginBottom: '1rem'}}>المقال غير متوفر</h1>
-        <p style={{color: '#6b7280', fontSize: '1.1rem', lineHeight: 1.8}}>
-          عذراً، لم نتمكن من العثور على المقال المطلوب.
+        <div style={{
+          fontSize: '3rem',
+          marginBottom: '1rem',
+          opacity: 0.2
+        }}>
+          📄
+        </div>
+        <h1 style={{
+          color: '#1f2937', 
+          marginBottom: '1rem',
+          fontSize: '1.75rem',
+          fontWeight: '600'
+        }}>
+          عذراً، المقال غير موجود
+        </h1>
+        <p style={{
+          color: '#6b7280', 
+          fontSize: '1rem', 
+          lineHeight: 1.8,
+          marginBottom: '0.5rem'
+        }}>
+          المقال الذي تبحث عنه غير متوفر حالياً.
+        </p>
+        <p style={{
+          color: '#9ca3af', 
+          fontSize: '0.875rem'
+        }}>
+          قد يكون المقال قد تم نقله أو حذفه.
         </p>
         <a 
           href="/" 
@@ -165,13 +160,20 @@ export default async function ArticlePage({
       </div>
     );
   }
-
-  // تمرير البيانات للـ Client Component
-  return <ArticleClientComponent initialArticle={article} articleId={articleId} />;
-}
-
-// تحسين الأداء - إنشاء صفحات ثابتة للمقالات الشائعة
-export async function generateStaticParams() {
-  // يمكن تحسين هذا بجلب المقالات الأكثر شعبية
-  return [];
+  
+  return (
+    <div>
+      <style jsx global>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+      
+      <ArticleClientComponent 
+        initialArticle={article} 
+        articleId={resolvedParams.id} 
+      />
+    </div>
+  );
 }

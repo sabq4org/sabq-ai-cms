@@ -5,7 +5,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +29,8 @@ import {
   LogOut,
   UserCog,
   HelpCircle,
-  Zap
+  Zap,
+  Monitor
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -46,7 +47,7 @@ export default function ModernHeader({
   onMenuClick,
   showMenuButton
 }: ModernHeaderProps) {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme, mounted } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
 
   // بيانات وهمية للإشعارات
@@ -58,9 +59,29 @@ export default function ModernHeader({
 
   const unreadCount = notifications.filter(n => n.unread).length;
 
+  // دالة تبديل الثيم
+  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
+    setTheme(newTheme);
+  };
+
+  const getThemeIcon = () => {
+    if (!mounted) return <Sun className="h-5 w-5" />;
+    
+    if (theme === 'system') {
+      return <Monitor className="h-5 w-5" />;
+    }
+    return resolvedTheme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />;
+  };
+
+  const getThemeName = () => {
+    if (theme === 'system') return 'النظام';
+    if (theme === 'dark') return 'ليلي';
+    return 'نهاري';
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-      <div className="px-4 lg:px-6 h-16 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 h-[var(--dashboard-header-height)] transition-colors duration-300">
+      <div className="px-4 lg:px-6 h-full flex items-center justify-between">
         {/* الجانب الأيمن */}
         <div className="flex items-center gap-4">
           {/* زر القائمة للهواتف */}
@@ -95,7 +116,7 @@ export default function ModernHeader({
               placeholder="البحث في لوحة التحكم..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-4 pr-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:bg-white dark:focus:bg-gray-600"
+              className="pl-4 pr-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:bg-white dark:focus:bg-gray-600 transition-colors duration-200"
             />
           </div>
         </div>
@@ -126,13 +147,13 @@ export default function ModernHeader({
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <DropdownMenuLabel className="font-semibold">
                 الإشعارات ({unreadCount} غير مقروءة)
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               {notifications.map((notification) => (
-                <DropdownMenuItem key={notification.id} className="flex flex-col items-start p-3 cursor-pointer">
+                <DropdownMenuItem key={notification.id} className="flex flex-col items-start p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                   <div className="flex items-start justify-between w-full">
                     <div className="flex-1">
                       <p className={cn(
@@ -152,24 +173,57 @@ export default function ModernHeader({
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-center text-blue-600 dark:text-blue-400">
+              <DropdownMenuItem className="text-center text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700">
                 عرض جميع الإشعارات
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* تبديل المظهر */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          >
-            {theme === 'dark' ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+              >
+                {getThemeIcon()}
+                <span className="hidden md:inline text-sm">{getThemeName()}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+              <DropdownMenuItem 
+                onClick={() => handleThemeChange('light')}
+                className={cn(
+                  "gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700",
+                  theme === 'light' && "bg-blue-50 dark:bg-blue-900/30"
+                )}
+              >
+                <Sun className="h-4 w-4" />
+                <span>نهاري</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => handleThemeChange('dark')}
+                className={cn(
+                  "gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700",
+                  theme === 'dark' && "bg-blue-50 dark:bg-blue-900/30"
+                )}
+              >
+                <Moon className="h-4 w-4" />
+                <span>ليلي</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => handleThemeChange('system')}
+                className={cn(
+                  "gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700",
+                  theme === 'system' && "bg-blue-50 dark:bg-blue-900/30"
+                )}
+              >
+                <Monitor className="h-4 w-4" />
+                <span>حسب النظام</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* اللغة */}
           <DropdownMenu>
@@ -178,11 +232,11 @@ export default function ModernHeader({
                 <Globe className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+            <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+              <DropdownMenuItem className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 🇸🇦 العربية
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 🇺🇸 English
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -195,39 +249,39 @@ export default function ModernHeader({
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-medium text-sm">أ</span>
                 </div>
-                <span className="hidden md:inline text-sm font-medium">
+                <span className="hidden md:inline text-sm font-medium text-gray-700 dark:text-gray-300">
                   أبو محمد
                 </span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <DropdownMenuLabel>
                 <div className="flex flex-col">
-                  <span className="font-medium">أبو محمد</span>
+                  <span className="font-medium text-gray-900 dark:text-white">أبو محمد</span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     admin@sabq.ai
                   </span>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <UserCog className="h-4 w-4 mr-2" />
                 الملف الشخصي
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <Settings className="h-4 w-4 mr-2" />
                 الإعدادات
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <Zap className="h-4 w-4 mr-2" />
                 الاختصارات
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <HelpCircle className="h-4 w-4 mr-2" />
                 المساعدة
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600 dark:text-red-400">
+              <DropdownMenuItem className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
                 <LogOut className="h-4 w-4 mr-2" />
                 تسجيل الخروج
               </DropdownMenuItem>

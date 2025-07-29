@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 // PUT: تحديث مدة النشرة الصوتية بالمدة الحقيقية
 export async function PUT(request: NextRequest) {

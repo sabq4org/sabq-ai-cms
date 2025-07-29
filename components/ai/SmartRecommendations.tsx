@@ -77,7 +77,7 @@ export default function SmartRecommendations({
           title: 'مستقبل الذكاء الاصطناعي في التعليم السعودي',
           excerpt: 'تحليل شامل لتطبيقات AI في القطاع التعليمي ورؤية 2030',
           author_name: 'د. سارة الحكيم',
-          author_avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?auto=format&fit=crop&w=150&q=80',
+          author_avatar: 'https://ui-avatars.com/api/?name=محمد+الشريف&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
           category_name: 'تقنية',
           featured_image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=400&q=80',
           views_count: 15420,
@@ -135,7 +135,7 @@ export default function SmartRecommendations({
         {
           id: '2',
           name: 'أ. فاطمة الزهراني',
-          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?auto=format&fit=crop&w=150&q=80',
+          avatar: 'https://ui-avatars.com/api/?name=سارة+الحكيم&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
           specialization: 'اقتصاد وأعمال',
           articles_count: 31,
           similarity_reasons: ['تحليلات عميقة', 'منظور مختلف', 'خبرة واسعة']

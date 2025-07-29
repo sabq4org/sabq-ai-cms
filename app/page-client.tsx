@@ -12,8 +12,10 @@ import Footer from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getCookie, setCookie } from '@/lib/cookies';
 import { getImageUrl } from '@/lib/image-utils';
-import CloudImage, { ArticleImage, CloudAvatar } from '@/components/ui/CloudImage';
+import OptimizedImage from '@/components/OptimizedImage';
+import CloudImage from '@/components/ui/CloudImage';
 import { getArticleLink, formatDate } from '@/lib/utils';
+import { SafeDate } from '@/lib/safe-date';
 import CategoryBadge from './components/CategoryBadge';
 import { SmartSlot } from '@/components/home/SmartSlot';
 import SmartDigestBlock from '@/components/smart-blocks/SmartDigestBlock';
@@ -179,8 +181,8 @@ function NewspaperHomePage({
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden">
             <CloudImage
-              src={news.featured_image}
-              alt={news.title || 'صورة المقال'}
+              src={news?.featured_image || null}
+              alt={news?.title || 'صورة المقال'}
               fill
               className="w-full h-full object-cover transition-transform duration-500"
               fallbackType="article"
@@ -213,7 +215,7 @@ function NewspaperHomePage({
                 <div className="flex items-center gap-2 sm:gap-3 text-xs">
                                       <div className="text-sm text-gray-500 flex items-center gap-2">
                       <Clock className="w-4 h-4" />
-                      {formatDate(news.published_at || news.created_at)}
+                                                <SafeDate date={news.published_at || news.created_at} />
                     </div>
                   {news.reading_time && (
                     <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
@@ -313,13 +315,23 @@ function NewspaperHomePage({
     setSelectedCategory(categoryId);
     setCategoryArticlesLoading(true);
     try {
+      console.log(`🔍 جلب مقالات التصنيف ID: ${categoryId}`);
       const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=20&sortBy=published_at&order=desc`);
       const json = await res.json();
-      // 💡 FIX: The API returns { data: [...] } or { articles: [...] }
-      const list = Array.isArray(json) ? json : (json.data ?? json.articles ?? []);
-      setCategoryArticles(list);
+      
+      console.log(`📊 استجابة API للتصنيف ${categoryId}:`, json);
+      
+      if (json.success) {
+        const list = json.articles || [];
+        console.log(`✅ تم جلب ${list.length} مقال للتصنيف ${categoryId}`);
+        setCategoryArticles(list);
+      } else {
+        console.error(`❌ فشل جلب مقالات التصنيف ${categoryId}:`, json.error);
+        setCategoryArticles([]);
+      }
     } catch (err) {
       console.error('خطأ في جلب مقالات التصنيف:', err);
+      setCategoryArticles([]);
     } finally {
       setCategoryArticlesLoading(false);
     }
@@ -505,8 +517,8 @@ function NewspaperHomePage({
                               {/* صورة المقال */}
                               <div className="relative h-40 sm:h-48 overflow-hidden">
                                 <CloudImage
-                                  src={article.featured_image}
-                                  alt={article.title || ''}
+                                  src={article?.featured_image || null}
+                                  alt={article?.title || 'صورة المقال'}
                                   fill
                                   className="w-full h-full object-cover transition-transform duration-500"
                                   fallbackType="article"
@@ -545,7 +557,7 @@ function NewspaperHomePage({
                                     <div className="flex items-center gap-2 sm:gap-3 text-xs">
                                                                               <div className="text-sm text-gray-500 flex items-center gap-2">
                                           <Clock className="w-4 h-4" />
-                                          {formatDate(article.published_at || article.created_at)}
+                                          <SafeDate date={article.published_at || article.created_at} />
                                         </div>
                                       {article.reading_time && (
                                         <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>

@@ -1,6 +1,5 @@
 import nodemailer from 'nodemailer';
-import { prisma } from '@/lib/prisma-simple';
-// import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses';
+import { prisma } from '@/lib/prisma';
 
 // أنواع مزودي البريد
 type EmailProvider = 'smtp' | 'sendgrid' | 'mailgun' | 'ses';
@@ -95,9 +94,9 @@ export class EmailService {
       
       case 'ses':
         config.ses = {
-          region: process.env.AWS_REGION || 'us-east-1',
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
+          region: process.env.AWS_REGION || process.env.S3_REGION || 'us-east-1',
+          accessKeyId: process.env.ACCESS_KEY || process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET_ACCESS_KEY || ''
         };
         break;
     }
