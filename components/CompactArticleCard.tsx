@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import SafeImage from '@/components/ui/SafeImage';
 import { Clock, Eye, Zap } from 'lucide-react';
 import { formatDateShort } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
@@ -40,7 +40,6 @@ interface CompactArticleCardProps {
 export default function CompactArticleCard({ article }: CompactArticleCardProps) {
   const isBreaking = article.is_breaking || article.breaking || article.metadata?.is_breaking || false;
   const viewsCount = article.views_count || article.views || 0;
-  const imageUrl = getValidImageUrl(article.featured_image, article.title, 'article');
 
   return (
     <Link href={getArticleLink(article)}>
@@ -53,19 +52,17 @@ export default function CompactArticleCard({ article }: CompactArticleCardProps)
         <div className="flex h-32">
           {/* الصورة - مربعة */}
           <div className="relative w-32 h-32 flex-shrink-0 bg-gray-200 dark:bg-gray-700">
-            <Image
-              src={imageUrl}
+            <SafeImage
+              src={article.featured_image}
               alt={article.title || 'صورة المقال'}
               fill
               className="object-cover"
               sizes="128px"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = generatePlaceholderImage(article.title, 'article');
-              }}
+              fallbackType="article"
+              priority={false}
             />
             {isBreaking && (
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 right-2 z-10">
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-bold bg-red-500 text-white">
                   <Zap className="w-3 h-3" />
                   عاجل

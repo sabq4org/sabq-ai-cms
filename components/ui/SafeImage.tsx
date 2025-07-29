@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/image-utils';
+import { getProductionImageUrl } from '@/lib/production-image-fix';
 
 interface SafeImageProps {
   src?: string | null;
@@ -51,12 +52,23 @@ export default function SafeImage({
       return;
     }
 
+    // تحديد بيئة التشغيل
+    const isProduction = process.env.NODE_ENV === 'production' || 
+                        (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
+
     // معالجة مسار الصورة
-    const processedSrc = getImageUrl(src, {
-      width,
-      height,
-      fallbackType
-    });
+    const processedSrc = isProduction 
+      ? getProductionImageUrl(src, {
+          width,
+          height,
+          quality: 85,
+          fallbackType
+        })
+      : getImageUrl(src, {
+          width,
+          height,
+          fallbackType
+        });
     
     // التأكد من أن processedSrc ليس فارغاً
     if (processedSrc && processedSrc.trim() !== '') {
