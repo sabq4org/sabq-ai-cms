@@ -15,12 +15,14 @@ export const uploadToS3 = async (
   fileName: string,
   mimeType: string
 ): Promise<string> => {
+  const bucketName = process.env.AWS_S3_BUCKET || process.env.S3_BUCKET_NAME || 'sabq-ai-cms-images';
+  
   const params = {
-    Bucket: process.env.S3_BUCKET_NAME || 'sabq-uploader',
-    Key: `uploads/${Date.now()}-${fileName}`, // يحفظ الصور داخل مجلد uploads مع توقيت
+    Bucket: bucketName,
+    Key: fileName, // استخدام اسم الملف مباشرة لأنه يحتوي على المجلد
     Body: fileBuffer,
     ContentType: mimeType,
-    ACL: 'public-read', // يجعل الصورة متاحة عبر URL
+    // ACL تم إزالتها - سيتم استخدام bucket policy بدلاً منها
   };
 
   try {
@@ -39,9 +41,10 @@ export const deleteFromS3 = async (fileUrl: string): Promise<boolean> => {
     // استخراج key من URL
     const urlParts = fileUrl.split('/');
     const key = urlParts.slice(3).join('/'); // يحذف https://bucket.s3.region.amazonaws.com/
+    const bucketName = process.env.AWS_S3_BUCKET || process.env.S3_BUCKET_NAME || 'sabq-ai-cms-images';
 
     const params = {
-      Bucket: process.env.S3_BUCKET_NAME || 'sabq-uploader',
+      Bucket: bucketName,
       Key: key
     };
 
@@ -56,11 +59,13 @@ export const deleteFromS3 = async (fileUrl: string): Promise<boolean> => {
 
 // دالة للحصول على URL موقع مؤقت للرفع
 export const getSignedUploadUrl = async (fileName: string, mimeType: string): Promise<string> => {
+  const bucketName = process.env.AWS_S3_BUCKET || process.env.S3_BUCKET_NAME || 'sabq-ai-cms-images';
+  
   const params = {
-    Bucket: process.env.S3_BUCKET_NAME || 'sabq-uploader',
-    Key: `uploads/${Date.now()}-${fileName}`,
+    Bucket: bucketName,
+    Key: fileName,
     ContentType: mimeType,
-    ACL: 'public-read',
+    // ACL تم إزالتها - سيتم استخدام bucket policy بدلاً منها
     Expires: 3600 // ساعة واحدة
   };
 

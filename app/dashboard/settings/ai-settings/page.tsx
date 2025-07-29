@@ -43,12 +43,15 @@ export default function AISettingsPage() {
     }
 
     if (apiKey === 'sk-...****...' || apiKey === settings?.openai?.apiKey) {
-      toast.info('لم يتم تغيير المفتاح');
+      toast('لم يتم تغيير المفتاح', { icon: 'ℹ️' });
       return;
     }
 
     const success = await saveSettings({
       openai: {
+        model: settings?.openai?.model || 'gpt-4o',
+        maxTokens: settings?.openai?.maxTokens || 2000,
+        temperature: settings?.openai?.temperature || 0.7,
         ...settings?.openai,
         apiKey: apiKey.trim()
       }
@@ -75,9 +78,20 @@ export default function AISettingsPage() {
   };
 
   const handleFeatureToggle = async (feature: string) => {
+    const defaultFeatures = {
+      aiEditor: false,
+      analytics: false,
+      notifications: false,
+      deepAnalysis: false,
+      smartLinks: false,
+      commentModeration: false
+    };
+    
+    const currentFeatures = settings?.features || defaultFeatures;
     const newFeatures = {
-      ...settings?.features,
-      [feature]: !settings?.features[feature as keyof typeof settings.features]
+      ...defaultFeatures,
+      ...currentFeatures,
+      [feature]: !currentFeatures[feature as keyof typeof currentFeatures]
     };
 
     await saveSettings({ features: newFeatures });
@@ -225,7 +239,7 @@ export default function AISettingsPage() {
               <span className="text-gray-700 dark:text-gray-300">{label}</span>
               <input
                 type="checkbox"
-                checked={settings?.features[key as keyof typeof settings.features] || false}
+                checked={settings?.features?.[key as keyof typeof settings.features] || false}
                 onChange={() => handleFeatureToggle(key)}
                 disabled={saving}
                 className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"

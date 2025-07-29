@@ -80,20 +80,42 @@ export async function POST(request: NextRequest) {
     console.log('📊 حجم الملف:', (file.size / 1024).toFixed(2) + ' KB');
 
     // رفع الصورة إلى S3
-    const imageUrl = await uploadToS3(buffer, fileName, file.type);
+    let imageUrl: string;
+    
+    try {
+      imageUrl = await uploadToS3(buffer, fileName, file.type);
+      console.log('✅ تم رفع الصورة بنجاح إلى S3');
+      console.log('🔗 رابط الصورة:', imageUrl);
 
-    console.log('✅ تم رفع الصورة بنجاح إلى S3');
-    console.log('🔗 رابط الصورة:', imageUrl);
-
-    return NextResponse.json({
-      success: true,
-      url: imageUrl,
-      fileName: fileName,
-      size: file.size,
-      type: file.type,
-      uploadType: type,
-      message: 'تم رفع الصورة بنجاح إلى Amazon S3'
-    });
+      return NextResponse.json({
+        success: true,
+        url: imageUrl,
+        fileName: fileName,
+        size: file.size,
+        type: file.type,
+        uploadType: type,
+        message: 'تم رفع الصورة بنجاح إلى Amazon S3'
+      });
+    } catch (s3Error) {
+      console.error('⚠️ فشل رفع S3، محاولة الحل البديل:', s3Error);
+      
+      // في حالة فشل S3 بسبب ACL، استخدم Base64 كحل مؤقت
+      const base64 = buffer.toString('base64');
+      const dataUri = `data:${file.type};base64,${base64}`;
+      
+      // حفظ الصورة مؤقتاً كـ data URI
+      return NextResponse.json({
+        success: true,
+        url: dataUri,
+        fileName: fileName,
+        size: file.size,
+        type: file.type,
+        uploadType: type,
+        message: 'تم حفظ الصورة مؤقتاً - يرجى تكوين S3 للوصول العام',
+        warning: 'الصورة محفوظة كـ Base64 مؤقتاً',
+        temporary: true
+      });
+    }
 
   } catch (error) {
     console.error('❌ خطأ في رفع الصورة:', error);

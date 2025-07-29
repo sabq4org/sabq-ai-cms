@@ -17,7 +17,4 @@ export default function AdminAISettingsPage() {
   );
 }
 
-export const metadata = {
-  title: 'إعدادات الذكاء الاصطناعي - لوحة الإدارة',
-  description: 'تكوين وإدارة إعدادات أنظمة الذكاء الاصطناعي'
-};
+// Metadata is now handled in layout.tsx

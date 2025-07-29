@@ -140,20 +140,50 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
     
+    // التحقق من البيانات المطلوبة
+    if (!data.title || !data.content) {
+      return NextResponse.json({
+        success: false,
+        error: 'العنوان والمحتوى مطلوبان'
+      }, { status: 400 })
+    }
+    
+    if (!data.category_id) {
+      return NextResponse.json({
+        success: false,
+        error: 'يجب اختيار تصنيف للمقال'
+      }, { status: 400 })
+    }
+    
+    // توليد slug من العنوان
+    const generateSlug = (title: string): string => {
+      return title
+        .trim()
+        .toLowerCase()
+        .replace(/[^\w\s\u0600-\u06FF-]/g, '') // إزالة الأحرف الخاصة مع الحفاظ على العربية
+        .replace(/\s+/g, '-') // استبدال المسافات بـ -
+        .replace(/-+/g, '-') // إزالة - المتكررة
+        .replace(/^-+|-+$/g, '') // إزالة - من البداية والنهاية
+        || `article-${Date.now()}`; // fallback إذا كان العنوان فارغ
+    };
+    
     const article = await dbConnectionManager.executeWithConnection(async () => {
       return await prisma.articles.create({
         data: {
           ...data,
           id: data.id || generateId(),
+          slug: data.slug || generateSlug(data.title),
           created_at: new Date(),
-          updated_at: new Date()
+          updated_at: new Date(),
+          published_at: data.status === 'published' ? new Date() : null
         }
       })
     })
     
     return NextResponse.json({
       success: true,
-      article
+      article,
+      message: data.status === 'published' ? 'تم نشر المقال بنجاح' : 'تم حفظ المسودة بنجاح'
     }, { status: 201 })
     
   } catch (error: any) {

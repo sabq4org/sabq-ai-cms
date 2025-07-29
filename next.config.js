@@ -116,6 +116,21 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'sabq-ai-cms-images.s3.amazonaws.com',
+        pathname: '/**',
+      },
+              {
+          protocol: 'https',
+          hostname: 'sabq-ai-cms-images.s3.us-east-1.amazonaws.com',
+          pathname: '/**',
+        },
+        {
+          protocol: 'https',
+          hostname: 'ui-avatars.com',
+          pathname: '/api/**',
+        },
+      {
+        protocol: 'https',
         hostname: 'd2kdkzp4dtcikk.cloudfront.net',
         pathname: '/**',
       },

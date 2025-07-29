@@ -78,8 +78,8 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
 
       console.log('🌐 إرسال طلب الرفع...');
       
-      // رفع الصورة إلى API
-      const response = await fetch('/api/upload', {
+      // رفع الصورة إلى S3
+      const response = await fetch('/api/upload-s3', {
         method: 'POST',
         body: formData
       });
@@ -254,16 +254,28 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
         <div className="space-y-3">
           {/* معاينة الصورة */}
           <div className="relative group">
-            <Image 
-              src={value} 
-              alt="صورة بارزة" 
-              width={300} 
-              height={200}
-              className="w-full h-48 object-cover rounded-xl"
-              onLoad={handleImageLoad}
-              onError={handleImageError}
-              priority
-            />
+            {value.startsWith('data:') ? (
+              // للصور المحلية أو Base64
+              <img 
+                src={value} 
+                alt="صورة بارزة" 
+                className="w-full h-48 object-cover rounded-xl"
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+              />
+            ) : (
+              // للصور من S3 أو روابط خارجية
+              <Image 
+                src={value} 
+                alt="صورة بارزة" 
+                width={300} 
+                height={200}
+                className="w-full h-48 object-cover rounded-xl"
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+                priority
+              />
+            )}
             
             {/* حالة التحميل */}
             {!imageLoaded && (

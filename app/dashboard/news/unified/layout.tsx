@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'إدارة الأخبار - لوحة الإدارة',
-  description: 'إدارة وتحرير الأخبار في منصة سبق الذكية',
+  title: 'إنشاء خبر جديد - لوحة التحكم',
+  description: 'إنشاء وتحرير الأخبار في منصة سبق الذكية',
 };
 
 export const viewport = {
@@ -13,7 +13,7 @@ export const viewport = {
   themeColor: '#1a202c',
 };
 
-export default function AdminNewsLayout({
+export default function UnifiedLayout({
   children,
 }: {
   children: React.ReactNode;

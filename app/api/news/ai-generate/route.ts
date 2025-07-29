@@ -24,7 +24,15 @@ export async function POST(request: NextRequest) {
       
       // إرجاع نتائج تجريبية ذكية
       const mockResult = generateMockResult(content);
-      return NextResponse.json(mockResult);
+      return NextResponse.json({
+        success: true,
+        ...mockResult,
+        warning: 'يتم استخدام الوضع التجريبي - لإستخدام الذكاء الاصطناعي الكامل يرجى إضافة OPENAI_API_KEY',
+        metadata: {
+          generatedAt: new Date().toISOString(),
+          model: 'demo'
+        }
+      });
     }
 
     // إنشاء OpenAI client فقط عند الحاجة
