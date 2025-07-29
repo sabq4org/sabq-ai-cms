@@ -23,6 +23,9 @@ import MobileArticleCard from '@/components/mobile/MobileArticleCard';
 import EnhancedMobileNewsCard from '@/components/mobile/EnhancedMobileNewsCard';
 import MobileStatsBar from '@/components/mobile/MobileStatsBar';
 import CompactStatsBar from '@/components/mobile/CompactStatsBar';
+import SmartContentNewsCard from '@/components/mobile/SmartContentNewsCard';
+import { generatePersonalizedRecommendations } from '@/lib/ai-recommendations';
+import type { RecommendedArticle } from '@/lib/ai-recommendations';
 
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -170,6 +173,7 @@ function NewspaperHomePage({
   const [showPersonalized, setShowPersonalized] = useState<boolean>(false);
   const [articles, setArticles] = useState<any[]>(initialArticles);
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
+  const [smartRecommendations, setSmartRecommendations] = useState<RecommendedArticle[]>([]);
   
   console.log('🔧 NewspaperHomePage: تحضير useEffects...');
   
@@ -323,6 +327,111 @@ function NewspaperHomePage({
       setArticlesLoading(false);
     }
   }, [initialArticles]);
+  
+  // =============================
+  // جلب التوصيات الذكية
+  useEffect(() => {
+    const fetchSmartRecommendations = async () => {
+      try {
+        // نحتاج مقال واحد على الأقل كمرجع
+        if (articles.length === 0) return;
+        
+        const currentArticle = articles[0];
+        const recommendations = await generatePersonalizedRecommendations({
+          currentArticleId: currentArticle.id,
+          userId: user?.id || 'anonymous',
+          currentCategory: currentArticle.categories?.name || currentArticle.category,
+          currentTags: currentArticle.tags || [],
+          limit: 5
+        });
+        
+        setSmartRecommendations(recommendations.slice(0, 5)); // نحتاج 5 توصيات فقط
+      } catch (error) {
+        console.error('خطأ في جلب التوصيات الذكية:', error);
+      }
+    };
+    
+    if (articles.length > 0) {
+      fetchSmartRecommendations();
+    }
+  }, [articles, user]);
+  
+  // =============================
+  // دالة خلط البطاقات المخصصة مع بطاقات الأخبار
+  const renderMixedContent = useCallback((articlesToRender: any[]) => {
+    const mixedContent: JSX.Element[] = [];
+    let smartCardIndex = 0;
+    
+    articlesToRender.forEach((article, index) => {
+      // إضافة بطاقة الخبر العادية
+      if (isMobileView) {
+        mixedContent.push(
+          <EnhancedMobileNewsCard key={article.id} news={article} darkMode={darkMode} variant="full-width" />
+        );
+      } else {
+        mixedContent.push(
+          <NewsCard key={article.id} news={article} />
+        );
+      }
+      
+      // إضافة البطاقات المخصصة في المواضع المحددة
+      if ((index + 1) === 5) {
+        // بعد 5 بطاقات: إضافة 2 بطاقة مخصصة
+        for (let i = 0; i < 2 && smartCardIndex < smartRecommendations.length; i++) {
+          const recommendation = smartRecommendations[smartCardIndex];
+          if (recommendation) {
+            mixedContent.push(
+              <SmartContentNewsCard
+                key={`smart-${recommendation.id}`}
+                article={{
+                  ...recommendation,
+                  slug: recommendation.url.replace('/article/', ''),
+                  featured_image: recommendation.thumbnail,
+                  category_name: recommendation.category,
+                  excerpt: `اكتشف هذا المحتوى المميز الذي اخترناه لك بعناية بناءً على اهتماماتك`,
+                  image_caption: `محتوى ${recommendation.type === 'تحليل' ? 'تحليلي عميق' : 
+                    recommendation.type === 'رأي' ? 'رأي متخصص' : 
+                    recommendation.type === 'تقرير' ? 'تقرير شامل' : 
+                    'مميز'} - ${recommendation.readingTime} دقائق قراءة`
+                }}
+                darkMode={darkMode}
+                variant={isMobileView ? 'full' : 'full'}
+                position={smartCardIndex}
+              />
+            );
+            smartCardIndex++;
+          }
+        }
+      } else if ((index + 1) === 12) {
+        // بعد 12 بطاقة: إضافة 3 بطاقات مخصصة
+        for (let i = 0; i < 3 && smartCardIndex < smartRecommendations.length; i++) {
+          const recommendation = smartRecommendations[smartCardIndex];
+          if (recommendation) {
+            mixedContent.push(
+              <SmartContentNewsCard
+                key={`smart-${recommendation.id}`}
+                article={{
+                  ...recommendation,
+                  slug: recommendation.url.replace('/article/', ''),
+                  featured_image: recommendation.thumbnail,
+                  category_name: recommendation.category,
+                  excerpt: `محتوى مختار خصيصاً لك لإثراء تجربتك القرائية`,
+                  image_caption: `${recommendation.reason} • ${recommendation.category} • ${recommendation.readingTime} دقيقة`
+                }}
+                darkMode={darkMode}
+                variant={isMobileView ? 'full' : 'full'}
+                position={smartCardIndex}
+              />
+            );
+            smartCardIndex++;
+          }
+        }
+      }
+    });
+    
+    return mixedContent;
+  }, [smartRecommendations, darkMode, isMobileView]);
+  
   // دالة اختيار التصنيف
   const handleCategoryClick = async (categoryId: number | string) => {
     setSelectedCategory(categoryId);
@@ -764,61 +873,69 @@ function NewspaperHomePage({
                 </div>
               )}
 
-              {/* عرض المقالات - تم تعديل العدد ليكون 16 مقال كما هو مطلوب */}
+              {/* عرض المقالات - مع البطاقات المخصصة الذكية */}
               {(showPersonalized && personalizedArticles.length > 0) ? (
-                // عرض المقالات المخصصة للمستخدمين المسجلين
+                // عرض المقالات المخصصة للمستخدمين المسجلين مع البطاقات الذكية
                 isMobileView ? (
-                  // عرض الموبايل - قائمة عمودية
+                  // عرض الموبايل - قائمة عمودية مع البطاقات المخصصة
                   <div className="space-y-3">
-                    {personalizedArticles.slice(0, 10).map((news) => (
-                      <div key={news.id} className="relative">
-                        <EnhancedMobileNewsCard news={news} darkMode={darkMode} />
-                        {/* شارة "مخصص لك" */}
-                        <div className="absolute top-2 left-2 z-10">
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-bold bg-purple-500/90 text-white">
-                            <Sparkles className="w-3 h-3" />
-                            مخصص
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                    {renderMixedContent(personalizedArticles.slice(0, 15)).map((element, idx) => {
+                      // إضافة شارة "مخصص" للبطاقات العادية فقط
+                      if (element.key && !element.key.toString().includes('smart')) {
+                        return (
+                          <div key={element.key} className="relative">
+                            {element}
+                            {/* شارة "مخصص لك" */}
+                            <div className="absolute top-2 left-2 z-10">
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-bold bg-purple-500/90 text-white">
+                                <Sparkles className="w-3 h-3" />
+                                مخصص
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return element;
+                    })}
                   </div>
                 ) : (
-                  // عرض الديسكتوب - شبكة (16 مقال كما هو مطلوب)
+                  // عرض الديسكتوب - شبكة مع البطاقات المخصصة
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                    {personalizedArticles.slice(0, 16).map((news) => (
-                      <div key={news.id} className="relative">
-                        {/* شارة "مخصص لك" */}
-                        <div className="absolute top-2 left-2 z-10">
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
-                            darkMode 
-                              ? 'bg-purple-900/80 text-purple-200' 
-                              : 'bg-purple-500/90 text-white'
-                          }`}>
-                            <Sparkles className="w-3 h-3" />
-                            مخصص
-                          </span>
-                        </div>
-                        <NewsCard news={news} />
-                      </div>
-                    ))}
+                    {renderMixedContent(personalizedArticles.slice(0, 16)).map((element, idx) => {
+                      // إضافة شارة "مخصص" للبطاقات العادية فقط
+                      if (element.key && !element.key.toString().includes('smart')) {
+                        return (
+                          <div key={element.key} className="relative">
+                            {/* شارة "مخصص لك" */}
+                            <div className="absolute top-2 left-2 z-10">
+                              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
+                                darkMode 
+                                  ? 'bg-purple-900/80 text-purple-200' 
+                                  : 'bg-purple-500/90 text-white'
+                              }`}>
+                                <Sparkles className="w-3 h-3" />
+                                مخصص
+                              </span>
+                            </div>
+                            {element}
+                          </div>
+                        );
+                      }
+                      return element;
+                    })}
                   </div>
                 )
               ) : articles.length > 0 ? (
-                // عرض آخر المقالات للزوار أو المستخدمين بدون تفضيلات
+                // عرض آخر المقالات للزوار أو المستخدمين بدون تفضيلات - مع البطاقات المخصصة
                 isMobileView ? (
-                  // عرض الموبايل - قائمة عمودية
+                  // عرض الموبايل - قائمة عمودية مع البطاقات المخصصة
                   <div className="space-y-3">
-                    {articles.slice(0, 10).map((news) => (
-                      <EnhancedMobileNewsCard key={news.id} news={news} darkMode={darkMode} variant="full-width" />
-                    ))}
+                    {renderMixedContent(articles.slice(0, 15))}
                   </div>
                 ) : (
-                  // عرض الديسكتوب - شبكة (16 مقال للزوار أيضاً)
+                  // عرض الديسكتوب - شبكة مع البطاقات المخصصة
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                    {articles.slice(0, 16).map((news) => (
-                      <NewsCard key={news.id} news={news} />
-                    ))}
+                    {renderMixedContent(articles.slice(0, 16))}
                   </div>
                 )
               ) : (
