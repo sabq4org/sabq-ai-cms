@@ -1,0 +1,52 @@
+{
+  "timestamp": "2025-07-29T15:50:24.432Z",
+  "url": "https://sabq.io",
+  "results": [
+    {
+      "endpoint": "الصفحة الرئيسية",
+      "url": "https://sabq.io/",
+      "status": 200,
+      "responseTime": 25206,
+      "success": true,
+      "error": null
+    },
+    {
+      "endpoint": "صفحة التصنيفات",
+      "url": "https://sabq.io/categories",
+      "status": 200,
+      "responseTime": 588,
+      "success": true,
+      "error": null
+    },
+    {
+      "endpoint": "API التصنيفات",
+      "url": "https://sabq.io/api/categories?is_active=true",
+      "status": 200,
+      "responseTime": 592,
+      "success": true,
+      "error": null
+    },
+    {
+      "endpoint": "API المقالات",
+      "url": "https://sabq.io/api/articles?status=published&limit=10",
+      "status": 200,
+      "responseTime": 11518,
+      "success": true,
+      "error": null
+    },
+    {
+      "endpoint": "API الإحصائيات",
+      "url": "https://sabq.io/api/news/stats",
+      "status": 200,
+      "responseTime": 1641,
+      "success": true,
+      "error": null
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "success": 5,
+    "failed": 0,
+    "avgResponseTime": 7909
+  }
+}
