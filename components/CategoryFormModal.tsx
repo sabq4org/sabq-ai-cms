@@ -97,8 +97,8 @@ export default function CategoryFormModal({
       toast.error('❌ يرجى اختيار ملف صورة صحيح');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      toast.error('❌ حجم الصورة يجب أن يكون أقل من 5MB');
+          if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast.error('❌ حجم الصورة يجب أن يكون أقل من 10MB');
       return;
     }
 

@@ -3,9 +3,9 @@ import { v2 as cloudinary } from 'cloudinary';
 
 // إعداد Cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dlaibl7id',
-  api_key: process.env.CLOUDINARY_API_KEY || '566744491984695',
-  api_secret: process.env.CLOUDINARY_API_SECRET || 'WiWCbXJ5SDYeE24cNaI1o1Wm0CU',
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true
 });
 
@@ -75,37 +75,64 @@ function getTransformations(type: string) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('📸 بدء معالجة طلب رفع الصورة لـ Cloudinary');
+  
+  // التحقق من متغيرات البيئة
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    console.error('❌ متغيرات Cloudinary مفقودة في البيئة');
+    return NextResponse.json({
+      success: false,
+      error: 'خطأ في إعدادات الخادم. يرجى التواصل مع الدعم الفني.',
+      details: 'Missing Cloudinary configuration'
+    }, { status: 500 });
+  }
+  
   try {
-    console.log('🚀 بدء رفع الصورة إلى Cloudinary...');
-    
+    // التحقق من بيانات Cloudinary
+    console.log('🔑 بيانات Cloudinary:', {
+      cloud_name: cloudinary.config().cloud_name,
+      api_key: cloudinary.config().api_key ? '✅ موجود' : '❌ مفقود',
+      api_secret: cloudinary.config().api_secret ? '✅ موجود' : '❌ مفقود'
+    });
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const type = formData.get('type') as string || 'general';
     const generateThumbnail = formData.get('generateThumbnail') === 'true';
 
+    console.log('📋 تفاصيل الطلب:', {
+      fileName: file?.name,
+      fileSize: file?.size,
+      fileType: file?.type,
+      uploadType: type,
+      generateThumbnail
+    });
+
     // التحقق من وجود الملف
     if (!file) {
-      return NextResponse.json({
-        success: false,
-        error: 'لم يتم رفع أي ملف'
-      }, { status: 400 });
+      console.error('❌ لا يوجد ملف في الطلب');
+      return NextResponse.json(
+        { success: false, error: 'لم يتم تحديد ملف' },
+        { status: 400 }
+      );
     }
 
     // التحقق من نوع الملف
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({
-        success: false,
-        error: 'نوع الملف غير مسموح',
-        allowedTypes: ALLOWED_TYPES
-      }, { status: 400 });
+      console.error('❌ نوع الملف غير مسموح:', file.type);
+      return NextResponse.json(
+        { success: false, error: 'نوع الملف غير مدعوم' },
+        { status: 400 }
+      );
     }
 
     // التحقق من حجم الملف
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({
-        success: false,
-        error: `حجم الملف يجب أن يكون أقل من ${MAX_FILE_SIZE / 1024 / 1024}MB`
-      }, { status: 400 });
+      console.error('❌ حجم الملف كبير جداً:', `${(file.size / 1024 / 1024).toFixed(2)}MB`);
+      return NextResponse.json(
+        { success: false, error: `حجم الملف كبير جداً. الحد الأقصى ${MAX_FILE_SIZE / 1024 / 1024}MB` },
+        { status: 400 }
+      );
     }
 
     // تحويل الملف إلى Buffer
@@ -116,16 +143,16 @@ export async function POST(request: NextRequest) {
     const folder = getCloudinaryFolder(type);
     const transformations = getTransformations(type);
     
-    // إنشاء public_id فريد
-    const timestamp = Date.now();
-    const fileName = file.name.replace(/\.[^/.]+$/, ''); // إزالة الامتداد
-    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9_-]/g, '_');
-    const publicId = `${timestamp}_${sanitizedFileName}`;
+    // إعداد معرف فريد
+    const publicId = `${type}-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
-    console.log(`📁 رفع إلى المجلد: ${folder}`);
-    console.log(`🔧 تطبيق التحسينات:`, transformations);
+    console.log('📤 بدء رفع الملف إلى Cloudinary:', {
+      folder,
+      publicId,
+      transformations: transformations.length
+    });
 
-    // رفع الصورة إلى Cloudinary
+    // رفع الصورة
     const uploadResult = await new Promise<any>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -142,10 +169,14 @@ export async function POST(request: NextRequest) {
         },
         (error, result) => {
           if (error) {
-            console.error('❌ خطأ في رفع الصورة:', error);
+            console.error('❌ خطأ من Cloudinary:', {
+              message: error.message,
+              http_code: error.http_code,
+              name: error.name
+            });
             reject(error);
           } else {
-            console.log('✅ تم رفع الصورة بنجاح');
+            console.log('✅ نجح رفع الصورة إلى Cloudinary');
             resolve(result);
           }
         }

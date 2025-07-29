@@ -52,9 +52,9 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
       return;
     }
 
-    // التحقق من حجم الملف (5MB كحد أقصى)
-    if (file.size > 5 * 1024 * 1024) {
-      const error = 'حجم الصورة يجب أن يكون أقل من 5MB';
+    // التحقق من حجم الملف (10MB كحد أقصى)
+    if (file.size > 10 * 1024 * 1024) {
+      const error = 'حجم الصورة يجب أن يكون أقل من 10MB';
       setUploadError(error);
       toast.error(error);
       return;
@@ -264,7 +264,7 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
           </div>
 
           <p className={`text-xs mt-3 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-            JPG, PNG, GIF, WebP (أقصى حجم: 5MB)
+                              JPG, PNG, GIF, WebP (أقصى حجم: 10MB)
           </p>
 
           {uploadError && (
