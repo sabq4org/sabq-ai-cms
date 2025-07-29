@@ -78,8 +78,8 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
 
       console.log('🌐 إرسال طلب الرفع...');
       
-      // رفع الصورة إلى S3
-      const response = await fetch('/api/upload-s3', {
+      // رفع الصورة إلى Cloudinary
+      const response = await fetch('/api/upload/cloudinary', {
         method: 'POST',
         body: formData
       });

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import dbConnectionManager from '@/lib/db-connection-manager';
 
 // Cache في الذاكرة
 const timelineCache = new Map<string, { data: any; timestamp: number }>();
@@ -29,80 +28,74 @@ export async function GET(request: NextRequest) {
     // جلب الأخبار العاجلة والمقالات الحديثة بالتوازي
     const [breakingNews, recentArticles, categories] = await Promise.all([
       // الأخبار العاجلة
-      dbConnectionManager.executeWithConnection(async () => {
-        return await prisma.articles.findMany({
-          where: {
-            breaking: true,
-            status: 'published'
-          },
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            excerpt: true,
-            featured_image: true,
-            published_at: true,
-            breaking: true,
-            category_id: true,
-            categories: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                color: true
-              }
+      prisma.articles.findMany({
+        where: {
+          breaking: true,
+          status: 'published'
+        },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          featured_image: true,
+          published_at: true,
+          breaking: true,
+          category_id: true,
+          categories: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              color: true
             }
-          },
-          orderBy: { published_at: 'desc' },
-          take: 5
-        });
+          }
+        },
+        orderBy: { published_at: 'desc' },
+        take: 5
       }),
       
       // المقالات الحديثة
-      dbConnectionManager.executeWithConnection(async () => {
-        return await prisma.articles.findMany({
-          where: {
-            status: 'published',
-            breaking: false
-          },
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            excerpt: true,
-            featured_image: true,
-            published_at: true,
-            category_id: true,
-            categories: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                color: true
-              }
+      prisma.articles.findMany({
+        where: {
+          status: 'published',
+          breaking: false
+        },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          featured_image: true,
+          published_at: true,
+          category_id: true,
+          categories: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              color: true
             }
-          },
-          orderBy: { published_at: 'desc' },
-          skip,
-          take: limit
-        });
+          }
+        },
+        orderBy: { published_at: 'desc' },
+        skip,
+        take: limit
       }),
       
       // التصنيفات النشطة
-      dbConnectionManager.executeWithConnection(async () => {
-        return await prisma.categories.findMany({
-          where: { is_active: true },
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            color: true,
-            icon: true,
-            updated_at: true
-          },
-          orderBy: { updated_at: 'desc' },
-          take: 10
-        });
+      prisma.categories.findMany({
+        where: { is_active: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          color: true,
+          icon: true,
+          updated_at: true
+        },
+        orderBy: { updated_at: 'desc' },
+        take: 10
       })
     ]);
 
@@ -149,62 +142,75 @@ export async function GET(request: NextRequest) {
     
     // إضافة تحديثات التصنيفات (صفحة 2 فما فوق)
     if (page > 1 && categories.length > 0) {
-      const categoryUpdate = categories[Math.floor(Math.random() * Math.min(3, categories.length))];
-      if (categoryUpdate) {
+      const randomCategories = categories
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3);
+        
+      randomCategories.forEach(category => {
         items.push({
-          id: categoryUpdate.id,
+          id: `cat-update-${category.id}`,
           type: 'category',
-          title: `تحديث في قسم ${categoryUpdate.name}`,
-          slug: categoryUpdate.slug,
-          timestamp: categoryUpdate.updated_at,
-          tag: 'تصنيف',
-          label: 'تحديث القسم',
-          color: categoryUpdate.color || '#10b981',
-          categoryData: {
-            color: categoryUpdate.color,
-            icon: categoryUpdate.icon
-          }
+          title: `تحديث في قسم ${category.name}`,
+          slug: category.slug,
+          excerpt: `محتوى جديد في قسم ${category.name}`,
+          image: null,
+          breaking: false,
+          category: {
+            id: category.id,
+            name: category.name,
+            slug: category.slug,
+            color: category.color
+          },
+          timestamp: category.updated_at || new Date(),
+          tag: 'تحديث',
+          label: 'قسم محدث',
+          color: category.color || '#6b7280'
         });
-      }
+      });
     }
-
+    
     // ترتيب حسب الوقت
-    items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
+    items.sort((a, b) => {
+      const dateA = new Date(a.timestamp).getTime();
+      const dateB = new Date(b.timestamp).getTime();
+      return dateB - dateA;
+    });
+    
     const response = {
-      success: true,
-      items: items.slice(0, limit),
+      items,
       pagination: {
         page,
         limit,
         hasMore: recentArticles.length === limit
+      },
+      stats: {
+        totalItems: items.length,
+        breakingNews: breakingNews.length,
+        articles: recentArticles.length,
+        categoryUpdates: items.filter(i => i.type === 'category').length
       }
     };
-
-    // حفظ في الكاش
-    timelineCache.set(cacheKey, { data: response, timestamp: Date.now() });
     
-    // تنظيف الكاش القديم
-    if (timelineCache.size > 20) {
-      const oldestKey = Array.from(timelineCache.keys())[0];
-      timelineCache.delete(oldestKey);
-    }
-
+    // حفظ في الكاش
+    timelineCache.set(cacheKey, {
+      data: response,
+      timestamp: Date.now()
+    });
+    
     return NextResponse.json(response, {
       headers: {
         'X-Cache': 'MISS',
         'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
       }
     });
-
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ خطأ في جلب الخط الزمني:', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: 'حدث خطأ في جلب البيانات',
-      items: [],
-      pagination: { page, limit, hasMore: false }
-    }, { status: 500 });
+    return NextResponse.json(
+      { 
+        error: 'فشل جلب الخط الزمني',
+        message: error instanceof Error ? error.message : 'خطأ غير معروف'
+      },
+      { status: 500 }
+    );
   }
 } 

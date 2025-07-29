@@ -1,112 +1,121 @@
-const { PrismaClient } = require('@prisma/client');
+#!/usr/bin/env node
 
-// إنشاء Prisma client مع إعدادات محسنة
+/**
+ * سكريبت مراقبة اتصال قاعدة البيانات
+ * يفحص الاتصال كل 10 ثواني ويعرض الإحصائيات
+ */
+
+const { PrismaClient } = require('@prisma/client');
+require('dotenv').config();
+
 const prisma = new PrismaClient({
-  log: ['error', 'warn'],
-  errorFormat: 'pretty',
+  log: ['error'],
+  errorFormat: 'minimal'
 });
 
 // إحصائيات المراقبة
 const stats = {
+  startTime: Date.now(),
   checks: 0,
-  successes: 0,
-  failures: 0,
+  successful: 0,
+  failed: 0,
   lastError: null,
-  startTime: new Date(),
-  consecutiveFailures: 0,
+  consecutiveFails: 0
 };
 
-// دالة فحص الاتصال
+// ألوان للـ terminal
+const colors = {
+  reset: '\x1b[0m',
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  gray: '\x1b[90m'
+};
+
 async function checkConnection() {
   stats.checks++;
+  const startTime = Date.now();
   
   try {
-    const start = Date.now();
-    await prisma.$queryRaw`SELECT 1 as test`;
-    const duration = Date.now() - start;
+    // اختبار بسيط للاتصال
+    await prisma.$queryRaw`SELECT 1`;
+    const duration = Date.now() - startTime;
     
-    stats.successes++;
-    stats.consecutiveFailures = 0;
+    stats.successful++;
+    stats.consecutiveFails = 0;
     
-    console.log(`✅ [${new Date().toLocaleTimeString()}] الاتصال سليم (${duration}ms)`);
+    console.log(
+      `${colors.green}✅ [${new Date().toLocaleTimeString('ar-SA')}] الاتصال سليم (${duration}ms)${colors.reset}`
+    );
+    
     return true;
   } catch (error) {
-    stats.failures++;
-    stats.consecutiveFailures++;
+    stats.failed++;
+    stats.consecutiveFails++;
     stats.lastError = error.message;
     
-    console.error(`❌ [${new Date().toLocaleTimeString()}] فشل الاتصال:`, error.message);
+    console.error(
+      `${colors.red}❌ [${new Date().toLocaleTimeString('ar-SA')}] فشل الاتصال: ${error.message}${colors.reset}`
+    );
     
-    // إذا فشل الاتصال 3 مرات متتالية، حاول إعادة الاتصال
-    if (stats.consecutiveFailures >= 3) {
-      console.log('🔄 محاولة إعادة الاتصال...');
-      try {
-        await prisma.$disconnect();
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        await prisma.$connect();
-        console.log('✅ تم إعادة الاتصال بنجاح!');
-        stats.consecutiveFailures = 0;
-      } catch (reconnectError) {
-        console.error('❌ فشل إعادة الاتصال:', reconnectError.message);
-      }
+    if (stats.consecutiveFails >= 3) {
+      console.error(
+        `${colors.yellow}⚠️  تحذير: فشل الاتصال ${stats.consecutiveFails} مرات متتالية!${colors.reset}`
+      );
     }
     
     return false;
   }
 }
 
-// دالة عرض الإحصائيات
-function displayStats() {
-  const uptime = Math.floor((Date.now() - stats.startTime) / 1000);
+function showStats() {
+  const runtime = Math.floor((Date.now() - stats.startTime) / 1000);
   const successRate = stats.checks > 0 
-    ? ((stats.successes / stats.checks) * 100).toFixed(2)
+    ? ((stats.successful / stats.checks) * 100).toFixed(2) 
     : 0;
   
-  console.log('\n📊 إحصائيات المراقبة:');
-  console.log(`⏱️  وقت التشغيل: ${uptime} ثانية`);
+  console.log(`${colors.blue}📊 إحصائيات المراقبة:${colors.reset}`);
+  console.log(`⏱️  وقت التشغيل: ${runtime} ثانية`);
   console.log(`🔍 عدد الفحوصات: ${stats.checks}`);
-  console.log(`✅ نجح: ${stats.successes}`);
-  console.log(`❌ فشل: ${stats.failures}`);
+  console.log(`✅ نجح: ${stats.successful}`);
+  console.log(`❌ فشل: ${stats.failed}`);
   console.log(`📈 نسبة النجاح: ${successRate}%`);
-  console.log(`🔴 فشل متتالي: ${stats.consecutiveFailures}`);
+  console.log(`🔴 فشل متتالي: ${stats.consecutiveFails}`);
+  console.log('──────────────────────────────────────────────────');
+}
+
+async function startMonitoring() {
+  console.log(`${colors.blue}🚀 بدء مراقبة اتصال قاعدة البيانات...${colors.reset}`);
+  console.log(`📍 DATABASE_URL: ${process.env.DATABASE_URL ? 'موجود' : 'غير موجود'}`);
+  console.log('──────────────────────────────────────────────────');
+  console.log(`${colors.gray}💡 اضغط Ctrl+C لإيقاف المراقبة${colors.reset}`);
   
-  if (stats.lastError) {
-    console.log(`❗ آخر خطأ: ${stats.lastError}`);
-  }
+  // فحص أولي
+  await checkConnection();
   
-  console.log('─'.repeat(50));
+  // فحص دوري كل 10 ثواني
+  const interval = setInterval(async () => {
+    await checkConnection();
+    
+    // عرض الإحصائيات كل دقيقة
+    if (stats.checks % 6 === 0) {
+      showStats();
+    }
+  }, 10000);
+  
+  // التعامل مع إيقاف البرنامج
+  process.on('SIGINT', async () => {
+    clearInterval(interval);
+    console.log('\n\n🛑 إيقاف المراقبة...');
+    showStats();
+    await prisma.$disconnect();
+    process.exit(0);
+  });
 }
 
 // بدء المراقبة
-console.log('🚀 بدء مراقبة اتصال قاعدة البيانات...');
-console.log(`📍 DATABASE_URL: ${process.env.DATABASE_URL ? 'موجود' : 'مفقود'}`);
-console.log('─'.repeat(50));
-
-// فحص أولي
-checkConnection();
-
-// فحص دوري كل 10 ثواني
-const checkInterval = setInterval(checkConnection, 10000);
-
-// عرض الإحصائيات كل دقيقة
-const statsInterval = setInterval(displayStats, 60000);
-
-// معالجة إيقاف البرنامج
-process.on('SIGINT', async () => {
-  console.log('\n\n🛑 إيقاف المراقبة...');
-  
-  clearInterval(checkInterval);
-  clearInterval(statsInterval);
-  
-  displayStats();
-  
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-// معالجة الأخطاء غير المتوقعة
-process.on('unhandledRejection', (error) => {
-  console.error('❌ خطأ غير متوقع:', error);
-});
-
-console.log('💡 اضغط Ctrl+C لإيقاف المراقبة\n'); 
+startMonitoring().catch(error => {
+  console.error(`${colors.red}❌ خطأ في بدء المراقبة:${colors.reset}`, error);
+  process.exit(1);
+}); 

@@ -78,7 +78,8 @@ const CategoryEditModal: React.FC<Props> = ({ isOpen, initialData, onClose, onSa
     const fd = new FormData();
     fd.append('file', file);
     try {
-      const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+      fd.append('type', 'categories');
+      const res = await fetch('/api/upload/cloudinary', { method: 'POST', body: fd });
       const data = await res.json();
       if (res.ok && data.url) {
         setValue('cover_image', data.url, { shouldDirty: true });

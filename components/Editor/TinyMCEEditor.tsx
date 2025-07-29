@@ -28,10 +28,11 @@ export default function TinyMCEEditor({
     return new Promise<string>((resolve, reject) => {
       const formData = new FormData();
       formData.append('file', blobInfo.blob(), blobInfo.filename());
+      formData.append('type', 'articles'); // نوع الصور للمقالات
 
       setIsUploading(true);
       
-      fetch('/api/upload/image', {
+      fetch('/api/upload/cloudinary', {
         method: 'POST',
         body: formData
       })
@@ -43,12 +44,16 @@ export default function TinyMCEEditor({
       })
       .then(result => {
         setIsUploading(false);
-        toast.success('تم رفع الصورة بنجاح!');
-        resolve(result.url);
+        if (result.success) {
+          toast.success('تم رفع الصورة بنجاح!');
+          resolve(result.url);
+        } else {
+          throw new Error(result.error || 'فشل في رفع الصورة');
+        }
       })
       .catch(error => {
         setIsUploading(false);
-        toast.error('فشل في رفع الصورة');
+        toast.error(error.message || 'فشل في رفع الصورة');
         reject(error);
       });
     });

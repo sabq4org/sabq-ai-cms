@@ -106,9 +106,10 @@ export default function CategoryFormModal({
     const uploadToast = toast.loading('جاري رفع الصورة...');
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('type', 'categories'); // نوع الصور للتصنيفات
     
     try {
-      const response = await fetch('/api/upload-image', {
+      const response = await fetch('/api/upload/cloudinary', {
         method: 'POST',
         body: formData,
       });
