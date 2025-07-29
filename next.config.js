@@ -197,7 +197,6 @@ const nextConfig = {
   serverExternalPackages: ['sharp'],
   
   // تحسينات الأداء لحل مشاكل Build Timeouts
-  swcMinify: true,
   productionBrowserSourceMaps: false,
   
   // زيادة timeout للصفحات الثقيلة
