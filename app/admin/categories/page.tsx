@@ -110,7 +110,8 @@ export default function CategoriesPage() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/categories');
+      // إضافة timestamp لتجاوز الكاش
+      const response = await fetch(`/api/categories?t=${Date.now()}`);
       const data = await response.json();
       
       if (response.ok && data.success) {

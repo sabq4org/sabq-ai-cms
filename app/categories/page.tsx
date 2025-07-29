@@ -206,7 +206,8 @@ export default function CategoriesPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('/api/categories');
+      // إضافة timestamp لتجاوز الكاش
+      const response = await fetch(`/api/categories?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -380,10 +381,11 @@ export default function CategoriesPage() {
   };
 
   const getCategoryImage = (category: Category) => {
-    const coverImage = category.cover_image || 
-                      (category.metadata && typeof category.metadata === 'object' && 
+    // البحث عن الصورة في metadata أولاً (من تحديث التصنيف)
+    const coverImage = (category.metadata && typeof category.metadata === 'object' && 
                        'cover_image' in category.metadata ? 
-                       (category.metadata as any).cover_image : null);
+                       (category.metadata as any).cover_image : null) ||
+                      category.cover_image;
     
     // استخدام خدمة تحسين الصور المتقدمة
     const getOptimizedImageUrl = (imageUrl: string) => {

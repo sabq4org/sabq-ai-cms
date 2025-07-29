@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
           is_active: true,
           display_order: true,
           parent_id: true,
+          metadata: true, // إضافة حقل metadata لجلب الصور
           _count: {
             select: {
               articles: {
