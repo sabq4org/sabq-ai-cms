@@ -4,7 +4,7 @@ frontend:
     preBuild:
       commands:
         - echo "🔄 تثبيت الحزم..."
-        - npm ci
+        - npm ci --legacy-peer-deps
         - echo "🔄 تنظيف Prisma القديم..."
         - rm -rf node_modules/.prisma
         - rm -rf node_modules/@prisma/client
@@ -12,13 +12,19 @@ frontend:
         - npx prisma generate --force
         - echo "🔍 فحص Prisma Engine..."
         - ls -la node_modules/.prisma/client/
+        - echo "🔍 فحص اتصال قاعدة البيانات..."
+        - node -e "console.log('Database URL exists:', !!process.env.DATABASE_URL)"
         - echo "✅ انتهاء preBuild"
     build:
       commands:
         - echo "🔍 فحص متغيرات البيئة..."
+        - echo "NODE_ENV: $NODE_ENV"
+        - echo "NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"
         - echo "DATABASE_URL is set: $(if [ -z "$DATABASE_URL" ]; then echo 'NO ❌'; else echo 'YES ✅'; fi)"
         - echo "🏗️ بناء التطبيق..."
-        - npm run build
+        - NODE_OPTIONS="--max-old-space-size=4096" npm run build
+        - echo "📊 حجم البناء..."
+        - du -sh .next
         - echo "✅ انتهاء البناء"
   artifacts:
     baseDirectory: .next
@@ -29,3 +35,4 @@ frontend:
       - node_modules/**/*
       - .next/cache/**/*
       - lib/generated/**/*
+appRoot: .
