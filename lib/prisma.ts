@@ -117,3 +117,4 @@ export async function ensureConnection(): Promise<boolean> {
 
 // التصدير الافتراضي للتوافق
 export default prisma;
+export { ensureConnection };

@@ -163,13 +163,30 @@ export async function PATCH(
     
     // معالجة البيانات قبل الحفظ
     const updateData: any = {
-      ...data,
       updated_at: new Date()
     }
     
-    // التأكد من أن metadata يتم حفظه بشكل صحيح
+    // نسخ الحقول المسموح بها فقط
+    const allowedFields = [
+      'title', 'content', 'excerpt', 'subtitle',
+      'author_id', 'author_name', 'category_id',
+      'featured_image', 'image_caption',
+      'status', 'metadata', 'publish_at',
+      'seo_title', 'seo_description', 'seo_keywords',
+      'featured', 'breaking', 'external_link'
+    ]
+    
+    for (const field of allowedFields) {
+      if (data[field] !== undefined) {
+        updateData[field] = data[field]
+      }
+    }
+    
+    // التأكد من أن metadata يتم حفظه بشكل صحيح كـ JSON
     if (data.metadata) {
-      updateData.metadata = data.metadata
+      updateData.metadata = typeof data.metadata === 'string' 
+        ? data.metadata 
+        : JSON.stringify(data.metadata)
     }
     
     console.log('💾 البيانات المعدة للحفظ:', updateData)
