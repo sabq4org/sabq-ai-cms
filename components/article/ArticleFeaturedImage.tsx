@@ -24,26 +24,18 @@ export default function ArticleFeaturedImage({
   switch (IMAGE_CONFIG.DISPLAY_MODE) {
     case 'default':
       return (
-        <div className="relative w-full">
-          {/* خلفية بلور ممتدة */}
-          <div className="absolute inset-0 w-screen h-80 -z-10 overflow-hidden pointer-events-none">
-            <img
-              src={imageUrl}
-              alt=""
-              className="w-full h-full object-cover blur-lg scale-110 opacity-40"
-              loading="lazy"
-            />
-          </div>
-
-          {/* الصورة الرئيسية داخل عرض المحتوى */}
-          <div className="w-full max-w-6xl mx-auto rounded-lg overflow-hidden">
+        <div className="relative w-full px-4 sm:px-6 lg:px-8">
+          {/* الصورة الرئيسية مع إطار وظل */}
+          <div className="relative rounded-xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
             <OptimizedImage
               src={imageUrl}
               alt={title}
-              className="w-full object-cover rounded-lg max-h-[480px]"
+              className="w-full object-cover max-h-[400px] sm:max-h-[500px]"
               priority={true}
-              sizes="(max-width: 640px) 100vw, 800px"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
             />
+            {/* تدرج خفيف في الأسفل */}
+            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
           </div>
         </div>
       );

@@ -214,24 +214,14 @@ export default function ArticleClientComponent({
       <ReadingProgressBar />
       
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* صورة المقال - مكون موحد مع دعم أساليب عرض متعددة */}
-        {article.featured_image && (
-          <ArticleFeaturedImage
-            imageUrl={article.featured_image}
-            title={article.title}
-            category={article.category}
-          />
-        )}
-
-        <article className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 ${!article.featured_image ? 'pt-20 sm:pt-24' : ''}`}>
+        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pt-20 sm:pt-24">
           {/* رأس المقال */}
-          <header className="mb-8">
+          <header className="mb-8 text-center">
             {/* التصنيف */}
             {article.category && (
               <Link
                 href={`/categories/${article.category.slug}`}
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium text-white mb-3 sm:mb-4"
-                style={{ backgroundColor: article.category.color || '#1a73e8' }}
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 bg-gradient-to-r from-gray-100/80 to-gray-200/80 dark:from-gray-800/80 dark:to-gray-700/80 text-gray-700 dark:text-gray-300 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md transition-all"
               >
                 {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
                 <span>{article.category.name}</span>
@@ -239,12 +229,19 @@ export default function ArticleClientComponent({
             )}
 
             {/* العنوان */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-gray-900 dark:text-white leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight">
               {article.title}
             </h1>
+            
+            {/* العنوان الفرعي */}
+            {article.subtitle && (
+              <h2 className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-6">
+                {article.subtitle}
+              </h2>
+            )}
 
             {/* المعلومات الأساسية */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -286,6 +283,19 @@ export default function ArticleClientComponent({
               )}
             </div>
           </header>
+
+          {/* صورة المقال */}
+          {article.featured_image && (
+            <div className="mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
+              <div className="max-w-4xl mx-auto">
+                <ArticleFeaturedImage
+                  imageUrl={article.featured_image}
+                  title={article.title}
+                  category={article.category}
+                />
+              </div>
+            </div>
+          )}
 
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
@@ -351,12 +361,14 @@ export default function ArticleClientComponent({
           </div>
 
           {/* محتوى المقال */}
-          <div 
-            className={`prose max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-relaxed ${
-              isReading ? 'prose-xl' : 'prose-lg'
-            }`}
-            dangerouslySetInnerHTML={{ __html: contentHtml }}
-          />
+          <div className="mb-12">
+            <div 
+              className={`prose max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-relaxed prose-img:rounded-lg prose-img:shadow-lg ${
+                isReading ? 'prose-xl' : 'prose-lg'
+              }`}
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+            />
+          </div>
           
           {/* إحصائيات المقال */}
           <div className="mt-8 sm:mt-12">
