@@ -1110,6 +1110,7 @@ const ReporterProfilePage: React.FC = () => {
                 عرض المزيد
               </button>
             </div>
+            </div>
           </section>
         )}
 
