@@ -1,44 +1,12 @@
 'use client';
 
-import Image from 'next/image';
-
-
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  children?: React.ReactNode;
-}
-
-interface OptionProps extends React.OptionHTMLAttributes<HTMLOptionElement> {
-  children?: React.ReactNode;
-}
-
-const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <select
-        className={cn(
-          "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
-          "disabled:cursor-not-allowed disabled:opacity-50",
-          "dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:ring-offset-gray-900",
-          "dark:focus-visible:ring-blue-400",
-          "dark:placeholder-gray-400",
-          "transition-colors duration-200",
-          className
-        )}
-        ref={ref}
-        {...props}
-      >
-        {children}
-      </select>
-    )
-  }
-)
+const Select = SelectPrimitive.Root
 
 const SelectGroup = SelectPrimitive.Group
 
@@ -96,8 +64,7 @@ const SelectScrollDownButton = React.forwardRef<
     <ChevronDown className="h-4 w-4" />
   </SelectPrimitive.ScrollDownButton>
 ))
-SelectScrollDownButton.displayName =
-  SelectPrimitive.ScrollDownButton.displayName
+SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayName
 
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
@@ -178,6 +145,11 @@ const SelectSeparator = React.forwardRef<
 ))
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName
 
+// إضافة مكونات للتوافق مع الملفات القديمة
+interface OptionProps extends React.OptionHTMLAttributes<HTMLOptionElement> {
+  children?: React.ReactNode;
+}
+
 const SelectOption = React.forwardRef<HTMLOptionElement, OptionProps>(
   ({ className, children, ...props }, ref) => {
     return (
@@ -195,9 +167,39 @@ const SelectOption = React.forwardRef<HTMLOptionElement, OptionProps>(
     )
   }
 )
+SelectOption.displayName = "SelectOption"
 
-// إضافة RadixSelect للاستخدام مع SelectTrigger
+// RadixSelect للاستخدام في الملفات التي تحتاجه
 const RadixSelect = SelectPrimitive.Root
+
+// مكون HTML select للملفات التي تحتاج select عادي
+interface HTMLSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  children?: React.ReactNode;
+}
+
+const HTMLSelect = React.forwardRef<HTMLSelectElement, HTMLSelectProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <select
+        className={cn(
+          "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          "dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:ring-offset-gray-900",
+          "dark:focus-visible:ring-blue-400",
+          "dark:placeholder-gray-400",
+          "transition-colors duration-200",
+          className
+        )}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </select>
+    )
+  }
+)
+HTMLSelect.displayName = "HTMLSelect"
 
 export {
   Select,
@@ -212,4 +214,5 @@ export {
   SelectScrollDownButton,
   SelectOption,
   RadixSelect,
+  HTMLSelect,
 }
