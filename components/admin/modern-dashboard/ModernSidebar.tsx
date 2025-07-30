@@ -203,9 +203,9 @@ const sidebarItems: SidebarItem[] = [
     id: 'settings',
     title: 'الإعدادات',
     icon: Settings,
-    href: '/admin/modern/settings',
+    href: '/admin/settings',
     children: [
-      { id: 'general', title: 'عام', icon: Settings, href: '/admin/modern/settings' },
+      { id: 'general', title: 'عام', icon: Settings, href: '/admin/settings' },
       { id: 'logo-manager', title: 'إدارة اللوجو', icon: Image, href: '/admin/logo-manager', badge: 'جديد', badgeVariant: 'secondary' as const },
       { id: 'vercel-analytics', title: 'تحليلات Vercel', icon: BarChart3, href: '/admin/analytics/vercel', badge: 'جديد', badgeVariant: 'secondary' as const },
       { id: 'advanced', title: 'متقدم', icon: Database, href: '/admin/settings/advanced' },
