@@ -187,27 +187,9 @@ const ReporterProfilePage: React.FC = () => {
     fetchArticles(search, categoryFilter, activeTab);
   };
 
-  const getVerificationIcon = (badge: string) => {
-    switch (badge) {
-      case 'expert':
-        return <Diamond className="w-5 h-5 text-purple-400" />;
-      case 'senior':
-        return <Trophy className="w-5 h-5 text-amber-400" />;
-      default:
-        return <CheckCircle2 className="w-5 h-5 text-emerald-400" />;
-    }
-  };
+  // تم حذف التعريف المكرر - الدالة معرفة في أعلى الملف
 
-  const getVerificationText = (badge: string) => {
-    switch (badge) {
-      case 'expert':
-        return 'خبير متخصص';
-      case 'senior':
-        return 'محرر أول';
-      default:
-        return 'معتمد';
-    }
-  };
+  // تم حذف التعريف المكرر - الدالة معرفة في أعلى الملف
 
   if (loading) {
     return (
