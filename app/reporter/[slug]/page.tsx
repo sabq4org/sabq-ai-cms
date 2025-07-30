@@ -1360,6 +1360,8 @@ const ReporterProfilePage: React.FC = () => {
                 </p>
               </div>
             )}
+          </div>
+        </div>
         </section>
         {/* معلومات إضافية */}
         <section className="px-6 md:px-10 lg:px-20 mb-16">
