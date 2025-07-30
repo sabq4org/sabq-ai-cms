@@ -282,7 +282,7 @@ export default function SettingsPage() {
       setIsLoading(false);
     }
   };
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // التحقق من نوع الملف
@@ -295,14 +295,38 @@ export default function SettingsPage() {
         toast.error('حجم الملف يجب أن يكون أقل من 5 ميجابايت');
         return;
       }
-      // عرض معاينة الصورة
+      
+      // عرض معاينة مؤقتة
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
         setPreviewLogo(result);
-        setLogoUrl(result);
       };
       reader.readAsDataURL(file);
+      
+      // رفع الملف إلى الخادم
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/api/upload/logo', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          setLogoUrl(data.url);
+          setIdentitySettings({...identitySettings, logo: data.url});
+          toast.success('تم رفع الشعار بنجاح');
+        } else {
+          toast.error(data.error || 'فشل رفع الشعار');
+        }
+      } catch (error) {
+        console.error('خطأ في رفع الشعار:', error);
+        toast.error('حدث خطأ في رفع الشعار');
+      }
     }
   };
   const removeLogo = () => {
