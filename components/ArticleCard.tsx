@@ -141,9 +141,9 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                 </Badge>
               )}
               {isPersonalized && (
-                <Badge className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                <Badge className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1">
                   <Sparkles className="w-3 h-3 ml-1" />
-                  مخصص
+                  مخصص {personalizedScore}%
                 </Badge>
               )}
               {isTrending && (
@@ -190,7 +190,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
               </div>
               
               {/* AI compatibility score */}
-              {isPersonalized && (
+              {false && (
                 <div className="flex items-center gap-2">
                   <Target className="w-3 h-3 text-purple-500" />
                   <div className="flex items-center gap-1">
@@ -262,10 +262,10 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                 {category.name}
               </Badge>
             )}
-            {isPersonalized && (
-              <Badge className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+            {false && (
+              <Badge className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1">
                 <Sparkles className="w-3 h-3 ml-1" />
-                مخصص
+                مخصص {personalizedScore}%
               </Badge>
             )}
             {isTrending && (
@@ -310,7 +310,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
             </div>
             
             {/* AI compatibility score */}
-            {isPersonalized && (
+            {false && (
               <div className="flex items-center gap-2">
                 <Target className="w-3 h-3 text-purple-500" />
                 <div className="flex items-center gap-1 flex-1">
