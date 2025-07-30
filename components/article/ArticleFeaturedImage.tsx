@@ -24,7 +24,7 @@ export default function ArticleFeaturedImage({
   switch (IMAGE_CONFIG.DISPLAY_MODE) {
     case 'default':
       return (
-        <div className="w-full max-w-5xl mx-auto mt-6 rounded-lg overflow-hidden">
+        <div className="w-full max-w-6xl mx-auto rounded-lg overflow-hidden">
           <OptimizedImage
             src={imageUrl}
             alt={title}
