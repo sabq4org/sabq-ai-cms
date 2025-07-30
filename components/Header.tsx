@@ -125,20 +125,20 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
               {/* اللوقو الرسمي - أكبر حجماً */}
-              <div className="flex items-center py-3 min-h-[60px] min-w-[160px]">
+              <div className="flex items-center py-3 px-2">
                 {settingsLoading ? (
                   <div className="h-12 w-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
                 ) : logoUrl && (
-                  <Image
-                    src={logoUrl}
-                    alt={siteName}
-                    width={160}
-                    height={50}
-                    className="h-12 w-auto object-contain"
-                    priority
-                    style={{ maxHeight: '48px' }}
-                    unoptimized={logoUrl.includes('cloudinary')}
-                  />
+                  <div className="relative w-40 h-12">
+                    <Image
+                      src={logoUrl}
+                      alt={siteName}
+                      fill
+                      className="object-contain"
+                      priority
+                      unoptimized={logoUrl.includes('cloudinary')}
+                    />
+                  </div>
                 )}
               </div>
             </Link>
