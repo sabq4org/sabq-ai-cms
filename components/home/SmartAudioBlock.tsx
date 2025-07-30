@@ -18,6 +18,7 @@ import {
   TrendingUp,
   MessageSquare,
   Lightbulb,
+  Headphones,
   Sparkles,
   BarChart3,
   Zap,
@@ -156,48 +157,41 @@ function CompactPodcastSection() {
 
   return (
     <div className={cn(
-      'h-[160px] p-4 rounded-2xl transition-all duration-300',
-      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200'
+      'py-4 px-6 rounded-xl shadow-sm transition-colors duration-300',
+      darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-gray-100 border border-gray-200'
     )}>
-      {/* الرأس المضغوط */}
-      <div className="flex items-center gap-3 mb-3">
-        <div className={cn(
-          'p-2 rounded-lg flex-shrink-0',
-          darkMode ? 'bg-blue-900/30' : 'bg-blue-100'
-        )}>
-          <Mic className="w-4 h-4 text-blue-600" />
-        </div>
-        <div className="flex-1 min-w-0">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* معلومات النشرة */}
+        <div className="flex flex-col gap-1 flex-1 min-w-0">
           <h3 className={cn(
-            'text-sm font-bold line-clamp-1',
-            darkMode ? 'text-gray-100' : 'text-gray-900'
+            'text-sm font-medium',
+            darkMode ? 'text-gray-100' : 'text-gray-700'
           )}>
             {newsletter.title}
           </h3>
-          <div className="flex items-center gap-2 mt-1">
-            <Badge variant="secondary" className="text-xs">
-              <Radio className="w-3 h-3 mr-1" />
-              نشرة
-            </Badge>
+          <div className="flex items-center gap-3 text-xs text-gray-500">
+            <span className="flex items-center gap-1">
+              <Headphones className="w-3 h-3" />
+              {newsletter.play_count} استماع
+            </span>
+            <Link href="/audio-archive" className="underline text-blue-500 hover:text-blue-600">
+              الأرشيف
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* مشغل الصوت المضغوط */}
-      <div className={cn(
-        'p-3 rounded-lg mb-3',
-        darkMode ? 'bg-gray-900/50' : 'bg-white/80'
-      )}>
-        <div className="flex items-center gap-3">
-          {/* زر التشغيل المضغوط */}
+        {/* مشغل الصوت */}
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          {/* زر التشغيل */}
           <Button
             onClick={togglePlayPause}
             size="sm"
             className={cn(
-              'rounded-full w-10 h-10 flex-shrink-0',
+              'rounded-full w-10 h-10 flex-shrink-0 shadow-md',
               isPlaying 
-                ? 'bg-red-600 hover:bg-red-700' 
-                : 'bg-blue-600 hover:bg-blue-700'
+                ? 'bg-gray-800 hover:bg-gray-700 text-white' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
             )}
           >
             {isPlaying ? (
@@ -207,57 +201,23 @@ function CompactPodcastSection() {
             )}
           </Button>
 
-          {/* شريط التقدم المضغوط */}
-          <div className="flex-1">
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
-                {formatTime(currentTime)}
-              </span>
-              <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
-                {formatTime(duration)}
-              </span>
+          {/* شريط التقدم */}
+          <div className="flex-1 md:w-48">
+            <div className="flex items-center justify-between text-xs mb-1 text-gray-500">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
             </div>
             <div className={cn(
               'h-1.5 rounded-full overflow-hidden',
-              darkMode ? 'bg-gray-700' : 'bg-gray-200'
+              darkMode ? 'bg-gray-700' : 'bg-gray-300'
             )}>
               <div 
-                className="h-full bg-blue-600 transition-all duration-300"
+                className="h-full bg-blue-500 transition-all duration-300"
                 style={{ width: `${(currentTime / duration) * 100}%` }}
               />
             </div>
           </div>
-
-          {/* زر التحميل المضغوط */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.open(newsletter.audioUrl, '_blank')}
-            className="flex-shrink-0 p-2"
-          >
-            <Download className="w-3 h-3" />
-          </Button>
         </div>
-      </div>
-
-      {/* الأزرار السفلى */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 text-xs">
-          <span className={cn(
-            'flex items-center gap-1',
-            darkMode ? 'text-gray-400' : 'text-gray-600'
-          )}>
-            <Play className="w-3 h-3" />
-            {newsletter.play_count}
-          </span>
-        </div>
-        
-        <Link href="/audio-archive">
-          <Button variant="ghost" size="sm" className="text-xs">
-            <Archive className="w-3 h-3 mr-1" />
-            الأرشيف
-          </Button>
-        </Link>
       </div>
 
       {/* عنصر الصوت المخفي */}
