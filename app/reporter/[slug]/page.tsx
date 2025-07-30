@@ -952,9 +952,11 @@ const ReporterProfilePage: React.FC = () => {
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {/* Hero Card - بارز */}
-      <div className="container mx-auto px-4 py-8">
-        <div className={`rounded-2xl shadow-lg border p-6 ${
+      {/* المحتوى الرئيسي مع مسافة علوية كافية */}
+      <main className="pt-20 pb-16">
+        {/* Hero Card - بارز */}
+        <section className="px-6 md:px-10 lg:px-20 py-10 bg-transparent">
+          <div className={`rounded-2xl shadow-lg border p-8 ${
           darkMode 
             ? 'bg-gradient-to-r from-slate-800 to-slate-700 border-slate-600/50' 
             : 'bg-gradient-to-r from-slate-50 to-blue-50 border-slate-200'
@@ -1083,13 +1085,12 @@ const ReporterProfilePage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* نبذة تحريرية */}
-      {reporter.bio && (
-        <div className="container mx-auto px-4 mb-6">
-          <div className={`rounded-2xl shadow-lg border p-4 ${
+        {/* نبذة تحريرية */}
+        {reporter.bio && (
+          <section className="px-6 md:px-10 lg:px-20 mb-10">
+            <div className={`rounded-2xl shadow-sm border p-6 ${
             darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-white border-slate-200'
           }`}>
             <div className="flex items-center gap-2 mb-3">
@@ -1108,16 +1109,15 @@ const ReporterProfilePage: React.FC = () => {
                 عرض المزيد
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </section>
+        )}
 
-      {/* إحصائيات سريعة في بطاقات منفصلة */}
-      {stats && (
-        <div className="container mx-auto px-4 mb-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* عدد المقالات */}
-            <div className={`rounded-2xl shadow-lg border p-4 ${
+        {/* إحصائيات سريعة في بطاقات منفصلة */}
+        {stats && (
+          <section className="px-6 md:px-10 lg:px-20 mb-10">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* عدد المقالات */}
+              <div className={`rounded-xl shadow-sm border p-5 hover:shadow-md transition-shadow ${
               darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-white border-slate-200'
             }`}>
               <div className="flex items-center gap-2 mb-2">
@@ -1134,8 +1134,8 @@ const ReporterProfilePage: React.FC = () => {
               </div>
             </div>
 
-            {/* عدد المشاهدات */}
-            <div className={`rounded-2xl shadow-lg border p-4 ${
+              {/* عدد المشاهدات */}
+              <div className={`rounded-xl shadow-sm border p-5 hover:shadow-md transition-shadow ${
               darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-white border-slate-200'
             }`}>
               <div className="flex items-center gap-2 mb-2">
@@ -1152,8 +1152,8 @@ const ReporterProfilePage: React.FC = () => {
               </div>
             </div>
 
-            {/* التفاعل */}
-            <div className={`rounded-2xl shadow-lg border p-4 ${
+              {/* التفاعل */}
+              <div className={`rounded-xl shadow-sm border p-5 hover:shadow-md transition-shadow ${
               darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-white border-slate-200'
             }`}>
               <div className="flex items-center gap-2 mb-2">
@@ -1170,8 +1170,8 @@ const ReporterProfilePage: React.FC = () => {
               </div>
             </div>
 
-            {/* متوسط الأداء */}
-            <div className={`rounded-2xl shadow-lg border p-4 ${
+              {/* متوسط الأداء */}
+              <div className={`rounded-xl shadow-sm border p-5 hover:shadow-md transition-shadow ${
               darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-white border-slate-200'
             }`}>
               <div className="flex items-center gap-2 mb-2">
@@ -1185,14 +1185,14 @@ const ReporterProfilePage: React.FC = () => {
               </div>
               <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                 معدل التفاعل
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </section>
+        )}
 
-      {/* AI Insights Section - جديد */}
-      <div className="container mx-auto px-4 mb-8">
+        {/* AI Insights Section - جديد */}
+        <section className="px-6 md:px-10 lg:px-20 mb-12">
         <div className="flex items-center gap-3 mb-6">
           <div className={cn(
             'p-3 rounded-2xl',
@@ -1208,25 +1208,25 @@ const ReporterProfilePage: React.FC = () => {
           </h2>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <AIScoreComponent />
-          <PredictiveAnalyticsComponent />
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <SentimentAnalysisComponent />
-          <TrendingTopicsRadarComponent />
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <AIRecommendationsComponent />
-          <AIActivityTimelineComponent />
-        </div>
-      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <AIScoreComponent />
+            <PredictiveAnalyticsComponent />
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <SentimentAnalysisComponent />
+            <TrendingTopicsRadarComponent />
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+            <AIRecommendationsComponent />
+            <AIActivityTimelineComponent />
+          </div>
+        </section>
 
-      {/* كلمات مفتاحية للذكاء الاصطناعي */}
-      <div className="container mx-auto px-4 mb-6">
-        <div className={`rounded-2xl shadow-lg border p-4 ${
+        {/* كلمات مفتاحية للذكاء الاصطناعي */}
+        <section className="px-6 md:px-10 lg:px-20 mb-10">
+          <div className={`rounded-2xl shadow-sm border p-6 ${
           darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-gray-100 border-gray-200'
         }`}>
           <div className="flex items-center gap-2 mb-3">
@@ -1247,14 +1247,14 @@ const ReporterProfilePage: React.FC = () => {
               >
                 {tag}
               </span>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* تبويب المحتوى المنشور */}
-      <div className="container mx-auto px-4 mb-6">
-        <div className={`rounded-2xl shadow-lg border ${
+          {/* تبويب المحتوى المنشور */}
+        <section className="px-6 md:px-10 lg:px-20 mb-12">
+          <div className={`rounded-2xl shadow-md border ${
           darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-white border-slate-200'
         }`}>
           {/* Tabs Header */}
@@ -1359,16 +1359,15 @@ const ReporterProfilePage: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* معلومات إضافية */}
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-3 gap-6">
+          {/* معلومات إضافية */}
+        <section className="px-6 md:px-10 lg:px-20 mb-16">
+          <div className="grid lg:grid-cols-3 gap-8">
           
-          {/* التخصصات */}
-          {reporter.specializations && reporter.specializations.length > 0 && (
-            <div className={`rounded-2xl shadow-lg border p-4 ${
+            {/* التخصصات */}
+            {reporter.specializations && reporter.specializations.length > 0 && (
+              <div className={`rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow ${
               darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-white border-slate-200'
             }`}>
               <h3 className={`text-lg font-semibold mb-3 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -1387,9 +1386,9 @@ const ReporterProfilePage: React.FC = () => {
             </div>
           )}
 
-          {/* نطاق التغطية */}
-          {reporter.coverage_areas && reporter.coverage_areas.length > 0 && (
-            <div className={`rounded-2xl shadow-lg border p-4 ${
+            {/* نطاق التغطية */}
+            {reporter.coverage_areas && reporter.coverage_areas.length > 0 && (
+              <div className={`rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow ${
               darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-white border-slate-200'
             }`}>
               <h3 className={`text-lg font-semibold mb-3 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -1408,9 +1407,9 @@ const ReporterProfilePage: React.FC = () => {
             </div>
           )}
 
-          {/* روابط التواصل */}
-          {(reporter.twitter_url || reporter.linkedin_url || reporter.website_url || reporter.email_public) && (
-            <div className={`rounded-2xl shadow-lg border p-4 ${
+            {/* روابط التواصل */}
+            {(reporter.twitter_url || reporter.linkedin_url || reporter.website_url || reporter.email_public) && (
+              <div className={`rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow ${
               darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-white border-slate-200'
             }`}>
               <h3 className={`text-lg font-semibold mb-3 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -1469,8 +1468,86 @@ const ReporterProfilePage: React.FC = () => {
               </div>
             </div>
           )}
-        </div>
-      </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className={`border-t mt-20 py-12 ${darkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-gray-200'}`}>
+          <div className="px-6 md:px-10 lg:px-20">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+              {/* عن سبق الذكية */}
+              <div>
+                <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  صحيفة سبق الذكية
+                </h3>
+                <p className={`text-sm leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  منصة إخبارية رائدة تستخدم الذكاء الاصطناعي لتقديم محتوى إخباري موثوق ومتطور.
+                </p>
+              </div>
+
+              {/* روابط سريعة */}
+              <div>
+                <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  روابط سريعة
+                </h3>
+                <ul className="space-y-2">
+                  <li>
+                    <a href="/" className={`text-sm hover:underline ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
+                      الصفحة الرئيسية
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/about" className={`text-sm hover:underline ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
+                      من نحن
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/contact" className={`text-sm hover:underline ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
+                      تواصل معنا
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/privacy" className={`text-sm hover:underline ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
+                      سياسة الخصوصية
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* تابعنا */}
+              <div>
+                <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  تابعنا على
+                </h3>
+                <div className="flex gap-3">
+                  <a href="#" className={`p-2 rounded-full hover:bg-opacity-20 transition-colors ${
+                    darkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-gray-100 hover:bg-gray-200'
+                  }`}>
+                    <Twitter className="w-5 h-5 text-blue-500" />
+                  </a>
+                  <a href="#" className={`p-2 rounded-full hover:bg-opacity-20 transition-colors ${
+                    darkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-gray-100 hover:bg-gray-200'
+                  }`}>
+                    <Linkedin className="w-5 h-5 text-blue-700" />
+                  </a>
+                  <a href="#" className={`p-2 rounded-full hover:bg-opacity-20 transition-colors ${
+                    darkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-gray-100 hover:bg-gray-200'
+                  }`}>
+                    <Mail className="w-5 h-5 text-red-500" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* فاصل */}
+            <div className={`border-t pt-6 ${darkMode ? 'border-slate-700' : 'border-gray-200'}`}>
+              <p className={`text-center text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                جميع الحقوق محفوظة © {new Date().getFullYear()} صحيفة سبق الذكية
+              </p>
+            </div>
+          </div>
+        </footer>
+      </main>
     </div>
   );
 };
