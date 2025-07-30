@@ -437,16 +437,43 @@ async function getSmartMixedContent(
  * 🖼️ الحصول على صورة افتراضية حسب نوع المحتوى
  */
 function getDefaultImageByType(type: RecommendedArticle['type']): string {
+  // مجموعة متنوعة من الصور التجريبية عالية الجودة
   const defaultImages = {
-    'تحليل': 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=300&fit=crop',
-    'رأي': 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop',
-    'عاجل': 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=400&h=300&fit=crop',
-    'مقالة': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
-    'تقرير': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop',
-    'ملخص': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=300&fit=crop'
+    'تحليل': [
+      'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1543286386-713bdd548da4?w=800&h=600&fit=crop'
+    ],
+    'رأي': [
+      'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1565630916779-e303be97b6f5?w=800&h=600&fit=crop'
+    ],
+    'عاجل': [
+      'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=800&h=600&fit=crop'
+    ],
+    'مقالة': [
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1560472355-536de3962603?w=800&h=600&fit=crop'
+    ],
+    'تقرير': [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=600&fit=crop'
+    ],
+    'ملخص': [
+      'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&h=600&fit=crop'
+    ]
   };
   
-  return defaultImages[type] || defaultImages['مقالة'];
+  const images = defaultImages[type] || defaultImages['مقالة'];
+  // اختيار صورة عشوائية من المجموعة
+  return images[Math.floor(Math.random() * images.length)];
 }
 
 /**

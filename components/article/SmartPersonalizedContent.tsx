@@ -110,21 +110,22 @@ const SmartRecommendationCard: React.FC<{
   
   return (
     <Link href={article.url} className="group block">
-      <div className={`relative h-full flex ${isMobileScreen ? 'flex-row' : 'flex-col'} rounded-xl border transition-all duration-300 hover:shadow-xl overflow-hidden ${
+      <div className={`relative ${isMobileScreen ? 'h-32' : 'h-full'} flex ${isMobileScreen ? 'flex-row' : 'flex-col'} rounded-xl border transition-all duration-300 hover:shadow-xl overflow-hidden ${
         darkMode 
           ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
           : 'bg-white border-gray-200 hover:border-blue-200'
       }`}>
         
         {/* الصورة الرئيسية */}
-        <div className={`relative ${isMobileScreen ? 'w-28 h-24' : 'h-24 sm:h-32 md:h-48'} overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800`}>
+        <div className={`relative ${isMobileScreen ? 'w-2/5 h-full' : 'h-24 sm:h-32 md:h-48'} overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex-shrink-0`}>
           <CloudImage
             src={article.thumbnail || ''}
             alt={article.title}
             fill
-            sizes={isMobileScreen ? "112px" : "(max-width: 768px) 100vw, 50vw"}
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            sizes={isMobileScreen ? "40vw" : "(max-width: 768px) 100vw, 50vw"}
+            className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
             fallbackType="article"
+            priority={index < 3}
           />
           
           {/* شارة النوع والأيقونة */}
@@ -152,9 +153,9 @@ const SmartRecommendationCard: React.FC<{
         </div>
         
         {/* المحتوى */}
-        <div className={`flex-1 ${isMobileScreen ? 'p-2' : 'p-2.5 sm:p-3 md:p-5'}`}>
+        <div className={`flex-1 ${isMobileScreen ? 'p-2 flex flex-col justify-between' : 'p-2.5 sm:p-3 md:p-5'}`}>
           {/* Label نوع المحتوى + العبارة التشويقية */}
-          <div className={`mb-1.5 sm:mb-2 md:mb-3 ${isMobileScreen ? 'flex flex-col gap-1' : ''}`}>
+          <div className={`${isMobileScreen ? 'mb-1' : 'mb-1.5 sm:mb-2 md:mb-3'} ${isMobileScreen ? 'flex flex-col gap-0.5' : ''}`}>
             {/* نوع المحتوى كـ Label */}
             <div className="flex items-center gap-2">
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold ${getTypeColors(article.type)}`}>
@@ -180,7 +181,7 @@ const SmartRecommendationCard: React.FC<{
           </div>
           
           {/* العنوان */}
-          <h3 className={`font-bold text-xs sm:text-sm md:text-lg leading-tight mb-1.5 sm:mb-2 md:mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
+          <h3 className={`font-bold ${isMobileScreen ? 'text-[11px] leading-tight mb-1' : 'text-xs sm:text-sm md:text-lg leading-tight mb-1.5 sm:mb-2 md:mb-3'} line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
             darkMode ? 'text-white' : 'text-gray-900'
           }`}>
             {article.title}
