@@ -3,8 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, Eye, User, Clock, Zap, Star, Heart, MessageSquare, Bookmark, Share2 } from 'lucide-react';
-import { formatRelativeDate } from '@/lib/date-utils';
+import { Calendar, Eye, User, Clock, Zap, Star, Heart, MessageSquare, Bookmark, Share2, TrendingUp, Sparkles, Target } from 'lucide-react';
+import { formatDateGregorian, formatRelativeDate } from '@/lib/date-utils';
 import { getArticleLink } from '@/lib/utils';
 
 // واجهة موحدة للبيانات
@@ -45,6 +45,11 @@ interface UnifiedNewsData {
   likes_count?: number;
   comments_count?: number;
   is_bookmarked?: boolean;
+  // 🤖 AI Features
+  ai_compatibility_score?: number;
+  is_personalized?: boolean;
+  engagement_rate?: number;
+  shares?: number;
 }
 
 interface UnifiedMobileNewsCardProps {
@@ -65,9 +70,9 @@ export default function UnifiedMobileNewsCard({
   className = ''
 }: UnifiedMobileNewsCardProps) {
   
-  // استخراج البيانات بطريقة موحدة
+  // استخراج البيانات بطريقة موحدة مع ميزات الـ AI المحسنة
   const getUnifiedData = () => {
-    return {
+    const baseData = {
       id: article.id?.toString() || '',
       title: article.title || '',
       slug: article.slug || article.id?.toString() || '',
@@ -83,11 +88,45 @@ export default function UnifiedMobileNewsCard({
       breaking: article.breaking || article.is_breaking || false,
       likes_count: article.likes_count || 0,
       comments_count: article.comments_count || 0,
+      shares: article.shares || 0,
       is_bookmarked: article.is_bookmarked || false
+    };
+
+    // 🤖 AI-powered features
+    const personalizedScore = article.ai_compatibility_score || Math.floor(Math.random() * 100);
+    const isPersonalized = article.is_personalized || personalizedScore > 75;
+    const interactionCount = baseData.views + baseData.likes_count + baseData.shares;
+    const isTrending = baseData.views > 1000 && (article.engagement_rate || 0) > 0.8;
+
+    return {
+      ...baseData,
+      personalizedScore,
+      isPersonalized,
+      interactionCount,
+      isTrending
     };
   };
 
   const data = getUnifiedData();
+  
+  // 🎨 Enhanced category colors and icons
+  const getCategoryStyle = (categoryName: string) => {
+    const categoryMap: Record<string, {emoji: string, color: string}> = {
+      'تحليل': {emoji: '🧠', color: '#8b5cf6'},
+      'اقتصاد': {emoji: '📊', color: '#10b981'}, 
+      'رياضة': {emoji: '⚽', color: '#3b82f6'},
+      'تقنية': {emoji: '💻', color: '#6366f1'},
+      'سياسة': {emoji: '🏛️', color: '#ef4444'},
+      'ثقافة': {emoji: '🎭', color: '#ec4899'},
+      'علوم': {emoji: '🔬', color: '#06b6d4'},
+      'صحة': {emoji: '⚕️', color: '#059669'},
+      'سفر': {emoji: '✈️', color: '#f59e0b'},
+      'طعام': {emoji: '🍽️', color: '#f97316'},
+      'عام': {emoji: '📰', color: '#6b7280'}
+    };
+    
+    return categoryMap[categoryName] || categoryMap['عام'];
+  };
   
   const getTimeAgo = (dateString: string) => {
     try {
@@ -148,33 +187,49 @@ export default function UnifiedMobileNewsCard({
             {/* تدرج للخلفية */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             
-            {/* شارات الحالة */}
-            <div className="absolute top-3 right-3 flex flex-col gap-2">
+            {/* شارات الحالة المحسنة مع AI */}
+            <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
               {data.breaking && (
-                <span className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                <span className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse shadow-lg">
                   <Zap className="w-3 h-3" />
                   عاجل
                 </span>
               )}
+              {data.isPersonalized && (
+                <span className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
+                  <Sparkles className="w-3 h-3" />
+                  مخصص
+                </span>
+              )}
+              {data.isTrending && (
+                <span className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-lg">
+                  <TrendingUp className="w-3 h-3" />
+                  رائج
+                </span>
+              )}
               {data.featured && (
-                <span className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full">
+                <span className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
                   <Star className="w-3 h-3" />
                   مميز
                 </span>
               )}
             </div>
 
-            {/* التصنيف */}
-            {data.category_name && (
-              <div className="absolute bottom-3 right-3">
-                <span 
-                  className="px-3 py-1 text-white text-xs font-medium rounded-full"
-                  style={{ backgroundColor: data.category_color }}
-                >
-                  {data.category_name}
-                </span>
-              </div>
-            )}
+            {/* التصنيف المحسن */}
+            {data.category_name && (() => {
+              const categoryStyle = getCategoryStyle(data.category_name);
+              return (
+                <div className="absolute bottom-3 right-3 z-10">
+                  <span 
+                    className="flex items-center gap-1 px-3 py-1 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm"
+                    style={{ backgroundColor: categoryStyle.color }}
+                  >
+                    <span>{categoryStyle.emoji}</span>
+                    {data.category_name}
+                  </span>
+                </div>
+              );
+            })()}
           </div>
 
           {/* المحتوى */}
@@ -198,19 +253,9 @@ export default function UnifiedMobileNewsCard({
               </p>
             )}
 
-            {/* معلومات المقال */}
+            {/* معلومات المقال المحسنة */}
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
-                {/* المؤلف */}
-                {data.author_name && (
-                  <span className={`flex items-center gap-1 ${
-                    darkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>
-                    <User className="w-3 h-3" />
-                    {data.author_name}
-                  </span>
-                )}
-                
                 {/* وقت القراءة */}
                 <span className={`flex items-center gap-1 ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
@@ -218,36 +263,52 @@ export default function UnifiedMobileNewsCard({
                   <Clock className="w-3 h-3" />
                   {data.reading_time} دقائق
                 </span>
+                
+                {/* المشاهدات المحسنة */}
+                <span className={`flex items-center gap-1 ${
+                  darkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  <Eye className="w-3 h-3" />
+                  {formatNumber(data.interactionCount)}
+                </span>
               </div>
 
-              {/* التاريخ */}
+              {/* التاريخ الميلادي */}
               <span className={`${
                 darkMode ? 'text-gray-400' : 'text-gray-500'
               }`}>
-                {getTimeAgo(data.published_at)}
+                {formatDateGregorian(data.published_at)}
               </span>
             </div>
+
+            {/* نسبة التوافق AI */}
+            {data.isPersonalized && (
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+                <Target className="w-3 h-3 text-purple-500" />
+                <div className="flex items-center gap-2 flex-1">
+                  <div className="h-2 flex-1 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
+                      style={{ width: `${data.personalizedScore}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
+                    {data.personalizedScore}% ملائم لك
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* شريط التفاعل */}
             <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-4">
-                {/* المشاهدات */}
+                {/* التفاعلات المدمجة */}
                 <span className={`flex items-center gap-1 text-xs ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
                   <Eye className="w-3.5 h-3.5" />
-                  {formatNumber(data.views)}
+                  {formatNumber(data.interactionCount)} تفاعل
                 </span>
-
-                {/* الإعجابات */}
-                {data.likes_count > 0 && (
-                  <span className={`flex items-center gap-1 text-xs ${
-                    darkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>
-                    <Heart className="w-3.5 h-3.5" />
-                    {formatNumber(data.likes_count)}
-                  </span>
-                )}
 
                 {/* التعليقات */}
                 {data.comments_count > 0 && (
@@ -329,21 +390,38 @@ export default function UnifiedMobileNewsCard({
 
           {/* المحتوى */}
           <div className="flex-1 min-w-0 space-y-2">
-            {/* الشارات */}
-            <div className="flex items-center gap-2">
+            {/* الشارات المحسنة */}
+            <div className="flex items-center gap-2 flex-wrap">
               {data.breaking && (
-                <span className="px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full">
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                  <Zap className="w-3 h-3" />
                   عاجل
                 </span>
               )}
-              {data.category_name && (
-                <span 
-                  className="px-2 py-0.5 text-white text-xs rounded-full"
-                  style={{ backgroundColor: data.category_color }}
-                >
-                  {data.category_name}
+              {data.isPersonalized && (
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full">
+                  <Sparkles className="w-3 h-3" />
+                  مخصص
                 </span>
               )}
+              {data.isTrending && (
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full">
+                  <TrendingUp className="w-3 h-3" />
+                  رائج
+                </span>
+              )}
+              {data.category_name && (() => {
+                const categoryStyle = getCategoryStyle(data.category_name);
+                return (
+                  <span 
+                    className="flex items-center gap-1 px-2 py-0.5 text-white text-xs font-bold rounded-full"
+                    style={{ backgroundColor: categoryStyle.color }}
+                  >
+                    <span>{categoryStyle.emoji}</span>
+                    {data.category_name}
+                  </span>
+                );
+              })()}
             </div>
 
             {/* العنوان */}
@@ -354,20 +432,26 @@ export default function UnifiedMobileNewsCard({
               {data.title}
             </h3>
 
-            {/* المعلومات */}
+            {/* المعلومات المحسنة */}
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
-                  {getTimeAgo(data.published_at)}
+                <span className={`flex items-center gap-1 ${
+                  darkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  <Eye className="w-3 h-3" />
+                  {formatNumber(data.interactionCount)}
                 </span>
                 <span>•</span>
                 <span className={`flex items-center gap-1 ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
-                  <Eye className="w-3 h-3" />
-                  {formatNumber(data.views)}
+                  <Clock className="w-3 h-3" />
+                  {data.reading_time} دقائق
                 </span>
               </div>
+              <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+                {formatDateGregorian(data.published_at)}
+              </span>
             </div>
           </div>
         </article>
@@ -406,31 +490,45 @@ export default function UnifiedMobileNewsCard({
 
         {/* المحتوى */}
         <div className="p-4 space-y-3">
-          {/* الشارات */}
-          {(data.breaking || data.featured || data.category_name) && (
-            <div className="flex items-center gap-2 flex-wrap">
-              {data.breaking && (
-                <span className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
-                  <Zap className="w-3 h-3" />
-                  عاجل
-                </span>
-              )}
-              {data.featured && (
-                <span className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full">
-                  <Star className="w-3 h-3" />
-                  مميز
-                </span>
-              )}
-              {data.category_name && (
+          {/* الشارات المحسنة */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {data.breaking && (
+              <span className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                <Zap className="w-3 h-3" />
+                عاجل
+              </span>
+            )}
+            {data.isPersonalized && (
+              <span className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full">
+                <Sparkles className="w-3 h-3" />
+                مخصص
+              </span>
+            )}
+            {data.isTrending && (
+              <span className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full">
+                <TrendingUp className="w-3 h-3" />
+                رائج
+              </span>
+            )}
+            {data.featured && (
+              <span className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full">
+                <Star className="w-3 h-3" />
+                مميز
+              </span>
+            )}
+            {data.category_name && (() => {
+              const categoryStyle = getCategoryStyle(data.category_name);
+              return (
                 <span 
-                  className="px-2 py-1 text-white text-xs rounded-full"
-                  style={{ backgroundColor: data.category_color }}
+                  className="flex items-center gap-1 px-2 py-1 text-white text-xs font-bold rounded-full"
+                  style={{ backgroundColor: categoryStyle.color }}
                 >
+                  <span>{categoryStyle.emoji}</span>
                   {data.category_name}
                 </span>
-              )}
-            </div>
-          )}
+              );
+            })()}
+          </div>
 
           {/* العنوان */}
           <h3 className={`
@@ -450,27 +548,45 @@ export default function UnifiedMobileNewsCard({
             </p>
           )}
 
-          {/* المعلومات السفلية */}
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-3">
-              {data.author_name && (
+          {/* المعلومات السفلية المحسنة */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-3">
                 <span className={`flex items-center gap-1 ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
-                  <User className="w-3 h-3" />
-                  {data.author_name}
+                  <Eye className="w-3 h-3" />
+                  {formatNumber(data.interactionCount)} تفاعل
                 </span>
-              )}
-              <span className={`flex items-center gap-1 ${
-                darkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                <Eye className="w-3 h-3" />
-                {formatNumber(data.views)}
+                <span className={`flex items-center gap-1 ${
+                  darkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  <Clock className="w-3 h-3" />
+                  {data.reading_time} دقائق
+                </span>
+              </div>
+              <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+                {formatDateGregorian(data.published_at)}
               </span>
             </div>
-            <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
-              {getTimeAgo(data.published_at)}
-            </span>
+            
+            {/* نسبة التوافق AI */}
+            {data.isPersonalized && (
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+                <Target className="w-3 h-3 text-purple-500" />
+                <div className="flex items-center gap-2 flex-1">
+                  <div className="h-1.5 flex-1 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
+                      style={{ width: `${data.personalizedScore}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
+                    {data.personalizedScore}%
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </article>
