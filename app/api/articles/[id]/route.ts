@@ -12,6 +12,10 @@ export async function GET(
   
   try {
     // استخدام مدير الاتصال لضمان الاتصال
+    // السماح بجلب أي حالة عند استخدام ?all=true
+    const url = new URL(request.url)
+    const includeAll = url.searchParams.get('all') === 'true'
+
     const article = await dbConnectionManager.executeWithConnection(async () => {
       return await prisma.articles.findFirst({
         where: {
@@ -19,7 +23,7 @@ export async function GET(
             { id: id },
             { slug: id }
           ],
-          status: 'published'
+          ...(includeAll ? {} : { status: 'published' })
         },
         include: {
           categories: true,

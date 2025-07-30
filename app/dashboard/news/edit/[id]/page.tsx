@@ -133,7 +133,7 @@ export default function EditArticlePage() {
     const loadArticle = async () => {
       try {
         setArticleLoading(true);
-        const response = await fetch(`/api/articles/${articleId}`);
+        const response = await fetch(`/api/articles/${articleId}?all=true`);
         
         if (!response.ok) {
           throw new Error('فشل في جلب بيانات المقال');
