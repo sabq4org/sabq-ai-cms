@@ -116,15 +116,15 @@ export default function Header() {
   return (
     <header className={`fixed-header transition-all duration-300 ${
       darkMode 
-        ? 'bg-gray-900 border-gray-800' 
-        : 'bg-white border-gray-200'
-    } backdrop-blur-sm border-b shadow-sm`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+        ? 'bg-gray-900/95 border-gray-800' 
+        : 'bg-white/95 border-gray-200'
+    } backdrop-blur-md border-b shadow-sm`}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي - محاذاة لليمين */}
-          <div className="flex items-center justify-end flex-1 order-2">
+          <div className="order-2">
             <Link href="/" className="block">
-              <div className="flex items-center justify-end py-3">
+              <div className="flex items-center py-3">
                 {settingsLoading ? (
                   <div className="h-10 sm:h-12 w-32 sm:w-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
                 ) : logoUrl && (
@@ -149,7 +149,7 @@ export default function Header() {
               <Link
                 key={item.url}
                 href={item.url}
-                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
+                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm ${
                   item.highlight
                     ? darkMode
                       ? 'text-red-400 hover:text-red-300'
@@ -180,7 +180,7 @@ export default function Header() {
             }>
               <button
                 onClick={toggleDarkMode}
-                className={`p-2 rounded-lg transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
+                className={`p-2 rounded-lg transition-all duration-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm ${
                   darkMode 
                                         ? 'text-yellow-400 hover:text-yellow-300'
                     : 'text-gray-600 hover:text-gray-800'
@@ -261,16 +261,18 @@ export default function Header() {
               onClick={() => setIsMobileMenuOpen(false)}
             />
             
-            <div className={`md:hidden fixed top-14 left-0 right-0 z-50 ${
-              darkMode ? 'bg-gray-900' : 'bg-white'
-            } shadow-2xl`}>
-            <nav className="flex flex-col max-h-[calc(100vh-3.5rem)] overflow-y-auto py-2">
+            <div className={`md:hidden fixed top-[var(--header-height)] left-0 right-0 z-50 ${
+              darkMode ? 'bg-gray-900/98' : 'bg-white/98'
+            } backdrop-blur-md shadow-2xl border-t ${
+              darkMode ? 'border-gray-800' : 'border-gray-200'
+            }`}>
+            <nav className="flex flex-col max-h-[calc(100vh-var(--header-height))] overflow-y-auto py-2">
               {navigationItems.map((item) => (
                 <Link
                   key={item.url}
                   href={item.url}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 ${
                     item.highlight
                       ? darkMode
                         ? 'text-red-400 hover:text-red-300'
