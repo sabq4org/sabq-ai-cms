@@ -91,9 +91,25 @@ export default function ArticlePage({ params }: PageProps) {
               setArticle(responseData);
             }
           } else {
-            const error = getArticleError(response.status, null, null, resolved.id);
-            logArticleError(error);
-            setError(error.message + '. ' + (error.details || ''));
+            // محاولة قراءة تفاصيل الخطأ من الاستجابة
+            try {
+              responseData = await response.json();
+              console.log('📦 تفاصيل الخطأ:', responseData);
+              
+              // استخدام رسالة الخطأ المخصصة من الخادم
+              if (responseData.error) {
+                setError(responseData.error + '. ' + (responseData.details || ''));
+              } else {
+                const error = getArticleError(response.status, responseData, null, resolved.id);
+                logArticleError(error);
+                setError(error.message + '. ' + (error.details || ''));
+              }
+            } catch {
+              // إذا فشلت قراءة JSON، استخدم رسالة الخطأ الافتراضية
+              const error = getArticleError(response.status, null, null, resolved.id);
+              logArticleError(error);
+              setError(error.message + '. ' + (error.details || ''));
+            }
             setArticle(null);
           }
         } catch (fetchError) {
@@ -145,6 +161,35 @@ export default function ArticlePage({ params }: PageProps) {
   }
 
   if (error || !article || !resolvedParams) {
+    // تحديد نوع الخطأ بناءً على الرسالة
+    let errorIcon = '📄';
+    let errorTitle = 'عذراً، المقال غير موجود';
+    let errorMessage = error || 'المقال الذي تبحث عنه غير متوفر حالياً.';
+    let errorDetails = 'قد يكون المقال قد تم نقله أو حذفه.';
+    let errorColor = '#dc2626'; // أحمر للأخطاء العامة
+    
+    if (error?.includes('غير منشور') || error?.includes('قيد المراجعة')) {
+      errorIcon = '⏳';
+      errorTitle = 'المقال قيد المراجعة';
+      errorDetails = 'هذا المقال لم يتم نشره بعد أو يخضع للمراجعة حالياً.';
+      errorColor = '#f59e0b'; // برتقالي للمراجعة
+    } else if (error?.includes('البيانات المستلمة غير صالحة') || error?.includes('غير مكتملة')) {
+      errorIcon = '⚠️';
+      errorTitle = 'خطأ في تحميل البيانات';
+      errorDetails = 'حدث خطأ في استرجاع بيانات المقال. يرجى المحاولة مرة أخرى.';
+      errorColor = '#ef4444'; // أحمر للأخطاء التقنية
+    } else if (error?.includes('انتهت مهلة الانتظار') || error?.includes('خطأ في الاتصال')) {
+      errorIcon = '🌐';
+      errorTitle = 'مشكلة في الاتصال';
+      errorDetails = 'تحقق من اتصالك بالإنترنت وحاول مرة أخرى.';
+      errorColor = '#6366f1'; // بنفسجي لأخطاء الشبكة
+    } else if (error?.includes('تم حذفه') || error?.includes('تمت أرشفته')) {
+      errorIcon = '🗑️';
+      errorTitle = 'المقال محذوف أو مؤرشف';
+      errorDetails = 'تم حذف هذا المقال أو نقله إلى الأرشيف.';
+      errorColor = '#6b7280'; // رمادي للمحذوف
+    }
+    
     return (
       <div style={{
         padding: '3rem', 
@@ -158,9 +203,10 @@ export default function ArticlePage({ params }: PageProps) {
         <div style={{
           fontSize: '3rem',
           marginBottom: '1rem',
-          opacity: 0.2
+          opacity: 0.3,
+          color: errorColor
         }}>
-          📄
+          {errorIcon}
         </div>
         <h1 style={{
           color: '#1f2937', 
@@ -168,7 +214,7 @@ export default function ArticlePage({ params }: PageProps) {
           fontSize: '1.75rem',
           fontWeight: '600'
         }}>
-          عذراً، المقال غير موجود
+          {errorTitle}
         </h1>
         <p style={{
           color: '#6b7280', 
@@ -176,15 +222,37 @@ export default function ArticlePage({ params }: PageProps) {
           lineHeight: 1.8,
           marginBottom: '0.5rem'
         }}>
-          {error || 'المقال الذي تبحث عنه غير متوفر حالياً.'}
+          {errorMessage}
         </p>
         <p style={{
           color: '#9ca3af', 
           fontSize: '0.875rem',
           marginBottom: '1rem'
         }}>
-          قد يكون المقال قد تم نقله أو حذفه.
+          {errorDetails}
         </p>
+        
+        <div style={{ marginTop: '2rem' }}>
+          <a 
+            href="/" 
+            style={{
+              display: 'inline-block',
+              padding: '0.75rem 1.5rem',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+          >
+            العودة للصفحة الرئيسية
+          </a>
+        </div>
+        
         {resolvedParams && (
           <p style={{
             color: '#9ca3af', 

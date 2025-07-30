@@ -40,10 +40,48 @@ export async function GET(
     })
     
     if (!article) {
+      console.log(`⚠️ المقال غير موجود: ${id}`)
       return NextResponse.json({
         success: false,
-        error: 'المقال غير موجود'
+        error: 'المقال غير موجود',
+        code: 'ARTICLE_NOT_FOUND',
+        details: 'تأكد من صحة رابط المقال أو قد يكون المقال قد تم حذفه'
       }, { status: 404 })
+    }
+    
+    // التحقق من حالة النشر إذا لم يكن includeAll
+    if (!includeAll && article.status !== 'published') {
+      console.log(`⚠️ المقال غير منشور: ${id} - الحالة: ${article.status}`)
+      
+      let errorMessage = 'المقال غير متاح للعرض';
+      let errorDetails = '';
+      
+      switch (article.status) {
+        case 'draft':
+          errorMessage = 'المقال في وضع المسودة';
+          errorDetails = 'هذا المقال لم يكتمل بعد ولا يزال قيد الإعداد';
+          break;
+        case 'pending_review':
+          errorMessage = 'المقال قيد المراجعة';
+          errorDetails = 'هذا المقال يخضع للمراجعة من قبل فريق التحرير';
+          break;
+        case 'archived':
+          errorMessage = 'المقال مؤرشف';
+          errorDetails = 'تم نقل هذا المقال إلى الأرشيف';
+          break;
+        case 'rejected':
+          errorMessage = 'المقال مرفوض';
+          errorDetails = 'تم رفض نشر هذا المقال';
+          break;
+      }
+      
+      return NextResponse.json({
+        success: false,
+        error: errorMessage,
+        code: 'ARTICLE_NOT_PUBLISHED',
+        details: errorDetails,
+        status: article.status
+      }, { status: 403 })
     }
     
     // تحديث عدد المشاهدات بشكل غير متزامن
