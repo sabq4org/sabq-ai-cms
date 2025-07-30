@@ -34,6 +34,7 @@ export default function PodcastBlock() {
   const { darkMode } = useDarkModeContext();
   const [newsletter, setNewsletter] = useState<AudioNewsletter | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -46,8 +47,15 @@ export default function PodcastBlock() {
 
   const fetchMainNewsletter = async () => {
     try {
+      setError(null); // إعادة تعيين الخطأ
       console.log('🎙️ جاري جلب النشرة الصوتية للصفحة الرئيسية...');
+      
       const response = await fetch('/api/audio/newsletters/main-page');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       console.log('📥 استجابة API:', data);
       
@@ -57,9 +65,12 @@ export default function PodcastBlock() {
         setDuration(data.newsletter.duration);
       } else {
         console.log('⚠️ لم يتم العثور على نشرة صوتية للصفحة الرئيسية');
+        setNewsletter(null);
       }
     } catch (error) {
       console.error('❌ خطأ في جلب النشرة:', error);
+      setError(error instanceof Error ? error.message : 'خطأ في جلب النشرة الصوتية');
+      setNewsletter(null);
     } finally {
       setIsLoading(false);
     }
@@ -97,9 +108,87 @@ export default function PodcastBlock() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // إذا لم توجد نشرة أو في حالة التحميل، لا نعرض البلوك
-  if (isLoading || !newsletter) {
-    return null;
+  // إذا كان في حالة التحميل
+  if (isLoading) {
+    return (
+      <div className="w-full mb-4 sm:mb-6 px-2 sm:px-0">
+        <div className={`rounded-2xl p-6 border-2 border-dashed transition-all ${
+          darkMode 
+            ? 'bg-gray-800/50 border-gray-600 text-gray-300' 
+            : 'bg-blue-50/50 border-blue-200 text-gray-600'
+        }`}>
+          <div className="flex items-center justify-center gap-3">
+            <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+            <span className="text-sm font-medium">جاري تحميل النشرة الصوتية...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // إذا حدث خطأ، نعرض رسالة خطأ مع زر إعادة المحاولة
+  if (error) {
+    return (
+      <div className="w-full mb-4 sm:mb-6 px-2 sm:px-0">
+        <div className={`rounded-2xl p-6 border-2 border-dashed transition-all ${
+          darkMode 
+            ? 'bg-red-900/20 border-red-800 text-red-300' 
+            : 'bg-red-50/50 border-red-200 text-red-600'
+        }`}>
+          <div className="text-center">
+            <div className="mb-3">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h3 className="text-lg font-bold mb-2">خطأ في تحميل النشرة الصوتية</h3>
+            <p className="text-sm mb-4">{error}</p>
+            <button 
+              onClick={fetchMainNewsletter}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                darkMode 
+                  ? 'bg-red-800 hover:bg-red-700 text-red-100' 
+                  : 'bg-red-100 hover:bg-red-200 text-red-700'
+              }`}
+            >
+              🔄 إعادة المحاولة
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // إذا لم توجد نشرة، نعرض رسالة بدلاً من إخفاء البلوك
+  if (!newsletter) {
+    return (
+      <div className="w-full mb-4 sm:mb-6 px-2 sm:px-0">
+        <div className={`rounded-2xl p-6 border-2 border-dashed transition-all ${
+          darkMode 
+            ? 'bg-gray-800/50 border-gray-600 text-gray-300' 
+            : 'bg-amber-50/50 border-amber-200 text-gray-600'
+        }`}>
+          <div className="text-center">
+            <div className="mb-3">
+              <span className="text-2xl">🎙️</span>
+            </div>
+            <h3 className="text-lg font-bold mb-2">النشرة الصوتية</h3>
+            <p className="text-sm mb-3">لا توجد نشرة صوتية منشورة حالياً</p>
+            <div className="text-xs opacity-75 mb-4">
+              سيتم عرض النشرة الصوتية هنا عند توفرها
+            </div>
+            <button 
+              onClick={fetchMainNewsletter}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                darkMode 
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
+                  : 'bg-amber-100 hover:bg-amber-200 text-amber-700'
+              }`}
+            >
+              🔄 تحديث
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
