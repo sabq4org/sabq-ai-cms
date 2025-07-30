@@ -7,10 +7,18 @@ export async function GET(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params
-  console.log(`📰 جلب المقال: ${id}`)
-  
   try {
+    const { id } = await context.params
+    console.log(`📰 جلب المقال: ${id}`)
+    
+    if (!id) {
+      return NextResponse.json({
+        success: false,
+        error: 'معرف المقال مطلوب',
+        code: 'MISSING_ID'
+      }, { status: 400 })
+    }
+    
     // استخدام مدير الاتصال لضمان الاتصال
     // السماح بجلب أي حالة عند استخدام ?all=true
     const url = new URL(request.url)
@@ -105,12 +113,11 @@ export async function GET(
       }
     }
     
+    // إرجاع البيانات مباشرة للتوافق مع صفحة عرض المقال
     return NextResponse.json({
-      success: true,
-      article: {
-        ...article,
-        category: categoryInfo
-      }
+      ...article,
+      category: categoryInfo,
+      success: true
     })
     
   } catch (error: any) {
@@ -132,6 +139,14 @@ export async function GET(
       details: error.message || 'خطأ غير معروف'
     }, { status: 500 })
   }
+}
+
+// تحديث المقال - دعم PUT
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  return PATCH(request, context);
 }
 
 // تحديث المقال

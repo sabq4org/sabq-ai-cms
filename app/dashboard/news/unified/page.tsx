@@ -418,8 +418,16 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
               const articleData = await articleResponse.json();
               console.log('✅ تم جلب بيانات المقال:', articleData);
               
+              // التعامل مع كلا التنسيقين (للتوافق)
+              let article = null;
               if (articleData.success && articleData.article) {
-                const article = articleData.article;
+                article = articleData.article;
+              } else if (articleData.id && articleData.title) {
+                // البيانات مباشرة
+                article = articleData;
+              }
+              
+              if (article) {
                 
                 // تحديث بيانات النموذج
                 setFormData({
