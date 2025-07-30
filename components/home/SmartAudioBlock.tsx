@@ -275,14 +275,14 @@ function CompactPodcastSection() {
   );
 }
 
-// مكون الوحدة الذكية
+// مكون الوحدة الذكية - محسن بناءً على ملاحظات المستخدم
 function SmartModule() {
   const { darkMode } = useDarkModeContext();
   const [activeModule, setActiveModule] = useState<'sentiment' | 'fact'>('sentiment');
   const [sentimentData, setSentimentData] = useState({
     topic: 'القرار الاقتصادي الجديد',
     sentiment: 'إيجابي',
-    percentage: 78,
+    percentage: 92,
     trend: 'صاعد'
   });
   
@@ -298,7 +298,7 @@ function SmartModule() {
       if (activeModule === 'sentiment') {
         setSentimentData(prev => ({
           ...prev,
-          percentage: Math.floor(Math.random() * 40) + 60 // 60-100%
+          percentage: Math.floor(Math.random() * 20) + 80 // 80-100%
         }));
       }
     }, 30000);
@@ -308,138 +308,172 @@ function SmartModule() {
 
   return (
     <div className={cn(
-      'h-[160px] p-4 rounded-2xl transition-all duration-300',
-      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200'
+      'h-[160px] p-4 rounded-2xl border transition-all duration-300 overflow-hidden w-full max-w-full',
+      darkMode 
+        ? 'bg-gradient-to-tr from-purple-900/20 via-purple-800/10 to-slate-800 border-purple-700/30' 
+        : 'bg-gradient-to-tr from-purple-100 via-white to-white border-purple-200 shadow-md'
     )}>
-      {/* رأس الوحدة الذكية */}
+      {/* رأس الوحدة الذكية - محسن */}
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className={cn(
-            'p-2 rounded-lg flex-shrink-0',
-            darkMode ? 'bg-purple-900/30' : 'bg-purple-100'
+            'p-2 rounded-full flex-shrink-0 shadow-sm',
+            darkMode ? 'bg-purple-700/30 border border-purple-600/20' : 'bg-purple-100 border border-purple-200'
           )}>
-            <Brain className="w-4 h-4 text-purple-600" />
+            <Brain className={cn(
+              'w-5 h-5',
+              darkMode ? 'text-purple-300' : 'text-purple-700'
+            )} />
           </div>
-          <h3 className={cn(
-            'text-sm font-bold',
-            darkMode ? 'text-gray-100' : 'text-gray-900'
-          )}>
-            وحدة ذكية
-          </h3>
+          <div>
+            <span className={cn(
+              'text-xs px-3 py-1 rounded-full font-semibold',
+              darkMode 
+                ? 'bg-purple-800/40 text-purple-200 border border-purple-600/30'
+                : 'bg-purple-200 text-purple-900'
+            )}>
+              وحدة ذكية
+            </span>
+          </div>
         </div>
         
-        {/* أزرار التبديل */}
-        <div className="flex gap-1">
+        {/* أزرار التبديل - محسنة */}
+        <div className="flex gap-2">
           <button
             onClick={() => setActiveModule('sentiment')}
             className={cn(
-              'p-1 rounded-lg transition-colors text-xs',
+              'p-2 rounded-lg transition-all duration-200 text-xs border',
               activeModule === 'sentiment'
-                ? (darkMode ? 'bg-purple-700 text-white' : 'bg-purple-600 text-white')
-                : (darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-600 hover:bg-gray-300')
+                ? (darkMode 
+                    ? 'bg-purple-700 text-white border-purple-600 shadow-sm' 
+                    : 'bg-purple-600 text-white border-purple-600 shadow-sm')
+                : (darkMode 
+                    ? 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border-slate-600' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300')
             )}
+            title="تحليل رأي الجمهور"
           >
-            <MessageSquare className="w-3 h-3" />
+            <MessageSquare className="w-4 h-4" />
           </button>
           <button
             onClick={() => setActiveModule('fact')}
             className={cn(
-              'p-1 rounded-lg transition-colors text-xs',
+              'p-2 rounded-lg transition-all duration-200 text-xs border',
               activeModule === 'fact'
-                ? (darkMode ? 'bg-purple-700 text-white' : 'bg-purple-600 text-white')
-                : (darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-600 hover:bg-gray-300')
+                ? (darkMode 
+                    ? 'bg-purple-700 text-white border-purple-600 shadow-sm' 
+                    : 'bg-purple-600 text-white border-purple-600 shadow-sm')
+                : (darkMode 
+                    ? 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border-slate-600' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300')
             )}
+            title="معلومة ذكية"
           >
-            <Lightbulb className="w-3 h-3" />
+            <Lightbulb className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* محتوى الوحدة */}
-      <div className="h-[100px] overflow-hidden">
+      {/* محتوى الوحدة - محسن */}
+      <div className="h-[90px] overflow-hidden">
         {activeModule === 'sentiment' ? (
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-green-600" />
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-green-600 flex-shrink-0" />
               <h4 className={cn(
-                'text-xs font-bold',
-                darkMode ? 'text-gray-200' : 'text-gray-800'
+                'text-sm font-bold',
+                darkMode ? 'text-slate-100' : 'text-gray-900'
               )}>
                 تحليل رأي الجمهور
               </h4>
             </div>
             
             <div className={cn(
-              'p-3 rounded-lg',
-              darkMode ? 'bg-gray-900/50' : 'bg-white/80'
+              'p-3 rounded-xl border',
+              darkMode 
+                ? 'bg-slate-800/60 border-slate-600/30' 
+                : 'bg-white/90 border-gray-200 shadow-sm'
             )}>
               <p className={cn(
-                'text-xs mb-2 line-clamp-2',
-                darkMode ? 'text-gray-300' : 'text-gray-700'
+                'text-sm mb-3 font-medium',
+                darkMode ? 'text-slate-200' : 'text-gray-800'
               )}>
-                💬 <strong>"{sentimentData.topic}"</strong>
+                "{sentimentData.topic}"
               </p>
               
-              <div className="flex items-center gap-2 mb-2">
-                <div className={cn(
-                  'w-8 h-2 rounded-full overflow-hidden',
-                  darkMode ? 'bg-gray-700' : 'bg-gray-200'
-                )}>
-                  <div 
-                    className="h-full bg-green-500 transition-all duration-500"
-                    style={{ width: `${sentimentData.percentage}%` }}
-                  />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={cn(
+                    'w-12 h-2 rounded-full overflow-hidden',
+                    darkMode ? 'bg-slate-700' : 'bg-gray-200'
+                  )}>
+                    <div 
+                      className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all duration-700"
+                      style={{ width: `${sentimentData.percentage}%` }}
+                    />
+                  </div>
+                  <span className={cn(
+                    'text-sm font-bold',
+                    darkMode ? 'text-green-400' : 'text-green-600'
+                  )}>
+                    {sentimentData.percentage}% {sentimentData.sentiment}
+                  </span>
                 </div>
-                <span className={cn(
-                  'text-xs font-bold',
-                  darkMode ? 'text-green-400' : 'text-green-600'
-                )}>
-                  {sentimentData.percentage}% {sentimentData.sentiment}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <Zap className="w-3 h-3 text-blue-500" />
-                <span className={cn(
-                  'text-xs',
-                  darkMode ? 'text-gray-400' : 'text-gray-600'
-                )}>
-                  الاتجاه: {sentimentData.trend}
-                </span>
+                
+                <div className="flex items-center gap-1">
+                  <span className={cn(
+                    'text-xs px-2 py-1 rounded-full font-medium',
+                    darkMode 
+                      ? 'bg-green-900/30 text-green-400' 
+                      : 'bg-green-100 text-green-700'
+                  )}>
+                    🔍 {sentimentData.percentage}% دقة
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         ) : (
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-yellow-600" />
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-yellow-600 flex-shrink-0" />
               <h4 className={cn(
-                'text-xs font-bold',
-                darkMode ? 'text-gray-200' : 'text-gray-800'
+                'text-sm font-bold',
+                darkMode ? 'text-slate-100' : 'text-gray-900'
               )}>
-                {factData.title}
+                معلومة ذكية
               </h4>
             </div>
             
             <div className={cn(
-              'p-3 rounded-lg',
-              darkMode ? 'bg-gray-900/50' : 'bg-white/80'
+              'p-3 rounded-xl border',
+              darkMode 
+                ? 'bg-slate-800/60 border-slate-600/30' 
+                : 'bg-white/90 border-gray-200 shadow-sm'
             )}>
               <p className={cn(
-                'text-xs mb-2 line-clamp-3 leading-relaxed',
-                darkMode ? 'text-gray-300' : 'text-gray-700'
+                'text-sm mb-2 line-clamp-2 leading-relaxed',
+                darkMode ? 'text-slate-200' : 'text-gray-800'
               )}>
-                🤖 <strong>هل تعلم أن</strong> {factData.fact}
+                <strong className="text-yellow-600">هل تعلم؟</strong> {factData.fact.substring(0, 80)}...
               </p>
               
-              <div className="flex items-center gap-1 mt-2">
-                <Globe className="w-3 h-3 text-blue-500" />
-                <span className={cn(
-                  'text-xs opacity-75',
-                  darkMode ? 'text-gray-400' : 'text-gray-600'
+              <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center gap-1">
+                  <Globe className="w-3 h-3 text-blue-500" />
+                  <span className={cn(
+                    'text-xs',
+                    darkMode ? 'text-slate-400' : 'text-gray-600'
+                  )}>
+                    {factData.source}
+                  </span>
+                </div>
+                <button className={cn(
+                  'text-xs font-medium hover:underline transition-colors',
+                  darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'
                 )}>
-                  المصدر: {factData.source}
-                </span>
+                  عرض التفاصيل
+                </button>
               </div>
             </div>
           </div>
