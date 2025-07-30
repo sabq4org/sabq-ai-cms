@@ -125,8 +125,10 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
               {/* اللوقو الرسمي - أكبر حجماً */}
-              <div className="flex items-center py-2 min-h-[52px]">
-                {!settingsLoading && logoUrl && (
+              <div className="flex items-center py-2 min-h-[52px] min-w-[140px]">
+                {settingsLoading ? (
+                  <div className="h-9 w-32 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+                ) : logoUrl && (
                   <Image
                     src={logoUrl}
                     alt={siteName}
@@ -151,11 +153,11 @@ export default function Header() {
                 className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   item.highlight
                     ? darkMode
-                      ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
-                      : 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                      ? 'text-red-400 hover:text-red-300 hover:bg-gray-800/50'
+                      : 'text-red-600 hover:text-red-700 hover:bg-gray-100/50'
                     : darkMode
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-700'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-800/50'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/50'
                 }`}
               >
                 <item.icon className="w-4 h-4" />
