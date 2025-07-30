@@ -21,8 +21,14 @@
 .article-content {
   font-family: var(--font-family-content, 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif) !important;
   line-height: 1.8;
-  font-size: 18px;
+  font-size: 1.125rem; /* 18px */
   color: #374151;
+}
+
+/* وضع القراءة المحسن */
+.article-content.reading-mode {
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.9;
 }
 
 .article-content h1,
@@ -60,7 +66,11 @@
   }
   
   .article-content {
-    font-size: 16px;
+    font-size: 1rem; /* 16px */
+  }
+  
+  .article-content.reading-mode {
+    font-size: 1.125rem; /* 18px */
   }
 }
 

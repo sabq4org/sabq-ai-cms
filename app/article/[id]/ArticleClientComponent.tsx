@@ -15,7 +15,7 @@ import UltimateImage from '@/components/UltimateImage';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
-  Play, Pause, Volume2, CheckCircle, Sparkles
+  Play, Pause, Volume2, CheckCircle, Sparkles, BookOpen
 } from 'lucide-react';
 import { SmartInteractionButtons } from '@/components/article/SmartInteractionButtons';
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
@@ -40,6 +40,7 @@ export default function ArticleClientComponent({
   const { darkMode } = useDarkModeContext();
   const [article, setArticle] = useState<ArticleData | null>(initialArticle || null);
   const [loading, setLoading] = useState(!initialArticle);
+  const [isReading, setIsReading] = useState(false);
   
   // جلب المقال إذا لم يتم تمريره
   useEffect(() => {
@@ -313,9 +314,28 @@ export default function ArticleClientComponent({
             </div>
           )}
 
+          {/* زر وضع القراءة */}
+          <div className="mb-6 sm:mb-8 flex justify-end">
+            <button
+              onClick={() => setIsReading(!isReading)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                isReading
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+              } hover:opacity-90`}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {isReading ? 'إيقاف وضع القراءة' : 'وضع القراءة'}
+              </span>
+            </button>
+          </div>
+
           {/* محتوى المقال */}
           <div 
-            className="prose prose-sm sm:prose-base lg:prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-relaxed"
+            className={`prose max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-relaxed ${
+              isReading ? 'prose-xl' : 'prose-lg'
+            }`}
             dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
           
