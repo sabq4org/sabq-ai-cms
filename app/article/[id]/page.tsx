@@ -3,6 +3,7 @@
 import { ArticleData } from '@/lib/article-api';
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { getArticleError, logArticleError, isValidArticleId } from '@/lib/utils/article-error-handler';
 
 // تحميل ديناميكي للمكون لتجنب مشاكل SSR
 const ArticleClientComponent = dynamic(() => import('./ArticleClientComponent'), {
@@ -48,25 +49,66 @@ export default function ArticlePage({ params }: PageProps) {
         const resolved = await params;
         setResolvedParams(resolved);
         
-        // جلب المقال
-        const response = await fetch(`/api/articles/${resolved.id}`);
+        console.log(`⏳ جاري جلب المقال: ${resolved.id}`);
         
-        if (response.status === 404) {
-          // المقال غير موجود
-          setError(null); // لا نعرض رسالة خطأ إضافية
-        } else if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setArticle(data);
+        // التحقق من صلاحية معرف المقال
+        if (!isValidArticleId(resolved.id)) {
+          console.error(`❌ معرف المقال غير صالح: ${resolved.id}`);
+          const error = getArticleError(null, null, null, resolved.id);
+          logArticleError(error);
+          setError(error.message + '. ' + (error.details || ''));
+          setArticle(null);
+          return;
+        }
+        
+        // إضافة timeout لتجنب الانتظار اللانهائي
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
+        
+        let response: Response | null = null;
+        let responseData: any = null;
+        
+        try {
+          // جلب المقال
+          response = await fetch(`/api/articles/${resolved.id}`, {
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          
+          console.log(`📊 حالة الاستجابة: ${response.status}`);
+          
+          if (response.ok) {
+            responseData = await response.json();
+            console.log('📦 البيانات المستلمة:', responseData);
+            
+            if (!responseData || responseData.success === false || !responseData.id) {
+              const error = getArticleError(response.status, responseData, null, resolved.id);
+              logArticleError(error);
+              setError(error.message + '. ' + (error.details || ''));
+              setArticle(null);
+            } else {
+              setArticle(responseData);
+            }
           } else {
-            setError(null); // المقال غير موجود
+            const error = getArticleError(response.status, null, null, resolved.id);
+            logArticleError(error);
+            setError(error.message + '. ' + (error.details || ''));
+            setArticle(null);
           }
-        } else {
-          // خطأ في الخادم
-          setError('حدث خطأ في تحميل المقال. يرجى المحاولة لاحقاً.');
+        } catch (fetchError) {
+          const error = getArticleError(
+            response?.status || null,
+            responseData,
+            fetchError,
+            resolved.id
+          );
+          logArticleError(error);
+          setError(error.message + '. ' + (error.details || ''));
+          setArticle(null);
         }
       } catch (err) {
-        console.error('Error loading article:', err);
+        console.error('❌ خطأ في تحميل المقال:', err);
         setError('حدث خطأ في تحميل المقال');
       } finally {
         setLoading(false);
@@ -134,14 +176,28 @@ export default function ArticlePage({ params }: PageProps) {
           lineHeight: 1.8,
           marginBottom: '0.5rem'
         }}>
-          المقال الذي تبحث عنه غير متوفر حالياً.
+          {error || 'المقال الذي تبحث عنه غير متوفر حالياً.'}
         </p>
         <p style={{
           color: '#9ca3af', 
-          fontSize: '0.875rem'
+          fontSize: '0.875rem',
+          marginBottom: '1rem'
         }}>
           قد يكون المقال قد تم نقله أو حذفه.
         </p>
+        {resolvedParams && (
+          <p style={{
+            color: '#9ca3af', 
+            fontSize: '0.75rem',
+            fontFamily: 'monospace',
+            background: '#f3f4f6',
+            padding: '0.5rem',
+            borderRadius: '4px',
+            wordBreak: 'break-all'
+          }}>
+            معرف المقال: {resolvedParams.id}
+          </p>
+        )}
         <a 
           href="/" 
           style={{
