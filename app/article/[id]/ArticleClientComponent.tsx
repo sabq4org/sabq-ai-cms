@@ -214,16 +214,16 @@ export default function ArticleClientComponent({
       <ReadingProgressBar />
       
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* منطقة الهيدر بدون خلفية */}
+        {/* منطقة الهيدر مع خلفية شفافة */}
         <div className="relative">
           <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pt-20 sm:pt-24">
-            {/* رأس المقال */}
-            <header className="mb-8 text-right">
+            {/* رأس المقال بخلفية شفافة */}
+            <header className="mb-8 text-right bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 sm:p-8 border border-gray-200/50 dark:border-gray-700/50">
             {/* التصنيف */}
             {article.category && (
               <Link
                 href={`/categories/${article.category.slug}`}
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
               >
                 {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
                 <span>{article.category.name}</span>
@@ -250,7 +250,7 @@ export default function ArticleClientComponent({
                   {hasProfile && reporter ? (
                     <Link 
                       href={reporter.profileUrl}
-                      className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group"
+                      className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer group hover:underline decoration-blue-600/30 dark:decoration-blue-400/30 underline-offset-4"
                       title={`عرض بروفايل ${reporter.full_name}`}
                     >
                       <span className="truncate max-w-[120px] sm:max-w-none group-hover:underline">
@@ -288,8 +288,8 @@ export default function ArticleClientComponent({
 
             {/* صورة المقال */}
             {article.featured_image && (
-              <div className="mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
-                <div className="max-w-4xl mx-auto">
+              <div className="mb-8">
+                <div className="-mx-4 sm:mx-0">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
@@ -302,7 +302,7 @@ export default function ArticleClientComponent({
         </div>
 
         {/* منطقة المحتوى */}
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
 
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
@@ -340,7 +340,7 @@ export default function ArticleClientComponent({
                   <Link
                     key={index}
                     href={`/tags/${encodeURIComponent(keyword)}`}
-                    className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                    className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 hover:shadow-sm"
                   >
                     <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     <span>{keyword}</span>
