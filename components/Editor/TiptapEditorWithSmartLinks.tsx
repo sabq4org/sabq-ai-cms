@@ -18,6 +18,7 @@ import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
 import { SmartLinksExtension } from './extensions/SmartLinksExtension';
 import SmartLinksPanel from './SmartLinksPanel';
+import EnhancedSmartLinksPanel from './EnhancedSmartLinksPanel';
 import toast from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
@@ -56,6 +57,9 @@ interface TiptapEditorWithSmartLinksProps {
   showSmartLinksPanel?: boolean;
   autoAnalyze?: boolean;
   debounceDelay?: number;
+  userId?: string;
+  articleId?: string;
+  enhancedMode?: boolean;
 }
 
 export default function TiptapEditorWithSmartLinks({ 
@@ -64,7 +68,10 @@ export default function TiptapEditorWithSmartLinks({
   placeholder,
   showSmartLinksPanel = true,
   autoAnalyze = true,
-  debounceDelay = 2000
+  debounceDelay = 2000,
+  userId,
+  articleId,
+  enhancedMode = true
 }: TiptapEditorWithSmartLinksProps) {
   const { darkMode } = useDarkModeContext();
   const [savedContent, setSavedContent] = useState<string>('');
@@ -72,9 +79,16 @@ export default function TiptapEditorWithSmartLinks({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [suggestedLinks, setSuggestedLinks] = useState<SmartLink[]>([]);
   const [smartLinksEnabled, setSmartLinksEnabled] = useState(true);
+  const [analysisData, setAnalysisData] = useState<any>(null);
+  const [settings, setSettings] = useState({
+    enableAI: true,
+    enablePersonalization: Boolean(userId),
+    maxSuggestions: 10,
+    language: 'ar' as 'ar' | 'en'
+  });
   const analyzeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // دالة تحليل النص باستخدام API
+  // دالة تحليل النص باستخدام API مع المميزات المتقدمة
   const analyzeText = useCallback(async (text: string): Promise<SmartLink[]> => {
     if (!text || text.trim().length < 50) {
       return [];
@@ -82,6 +96,13 @@ export default function TiptapEditorWithSmartLinks({
 
     try {
       setIsAnalyzing(true);
+      console.log('🚀 بدء التحليل المتقدم...', {
+        textLength: text.length,
+        settings,
+        userId,
+        articleId
+      });
+
       const response = await fetch('/api/smart-links/analyze', {
         method: 'POST',
         headers: {
@@ -89,7 +110,13 @@ export default function TiptapEditorWithSmartLinks({
         },
         body: JSON.stringify({
           text: text,
-          context: 'editor'
+          context: 'editor',
+          userId,
+          articleId,
+          language: settings.language,
+          enableAI: settings.enableAI,
+          personalization: settings.enablePersonalization,
+          maxSuggestions: settings.maxSuggestions
         }),
       });
 
@@ -99,6 +126,9 @@ export default function TiptapEditorWithSmartLinks({
 
       const data = await response.json();
       
+      // حفظ بيانات التحليل المتقدمة
+      setAnalysisData(data);
+      
       // تحويل البيانات لتطابق واجهة SmartLink
       const links: SmartLink[] = data.entities.map((entity: any) => ({
         entityId: entity.entityId,
@@ -107,13 +137,26 @@ export default function TiptapEditorWithSmartLinks({
         endPos: entity.endIndex,
         confidence: entity.confidence,
         entity: entity.entity,
-        suggestedLink: entity.suggestedLink
+        suggestedLink: entity.suggestedLink,
+        personalizedScore: entity.personalizedScore,
+        isPersonalized: entity.isPersonalized
       }));
 
       setSuggestedLinks(links);
-      toast.success(`تم العثور على ${links.length} رابط ذكي`, { 
+      
+      // رسالة تأكيد متقدمة
+      const features = [];
+      if (data.aiSuggestions?.length > 0) features.push('AI');
+      if (data.personalization) features.push('تخصيص');
+      if (data.knowledgeGraph) features.push('شبكة معرفة');
+      
+      const message = features.length > 0 
+        ? `تم العثور على ${links.length} رابط ذكي (${features.join(', ')})` 
+        : `تم العثور على ${links.length} رابط ذكي`;
+        
+      toast.success(message, { 
         icon: '🔗', 
-        duration: 2000 
+        duration: 3000 
       });
       
       return links;
@@ -138,6 +181,24 @@ export default function TiptapEditorWithSmartLinks({
       analyzeText(text);
     }, debounceDelay);
   }, [analyzeText, autoAnalyze, smartLinksEnabled, debounceDelay]);
+
+  // دالة معالجة تغيير الإعدادات
+  const handleSettingsChange = useCallback((newSettings: any) => {
+    setSettings(newSettings);
+    console.log('⚙️ تم تحديث الإعدادات:', newSettings);
+    
+    // إعادة تحليل تلقائي إذا تغيرت الإعدادات المهمة
+    if (editor?.getText() && (
+      newSettings.enableAI !== settings.enableAI ||
+      newSettings.enablePersonalization !== settings.enablePersonalization ||
+      newSettings.language !== settings.language
+    )) {
+      const text = editor.getText();
+      if (text.length > 50) {
+        analyzeText(text);
+      }
+    }
+  }, [settings, editor, analyzeText]);
 
   const editor = useEditor({
     extensions: [
@@ -407,15 +468,29 @@ export default function TiptapEditorWithSmartLinks({
         {/* لوحة الروابط الذكية */}
         {showSmartLinksPanel && (
           <div className="w-80">
-            <SmartLinksPanel
-              isAnalyzing={isAnalyzing}
-              suggestedLinks={suggestedLinks}
-              onAnalyzeText={handleManualAnalysis}
-              onApplyLink={handleApplyLink}
-              onRejectLink={handleRejectLink}
-              onToggleLinks={handleToggleSmartLinks}
-              isEnabled={smartLinksEnabled}
-            />
+            {enhancedMode ? (
+              <EnhancedSmartLinksPanel
+                isAnalyzing={isAnalyzing}
+                analysisData={analysisData}
+                onAnalyzeText={handleManualAnalysis}
+                onApplyLink={handleApplyLink}
+                onRejectLink={handleRejectLink}
+                onToggleLinks={handleToggleSmartLinks}
+                isEnabled={smartLinksEnabled}
+                settings={settings}
+                onSettingsChange={handleSettingsChange}
+              />
+            ) : (
+              <SmartLinksPanel
+                isAnalyzing={isAnalyzing}
+                suggestedLinks={suggestedLinks}
+                onAnalyzeText={handleManualAnalysis}
+                onApplyLink={handleApplyLink}
+                onRejectLink={handleRejectLink}
+                onToggleLinks={handleToggleSmartLinks}
+                isEnabled={smartLinksEnabled}
+              />
+            )}
           </div>
         )}
       </div>

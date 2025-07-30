@@ -1325,3 +1325,209 @@ enum ImportStatus {
   duplicate
   rejected
 }
+
+// ==============================================================
+// نماذج نظام الكيانات الذكية والروابط المتقدمة
+// ==============================================================
+
+// جدول أنواع الكيانات
+model SmartEntityTypes {
+  id          String @id
+  name        String @unique // person, organization, location, etc.
+  name_ar     String
+  icon        String // إيموجي أو أيقونة
+  color       String // لون hex للتمييز البصري
+  description String?
+  is_active   Boolean @default(true)
+  
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // Relations
+  entities    SmartEntities[]
+  
+  @@map("smart_entity_types")
+}
+
+// جدول الكيانات الذكية
+model SmartEntities {
+  id               String @id @default(cuid())
+  
+  // معلومات أساسية
+  name             String
+  name_ar          String?
+  name_en          String?
+  entity_type_id   String
+  description      String?
+  short_bio        String?
+  
+  // تقييم الأهمية
+  importance_score Int     @default(5) // 1-10
+  is_active        Boolean @default(true)
+  is_verified      Boolean @default(false)
+  
+  // أسماء بديلة ومرادفات
+  aliases          Json?   // ["اسم بديل 1", "اسم بديل 2"]
+  
+  // روابط ومعلومات خارجية
+  official_website String?
+  wikipedia_url    String?
+  social_media     Json?   // {twitter: "", linkedin: "", instagram: ""}
+  
+  // معلومات زمنية
+  birth_date       DateTime?
+  start_date       DateTime? // تاريخ بداية المشروع/المنصب
+  end_date         DateTime? // تاريخ النهاية
+  
+  // موقع جغرافي
+  location         String?
+  country          String?  @default("SA")
+  region           String?
+  
+  // معلومات SEO
+  slug             String?  @unique
+  seo_keywords     String?
+  
+  // الشعبية والتفاعل
+  mention_count    Int      @default(0) // عدد مرات الذكر في المقالات
+  click_count      Int      @default(0) // عدد النقرات على الروابط
+  last_mentioned   DateTime?
+  
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  
+  // Relations
+  entity_type      SmartEntityTypes @relation(fields: [entity_type_id], references: [id])
+  entity_links_source EntityLinks[] @relation("SourceEntity")
+  entity_links_target EntityLinks[] @relation("TargetEntity")
+  smart_links      SmartArticleLinks[]
+  
+  @@map("smart_entities")
+  @@index([entity_type_id])
+  @@index([importance_score])
+  @@index([mention_count])
+}
+
+// جدول الروابط بين الكيانات (علاقات)
+model EntityLinks {
+  id                String   @id @default(cuid())
+  source_entity_id  String
+  target_entity_id  String
+  relationship_type String   // works_at, member_of, located_in, part_of, etc.
+  relationship_ar   String?  // يعمل في، عضو في، يقع في، جزء من
+  strength          Int      @default(1) // قوة العلاقة 1-10
+  is_active         Boolean  @default(true)
+  
+  source_entity     SmartEntities @relation("SourceEntity", fields: [source_entity_id], references: [id])
+  target_entity     SmartEntities @relation("TargetEntity", fields: [target_entity_id], references: [id])
+  
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  
+  @@map("entity_links")
+  @@unique([source_entity_id, target_entity_id, relationship_type])
+}
+
+// جدول الروابط الذكية في المقالات
+model SmartArticleLinks {
+  id              String   @id @default(cuid())
+  article_id      String   // معرف المقال
+  entity_id       String
+  
+  // معلومات الرابط في النص
+  matched_text    String   // النص الذي تم ربطه
+  context_before  String?  // السياق قبل الكلمة
+  context_after   String?  // السياق بعد الكلمة
+  position        Int      // موقع الرابط في النص
+  confidence      Float    @default(1.0) // مستوى الثقة في الربط
+  
+  // نوع الرابط
+  link_type       String   // entity, tooltip, modal, external
+  target_url      String?  // الرابط المستهدف
+  tooltip_content String?  // محتوى tooltip
+  
+  // حالة الرابط
+  is_approved     Boolean  @default(false) // موافقة المحرر
+  is_active       Boolean  @default(true)
+  auto_generated  Boolean  @default(true)  // تم إنشاؤه تلقائياً
+  
+  // إحصائيات
+  clicks          Int      @default(0)
+  impressions     Int      @default(0)
+  last_clicked    DateTime?
+  
+  entity          SmartEntities @relation(fields: [entity_id], references: [id])
+  
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  
+  @@map("smart_article_links")
+  @@index([article_id])
+  @@index([entity_id])
+  @@index([is_approved])
+}
+
+// جدول المصطلحات والتعاريف
+model SmartTerms {
+  id              String   @id @default(cuid())
+
+  term_ar         String?
+  term_en         String?
+  
+  definition      String   // التعريف المختصر
+  detailed_def    String?  // التعريف المفصل
+  example         String?  // مثال على الاستخدام
+  
+  category        String?  // اقتصادي، سياسي، تقني، طبي
+  difficulty      String   @default("medium") // easy, medium, hard
+  
+  // مرادفات
+  synonyms        Json?    // ["الناتج المحلي", "GDP", "إجمالي الناتج المحلي"]
+  
+  // روابط خارجية
+  reference_url   String?
+  wikipedia_url   String?
+  
+  usage_count     Int      @default(0)
+  is_active       Boolean  @default(true)
+  
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  
+  @@map("smart_terms")
+  @@index([category])
+  @@index([usage_count])
+}
+
+// جدول تتبع أداء الروابط الذكية
+model LinkAnalytics {
+  id              String   @id @default(cuid())
+  link_id         String?  // معرف الرابط الذكي
+  article_id      String
+  entity_id       String?
+  
+  // نوع الحدث
+  event_type      String   // click, impression, hover, copy
+  
+  // معلومات المستخدم (مجهولة)
+  user_agent      String?
+  ip_hash         String?  // hash للـ IP
+  session_id      String?
+  
+  // معلومات السياق
+  referrer        String?
+  time_on_page    Int?     // بالثواني
+  scroll_depth    Float?   // 0.0 - 1.0
+  
+  // معلومات الجهاز
+  device_type     String?  // mobile, desktop, tablet
+  browser_type    String?
+  
+  timestamp       DateTime @default(now())
+  
+  @@map("link_analytics")
+  @@index([article_id])
+  @@index([entity_id])
+  @@index([event_type])
+  @@index([timestamp])
+}
