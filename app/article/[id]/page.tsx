@@ -261,43 +261,29 @@ export default function ArticlePage({ params }: PageProps) {
             background: '#f3f4f6',
             padding: '0.5rem',
             borderRadius: '4px',
-            wordBreak: 'break-all'
+            wordBreak: 'break-all',
+            marginTop: '1rem'
           }}>
             معرف المقال: {resolvedParams.id}
           </p>
         )}
-        <a 
-          href="/" 
-          style={{
-            display: 'inline-block',
-            marginTop: '2rem',
-            padding: '0.75rem 2rem',
-            background: '#2563eb',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '8px',
-            fontWeight: 500
-          }}
-        >
-          العودة للرئيسية
-        </a>
       </div>
     );
   }
   
   return (
-    <div>
-      <style jsx global>{`
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-      `}</style>
+      `}} />
       
       <ArticleClientComponent 
         initialArticle={article} 
         articleId={resolvedParams.id} 
       />
-    </div>
+    </>
   );
 }
