@@ -298,6 +298,9 @@ export default function EditArticlePage() {
         articleData.publish_at = formData.scheduledDate;
       }
 
+      console.log('📤 البيانات المرسلة للتحديث:', articleData);
+      console.log('🔑 الكلمات المفتاحية المرسلة:', articleData.metadata?.keywords);
+      
       const response = await fetch(`/api/articles/${articleId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -305,11 +308,14 @@ export default function EditArticlePage() {
       });
 
       if (response.ok) {
+        const result = await response.json();
+        console.log('✅ نتيجة التحديث:', result);
         toast.success(status === 'draft' ? 'تم حفظ المسودة بنجاح' : 'تم تحديث المقال بنجاح');
-      router.push('/dashboard/news');
+        router.push('/dashboard/news');
       } else {
-        const data = await response.json();
-        throw new Error(data.error || 'فشل في حفظ المقال');
+        const errorData = await response.json();
+        console.error('❌ خطأ في الاستجابة:', errorData);
+        throw new Error(errorData.error || errorData.details || 'فشل في حفظ المقال');
       }
     } catch (error) {
       console.error('Error saving article:', error);

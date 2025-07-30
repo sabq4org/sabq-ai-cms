@@ -158,14 +158,26 @@ export async function PATCH(
   
   try {
     const data = await request.json()
+    console.log('📥 البيانات المستلمة للتحديث:', data)
+    console.log('📦 metadata المستلمة:', data.metadata)
+    
+    // معالجة البيانات قبل الحفظ
+    const updateData: any = {
+      ...data,
+      updated_at: new Date()
+    }
+    
+    // التأكد من أن metadata يتم حفظه بشكل صحيح
+    if (data.metadata) {
+      updateData.metadata = data.metadata
+    }
+    
+    console.log('💾 البيانات المعدة للحفظ:', updateData)
     
     const updatedArticle = await dbConnectionManager.executeWithConnection(async () => {
       return await prisma.articles.update({
         where: { id },
-        data: {
-          ...data,
-          updated_at: new Date()
-        }
+        data: updateData
       })
     })
     
