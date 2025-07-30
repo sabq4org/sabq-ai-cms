@@ -47,17 +47,9 @@ export default function DashboardLayout({
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  // التأكد من التحميل على العميل
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // تحديد حجم الشاشة
   useEffect(() => {
-    if (!mounted) return;
-    
     const checkScreenSize = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
@@ -75,7 +67,7 @@ export default function DashboardLayout({
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, [mounted]);
+  }, []);
 
   // حفظ حالة الشريط الجانبي
   useEffect(() => {
@@ -87,16 +79,17 @@ export default function DashboardLayout({
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   // منع الرندر حتى يتم التحميل على العميل
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-pulse">
-          <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-          <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
-        </div>
-      </div>
-    );
-  }
+  // تم تعطيل هذا التحقق مؤقتاً لحل مشكلة التحميل
+  // if (!mounted) {
+  //   return (
+  //     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+  //       <div className="animate-pulse">
+  //         <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+  //         <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">

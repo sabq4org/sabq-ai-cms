@@ -380,6 +380,16 @@ export default function SettingsPage() {
       }
     }));
   };
+  // تحقق مؤقت للتأكد من أن الصفحة تعمل
+  if (true) {
+    return (
+      <div className="p-8">
+        <h1 className="text-2xl font-bold">صفحة الإعدادات تعمل!</h1>
+        <p>إذا رأيت هذه الرسالة، فالمشكلة في DashboardLayout</p>
+      </div>
+    );
+  }
+
   return (
   <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
       {showSuccessMessage && (
