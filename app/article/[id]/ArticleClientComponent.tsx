@@ -10,6 +10,8 @@ import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
 import { getImageUrl, getOptimizedImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
+import OptimizedImage from '@/components/ui/optimized-image';
+import ArticleFeaturedImage from '@/components/article/ArticleFeaturedImage';
 
 import UltimateImage from '@/components/UltimateImage';
 import { Share2, Eye, Clock, Calendar,
@@ -212,26 +214,13 @@ export default function ArticleClientComponent({
       <ReadingProgressBar />
       
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* صورة المقال - حل مبسط ومضمون */}
+        {/* صورة المقال - مكون موحد مع دعم أساليب عرض متعددة */}
         {article.featured_image && (
-          <div className="article-featured-image relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[60vh] w-full bg-gray-200 dark:bg-gray-800">
-            <img
-              src={article.featured_image}
-              alt={article.title}
-              className="w-full h-full object-cover transition-opacity duration-500"
-              onLoad={(e) => {
-                console.log('✅ صورة المقال تم تحميلها:', article.featured_image);
-                const target = e.target as HTMLImageElement;
-                target.style.opacity = '1';
-              }}
-              onError={(e) => {
-                console.error('❌ فشل تحميل صورة المقال، جاري المحاولة مع صورة بديلة:', article.featured_image);
-                const target = e.target as HTMLImageElement;
-                target.src = '/images/placeholder-featured.jpg';
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 z-10" />
-          </div>
+          <ArticleFeaturedImage
+            imageUrl={article.featured_image}
+            title={article.title}
+            category={article.category}
+          />
         )}
 
         <article className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 ${!article.featured_image ? 'pt-20 sm:pt-24' : ''}`}>
