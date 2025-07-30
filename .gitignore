@@ -9,10 +9,6 @@
 # testing
 /coverage
 
-# uploaded files
-/public/uploads/logos/*
-!/public/uploads/logos/README.md
-
 # vercel
 .vercel-build-trigger
 

@@ -304,12 +304,13 @@ export default function SettingsPage() {
       };
       reader.readAsDataURL(file);
       
-      // رفع الملف إلى الخادم
+      // رفع الملف إلى Cloudinary
       try {
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('type', 'logos'); // نوع خاص للشعارات
         
-        const response = await fetch('/api/upload/logo', {
+        const response = await fetch('/api/upload/cloudinary', {
           method: 'POST',
           body: formData
         });
@@ -319,7 +320,7 @@ export default function SettingsPage() {
         if (data.success) {
           setLogoUrl(data.url);
           setIdentitySettings({...identitySettings, logo: data.url});
-          toast.success('تم رفع الشعار بنجاح');
+          toast.success('تم رفع الشعار بنجاح على Cloudinary');
         } else {
           toast.error(data.error || 'فشل رفع الشعار');
         }

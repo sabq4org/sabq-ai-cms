@@ -34,7 +34,8 @@ function getCloudinaryFolder(type: string): string {
     'analysis': 'sabq-cms/analysis',
     'daily-doses': 'sabq-cms/daily-doses',
     'opinions': 'sabq-cms/opinions',
-    'audio': 'sabq-cms/audio'
+    'audio': 'sabq-cms/audio',
+    'logos': 'sabq-cms/logos'
   };
   
   return folderMap[type] || 'sabq-cms/general';
