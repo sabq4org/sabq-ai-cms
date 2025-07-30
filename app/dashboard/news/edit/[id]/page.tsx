@@ -152,10 +152,16 @@ export default function EditArticlePage() {
         }
         
         if (article) {
-          console.log('✅ بيانات المقال:', article);
+                    console.log('✅ بيانات المقال:', article);
+          console.log('🔑 الكلمات المفتاحية المستلمة:', {
+            metadata_keywords: article.metadata?.keywords,
+            direct_keywords: article.keywords,
+            type_metadata: typeof article.metadata?.keywords,
+            type_direct: typeof article.keywords
+          });
           
           // تحديث البيانات
-        setFormData({
+          setFormData({
             title: article.title || '',
             subtitle: article.subtitle || '',
             excerpt: article.excerpt || '',
@@ -171,7 +177,38 @@ export default function EditArticlePage() {
             externalLink: article.external_link || '',
             publishType: 'now',
             scheduledDate: '',
-            keywords: article.metadata?.keywords || article.keywords || [],
+            keywords: (() => {
+              // محاولة جلب الكلمات المفتاحية من مصادر مختلفة
+              if (article.metadata?.keywords) {
+                if (Array.isArray(article.metadata.keywords)) {
+                  return article.metadata.keywords;
+                }
+                if (typeof article.metadata.keywords === 'string') {
+                  try {
+                    const parsed = JSON.parse(article.metadata.keywords);
+                    return Array.isArray(parsed) ? parsed : [];
+                  } catch {
+                    // قد تكون مفصولة بفواصل
+                    return article.metadata.keywords.split(',').map((k: string) => k.trim()).filter(Boolean);
+                  }
+                }
+              }
+              if (article.keywords) {
+                if (Array.isArray(article.keywords)) {
+                  return article.keywords;
+                }
+                if (typeof article.keywords === 'string') {
+                  try {
+                    const parsed = JSON.parse(article.keywords);
+                    return Array.isArray(parsed) ? parsed : [];
+                  } catch {
+                    // قد تكون مفصولة بفواصل
+                    return article.keywords.split(',').map((k: string) => k.trim()).filter(Boolean);
+                  }
+                }
+              }
+              return [];
+            })(),
             seoTitle: article.metadata?.seo_title || article.seo_title || '',
             seoDescription: article.metadata?.seo_description || article.seo_description || '',
             status: article.status || 'draft'
@@ -262,7 +299,7 @@ export default function EditArticlePage() {
       }
 
       const response = await fetch(`/api/articles/${articleId}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(articleData),
       });
