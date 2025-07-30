@@ -434,6 +434,22 @@ async function getSmartMixedContent(
 }
 
 /**
+ * 🖼️ الحصول على صورة افتراضية حسب نوع المحتوى
+ */
+function getDefaultImageByType(type: RecommendedArticle['type']): string {
+  const defaultImages = {
+    'تحليل': 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=300&fit=crop',
+    'رأي': 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop',
+    'عاجل': 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=400&h=300&fit=crop',
+    'مقالة': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
+    'تقرير': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop',
+    'ملخص': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=300&fit=crop'
+  };
+  
+  return defaultImages[type] || defaultImages['مقالة'];
+}
+
+/**
  * 🎯 ضمان التنوع في أنواع المحتوى
  */
 function ensureContentDiversity(
@@ -505,7 +521,7 @@ async function fetchArticlesByType(
         type: article.metadata?.type || 'مقالة',
         reason: getSmartReason(article.metadata?.type),
         confidence: Math.floor(Math.random() * 20) + 70, // 70-90
-        thumbnail: article.featured_image || article.thumbnail,
+        thumbnail: article.featured_image || article.thumbnail || getDefaultImageByType(determineArticleType(article)),
         publishedAt: article.published_at,
         category: article.category_name || article.categories?.name || article.category,
         readingTime: article.reading_time || Math.ceil((article.content?.length || 1000) / 200),

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import CloudImage from '@/components/ui/CloudImage';
 import { formatDateGregorian, formatRelativeDate } from '@/lib/date-utils';
 import { generatePersonalizedRecommendations, type RecommendedArticle, type UserBehavior } from '@/lib/ai-recommendations';
 import { 
@@ -103,18 +104,14 @@ const SmartRecommendationCard: React.FC<{
         
         {/* الصورة الرئيسية */}
         <div className={`relative ${isMobileScreen ? 'w-28 h-24' : 'h-24 sm:h-32 md:h-48'} overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800`}>
-          {article.thumbnail ? (
-            <Image
-              src={article.thumbnail}
-              alt={article.title}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-500"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-3xl sm:text-4xl md:text-6xl opacity-20">{getTypeIcon(article.type)}</span>
-            </div>
-          )}
+          <CloudImage
+            src={article.thumbnail || ''}
+            alt={article.title}
+            fill
+            sizes={isMobileScreen ? "112px" : "(max-width: 768px) 100vw, 50vw"}
+            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            fallbackType="article"
+          />
           
           {/* شارة النوع والأيقونة */}
           {!isMobileScreen && (
@@ -227,6 +224,10 @@ export default function SmartPersonalizedContent({
       });
       
       console.log('✅ تم توليد التوصيات:', personalizedRecommendations);
+      // التحقق من وجود صور في التوصيات
+      personalizedRecommendations.forEach((rec, index) => {
+        console.log(`📸 التوصية ${index + 1} - ${rec.title}: ${rec.thumbnail ? 'لديها صورة' : 'بدون صورة'}`);
+      });
       setRecommendations(personalizedRecommendations);
       setLastUpdateTime(new Date());
       
