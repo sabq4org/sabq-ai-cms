@@ -125,7 +125,7 @@ export default function Header() {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
               {/* اللوقو الرسمي - أكبر حجماً */}
-              <div className="flex items-center py-3 -ml-2 sm:ml-0 mr-2 sm:mr-0">
+              <div className="flex items-center py-3 mr-2 sm:mr-0">
                 {settingsLoading ? (
                   <div className="h-10 sm:h-12 w-32 sm:w-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
                 ) : logoUrl && (
@@ -150,7 +150,7 @@ export default function Header() {
               <Link
                 key={item.url}
                 href={item.url}
-                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
                   item.highlight
                     ? darkMode
                       ? 'text-red-400 hover:text-red-300'
@@ -181,7 +181,7 @@ export default function Header() {
             }>
               <button
                 onClick={toggleDarkMode}
-                className={`p-2 rounded-md transition-colors duration-200 ${
+                className={`p-2 rounded-lg transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
                   darkMode 
                                         ? 'text-yellow-400 hover:text-yellow-300'
                     : 'text-gray-600 hover:text-gray-800'
@@ -196,7 +196,7 @@ export default function Header() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={handleDropdownToggle}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-md transition-colors duration-200 ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-lg transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
                     darkMode 
                                           ? 'text-gray-300 hover:text-white'
                     : 'text-gray-700 hover:text-gray-900'
@@ -228,7 +228,7 @@ export default function Header() {
             ) : (
               <Link
                 href="/login"
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
                   darkMode 
                                         ? 'text-gray-300 hover:text-white'
                     : 'text-gray-700 hover:text-gray-900'
@@ -242,7 +242,7 @@ export default function Header() {
             {/* المينيو المحمول */}
             <button
               onClick={toggleMobileMenu}
-              className={`md:hidden p-2 rounded-md transition-colors duration-200 ${
+              className={`md:hidden p-2 rounded-lg transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
                 darkMode 
                                       ? 'text-gray-400 hover:text-gray-200'
                     : 'text-gray-600 hover:text-gray-800'
