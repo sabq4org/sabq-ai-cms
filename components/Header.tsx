@@ -149,7 +149,7 @@ export default function Header() {
               <Link
                 key={item.url}
                 href={item.url}
-                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer hover:bg-blue-100/80 dark:hover:bg-blue-900/50  ${
+                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer  ${
                   item.highlight
                     ? darkMode
                       ? 'text-red-400 hover:text-red-300'
@@ -263,16 +263,14 @@ export default function Header() {
             
             <div className={`md:hidden fixed top-[var(--header-height)] left-0 right-0 z-50 ${
               darkMode ? 'bg-gray-900/98' : 'bg-white/98'
-            } backdrop-blur-md shadow-2xl border-t ${
-              darkMode ? 'border-gray-800' : 'border-gray-200'
-            }`}>
+            } backdrop-blur-md shadow-2xl border-t`}>
             <nav className="flex flex-col max-h-[calc(100vh-var(--header-height))] overflow-y-auto py-2">
               {navigationItems.map((item) => (
                 <Link
                   key={item.url}
                   href={item.url}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 cursor-pointer hover:bg-blue-100/70 dark:hover:bg-blue-900/50  ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 cursor-pointer  ${
                     item.highlight
                       ? darkMode
                         ? 'text-red-400 hover:text-red-300'
