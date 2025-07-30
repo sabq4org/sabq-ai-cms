@@ -47,16 +47,54 @@ const motivationalPhrases = [
   'محتوى مميز لك'
 ];
 
-// صور تجريبية للبطاقات المخصصة
-const demoImages = [
-  'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1626544827763-d516dce335e2?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1517654443271-11c621d19e60?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=400&h=300&fit=crop',
+// صور تجريبية للبطاقات المخصصة حسب نوع المحتوى
+const demoImagesByType: Record<string, string[]> = {
+  'article': [
+    'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=400&h=300&fit=crop', // أخبار عامة
+    'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=400&h=300&fit=crop', // صحافة
+    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&h=300&fit=crop', // إعلام
+    'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=400&h=300&fit=crop', // أخبار عالمية
+    'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?w=400&h=300&fit=crop'  // أخبار محلية
+  ],
+  'analysis': [
+    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop', // تحليل بيانات
+    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop', // إحصائيات
+    'https://images.unsplash.com/photo-1666875753105-c63a6f3bdc86?w=400&h=300&fit=crop', // رسوم بيانية
+    'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400&h=300&fit=crop'  // تحليل مالي
+  ],
+  'opinion': [
+    'https://images.unsplash.com/photo-1521790945508-9e0581a3c7f0?w=400&h=300&fit=crop', // رأي
+    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop', // نقاش
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop', // كاتب
+    'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400&h=300&fit=crop'  // مقال رأي
+  ],
+  'creative': [
+    'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop', // إبداع
+    'https://images.unsplash.com/photo-1626544827763-d516dce335e2?w=400&h=300&fit=crop', // فن
+    'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&h=300&fit=crop', // ثقافة
+    'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=400&h=300&fit=crop'  // تصميم
+  ],
+  'quick': [
+    'https://images.unsplash.com/photo-1504868584819-f8e8b4b6baac?w=400&h=300&fit=crop', // سريع
+    'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=400&h=300&fit=crop', // عاجل
+    'https://images.unsplash.com/photo-1517654443271-11c621d19e60?w=400&h=300&fit=crop', // خبر سريع
+    'https://images.unsplash.com/photo-1585241936939-be4099591252?w=400&h=300&fit=crop'  // آخر الأخبار
+  ],
+  'insight': [
+    'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=300&fit=crop', // رؤية
+    'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=400&h=300&fit=crop', // استراتيجية
+    'https://images.unsplash.com/photo-1556155092-490a1ba16284?w=400&h=300&fit=crop', // أفكار
+    'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400&h=300&fit=crop'  // رؤى مستقبلية
+  ]
+};
+
+// الصور الافتراضية إذا لم يكن هناك نوع محدد
+const defaultDemoImages = [
   'https://images.unsplash.com/photo-1478940020726-e9e191651f1a?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop'
+  'https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1572883454114-1cf0031ede2a?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop'
 ];
 
 export default function SmartContentNewsCard({ 
@@ -65,12 +103,18 @@ export default function SmartContentNewsCard({
   variant = 'full',
   position = 0 
 }: SmartContentNewsCardProps) {
-  const typeData = typeIcons[article.type || article.metadata?.type || 'article'] || typeIcons.article;
+  const articleType = article.type || article.metadata?.type || 'article';
+  const typeData = typeIcons[articleType] || typeIcons.article;
   const { icon: IconComponent, color, bgColor } = typeData;
   const phrase = motivationalPhrases[position % motivationalPhrases.length];
   
   // اختيار صورة تجريبية إذا لم تكن هناك صورة
-  const imageUrl = article.featured_image || article.thumbnail || demoImages[position % demoImages.length];
+  const getDemoImage = () => {
+    const typeImages = demoImagesByType[articleType] || defaultDemoImages;
+    return typeImages[position % typeImages.length];
+  };
+  
+  const imageUrl = article.featured_image || article.thumbnail || getDemoImage();
 
   // البطاقة للنسخة الكاملة (Desktop)
   if (variant === 'desktop') {
