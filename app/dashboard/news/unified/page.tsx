@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast, Toaster } from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,8 +44,13 @@ interface Reporter {
 
 export default function UnifiedNewsCreatePageUltraEnhanced() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { darkMode } = useDarkModeContext();
   const editorRef = useRef<any>(null);
+  
+  // الحصول على معرف المقال من URL
+  const articleId = searchParams.get('id');
+  const isEditMode = !!articleId;
   
   // حالات التحميل
   const [loading, setLoading] = useState(true);
@@ -403,6 +408,64 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           });
         }
         
+        // جلب بيانات المقال إذا كان في وضع التعديل
+        if (isEditMode && articleId) {
+          console.log('📝 جلب بيانات المقال للتعديل:', articleId);
+          try {
+            const articleResponse = await fetch(`/api/articles/${articleId}?all=true`);
+            
+            if (articleResponse.ok) {
+              const articleData = await articleResponse.json();
+              console.log('✅ تم جلب بيانات المقال:', articleData);
+              
+              if (articleData.success && articleData.article) {
+                const article = articleData.article;
+                
+                // تحديث بيانات النموذج
+                setFormData({
+                  title: article.title || '',
+                  subtitle: article.subtitle || '',
+                  excerpt: article.excerpt || '',
+                  content: article.content || '',
+                  authorId: article.author_id || defaultReporterId || '',
+                  categoryId: article.category_id || defaultCategoryId || '',
+                  type: article.type || 'local',
+                  isBreaking: article.metadata?.is_breaking || article.is_breaking || false,
+                  isFeatured: article.metadata?.is_featured || article.is_featured || false,
+                  featuredImage: article.featured_image || '',
+                  featuredImageCaption: article.image_caption || '',
+                  gallery: article.metadata?.gallery || article.gallery || [],
+                  externalLink: article.external_link || '',
+                  publishType: 'now',
+                  scheduledDate: '',
+                  keywords: article.metadata?.keywords || article.keywords || [],
+                  seoTitle: article.metadata?.seo_title || article.seo_title || '',
+                  seoDescription: article.metadata?.seo_description || article.seo_description || '',
+                  status: article.status || 'draft'
+                });
+                
+                // تحديث المحرر
+                if (editorRef.current && article.content) {
+                  setTimeout(() => {
+                    editorRef.current.setContent(article.content);
+                  }, 100);
+                }
+                
+                toast.success('تم تحميل بيانات المقال بنجاح');
+              } else {
+                console.error('❌ بيانات المقال غير صحيحة:', articleData);
+                toast.error('فشل في تحميل بيانات المقال');
+              }
+            } else {
+              console.error('❌ فشل في جلب المقال:', articleResponse.status);
+              toast.error('المقال غير موجود أو لا يمكن الوصول إليه');
+            }
+          } catch (error) {
+            console.error('❌ خطأ في جلب المقال:', error);
+            toast.error('حدث خطأ في تحميل بيانات المقال');
+          }
+        }
+        
       } catch (error) {
         console.error('❌ خطأ في تحميل البيانات الأولية:', error);
         toast.error('فشل في تحميل البيانات الأولية');
@@ -413,7 +476,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
     };
     
     loadInitialData();
-  }, []);
+  }, [isEditMode, articleId]);
 
   // حفظ المقال
   const handleSave = async (status: 'draft' | 'published') => {
@@ -528,8 +591,11 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       console.log('🚀 إرسال البيانات إلى API...');
       let response;
       try {
-        response = await fetch('/api/articles', {
-          method: 'POST',
+        const url = isEditMode ? `/api/articles/${articleId}` : '/api/articles';
+        const method = isEditMode ? 'PUT' : 'POST';
+        
+        response = await fetch(url, {
+          method: method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(articleData)
         });
@@ -552,11 +618,17 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         
         setMessage({
           type: 'success',
-          text: status === 'draft' 
-            ? '💾 تم حفظ المسودة بنجاح' 
-            : formData.publishType === 'scheduled' 
-              ? '📅 تم جدولة المقال للنشر بنجاح'
-              : '🎉 تم نشر المقال بنجاح!'
+          text: isEditMode 
+            ? (status === 'draft' 
+              ? '💾 تم تحديث المسودة بنجاح' 
+              : formData.publishType === 'scheduled' 
+                ? '📅 تم تحديث جدولة المقال بنجاح'
+                : '🎉 تم تحديث المقال بنجاح!')
+            : (status === 'draft' 
+              ? '💾 تم حفظ المسودة بنجاح' 
+              : formData.publishType === 'scheduled' 
+                ? '📅 تم جدولة المقال للنشر بنجاح'
+                : '🎉 تم نشر المقال بنجاح!')
         });
         
         setTimeout(() => {
@@ -1103,7 +1175,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             <h1 className={cn(
               "text-2xl font-bold",
               darkMode ? "text-white" : "text-slate-800"
-            )}>خبر جديد</h1>
+            )}>{isEditMode ? 'تعديل الخبر' : 'خبر جديد'}</h1>
           </div>
           
           <div className="flex items-center gap-4">
