@@ -13,6 +13,7 @@ import SavedArticles from '@/components/profile/SavedArticles';
 import LikedArticles from '@/components/profile/LikedArticles';
 import LikedArticlesTab from '@/components/profile/LikedArticlesTab';
 import SavedArticlesTab from '@/components/profile/SavedArticlesTab';
+import Footer from '@/components/Footer';
 import { Crown, Heart, 
   Edit2, X, Star, TrendingUp,
   Calendar, Activity, BookOpen, Share2, ChevronRight, Zap, Eye,
@@ -594,7 +595,7 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* رأس الصفحة بتصميم محسّن */}
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-          <div className="max-w-screen-xl mx-auto px-4 py-12">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex items-center gap-6">
               <div className="relative group">
                 <div className="w-20 h-20 rounded-full overflow-hidden shadow-xl bg-gray-200 dark:bg-gray-700">
@@ -690,7 +691,7 @@ export default function ProfilePage() {
         </div>
         {/* التبويبات */}
         <div className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
-          <div className="max-w-screen-xl mx-auto px-4">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex gap-1">
               <button
                 onClick={() => setActiveTab('overview')}
@@ -776,13 +777,13 @@ export default function ProfilePage() {
           </div>
         </div>
         {/* المحتوى الرئيسي */}
-        <div className="max-w-screen-xl mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8 mb-12">
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* العمود الأيسر */}
               <div className="lg:col-span-1 space-y-6">
                 {/* بطاقة النقاط */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Zap className="w-5 h-5 text-amber-500" />
                     نقاط الولاء
@@ -816,7 +817,7 @@ export default function ProfilePage() {
                   </button>
                 </div>
                 {/* بطاقة الإحصائيات السريعة */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-green-600" />
                     إحصائيات سريعة
@@ -873,7 +874,7 @@ export default function ProfilePage() {
               {/* العمود الأيمن */}
               <div className="lg:col-span-2 space-y-6">
                 {/* الاهتمامات */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-bold flex items-center gap-2">
                       <Heart className="w-5 h-5 text-red-500" />
@@ -970,7 +971,7 @@ export default function ProfilePage() {
                 </div>
                 
                 {/* أوقات القراءة المفضلة */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Clock className="w-5 h-5 text-purple-600" />
                     أوقات القراءة المفضلة
@@ -1011,7 +1012,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* الإنجازات */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Trophy className="w-5 h-5 text-amber-600" />
                     الإنجازات
@@ -1044,7 +1045,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* توزيع الاهتمامات */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Activity className="w-5 h-5 text-blue-600" />
                     توزيع القراءة حسب التصنيف
@@ -1136,7 +1137,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 {/* توزيع الاهتمامات الافتراضي */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Target className="w-5 h-5 text-orange-500" />
                     توزيع اهتماماتك
@@ -1188,7 +1189,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 {/* أوقات القراءة المفضلة الافتراضية */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Clock className="w-5 h-5 text-blue-500" />
                     أوقات القراءة المفضلة
@@ -1481,6 +1482,9 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </>
   );
 }
