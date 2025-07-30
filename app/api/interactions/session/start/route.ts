@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // إنشاء جلسة قراءة جديدة
-    const readingSession = await prisma.reading_sessions.create({
+    const readingSession = await prisma.user_reading_sessions.create({
       data: {
         session_id: sessionId,
         user_id: userId,

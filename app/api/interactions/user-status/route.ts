@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
     // جلب تفاعلات المستخدم مع المقال
     const interactions = await prisma.interactions.findMany({
       where: {
-        userId,
-        targetId: articleId,
-        targetType: 'article',
+        user_id: userId,
+        target_id: articleId,
+        target_type: 'article',
         type: {
           in: ['like', 'save'],
         },

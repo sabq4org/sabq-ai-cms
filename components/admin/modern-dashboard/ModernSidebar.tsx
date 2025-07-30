@@ -206,6 +206,7 @@ const sidebarItems: SidebarItem[] = [
     href: '/admin/modern/settings',
     children: [
       { id: 'general', title: 'عام', icon: Settings, href: '/admin/modern/settings' },
+      { id: 'logo-manager', title: 'إدارة اللوجو', icon: Image, href: '/admin/logo-manager', badge: 'جديد', badgeVariant: 'secondary' as const },
       { id: 'advanced', title: 'متقدم', icon: Database, href: '/admin/settings/advanced' },
     ]
   },

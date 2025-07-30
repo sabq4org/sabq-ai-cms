@@ -37,8 +37,10 @@ export async function GET(request: NextRequest) {
       where.category = category;
     }
 
-    // جلب الكتاب مع إحصائيات مقالاتهم
-    const authors = await prisma.opinionAuthor.findMany({
+    // جلب الكتاب مع إحصائيات مقالاتهم - مع fallback آمن
+    let authors;
+    try {
+      authors = await prisma.opinionAuthor.findMany({
       where,
       include: {
         articles: {
@@ -66,6 +68,10 @@ export async function GET(request: NextRequest) {
       ],
       ...(limit && { take: parseInt(limit) })
     });
+    } catch (dbError) {
+      console.warn('⚠️ جدول opinionAuthor غير موجود، استخدام بيانات فارغة:', dbError);
+      authors = [];
+    }
 
     // إضافة إحصائيات لكل كاتب
     const authorsWithStats = authors.map((author: any) => {
