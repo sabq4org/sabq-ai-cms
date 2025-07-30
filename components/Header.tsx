@@ -149,7 +149,7 @@ export default function Header() {
               <Link
                 key={item.url}
                 href={item.url}
-                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer  ${
+                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer hover:bg-blue-100/80 dark:hover:bg-blue-900/50  ${
                   item.highlight
                     ? darkMode
                       ? 'text-red-400 hover:text-red-300'
@@ -272,7 +272,7 @@ export default function Header() {
                   key={item.url}
                   href={item.url}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 cursor-pointer  ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 cursor-pointer hover:bg-blue-100/70 dark:hover:bg-blue-900/50  ${
                     item.highlight
                       ? darkMode
                         ? 'text-red-400 hover:text-red-300'
