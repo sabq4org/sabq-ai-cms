@@ -88,7 +88,7 @@ const SmartRecommendationCard: React.FC<{
       }`}>
         
         {/* الصورة الرئيسية */}
-        <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+        <div className="relative h-32 md:h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
           {article.thumbnail ? (
             <Image
               src={article.thumbnail}
@@ -98,23 +98,23 @@ const SmartRecommendationCard: React.FC<{
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-6xl opacity-20">{getTypeIcon(article.type)}</span>
+              <span className="text-4xl md:text-6xl opacity-20">{getTypeIcon(article.type)}</span>
             </div>
           )}
           
           {/* شارة النوع والأيقونة */}
-          <div className="absolute top-3 right-3 flex items-center gap-2">
-            <span className="text-3xl bg-white/90 dark:bg-gray-900/90 rounded-full p-2 shadow-lg">
+          <div className="absolute top-2 right-2 md:top-3 md:right-3 flex items-center gap-1 md:gap-2">
+            <span className="text-xl md:text-3xl bg-white/90 dark:bg-gray-900/90 rounded-full p-1.5 md:p-2 shadow-lg">
               {getTypeIcon(article.type)}
             </span>
-            <span className={`px-3 py-1 rounded-full text-xs font-bold ${getTypeColors(article.type)}`}>
+            <span className={`px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs font-bold ${getTypeColors(article.type)}`}>
               {article.type}
             </span>
           </div>
           
           {/* مؤشر الترتيب */}
           {index < 3 && (
-            <div className={`absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-lg ${
+            <div className={`absolute top-2 left-2 md:top-3 md:left-3 w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-bold shadow-lg ${
               index === 0 ? 'bg-yellow-400 text-white' : 
               index === 1 ? 'bg-gray-400 text-white' :
               'bg-orange-400 text-white'
@@ -125,27 +125,27 @@ const SmartRecommendationCard: React.FC<{
         </div>
         
         {/* المحتوى */}
-        <div className="flex-1 p-5">
+        <div className="flex-1 p-3 md:p-5">
           {/* العبارة التشويقية */}
-          <div className={`mb-3 ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
-            <p className="text-sm font-bold">{ctaPhrase.title}</p>
+          <div className={`mb-2 md:mb-3 ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
+            <p className="text-xs md:text-sm font-bold">{ctaPhrase.title}</p>
             <p className="text-xs opacity-80">{ctaPhrase.subtitle}</p>
           </div>
           
           {/* العنوان */}
-          <h3 className={`font-bold text-lg leading-tight mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
+          <h3 className={`font-bold text-sm md:text-lg leading-tight mb-2 md:mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
             darkMode ? 'text-white' : 'text-gray-900'
           }`}>
             {article.title}
           </h3>
           
           {/* المعلومات الإضافية */}
-          <div className={`flex items-center justify-between text-sm ${
+          <div className={`flex items-center justify-between text-xs md:text-sm ${
             darkMode ? 'text-gray-400' : 'text-gray-500'
           }`}>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
+                <Clock className="w-3 h-3 md:w-4 md:h-4" />
                 <span>{article.readingTime} د</span>
               </div>
               <div className="flex items-center gap-1">
@@ -319,10 +319,10 @@ export default function SmartPersonalizedContent({
   // حالة التحميل
   if (loading) {
     return (
-      <section className={`w-full py-8 px-4 ${
-        darkMode ? 'bg-gray-800' : 'bg-gray-50'
-      }`}>
-        <div className="max-w-4xl mx-auto">
+          <section className={`w-full py-6 md:py-8 px-3 md:px-4 ${
+      darkMode ? 'bg-gray-800' : 'bg-gray-50'
+    }`}>
+      <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center py-8">
             <div className="flex items-center gap-3">
               <div className="animate-spin">
@@ -348,7 +348,7 @@ export default function SmartPersonalizedContent({
   }
 
   return (
-    <section className={`w-full py-8 px-4 ${
+    <section className={`w-full py-6 md:py-8 px-3 md:px-4 ${
       darkMode ? 'bg-gray-800' : 'bg-gray-50'
     }`}>
       <div className="max-w-4xl mx-auto">
@@ -393,7 +393,7 @@ export default function SmartPersonalizedContent({
 
         {/* البطاقات الذكية - شبكة 2×3 */}
         {recommendations.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
             {recommendations.map((article, index) => (
               <SmartRecommendationCard 
                 key={article.id} 
