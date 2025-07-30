@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Menu, 
   X, 
@@ -55,7 +56,9 @@ export default function ResponsiveLayout({ children, user, onLogin, onLogout }: 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
+  const { darkMode } = useDarkModeContext();
   const isMobile = useMediaQuery('(max-width: 767px)');
   const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
 
@@ -68,6 +71,21 @@ export default function ResponsiveLayout({ children, user, onLogin, onLogout }: 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // إغلاق القائمة المنسدلة عند النقر خارجها
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown')) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isMobile && isDropdownOpen) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [isMobile, isDropdownOpen]);
 
   // قائمة التنقل
   const navigationItems = [
@@ -91,7 +109,7 @@ export default function ResponsiveLayout({ children, user, onLogin, onLogout }: 
   return (
     <div className="responsive-layout">
       {/* الهيدر */}
-      <header className={`optimized-header ${isScrolled ? 'scrolled' : ''}`}>
+      <header className={`optimized-header ${isScrolled ? 'scrolled' : ''} ${darkMode ? 'dark' : ''}`}>
         <div className="header-container container">
           {/* زر القائمة للموبايل */}
           {isMobile && (
@@ -164,8 +182,16 @@ export default function ResponsiveLayout({ children, user, onLogin, onLogout }: 
 
             {/* المستخدم أو تسجيل الدخول */}
             {user ? (
-              <div className="dropdown">
-                <button className="action-btn">
+              <div className={`dropdown ${isMobile && isDropdownOpen ? 'active' : ''}`}>
+                <button 
+                  className="action-btn"
+                  onClick={(e) => {
+                    if (isMobile) {
+                      e.stopPropagation();
+                      setIsDropdownOpen(!isDropdownOpen);
+                    }
+                  }}
+                >
                   {user.avatar ? (
                     <img 
                       src={user.avatar} 
@@ -219,6 +245,14 @@ export default function ResponsiveLayout({ children, user, onLogin, onLogout }: 
           </div>
         )}
       </header>
+
+      {/* خلفية القائمة المنسدلة للموبايل */}
+      {isMobile && isDropdownOpen && (
+        <div 
+          className="fixed inset-0 bg-black/30 z-40"
+          onClick={() => setIsDropdownOpen(false)}
+        />
+      )}
 
       {/* القائمة الجانبية للموبايل */}
       {isMobile && (
