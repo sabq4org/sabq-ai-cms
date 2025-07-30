@@ -18,6 +18,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import GlobalErrorHandler from '../components/GlobalErrorHandler';
 import ConditionalHeader from '../components/ConditionalHeader';
 import ContentWrapper from '../components/layout/ContentWrapper';
+import AnalyticsProvider from '../components/Analytics/AnalyticsProvider';
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({ 
   subsets: ['arabic'],
@@ -61,13 +62,15 @@ export default function RootLayout({
       </head>
       <body className={`${ibmPlexArabic.variable} font-arabic`} suppressHydrationWarning>
         <ErrorBoundary>
-          <Providers>
-            <GlobalErrorHandler />
-            <ConditionalHeader />
-            <ContentWrapper>
-              {children}
-            </ContentWrapper>
-          </Providers>
+          <AnalyticsProvider>
+            <Providers>
+              <GlobalErrorHandler />
+              <ConditionalHeader />
+              <ContentWrapper>
+                {children}
+              </ContentWrapper>
+            </Providers>
+          </AnalyticsProvider>
         </ErrorBoundary>
       </body>
     </html>

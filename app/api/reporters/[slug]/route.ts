@@ -9,6 +9,7 @@ export async function GET(
 ) {
   try {
     const { slug } = params;
+    console.log('🔍 البحث عن المراسل بالـ slug:', slug);
 
     // البحث عن المراسل حسب الـ slug
     const reporter = await prisma.reporters.findUnique({
@@ -28,6 +29,8 @@ export async function GET(
       }
     });
 
+    console.log('📋 نتيجة البحث:', reporter ? 'تم العثور على المراسل' : 'لم يتم العثور على المراسل');
+
     if (!reporter) {
       return NextResponse.json(
         { error: 'المراسل غير موجود' },
@@ -35,17 +38,28 @@ export async function GET(
       );
     }
 
-    // تحويل البيانات المخزنة كـ JSON
+    console.log('🔄 بدء معالجة البيانات...');
+
+    // تحويل البيانات المخزنة كـ JSON مع معالجة الأخطاء المحتملة
     const formattedReporter = {
       ...reporter,
-      specializations: reporter.specializations ? JSON.parse(reporter.specializations as string) : [],
-      coverage_areas: reporter.coverage_areas ? JSON.parse(reporter.coverage_areas as string) : [],
-      languages: reporter.languages ? JSON.parse(reporter.languages as string) : ['ar'],
-      writing_style: reporter.writing_style ? JSON.parse(reporter.writing_style as string) : null,
-      popular_topics: reporter.popular_topics ? JSON.parse(reporter.popular_topics as string) : [],
-      publication_pattern: reporter.publication_pattern ? JSON.parse(reporter.publication_pattern as string) : null,
-      reader_demographics: reporter.reader_demographics ? JSON.parse(reporter.reader_demographics as string) : null
+      specializations: reporter.specializations ? 
+        (typeof reporter.specializations === 'string' ? JSON.parse(reporter.specializations) : reporter.specializations) : [],
+      coverage_areas: reporter.coverage_areas ? 
+        (typeof reporter.coverage_areas === 'string' ? JSON.parse(reporter.coverage_areas) : reporter.coverage_areas) : [],
+      languages: reporter.languages ? 
+        (typeof reporter.languages === 'string' ? JSON.parse(reporter.languages) : reporter.languages) : ['ar'],
+      writing_style: reporter.writing_style ? 
+        (typeof reporter.writing_style === 'string' ? JSON.parse(reporter.writing_style) : reporter.writing_style) : null,
+      popular_topics: reporter.popular_topics ? 
+        (typeof reporter.popular_topics === 'string' ? JSON.parse(reporter.popular_topics) : reporter.popular_topics) : [],
+      publication_pattern: reporter.publication_pattern ? 
+        (typeof reporter.publication_pattern === 'string' ? JSON.parse(reporter.publication_pattern) : reporter.publication_pattern) : null,
+      reader_demographics: reporter.reader_demographics ? 
+        (typeof reporter.reader_demographics === 'string' ? JSON.parse(reporter.reader_demographics) : reporter.reader_demographics) : null
     };
+
+    console.log('✅ تم تحويل البيانات بنجاح');
 
     return NextResponse.json({
       success: true,
@@ -53,9 +67,11 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('خطأ في جلب بيانات المراسل:', error);
+    console.error('❌ خطأ في جلب بيانات المراسل:', error);
+    console.error('تفاصيل الخطأ:', error.message);
+    console.error('Stack trace:', error.stack);
     return NextResponse.json(
-      { error: 'حدث خطأ في الخادم' },
+      { error: 'حدث خطأ في الخادم', details: error.message },
       { status: 500 }
     );
   } finally {
