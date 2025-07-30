@@ -121,11 +121,10 @@ export default function Header() {
     } backdrop-blur-sm border-b shadow-sm`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
-          {/* الشعار الرسمي */}
-          <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-              {/* اللوقو الرسمي - أكبر حجماً */}
-              <div className="flex items-center py-3">
+          {/* الشعار الرسمي - محاذاة لليمين */}
+          <div className="flex items-center justify-end flex-1 order-2">
+            <Link href="/" className="block">
+              <div className="flex items-center justify-end py-3">
                 {settingsLoading ? (
                   <div className="h-10 sm:h-12 w-32 sm:w-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
                 ) : logoUrl && (
@@ -145,7 +144,7 @@ export default function Header() {
           </div>
 
           {/* المينيو الرئيسية - Desktop - مع تحسين المسافات */}
-          <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
+          <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse order-1 flex-1 justify-center">
             {navigationItems.map((item) => (
               <Link
                 key={item.url}
@@ -172,7 +171,7 @@ export default function Header() {
           </nav>
 
           {/* أدوات الهيدر */}
-          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+          <div className="flex items-center space-x-4 rtl:space-x-reverse order-3">
             {/* الوضع الليلي */}
             <ClientOnly fallback={
               <button className="p-2 rounded-md transition-colors duration-200 text-gray-600 hover:text-gray-800">
