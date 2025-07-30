@@ -19,6 +19,11 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('خطأ في جلب الإعدادات:', error);
+    // معالجة خاصة إذا كان جدول الإعدادات غير موجود بعد (أول تشغيل)
+    if (error instanceof Error && error.message.includes('relation') && error.message.includes('site_settings')) {
+      console.warn('⚠️ جدول site_settings غير موجود، إرجاع إعدادات فارغة مؤقتاً');
+      return NextResponse.json({ success: true, data: {} });
+    }
     return NextResponse.json(
       { success: false, error: 'خطأ في جلب الإعدادات' },
       { status: 500 }
