@@ -24,20 +24,26 @@ export async function GET(
     const url = new URL(request.url)
     const includeAll = url.searchParams.get('all') === 'true'
 
-    const article = await dbConnectionManager.executeWithConnection(async () => {
-      return await prisma.articles.findFirst({
-        where: {
-          OR: [
-            { id: id },
-            { slug: id }
-          ],
-          ...(includeAll ? {} : { status: 'published' })
-        },
-        include: {
-          categories: true,
-          author: {
-            select: {
-              id: true,
+    // محاولة الاتصال بقاعدة البيانات
+    let article;
+    try {
+      // محاولة التأكد من الاتصال أولاً
+      await prisma.$connect();
+      
+      article = await dbConnectionManager.executeWithConnection(async () => {
+        return await prisma.articles.findFirst({
+          where: {
+            OR: [
+              { id: id },
+              { slug: id }
+            ],
+            ...(includeAll ? {} : { status: 'published' })
+          },
+          include: {
+            categories: true,
+            author: {
+              select: {
+                id: true,
               name: true,
               email: true,
               avatar: true
@@ -46,6 +52,46 @@ export async function GET(
         }
       })
     })
+    } catch (dbError: any) {
+      console.error('❌ خطأ في الاتصال بقاعدة البيانات:', dbError);
+      
+      // إذا كان الخطأ متعلق بعدم الاتصال، حاول مرة أخرى
+      if (dbError.message?.includes('Engine is not yet connected')) {
+        console.log('🔄 محاولة إعادة الاتصال...');
+        try {
+          await prisma.$disconnect();
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          await prisma.$connect();
+          
+          // محاولة أخرى
+          article = await prisma.articles.findFirst({
+            where: {
+              OR: [
+                { id: id },
+                { slug: id }
+              ],
+              ...(includeAll ? {} : { status: 'published' })
+            },
+            include: {
+              categories: true,
+              author: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  avatar: true
+                }
+              }
+            }
+          });
+        } catch (retryError) {
+          console.error('❌ فشلت محاولة إعادة الاتصال:', retryError);
+          throw dbError;
+        }
+      } else {
+        throw dbError;
+      }
+    }
     
     if (!article) {
       console.log(`⚠️ المقال غير موجود: ${id}`)
