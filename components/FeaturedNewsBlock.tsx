@@ -248,11 +248,11 @@ const FeaturedNewsBlock: React.FC = () => {
               </div>
 
               {/* زر "اقرأ المزيد" */}
-              <div className="mt-auto">
-                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105 ${
+              <div className="mt-auto flex justify-start">
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all hover:translate-x-1 ${
                   darkMode 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                 }`}>
                   <span>اقرأ المزيد</span>
                   <ExternalLink className="w-3 h-3" />
