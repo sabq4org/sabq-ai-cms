@@ -218,7 +218,7 @@ export default function ArticleClientComponent({
         <div className="relative">
           <article className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
             {/* رأس المقال بخلفية شفافة بدون إطار */}
-            <header className="mb-8 text-right">
+            <header className="mb-8 flex flex-col items-end text-right bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 sm:p-6 lg:p-8 relative z-10">
             {/* التصنيف */}
             {article.category && (
               <Link
