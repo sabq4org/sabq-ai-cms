@@ -147,11 +147,11 @@ export default function Header() {
                 className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   item.highlight
                     ? darkMode
-                      ? 'text-red-400 hover:text-red-300 hover:bg-gray-800/50'
-                      : 'text-red-600 hover:text-red-700 hover:bg-gray-100/50'
+                      ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
+                      : 'text-red-600 hover:text-red-700 hover:bg-red-50'
                     : darkMode
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-800/50'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/70'
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-700'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
                 <item.icon className="w-4 h-4" />
