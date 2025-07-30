@@ -809,6 +809,9 @@ model users {
   // Articles authored by this user
   authored_articles    articles[]             @relation("ArticleAuthor")
   
+  // Reporter profile relationship
+  reporter_profile     reporters?
+  
   // New AI system relationships
   user_settings        UserSettings[]
   ml_predictions       MLPredictions[]
@@ -821,6 +824,70 @@ model users {
   @@index([role], map: "idx_users_role")
   @@index([email])
   @@index([role])
+}
+
+// ==============================================================
+// نموذج بروفايل المراسل الذكي
+// ==============================================================
+
+model reporters {
+  id                    String   @id @default(cuid())
+  user_id               String   @unique
+  
+  // معلومات الهوية
+  full_name             String
+  slug                  String   @unique  // للـ URL
+  title                 String?            // مثل "مراسل ميداني", "محرر اقتصادي"
+  bio                   String?           // النبذة المهنية
+  avatar_url            String?
+  
+  // التحقق والمكانة
+  is_verified           Boolean  @default(false)
+  verification_badge    String?  @default("verified") // "verified", "expert", "senior"
+  
+  // التخصصات والتغطية
+  specializations       Json?    // ["اقتصاد", "سياسة", "رياضة"]
+  coverage_areas        Json?    // ["الرياض", "المنطقة الشرقية", "دولي"]
+  languages             Json?    @default("[\"ar\"]") // ["ar", "en"]
+  
+  // روابط التواصل
+  twitter_url           String?
+  linkedin_url          String?
+  website_url           String?
+  email_public          String?  // بريد عام للتواصل
+  
+  // إحصائيات الأداء
+  total_articles        Int      @default(0)
+  total_views           Int      @default(0)
+  total_likes           Int      @default(0)
+  total_shares          Int      @default(0)
+  avg_reading_time      Float?
+  engagement_rate       Float    @default(0.0)
+  
+  // تحليل ذكي
+  writing_style         Json?    // تحليل أسلوب الكتابة
+  popular_topics        Json?    // أكثر المواضيع كتابة
+  publication_pattern   Json?    // نمط النشر (أوقات، أيام)
+  reader_demographics   Json?    // تحليل الجمهور
+  
+  // إعدادات العرض
+  is_active             Boolean  @default(true)
+  show_stats            Boolean  @default(true)
+  show_contact          Boolean  @default(false)
+  display_order         Int?
+  
+  // التواريخ
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+  
+  // العلاقات
+  user                  users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@map("reporters")
+  @@index([slug])
+  @@index([is_active])
+  @@index([is_verified])
+  @@index([total_articles])
 }
 
 model was_news {
