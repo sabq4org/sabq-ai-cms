@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import NextImage from 'next/image';
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
@@ -1290,7 +1290,7 @@ export default function SettingsPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">معاينة الشعار</h2>
         <div className="bg-gray-100 rounded-lg p-6 flex items-center justify-center">
           {previewLogo ? (
-            <Image src="/placeholder.jpg" alt="معاينة الشعار" width={100} height={100} />
+            <NextImage src="/placeholder.jpg" alt="معاينة الشعار" width={100} height={100} />
           ) : (
             <div className="text-gray-400 flex flex-col items-center">
               <ImageIcon className="w-12 h-12 mb-2" />
