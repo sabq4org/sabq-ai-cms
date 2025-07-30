@@ -37,7 +37,8 @@ import {
   Zap,
   Globe,
   Heart,
-  Star
+  Star,
+  Network
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -88,6 +89,7 @@ const sidebarItems: SidebarItem[] = [
     badge: '10',
     badgeVariant: 'secondary',
     children: [
+      { id: 'smart-entities', title: 'الكيانات الذكية', icon: Network, href: '/admin/smart-entities', badge: 'جديد', badgeVariant: 'secondary' as const },
       { id: 'smart-blocks', title: 'الكتل الذكية', icon: Brain, href: '/admin/smart-blocks' },
       { id: 'sentiment-analysis', title: 'تحليل المشاعر', icon: Heart, href: '/admin/sentiment-analysis' },
       { id: 'recommendations', title: 'التوصيات الذكية', icon: TrendingUp, href: '/admin/recommendations' },
