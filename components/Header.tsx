@@ -149,7 +149,7 @@ export default function Header() {
               <Link
                 key={item.url}
                 href={item.url}
-                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm ${
+                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 hover:shadow-sm ${
                   item.highlight
                     ? darkMode
                       ? 'text-red-400 hover:text-red-300'
@@ -180,7 +180,7 @@ export default function Header() {
             }>
               <button
                 onClick={toggleDarkMode}
-                className={`p-2 rounded-lg transition-all duration-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm ${
+                className={`p-2 rounded-lg transition-all duration-200 cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 hover:shadow-sm ${
                   darkMode 
                                         ? 'text-yellow-400 hover:text-yellow-300'
                     : 'text-gray-600 hover:text-gray-800'
@@ -195,7 +195,7 @@ export default function Header() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={handleDropdownToggle}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-lg transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-lg transition-all duration-200 hover:bg-black/10 dark:hover:bg-white/10 ${
                     darkMode 
                                           ? 'text-gray-300 hover:text-white'
                     : 'text-gray-700 hover:text-gray-900'
@@ -227,7 +227,7 @@ export default function Header() {
             ) : (
               <Link
                 href="/login"
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-black/10 dark:hover:bg-white/10 ${
                   darkMode 
                                         ? 'text-gray-300 hover:text-white'
                     : 'text-gray-700 hover:text-gray-900'
@@ -241,7 +241,7 @@ export default function Header() {
             {/* المينيو المحمول */}
             <button
               onClick={toggleMobileMenu}
-              className={`md:hidden p-2 rounded-lg transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
+              className={`md:hidden p-2 rounded-lg transition-all duration-200 hover:bg-black/10 dark:hover:bg-white/10 ${
                 darkMode 
                                       ? 'text-gray-400 hover:text-gray-200'
                     : 'text-gray-600 hover:text-gray-800'
@@ -272,7 +272,7 @@ export default function Header() {
                   key={item.url}
                   href={item.url}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 ${
                     item.highlight
                       ? darkMode
                         ? 'text-red-400 hover:text-red-300'
