@@ -22,6 +22,19 @@ export default function ArticleFeaturedImage({
   
   // عرض بناءً على الوضع المحدد في الإعدادات
   switch (IMAGE_CONFIG.DISPLAY_MODE) {
+    case 'default':
+      return (
+        <div className="w-full max-w-5xl mx-auto mt-6 rounded-lg overflow-hidden">
+          <OptimizedImage
+            src={imageUrl}
+            alt={title}
+            className="w-full object-cover rounded-lg max-h-[480px]"
+            priority={true}
+            sizes="(max-width: 640px) 100vw, 800px"
+          />
+        </div>
+      );
+
     case 'blur-overlay':
       return (
         <div className="article-featured-image relative h-[400px] sm:h-[500px] lg:h-[600px] w-full overflow-hidden bg-gray-900 dark:bg-black">
