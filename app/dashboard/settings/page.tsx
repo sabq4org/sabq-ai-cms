@@ -2,6 +2,7 @@
 
 import NextImage from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,6 +55,7 @@ interface SettingsData {
   };
 }
 export default function SettingsPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('identity');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -1290,7 +1292,7 @@ export default function SettingsPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">معاينة الشعار</h2>
         <div className="bg-gray-100 rounded-lg p-6 flex items-center justify-center">
           {previewLogo ? (
-            <NextImage src="/placeholder.jpg" alt="معاينة الشعار" width={100} height={100} />
+            <NextImage src={previewLogo} alt="معاينة الشعار" width={100} height={100} />
           ) : (
             <div className="text-gray-400 flex flex-col items-center">
               <ImageIcon className="w-12 h-12 mb-2" />
@@ -1302,7 +1304,7 @@ export default function SettingsPage() {
       {/* أزرار الإجراءات */}
       <div className="mt-8 flex justify-end gap-3 pt-4 border-t">
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => router.push('/dashboard')}
           className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
         >
           إلغاء
