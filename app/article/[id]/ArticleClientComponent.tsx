@@ -217,8 +217,8 @@ export default function ArticleClientComponent({
         {/* منطقة الهيدر مع خلفية شفافة */}
         <div className="relative">
           <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pt-20 sm:pt-24">
-            {/* رأس المقال */}
-            <header className="mb-8 text-right">
+            {/* رأس المقال بخلفية شفافة بدون إطار */}
+            <header className="mb-8 text-right bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 sm:p-8">
             {/* التصنيف */}
             {article.category && (
               <Link
