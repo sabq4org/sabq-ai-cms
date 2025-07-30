@@ -102,7 +102,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
           "rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6",
           isBreaking 
             ? "bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800" 
-            : "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
+            : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
         )}>
           {/* Image محسنة للأداء */}
           <div className="relative w-48 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
@@ -220,7 +220,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
         "rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col",
         isBreaking 
           ? "bg-red-50 dark:bg-red-950/20 ring-2 ring-red-500 ring-opacity-50 border-2 border-red-200 dark:border-red-800" 
-          : "bg-white dark:bg-gray-800"
+          : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
       )}>
         {/* Image Container */}
         <div className="relative h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden">
