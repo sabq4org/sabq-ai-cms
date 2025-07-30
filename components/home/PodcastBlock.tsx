@@ -46,15 +46,20 @@ export default function PodcastBlock() {
 
   const fetchMainNewsletter = async () => {
     try {
+      console.log('🎙️ جاري جلب النشرة الصوتية للصفحة الرئيسية...');
       const response = await fetch('/api/audio/newsletters/main-page');
       const data = await response.json();
+      console.log('📥 استجابة API:', data);
       
       if (data.success && data.newsletter) {
+        console.log('✅ تم العثور على نشرة صوتية:', data.newsletter.title);
         setNewsletter(data.newsletter);
         setDuration(data.newsletter.duration);
+      } else {
+        console.log('⚠️ لم يتم العثور على نشرة صوتية للصفحة الرئيسية');
       }
     } catch (error) {
-      console.error('خطأ في جلب النشرة:', error);
+      console.error('❌ خطأ في جلب النشرة:', error);
     } finally {
       setIsLoading(false);
     }

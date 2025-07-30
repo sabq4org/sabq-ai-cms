@@ -556,19 +556,33 @@ export default function AdvancedAudioEnhancePage() {
   // نشر النشرة في الصفحة الرئيسية
   const publishToHomepage = async (bulletin: AudioBulletin) => {
     try {
-      // هنا يمكن إضافة API call لنشر النشرة في الصفحة الرئيسية
-      console.log('نشر النشرة في الصفحة الرئيسية:', bulletin);
+      console.log('🏠 نشر النشرة في الصفحة الرئيسية:', bulletin.id);
       
-      // تحديث حالة النشرة
+      // استدعاء API لتحديث حالة الصفحة الرئيسية
+      const response = await fetch(`/api/audio/newsletters/${bulletin.id}/toggle-main-page`, {
+        method: 'POST'
+      });
+      
+      if (!response.ok) {
+        throw new Error('فشل في نشر النشرة في الصفحة الرئيسية');
+      }
+      
+      const data = await response.json();
+      console.log('✅ تم نشر النشرة في قاعدة البيانات:', data);
+      
+      // تحديث النشرات في localStorage
       const updatedBulletins = bulletins.map(b => 
         b.id === bulletin.id 
-          ? { ...b, status: 'PUBLISHED' as keyof typeof BULLETIN_STATUSES, is_featured: true }
-          : { ...b, is_featured: false } // إلغاء تفعيل النشرات الأخرى
+          ? { ...b, status: 'PUBLISHED' as keyof typeof BULLETIN_STATUSES, is_featured: true, is_main_page: true }
+          : { ...b, is_featured: false, is_main_page: false } // إلغاء تفعيل النشرات الأخرى
       );
       saveBulletins(updatedBulletins);
       
+      toast.success('✅ تم نشر النشرة في الصفحة الرئيسية بنجاح!');
+      
     } catch (error) {
-      console.error('خطأ في نشر النشرة:', error);
+      console.error('❌ خطأ في نشر النشرة:', error);
+      toast.error('فشل في نشر النشرة في الصفحة الرئيسية');
     }
   };
 
