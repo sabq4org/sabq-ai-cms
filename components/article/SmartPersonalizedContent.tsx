@@ -79,16 +79,30 @@ const SmartRecommendationCard: React.FC<{
 }> = ({ article, darkMode, index }) => {
   const ctaPhrase = getCallToActionPhrases(article.type);
   
+  // كشف حجم الشاشة للتصميم المتجاوب
+  const [isMobileScreen, setIsMobileScreen] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileScreen(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
   return (
     <Link href={article.url} className="group block">
-      <div className={`relative h-full flex flex-col rounded-xl border transition-all duration-300 hover:shadow-xl overflow-hidden ${
+      <div className={`relative h-full flex ${isMobileScreen ? 'flex-row' : 'flex-col'} rounded-xl border transition-all duration-300 hover:shadow-xl overflow-hidden ${
         darkMode 
           ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
           : 'bg-white border-gray-200 hover:border-blue-200'
       }`}>
         
         {/* الصورة الرئيسية */}
-        <div className="relative h-24 sm:h-32 md:h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+        <div className={`relative ${isMobileScreen ? 'w-28 h-24' : 'h-24 sm:h-32 md:h-48'} overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800`}>
           {article.thumbnail ? (
             <Image
               src={article.thumbnail}
@@ -103,17 +117,19 @@ const SmartRecommendationCard: React.FC<{
           )}
           
           {/* شارة النوع والأيقونة */}
-          <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 md:top-3 md:right-3 flex items-center gap-1 sm:gap-1 md:gap-2">
-            <span className="text-base sm:text-xl md:text-3xl bg-white/90 dark:bg-gray-900/90 rounded-full p-1 sm:p-1.5 md:p-2 shadow-lg">
-              {getTypeIcon(article.type)}
-            </span>
-            <span className={`px-1.5 py-0.5 sm:px-2 md:px-3 md:py-1 rounded-full text-[10px] sm:text-xs font-bold ${getTypeColors(article.type)}`}>
-              {article.type}
-            </span>
-          </div>
+          {!isMobileScreen && (
+            <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 md:top-3 md:right-3 flex items-center gap-1 sm:gap-1 md:gap-2">
+              <span className="text-base sm:text-xl md:text-3xl bg-white/90 dark:bg-gray-900/90 rounded-full p-1 sm:p-1.5 md:p-2 shadow-lg">
+                {getTypeIcon(article.type)}
+              </span>
+              <span className={`px-1.5 py-0.5 sm:px-2 md:px-3 md:py-1 rounded-full text-[10px] sm:text-xs font-bold ${getTypeColors(article.type)}`}>
+                {article.type}
+              </span>
+            </div>
+          )}
           
           {/* مؤشر الترتيب */}
-          {index < 3 && (
+          {!isMobileScreen && index < 3 && (
             <div className={`absolute top-1.5 left-1.5 sm:top-2 sm:left-2 md:top-3 md:left-3 w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm font-bold shadow-lg ${
               index === 0 ? 'bg-yellow-400 text-white' : 
               index === 1 ? 'bg-gray-400 text-white' :
@@ -125,12 +141,14 @@ const SmartRecommendationCard: React.FC<{
         </div>
         
         {/* المحتوى */}
-        <div className="flex-1 p-2.5 sm:p-3 md:p-5">
+        <div className={`flex-1 ${isMobileScreen ? 'p-2' : 'p-2.5 sm:p-3 md:p-5'}`}>
           {/* العبارة التشويقية */}
-          <div className={`mb-1.5 sm:mb-2 md:mb-3 ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
-            <p className="text-[10px] sm:text-xs md:text-sm font-bold">{ctaPhrase.title}</p>
-            <p className="text-[9px] sm:text-xs opacity-80">{ctaPhrase.subtitle}</p>
-          </div>
+          {!isMobileScreen && (
+            <div className={`mb-1.5 sm:mb-2 md:mb-3 ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
+              <p className="text-[10px] sm:text-xs md:text-sm font-bold">{ctaPhrase.title}</p>
+              <p className="text-[9px] sm:text-xs opacity-80">{ctaPhrase.subtitle}</p>
+            </div>
+          )}
           
           {/* العنوان */}
           <h3 className={`font-bold text-xs sm:text-sm md:text-lg leading-tight mb-1.5 sm:mb-2 md:mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
@@ -148,26 +166,30 @@ const SmartRecommendationCard: React.FC<{
                 <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
                 <span>{article.readingTime} د</span>
               </div>
-              <div className="flex items-center gap-0.5 sm:gap-1">
-                <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
-                <span>{article.viewsCount.toLocaleString('ar-SA')}</span>
-              </div>
+              {!isMobileScreen && (
+                <div className="flex items-center gap-0.5 sm:gap-1">
+                  <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
+                  <span>{article.viewsCount.toLocaleString('ar-SA')}</span>
+                </div>
+              )}
             </div>
             <span className="text-[9px] sm:text-xs">{formatRelativeDate(article.publishedAt)}</span>
           </div>
           
           {/* مؤشر الثقة */}
-          <div className="mt-2 sm:mt-3 flex items-center gap-1.5 sm:gap-2">
-            <div className={`flex-1 h-0.5 sm:h-1 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden`}>
-              <div 
-                className={`h-full ${getConfidenceColor(article.confidence)} transition-all duration-1000`}
-                style={{ width: `${article.confidence}%` }}
-              />
+          {!isMobileScreen && (
+            <div className="mt-2 sm:mt-3 flex items-center gap-1.5 sm:gap-2">
+              <div className={`flex-1 h-0.5 sm:h-1 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden`}>
+                <div 
+                  className={`h-full ${getConfidenceColor(article.confidence)} transition-all duration-1000`}
+                  style={{ width: `${article.confidence}%` }}
+                />
+              </div>
+              <span className={`text-[9px] sm:text-xs font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {article.confidence}% ملائم
+              </span>
             </div>
-            <span className={`text-[9px] sm:text-xs font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              {article.confidence}% ملائم
-            </span>
-          </div>
+          )}
         </div>
       </div>
     </Link>

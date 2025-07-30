@@ -333,6 +333,11 @@ body {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     border-radius: 12px;
     padding: 8px;
+    background: white;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease-in-out;
   }
   
   .dropdown-item {
@@ -340,6 +345,11 @@ body {
     font-size: 16px;
     border-radius: 8px;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #374151;
+    transition: all 0.2s ease-in-out;
   }
   
   /* الوضع المظلم للقائمة المنسدلة */
@@ -348,8 +358,24 @@ body {
     border-color: #374151;
   }
   
+  .dark .dropdown-item {
+    color: #e5e7eb;
+  }
+  
   .dark .dropdown-item:hover {
     background: #374151;
+    color: #f9fafb;
+  }
+  
+  /* رؤية القائمة المنسدلة */
+  .dropdown-content hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 8px 0;
+  }
+  
+  .dark .dropdown-content hr {
+    border-top-color: #374151;
   }
   
   .header-container {
