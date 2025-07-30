@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -446,7 +447,8 @@ export default function SmartEntitiesManagement() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <DashboardLayout>
+      <div className="p-6 space-y-6">
       {/* العنوان */}
       <div className="flex items-center justify-between">
         <div>
@@ -558,6 +560,7 @@ export default function SmartEntitiesManagement() {
 
       {/* نافذة إضافة كيان */}
       {renderAddEntityDialog()}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
