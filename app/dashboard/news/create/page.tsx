@@ -188,7 +188,7 @@ export default function CreateArticlePage() {
 
       if (response.ok) {
         toast.success(status === 'draft' ? 'تم حفظ المسودة بنجاح' : 'تم نشر المقال بنجاح');
-        router.push('/dashboard/news');
+        router.push('/admin/news');
       } else {
         const data = await response.json();
         throw new Error(data.error || 'فشل حفظ المقال');

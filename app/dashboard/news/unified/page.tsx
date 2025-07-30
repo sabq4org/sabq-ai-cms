@@ -560,7 +560,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         });
         
         setTimeout(() => {
-          router.push('/dashboard/news');
+          router.push('/admin/news');
         }, 1500);
       } else {
         console.error('❌ خطأ في الاستجابة:', {

@@ -255,7 +255,7 @@ export default function MobileNewsForm({ articleId, initialData }: MobileNewsFor
         );
         
         setTimeout(() => {
-          router.push('/dashboard/news');
+          router.push('/admin/news');
         }, 1500);
       } else {
         throw new Error('فشل في الحفظ');
