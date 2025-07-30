@@ -177,6 +177,7 @@ export async function GET(request: NextRequest) {
     });
     
     const response = {
+      success: true,
       items,
       pagination: {
         page,
@@ -207,6 +208,7 @@ export async function GET(request: NextRequest) {
     console.error('❌ خطأ في جلب الخط الزمني:', error);
     return NextResponse.json(
       { 
+        success: false,
         error: 'فشل جلب الخط الزمني',
         message: error instanceof Error ? error.message : 'خطأ غير معروف'
       },
