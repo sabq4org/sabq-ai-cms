@@ -122,14 +122,14 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي */}
-          <div className="flex items-center">
+          <div className="flex items-center mr-auto sm:mr-0">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
               {/* اللوقو الرسمي - أكبر حجماً */}
-              <div className="flex items-center py-3 px-2">
+              <div className="flex items-center py-3 px-2 sm:px-2 mr-2 sm:mr-0">
                 {settingsLoading ? (
-                  <div className="h-12 w-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+                  <div className="h-10 sm:h-12 w-32 sm:w-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
                 ) : logoUrl && (
-                  <div className="relative w-40 h-12">
+                  <div className="relative w-32 sm:w-40 h-10 sm:h-12">
                     <Image
                       src={logoUrl}
                       alt={siteName}
