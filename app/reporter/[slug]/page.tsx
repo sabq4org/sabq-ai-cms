@@ -1085,6 +1085,7 @@ const ReporterProfilePage: React.FC = () => {
               </div>
             </div>
           </div>
+          </div>
         </section>
 
         {/* نبذة تحريرية */}
