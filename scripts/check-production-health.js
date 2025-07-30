@@ -8,7 +8,7 @@
 const https = require('https');
 const http = require('http');
 
-const PRODUCTION_URL = process.env.PRODUCTION_URL || 'https://sabq.io';
+const PRODUCTION_URL = process.env.PRODUCTION_URL || 'https://sabq.me';
 
 // قائمة نقاط النهاية للتحقق
 const endpoints = [

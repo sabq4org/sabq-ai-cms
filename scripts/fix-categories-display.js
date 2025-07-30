@@ -92,7 +92,7 @@ async function fixCategories() {
     console.log('\n🗑️ مسح كاش التصنيفات...');
     
     try {
-      const response = await fetch('https://sabq.io/api/categories?nocache=true');
+      const response = await fetch('https://sabq.me/api/categories?nocache=true');
       if (response.ok) {
         console.log('   ✅ تم مسح الكاش بنجاح');
       } else {

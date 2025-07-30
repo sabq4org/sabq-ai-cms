@@ -13,7 +13,7 @@ async function clearProductionCache() {
   // URLs الإنتاج المحتملة
   const productionUrls = [
     'https://sabq-ai-cms.vercel.app', // Vercel
-    'https://sabq.io',                // Domain مخصص
+    'https://sabq.me',                // Domain مخصص
     'https://sabq.ai',                // Domain بديل
     'https://your-production-url.com' // غيّر هذا للرابط الصحيح
   ];
@@ -64,7 +64,7 @@ async function clearProductionCache() {
 async function clearSpecificUrl(url) {
   console.log(`🎯 مسح كاش رابط محدد: ${url}`);
   
-  const baseUrl = 'https://sabq.io'; // غيّر للرابط الصحيح
+  const baseUrl = 'https://sabq.me'; // غيّر للرابط الصحيح
   const token = process.env.CACHE_CLEAR_SECRET || 'sabq-cache-clear-2025';
 
   try {

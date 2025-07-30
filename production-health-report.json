@@ -1,10 +1,10 @@
 {
   "timestamp": "2025-07-29T15:50:24.432Z",
-  "url": "https://sabq.io",
+      "url": "https://sabq.me",
   "results": [
     {
       "endpoint": "الصفحة الرئيسية",
-      "url": "https://sabq.io/",
+      "url": "https://sabq.me/",
       "status": 200,
       "responseTime": 25206,
       "success": true,
@@ -12,7 +12,7 @@
     },
     {
       "endpoint": "صفحة التصنيفات",
-      "url": "https://sabq.io/categories",
+      "url": "https://sabq.me/categories",
       "status": 200,
       "responseTime": 588,
       "success": true,
@@ -20,7 +20,7 @@
     },
     {
       "endpoint": "API التصنيفات",
-      "url": "https://sabq.io/api/categories?is_active=true",
+      "url": "https://sabq.me/api/categories?is_active=true",
       "status": 200,
       "responseTime": 592,
       "success": true,
@@ -28,7 +28,7 @@
     },
     {
       "endpoint": "API المقالات",
-      "url": "https://sabq.io/api/articles?status=published&limit=10",
+      "url": "https://sabq.me/api/articles?status=published&limit=10",
       "status": 200,
       "responseTime": 11518,
       "success": true,
@@ -36,7 +36,7 @@
     },
     {
       "endpoint": "API الإحصائيات",
-      "url": "https://sabq.io/api/news/stats",
+      "url": "https://sabq.me/api/news/stats",
       "status": 200,
       "responseTime": 1641,
       "success": true,

@@ -152,7 +152,7 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
       baseUrl = window.location.origin;
     } else {
       // في السيرفر كبديل - استخدم النطاق العام
-      baseUrl = 'https://sabq.io';
+      baseUrl = 'https://sabq.me';
     }
     
     // ترميز المعرف للتأكد من صحة URL
@@ -240,7 +240,7 @@ export function getFullArticleUrl(id: string): string {
     baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
               process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
               process.env.APP_URL ||
-              'https://sabq.io';
+              'https://sabq.me';
   }
   
   return `${baseUrl}/article/${id}`;

@@ -4,7 +4,7 @@
  */
 
 // الدومين الرئيسي للإنتاج
-const PRODUCTION_DOMAIN = 'https://sabq.io';
+const PRODUCTION_DOMAIN = 'https://sabq.me';
 
 // Cloudinary الافتراضي
 const DEFAULT_CLOUDINARY_CLOUD = 'dybhezmvb';

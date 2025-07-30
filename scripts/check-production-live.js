@@ -6,7 +6,7 @@
 
 const fetch = require('node-fetch');
 
-const PRODUCTION_URL = 'https://sabq.io';
+const PRODUCTION_URL = 'https://sabq.me';
 
 async function checkAPI(endpoint, description) {
   console.log(`\n🔍 فحص ${description}...`);

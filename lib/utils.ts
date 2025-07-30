@@ -105,7 +105,7 @@ export function getImageUrl(imagePath: string | undefined | null): string {
   if (imagePath.startsWith('/uploads/')) {
     // في بيئة الإنتاج، استخدم URL الكامل
     if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-      const siteUrl = 'https://sabq.io';
+      const siteUrl = 'https://sabq.me';
       const fullUrl = `${siteUrl}${imagePath}`;
       console.log('🌐 Production URL:', fullUrl);
       return fullUrl;
