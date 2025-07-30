@@ -37,7 +37,7 @@ export function useSiteSettings() {
   }, []);
 
   // جلب رابط الشعار من الإعدادات
-  const logoUrl = settings.general?.logoUrl || settings.identity?.logo || '/logo.png';
+  const logoUrl = loading ? null : (settings.general?.logoUrl || settings.identity?.logo || '/logo.png');
   const siteName = settings.general?.siteName || settings.identity?.siteName || 'صحيفة سبق الإلكترونية';
 
   return {

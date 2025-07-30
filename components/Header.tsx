@@ -34,7 +34,7 @@ import {
 export default function Header() {
   const router = useRouter();
   const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
-  const { logoUrl, siteName } = useSiteSettings();
+  const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
   
   // Safe auth hook usage
   let user = null;
@@ -125,16 +125,19 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
               {/* اللوقو الرسمي - أكبر حجماً */}
-              <div className="flex items-center py-2">
-                <Image
-                  src={logoUrl}
-                  alt={siteName}
-                  width={140}
-                  height={45}
-                  className="h-9 w-auto object-contain"
-                  priority
-                  style={{ maxHeight: '36px' }}
-                />
+              <div className="flex items-center py-2 min-h-[52px]">
+                {!settingsLoading && logoUrl && (
+                  <Image
+                    src={logoUrl}
+                    alt={siteName}
+                    width={140}
+                    height={45}
+                    className="h-9 w-auto object-contain"
+                    priority
+                    style={{ maxHeight: '36px' }}
+                    unoptimized={logoUrl.includes('cloudinary')}
+                  />
+                )}
               </div>
             </Link>
           </div>
