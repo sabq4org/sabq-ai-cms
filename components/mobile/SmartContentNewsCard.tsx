@@ -26,13 +26,13 @@ interface SmartContentNewsCardProps {
 }
 
 // الأيقونات حسب نوع المحتوى
-const typeIcons: Record<string, { icon: React.ElementType; color: string }> = {
-  'article': { icon: TrendingUp, color: 'text-blue-500' },
-  'analysis': { icon: Brain, color: 'text-purple-500' },
-  'opinion': { icon: MessageSquare, color: 'text-green-500' },
-  'creative': { icon: Sparkles, color: 'text-pink-500' },
-  'quick': { icon: Zap, color: 'text-yellow-500' },
-  'insight': { icon: BarChart3, color: 'text-indigo-500' }
+const typeIcons: Record<string, { icon: React.ElementType; color: string; bgColor: string }> = {
+  'article': { icon: TrendingUp, color: 'text-blue-600', bgColor: 'bg-blue-50' },
+  'analysis': { icon: Brain, color: 'text-purple-600', bgColor: 'bg-purple-50' },
+  'opinion': { icon: MessageSquare, color: 'text-green-600', bgColor: 'bg-green-50' },
+  'creative': { icon: Sparkles, color: 'text-pink-600', bgColor: 'bg-pink-50' },
+  'quick': { icon: Zap, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
+  'insight': { icon: BarChart3, color: 'text-indigo-600', bgColor: 'bg-indigo-50' }
 };
 
 // عبارات تحفيزية متنوعة
@@ -47,14 +47,30 @@ const motivationalPhrases = [
   'محتوى مميز لك'
 ];
 
+// صور تجريبية للبطاقات المخصصة
+const demoImages = [
+  'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1626544827763-d516dce335e2?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1517654443271-11c621d19e60?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1478940020726-e9e191651f1a?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop'
+];
+
 export default function SmartContentNewsCard({ 
   article, 
   darkMode, 
   variant = 'full',
   position = 0 
 }: SmartContentNewsCardProps) {
-  const { icon: IconComponent, color } = typeIcons[article.type || article.metadata?.type || 'article'] || typeIcons.article;
+  const typeData = typeIcons[article.type || article.metadata?.type || 'article'] || typeIcons.article;
+  const { icon: IconComponent, color, bgColor } = typeData;
   const phrase = motivationalPhrases[position % motivationalPhrases.length];
+  
+  // اختيار صورة تجريبية إذا لم تكن هناك صورة
+  const imageUrl = article.featured_image || article.thumbnail || demoImages[position % demoImages.length];
 
   // البطاقة للنسخة الكاملة (Desktop)
   if (variant === 'desktop') {
@@ -77,7 +93,7 @@ export default function SmartContentNewsCard({
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden mt-6">
             <CloudImage
-              src={article.featured_image || article.thumbnail}
+              src={imageUrl}
               alt={article.title}
               fill
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -157,15 +173,16 @@ export default function SmartContentNewsCard({
     );
   }
 
-  // البطاقة للنسخة المخصصة للهواتف (كما كانت)
+  // البطاقة للنسخة المخصصة للهواتف (مع ألوان جذابة)
   return (
     <Link href={article.slug ? `/article/${article.slug}` : article.url} className="block w-full">
       <article className={`
-        smart-content-news-card relative overflow-hidden transition-all
+        smart-content-news-card relative overflow-hidden transition-all border
         ${darkMode 
-          ? 'bg-gray-800/50 active:bg-gray-700/50' 
-          : 'bg-white active:bg-gray-50'
+          ? 'bg-gradient-to-r from-gray-800 via-gray-800/95 to-gray-800 border-gray-700/50 active:bg-gray-700/50' 
+          : 'bg-gradient-to-r from-white via-gray-50/30 to-white border-gray-200 active:bg-gray-50'
         }
+        shadow-sm hover:shadow-md
       `}>
         <div className="flex items-start p-4 gap-4">
           {/* الصورة - مربعة صغيرة مثل البطاقات العادية */}
@@ -174,7 +191,7 @@ export default function SmartContentNewsCard({
             ${variant === 'compact' || variant === 'full' ? 'w-24 h-24' : 'w-20 h-20'}
           `}>
             <CloudImage
-              src={article.featured_image || article.thumbnail}
+              src={imageUrl}
               alt={article.title}
               fill
               className="object-cover"
@@ -182,7 +199,7 @@ export default function SmartContentNewsCard({
               fallbackType="article"
             />
             {/* شارة مخصص لك صغيرة في زاوية الصورة */}
-            <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold rounded flex items-center gap-0.5">
+            <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded flex items-center gap-0.5 shadow-sm">
               <Sparkles className="w-2.5 h-2.5" />
               <span className="text-[10px]">مخصص</span>
             </div>
@@ -193,14 +210,16 @@ export default function SmartContentNewsCard({
             {/* التصنيف والمؤشرات */}
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               {/* أيقونة النوع */}
-              <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs ${
-                darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
+              <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+                darkMode ? `${bgColor} ${color}` : `${bgColor} ${color}`
               }`}>
-                <IconComponent className={`w-3 h-3 ${color}`} />
+                <IconComponent className={`w-3 h-3`} />
                 <span className="text-[11px] font-medium">{phrase}</span>
               </div>
               {article.reason && (
-                <span className={`text-[10px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <span className={`text-[10px] ${
+                  darkMode ? 'text-purple-400' : 'text-purple-600'
+                } font-medium`}>
                   • {article.reason}
                 </span>
               )}
@@ -215,18 +234,22 @@ export default function SmartContentNewsCard({
 
             {/* معلومات سريعة */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-3 text-xs">
                 {(article.category_name || article.category) && (
-                  <span>{article.category_name || article.category}</span>
+                  <span className={darkMode ? 'text-blue-400' : 'text-blue-600'}>
+                    {article.category_name || article.category}
+                  </span>
                 )}
                 {article.readingTime && (
-                  <span>{article.readingTime} د</span>
+                  <span className={darkMode ? 'text-green-400' : 'text-green-600'}>
+                    {article.readingTime} دقيقة
+                  </span>
                 )}
               </div>
               
               {/* مؤشر الأداء المبسط */}
               {article.engagement && article.engagement > 0.3 && (
-                <span className="text-[10px] text-yellow-500">⭐ مميز</span>
+                <span className="text-[10px] text-yellow-500 font-bold">⭐ مميز</span>
               )}
             </div>
           </div>

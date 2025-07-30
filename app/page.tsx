@@ -215,7 +215,7 @@ export default async function HomePage() {
     
     // جلب جميع البيانات بالتوازي
     const [articles = [], categories = [], newsStats = null, deepAnalyses = []] = await Promise.all([
-      getArticles(16).catch((err) => {
+      getArticles(20).catch((err) => {
         console.warn('⚠️ فشل جلب المقالات:', err);
         return [];
       }),

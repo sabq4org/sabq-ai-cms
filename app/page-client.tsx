@@ -342,10 +342,10 @@ function NewspaperHomePage({
           userId: user?.id || 'anonymous',
           currentCategory: currentArticle.categories?.name || currentArticle.category,
           currentTags: currentArticle.tags || [],
-          limit: 5
+          limit: 10
         });
         
-        setSmartRecommendations(recommendations.slice(0, 5)); // نحتاج 5 توصيات فقط
+        setSmartRecommendations(recommendations.slice(0, 10)); // نحتاج 10 توصيات للتوزيع المتوازن
       } catch (error) {
         console.error('خطأ في جلب التوصيات الذكية:', error);
       }
@@ -374,12 +374,27 @@ function NewspaperHomePage({
         );
       }
       
-      // إضافة البطاقات المخصصة في المواضع المحددة
-      if ((index + 1) === 5) {
-        // بعد 5 بطاقات: إضافة 2 بطاقة مخصصة
-        for (let i = 0; i < 2 && smartCardIndex < smartRecommendations.length; i++) {
+      // إضافة البطاقات المخصصة بتوزيع متوازن
+      // توزيع البطاقات المخصصة: بعد الأخبار 3، 6، 9، 13، 17
+      const smartCardPositions = [3, 6, 9, 13, 17];
+      const currentPosition = index + 1;
+      
+      if (smartCardPositions.includes(currentPosition)) {
+        // إضافة 1-2 بطاقة مخصصة في كل موضع
+        const cardsToAdd = currentPosition === 9 ? 2 : 1; // إضافة 2 بطاقة في المنتصف
+        
+        for (let i = 0; i < cardsToAdd && smartCardIndex < smartRecommendations.length; i++) {
           const recommendation = smartRecommendations[smartCardIndex];
           if (recommendation) {
+            // تنويع العبارات التحفيزية
+            const excerpts = [
+              'اكتشف هذا المحتوى المميز الذي اخترناه لك بعناية بناءً على اهتماماتك',
+              'محتوى مختار خصيصاً لك لإثراء تجربتك القرائية',
+              'قد يعجبك هذا المحتوى المميز المختار بذكاء',
+              'محتوى يتماشى مع ذوقك واهتماماتك',
+              'اقتراح ذكي يناسب قراءاتك السابقة'
+            ];
+            
             mixedContent.push(
               <SmartContentNewsCard
                 key={`smart-${recommendation.id}`}
@@ -388,35 +403,11 @@ function NewspaperHomePage({
                   slug: recommendation.url.replace('/article/', ''),
                   featured_image: recommendation.thumbnail,
                   category_name: recommendation.category,
-                  excerpt: `اكتشف هذا المحتوى المميز الذي اخترناه لك بعناية بناءً على اهتماماتك`,
+                  excerpt: excerpts[smartCardIndex % excerpts.length],
                   image_caption: `محتوى ${recommendation.type === 'تحليل' ? 'تحليلي عميق' : 
                     recommendation.type === 'رأي' ? 'رأي متخصص' : 
                     recommendation.type === 'تقرير' ? 'تقرير شامل' : 
                     'مميز'} - ${recommendation.readingTime} دقائق قراءة`
-                }}
-                darkMode={darkMode}
-                variant={isMobileView ? 'full' : 'desktop'}
-                position={smartCardIndex}
-              />
-            );
-            smartCardIndex++;
-          }
-        }
-      } else if ((index + 1) === 12) {
-        // بعد 12 بطاقة: إضافة 3 بطاقات مخصصة
-        for (let i = 0; i < 3 && smartCardIndex < smartRecommendations.length; i++) {
-          const recommendation = smartRecommendations[smartCardIndex];
-          if (recommendation) {
-            mixedContent.push(
-              <SmartContentNewsCard
-                key={`smart-${recommendation.id}`}
-                article={{
-                  ...recommendation,
-                  slug: recommendation.url.replace('/article/', ''),
-                  featured_image: recommendation.thumbnail,
-                  category_name: recommendation.category,
-                  excerpt: `محتوى مختار خصيصاً لك لإثراء تجربتك القرائية`,
-                  image_caption: `${recommendation.reason} • ${recommendation.category} • ${recommendation.readingTime} دقيقة`
                 }}
                 darkMode={darkMode}
                 variant={isMobileView ? 'full' : 'desktop'}

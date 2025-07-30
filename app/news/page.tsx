@@ -293,7 +293,7 @@ export default function NewsPage() {
         userBehavior,
         currentCategory: selectedCategory ? getCategoryName(selectedCategory) : '',
         currentArticleId: '',
-        limit: 8 // نحتاج 8 توصيات إجمالاً (2 + 3 + 3)
+        limit: 10 // نحتاج 10 توصيات للتوزيع المتوازن
       });
 
       setSmartRecommendations(recommendations);
@@ -405,12 +405,26 @@ export default function NewsPage() {
         );
       }
 
-      // إضافة البطاقات المخصصة في المواضع المحددة
-      if ((index + 1) === 5) {
-        // بعد 5 بطاقات: إضافة 2 بطاقة مخصصة
-        for (let i = 0; i < 2 && smartCardIndex < smartRecommendations.length; i++) {
+      // إضافة البطاقات المخصصة بتوزيع متوازن
+      const smartCardPositions = [3, 6, 9, 13, 17];
+      const currentPosition = index + 1;
+      
+      if (smartCardPositions.includes(currentPosition)) {
+        // إضافة 1-2 بطاقة مخصصة في كل موضع
+        const cardsToAdd = currentPosition === 9 ? 2 : 1;
+        
+        for (let i = 0; i < cardsToAdd && smartCardIndex < smartRecommendations.length; i++) {
           const recommendation = smartRecommendations[smartCardIndex];
           if (recommendation) {
+            // تنويع العبارات التحفيزية
+            const excerpts = [
+              'اكتشف هذا المحتوى المميز الذي اخترناه لك بعناية بناءً على اهتماماتك',
+              'محتوى مختار خصيصاً لك لإثراء تجربتك القرائية',
+              'قد يعجبك هذا المحتوى المميز المختار بذكاء',
+              'محتوى يتماشى مع ذوقك واهتماماتك',
+              'اقتراح ذكي يناسب قراءاتك السابقة'
+            ];
+            
             mixedContent.push(
               <SmartContentNewsCard
                 key={`smart-${recommendation.id}`}
@@ -419,38 +433,14 @@ export default function NewsPage() {
                   slug: recommendation.url.replace('/article/', ''),
                   featured_image: recommendation.thumbnail,
                   category_name: recommendation.category,
-                  excerpt: `اكتشف هذا المحتوى المميز الذي اخترناه لك بعناية بناءً على اهتماماتك`,
+                  excerpt: excerpts[smartCardIndex % excerpts.length],
                   image_caption: `محتوى ${recommendation.type === 'تحليل' ? 'تحليلي عميق' : 
                     recommendation.type === 'رأي' ? 'رأي متخصص' : 
                     recommendation.type === 'تقرير' ? 'تقرير شامل' : 
                     'مميز'} - ${recommendation.readingTime} دقائق قراءة`
                 }}
                 darkMode={darkMode}
-                variant={isMobile ? 'full' : 'full'}
-                position={smartCardIndex}
-              />
-            );
-            smartCardIndex++;
-          }
-        }
-      } else if ((index + 1) === 12) {
-        // بعد 12 بطاقة (5 + 2 مخصصة + 5): إضافة 3 بطاقات مخصصة
-        for (let i = 0; i < 3 && smartCardIndex < smartRecommendations.length; i++) {
-          const recommendation = smartRecommendations[smartCardIndex];
-          if (recommendation) {
-            mixedContent.push(
-              <SmartContentNewsCard
-                key={`smart-${recommendation.id}`}
-                article={{
-                  ...recommendation,
-                  slug: recommendation.url.replace('/article/', ''),
-                  featured_image: recommendation.thumbnail,
-                  category_name: recommendation.category,
-                  excerpt: `محتوى مختار خصيصاً لك لإثراء تجربتك القرائية`,
-                  image_caption: `${recommendation.reason} • ${recommendation.category} • ${recommendation.readingTime} دقيقة`
-                }}
-                darkMode={darkMode}
-                variant={isMobile ? 'full' : 'full'}
+                variant={isMobile ? 'full' : 'desktop'}
                 position={smartCardIndex}
               />
             );
