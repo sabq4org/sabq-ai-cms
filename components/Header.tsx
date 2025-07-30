@@ -9,6 +9,7 @@ import UserDropdown from './UserDropdown';
 import ClientOnly from './ClientOnly';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useAuth as useAuthContext } from '@/contexts/AuthContext';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { 
   Menu, 
   ChevronDown, 
@@ -33,6 +34,7 @@ import {
 export default function Header() {
   const router = useRouter();
   const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
+  const { logoUrl, siteName } = useSiteSettings();
   
   // Safe auth hook usage
   let user = null;
@@ -125,8 +127,8 @@ export default function Header() {
               {/* اللوقو الرسمي - أكبر حجماً */}
               <div className="flex items-center">
                 <Image
-                  src="/logo.png"
-                  alt="صحيفة سبق الإلكترونية"
+                  src={logoUrl}
+                  alt={siteName}
                   width={140}
                   height={45}
                   className="h-10 w-auto"
