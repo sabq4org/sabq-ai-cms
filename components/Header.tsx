@@ -117,7 +117,7 @@ export default function Header() {
     <header className={`fixed-header transition-all duration-300 ${
       darkMode 
         ? 'bg-gray-900/95 border-gray-800' 
-        : 'bg-white/95 border-gray-200'
+        : 'bg-blue-50/95 border-blue-200'
     } backdrop-blur-md border-b shadow-sm`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
