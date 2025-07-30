@@ -218,14 +218,14 @@ export default function ArticleClientComponent({
         <div className="relative">
           <article className="max-w-2xl mx-auto">
             {/* حاوية موحدة للهيدر */}
-            <div className="px-4">
+            <div className="px-4 md:px-6">
               {/* رأس المقال */}
-              <header className="mb-6 text-right">
+              <header className="mb-8 text-right">
                 {/* التصنيف */}
                 {article.category && (
                   <Link
                     href={`/categories/${article.category.slug}`}
-                    className="inline-block ml-auto px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/30 transition-all"
+                    className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/30 transition-all"
                   >
                     <span className="flex items-center gap-1.5">
                       {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
@@ -247,7 +247,7 @@ export default function ArticleClientComponent({
                 )}
 
                 {/* المعلومات الأساسية */}
-                <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 rtl:flex-row-reverse">
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />

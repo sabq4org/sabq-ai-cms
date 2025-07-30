@@ -147,8 +147,10 @@ export default function ArticleAISummary({
   return (
     <TooltipProvider>
       <div className={cn(
-        'relative',
-        'p-3 sm:p-4',
+        'relative bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10',
+        'rounded-xl p-3 sm:p-4',
+        'border border-purple-200/50 dark:border-purple-700/30',
+        'shadow-sm hover:shadow-md transition-shadow',
         'max-w-lg mx-auto', // تصغير العرض الأقصى
         className
       )}>
