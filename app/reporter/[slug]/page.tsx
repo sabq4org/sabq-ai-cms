@@ -1360,7 +1360,6 @@ const ReporterProfilePage: React.FC = () => {
                 </p>
               </div>
             )}
-          </div>
         </section>
 
         {/* معلومات إضافية */}
