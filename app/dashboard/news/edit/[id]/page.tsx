@@ -140,9 +140,19 @@ export default function EditArticlePage() {
         }
         
         const data = await response.json();
+        console.log('📝 البيانات المستلمة من API:', data);
         
+        // التحقق من وجود البيانات بأشكال مختلفة
+        let article = null;
         if (data.success && data.article) {
-          const article = data.article;
+          article = data.article;
+        } else if (data.id && data.title) {
+          // في حالة كانت البيانات مباشرة
+          article = data;
+        }
+        
+        if (article) {
+          console.log('✅ بيانات المقال:', article);
           
           // تحديث البيانات
         setFormData({
@@ -153,24 +163,34 @@ export default function EditArticlePage() {
             authorId: article.author_id || '',
             categoryId: article.category_id || '',
             type: article.type || 'local',
-            isBreaking: article.metadata?.is_breaking || false,
-            isFeatured: article.metadata?.is_featured || false,
+            isBreaking: article.metadata?.is_breaking || article.is_breaking || false,
+            isFeatured: article.metadata?.is_featured || article.is_featured || false,
             featuredImage: article.featured_image || '',
             featuredImageCaption: article.image_caption || '',
-            gallery: article.metadata?.gallery || [],
+            gallery: article.metadata?.gallery || article.gallery || [],
             externalLink: article.external_link || '',
             publishType: 'now',
             scheduledDate: '',
-            keywords: article.metadata?.keywords || [],
-            seoTitle: article.metadata?.seo_title || '',
-            seoDescription: article.metadata?.seo_description || '',
+            keywords: article.metadata?.keywords || article.keywords || [],
+            seoTitle: article.metadata?.seo_title || article.seo_title || '',
+            seoDescription: article.metadata?.seo_description || article.seo_description || '',
             status: article.status || 'draft'
           });
           
           // تحديث المحرر
           if (editorRef.current && article.content) {
+            console.log('📝 تحديث محتوى المحرر');
             editorRef.current.setContent(article.content);
+          } else {
+            console.log('⚠️ المحرر غير جاهز أو المحتوى فارغ', {
+              editorReady: !!editorRef.current,
+              hasContent: !!article.content
+            });
           }
+        } else {
+          console.error('❌ لم يتم العثور على بيانات المقال في الاستجابة');
+          setLoadError('لم يتم العثور على بيانات المقال');
+          toast.error('لم يتم العثور على بيانات المقال');
         }
       } catch (error) {
         console.error('Error loading article:', error);

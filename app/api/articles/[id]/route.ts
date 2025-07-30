@@ -69,8 +69,10 @@ export async function GET(
     
     return NextResponse.json({
       success: true,
-      ...article,
-      category: categoryInfo
+      article: {
+        ...article,
+        category: categoryInfo
+      }
     })
     
   } catch (error: any) {
