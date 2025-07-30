@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import dbConnectionManager from '@/lib/db-connection-manager';
 
 // Cache في الذاكرة
