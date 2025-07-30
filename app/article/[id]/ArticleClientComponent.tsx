@@ -213,13 +213,9 @@ export default function ArticleClientComponent({
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
       
-      <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
-        {/* منطقة الهيدر بخلفية مميزة */}
-        <div className="relative bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 shadow-sm border-b border-gray-100 dark:border-gray-800 overflow-hidden">
-          {/* Pattern خفيف في الخلفية */}
-          <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }} />
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* منطقة الهيدر بدون خلفية */}
+        <div className="relative">
           <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pt-20 sm:pt-24">
             {/* رأس المقال */}
             <header className="mb-8 text-right">

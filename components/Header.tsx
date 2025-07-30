@@ -258,24 +258,20 @@ export default function Header() {
           <>
             {/* Backdrop overlay */}
             <div 
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-black/50 backdrop-blur-md z-40 md:hidden"
               onClick={() => setIsMobileMenuOpen(false)}
             />
             
-            <div className={`md:hidden fixed top-16 left-0 right-0 z-50 ${
+            <div className={`md:hidden fixed top-14 left-0 right-0 z-50 ${
               darkMode ? 'bg-gray-900' : 'bg-white'
-            } shadow-xl border-t ${
-              darkMode ? 'border-gray-800' : 'border-gray-100'
-            }`}>
-            <nav className="flex flex-col max-h-[calc(100vh-4rem)] overflow-y-auto">
+            } shadow-2xl`}>
+            <nav className="flex flex-col max-h-[calc(100vh-3.5rem)] overflow-y-auto py-2">
               {navigationItems.map((item) => (
                 <Link
                   key={item.url}
                   href={item.url}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-3 text-sm font-medium transition-colors duration-200 border-b ${
-                    darkMode ? 'border-gray-800' : 'border-gray-100'
-                  } ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 ${
                     item.highlight
                       ? darkMode
                         ? 'text-red-400 hover:text-red-300'
@@ -299,10 +295,10 @@ export default function Header() {
               <Link
                 href="/profile"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-3 text-sm font-medium transition-colors duration-200 border-b ${
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 ${
                   darkMode 
-                                        ? 'text-gray-300 hover:text-white border-gray-800'
-                    : 'text-gray-700 hover:text-gray-900 border-gray-100'
+                                        ? 'text-gray-300 hover:text-white'
+                    : 'text-gray-700 hover:text-gray-900'
                 }`}
               >
                 <User className="w-4 h-4" />
@@ -312,10 +308,10 @@ export default function Header() {
               <Link
                 href="/my-journey"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-3 text-sm font-medium transition-colors duration-200 border-b ${
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 ${
                   darkMode 
-                                        ? 'text-gray-300 hover:text-white border-gray-800'
-                    : 'text-gray-700 hover:text-gray-900 border-gray-100'
+                                        ? 'text-gray-300 hover:text-white'
+                    : 'text-gray-700 hover:text-gray-900'
                 }`}
               >
                 <Target className="w-4 h-4" />
