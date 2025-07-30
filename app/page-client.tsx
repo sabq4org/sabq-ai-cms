@@ -321,8 +321,8 @@ function NewspaperHomePage({
         setArticlesLoading(true);
         const res = await fetch('/api/articles?status=published&limit=20&sortBy=published_at&order=desc');
         const json = await res.json();
-        // 💡 FIX: The API returns { data: [...] } or { articles: [...] }
-        const list = Array.isArray(json) ? json : (json.data ?? json.articles ?? []);
+        // 💡 FIX: The API returns { success: true, articles: [...] }
+        const list = Array.isArray(json) ? json : (json.articles || json.data || []);
         // تعيين المقالات للعرض في بلوك "محتوى مخصص لك"
         setArticles(list);
         if (list.length === 0) {
