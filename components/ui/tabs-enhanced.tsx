@@ -1,10 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import Image from 'next/image';
 
 export interface TabItem {
   id: string;
@@ -21,7 +19,14 @@ interface TabsEnhancedProps {
 }
 
 export function TabsEnhanced({ tabs, activeTab, onTabChange, className = '' }: TabsEnhancedProps) {
-  const { darkMode } = useDarkModeContext();
+  const [darkMode, setDarkMode] = useState(false);
+  
+  useEffect(() => {
+    // Check for dark mode from document or localStorage
+    const isDark = document.documentElement.classList.contains('dark') || 
+                  localStorage.getItem('theme') === 'dark';
+    setDarkMode(isDark);
+  }, []);
 
   return (
     <div className={`rounded-2xl p-2 shadow-sm border mb-8 w-full transition-colors duration-300 ${

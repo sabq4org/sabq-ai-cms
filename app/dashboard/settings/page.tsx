@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,7 +56,13 @@ interface SettingsData {
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('identity');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const { darkMode } = useDarkModeContext();
+  const [darkMode, setDarkMode] = useState(false);
+  
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark') || 
+                  localStorage.getItem('theme') === 'dark';
+    setDarkMode(isDark);
+  }, []);
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [testResult, setTestResult] = useState<{success: boolean; message: string} | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
