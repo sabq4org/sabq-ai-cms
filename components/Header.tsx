@@ -122,7 +122,7 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي - محاذاة لليمين */}
-          <div className="order-2">
+          <div className="">
             <Link href="/" className="block">
               <div className="flex items-center py-3">
                 {settingsLoading ? (
@@ -144,7 +144,7 @@ export default function Header() {
           </div>
 
           {/* المينيو الرئيسية - Desktop - مع تحسين المسافات */}
-          <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse order-1 flex-1 justify-center">
+          <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse flex-1 justify-center">
             {navigationItems.map((item) => (
               <Link
                 key={item.url}
@@ -171,7 +171,7 @@ export default function Header() {
           </nav>
 
           {/* أدوات الهيدر */}
-          <div className="flex items-center space-x-4 rtl:space-x-reverse order-3">
+          <div className="flex items-center space-x-4 rtl:space-x-reverse">
             {/* الوضع الليلي */}
             <ClientOnly fallback={
               <button className="p-2 rounded-md transition-colors duration-200 text-gray-600 hover:text-gray-800">
