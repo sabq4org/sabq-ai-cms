@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma, { ensureConnection } from '@/lib/prisma';
+import { prisma, ensureConnection } from '@/lib/prisma';
 import { corsResponse } from '@/lib/cors';
 
 // معالجة طلبات OPTIONS للـ CORS

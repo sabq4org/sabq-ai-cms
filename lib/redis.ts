@@ -35,12 +35,14 @@ if (isDevelopment || (!isCloudRedis && process.env.REDIS_HOST)) {
   // استخدام Redis Cloud في الإنتاج
   console.log('☁️ استخدام Redis Cloud في الإنتاج');
   redis = new Redis(process.env.REDIS_URL!, {
-    tls: {}, // مطلوب لـ rediss://
+    tls: process.env.REDIS_URL.startsWith('rediss://') ? {} : undefined, // تفعيل TLS فقط إذا كان البروتوكول rediss://
     retryStrategy: (times) => {
       const delay = Math.min(times * 50, 2000);
       return delay;
     },
     maxRetriesPerRequest: 3,
+    connectTimeout: 10000,
+    commandTimeout: 5000,
   });
 } else {
   // خيار احتياطي
@@ -57,9 +59,17 @@ if (isDevelopment || (!isCloudRedis && process.env.REDIS_HOST)) {
   });
 }
 
+// متغير لتتبع حالة Redis
+let redisAvailable = true;
+
 // معالج الأخطاء
 redis.on('error', (err) => {
   console.error('❌ خطأ في Redis:', err);
+  // تعطيل Redis في حالة الأخطاء الحرجة
+  if (err.code === 'ERR_SSL_WRONG_VERSION_NUMBER' || err.code === 'ECONNREFUSED') {
+    redisAvailable = false;
+    console.warn('⚠️ تم تعطيل Redis بسبب مشكلة في الاتصال');
+  }
 });
 
 redis.on('connect', () => {
@@ -75,6 +85,7 @@ redis.on('connect', () => {
 export const cache = {
   // جلب من التخزين المؤقت
   async get<T>(key: string): Promise<T | null> {
+    if (!redisAvailable) return null;
     try {
       const data = await redis.get(key);
       return data ? JSON.parse(data) : null;
@@ -86,6 +97,7 @@ export const cache = {
 
   // حفظ في التخزين المؤقت
   async set(key: string, value: any, ttl?: number): Promise<void> {
+    if (!redisAvailable) return;
     try {
       const data = JSON.stringify(value);
       if (ttl) {
@@ -100,6 +112,7 @@ export const cache = {
 
   // حذف من التخزين المؤقت
   async del(key: string | string[]): Promise<void> {
+    if (!redisAvailable) return;
     try {
       if (Array.isArray(key)) {
         await redis.del(...key);
@@ -113,6 +126,7 @@ export const cache = {
 
   // مسح التخزين المؤقت بنمط معين
   async clearPattern(pattern: string): Promise<void> {
+    if (!redisAvailable) return;
     try {
       const keys = await redis.keys(pattern);
       if (keys.length > 0) {
