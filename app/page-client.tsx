@@ -46,6 +46,11 @@ const PodcastBlock = dynamic(() => import('@/components/home/PodcastBlock'), {
   ssr: true,
   loading: () => <Skeleton className="w-full h-80 rounded-lg" />
 });
+
+const FeaturedNewsBlock = dynamic(() => import('@/components/FeaturedNewsBlock'), {
+  ssr: true,
+  loading: () => <Skeleton className="w-full h-80 rounded-lg" />
+});
 import { DeepAnalysis } from '@/types/deep-analysis';
 import { 
   Share2, 
@@ -501,6 +506,9 @@ function NewspaperHomePage({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <PodcastBlock />
       </div>
+      
+      {/* بلوك الخبر المميز - جديد */}
+      <FeaturedNewsBlock />
       
       {/* بلوك الجرعات الذكي - ثاني بلوك */}
       <SmartDigestBlock />
