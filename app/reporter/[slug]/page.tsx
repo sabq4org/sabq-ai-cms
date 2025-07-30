@@ -12,7 +12,7 @@ import {
   Twitter, Linkedin, Globe, Mail, Filter, Search,
   BookOpen, Award, Star, MessageSquare
 } from 'lucide-react';
-import { CloudImage } from '@/components/ui/CloudImage';
+import CloudImage from '@/components/ui/CloudImage';
 import { formatDateGregorian } from '@/lib/date-utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
