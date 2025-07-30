@@ -1361,11 +1361,9 @@ const ReporterProfilePage: React.FC = () => {
               </div>
             )}
         </section>
-
         {/* معلومات إضافية */}
         <section className="px-6 md:px-10 lg:px-20 mb-16">
           <div className="grid lg:grid-cols-3 gap-8">
-          
             {/* التخصصات */}
             {reporter.specializations && reporter.specializations.length > 0 && (
               <div className={`rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow ${
