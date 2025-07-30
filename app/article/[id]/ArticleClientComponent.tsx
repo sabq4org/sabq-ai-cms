@@ -243,7 +243,7 @@ export default function ArticleClientComponent({
             )}
 
             {/* المعلومات الأساسية */}
-            <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 w-full">
+            <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 w-full rtl:flex-row-reverse">
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
