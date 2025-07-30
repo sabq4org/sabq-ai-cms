@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { 
   Star, Clock, User, Eye, Heart, Share2, 
   CheckCircle2, Award, Calendar, ExternalLink,
-  Sparkles
+  Sparkles, Headphones
 } from 'lucide-react';
 import CloudImage from '@/components/ui/CloudImage';
 import { formatDateGregorian } from '@/lib/date-utils';
@@ -104,13 +104,13 @@ const FeaturedNewsBlock: React.FC = () => {
             : 'bg-white/80 hover:bg-white'
         } backdrop-blur-sm rounded-3xl`}>
           
-          {/* Grid Layout: 3/4 للصورة، 1/4 للنص */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 min-h-[300px] lg:min-h-[400px]">
+          {/* Grid Layout: 50% للصورة، 50% للنص */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[240px] lg:min-h-[280px]">
             
-            {/* قسم الصورة - 3/4 من العرض */}
-            <div className="lg:col-span-3 relative overflow-hidden lg:rounded-r-3xl rounded-t-3xl lg:rounded-t-none">
+            {/* قسم الصورة - 6 أعمدة (50%) */}
+            <div className="lg:col-span-6 relative overflow-hidden lg:rounded-r-2xl rounded-t-2xl lg:rounded-t-none">
               {/* الصورة */}
-              <div className="relative w-full h-64 lg:h-full">
+              <div className="relative w-full h-48 lg:h-full">
                 <CloudImage
                   src={featuredArticle.featured_image}
                   alt={featuredArticle.title}
@@ -123,136 +123,139 @@ const FeaturedNewsBlock: React.FC = () => {
                 {/* تدرج لوني ناعم فوق الصورة */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent lg:bg-gradient-to-l lg:from-black/30 lg:via-transparent lg:to-transparent"></div>
                 
-                {/* شارة الخبر المميز */}
-                <div className="absolute top-4 right-4 lg:top-6 lg:right-6">
-                  <div className={`flex items-center gap-2 px-3 py-2 lg:px-4 lg:py-2 rounded-full ${
+                {/* شارة الخبر المميز - مكثفة */}
+                <div className="absolute top-3 right-3">
+                  <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
                     darkMode 
                       ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white'
                       : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white'
-                  } shadow-xl backdrop-blur-sm border border-amber-400/30`}>
-                    <Sparkles className="w-4 h-4 lg:w-5 lg:h-5" />
-                    <span className="font-bold text-sm lg:text-base">خبر مميز</span>
+                  } shadow-lg backdrop-blur-sm border border-amber-400/30`}>
+                    <Sparkles className="w-3 h-3" />
+                    <span className="font-bold text-xs">مميز</span>
                   </div>
                 </div>
-
-                {/* معلومات التصنيف */}
-                {featuredArticle.category && (
-                  <div className="absolute bottom-4 right-4 lg:bottom-6 lg:right-6">
-                    <div className={`flex items-center gap-2 px-3 py-2 rounded-full ${
-                      darkMode 
-                        ? 'bg-blue-900/80 text-blue-100'
-                        : 'bg-blue-600/90 text-white'
-                    } backdrop-blur-sm shadow-lg`}>
-                      <span className="text-lg">{featuredArticle.category.icon}</span>
-                      <span className="font-medium text-sm">{featuredArticle.category.name}</span>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
-            {/* قسم النص - 1/4 من العرض */}
-            <div className="lg:col-span-1 p-6 lg:p-8 flex flex-col justify-center">
-              {/* العنوان الرئيسي */}
-              <h2 className={`text-2xl lg:text-3xl xl:text-4xl font-bold mb-4 lg:mb-6 leading-tight transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
+            {/* قسم النص - 6 أعمدة (50%) */}
+            <div className="lg:col-span-6 p-4 lg:p-6 flex flex-col justify-center">
+              {/* العنوان الرئيسي - مقصور على 2-3 سطور */}
+              <h2 className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-3 leading-tight line-clamp-3 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
                 darkMode ? 'text-white' : 'text-gray-900'
               }`}>
                 {featuredArticle.title}
               </h2>
 
-              {/* موجز الخبر */}
+              {/* موجز الخبر - مكثف */}
               {featuredArticle.excerpt && (
-                <p className={`text-base lg:text-lg mb-4 lg:mb-6 leading-relaxed line-clamp-3 ${
+                <p className={`text-sm lg:text-base mb-4 leading-relaxed line-clamp-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}>
                   {featuredArticle.excerpt}
                 </p>
               )}
 
-              {/* معلومات المراسل */}
-              {featuredArticle.author && (
-                <div className="mb-4 lg:mb-6">
-                  {featuredArticle.author.reporter ? (
-                    <Link 
-                      href={`/reporter/${featuredArticle.author.reporter.slug}`}
-                      className="inline-flex items-center gap-2 group/reporter hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <User className="w-4 h-4" />
-                      <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {featuredArticle.author.reporter.full_name}
-                      </span>
-                      {featuredArticle.author.reporter.title && (
-                        <span className={`text-sm opacity-75 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          - {featuredArticle.author.reporter.title}
+              {/* معلومات المراسل والتصنيف - مكثفة */}
+              <div className="mb-4 space-y-2">
+                {/* المراسل */}
+                {featuredArticle.author && (
+                  <div className="flex items-center gap-2">
+                    {featuredArticle.author.reporter ? (
+                      <Link 
+                        href={`/reporter/${featuredArticle.author.reporter.slug}`}
+                        className="inline-flex items-center gap-1 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <User className="w-3 h-3" />
+                        <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {featuredArticle.author.reporter.full_name}
                         </span>
-                      )}
-                      {featuredArticle.author.reporter.is_verified && (
-                        <div className="flex items-center">
-                          {getVerificationIcon(featuredArticle.author.reporter.verification_badge)}
-                        </div>
-                      )}
-                    </Link>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {featuredArticle.author.name}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
+                        {featuredArticle.author.reporter.is_verified && (
+                          <div className="flex items-center">
+                            {getVerificationIcon(featuredArticle.author.reporter.verification_badge)}
+                          </div>
+                        )}
+                      </Link>
+                    ) : (
+                      <div className="flex items-center gap-1 text-sm">
+                        <User className="w-3 h-3" />
+                        <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {featuredArticle.author.name}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-              {/* وقت وتاريخ النشر */}
-              <div className="mb-4 lg:mb-6">
-                <div className="flex items-center gap-2">
-                  <Calendar className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                  <span className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {formatDateGregorian(featuredArticle.published_at)}
-                  </span>
-                </div>
-                {featuredArticle.reading_time && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <Clock className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                    <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {featuredArticle.reading_time} دقيقة قراءة
+                {/* التصنيف */}
+                {featuredArticle.category && (
+                  <div className="flex items-center gap-1 text-sm">
+                    <span className="text-base">{featuredArticle.category.icon}</span>
+                    <span className={`font-medium ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                      {featuredArticle.category.name}
                     </span>
                   </div>
                 )}
               </div>
 
-              {/* إحصائيات التفاعل */}
-              <div className="flex items-center gap-4 lg:gap-6 text-sm">
-                <div className="flex items-center gap-1">
-                  <Eye className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                  <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
-                    {featuredArticle.views > 1000 ? `${(featuredArticle.views / 1000).toFixed(1)}ك` : featuredArticle.views}
-                  </span>
+              {/* أيقونات صفية مضغوطة */}
+              <div className="flex items-center justify-between mb-4">
+                {/* المعلومات الأساسية */}
+                <div className="flex items-center gap-3 text-xs">
+                  <div className="flex items-center gap-1">
+                    <Calendar className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                      {formatDateGregorian(featuredArticle.published_at)}
+                    </span>
+                  </div>
+                  {featuredArticle.reading_time && (
+                    <div className="flex items-center gap-1">
+                      <Clock className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                        {featuredArticle.reading_time} د
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1">
+                    <Headphones className={`w-3 h-3 ${darkMode ? 'text-green-400' : 'text-green-500'}`} />
+                    <span className={darkMode ? 'text-green-400' : 'text-green-600'}>
+                      استمع
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Heart className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                  <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
-                    {featuredArticle.likes}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Share2 className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                  <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
-                    {featuredArticle.shares}
-                  </span>
+
+                {/* إحصائيات التفاعل */}
+                <div className="flex items-center gap-3 text-xs">
+                  <div className="flex items-center gap-1">
+                    <Eye className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                      {featuredArticle.views > 1000 ? `${(featuredArticle.views / 1000).toFixed(1)}ك` : featuredArticle.views}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Heart className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                      {featuredArticle.likes}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Share2 className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                      {featuredArticle.shares}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* زر قراءة المزيد (اختياري) */}
-              <div className="mt-6 lg:mt-8">
-                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all group-hover:scale-105 ${
+              {/* زر "اقرأ المزيد" */}
+              <div className="mt-auto">
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105 ${
                   darkMode 
-                    ? 'border-blue-600 text-blue-400 group-hover:bg-blue-600 group-hover:text-white'
-                    : 'border-blue-500 text-blue-600 group-hover:bg-blue-500 group-hover:text-white'
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
                 }`}>
-                  <span className="font-medium">اقرأ التفاصيل</span>
-                  <ExternalLink className="w-4 h-4" />
+                  <span>اقرأ المزيد</span>
+                  <ExternalLink className="w-3 h-3" />
                 </div>
               </div>
             </div>
