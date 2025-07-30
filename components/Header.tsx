@@ -153,11 +153,11 @@ export default function Header() {
                 className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   item.highlight
                     ? darkMode
-                      ? 'text-red-400 hover:text-red-300 hover:bg-gray-800/50'
-                      : 'text-red-600 hover:text-red-700 hover:bg-gray-100/50'
+                      ? 'text-red-400 hover:text-red-300'
+                      : 'text-red-600 hover:text-red-700'
                     : darkMode
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-800/50'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/50'
+                    ? 'text-gray-300 hover:text-white'
+                    : 'text-gray-700 hover:text-gray-900'
                 }`}
               >
                 <item.icon className="w-4 h-4" />
@@ -175,7 +175,7 @@ export default function Header() {
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
             {/* الوضع الليلي */}
             <ClientOnly fallback={
-              <button className="p-2 rounded-md transition-colors duration-200 text-gray-600 hover:text-gray-800 hover:bg-gray-100">
+              <button className="p-2 rounded-md transition-colors duration-200 text-gray-600 hover:text-gray-800">
                 <Moon className="w-5 h-5" />
               </button>
             }>
@@ -183,8 +183,8 @@ export default function Header() {
                 onClick={toggleDarkMode}
                 className={`p-2 rounded-md transition-colors duration-200 ${
                   darkMode 
-                    ? 'text-yellow-400 hover:text-yellow-300 hover:bg-gray-800' 
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                                        ? 'text-yellow-400 hover:text-yellow-300'
+                    : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
                 {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -198,8 +198,8 @@ export default function Header() {
                   onClick={handleDropdownToggle}
                   className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-md transition-colors duration-200 ${
                     darkMode 
-                      ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
-                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                                          ? 'text-gray-300 hover:text-white'
+                    : 'text-gray-700 hover:text-gray-900'
                   }`}
                 >
                   {user.avatar ? (
@@ -230,8 +230,8 @@ export default function Header() {
                 href="/login"
                 className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                   darkMode 
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                                        ? 'text-gray-300 hover:text-white'
+                    : 'text-gray-700 hover:text-gray-900'
                 }`}
               >
                 <LogIn className="w-4 h-4" />
@@ -244,8 +244,8 @@ export default function Header() {
               onClick={toggleMobileMenu}
               className={`md:hidden p-2 rounded-md transition-colors duration-200 ${
                 darkMode 
-                  ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-800' 
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                                      ? 'text-gray-400 hover:text-gray-200'
+                    : 'text-gray-600 hover:text-gray-800'
               }`}
             >
               <Menu className="w-5 h-5" />
@@ -276,11 +276,11 @@ export default function Header() {
                   } ${
                     item.highlight
                       ? darkMode
-                        ? 'text-red-400 hover:text-red-300 hover:bg-gray-800'
-                        : 'text-red-600 hover:text-red-700 hover:bg-gray-50'
+                        ? 'text-red-400 hover:text-red-300'
+                        : 'text-red-600 hover:text-red-700'
                       : darkMode
-                      ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'text-gray-300 hover:text-white'
+                      : 'text-gray-700 hover:text-gray-900'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -299,8 +299,8 @@ export default function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-3 text-sm font-medium transition-colors duration-200 border-b ${
                   darkMode 
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-800 border-gray-800' 
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 border-gray-100'
+                                        ? 'text-gray-300 hover:text-white border-gray-800'
+                    : 'text-gray-700 hover:text-gray-900 border-gray-100'
                 }`}
               >
                 <User className="w-4 h-4" />
@@ -312,8 +312,8 @@ export default function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-3 text-sm font-medium transition-colors duration-200 border-b ${
                   darkMode 
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-800 border-gray-800' 
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 border-gray-100'
+                                        ? 'text-gray-300 hover:text-white border-gray-800'
+                    : 'text-gray-700 hover:text-gray-900 border-gray-100'
                 }`}
               >
                 <Target className="w-4 h-4" />
@@ -325,8 +325,8 @@ export default function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                   darkMode 
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                                        ? 'text-gray-300 hover:text-white'
+                    : 'text-gray-700 hover:text-gray-900'
                 }`}
               >
                 <Settings className="w-4 h-4" />
