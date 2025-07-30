@@ -40,7 +40,11 @@ export default function EnhancedMobileNewsCard({
     return (
       <Link href={getArticleLink(news)} className="block w-full">
         <article className={`relative overflow-hidden rounded-2xl shadow-lg transition-all hover:shadow-xl ${
-          darkMode ? 'bg-gray-800' : 'bg-white'
+          news.breaking 
+            ? (darkMode 
+                ? 'bg-red-950/30 border-2 border-red-800/70' 
+                : 'bg-red-50 border-2 border-red-200')
+            : (darkMode ? 'bg-gray-800' : 'bg-white')
         }`}>
           {/* الصورة بارتفاع أكبر */}
           <div className="relative h-56 w-full bg-gray-200 dark:bg-gray-700">
@@ -152,9 +156,13 @@ export default function EnhancedMobileNewsCard({
     return (
       <Link href={getArticleLink(news)} className="block w-full">
         <article className={`overflow-hidden transition-all ${
-          darkMode 
-            ? 'bg-gray-800/50 active:bg-gray-700/50' 
-            : 'bg-white active:bg-gray-50'
+          news.breaking 
+            ? (darkMode 
+                ? 'bg-red-950/30 border-2 border-red-800/70 active:bg-red-950/40' 
+                : 'bg-red-50 border-2 border-red-200 active:bg-red-100')
+            : (darkMode 
+                ? 'bg-gray-800/50 active:bg-gray-700/50' 
+                : 'bg-white active:bg-gray-50')
         }`}>
           <div className="flex items-start p-4 gap-4">
             {/* الصورة - مربعة مع زوايا دائرية */}
@@ -243,9 +251,13 @@ export default function EnhancedMobileNewsCard({
   return (
     <Link href={getArticleLink(news)} className="block">
       <article className={`relative overflow-hidden rounded-xl transition-all ${
-        darkMode 
-          ? 'bg-gray-800 shadow-lg hover:shadow-xl' 
-          : 'bg-white shadow-md hover:shadow-lg'
+        news.breaking 
+          ? (darkMode 
+              ? 'bg-red-950/30 border-2 border-red-800/70 shadow-lg hover:shadow-xl' 
+              : 'bg-red-50 border-2 border-red-200 shadow-md hover:shadow-lg')
+          : (darkMode 
+              ? 'bg-gray-800 shadow-lg hover:shadow-xl' 
+              : 'bg-white shadow-md hover:shadow-lg')
       }`}>
         {/* الصورة مع نسبة 16:9 */}
         <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700">

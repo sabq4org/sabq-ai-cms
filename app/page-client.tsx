@@ -191,9 +191,13 @@ function NewspaperHomePage({
     return (
       <Link href={getArticleLink(news)} className="group block">
         <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform ${
-          darkMode 
-            ? 'bg-gray-800 border border-gray-700' 
-            : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'
+          news.breaking || news.is_breaking
+            ? (darkMode 
+                ? 'bg-red-950/30 border-2 border-red-800/70' 
+                : 'bg-red-50 border-2 border-red-200')
+            : (darkMode 
+                ? 'bg-gray-800 border border-gray-700' 
+                : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700')
         } group-hover:scale-[1.02] group-hover:shadow-2xl`}>
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden">
@@ -205,8 +209,14 @@ function NewspaperHomePage({
               fallbackType="article"
               priority={false}
             />
-            {/* تم حذف طبقة التدرج فوق الصورة */}
-            {/* تم إزالة التصنيف */}
+            {/* شارة عاجل */}
+            {(news.breaking || news.is_breaking) && (
+              <div className="absolute top-3 right-3">
+                <span className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full animate-pulse shadow-lg">
+                  ⚡ عاجل
+                </span>
+              </div>
+            )}
           </div>
           {/* محتوى البطاقة */}
           <div className="p-4 sm:p-5">

@@ -122,9 +122,13 @@ export default function UnifiedMobileNewsCard({
       <Link href={getArticleLink(data)} className={`block w-full ${className}`}>
         <article className={`
           relative overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-lg group
-          ${darkMode 
-            ? 'bg-gray-800/90 backdrop-blur-sm border border-gray-700/50 hover:bg-gray-800' 
-            : 'bg-white/90 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50'
+          ${data.breaking 
+            ? (darkMode 
+                ? 'bg-red-950/30 backdrop-blur-sm border-2 border-red-800/70 hover:bg-red-950/40' 
+                : 'bg-red-50/90 backdrop-blur-sm border-2 border-red-200 hover:bg-red-50')
+            : (darkMode 
+                ? 'bg-gray-800/90 backdrop-blur-sm border border-gray-700/50 hover:bg-gray-800' 
+                : 'bg-white/90 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50')
           }
         `}>
           {/* الصورة الرئيسية */}
@@ -299,9 +303,13 @@ export default function UnifiedMobileNewsCard({
       <Link href={getArticleLink(data)} className={`block w-full ${className}`}>
         <article className={`
           flex gap-4 p-4 rounded-xl transition-all duration-200 hover:shadow-md
-          ${darkMode 
-            ? 'bg-gray-800/50 hover:bg-gray-800/80' 
-            : 'bg-white hover:bg-gray-50'
+          ${data.breaking 
+            ? (darkMode 
+                ? 'bg-red-950/30 border-2 border-red-800/70 hover:bg-red-950/40' 
+                : 'bg-red-50 border-2 border-red-200 hover:bg-red-100')
+            : (darkMode 
+                ? 'bg-gray-800/50 hover:bg-gray-800/80' 
+                : 'bg-white hover:bg-gray-50')
           }
         `}>
           {/* الصورة المصغرة */}
@@ -372,9 +380,13 @@ export default function UnifiedMobileNewsCard({
     <Link href={getArticleLink(data)} className={`block w-full ${className}`}>
       <article className={`
         overflow-hidden rounded-xl transition-all duration-200 hover:shadow-lg
-        ${darkMode 
-          ? 'bg-gray-800 border border-gray-700' 
-          : 'bg-white border border-gray-200'
+        ${data.breaking 
+          ? (darkMode 
+              ? 'bg-red-950/30 border-2 border-red-800/70' 
+              : 'bg-red-50 border-2 border-red-200')
+          : (darkMode 
+              ? 'bg-gray-800 border border-gray-700' 
+              : 'bg-white border border-gray-200')
         }
       `}>
         {/* الصورة */}
