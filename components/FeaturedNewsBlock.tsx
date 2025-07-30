@@ -248,7 +248,7 @@ const FeaturedNewsBlock: React.FC = () => {
               </div>
 
               {/* زر "اقرأ المزيد" */}
-              <div className="mt-auto flex justify-start items-end">
+              <div className="mt-auto flex justify-end items-end">
                 <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all hover:translate-x-[-0.25rem] ${
                   darkMode 
                     ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
