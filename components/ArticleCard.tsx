@@ -189,23 +189,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                 )}
               </div>
               
-              {/* AI compatibility score */}
-              {isPersonalized && (
-                <div className="flex items-center gap-2">
-                  <Target className="w-3 h-3 text-purple-500" />
-                  <div className="flex items-center gap-1">
-                    <div className="h-1.5 w-16 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
-                        style={{ width: `${personalizedScore}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
-                      {personalizedScore}% ملائم
-                    </span>
-                  </div>
-                </div>
-              )}
+
             </div>
           </div>
         </article>
@@ -309,23 +293,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
               </div>
             </div>
             
-            {/* AI compatibility score */}
-            {isPersonalized && (
-              <div className="flex items-center gap-2">
-                <Target className="w-3 h-3 text-purple-500" />
-                <div className="flex items-center gap-1 flex-1">
-                  <div className="h-1.5 flex-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
-                      style={{ width: `${personalizedScore}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
-                    {personalizedScore}%
-                  </span>
-                </div>
-              </div>
-            )}
+
           </div>
         </div>
       </article>
