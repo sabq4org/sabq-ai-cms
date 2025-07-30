@@ -126,9 +126,9 @@ export default function Header() {
             <Link href="/" className="block">
               <div className="flex items-center py-3">
                 {settingsLoading ? (
-                  <div className="h-10 sm:h-12 w-32 sm:w-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+                  <div className="h-8 sm:h-10 w-28 sm:w-36 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
                 ) : logoUrl && (
-                  <div className="relative w-32 sm:w-40 h-10 sm:h-12">
+                  <div className="relative w-28 sm:w-36 h-8 sm:h-10">
                     <Image
                       src={logoUrl}
                       alt={siteName}
