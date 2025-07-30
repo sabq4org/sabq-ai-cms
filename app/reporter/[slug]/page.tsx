@@ -8,13 +8,17 @@ import {
   Twitter, Linkedin, Globe, Mail, CheckCircle2,
   TrendingUp, FileText, ArrowLeft, ChevronRight,
   BarChart3, Zap, Sparkles, Target, Trophy,
-  Brain, Activity, Share2, Users, MoreHorizontal
+  Brain, Activity, Share2, Users, MoreHorizontal,
+  Gauge, Lightbulb, BrainCircuit, Radar,
+  TrendingDown, Flame, Cpu, Wand2, LineChart,
+  Hexagon, ArrowUpRight, Hash, Filter
 } from 'lucide-react';
 import CloudImage from '@/components/ui/CloudImage';
 import { formatDateGregorian } from '@/lib/date-utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 interface Reporter {
   id: string;
@@ -81,6 +85,38 @@ interface Article {
   slug: string;
 }
 
+// AI Insights Interfaces
+interface AIPerformanceScore {
+  overall: number;
+  quality: number;
+  engagement: number;
+  consistency: number;
+  impact: number;
+  trend: 'rising' | 'stable' | 'declining';
+}
+
+interface PredictiveAnalytics {
+  nextMonthViews: number;
+  growthRate: number;
+  peakHours: string[];
+  bestTopics: string[];
+  audienceGrowth: number;
+}
+
+interface SentimentAnalysis {
+  positive: number;
+  neutral: number;
+  negative: number;
+  trending: 'positive' | 'neutral' | 'negative';
+}
+
+interface TrendingRadar {
+  topic: string;
+  relevance: number;
+  growth: number;
+  competition: 'low' | 'medium' | 'high';
+}
+
 // مساعد وظائف للتحقق والشارات
 function getVerificationIcon(badge: string) {
   switch (badge) {
@@ -117,6 +153,39 @@ const ReporterProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('recent');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [showFullBio, setShowFullBio] = useState(false);
+  
+  // AI States
+  const [aiScore, setAiScore] = useState<AIPerformanceScore>({
+    overall: 92,
+    quality: 88,
+    engagement: 95,
+    consistency: 90,
+    impact: 94,
+    trend: 'rising'
+  });
+  
+  const [predictiveAnalytics, setPredictiveAnalytics] = useState<PredictiveAnalytics>({
+    nextMonthViews: 125000,
+    growthRate: 23.5,
+    peakHours: ['9:00 AM', '2:00 PM', '8:00 PM'],
+    bestTopics: ['الاقتصاد', 'التقنية', 'الرياضة'],
+    audienceGrowth: 15.8
+  });
+  
+  const [sentimentAnalysis, setSentimentAnalysis] = useState<SentimentAnalysis>({
+    positive: 78,
+    neutral: 18,
+    negative: 4,
+    trending: 'positive'
+  });
+  
+  const [trendingTopics, setTrendingTopics] = useState<TrendingRadar[]>([
+    { topic: 'الذكاء الاصطناعي', relevance: 95, growth: 45, competition: 'high' },
+    { topic: 'الطاقة المتجددة', relevance: 88, growth: 32, competition: 'medium' },
+    { topic: 'الرياضة السعودية', relevance: 92, growth: 28, competition: 'low' },
+    { topic: 'الاقتصاد الرقمي', relevance: 85, growth: 38, competition: 'medium' }
+  ]);
 
   // جلب بيانات المراسل
   useEffect(() => {
@@ -187,9 +256,649 @@ const ReporterProfilePage: React.FC = () => {
     fetchArticles(search, categoryFilter, activeTab);
   };
 
-  // تم حذف التعريف المكرر - الدالة معرفة في أعلى الملف
-
-  // تم حذف التعريف المكرر - الدالة معرفة في أعلى الملف
+  // مكون AI Performance Score
+  const AIScoreComponent = () => (
+    <div className={cn(
+      'rounded-3xl p-6 shadow-xl border backdrop-blur-sm transition-all duration-500',
+      darkMode 
+        ? 'bg-gradient-to-br from-purple-900/20 via-indigo-900/20 to-blue-900/20 border-purple-700/30' 
+        : 'bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 border-purple-200'
+    )}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            'p-3 rounded-2xl',
+            darkMode ? 'bg-purple-800/30' : 'bg-purple-100'
+          )}>
+            <BrainCircuit className="w-6 h-6 text-purple-600" />
+          </div>
+          <div>
+            <h3 className={cn(
+              'text-xl font-bold',
+              darkMode ? 'text-white' : 'text-gray-900'
+            )}>
+              AI Performance Score
+            </h3>
+            <p className={cn(
+              'text-sm',
+              darkMode ? 'text-gray-400' : 'text-gray-600'
+            )}>
+              تقييم الأداء بالذكاء الاصطناعي
+            </p>
+          </div>
+        </div>
+        
+        <div className="text-center">
+          <div className={cn(
+            'text-4xl font-bold mb-1',
+            aiScore.trend === 'rising' ? 'text-green-500' : 
+            aiScore.trend === 'declining' ? 'text-red-500' : 'text-blue-500'
+          )}>
+            {aiScore.overall}
+          </div>
+          <div className="flex items-center gap-1">
+            {aiScore.trend === 'rising' ? (
+              <TrendingUp className="w-4 h-4 text-green-500" />
+            ) : aiScore.trend === 'declining' ? (
+              <TrendingDown className="w-4 h-4 text-red-500" />
+            ) : (
+              <Activity className="w-4 h-4 text-blue-500" />
+            )}
+            <span className={cn(
+              'text-xs font-medium',
+              darkMode ? 'text-gray-400' : 'text-gray-600'
+            )}>
+              {aiScore.trend === 'rising' ? 'صاعد' : 
+               aiScore.trend === 'declining' ? 'هابط' : 'مستقر'}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'جودة المحتوى', value: aiScore.quality, icon: Star, color: 'yellow' },
+          { label: 'التفاعل', value: aiScore.engagement, icon: Heart, color: 'red' },
+          { label: 'الاستمرارية', value: aiScore.consistency, icon: Clock, color: 'blue' },
+          { label: 'التأثير', value: aiScore.impact, icon: Flame, color: 'orange' }
+        ].map((metric, idx) => (
+          <div key={idx} className={cn(
+            'p-4 rounded-2xl border transition-all hover:scale-105',
+            darkMode 
+              ? 'bg-slate-800/50 border-slate-700 hover:bg-slate-800/70' 
+              : 'bg-white/80 border-gray-200 hover:bg-white'
+          )}>
+            <div className="flex items-center justify-between mb-2">
+              <metric.icon className={`w-5 h-5 text-${metric.color}-500`} />
+              <span className={cn(
+                'text-2xl font-bold',
+                darkMode ? 'text-white' : 'text-gray-900'
+              )}>
+                {metric.value}
+              </span>
+            </div>
+            <div className={cn(
+              'text-xs font-medium',
+              darkMode ? 'text-gray-400' : 'text-gray-600'
+            )}>
+              {metric.label}
+            </div>
+            <div className="mt-2 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div 
+                className={`h-full bg-gradient-to-r from-${metric.color}-500 to-${metric.color}-400 transition-all duration-700`}
+                style={{ width: `${metric.value}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+  
+  // مكون Predictive Analytics
+  const PredictiveAnalyticsComponent = () => (
+    <div className={cn(
+      'rounded-3xl p-6 shadow-xl border backdrop-blur-sm',
+      darkMode 
+        ? 'bg-gradient-to-br from-emerald-900/20 via-teal-900/20 to-cyan-900/20 border-emerald-700/30' 
+        : 'bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border-emerald-200'
+    )}>
+      <div className="flex items-center gap-3 mb-6">
+        <div className={cn(
+          'p-3 rounded-2xl',
+          darkMode ? 'bg-emerald-800/30' : 'bg-emerald-100'
+        )}>
+          <LineChart className="w-6 h-6 text-emerald-600" />
+        </div>
+        <div>
+          <h3 className={cn(
+            'text-xl font-bold',
+            darkMode ? 'text-white' : 'text-gray-900'
+          )}>
+            التحليلات التنبؤية
+          </h3>
+          <p className={cn(
+            'text-sm',
+            darkMode ? 'text-gray-400' : 'text-gray-600'
+          )}>
+            توقعات مدعومة بالذكاء الاصطناعي
+          </p>
+        </div>
+      </div>
+      
+      <div className="space-y-4">
+        <div className={cn(
+          'p-4 rounded-2xl',
+          darkMode ? 'bg-slate-800/50' : 'bg-white/80'
+        )}>
+          <div className="flex items-center justify-between mb-2">
+            <span className={cn(
+              'text-sm font-medium',
+              darkMode ? 'text-gray-300' : 'text-gray-700'
+            )}>
+              المشاهدات المتوقعة الشهر القادم
+            </span>
+            <span className="text-2xl font-bold text-emerald-500">
+              {predictiveAnalytics.nextMonthViews.toLocaleString('ar-SA')}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ArrowUpRight className="w-4 h-4 text-emerald-500" />
+            <span className="text-sm font-medium text-emerald-500">
+              +{predictiveAnalytics.growthRate}%
+            </span>
+          </div>
+        </div>
+        
+        <div className={cn(
+          'p-4 rounded-2xl',
+          darkMode ? 'bg-slate-800/50' : 'bg-white/80'
+        )}>
+          <h4 className={cn(
+            'text-sm font-medium mb-3',
+            darkMode ? 'text-gray-300' : 'text-gray-700'
+          )}>
+            أفضل أوقات النشر
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            {predictiveAnalytics.peakHours.map((hour, idx) => (
+              <span key={idx} className={cn(
+                'px-3 py-1 rounded-full text-xs font-medium',
+                darkMode 
+                  ? 'bg-emerald-800/30 text-emerald-300 border border-emerald-700/50' 
+                  : 'bg-emerald-100 text-emerald-700'
+              )}>
+                {hour}
+              </span>
+            ))}
+          </div>
+        </div>
+        
+        <div className={cn(
+          'p-4 rounded-2xl',
+          darkMode ? 'bg-slate-800/50' : 'bg-white/80'
+        )}>
+          <h4 className={cn(
+            'text-sm font-medium mb-3',
+            darkMode ? 'text-gray-300' : 'text-gray-700'
+          )}>
+            المواضيع الموصى بها
+          </h4>
+          <div className="space-y-2">
+            {predictiveAnalytics.bestTopics.map((topic, idx) => (
+              <div key={idx} className="flex items-center justify-between">
+                <span className={cn(
+                  'text-sm',
+                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                )}>
+                  {topic}
+                </span>
+                <div className="flex items-center gap-1">
+                  <Flame className="w-3 h-3 text-orange-500" />
+                  <span className="text-xs font-medium text-orange-500">رائج</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+  
+  // مكون Sentiment Analysis
+  const SentimentAnalysisComponent = () => (
+    <div className={cn(
+      'rounded-3xl p-6 shadow-xl border backdrop-blur-sm',
+      darkMode 
+        ? 'bg-gradient-to-br from-rose-900/20 via-pink-900/20 to-purple-900/20 border-rose-700/30' 
+        : 'bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 border-rose-200'
+    )}>
+      <div className="flex items-center gap-3 mb-6">
+        <div className={cn(
+          'p-3 rounded-2xl',
+          darkMode ? 'bg-rose-800/30' : 'bg-rose-100'
+        )}>
+          <MessageSquare className="w-6 h-6 text-rose-600" />
+        </div>
+        <div>
+          <h3 className={cn(
+            'text-xl font-bold',
+            darkMode ? 'text-white' : 'text-gray-900'
+          )}>
+            تحليل المشاعر
+          </h3>
+          <p className={cn(
+            'text-sm',
+            darkMode ? 'text-gray-400' : 'text-gray-600'
+          )}>
+            تحليل ردود فعل القراء بالذكاء الاصطناعي
+          </p>
+        </div>
+      </div>
+      
+      <div className="relative h-40 mb-4">
+        {/* Circular Progress Rings */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <svg className="transform -rotate-90 w-32 h-32">
+            <circle cx="64" cy="64" r="60" strokeWidth="8" fill="none" className="stroke-gray-200 dark:stroke-gray-700" />
+            <circle 
+              cx="64" cy="64" r="60" strokeWidth="8" fill="none" 
+              className="stroke-green-500 transition-all duration-700"
+              strokeDasharray={`${sentimentAnalysis.positive * 3.77} 377`}
+              strokeDashoffset="0"
+            />
+          </svg>
+          <div className="absolute text-center">
+            <div className="text-3xl font-bold text-green-500">
+              {sentimentAnalysis.positive}%
+            </div>
+            <div className={cn(
+              'text-xs',
+              darkMode ? 'text-gray-400' : 'text-gray-600'
+            )}>
+              إيجابي
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-3 gap-3">
+        <div className={cn(
+          'text-center p-3 rounded-xl',
+          darkMode ? 'bg-slate-800/50' : 'bg-white/80'
+        )}>
+          <div className="text-xl font-bold text-green-500">
+            {sentimentAnalysis.positive}%
+          </div>
+          <div className={cn(
+            'text-xs',
+            darkMode ? 'text-gray-400' : 'text-gray-600'
+          )}>
+            إيجابي
+          </div>
+        </div>
+        <div className={cn(
+          'text-center p-3 rounded-xl',
+          darkMode ? 'bg-slate-800/50' : 'bg-white/80'
+        )}>
+          <div className="text-xl font-bold text-blue-500">
+            {sentimentAnalysis.neutral}%
+          </div>
+          <div className={cn(
+            'text-xs',
+            darkMode ? 'text-gray-400' : 'text-gray-600'
+          )}>
+            محايد
+          </div>
+        </div>
+        <div className={cn(
+          'text-center p-3 rounded-xl',
+          darkMode ? 'bg-slate-800/50' : 'bg-white/80'
+        )}>
+          <div className="text-xl font-bold text-red-500">
+            {sentimentAnalysis.negative}%
+          </div>
+          <div className={cn(
+            'text-xs',
+            darkMode ? 'text-gray-400' : 'text-gray-600'
+          )}>
+            سلبي
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+  
+  // مكون Trending Topics Radar
+  const TrendingTopicsRadarComponent = () => (
+    <div className={cn(
+      'rounded-3xl p-6 shadow-xl border backdrop-blur-sm',
+      darkMode 
+        ? 'bg-gradient-to-br from-orange-900/20 via-amber-900/20 to-yellow-900/20 border-orange-700/30' 
+        : 'bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 border-orange-200'
+    )}>
+      <div className="flex items-center gap-3 mb-6">
+        <div className={cn(
+          'p-3 rounded-2xl',
+          darkMode ? 'bg-orange-800/30' : 'bg-orange-100'
+        )}>
+          <Radar className="w-6 h-6 text-orange-600" />
+        </div>
+        <div>
+          <h3 className={cn(
+            'text-xl font-bold',
+            darkMode ? 'text-white' : 'text-gray-900'
+          )}>
+            رادار المواضيع الرائجة
+          </h3>
+          <p className={cn(
+            'text-sm',
+            darkMode ? 'text-gray-400' : 'text-gray-600'
+          )}>
+            اكتشف الفرص المستقبلية
+          </p>
+        </div>
+      </div>
+      
+      <div className="space-y-3">
+        {trendingTopics.map((topic, idx) => (
+          <div key={idx} className={cn(
+            'p-4 rounded-2xl border transition-all hover:scale-[1.02]',
+            darkMode 
+              ? 'bg-slate-800/50 border-slate-700 hover:bg-slate-800/70' 
+              : 'bg-white/80 border-gray-200 hover:bg-white'
+          )}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  'w-2 h-2 rounded-full',
+                  topic.competition === 'high' ? 'bg-red-500' :
+                  topic.competition === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                )} />
+                <h4 className={cn(
+                  'font-semibold',
+                  darkMode ? 'text-white' : 'text-gray-900'
+                )}>
+                  {topic.topic}
+                </h4>
+              </div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-green-500" />
+                <span className="text-sm font-medium text-green-500">
+                  +{topic.growth}%
+                </span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className={cn(
+                  'text-xs mb-1',
+                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                )}>
+                  الصلة
+                </div>
+                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-700"
+                    style={{ width: `${topic.relevance}%` }}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className={cn(
+                  'text-xs mb-1',
+                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                )}>
+                  المنافسة: {
+                    topic.competition === 'high' ? 'عالية' :
+                    topic.competition === 'medium' ? 'متوسطة' : 'منخفضة'
+                  }
+                </div>
+                <div className={cn(
+                  'px-2 py-0.5 rounded-full text-xs font-medium text-center',
+                  topic.competition === 'high' 
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                  topic.competition === 'medium' 
+                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' 
+                    : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                )}>
+                  {topic.competition === 'high' ? '🔴' : topic.competition === 'medium' ? '🟡' : '🟢'}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+  
+  // مكون AI Recommendations
+  const AIRecommendationsComponent = () => (
+    <div className={cn(
+      'rounded-3xl p-6 shadow-xl border backdrop-blur-sm',
+      darkMode 
+        ? 'bg-gradient-to-br from-indigo-900/20 via-blue-900/20 to-purple-900/20 border-indigo-700/30' 
+        : 'bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 border-indigo-200'
+    )}>
+      <div className="flex items-center gap-3 mb-6">
+        <div className={cn(
+          'p-3 rounded-2xl',
+          darkMode ? 'bg-indigo-800/30' : 'bg-indigo-100'
+        )}>
+          <Lightbulb className="w-6 h-6 text-indigo-600" />
+        </div>
+        <div>
+          <h3 className={cn(
+            'text-xl font-bold',
+            darkMode ? 'text-white' : 'text-gray-900'
+          )}>
+            توصيات ذكية
+          </h3>
+          <p className={cn(
+            'text-sm',
+            darkMode ? 'text-gray-400' : 'text-gray-600'
+          )}>
+            اقتراحات مخصصة بناءً على الأداء
+          </p>
+        </div>
+      </div>
+      
+      <div className="space-y-4">
+        {[
+          {
+            icon: Wand2,
+            title: 'حسّن وقت النشر',
+            description: 'انشر في الساعة 9:00 صباحاً للوصول لأكبر جمهور',
+            impact: '+35% مشاهدات',
+            priority: 'high'
+          },
+          {
+            icon: Hash,
+            title: 'استخدم هاشتاقات رائجة',
+            description: '#الذكاء_الاصطناعي و #رؤية_2030 يحققان تفاعلاً عالياً',
+            impact: '+28% تفاعل',
+            priority: 'medium'
+          },
+          {
+            icon: Target,
+            title: 'ركز على المحتوى المتخصص',
+            description: 'مقالاتك عن التقنية تحقق نتائج أفضل بـ 45%',
+            impact: '+45% قراءة',
+            priority: 'high'
+          },
+          {
+            icon: Users,
+            title: 'تفاعل مع القراء',
+            description: 'الرد على التعليقات يزيد الولاء بنسبة 60%',
+            impact: '+60% ولاء',
+            priority: 'medium'
+          }
+        ].map((rec, idx) => (
+          <div key={idx} className={cn(
+            'p-4 rounded-2xl border transition-all hover:scale-[1.02]',
+            darkMode 
+              ? 'bg-slate-800/50 border-slate-700 hover:bg-slate-800/70' 
+              : 'bg-white/80 border-gray-200 hover:bg-white'
+          )}>
+            <div className="flex items-start gap-4">
+              <div className={cn(
+                'p-2 rounded-xl flex-shrink-0',
+                rec.priority === 'high' 
+                  ? 'bg-red-100 dark:bg-red-900/30' 
+                  : 'bg-blue-100 dark:bg-blue-900/30'
+              )}>
+                <rec.icon className={cn(
+                  'w-5 h-5',
+                  rec.priority === 'high' ? 'text-red-600' : 'text-blue-600'
+                )} />
+              </div>
+              <div className="flex-1">
+                <h4 className={cn(
+                  'font-semibold mb-1',
+                  darkMode ? 'text-white' : 'text-gray-900'
+                )}>
+                  {rec.title}
+                </h4>
+                <p className={cn(
+                  'text-sm mb-2',
+                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                )}>
+                  {rec.description}
+                </p>
+                <div className="flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-green-500" />
+                  <span className="text-xs font-medium text-green-500">
+                    {rec.impact}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+  
+  // مكون AI Activity Timeline
+  const AIActivityTimelineComponent = () => (
+    <div className={cn(
+      'rounded-3xl p-6 shadow-xl border backdrop-blur-sm',
+      darkMode 
+        ? 'bg-gradient-to-br from-cyan-900/20 via-teal-900/20 to-green-900/20 border-cyan-700/30' 
+        : 'bg-gradient-to-br from-cyan-50 via-teal-50 to-green-50 border-cyan-200'
+    )}>
+      <div className="flex items-center gap-3 mb-6">
+        <div className={cn(
+          'p-3 rounded-2xl',
+          darkMode ? 'bg-cyan-800/30' : 'bg-cyan-100'
+        )}>
+          <Activity className="w-6 h-6 text-cyan-600" />
+        </div>
+        <div>
+          <h3 className={cn(
+            'text-xl font-bold',
+            darkMode ? 'text-white' : 'text-gray-900'
+          )}>
+            خط زمني ذكي للنشاط
+          </h3>
+          <p className={cn(
+            'text-sm',
+            darkMode ? 'text-gray-400' : 'text-gray-600'
+          )}>
+            تحليل AI لأنماط النشاط
+          </p>
+        </div>
+      </div>
+      
+      <div className="relative">
+        {/* Timeline Line */}
+        <div className={cn(
+          'absolute right-5 top-0 bottom-0 w-0.5',
+          darkMode ? 'bg-cyan-700/30' : 'bg-cyan-300'
+        )} />
+        
+        <div className="space-y-6">
+          {[
+            { 
+              time: 'اليوم - 9:30 ص',
+              title: 'مقال رائج 🔥',
+              desc: 'حقق 15,000 مشاهدة في أول ساعة',
+              type: 'success',
+              icon: TrendingUp
+            },
+            { 
+              time: 'أمس - 2:15 م',
+              title: 'تفاعل قياسي',
+              desc: '2,500 إعجاب و 890 مشاركة',
+              type: 'engagement',
+              icon: Heart
+            },
+            { 
+              time: 'قبل يومين',
+              title: 'إنجاز جديد 🏆',
+              desc: 'تجاوز مليون مشاهدة إجمالية',
+              type: 'milestone',
+              icon: Trophy
+            },
+            { 
+              time: 'هذا الأسبوع',
+              title: 'توصية AI',
+              desc: 'كتابة عن الذكاء الاصطناعي تحقق +45% قراءة',
+              type: 'ai',
+              icon: Brain
+            }
+          ].map((event, idx) => (
+            <div key={idx} className="relative flex gap-4 group">
+              {/* Timeline Node */}
+              <div className={cn(
+                'absolute right-2.5 w-5 h-5 rounded-full ring-4 transition-all group-hover:scale-125',
+                event.type === 'success' ? 'bg-green-500 ring-green-200 dark:ring-green-800' :
+                event.type === 'engagement' ? 'bg-red-500 ring-red-200 dark:ring-red-800' :
+                event.type === 'milestone' ? 'bg-purple-500 ring-purple-200 dark:ring-purple-800' :
+                'bg-blue-500 ring-blue-200 dark:ring-blue-800'
+              )} />
+              
+              <div className={cn(
+                'flex-1 mr-10 p-4 rounded-2xl border transition-all hover:scale-[1.02]',
+                darkMode 
+                  ? 'bg-slate-800/50 border-slate-700 hover:bg-slate-800/70' 
+                  : 'bg-white/80 border-gray-200 hover:bg-white'
+              )}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={cn(
+                    'text-xs font-medium',
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  )}>
+                    {event.time}
+                  </span>
+                  <event.icon className={cn(
+                    'w-4 h-4',
+                    event.type === 'success' ? 'text-green-500' :
+                    event.type === 'engagement' ? 'text-red-500' :
+                    event.type === 'milestone' ? 'text-purple-500' :
+                    'text-blue-500'
+                  )} />
+                </div>
+                <h4 className={cn(
+                  'font-semibold mb-1',
+                  darkMode ? 'text-white' : 'text-gray-900'
+                )}>
+                  {event.title}
+                </h4>
+                <p className={cn(
+                  'text-sm',
+                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                )}>
+                  {event.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -283,13 +992,13 @@ const ReporterProfilePage: React.FC = () => {
 
               {/* مؤشر AI */}
               <div className="absolute -top-1 -left-1">
-                <div className={`flex items-center gap-1 px-2 py-1 rounded-full shadow-md ${
+                <div className={`flex items-center gap-1 px-2 py-1 rounded-full shadow-md animate-pulse ${
                   darkMode 
-                    ? 'bg-blue-600'
-                    : 'bg-blue-500'
+                    ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600'
+                    : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500'
                 }`}>
-                  <Brain className="w-3 h-3 text-white" />
-                  <span className="text-white font-bold text-xs">AI</span>
+                  <BrainCircuit className="w-3 h-3 text-white" />
+                  <span className="text-white font-bold text-xs">AI 2.0</span>
                 </div>
               </div>
             </div>
@@ -328,6 +1037,50 @@ const ReporterProfilePage: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+            
+            {/* AI Performance Gauge - جديد */}
+            <div className="hidden lg:block">
+              <div className="relative w-32 h-32">
+                <svg className="transform -rotate-90 w-32 h-32">
+                  <circle 
+                    cx="64" cy="64" r="56" 
+                    strokeWidth="8" 
+                    fill="none" 
+                    className="stroke-gray-200 dark:stroke-gray-700" 
+                  />
+                  <circle 
+                    cx="64" cy="64" r="56" 
+                    strokeWidth="8" 
+                    fill="none" 
+                    className="stroke-gradient transition-all duration-1000"
+                    strokeDasharray={`${aiScore.overall * 3.52} 352`}
+                    strokeLinecap="round"
+                    style={{
+                      stroke: `url(#gradient-${aiScore.overall})`,
+                      filter: 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.5))'
+                    }}
+                  />
+                  <defs>
+                    <linearGradient id={`gradient-${aiScore.overall}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#3B82F6" />
+                      <stop offset="50%" stopColor="#8B5CF6" />
+                      <stop offset="100%" stopColor="#EC4899" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    {aiScore.overall}
+                  </div>
+                  <div className={cn(
+                    'text-xs font-medium',
+                    darkMode ? 'text-gray-400' : 'text-gray-600'
+                  )}>
+                    AI Score
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -437,6 +1190,39 @@ const ReporterProfilePage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* AI Insights Section - جديد */}
+      <div className="container mx-auto px-4 mb-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className={cn(
+            'p-3 rounded-2xl',
+            darkMode ? 'bg-purple-800/30' : 'bg-purple-100'
+          )}>
+            <BrainCircuit className="w-6 h-6 text-purple-600" />
+          </div>
+          <h2 className={cn(
+            'text-2xl font-bold',
+            darkMode ? 'text-white' : 'text-gray-900'
+          )}>
+            رؤى الذكاء الاصطناعي
+          </h2>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <AIScoreComponent />
+          <PredictiveAnalyticsComponent />
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SentimentAnalysisComponent />
+          <TrendingTopicsRadarComponent />
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <AIRecommendationsComponent />
+          <AIActivityTimelineComponent />
+        </div>
+      </div>
 
       {/* كلمات مفتاحية للذكاء الاصطناعي */}
       <div className="container mx-auto px-4 mb-6">
