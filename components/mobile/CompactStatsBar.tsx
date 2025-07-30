@@ -56,17 +56,13 @@ export default function CompactStatsBar({ darkMode }: MobileStatsBarProps) {
   };
 
   return (
-    <div className={`w-full py-1.5 px-3 ${
+    <div className={`w-full py-3 px-3 ${
       darkMode 
-        ? 'bg-gradient-to-b from-gray-800/50 to-gray-900/30 border-b border-gray-700/30' 
-        : 'bg-gradient-to-b from-blue-50/40 to-gray-50/40 border-b border-gray-200/50'
-    } backdrop-blur-sm`}>
+        ? 'bg-gray-800/40' 
+        : 'bg-blue-50/50'
+    }`}>
       {/* خلية واحدة متناسقة */}
-      <div className={`flex items-center justify-around py-2 px-4 rounded-lg ${
-        darkMode 
-          ? 'bg-gray-900/30 border border-gray-700/20' 
-          : 'bg-white/70 border border-gray-200/30'
-      } shadow-sm backdrop-blur-sm`}>
+      <div className={`flex items-center justify-around`}>
         
         {/* عدد الأقسام */}
         <a href="/categories" className="flex items-center gap-1.5 hover:opacity-70 transition-opacity">
