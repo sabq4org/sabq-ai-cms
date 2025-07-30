@@ -158,7 +158,7 @@ function CompactPodcastSection() {
   return (
     <div className={cn(
       'py-4 px-6 rounded-xl shadow-sm transition-colors duration-300',
-      darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-gray-100 border border-gray-200'
+      darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-blue-50/80 border border-blue-200'
     )}>
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         {/* معلومات النشرة */}
