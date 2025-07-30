@@ -213,10 +213,10 @@ export default function ArticleClientComponent({
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
       
-      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <main className="min-h-screen">
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pt-20 sm:pt-24">
           {/* رأس المقال */}
-          <header className="mb-8 text-center">
+          <header className="mb-8 text-right">
             {/* التصنيف */}
             {article.category && (
               <Link
@@ -241,7 +241,7 @@ export default function ArticleClientComponent({
             )}
 
             {/* المعلومات الأساسية */}
-            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex flex-wrap items-center justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
