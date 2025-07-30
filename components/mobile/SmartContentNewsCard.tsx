@@ -77,21 +77,15 @@ export default function SmartContentNewsCard({
     return (
       <Link href={article.slug ? `/article/${article.slug}` : article.url} className="group block">
         <article className={`
-          h-full rounded-3xl overflow-hidden shadow-xl transition-all duration-300 transform
+          h-full rounded-2xl overflow-hidden shadow-lg transition-all duration-300 transform
           ${darkMode 
-            ? 'bg-gradient-to-br from-gray-800 via-purple-900/20 to-blue-900/20 border border-purple-700/30' 
-            : 'bg-gradient-to-br from-white via-purple-50 to-blue-50 border border-purple-200'
+            ? 'bg-gradient-to-br from-gray-800 via-gray-800/95 to-gray-800 border border-gray-700' 
+            : 'bg-gradient-to-br from-white via-gray-50/50 to-white border border-gray-200'
           } 
-          group-hover:scale-[1.02] group-hover:shadow-2xl relative
+          group-hover:scale-[1.02] group-hover:shadow-xl relative
         `}>
-          {/* شريط "مخصص لك" */}
-          <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-center py-1 text-xs font-bold">
-            <Sparkles className="inline-block w-3 h-3 mr-1" />
-            محتوى مخصص لك بذكاء
-          </div>
-
           {/* صورة المقال */}
-          <div className="relative h-40 sm:h-48 overflow-hidden mt-6">
+          <div className="relative h-32 sm:h-40 overflow-hidden">
             <CloudImage
               src={imageUrl}
               alt={article.title}
@@ -102,12 +96,18 @@ export default function SmartContentNewsCard({
             />
             {/* تأثير التدرج */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            
+            {/* شارة مخصص في الزاوية */}
+            <div className="absolute top-2 right-2 px-2 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+              <Sparkles className="w-3 h-3" />
+              <span>مخصص</span>
+            </div>
           </div>
 
           {/* محتوى البطاقة */}
-          <div className="p-4 sm:p-5">
+          <div className="p-3 sm:p-4">
             {/* نوع المحتوى والسبب */}
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
                 darkMode ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-600'
               }`}>
@@ -122,7 +122,7 @@ export default function SmartContentNewsCard({
             </div>
 
             {/* العنوان */}
-            <h4 className={`font-semibold text-base sm:text-lg mb-3 line-clamp-3 ${
+            <h4 className={`font-semibold text-base sm:text-lg mb-2 line-clamp-2 ${
               darkMode ? 'text-white' : 'text-gray-900'
             } transition-colors`}>
               {article.title}
@@ -130,7 +130,7 @@ export default function SmartContentNewsCard({
 
             {/* الملخص - فقط للنسخة الكاملة */}
             {article.excerpt && (
-              <p className={`text-sm mb-4 line-clamp-2 ${
+              <p className={`text-sm mb-3 line-clamp-2 ${
                 darkMode ? 'text-gray-400' : 'text-gray-600'
               }`}>
                 {article.excerpt}
@@ -138,33 +138,43 @@ export default function SmartContentNewsCard({
             )}
 
             {/* التفاصيل السفلية */}
-            <div className={`flex items-center justify-between pt-3 sm:pt-4 border-t ${
+            <div className={`pt-2 sm:pt-3 border-t ${
               darkMode ? 'border-gray-700' : 'border-gray-100'
             }`}>
-              <div className="flex items-center gap-3 text-xs">
-                {(article.category_name || article.category) && (
-                  <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
-                    {article.category_name || article.category}
-                  </span>
-                )}
-                {article.readingTime && (
-                  <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    <Clock className="w-3 h-3" />
-                    {article.readingTime} د
-                  </span>
-                )}
-                {article.engagement && article.engagement > 0.3 && (
-                  <span className="text-yellow-500">⭐ مميز</span>
-                )}
+              {/* عبارة مخصص لك بذكاء */}
+              <div className={`text-xs text-center mb-2 ${
+                darkMode ? 'text-purple-400' : 'text-purple-600'
+              }`}>
+                <Sparkles className="inline-block w-3 h-3 mr-1" />
+                محتوى مختار لك بناءً على اهتماماتك
               </div>
               
-              {/* زر القراءة */}
-              <div className={`p-2 rounded-xl transition-all ${
-                darkMode ? 'bg-purple-900/20' : 'bg-purple-50'
-              }`}>
-                <ArrowLeft className={`w-4 h-4 transition-transform ${
-                  darkMode ? 'text-purple-400' : 'text-purple-600'
-                }`} />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 text-xs">
+                  {(article.category_name || article.category) && (
+                    <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+                      {article.category_name || article.category}
+                    </span>
+                  )}
+                  {article.readingTime && (
+                    <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <Clock className="w-3 h-3" />
+                      {article.readingTime} د
+                    </span>
+                  )}
+                  {article.engagement && article.engagement > 0.3 && (
+                    <span className="text-yellow-500">⭐ مميز</span>
+                  )}
+                </div>
+                
+                {/* زر القراءة */}
+                <div className={`p-2 rounded-xl transition-all ${
+                  darkMode ? 'bg-purple-900/20' : 'bg-purple-50'
+                }`}>
+                  <ArrowLeft className={`w-4 h-4 transition-transform ${
+                    darkMode ? 'text-purple-400' : 'text-purple-600'
+                  }`} />
+                </div>
               </div>
             </div>
           </div>
