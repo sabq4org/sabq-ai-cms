@@ -9,6 +9,9 @@
 # testing
 /coverage
 
+# vercel
+.vercel-build-trigger
+
 # next.js
 /.next/
 /out/
