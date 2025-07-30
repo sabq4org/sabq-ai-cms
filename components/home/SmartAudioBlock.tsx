@@ -179,7 +179,6 @@ function CompactPodcastSection() {
             </Link>
           </div>
         </div>
-      </div>
 
         {/* مشغل الصوت */}
         <div className="flex items-center gap-3 w-full md:w-auto">
@@ -219,7 +218,7 @@ function CompactPodcastSection() {
           </div>
         </div>
       </div>
-
+      
       {/* عنصر الصوت المخفي */}
       <audio
         ref={audioRef}
