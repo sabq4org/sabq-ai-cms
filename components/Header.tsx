@@ -121,35 +121,8 @@ export default function Header() {
     } backdrop-blur-sm border-b shadow-sm`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
-          {/* القائمة الرئيسية */}
-          <nav className="hidden md:flex items-center space-x-1 rtl:space-x-reverse">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.url}
-                href={item.url}
-                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
-                  item.highlight
-                    ? darkMode
-                      ? 'text-red-400 hover:text-red-300'
-                      : 'text-red-600 hover:text-red-700'
-                    : darkMode
-                    ? 'text-gray-300 hover:text-white'
-                    : 'text-gray-700 hover:text-gray-900'
-                }`}
-              >
-                <item.icon className="w-4 h-4" />
-                {item.label && <span>{item.label}</span>}
-                {item.showBadge && item.badgeCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center animate-pulse">
-                    {item.badgeCount}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </nav>
-
           {/* الشعار الرسمي */}
-          <div className="flex-shrink-0 order-2 md:order-1">
+          <div className="flex-shrink-0">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
               {/* اللوقو الرسمي - أكبر حجماً */}
               <div className="flex items-center py-3">
@@ -171,10 +144,35 @@ export default function Header() {
             </Link>
           </div>
 
-
+          {/* المينيو الرئيسية - Desktop - مع تحسين المسافات */}
+          <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.url}
+                href={item.url}
+                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
+                  item.highlight
+                    ? darkMode
+                      ? 'text-red-400 hover:text-red-300'
+                      : 'text-red-600 hover:text-red-700'
+                    : darkMode
+                    ? 'text-gray-300 hover:text-white'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+              >
+                <item.icon className="w-4 h-4" />
+                {item.label && <span>{item.label}</span>}
+                {item.showBadge && item.badgeCount && item.badgeCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
+                    {item.badgeCount}
+                  </span>
+                )}
+              </Link>
+            ))}
+          </nav>
 
           {/* أدوات الهيدر */}
-          <div className="flex items-center space-x-4 rtl:space-x-reverse order-1 md:order-2">
+          <div className="flex items-center space-x-4 rtl:space-x-reverse">
             {/* الوضع الليلي */}
             <ClientOnly fallback={
               <button className="p-2 rounded-md transition-colors duration-200 text-gray-600 hover:text-gray-800">
@@ -244,7 +242,7 @@ export default function Header() {
             {/* المينيو المحمول */}
             <button
               onClick={toggleMobileMenu}
-              className={`md:hidden p-2 rounded-lg transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 order-3 ${
+              className={`md:hidden p-2 rounded-lg transition-all duration-200 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ${
                 darkMode 
                                       ? 'text-gray-400 hover:text-gray-200'
                     : 'text-gray-600 hover:text-gray-800'
