@@ -116,9 +116,9 @@ export default function Header() {
   return (
     <header className={`fixed-header transition-all duration-300 ${
       darkMode 
-        ? 'bg-gray-900/95 border-gray-700' 
-        : 'bg-white/95 border-gray-200'
-    } backdrop-blur-md border-b shadow-sm`}>
+        ? 'bg-gray-900 border-gray-800' 
+        : 'bg-white border-gray-200'
+    } backdrop-blur-sm border-b shadow-sm`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي */}
@@ -144,14 +144,14 @@ export default function Header() {
               <Link
                 key={item.url}
                 href={item.url}
-                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   item.highlight
                     ? darkMode
-                      ? 'text-red-400 hover:text-red-300'
-                      : 'text-red-600 hover:text-red-700'
+                      ? 'text-red-400 hover:text-red-300 hover:bg-gray-800/50'
+                      : 'text-red-600 hover:text-red-700 hover:bg-gray-100/50'
                     : darkMode
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-800/50'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/70'
                 }`}
               >
                 <item.icon className="w-4 h-4" />
