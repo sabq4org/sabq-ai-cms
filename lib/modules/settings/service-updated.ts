@@ -3,7 +3,7 @@
  * Advanced Settings System - Settings Service (Updated for Prisma)
  */
 
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 import { 
   SettingsUpdatePayload,

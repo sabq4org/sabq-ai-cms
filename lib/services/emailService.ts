@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 // أنواع مزودي البريد
 type EmailProvider = 'smtp' | 'sendgrid' | 'mailgun' | 'ses';

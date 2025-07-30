@@ -3,7 +3,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import prisma, { ensureConnection  } from '@/lib/prisma';
+import prisma, { ensureConnection } from '@/lib/prisma';
 
 export async function POST(
   request: NextRequest,

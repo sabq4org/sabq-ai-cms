@@ -3,7 +3,7 @@
  * AI Models Management Service
  */
 
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import {
   MLModel,
   MLTrainingJob,
