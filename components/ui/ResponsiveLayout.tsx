@@ -211,7 +211,7 @@ export default function ResponsiveLayout({ children, user, onLogin, onLogout }: 
                     <Settings size={16} />
                     لوحة التحكم
                   </a>
-                  <hr className="my-2" />
+                  <hr />
                   <button onClick={onLogout} className="dropdown-item w-full text-right">
                     <LogOut size={16} />
                     تسجيل الخروج

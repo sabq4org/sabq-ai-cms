@@ -364,6 +364,8 @@ body {
     transform: translateY(-10px);
     transition: all 0.2s ease-in-out;
     overflow: hidden;
+    z-index: 1000;
+    border: 1px solid #e5e7eb;
   }
   
   .dropdown-item {
@@ -376,9 +378,11 @@ body {
     gap: 12px;
     color: #374151;
     transition: all 0.2s ease-in-out;
-    margin: 0;
+    margin: 0 !important;
     border: none;
     background: transparent;
+    width: 100%;
+    text-align: right;
   }
   
   .dropdown-item:not(:last-child) {
@@ -391,8 +395,8 @@ body {
   
   /* الوضع المظلم للقائمة المنسدلة */
   .dark .dropdown-content {
-    background: #1f2937;
-    border: 1px solid #374151;
+    background: #1f2937 !important;
+    border: 1px solid #374151 !important;
   }
   
   .dark .dropdown-item {
@@ -410,11 +414,11 @@ body {
   
   /* رؤية القائمة المنسدلة */
   .dropdown-content hr {
-    border: none;
+    border: none !important;
     height: 1px;
     background: #e5e7eb;
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
   .dark .dropdown-content hr {
@@ -427,6 +431,13 @@ body {
     text-decoration: none;
     width: 100%;
     text-align: right;
+    margin: 0 !important;
+  }
+
+  /* إزالة أي فراغات من Tailwind CSS */
+  .dropdown-content * {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
   
   /* أيقونات القائمة */
