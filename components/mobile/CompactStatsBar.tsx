@@ -58,20 +58,20 @@ export default function CompactStatsBar({ darkMode }: MobileStatsBarProps) {
   return (
     <div className={`w-full py-1.5 px-3 ${
       darkMode 
-        ? 'bg-gray-800/30 border-b border-gray-700/20' 
-        : 'bg-white border-b border-gray-200/40'
-    }`}>
+        ? 'bg-gradient-to-b from-gray-800/50 to-gray-900/30 border-b border-gray-700/30' 
+        : 'bg-gradient-to-b from-blue-50/40 to-gray-50/40 border-b border-gray-200/50'
+    } backdrop-blur-sm`}>
       {/* خلية واحدة متناسقة */}
       <div className={`flex items-center justify-around py-2 px-4 rounded-lg ${
         darkMode 
-          ? 'bg-gray-900/20' 
-          : 'bg-[#f5f5f5]'
-      } shadow-sm`}>
+          ? 'bg-gray-900/30 border border-gray-700/20' 
+          : 'bg-white/70 border border-gray-200/30'
+      } shadow-sm backdrop-blur-sm`}>
         
         {/* عدد الأقسام */}
         <a href="/categories" className="flex items-center gap-1.5 hover:opacity-70 transition-opacity">
           <Tag className={`w-3.5 h-3.5 ${
-            darkMode ? 'text-gray-500' : 'text-gray-500'
+            darkMode ? 'text-purple-400' : 'text-purple-600'
           }`} />
           <div className="flex flex-col">
             <span className={`text-[10px] leading-tight ${
@@ -99,7 +99,7 @@ export default function CompactStatsBar({ darkMode }: MobileStatsBarProps) {
         {/* عدد الأخبار */}
         <a href="/news" className="flex items-center gap-1.5 hover:opacity-70 transition-opacity">
           <Newspaper className={`w-3.5 h-3.5 ${
-            darkMode ? 'text-gray-500' : 'text-gray-500'
+            darkMode ? 'text-blue-400' : 'text-blue-600'
           }`} />
           <div className="flex flex-col">
             <span className={`text-[10px] leading-tight ${
@@ -127,7 +127,7 @@ export default function CompactStatsBar({ darkMode }: MobileStatsBarProps) {
         {/* أخبار اليوم */}
         <a href="/moment-by-moment" className="flex items-center gap-1.5 hover:opacity-70 transition-opacity">
           <Calendar className={`w-3.5 h-3.5 ${
-            darkMode ? 'text-gray-500' : 'text-gray-500'
+            darkMode ? 'text-green-400' : 'text-green-600'
           }`} />
           <div className="flex flex-col">
             <span className={`text-[10px] leading-tight ${
