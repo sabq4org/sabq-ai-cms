@@ -109,7 +109,7 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
     <Link href={articleUrl} className="block">
       <article className={`p-4 rounded-2xl transition-all ${
         darkMode 
-          ? 'bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-800/30' 
+          ? 'bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-600' 
           : 'bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200/50'
       }`}>
         {/* رأس البطاقة */}
@@ -117,10 +117,10 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
           {/* أيقونة نوع التحليل */}
           <div className={`p-2 rounded-lg ${
             analysisType.type === 'ai' 
-              ? 'bg-gradient-to-br from-purple-500 to-purple-600'
+              ? darkMode ? 'bg-gradient-to-br from-purple-600 to-purple-700' : 'bg-gradient-to-br from-purple-500 to-purple-600'
               : analysisType.type === 'mixed'
-              ? 'bg-gradient-to-br from-blue-500 to-blue-600'  
-              : 'bg-gradient-to-br from-green-500 to-green-600'
+              ? darkMode ? 'bg-gradient-to-br from-blue-600 to-blue-700' : 'bg-gradient-to-br from-blue-500 to-blue-600'
+              : darkMode ? 'bg-gradient-to-br from-emerald-600 to-emerald-700' : 'bg-gradient-to-br from-green-500 to-green-600'
           }`}>
             {analysisType.type === 'ai' && <Bot className="w-4 h-4 text-white" />}
             {analysisType.type === 'mixed' && <Users className="w-4 h-4 text-white" />}

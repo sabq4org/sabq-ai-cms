@@ -488,7 +488,11 @@ export default function SmartPersonalizedContent({
                     </div>
                     <div className={`w-16 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden`}>
                       <div 
-                        className="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-1000"
+                        className={`h-full transition-all duration-1000 ${
+                          darkMode 
+                            ? 'bg-gradient-to-r from-emerald-500 to-cyan-500' 
+                            : 'bg-gradient-to-r from-green-400 to-blue-500'
+                        }`}
                         style={{ 
                           width: `${Math.round(recommendations.reduce((acc, article) => acc + article.confidence, 0) / recommendations.length)}%` 
                         }}

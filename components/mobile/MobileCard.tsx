@@ -30,6 +30,7 @@ interface MobileCardProps {
   variant?: 'default' | 'compact' | 'featured';
   showImage?: boolean;
   showExcerpt?: boolean;
+  darkMode?: boolean;
   onShare?: (article: any) => void;
   onBookmark?: (article: any) => void;
 }
@@ -39,6 +40,7 @@ export default function MobileCard({
   variant = 'default',
   showImage = true,
   showExcerpt = true,
+  darkMode = false,
   onShare,
   onBookmark
 }: MobileCardProps) {
@@ -116,7 +118,11 @@ export default function MobileCard({
 
   if (variant === 'featured') {
     return (
-      <div className="mobile-card bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-700 overflow-hidden tap-highlight">
+      <div className={`mobile-card rounded-xl border overflow-hidden tap-highlight ${
+        darkMode 
+          ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-slate-600'
+          : 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200'
+      }`}>
         <Link href={getArticleLink(article)} className="block">
           {showImage && article.featured_image && (
             <div className="relative">

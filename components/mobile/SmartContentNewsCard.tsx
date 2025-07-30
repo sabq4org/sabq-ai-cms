@@ -142,7 +142,11 @@ export default function SmartContentNewsCard({
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             
             {/* شارة مخصص في الزاوية */}
-            <div className="absolute top-2 right-2 px-2 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg">
+            <div className={`absolute top-2 right-2 px-2 py-1 text-white text-xs font-bold rounded-full flex items-center gap-1 shadow-lg ${
+              darkMode 
+                ? 'bg-gradient-to-r from-purple-800/90 to-blue-800/90' 
+                : 'bg-gradient-to-r from-purple-600 to-blue-600'
+            }`}>
               <Sparkles className="w-3 h-3" />
               <span>مخصص</span>
             </div>
