@@ -42,9 +42,9 @@ const TodayOpinionsSection = dynamic(() => import('@/components/TodayOpinionsSec
   loading: () => <Skeleton className="w-full h-96 rounded-lg" />
 });
 
-const PodcastBlock = dynamic(() => import('@/components/home/PodcastBlock'), {
+const SmartAudioBlock = dynamic(() => import('@/components/home/SmartAudioBlock'), {
   ssr: true,
-  loading: () => <Skeleton className="w-full h-80 rounded-lg" />
+  loading: () => <Skeleton className="w-full h-40 rounded-lg" />
 });
 
 const FeaturedNewsBlock = dynamic(() => import('@/components/FeaturedNewsBlock'), {
@@ -502,9 +502,9 @@ function NewspaperHomePage({
         <SmartSlot position="topBanner" />
       </div>
       
-      {/* بلوك النشرة الصوتية الإخبارية - NEW */}
+      {/* بلوك النشرة الصوتية والوحدة الذكية - مزدوج */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <PodcastBlock />
+        <SmartAudioBlock />
       </div>
       
       {/* بلوك الخبر المميز - جديد */}
