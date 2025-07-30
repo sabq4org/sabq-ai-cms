@@ -122,26 +122,22 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي - محاذاة لليمين */}
-          <div className="flex-shrink-0">
-            <Link href="/" className="inline-flex">
-              <div className="flex items-center justify-end py-3 w-28 sm:w-36">
-                {settingsLoading ? (
-                  <div className="h-8 sm:h-10 w-28 sm:w-36 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
-                ) : logoUrl && (
-                  <div className="relative w-28 sm:w-36 h-8 sm:h-10">
-                    <Image
-                      src={logoUrl}
-                      alt=""
-                      fill
-                      className="object-contain"
-                      priority
-                      unoptimized={logoUrl.includes('cloudinary')}
-                    />
-                  </div>
-                )}
+          <Link href="/" className="flex-shrink-0">
+            {settingsLoading ? (
+              <div className="h-8 sm:h-10 w-28 sm:w-36 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+            ) : logoUrl && (
+              <div className="relative w-28 sm:w-36 h-8 sm:h-10">
+                <Image
+                  src={logoUrl}
+                  alt=""
+                  fill
+                  className="object-contain"
+                  priority
+                  unoptimized={logoUrl.includes('cloudinary')}
+                />
               </div>
-            </Link>
-          </div>
+            )}
+          </Link>
 
           {/* المينيو الرئيسية - Desktop - مع تحسين المسافات */}
           <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse flex-1 justify-center">
