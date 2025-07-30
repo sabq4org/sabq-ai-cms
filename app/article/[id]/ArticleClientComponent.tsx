@@ -213,15 +213,21 @@ export default function ArticleClientComponent({
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
       
-      <main className="min-h-screen bg-white dark:bg-gray-900">
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pt-20 sm:pt-24">
-          {/* رأس المقال */}
-          <header className="mb-8 text-right">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        {/* منطقة الهيدر بخلفية مميزة */}
+        <div className="relative bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 shadow-sm border-b border-gray-100 dark:border-gray-800 overflow-hidden">
+          {/* Pattern خفيف في الخلفية */}
+          <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }} />
+          <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pt-20 sm:pt-24">
+            {/* رأس المقال */}
+            <header className="mb-8 text-right">
             {/* التصنيف */}
             {article.category && (
               <Link
                 href={`/categories/${article.category.slug}`}
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 bg-gradient-to-r from-gray-100/80 to-gray-200/80 dark:from-gray-800/80 dark:to-gray-700/80 text-gray-700 dark:text-gray-300 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md transition-all"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all"
               >
                 {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
                 <span>{article.category.name}</span>
@@ -282,20 +288,25 @@ export default function ArticleClientComponent({
                 </div>
               )}
             </div>
-          </header>
+            </header>
 
-          {/* صورة المقال */}
-          {article.featured_image && (
-            <div className="mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
-              <div className="max-w-4xl mx-auto">
-                <ArticleFeaturedImage
-                  imageUrl={article.featured_image}
-                  title={article.title}
-                  category={article.category}
-                />
+            {/* صورة المقال */}
+            {article.featured_image && (
+              <div className="mb-8 -mx-4 sm:-mx-6 lg:-mx-8">
+                <div className="max-w-4xl mx-auto">
+                  <ArticleFeaturedImage
+                    imageUrl={article.featured_image}
+                    title={article.title}
+                    category={article.category}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </article>
+        </div>
+
+        {/* منطقة المحتوى */}
+        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
