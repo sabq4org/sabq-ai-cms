@@ -122,10 +122,10 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي */}
-          <div className="flex items-center">
+          <div className="flex-shrink-0">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
               {/* اللوقو الرسمي - أكبر حجماً */}
-              <div className="flex items-center py-3 mr-2 sm:mr-0">
+              <div className="flex items-center py-3 -ml-2 sm:ml-0 mr-2 sm:mr-0">
                 {settingsLoading ? (
                   <div className="h-10 sm:h-12 w-32 sm:w-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
                 ) : logoUrl && (
