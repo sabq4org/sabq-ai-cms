@@ -489,12 +489,10 @@ export default function SmartAudioBlock() {
 
   return (
     <div className="w-full mb-6 px-2 sm:px-0">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div>
         {/* النشرة الصوتية المضغوطة - يسار */}
         <CompactPodcastSection />
         
-        {/* الوحدة الذكية - يمين */}
-        <SmartModule />
       </div>
     </div>
   );
