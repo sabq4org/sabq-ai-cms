@@ -215,6 +215,7 @@ export default function SettingsPage() {
     };
     loadSettings();
   }, []);
+
   useEffect(() => {
     // جلب الإعدادات المحفوظة
     const savedSettings = localStorage.getItem('siteSettings');
