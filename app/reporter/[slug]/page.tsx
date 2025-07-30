@@ -1254,7 +1254,7 @@ const ReporterProfilePage: React.FC = () => {
           </div>
         </section>
 
-          {/* تبويب المحتوى المنشور */}
+        {/* تبويب المحتوى المنشور */}
         <section className="px-6 md:px-10 lg:px-20 mb-12">
           <div className={`rounded-2xl shadow-md border ${
           darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-white border-slate-200'
