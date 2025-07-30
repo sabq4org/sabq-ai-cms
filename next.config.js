@@ -163,6 +163,21 @@ const nextConfig = {
     } : false,
   },
 
+  // Headers للتحكم في التخزين المؤقت
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
+
   // تحسين Webpack للأداء - مبسط للتطوير
   webpack: (config, { dev, isServer }) => {
     // إضافة استثناءات للمكتبات المشاكسة
