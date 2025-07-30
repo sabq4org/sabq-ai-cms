@@ -125,14 +125,15 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
               {/* اللوقو الرسمي - أكبر حجماً */}
-              <div className="flex items-center">
+              <div className="flex items-center py-2">
                 <Image
                   src={logoUrl}
                   alt={siteName}
                   width={140}
                   height={45}
-                  className="h-10 w-auto"
+                  className="h-9 w-auto object-contain"
                   priority
+                  style={{ maxHeight: '36px' }}
                 />
               </div>
             </Link>
