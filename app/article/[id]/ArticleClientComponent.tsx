@@ -15,7 +15,7 @@ import UltimateImage from '@/components/UltimateImage';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
-  Play, Pause, Volume2, CheckCircle, Sparkles, BookOpen
+  Play, Pause, Volume2, CheckCircle, Sparkles, BookOpen, Award, Star
 } from 'lucide-react';
 import { SmartInteractionButtons } from '@/components/article/SmartInteractionButtons';
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
@@ -23,6 +23,7 @@ import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
 import ArticleAISummary from '@/components/article/ArticleAISummary';
 import ArticleStatsBlock from '@/components/article/ArticleStatsBlock';
 import SmartPersonalizedContent from '@/components/article/SmartPersonalizedContent';
+import { useReporterProfile } from '@/lib/hooks/useReporterProfile';
 import '@/styles/mobile-article.css';
 import '@/styles/image-optimizations.css';
 import './article-styles.css';
@@ -41,6 +42,18 @@ export default function ArticleClientComponent({
   const [article, setArticle] = useState<ArticleData | null>(initialArticle || null);
   const [loading, setLoading] = useState(!initialArticle);
   const [isReading, setIsReading] = useState(false);
+  
+  // جلب بروفايل المراسل
+  const { reporter, hasProfile, loading: reporterLoading } = useReporterProfile(article?.author?.id);
+  
+  // دالة لعرض أيقونة التحقق
+  const getVerificationIcon = (badge: string) => {
+    switch (badge) {
+      case 'expert': return <Award className="w-3 h-3 text-purple-600" />;
+      case 'senior': return <Star className="w-3 h-3 text-yellow-600" />;
+      default: return <CheckCircle className="w-3 h-3 text-blue-600" />;
+    }
+  };
   
   // جلب المقال إذا لم يتم تمريره
   useEffect(() => {
@@ -246,7 +259,24 @@ export default function ArticleClientComponent({
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="truncate max-w-[120px] sm:max-w-none">{article.author.name}</span>
+                  {hasProfile && reporter ? (
+                    <Link 
+                      href={reporter.profileUrl}
+                      className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group"
+                      title={`عرض بروفايل ${reporter.full_name}`}
+                    >
+                      <span className="truncate max-w-[120px] sm:max-w-none group-hover:underline">
+                        {article.author.name}
+                      </span>
+                      {reporter.is_verified && (
+                        <span className="ml-1">
+                          {getVerificationIcon(reporter.verification_badge)}
+                        </span>
+                      )}
+                    </Link>
+                  ) : (
+                    <span className="truncate max-w-[120px] sm:max-w-none">{article.author.name}</span>
+                  )}
                 </div>
               )}
               <div className="flex items-center gap-1.5 sm:gap-2">

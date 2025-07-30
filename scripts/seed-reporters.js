@@ -4,7 +4,6 @@ const prisma = new PrismaClient();
 
 const SAMPLE_REPORTERS = [
   {
-    user_id: 'user1', // يجب أن يكون معرف مستخدم موجود
     full_name: 'أحمد محمد حسن',
     slug: 'ahmed-hassan',
     title: 'مراسل ميداني - المنطقة الشرقية',
@@ -27,7 +26,6 @@ const SAMPLE_REPORTERS = [
     engagement_rate: 0.055
   },
   {
-    user_id: 'user2',
     full_name: 'فاطمة أحمد الزهراني',
     slug: 'fatima-alzahrani',
     title: 'محررة اقتصادية',
@@ -49,7 +47,6 @@ const SAMPLE_REPORTERS = [
     engagement_rate: 0.058
   },
   {
-    user_id: 'user3',
     full_name: 'عبدالرحمن سالم القحطاني',
     slug: 'abdulrahman-alqahtani',
     title: 'مراسل رياضي',
@@ -70,7 +67,6 @@ const SAMPLE_REPORTERS = [
     engagement_rate: 0.071
   },
   {
-    user_id: 'user4',
     full_name: 'سارة عبدالله النمر',
     slug: 'sara-alnimer',
     title: 'محررة تقنية',
@@ -92,7 +88,6 @@ const SAMPLE_REPORTERS = [
     engagement_rate: 0.111
   },
   {
-    user_id: 'user5',
     full_name: 'محمد عبدالعزيز الشهري',
     slug: 'mohammed-alshehri',
     title: 'محرر أول - السياسة',
@@ -121,7 +116,8 @@ async function seedReporters() {
   try {
     // التحقق من وجود المستخدمين أولاً
     const existingUsers = await prisma.users.findMany({
-      select: { id: true, email: true, name: true }
+      select: { id: true, email: true, name: true },
+      take: 5
     });
 
     console.log(`📋 تم العثور على ${existingUsers.length} مستخدماً في قاعدة البيانات`);
@@ -129,38 +125,33 @@ async function seedReporters() {
     if (existingUsers.length === 0) {
       console.log('⚠️  لا توجد مستخدمين في قاعدة البيانات. سيتم إنشاء مستخدمين تجريبيين...');
       
-      // إنشاء مستخدمين تجريبيين
+      // إنشاء مستخدمين تجريبيين بـ IDs صحيحة
       const sampleUsers = [
         {
-          id: 'user1',
           email: 'ahmed.hassan@sabq.me',
           name: 'أحمد محمد حسن',
           role: 'reporter',
           is_verified: true
         },
         {
-          id: 'user2',
           email: 'fatima.alzahrani@sabq.me',
           name: 'فاطمة أحمد الزهراني',
           role: 'editor',
           is_verified: true
         },
         {
-          id: 'user3',
           email: 'abdulrahman.alqahtani@sabq.me',
           name: 'عبدالرحمن سالم القحطاني',
           role: 'reporter',
           is_verified: true
         },
         {
-          id: 'user4',
           email: 'sara.alnimer@sabq.me',
           name: 'سارة عبدالله النمر',
           role: 'editor',
           is_verified: true
         },
         {
-          id: 'user5',
           email: 'mohammed.alshehri@sabq.me',
           name: 'محمد عبدالعزيز الشهري',
           role: 'senior_editor',
@@ -168,21 +159,30 @@ async function seedReporters() {
         }
       ];
 
+      const createdUsers = [];
       for (const user of sampleUsers) {
-        await prisma.users.upsert({
-          where: { id: user.id },
-          create: user,
-          update: {}
+        const createdUser = await prisma.users.create({
+          data: user
         });
+        createdUsers.push(createdUser);
       }
 
       console.log('✅ تم إنشاء المستخدمين التجريبيين');
+      
+      // استخدام المستخدمين المنشأين حديثاً
+      existingUsers.splice(0, 0, ...createdUsers);
     }
+
+    // تحديث معرفات المستخدمين في بيانات المراسلين
+    const reportersWithRealUsers = SAMPLE_REPORTERS.map((reporter, index) => ({
+      ...reporter,
+      user_id: existingUsers[index % existingUsers.length].id
+    }));
 
     // إنشاء بروفايلات المراسلين
     console.log('👤 بدء إنشاء بروفايلات المراسلين...');
 
-    for (const [index, reporterData] of SAMPLE_REPORTERS.entries()) {
+    for (const [index, reporterData] of reportersWithRealUsers.entries()) {
       try {
         const existingReporter = await prisma.reporters.findUnique({
           where: { slug: reporterData.slug }
