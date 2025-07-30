@@ -428,6 +428,12 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
               }
               
               if (article) {
+                console.log('📋 الكلمات المفتاحية المستلمة:', {
+                  'article.keywords': article.keywords,
+                  'article.metadata': article.metadata,
+                  'article.metadata?.keywords': article.metadata?.keywords,
+                  'article.seo_keywords': article.seo_keywords
+                });
                 
                 // تحديث بيانات النموذج
                 setFormData({
@@ -446,7 +452,34 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                   externalLink: article.external_link || '',
                   publishType: 'now',
                   scheduledDate: '',
-                  keywords: article.metadata?.keywords || article.keywords || [],
+                  keywords: (() => {
+                    // محاولة جلب الكلمات المفتاحية من مصادر مختلفة
+                    if (article.metadata?.keywords && Array.isArray(article.metadata.keywords)) {
+                      return article.metadata.keywords;
+                    }
+                    if (article.keywords && Array.isArray(article.keywords)) {
+                      return article.keywords;
+                    }
+                    // إذا كانت مخزنة كـ JSON string
+                    if (article.metadata?.keywords && typeof article.metadata.keywords === 'string') {
+                      try {
+                        const parsed = JSON.parse(article.metadata.keywords);
+                        return Array.isArray(parsed) ? parsed : [];
+                      } catch {
+                        return [];
+                      }
+                    }
+                    if (article.keywords && typeof article.keywords === 'string') {
+                      try {
+                        const parsed = JSON.parse(article.keywords);
+                        return Array.isArray(parsed) ? parsed : [];
+                      } catch {
+                        // قد تكون مفصولة بفواصل
+                        return article.keywords.split(',').map(k => k.trim()).filter(Boolean);
+                      }
+                    }
+                    return [];
+                  })(),
                   seoTitle: article.metadata?.seo_title || article.seo_title || '',
                   seoDescription: article.metadata?.seo_description || article.seo_description || '',
                   status: article.status || 'draft'
@@ -548,18 +581,25 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       
       const articleData = {
         title: formData.title,
-        // subtitle: formData.subtitle, // تم إزالته - غير موجود في قاعدة البيانات
+        subtitle: formData.subtitle,
         excerpt: formData.excerpt,
         content: editorContent, // HTML من المحرر
         featured_image: formData.featuredImage || null,
-        seo_keywords: keywordsString, // تم تغييرها من keywords إلى seo_keywords
-        seo_title: formData.seoTitle,
-        seo_description: formData.seoDescription,
+        image_caption: formData.featuredImageCaption,
         category_id: formData.categoryId,
         author_id: formData.authorId,
-        featured: formData.isFeatured,
-        breaking: formData.isBreaking,
         status,
+        type: formData.type,
+        external_link: formData.externalLink,
+        // metadata كـ JSON
+        metadata: {
+          keywords: formData.keywords,
+          seo_title: formData.seoTitle,
+          seo_description: formData.seoDescription,
+          is_featured: formData.isFeatured,
+          is_breaking: formData.isBreaking,
+          gallery: formData.gallery || []
+        },
         ...(status === 'published' && formData.publishType === 'scheduled' && formData.scheduledDate && {
           scheduled_for: formData.scheduledDate
         })
@@ -600,7 +640,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       let response;
       try {
         const url = isEditMode ? `/api/articles/${articleId}` : '/api/articles';
-        const method = isEditMode ? 'PUT' : 'POST';
+        const method = isEditMode ? 'PATCH' : 'POST';
         
         response = await fetch(url, {
           method: method,
