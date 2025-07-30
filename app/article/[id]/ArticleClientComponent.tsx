@@ -244,7 +244,7 @@ export default function ArticleClientComponent({
             </h1>
 
             {/* المعلومات الأساسية */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -299,7 +299,7 @@ export default function ArticleClientComponent({
           </div>
 
           {/* شريط التفاعل الذكي */}
-          <div className="mb-6 sm:mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="mb-6 sm:mb-8">
             <SmartInteractionButtons 
               articleId={article.id}
               initialStats={{
