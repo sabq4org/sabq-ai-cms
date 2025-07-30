@@ -35,20 +35,34 @@ const getTypeIcon = (type: RecommendedArticle['type']) => {
 };
 
 // دالة للحصول على العبارات التشويقية حسب نوع المحتوى
-const getCallToActionPhrases = (type: RecommendedArticle['type']) => {
+const getCallToActionPhrases = (type: RecommendedArticle['type'], index: number = 0) => {
+  // عبارات تشويقية متنوعة
+  const generalPhrases = [
+    'اخترناه لك بعناية',
+    'لأنك تهتم بمواضيع مشابهة',
+    'قد يعجبك هذا المحتوى',
+    'محتوى يتماشى مع اهتماماتك',
+    'ننصحك بقراءته',
+    'مختار خصيصاً لك',
+    'بناءً على قراءاتك السابقة',
+    'محتوى ذو صلة باهتماماتك'
+  ];
+  
   const phrases = {
-    'تحليل': ['تحليل موجه لك', 'ربط الأحداث بما تهتم به'],
-    'رأي': ['رأي قد يغير نظرتك', 'وجهات نظر متنوعة بناءً على اختياراتك'],
-    'ملخص': ['خلاصة سريعة', 'أهم النقاط في دقائق معدودة'],
-    'عاجل': ['آخر المستجدات', 'لا تفوت هذا الخبر العاجل'],
-    'تقرير': ['تقرير شامل', 'معلومات مفصلة وموثقة'],
-    'مقالة': ['هل قرأت هذا؟', 'مقترح ذكي من فريقنا التحريري']
+    'تحليل': ['تحليل عميق', 'ربط الأحداث بما تهتم به'],
+    'رأي': ['وجهة نظر جديرة بالقراءة', 'رؤى من خبراء المجال'],
+    'ملخص': ['ملخص ذكي', 'أهم النقاط في دقائق'],
+    'عاجل': ['آخر التطورات', 'لا تفوت هذا الخبر'],
+    'تقرير': ['تقرير شامل', 'معلومات موثقة'],
+    'مقالة': ['محتوى مميز', 'مقترح ذكي لك']
   };
   
   const typePhrase = phrases[type] || phrases['مقالة'];
+  const mainPhrase = generalPhrases[index % generalPhrases.length];
+  
   return {
-    title: typePhrase[0],
-    subtitle: typePhrase[1]
+    title: mainPhrase,
+    subtitle: typePhrase[0]
   };
 };
 
@@ -78,7 +92,7 @@ const SmartRecommendationCard: React.FC<{
   darkMode: boolean;
   index: number;
 }> = ({ article, darkMode, index }) => {
-  const ctaPhrase = getCallToActionPhrases(article.type);
+  const ctaPhrase = getCallToActionPhrases(article.type, index);
   
   // كشف حجم الشاشة للتصميم المتجاوب
   const [isMobileScreen, setIsMobileScreen] = React.useState(false);
@@ -139,13 +153,31 @@ const SmartRecommendationCard: React.FC<{
         
         {/* المحتوى */}
         <div className={`flex-1 ${isMobileScreen ? 'p-2' : 'p-2.5 sm:p-3 md:p-5'}`}>
-          {/* العبارة التشويقية */}
-          {!isMobileScreen && (
-            <div className={`mb-1.5 sm:mb-2 md:mb-3 ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
-              <p className="text-[10px] sm:text-xs md:text-sm font-bold">{ctaPhrase.title}</p>
-              <p className="text-[9px] sm:text-xs opacity-80">{ctaPhrase.subtitle}</p>
+          {/* Label نوع المحتوى + العبارة التشويقية */}
+          <div className={`mb-1.5 sm:mb-2 md:mb-3 ${isMobileScreen ? 'flex flex-col gap-1' : ''}`}>
+            {/* نوع المحتوى كـ Label */}
+            <div className="flex items-center gap-2">
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold ${getTypeColors(article.type)}`}>
+                <span className="text-xs sm:text-sm">{getTypeIcon(article.type)}</span>
+                {article.type}
+              </span>
+              {isMobileScreen && article.confidence >= 80 && (
+                <span className="text-[10px] text-green-600 dark:text-green-400 font-medium">
+                  ⭐ {article.confidence}% ملائم
+                </span>
+              )}
             </div>
-          )}
+            
+            {/* العبارة التشويقية */}
+            <div className={`${darkMode ? 'text-blue-300' : 'text-blue-600'} ${isMobileScreen ? 'mt-1' : 'mt-1.5'}`}>
+              <p className={`${isMobileScreen ? 'text-[10px]' : 'text-[10px] sm:text-xs md:text-sm'} font-medium`}>
+                {ctaPhrase.title}
+              </p>
+              {!isMobileScreen && (
+                <p className="text-[9px] sm:text-xs opacity-80">{ctaPhrase.subtitle}</p>
+              )}
+            </div>
+          </div>
           
           {/* العنوان */}
           <h3 className={`font-bold text-xs sm:text-sm md:text-lg leading-tight mb-1.5 sm:mb-2 md:mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
