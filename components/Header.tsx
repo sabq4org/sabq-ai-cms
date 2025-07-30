@@ -171,7 +171,7 @@ export default function Header() {
           </nav>
 
           {/* أدوات الهيدر */}
-          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+          <div className="flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse">
             {/* الوضع الليلي */}
             <ClientOnly fallback={
               <button className="p-2 rounded-md transition-colors duration-200 text-gray-600 hover:text-gray-800">
