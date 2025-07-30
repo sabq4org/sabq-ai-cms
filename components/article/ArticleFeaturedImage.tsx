@@ -24,13 +24,13 @@ export default function ArticleFeaturedImage({
   switch (IMAGE_CONFIG.DISPLAY_MODE) {
     case 'default':
       return (
-        <div className="relative w-full px-4 sm:px-6 lg:px-8">
+        <div className="relative w-full px-0 sm:px-6 lg:px-8">
           {/* الصورة الرئيسية مع إطار وظل */}
           <div className="relative rounded-xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
             <OptimizedImage
               src={imageUrl}
               alt={title}
-              className="w-full object-cover max-h-[400px] sm:max-h-[500px]"
+              className="w-full object-cover max-h-[250px] sm:max-h-[400px] lg:max-h-[500px]"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
             />

@@ -125,7 +125,7 @@ export default function Header() {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
               {/* اللوقو الرسمي - أكبر حجماً */}
-              <div className="flex items-center py-3 mr-2 sm:mr-0">
+              <div className="flex items-center py-3">
                 {settingsLoading ? (
                   <div className="h-10 sm:h-12 w-32 sm:w-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
                 ) : logoUrl && (
@@ -262,10 +262,12 @@ export default function Header() {
               onClick={() => setIsMobileMenuOpen(false)}
             />
             
-            <div className={`md:hidden mt-2 relative z-50 ${
+            <div className={`md:hidden fixed top-16 left-0 right-0 z-50 ${
               darkMode ? 'bg-gray-900' : 'bg-white'
-            } rounded-lg shadow-xl overflow-hidden mx-4`}>
-            <nav className="flex flex-col">
+            } shadow-xl border-t ${
+              darkMode ? 'border-gray-800' : 'border-gray-100'
+            }`}>
+            <nav className="flex flex-col max-h-[calc(100vh-4rem)] overflow-y-auto">
               {navigationItems.map((item) => (
                 <Link
                   key={item.url}
