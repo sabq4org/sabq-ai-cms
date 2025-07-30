@@ -216,9 +216,9 @@ export default function ArticleClientComponent({
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-[56px] sm:pt-[64px]">
         {/* منطقة المحتوى الرئيسية */}
         <div className="relative">
-          <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <article className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
             {/* رأس المقال بخلفية شفافة بدون إطار */}
-            <header className="mb-8 text-right bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 sm:p-8 relative z-10">
+            <header className="mb-8 flex flex-col items-end text-right bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 sm:p-6 lg:p-8 relative z-10">
             {/* التصنيف */}
             {article.category && (
               <Link
@@ -231,19 +231,19 @@ export default function ArticleClientComponent({
             )}
 
             {/* العنوان */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight w-full">
               {article.title}
             </h1>
             
             {/* العنوان الفرعي */}
             {article.subtitle && (
-              <h2 className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-6">
+              <h2 className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-6 w-full">
                 {article.subtitle}
               </h2>
             )}
 
             {/* المعلومات الأساسية */}
-            <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 w-full">
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
