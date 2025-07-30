@@ -122,7 +122,7 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي - محاذاة لليمين */}
-          <div className="">
+          <div className="flex-shrink-0">
             <Link href="/" className="block">
               <div className="flex items-center py-3">
                 {settingsLoading ? (
