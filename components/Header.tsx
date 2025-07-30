@@ -131,7 +131,7 @@ export default function Header() {
                   <div className="relative w-28 sm:w-36 h-8 sm:h-10">
                     <Image
                       src={logoUrl}
-                      alt={siteName}
+                      alt=""
                       fill
                       className="object-contain"
                       priority
