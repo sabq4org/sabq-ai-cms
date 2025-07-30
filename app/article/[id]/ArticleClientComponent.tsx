@@ -213,7 +213,7 @@ export default function ArticleClientComponent({
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
       
-      <main className="min-h-screen">
+      <main className="min-h-screen bg-white dark:bg-gray-900">
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pt-20 sm:pt-24">
           {/* رأس المقال */}
           <header className="mb-8 text-right">
