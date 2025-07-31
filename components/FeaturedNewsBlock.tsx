@@ -37,9 +37,7 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   }
 
   const getArticleLink = (article: FeaturedArticle) => {
-    if (article.slug && /[\u0600-\u06FF]/.test(article.slug)) {
-      return `/article/${article.slug}`;
-    }
+    // استخدام ID فقط - لا روابط عربية
     return `/article/${article.id}`;
   };
 
