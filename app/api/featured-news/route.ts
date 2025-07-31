@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
+
+// تعطيل التخزين المؤقت لهذه الواجهة
+export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   try {
@@ -91,6 +94,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       article: formattedArticle
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0, must-revalidate',
+      }
     });
 
   } catch (error: any) {

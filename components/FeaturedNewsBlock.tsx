@@ -50,12 +50,23 @@ const FeaturedNewsBlock: React.FC = () => {
 
   useEffect(() => {
     fetchFeaturedNews();
+    
+    // إعادة تحميل الخبر المميز كل دقيقة
+    const interval = setInterval(fetchFeaturedNews, 60000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const fetchFeaturedNews = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/featured-news');
+      const response = await fetch('/api/featured-news', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       const data = await response.json();
       
       if (data.success && data.article) {
