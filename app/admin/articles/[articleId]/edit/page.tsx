@@ -52,6 +52,7 @@ const ArticleEditor = dynamic(() => import('@/components/Editor/ArticleEditor'),
 interface ArticleData {
   id: string;
   title: string;
+  subtitle?: string;
   slug: string;
   excerpt: string;
   content: string;
@@ -59,12 +60,19 @@ interface ArticleData {
   status: 'draft' | 'review' | 'published';
   category_id: string;
   author_id: string;
+  author?: {
+    id: string;
+    name: string;
+  };
   is_featured?: boolean;
   is_breaking?: boolean;
   seo_title?: string;
   seo_description?: string;
   seo_keywords?: string;
   published_at?: string;
+  created_at?: string;
+  updated_at?: string;
+  views_count?: number;
   metadata?: any;
 }
 
@@ -97,10 +105,20 @@ export default function EditArticlePage() {
         }
 
         const data = await response.json();
-        setArticle(data);
-        setFormData(data);
-        setImagePreview(data.featured_image);
-        calculateCompletionScore(data);
+        console.log('Article data received:', data);
+        
+        // التعامل مع البيانات المتداخلة
+        const articleData = data.article || data;
+        
+        setArticle(articleData);
+        setFormData({
+          ...articleData,
+          subtitle: articleData.subtitle || '',
+          author: articleData.author || null,
+          content: articleData.content || ''
+        });
+        setImagePreview(articleData.featured_image);
+        calculateCompletionScore(articleData);
       } catch (error) {
         console.error('Error fetching article:', error);
         toast.error('فشل في تحميل بيانات المقال');
@@ -443,6 +461,18 @@ export default function EditArticlePage() {
                   />
                 </div>
 
+                {/* العنوان الفرعي */}
+                <div className="space-y-2">
+                  <Label htmlFor="subtitle">العنوان الفرعي</Label>
+                  <Input
+                    id="subtitle"
+                    value={formData.subtitle || ''}
+                    onChange={(e) => updateFormData('subtitle', e.target.value)}
+                    placeholder="أدخل العنوان الفرعي (اختياري)"
+                    className="text-base"
+                  />
+                </div>
+
                 {/* الملخص */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
@@ -655,6 +685,17 @@ export default function EditArticlePage() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* المؤلف */}
+                <div className="space-y-2">
+                  <Label htmlFor="author">المؤلف / المراسل</Label>
+                  <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <User className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm font-medium">
+                      {formData.author?.name || article?.author?.name || 'غير محدد'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* تاريخ النشر */}
