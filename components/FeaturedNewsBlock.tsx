@@ -202,7 +202,7 @@ const FeaturedNewsBlock: React.FC = () => {
                       >
                         <User className="w-3 h-3" />
                         <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {featuredArticle.author.reporter.full_name}
+                          {featuredArticle.author.reporter.full_name || featuredArticle.author.reporter.name || 'مراسل'}
                         </span>
                         {featuredArticle.author.reporter.is_verified && (
                           <div className="flex items-center">
