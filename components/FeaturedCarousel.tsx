@@ -51,6 +51,11 @@ const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ articles }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // سجلات تشخيصية
+  console.log('🎠 FeaturedCarousel - Articles:', articles);
+  console.log('🎠 Current Index:', currentIndex);
+  console.log('🎠 Articles Length:', articles?.length || 0);
 
   // التنقل التلقائي
   useEffect(() => {
