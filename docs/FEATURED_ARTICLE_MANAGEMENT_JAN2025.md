@@ -109,8 +109,15 @@ node scripts/test-featured-article-manager.js
 
 ## الملفات المحدثة
 - `lib/services/featured-article-manager.ts` - المدير المركزي (جديد)
-- `app/api/articles/route.ts` - POST endpoint
-- `app/api/articles/[id]/route.ts` - PATCH endpoint
+- `app/api/articles/route.ts` - POST endpoint (محدث لقبول أسماء حقول متعددة)
+- `app/api/articles/[id]/route.ts` - PATCH endpoint (محدث لقبول أسماء حقول متعددة)
 - `app/api/articles/set-featured/route.ts` - API مخصص
 - `app/api/featured-news/route.ts` - جلب الخبر المميز
-- `scripts/test-featured-article-manager.js` - سكريبت اختبار (جديد)
+- `components/FeaturedNewsBlock.tsx` - إلغاء التحديث التلقائي كل 30 ثانية
+
+## التحديثات اللاحقة
+### يناير 2025 - إصلاح أسماء الحقول المتعددة
+- APIs تقبل الآن: `featured`, `is_featured`, `isFeatured`
+- دعم أيضاً: `breaking`, `is_breaking`, `isBreaking`
+- دعم: `excerpt`, `summary`
+- ضمان التوافق مع جميع صفحات لوحة التحكم المختلفة
