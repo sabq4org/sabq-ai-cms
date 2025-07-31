@@ -51,10 +51,10 @@ const FeaturedNewsBlock: React.FC = () => {
   useEffect(() => {
     fetchFeaturedNews();
     
-    // إعادة تحميل الخبر المميز كل 30 ثانية
-    const interval = setInterval(fetchFeaturedNews, 30000);
-    
-    return () => clearInterval(interval);
+    // تم إلغاء التحديث التلقائي لتجنب إزعاج المستخدم
+    // يمكن تفعيله مرة أخرى عند الحاجة بإلغاء التعليق
+    // const interval = setInterval(fetchFeaturedNews, 30000);
+    // return () => clearInterval(interval);
   }, []);
 
   const fetchFeaturedNews = async () => {

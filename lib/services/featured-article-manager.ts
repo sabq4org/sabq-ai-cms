@@ -201,13 +201,47 @@ export class FeaturedArticleManager {
   static async getCurrentFeatured(categoryId?: string): Promise<any | null> {
     try {
       return await dbConnectionManager.executeWithConnection(async () => {
+        // أولاً، نتحقق من جميع المقالات المميزة للتشخيص
+        const allFeatured = await prisma.articles.findMany({
+          where: {
+            featured: true,
+            status: 'published',
+          },
+          select: {
+            id: true,
+            title: true,
+            published_at: true,
+            updated_at: true,
+          },
+          orderBy: {
+            updated_at: 'desc',
+          },
+        });
+
+        if (allFeatured.length > 0) {
+          console.log(`📋 عدد المقالات المميزة المنشورة: ${allFeatured.length}`);
+          console.log(`🔝 أحدث مقال مميز: "${allFeatured[0].title}" (تحديث: ${allFeatured[0].updated_at})`);
+          
+          // التحقق من المقالات المميزة غير المنشورة بعد
+          const futureArticles = allFeatured.filter(a => 
+            a.published_at && a.published_at > new Date()
+          );
+          
+          if (futureArticles.length > 0) {
+            console.log(`⏳ يوجد ${futureArticles.length} مقال(ات) مميزة مجدولة للنشر في المستقبل`);
+          }
+        }
+
+        // الآن نجلب المقال المميز الحالي مع تحسين الشروط
         return await prisma.articles.findFirst({
           where: {
             featured: true,
             status: 'published',
-            published_at: {
-              lte: new Date(),
-            },
+            // نضيف OR condition للتعامل مع المقالات بدون published_at
+            OR: [
+              { published_at: null },
+              { published_at: { lte: new Date() } }
+            ],
             ...(categoryId ? { category_id: categoryId } : {}),
           },
           include: {
