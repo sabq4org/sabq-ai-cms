@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import {
+import { 
   Select,
   SelectContent,
   SelectItem,
@@ -80,7 +80,7 @@ export default function CreateArticlePage() {
           const data = await response.json();
           setCategories(data.categories || data.data || []);
         }
-      } catch (error) {
+    } catch (error) {
         console.error('Error fetching categories:', error);
       }
     };
@@ -120,10 +120,10 @@ export default function CreateArticlePage() {
       setImagePreview(imageUrl);
       setFormData(prev => ({ ...prev, featured_image: imageUrl }));
       toast.success('تم رفع الصورة بنجاح');
-    } catch (error) {
+          } catch (error) {
       console.error('Error uploading image:', error);
       toast.error('فشل في رفع الصورة');
-    } finally {
+      } finally {
       setUploading(false);
     }
   };
@@ -142,19 +142,19 @@ export default function CreateArticlePage() {
     // التحقق من الحقول المطلوبة
     if (!formData.title.trim()) {
       toast.error('يرجى إدخال عنوان المقال');
-      return;
-    }
-
+        return;
+      }
+      
     if (!formData.content.trim()) {
       toast.error('يرجى إدخال محتوى المقال');
-      return;
-    }
-
+        return;
+      }
+      
     if (!formData.category_id) {
       toast.error('يرجى اختيار تصنيف المقال');
-      return;
-    }
-
+        return;
+      }
+      
     try {
       setSaving(true);
 
@@ -181,7 +181,7 @@ export default function CreateArticlePage() {
       toast.success('تم إنشاء المقال بنجاح');
       
       // إعادة توجيه لصفحة التعديل
-      setTimeout(() => {
+        setTimeout(() => {
         router.push(`/admin/articles/${article.id}/edit`);
       }, 1000);
     } catch (error) {
@@ -238,24 +238,24 @@ export default function CreateArticlePage() {
               قم بإنشاء محتوى جديد ونشره
             </p>
           </div>
-          <Button 
+      <Button
             onClick={handleSave} 
-            disabled={saving}
+        disabled={saving}
             className="min-w-[120px]"
-          >
-            {saving ? (
-              <>
+      >
+        {saving ? (
+          <>
                 <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                جاري الحفظ...
-              </>
-            ) : (
-              <>
+            جاري الحفظ...
+          </>
+        ) : (
+          <>
                 <Save className="ml-2 h-4 w-4" />
                 حفظ المقال
-              </>
-            )}
-          </Button>
-        </div>
+          </>
+        )}
+      </Button>
+    </div>
 
         {/* Main Content */}
         <Tabs defaultValue="content" className="space-y-6">
@@ -301,7 +301,7 @@ export default function CreateArticlePage() {
                       <Sparkles className="ml-2 h-4 w-4" />
                       اقتراح بالذكاء الاصطناعي
                     </Button>
-                  </div>
+                      </div>
                   <Input
                     id="title"
                     value={formData.title}
@@ -311,7 +311,7 @@ export default function CreateArticlePage() {
                     required
                   />
                 </div>
-
+                
                 {/* Slug */}
                 <div className="space-y-2">
                   <Label htmlFor="slug">الرابط الدائم (Slug)</Label>
@@ -323,7 +323,7 @@ export default function CreateArticlePage() {
                     dir="ltr"
                   />
                 </div>
-
+                
                 {/* Excerpt */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
@@ -355,7 +355,7 @@ export default function CreateArticlePage() {
                       initialContent={formData.content}
                       onChange={handleContentChange}
                     />
-                  </div>
+                      </div>
                 </div>
               </CardContent>
             </Card>
@@ -384,9 +384,9 @@ export default function CreateArticlePage() {
                         className="mx-auto max-h-64 rounded-lg shadow-lg"
                       />
                       <div className="flex justify-center gap-3">
-                        <Button
+                  <Button
                           variant="outline"
-                          onClick={() => {
+                    onClick={() => {
                             setImagePreview(null);
                             setFormData(prev => ({ ...prev, featured_image: null }));
                           }}
@@ -409,21 +409,21 @@ export default function CreateArticlePage() {
                               <>
                                 <Loader2 className="ml-2 h-4 w-4 animate-spin" />
                                 جاري الرفع...
-                              </>
-                            ) : (
-                              <>
+                      </>
+                    ) : (
+                      <>
                                 <Upload className="ml-2 h-4 w-4" />
                                 تغيير الصورة
-                              </>
-                            )}
-                          </Button>
-                        </label>
-                      </div>
+                      </>
+                    )}
+                  </Button>
+                  </label>
+                </div>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                      <div>
+                <div>
                         <p className="text-lg font-medium">
                           اسحب وأفلت الصورة هنا
                         </p>
@@ -436,7 +436,7 @@ export default function CreateArticlePage() {
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          onChange={(e) => {
+                    onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) handleImageUpload(file);
                           }}
@@ -456,7 +456,7 @@ export default function CreateArticlePage() {
                           )}
                         </Button>
                       </label>
-                    </div>
+                </div>
                   )}
                 </div>
               </CardContent>
@@ -484,7 +484,7 @@ export default function CreateArticlePage() {
                   <p className="text-sm text-muted-foreground">
                     {formData.seo_title?.length || 0} / 60 حرف
                   </p>
-                </div>
+                    </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="seo_description">وصف SEO</Label>
@@ -498,22 +498,22 @@ export default function CreateArticlePage() {
                   <p className="text-sm text-muted-foreground">
                     {formData.seo_description?.length || 0} / 160 حرف
                   </p>
-                </div>
+                    </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="seo_keywords">الكلمات المفتاحية</Label>
-                    <Button
-                      size="sm"
-                      variant="ghost"
+                  <Button
+                    size="sm"
+                    variant="ghost"
                       onClick={() => generateAISuggestions('keywords')}
                       disabled={!formData.content}
                     >
                       <Sparkles className="ml-2 h-4 w-4" />
                       اقتراح بالذكاء الاصطناعي
-                    </Button>
-                  </div>
-                  <Input
+                      </Button>
+                    </div>
+                    <Input
                     id="seo_keywords"
                     value={formData.seo_keywords || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, seo_keywords: e.target.value }))}
@@ -552,7 +552,7 @@ export default function CreateArticlePage() {
                       </SelectContent>
                     </Select>
                   </div>
-
+                  
                   {/* Category */}
                   <div className="space-y-2">
                     <Label htmlFor="category">التصنيف *</Label>
@@ -588,7 +588,7 @@ export default function CreateArticlePage() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
+          </div>
     </DashboardLayout>
   );
 }

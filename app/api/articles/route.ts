@@ -162,8 +162,11 @@ export async function GET(request: NextRequest) {
 
 // إنشاء مقال جديد
 export async function POST(request: NextRequest) {
+  console.log('🚀 POST /api/articles - بداية معالجة الطلب');
+  
   try {
     const data = await request.json()
+    console.log('📦 البيانات المستلمة:', JSON.stringify(data, null, 2))
     
     // التحقق من البيانات المطلوبة
     if (!data.title || !data.content) {
@@ -249,11 +252,30 @@ export async function POST(request: NextRequest) {
     
   } catch (error: any) {
     console.error('❌ خطأ في إنشاء المقال:', error)
+    console.error('Stack trace:', error.stack)
+    
+    // معالجة أخطاء Prisma الشائعة
+    if (error.code === 'P2002') {
+      return NextResponse.json({
+        success: false,
+        error: 'المقال موجود مسبقاً',
+        details: 'يوجد مقال بنفس العنوان أو المعرف'
+      }, { status: 409 })
+    }
+    
+    if (error.code === 'P2003') {
+      return NextResponse.json({
+        success: false,
+        error: 'خطأ في البيانات المرجعية',
+        details: 'التصنيف أو المؤلف غير موجود'
+      }, { status: 400 })
+    }
     
     return NextResponse.json({
       success: false,
       error: 'فشل في إنشاء المقال',
-      details: error.message || 'خطأ غير معروف'
+      details: error.message || 'خطأ غير معروف',
+      code: error.code
     }, { status: 500 })
   }
 }
