@@ -47,7 +47,12 @@ const SmartAudioBlock = dynamic(() => import('@/components/home/SmartAudioBlock'
   loading: () => <Skeleton className="w-full h-40 rounded-lg" />
 });
 
-const FeaturedNewsBlock = dynamic(() => import('@/components/FeaturedNewsBlock'), {
+const MuqtarabBlock = dynamic(() => import('@/components/home/MuqtarabBlock'), {
+  ssr: true,
+  loading: () => <Skeleton className="w-full h-96 rounded-lg" />
+});
+
+const FeaturedNewsCarousel = dynamic(() => import('@/components/FeaturedNewsCarousel'), {
   ssr: true,
   loading: () => <Skeleton className="w-full h-80 rounded-lg" />
 });
@@ -179,7 +184,7 @@ function NewspaperHomePage({
   const [articles, setArticles] = useState<any[]>(initialArticles);
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
   const [smartRecommendations, setSmartRecommendations] = useState<RecommendedArticle[]>([]);
-  const [featuredArticle, setFeaturedArticle] = useState<any>(null);
+  const [featuredArticle, setFeaturedArticle] = useState<any[]>([]);
   const [featuredLoading, setFeaturedLoading] = useState<boolean>(true);
   
   console.log('🔧 NewspaperHomePage: تحضير useEffects...');
@@ -362,8 +367,8 @@ function NewspaperHomePage({
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.articles && data.articles.length > 0) {
-            // نأخذ أول خبر مميز فقط
-            setFeaturedArticle(data.articles[0]);
+            // نأخذ جميع الأخبار المميزة
+            setFeaturedArticle(data.articles);
           }
         }
       } catch (error) {
@@ -539,8 +544,8 @@ function NewspaperHomePage({
       </div>
       
       {/* بلوك الأخبار المميزة - كاروسيل */}
-      {!featuredLoading && featuredArticle && (
-        <FeaturedNewsBlock article={featuredArticle} />
+      {!featuredLoading && featuredArticle.length > 0 && (
+        <FeaturedNewsCarousel articles={featuredArticle} />
       )}
       
       {/* بلوك الجرعات الذكي - ثاني بلوك */}
@@ -1031,6 +1036,11 @@ function NewspaperHomePage({
           />
         </div>
       </section>
+
+      {/* وحدة مقترَب - المحتوى الإبداعي */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <MuqtarabBlock />
+      </div>
 
       {/* استمرار المحتوى الرئيسي */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">

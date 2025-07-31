@@ -268,6 +268,7 @@ model categories {
   created_at    DateTime   @default(now())
   updated_at    DateTime
   articles      articles[]
+  muqtarab_corners MuqtarabCorner[]
 }
 
 model comments {
@@ -819,6 +820,14 @@ model users {
   smart_notifications  SmartNotifications[]
   user_recommendations UserRecommendations[]
   search_queries       SearchQueries[]
+  
+  // Muqtarab relationships
+  muqtarab_corners     MuqtarabCorner[]
+  muqtarab_articles    MuqtarabArticle[]
+  muqtarab_interactions MuqtarabInteraction[]
+  muqtarab_analytics   MuqtarabAnalytics[]
+  muqtarab_followers   MuqtarabFollower[]
+  muqtarab_comments    MuqtarabComment[]
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
@@ -1597,4 +1606,268 @@ model LinkAnalytics {
   @@index([entity_id])
   @@index([event_type])
   @@index([timestamp])
+}
+
+// 🎯 ============ وحدة مُقترَب (Muqtarab) ============ //
+
+// جدول الزوايا الرئيسي
+model MuqtarabCorner {
+  id            String   @id @default(cuid())
+  name          String   // اسم الزاوية
+  slug          String   @unique // رابط مخصص
+  author_name   String   // اسم الكاتب المسؤول
+  author_bio    String?  // نبذة عن الكاتب
+  cover_image   String?  // صورة الغلاف
+  description   String?  // وصف الزاوية
+  
+  // التصنيف
+  category_id   String?
+  category      categories? @relation(fields: [category_id], references: [id])
+  
+  // إعدادات الذكاء الاصطناعي
+  ai_enabled    Boolean  @default(true)
+  
+  // حالة الزاوية
+  is_active     Boolean  @default(true)
+  is_featured   Boolean  @default(false)
+  
+  // معلومات الإنشاء
+  created_by    String?
+  creator       users?   @relation(fields: [created_by], references: [id])
+  
+  // التواريخ
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  
+  // العلاقات
+  articles      MuqtarabArticle[]
+  analytics     MuqtarabAnalytics[]
+  followers     MuqtarabFollower[]
+  
+  @@map("muqtarab_corners")
+  @@index([slug])
+  @@index([is_active])
+  @@index([created_by])
+  @@index([category_id])
+}
+
+// جدول المقالات/المواضيع
+model MuqtarabArticle {
+  id                    String   @id @default(cuid())
+  
+  // ربط بالزاوية
+  corner_id             String
+  corner                MuqtarabCorner @relation(fields: [corner_id], references: [id], onDelete: Cascade)
+  
+  // محتوى المقال
+  title                 String   // العنوان
+  slug                  String   @unique // رابط المقال
+  content               String   @db.Text // المحتوى الكامل
+  excerpt               String?  // مقتطف
+  cover_image           String?  // صورة الغلاف
+  
+  // معلومات المؤلف
+  author_name           String?  // يمكن أن يكون مختلف عن كاتب الزاوية
+  author_bio            String?
+  author_avatar         String?
+  
+  // الكلمات المفتاحية
+  tags                  String[] // كلمات مفتاحية للتوافق مع تفضيلات المستخدم
+  
+  // إعدادات المقال
+  is_featured           Boolean  @default(false)
+  read_time             Int?     // وقت القراءة المتوقع بالدقائق
+  
+  // الجدولة والنشر
+  publish_at            DateTime?
+  status                String   @default("draft") // draft, published, archived, scheduled
+  
+  // تحليلات الذكاء الاصطناعي
+  ai_sentiment          String?  // ساخر، تأملي، عاطفي، تحليلي، إلهامي
+  ai_compatibility_score Int?    @default(0) // نسبة ملاءمة 0-100
+  ai_summary            String?  // ملخص تلقائي
+  ai_keywords           String[] // كلمات مفتاحية مستخرجة بالـ AI
+  ai_mood               String?  // حالة النص العامة
+  
+  // إحصائيات أساسية
+  view_count            Int      @default(0)
+  like_count            Int      @default(0)
+  share_count           Int      @default(0)
+  comment_count         Int      @default(0)
+  
+  // معلومات الإنشاء
+  created_by            String?
+  creator               users?   @relation(fields: [created_by], references: [id])
+  
+  // التواريخ
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+  
+  // العلاقات
+  analytics             MuqtarabAnalytics[]
+  interactions          MuqtarabInteraction[]
+  comments              MuqtarabComment[]
+  
+  @@map("muqtarab_articles")
+  @@index([corner_id])
+  @@index([slug])
+  @@index([status])
+  @@index([publish_at])
+  @@index([is_featured])
+  @@index([ai_sentiment])
+  @@index([created_by])
+  @@index([created_at])
+}
+
+// جدول تفاعلات المستخدمين
+model MuqtarabInteraction {
+  id            String   @id @default(cuid())
+  
+  // ربط بالمقال والمستخدم
+  article_id    String
+  article       MuqtarabArticle @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  
+  user_id       String?
+  user          users?   @relation(fields: [user_id], references: [id])
+  
+  // نوع التفاعل
+  interaction_type String // like, save, share, comment, follow_corner
+  
+  // بيانات إضافية
+  metadata      Json?    // لحفظ بيانات إضافية حسب نوع التفاعل
+  
+  // معلومات الجلسة (للمستخدمين غير المسجلين)
+  session_id    String?
+  ip_hash       String?
+  
+  created_at    DateTime @default(now())
+  
+  @@map("muqtarab_interactions")
+  @@index([article_id])
+  @@index([user_id])
+  @@index([interaction_type])
+  @@index([session_id])
+  @@unique([article_id, user_id, interaction_type])
+}
+
+// جدول تحليلات القراءة المتقدمة
+model MuqtarabAnalytics {
+  id                String   @id @default(cuid())
+  
+  // ربط بالمقال والزاوية
+  article_id        String?
+  article           MuqtarabArticle? @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  
+  corner_id         String?
+  corner            MuqtarabCorner? @relation(fields: [corner_id], references: [id], onDelete: Cascade)
+  
+  // معلومات المستخدم
+  user_id           String?
+  user              users?   @relation(fields: [user_id], references: [id])
+  
+  // بيانات الجلسة
+  session_id        String?
+  ip_hash           String?
+  
+  // إحصائيات القراءة
+  view_duration     Int?     // مدة المشاهدة بالثواني
+  scroll_depth      Float?   // عمق التمرير (0.0 - 1.0)
+  completion_rate   Float?   // نسبة إكمال القراءة
+  
+  // مصدر الوصول
+  referrer_source   String?  // social, search, direct, internal
+  referrer_url      String?
+  utm_source        String?
+  utm_medium        String?
+  utm_campaign      String?
+  
+  // معلومات الجهاز
+  device_type       String?  // mobile, desktop, tablet
+  browser_type      String?
+  operating_system  String?
+  screen_resolution String?
+  
+  // الموقع الجغرافي (تقريبي)
+  country_code      String?
+  city              String?
+  
+  // تحليلات سلوكية
+  bounce_rate       Boolean  @default(false) // هل غادر مباشرة؟
+  return_visitor    Boolean  @default(false) // زائر عائد؟
+  
+  // وقت الزيارة
+  visit_hour        Int?     // ساعة الزيارة (0-23)
+  visit_day         Int?     // يوم الأسبوع (1-7)
+  
+  created_at        DateTime @default(now())
+  
+  @@map("muqtarab_analytics")
+  @@index([article_id])
+  @@index([corner_id])
+  @@index([user_id])
+  @@index([session_id])
+  @@index([referrer_source])
+  @@index([device_type])
+  @@index([created_at])
+}
+
+// جدول متابعة الزوايا
+model MuqtarabFollower {
+  id         String   @id @default(cuid())
+  
+  // ربط بالزاوية والمستخدم
+  corner_id  String
+  corner     MuqtarabCorner @relation(fields: [corner_id], references: [id], onDelete: Cascade)
+  
+  user_id    String
+  user       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  // إعدادات الإشعارات
+  notifications_enabled Boolean @default(true)
+  email_notifications   Boolean @default(false)
+  
+  created_at DateTime @default(now())
+  
+  @@map("muqtarab_followers")
+  @@unique([corner_id, user_id])
+  @@index([corner_id])
+  @@index([user_id])
+}
+
+// جدول التعليقات (إضافي للمستقبل)
+model MuqtarabComment {
+  id         String   @id @default(cuid())
+  
+  // ربط بالمقال
+  article_id String
+  article    MuqtarabArticle @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  
+  // معلومات المعلق
+  user_id    String?
+  user       users?   @relation(fields: [user_id], references: [id])
+  
+  // للزوار غير المسجلين
+  guest_name  String?
+  guest_email String?
+  
+  // محتوى التعليق
+  content    String   @db.Text
+  
+  // حالة التعليق
+  is_approved Boolean @default(false)
+  is_hidden   Boolean @default(false)
+  
+  // رد على تعليق آخر
+  parent_id  String?
+  parent     MuqtarabComment? @relation("CommentReplies", fields: [parent_id], references: [id])
+  replies    MuqtarabComment[] @relation("CommentReplies")
+  
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  @@map("muqtarab_comments")
+  @@index([article_id])
+  @@index([user_id])
+  @@index([is_approved])
+  @@index([created_at])
 }

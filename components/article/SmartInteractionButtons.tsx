@@ -15,6 +15,7 @@ interface SmartInteractionButtonsProps {
   };
   onComment?: () => void;
   className?: string;
+  variant?: 'horizontal' | 'vertical';
 }
 
 export function SmartInteractionButtons({
@@ -22,6 +23,7 @@ export function SmartInteractionButtons({
   initialStats = { likes: 0, saves: 0, shares: 0, comments: 0 },
   onComment,
   className,
+  variant = 'horizontal'
 }: SmartInteractionButtonsProps) {
   const {
     hasLiked,
@@ -93,47 +95,57 @@ export function SmartInteractionButtons({
   };
 
   return (
-    <div className={cn("flex items-center justify-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700", className)}>
+    <div className={cn(
+      "flex gap-4 transition-all duration-300",
+      variant === 'vertical' 
+        ? "flex-col items-center p-2" 
+        : "flex-row items-center justify-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700",
+      className
+    )}>
       {/* زر الإعجاب */}
       <button
         onClick={handleLike}
         className={cn(
-          "flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300",
-          "hover:scale-105 active:scale-95 shadow-sm hover:shadow-md",
+          "flex items-center gap-2 transition-all duration-300",
+          variant === 'vertical'
+            ? "flex-col py-2"
+            : "px-4 py-2.5 rounded-full hover:scale-105 active:scale-95 shadow-sm hover:shadow-md",
           hasLiked
-            ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
-            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+            ? "text-red-500 dark:text-red-400"
+            : "text-gray-700 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400"
         )}
         aria-label={hasLiked ? "إلغاء الإعجاب" : "إعجاب"}
       >
         <Heart
           className={cn(
-            "w-5 h-5 transition-all duration-300",
+            "w-6 h-6 transition-all duration-300",
             hasLiked && "fill-current animate-heartbeat"
           )}
         />
-        <span className="text-sm font-semibold">{String(localStats.likes || 0)}</span>
+        <span className="text-sm font-medium">{String(localStats.likes || 0)}</span>
       </button>
 
       {/* زر الحفظ */}
       <button
         onClick={handleSave}
         className={cn(
-          "flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300",
-          "hover:scale-105 active:scale-95 shadow-sm hover:shadow-md",
+          "flex items-center gap-2 transition-all duration-300",
+          variant === 'vertical'
+            ? "flex-col py-2"
+            : "px-4 py-2.5 rounded-full hover:scale-105 active:scale-95 shadow-sm hover:shadow-md",
           hasSaved
-            ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white"
-            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+            ? "text-blue-500 dark:text-blue-400"
+            : "text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400"
         )}
         aria-label={hasSaved ? "إلغاء الحفظ" : "حفظ"}
       >
         <Bookmark
           className={cn(
-            "w-5 h-5 transition-all duration-300",
+            "w-6 h-6 transition-all duration-300",
             hasSaved && "fill-current"
           )}
         />
-        <span className="text-sm font-semibold">{String(localStats.saves || 0)}</span>
+        <span className="text-sm font-medium">{String(localStats.saves || 0)}</span>
       </button>
 
       {/* زر المشاركة */}
@@ -141,20 +153,24 @@ export function SmartInteractionButtons({
         <button
           onClick={() => setShowShareMenu(!showShareMenu)}
           className={cn(
-            "flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300",
-            "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300",
-            "hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95",
-            "shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-600"
+            "flex items-center gap-2 transition-all duration-300",
+            variant === 'vertical'
+              ? "flex-col py-2"
+              : "px-4 py-2.5 rounded-full hover:scale-105 active:scale-95 shadow-sm hover:shadow-md",
+            "text-gray-700 dark:text-gray-300 hover:text-green-500 dark:hover:text-green-400"
           )}
           aria-label="مشاركة"
         >
-          <Share2 className="w-5 h-5" />
-          <span className="text-sm font-semibold">{String(localStats.shares || 0)}</span>
+          <Share2 className="w-6 h-6" />
+          <span className="text-sm font-medium">{String(localStats.shares || 0)}</span>
         </button>
 
         {/* قائمة المشاركة */}
         {showShareMenu && (
-          <div className="absolute bottom-full mb-2 left-0 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-[150px] z-10">
+          <div className={cn(
+            "absolute bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-[150px] z-10",
+            variant === 'vertical' ? "right-full top-0 mr-2" : "bottom-full left-0 mb-2"
+          )}>
             <button
               onClick={() => handleShare('twitter')}
               className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
@@ -188,15 +204,16 @@ export function SmartInteractionButtons({
         <button
           onClick={handleComment}
           className={cn(
-            "flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300",
-            "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300",
-            "hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95",
-            "shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-600"
+            "flex items-center gap-2 transition-all duration-300",
+            variant === 'vertical'
+              ? "flex-col py-2"
+              : "px-4 py-2.5 rounded-full hover:scale-105 active:scale-95 shadow-sm hover:shadow-md",
+            "text-gray-700 dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400"
           )}
           aria-label="تعليق"
         >
-          <MessageCircle className="w-5 h-5" />
-          <span className="text-sm font-semibold">{String(localStats.comments || 0)}</span>
+          <MessageCircle className="w-6 h-6" />
+          <span className="text-sm font-medium">{String(localStats.comments || 0)}</span>
         </button>
       )}
 

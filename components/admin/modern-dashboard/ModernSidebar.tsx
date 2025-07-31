@@ -119,6 +119,22 @@ const sidebarItems: SidebarItem[] = [
     ]
   },
   {
+    id: 'muqtarab-module',
+    title: 'وحدة مُقترَب',
+    icon: Zap,
+    href: '/admin/muqtarab',
+    badge: 'جديد',
+    badgeVariant: 'secondary',
+    isNew: true,
+    children: [
+      { id: 'muqtarab-dashboard', title: 'لوحة التحكم', icon: LayoutDashboard, href: '/admin/muqtarab' },
+      { id: 'muqtarab-corners', title: 'إدارة الزوايا', icon: Zap, href: '/admin/muqtarab/corners' },
+      { id: 'muqtarab-articles', title: 'إدارة المقالات', icon: FileText, href: '/admin/muqtarab/articles' },
+      { id: 'muqtarab-analytics', title: 'التحليلات', icon: BarChart3, href: '/admin/muqtarab/analytics' },
+      { id: 'muqtarab-settings', title: 'إعدادات الذكاء الاصطناعي', icon: Brain, href: '/admin/muqtarab/settings' },
+    ]
+  },
+  {
     id: 'audio-systems',
     title: 'النظم الصوتية',
     icon: Globe,

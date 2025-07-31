@@ -253,7 +253,7 @@ export default function ArticleClientComponent({
             
             {/* العنوان الفرعي */}
             {(article.subtitle || article.metadata?.subtitle) && (
-              <h2 className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-6 text-right">
+              <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 text-right">
                 {article.subtitle || article.metadata?.subtitle}
               </h2>
             )}
@@ -386,9 +386,18 @@ export default function ArticleClientComponent({
           {/* محتوى المقال */}
           <div className="mb-12">
             <div 
-              className={`prose max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-relaxed prose-img:rounded-lg prose-img:shadow-lg ${
-                isReading ? 'prose-xl' : 'prose-lg'
-              }`}
+              className={`prose max-w-none dark:prose-invert
+                prose-headings:text-gray-900 dark:prose-headings:text-white 
+                prose-p:text-gray-700 dark:prose-p:text-gray-300 
+                prose-p:leading-relaxed 
+                prose-img:rounded-xl prose-img:shadow-xl
+                prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-gray-900 dark:prose-strong:text-white
+                prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
+                prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
+                prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-lg
+                ${isReading ? 'prose-xl' : 'prose-lg'}
+              `}
               dangerouslySetInnerHTML={{ __html: contentHtml }}
             />
           </div>

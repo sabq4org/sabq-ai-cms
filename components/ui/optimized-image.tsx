@@ -19,7 +19,7 @@ export default function OptimizedImage({
   src,
   alt,
   className,
-  fallbackSrc = '/images/placeholder-featured.jpg',
+  fallbackSrc = '/images/placeholder-featured.jpg', // صورة بديلة افتراضية
   aspectRatio = 'auto',
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1200px',
   priority = false,
