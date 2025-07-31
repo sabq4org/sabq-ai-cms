@@ -89,7 +89,11 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
     content: '',
     authorId: '',
     categoryId: '',
+    type: 'local' as 'local' | 'external',
     featuredImage: '',
+    featuredImageCaption: '',
+    gallery: [] as string[],
+    externalLink: '',
     keywords: [] as string[],
     seoTitle: '',
     seoDescription: '',
@@ -644,7 +648,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         
         response = await fetch(url, {
           method: method,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Debug-Mode': 'true' // تفعيل وضع التصحيح
+          },
           body: JSON.stringify(articleData)
         });
       } catch (fetchError) {
@@ -698,6 +705,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             // معالجة أفضل للأخطاء
             if (errorData.error) {
               errorMessage = errorData.error;
+              // إذا كان هناك تفاصيل إضافية للتصحيح
+              if (errorData.debug) {
+                console.error('🔍 تفاصيل التصحيح:', errorData.debug);
+              }
             } else if (errorData.details) {
               errorMessage = errorData.details;
             } else if (errorData.message) {
@@ -705,7 +716,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             } else if (response.status === 404) {
               errorMessage = 'الصفحة المطلوبة غير موجودة';
             } else if (response.status === 500) {
-              errorMessage = 'خطأ في الخادم';
+              errorMessage = 'خطأ في الخادم - يرجى المحاولة مرة أخرى';
             } else {
               errorMessage = `خطأ: ${response.status} ${response.statusText}`;
             }

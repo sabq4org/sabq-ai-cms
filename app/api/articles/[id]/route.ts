@@ -261,13 +261,17 @@ export async function PATCH(
       'featured_image', 'image_caption',
       'status', 'metadata', 'publish_at',
       'seo_title', 'seo_description', 'seo_keywords',
-      'breaking', 'external_link'
+      'breaking', 'external_link', 'type'
       // 'featured' تمت إزالته من هنا وسيتم معالجته بشكل خاص
     ]
+    
+    console.log('📋 الحقول المستلمة:', Object.keys(data));
+    console.log('📋 القيم المستلمة:', data);
     
     for (const field of allowedFields) {
       if (data[field] !== undefined) {
         updateData[field] = data[field]
+        console.log(`✅ تم نسخ الحقل ${field}:`, data[field]);
       }
     }
     
@@ -366,6 +370,13 @@ export async function PATCH(
       })
     } catch (updateError: any) {
       console.error('❌ خطأ في تحديث المقال في قاعدة البيانات:', updateError)
+      console.error('📋 تفاصيل خطأ التحديث:', {
+        code: updateError.code,
+        message: updateError.message,
+        meta: updateError.meta,
+        articleId: id,
+        updateData: JSON.stringify(updateData, null, 2)
+      });
       
       // رسائل خطأ أكثر تفصيلاً
       if (updateError.code === 'P2025') {
@@ -385,7 +396,13 @@ export async function PATCH(
       return NextResponse.json({
         success: false,
         error: 'فشل تحديث المقال',
-        details: updateError.message || 'خطأ غير معروف في قاعدة البيانات'
+        details: updateError.message || 'خطأ غير معروف في قاعدة البيانات',
+        debug: {
+          errorCode: updateError.code,
+          errorType: updateError.constructor.name,
+          articleId: id,
+          timestamp: new Date().toISOString()
+        }
       }, { status: 500 })
     }
     
