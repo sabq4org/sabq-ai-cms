@@ -1,0 +1,647 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle,
+  CardDescription 
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Upload, 
+  Save, 
+  Loader2, 
+  ArrowRight,
+  Eye,
+  Sparkles,
+  Image as ImageIcon,
+  FileText,
+  Settings,
+  Calendar,
+  User
+} from 'lucide-react';
+import dynamic from 'next/dynamic';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+
+// Dynamic imports for heavy components
+const ArticleEditor = dynamic(() => import('@/components/Editor/ArticleEditor'), {
+  ssr: false,
+  loading: () => <div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin" /></div>
+});
+
+interface ArticleData {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  featured_image: string | null;
+  status: 'draft' | 'review' | 'published';
+  category_id: string;
+  author_id: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
+  published_at?: string;
+  metadata?: any;
+}
+
+export default function EditArticlePage() {
+  const params = useParams();
+  const router = useRouter();
+  const articleId = params.articleId as string;
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [article, setArticle] = useState<ArticleData | null>(null);
+  const [formData, setFormData] = useState<Partial<ArticleData>>({});
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [categories, setCategories] = useState<any[]>([]);
+
+  // جلب بيانات المقال
+  useEffect(() => {
+    if (!articleId) return;
+
+    const fetchArticle = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/articles/${articleId}`);
+        
+        if (!response.ok) {
+          throw new Error('فشل في جلب بيانات المقال');
+        }
+
+        const data = await response.json();
+        setArticle(data);
+        setFormData(data);
+        setImagePreview(data.featured_image);
+      } catch (error) {
+        console.error('Error fetching article:', error);
+        toast.error('فشل في تحميل بيانات المقال');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticle();
+  }, [articleId]);
+
+  // جلب التصنيفات
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories');
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data.categories || data.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // معالج رفع الصورة
+  const handleImageUpload = async (file: File) => {
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('فشل في رفع الصورة');
+      }
+
+      const data = await response.json();
+      const imageUrl = data.url || data.secure_url || data.path;
+      
+      setImagePreview(imageUrl);
+      setFormData(prev => ({ ...prev, featured_image: imageUrl }));
+      toast.success('تم رفع الصورة بنجاح');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('فشل في رفع الصورة');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // معالج السحب والإفلات
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      handleImageUpload(file);
+    }
+  }, []);
+
+  // معالج حفظ المقال
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+
+      const response = await fetch(`/api/articles/${articleId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'فشل في حفظ المقال');
+      }
+
+      toast.success('تم حفظ المقال بنجاح');
+      
+      // إعادة توجيه للصفحة الرئيسية للمقالات
+      setTimeout(() => {
+        router.push('/admin/articles');
+      }, 1000);
+    } catch (error) {
+      console.error('Error saving article:', error);
+      toast.error(error instanceof Error ? error.message : 'فشل في حفظ المقال');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // معالج تغيير المحتوى
+  const handleContentChange = (content: string) => {
+    setFormData(prev => ({ ...prev, content }));
+  };
+
+  // توليد مقترحات AI
+  const generateAISuggestions = async (type: 'title' | 'excerpt' | 'keywords') => {
+    try {
+      const response = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type,
+          content: formData.content || '',
+          title: formData.title || '',
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (type === 'title') {
+          setFormData(prev => ({ ...prev, title: data.suggestion }));
+        } else if (type === 'excerpt') {
+          setFormData(prev => ({ ...prev, excerpt: data.suggestion }));
+        } else if (type === 'keywords') {
+          setFormData(prev => ({ ...prev, seo_keywords: data.suggestion }));
+        }
+        toast.success(`تم توليد ${type === 'title' ? 'العنوان' : type === 'excerpt' ? 'الملخص' : 'الكلمات المفتاحية'} بنجاح`);
+      }
+    } catch (error) {
+      console.error(`Error generating ${type}:`, error);
+      toast.error(`فشل في توليد ${type === 'title' ? 'العنوان' : type === 'excerpt' ? 'الملخص' : 'الكلمات المفتاحية'}`);
+    }
+  };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!article) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <h2 className="text-2xl font-bold mb-4">المقال غير موجود</h2>
+          <Button onClick={() => router.push('/admin/articles')}>
+            العودة للمقالات
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="container mx-auto p-6 max-w-7xl">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">تعديل المقال</h1>
+            <p className="text-muted-foreground mt-2">
+              قم بتعديل محتوى المقال وإعداداته
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => window.open(`/article/${article.slug}`, '_blank')}
+            >
+              <Eye className="ml-2 h-4 w-4" />
+              معاينة
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={saving}
+              className="min-w-[120px]"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                  جاري الحفظ...
+                </>
+              ) : (
+                <>
+                  <Save className="ml-2 h-4 w-4" />
+                  حفظ التغييرات
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <Tabs defaultValue="content" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+            <TabsTrigger value="content">
+              <FileText className="ml-2 h-4 w-4" />
+              المحتوى
+            </TabsTrigger>
+            <TabsTrigger value="media">
+              <ImageIcon className="ml-2 h-4 w-4" />
+              الوسائط
+            </TabsTrigger>
+            <TabsTrigger value="seo">
+              <Settings className="ml-2 h-4 w-4" />
+              SEO
+            </TabsTrigger>
+            <TabsTrigger value="settings">
+              <Calendar className="ml-2 h-4 w-4" />
+              الإعدادات
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Content Tab */}
+          <TabsContent value="content" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>محتوى المقال</CardTitle>
+                <CardDescription>
+                  قم بتحرير العنوان والملخص والمحتوى الرئيسي
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Title */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="title">العنوان</Label>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => generateAISuggestions('title')}
+                    >
+                      <Sparkles className="ml-2 h-4 w-4" />
+                      اقتراح بالذكاء الاصطناعي
+                    </Button>
+                  </div>
+                  <Input
+                    id="title"
+                    value={formData.title || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="أدخل عنوان المقال"
+                    className="text-lg"
+                  />
+                </div>
+
+                {/* Excerpt */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="excerpt">الملخص</Label>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => generateAISuggestions('excerpt')}
+                    >
+                      <Sparkles className="ml-2 h-4 w-4" />
+                      اقتراح بالذكاء الاصطناعي
+                    </Button>
+                  </div>
+                  <Textarea
+                    id="excerpt"
+                    value={formData.excerpt || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                    placeholder="أدخل ملخص المقال"
+                    rows={3}
+                  />
+                </div>
+
+                {/* Content Editor */}
+                <div className="space-y-2">
+                  <Label>المحتوى</Label>
+                  <div className="border rounded-lg overflow-hidden">
+                    <ArticleEditor
+                      initialContent={formData.content || ''}
+                      onChange={handleContentChange}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Media Tab */}
+          <TabsContent value="media" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>الصورة البارزة</CardTitle>
+                <CardDescription>
+                  قم برفع أو تغيير الصورة البارزة للمقال
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors"
+                >
+                  {imagePreview ? (
+                    <div className="space-y-4">
+                      <img
+                        src={imagePreview}
+                        alt="Featured"
+                        className="mx-auto max-h-64 rounded-lg shadow-lg"
+                      />
+                      <div className="flex justify-center gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setImagePreview(null);
+                            setFormData(prev => ({ ...prev, featured_image: null }));
+                          }}
+                        >
+                          إزالة الصورة
+                        </Button>
+                        <label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(file);
+                            }}
+                            disabled={uploading}
+                          />
+                          <Button as="span" disabled={uploading}>
+                            {uploading ? (
+                              <>
+                                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                                جاري الرفع...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="ml-2 h-4 w-4" />
+                                تغيير الصورة
+                              </>
+                            )}
+                          </Button>
+                        </label>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                      <div>
+                        <p className="text-lg font-medium">
+                          اسحب وأفلت الصورة هنا
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          أو انقر لاختيار ملف
+                        </p>
+                      </div>
+                      <label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file);
+                          }}
+                          disabled={uploading}
+                        />
+                        <Button as="span" variant="outline" disabled={uploading}>
+                          {uploading ? (
+                            <>
+                              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                              جاري الرفع...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="ml-2 h-4 w-4" />
+                              اختيار صورة
+                            </>
+                          )}
+                        </Button>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* SEO Tab */}
+          <TabsContent value="seo" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>إعدادات SEO</CardTitle>
+                <CardDescription>
+                  قم بتحسين المقال لمحركات البحث
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="seo_title">عنوان SEO</Label>
+                  <Input
+                    id="seo_title"
+                    value={formData.seo_title || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, seo_title: e.target.value }))}
+                    placeholder="عنوان مخصص لمحركات البحث"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    {formData.seo_title?.length || 0} / 60 حرف
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="seo_description">وصف SEO</Label>
+                  <Textarea
+                    id="seo_description"
+                    value={formData.seo_description || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, seo_description: e.target.value }))}
+                    placeholder="وصف مخصص لمحركات البحث"
+                    rows={3}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    {formData.seo_description?.length || 0} / 160 حرف
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="seo_keywords">الكلمات المفتاحية</Label>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => generateAISuggestions('keywords')}
+                    >
+                      <Sparkles className="ml-2 h-4 w-4" />
+                      اقتراح بالذكاء الاصطناعي
+                    </Button>
+                  </div>
+                  <Input
+                    id="seo_keywords"
+                    value={formData.seo_keywords || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, seo_keywords: e.target.value }))}
+                    placeholder="كلمة1، كلمة2، كلمة3"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>إعدادات النشر</CardTitle>
+                <CardDescription>
+                  قم بتحديد حالة المقال وإعدادات النشر
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Status */}
+                  <div className="space-y-2">
+                    <Label htmlFor="status">الحالة</Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as any }))}
+                    >
+                      <SelectTrigger id="status">
+                        <SelectValue placeholder="اختر الحالة" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">مسودة</SelectItem>
+                        <SelectItem value="review">قيد المراجعة</SelectItem>
+                        <SelectItem value="published">منشور</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Category */}
+                  <div className="space-y-2">
+                    <Label htmlFor="category">التصنيف</Label>
+                    <Select
+                      value={formData.category_id}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}
+                    >
+                      <SelectTrigger id="category">
+                        <SelectValue placeholder="اختر التصنيف" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Publish Date */}
+                  <div className="space-y-2">
+                    <Label htmlFor="published_at">تاريخ النشر</Label>
+                    <Input
+                      id="published_at"
+                      type="datetime-local"
+                      value={formData.published_at ? new Date(formData.published_at).toISOString().slice(0, 16) : ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, published_at: new Date(e.target.value).toISOString() }))}
+                    />
+                  </div>
+
+                  {/* Author */}
+                  <div className="space-y-2">
+                    <Label htmlFor="author">الكاتب</Label>
+                    <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{article.author_id}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Metadata */}
+            <Card>
+              <CardHeader>
+                <CardTitle>معلومات إضافية</CardTitle>
+                <CardDescription>
+                  معلومات تقنية عن المقال
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">معرف المقال:</span>
+                    <span className="mr-2 font-mono">{article.id}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">الرابط الدائم:</span>
+                    <span className="mr-2 font-mono">{article.slug}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">تاريخ الإنشاء:</span>
+                    <span className="mr-2">{new Date(article.created_at || '').toLocaleDateString('ar-SA')}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">آخر تحديث:</span>
+                    <span className="mr-2">{new Date(article.updated_at || '').toLocaleDateString('ar-SA')}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DashboardLayout>
+  );
+}

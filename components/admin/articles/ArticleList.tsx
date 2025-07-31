@@ -343,14 +343,14 @@ export const ArticleList: React.FC<ArticleListProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => router.push('/dashboard/articles/analytics')}
+                onClick={() => router.push('/admin/articles/analytics')}
                 className={`${darkMode ? 'border-gray-600 hover:bg-gray-700' : ''}`}
               >
                 <BarChart3 className="h-4 w-4 ml-2" />
                 التحليلات
               </Button>
               <Button
-                onClick={() => router.push('/dashboard/articles/create')}
+                onClick={() => router.push('/admin/articles/create')}
                 className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-lg"
               >
                 <Plus className="h-4 w-4 ml-2" />
@@ -560,7 +560,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
                         ابدأ بإنشاء أول مقال
                       </p>
                       <Button 
-                        onClick={() => router.push('/dashboard/articles/create')}
+                        onClick={() => router.push('/admin/articles/create')}
                         className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white"
                       >
                         <Plus className="h-4 w-4 ml-2" />
@@ -683,7 +683,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => router.push(`/dashboard/articles/${article.id}`)}
+                                  onClick={() => router.push(`/admin/articles/${article.id}`)}
                                   className={`hover:bg-blue-100 dark:hover:bg-blue-900/20`}
                                 >
                                   <Eye className="h-4 w-4 text-blue-600" />
@@ -699,7 +699,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => router.push(`/dashboard/articles/${article.id}/edit`)}
+                                  onClick={() => router.push(`/admin/articles/${article.id}/edit`)}
                                   className={`hover:bg-purple-100 dark:hover:bg-purple-900/20`}
                                 >
                                   <Edit className="h-4 w-4 text-purple-600" />

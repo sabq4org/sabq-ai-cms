@@ -466,3 +466,11 @@ export async function DELETE(
     }, { status: 500 })
   }
 }
+
+// دعم PUT method (يستخدم نفس منطق PATCH)
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  return PATCH(request, context);
+}
