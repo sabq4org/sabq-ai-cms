@@ -126,7 +126,7 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
 
               {/* موجز الخبر - مكثف */}
               {article.excerpt && (
-                <p className={`text-sm lg:text-base mb-4 leading-relaxed line-clamp-2 ${
+                <p className={`text-xs lg:text-base font-normal mb-4 leading-relaxed line-clamp-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}>
                   {article.excerpt}
