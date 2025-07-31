@@ -51,8 +51,8 @@ const FeaturedNewsBlock: React.FC = () => {
   useEffect(() => {
     fetchFeaturedNews();
     
-    // إعادة تحميل الخبر المميز كل دقيقة
-    const interval = setInterval(fetchFeaturedNews, 60000);
+    // إعادة تحميل الخبر المميز كل 30 ثانية
+    const interval = setInterval(fetchFeaturedNews, 30000);
     
     return () => clearInterval(interval);
   }, []);
@@ -65,13 +65,16 @@ const FeaturedNewsBlock: React.FC = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // timeout بعد 10 ثوان
       
-      const response = await fetch('/api/featured-news', {
+      // إضافة معرف فريد لتجاوز التخزين المؤقت
+      const timestamp = Date.now();
+      const response = await fetch(`/api/featured-news?t=${timestamp}`, {
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0'
         },
+        next: { revalidate: 0 }, // إعادة التحقق في كل مرة
         signal: controller.signal
       });
       
