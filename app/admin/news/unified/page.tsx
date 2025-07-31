@@ -22,6 +22,7 @@ import {
   Star, CheckSquare, Wand2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
@@ -1210,23 +1211,26 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
   
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600" />
-          <p className="text-slate-600 dark:text-slate-400">جاري تحميل البيانات...</p>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700">
+          <div className="text-center space-y-4">
+            <Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600" />
+            <p className="text-slate-600 dark:text-slate-400">جاري تحميل البيانات...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
   
   return (
-    <div className={cn(
-      "min-h-screen transition-all duration-300",
-      darkMode 
-        ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700" 
-        : "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
-    )}>
-      <div className="p-4 md:p-6">
+    <DashboardLayout>
+      <div className={cn(
+        "min-h-screen transition-all duration-300",
+        darkMode 
+          ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700" 
+          : "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
+      )}>
+        <div className="p-4 md:p-6">
         {/* رأس الصفحة */}
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -1912,16 +1916,17 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         </div>
       </div>
       
-      <Toaster 
-        position="top-center"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: darkMode ? '#1e293b' : '#ffffff',
-            color: darkMode ? '#ffffff' : '#1e293b',
-          },
-        }}
-      />
-    </div>
+        <Toaster 
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: darkMode ? '#1e293b' : '#ffffff',
+              color: darkMode ? '#ffffff' : '#1e293b',
+            },
+          }}
+        />
+      </div>
+    </DashboardLayout>
   );
 }
