@@ -128,7 +128,7 @@ export default function CategoryBadge({
   if (clickable) {
     return (
       <Link 
-        href={`/news/${category.slug}`}
+        href={`/categories/${category.slug}`}
         className="inline-block no-underline hover:no-underline"
       >
         {badgeContent}
@@ -166,7 +166,7 @@ export function CategoryNavigation({
         return (
           <Link
             key={category.id}
-            href={`/news/${category.slug}`}
+            href={`/categories/${category.slug}`}
             className={`
               flex items-center gap-2 px-3 py-2 rounded-lg
               transition-all duration-200 font-medium text-sm

@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge'
 import { useDarkModeContext } from '@/contexts/DarkModeContext'
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
+import { getArticleLink } from '@/lib/utils'
 
 interface OpinionAuthor {
   id: string
@@ -85,7 +86,7 @@ const OpinionCard = ({ article, isHero = false, darkMode = false }: { article: O
   }
 
   return (
-    <Link href={`/opinion/${article.slug}`}>
+    <Link href={getArticleLink(article)}>
       <Card className={`group overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 ${
         darkMode ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-white border-gray-200 hover:bg-gray-50'
       } ${isHero ? 'h-auto' : 'h-full'}`}>

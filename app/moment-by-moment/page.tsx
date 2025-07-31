@@ -11,6 +11,7 @@ import {
 import Footer from '@/components/Footer';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { getArticleLink } from '@/lib/utils';
 
 interface TimelineItem {
   id: string;
@@ -436,7 +437,7 @@ export default function MomentByMomentPage() {
                             
                             {/* عنوان قابل للنقر */}
                             {(item.type === 'news' || item.type === 'article') && item.slug ? (
-                              <Link href={`/article/${item.slug}`}>
+                              <Link href={getArticleLink(item)}>
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 hover:text-red-600 dark:hover:text-red-400 cursor-pointer transition-colors">
                                   {item.title}
                                 </h3>
@@ -475,7 +476,7 @@ export default function MomentByMomentPage() {
                               
                               {(item.type === 'news' || item.type === 'article') && item.slug && (
                                 <Link 
-                                  href={`/article/${item.slug}`}
+                                  href={getArticleLink(item)}
                                   className={`text-sm font-medium ${colors.text} hover:underline`}
                                 >
                                   اقرأ المزيد ←
@@ -511,7 +512,7 @@ export default function MomentByMomentPage() {
                     return (
                       <div key={item.id}>
                         {(item.type === 'news' || item.type === 'article') && item.slug ? (
-                          <Link href={`/article/${item.slug}`}>
+                          <Link href={getArticleLink(item)}>
                             <div className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer ${isBreaking ? 'shadow-red-200 dark:shadow-red-900/50' : ''}`}>
                               <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">

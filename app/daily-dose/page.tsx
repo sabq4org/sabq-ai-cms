@@ -14,6 +14,7 @@ import {
   TrendingUp, Award, Target, Flame, Star,
   Sunrise, Sunset, ThumbsUp, ChevronLeft, Download
 } from 'lucide-react';
+import { getArticleLink } from '@/lib/utils';
 
 interface DoseContent {
   id: string;
@@ -323,7 +324,7 @@ export default function DailyDosePage() {
                           {/* Actions */}
                           <div className="flex items-center gap-4">
                             <Link
-                              href={`/article/${content.article.slug || content.article.id}`}
+                              href={getArticleLink(content.article)}
                               className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-colors ${
                                 darkMode 
                                   ? 'bg-white text-gray-900 hover:bg-gray-100' 

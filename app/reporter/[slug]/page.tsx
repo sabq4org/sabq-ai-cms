@@ -18,7 +18,7 @@ import { formatDateGregorian } from '@/lib/date-utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { cn, getArticleLink } from '@/lib/utils';
 
 interface Reporter {
   id: string;
@@ -1290,7 +1290,7 @@ const ReporterProfilePage: React.FC = () => {
                 {articles.map((article) => (
                   <Link
                     key={article.id}
-                    href={`/article/${article.slug}`}
+                    href={getArticleLink(article)}
                     className={`block p-4 rounded-xl border transition-all hover:shadow-md ${
                       darkMode 
                         ? 'bg-slate-700 border-slate-600 hover:bg-slate-600/50'
