@@ -207,6 +207,25 @@ export async function PATCH(
     console.log('📥 البيانات المستلمة للتحديث:', data)
     console.log('📦 metadata المستلمة:', data.metadata)
     
+    // التحقق من وجود المقال قبل محاولة التحديث
+    const existingArticle = await dbConnectionManager.executeWithConnection(async () => {
+      return await prisma.articles.findUnique({
+        where: { id },
+        select: { id: true, title: true, featured: true }
+      })
+    })
+    
+    if (!existingArticle) {
+      console.error('❌ المقال غير موجود:', id)
+      return NextResponse.json({
+        success: false,
+        error: 'المقال غير موجود',
+        details: 'Article not found'
+      }, { status: 404 })
+    }
+    
+    console.log('✅ تم العثور على المقال:', { id: existingArticle.id, title: existingArticle.title, featured: existingArticle.featured })
+    
     // التحقق من صحة البيانات المستلمة
     if (data.featured_image && typeof data.featured_image !== 'string') {
       console.error('❌ نوع صورة المقال غير صحيح:', typeof data.featured_image)
@@ -241,10 +260,13 @@ export async function PATCH(
     
     // معالجة خاصة لحقل featured
     if (data.featured !== undefined) {
-      updateData.featured = data.featured
+      // تأكد من أن القيمة هي boolean
+      updateData.featured = Boolean(data.featured)
+      
+      console.log(`🏆 تحديث حالة التمييز للمقال ${id}: ${updateData.featured ? 'مميز' : 'غير مميز'}`)
       
       // إذا كان المطلوب هو تعيين المقال كمميز، فنقوم بإلغاء التمييز عن الأخبار الأخرى
-      if (data.featured === true) {
+      if (updateData.featured === true) {
         try {
           await dbConnectionManager.executeWithConnection(async () => {
             return await prisma.articles.updateMany({
@@ -261,14 +283,24 @@ export async function PATCH(
         } catch (error) {
           console.error('❌ خطأ في إلغاء التمييز عن الأخبار الأخرى:', error)
         }
+      } else {
+        console.log('ℹ️ تم إلغاء خاصية التمييز عن المقال')
       }
     }
     
     // التأكد من أن metadata يتم حفظه بشكل صحيح كـ JSON
     if (data.metadata) {
-      updateData.metadata = typeof data.metadata === 'string' 
-        ? data.metadata 
-        : JSON.stringify(data.metadata)
+      try {
+        updateData.metadata = typeof data.metadata === 'string' 
+          ? data.metadata 
+          : JSON.stringify(data.metadata)
+      } catch (error) {
+        console.error('❌ خطأ في معالجة metadata:', error)
+        // استخدام القيمة كما هي إذا فشل التحويل إلى JSON
+        updateData.metadata = typeof data.metadata === 'string' 
+          ? data.metadata 
+          : '{}'
+      }
     }
     
     console.log('💾 البيانات المعدة للحفظ:', updateData)
@@ -283,6 +315,20 @@ export async function PATCH(
       })
       
       console.log('✅ تم تحديث المقال بنجاح:', { id: updatedArticle.id, title: updatedArticle.title })
+      
+      // إعادة تحقق صحة الصفحة الرئيسية إذا تم تغيير حالة التمييز
+      if (data.featured !== undefined) {
+        try {
+          // استيراد revalidatePath من next/cache
+          const { revalidatePath } = await import('next/cache')
+          
+          // إعادة تحقق صحة الصفحة الرئيسية
+          revalidatePath('/')
+          console.log('🔄 تم إعادة تحقق صحة الصفحة الرئيسية')
+        } catch (error) {
+          console.error('❌ خطأ في إعادة تحقق صحة الصفحة الرئيسية:', error)
+        }
+      }
       
       return NextResponse.json({
         success: true,
