@@ -192,18 +192,22 @@ export async function POST(request: NextRequest) {
         || `article-${Date.now()}`; // fallback إذا كان العنوان فارغ
     };
     
+    // معالجة الحقل المميز بأسمائه المختلفة
+    const isFeatured = data.featured || data.is_featured || data.isFeatured || false;
+    const isBreaking = data.breaking || data.is_breaking || data.isBreaking || false;
+    
     // تنقية البيانات للتأكد من مطابقتها لنموذج articles
     const articleData = {
       id: data.id || generateId(),
       title: data.title,
       slug: data.slug || generateSlug(data.title),
       content: data.content,
-      excerpt: data.excerpt || null,
+      excerpt: data.excerpt || data.summary || null,
       author_id: data.author_id || '00000000-0000-0000-0000-000000000001', // مستخدم افتراضي
       category_id: data.category_id,
       status: data.status || 'draft',
-      featured: data.featured || false,
-      breaking: data.breaking || false,
+      featured: isFeatured,
+      breaking: isBreaking,
       featured_image: data.featured_image || null,
       created_at: new Date(),
       updated_at: new Date(),

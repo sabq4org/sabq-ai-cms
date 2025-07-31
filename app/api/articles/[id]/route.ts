@@ -263,11 +263,22 @@ export async function PATCH(
     let shouldUpdateFeatured = false;
     let featuredValue = false;
     
-    if (data.featured !== undefined) {
+    // التحقق من جميع الأسماء المحتملة للحقل المميز
+    if (data.featured !== undefined || data.is_featured !== undefined || data.isFeatured !== undefined) {
       shouldUpdateFeatured = true;
-      featuredValue = Boolean(data.featured);
+      featuredValue = Boolean(data.featured || data.is_featured || data.isFeatured);
       console.log(`🏆 سيتم تحديث حالة التمييز للمقال ${id}: ${featuredValue ? 'مميز' : 'غير مميز'}`);
       // لا نضيف featured إلى updateData هنا، سنعالجه بشكل منفصل
+    }
+    
+    // معالجة حقل breaking بأسمائه المختلفة
+    if (data.breaking !== undefined || data.is_breaking !== undefined || data.isBreaking !== undefined) {
+      updateData.breaking = Boolean(data.breaking || data.is_breaking || data.isBreaking);
+    }
+    
+    // معالجة excerpt/summary
+    if (data.excerpt !== undefined || data.summary !== undefined) {
+      updateData.excerpt = data.excerpt || data.summary;
     }
     
     // التأكد من أن metadata يتم حفظه بشكل صحيح كـ JSON
