@@ -24,6 +24,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    console.log('🔍 بداية معالجة طلب المقالات');
+    console.log('prisma:', typeof prisma);
+    console.log('prisma.articles:', typeof prisma?.articles);
+    
     const page = parseInt(searchParams.get('page') || '1');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 200);
     const status = searchParams.get('status') || 'published';
