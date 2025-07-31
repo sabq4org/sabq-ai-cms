@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, ensureConnection } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { corsResponse } from '@/lib/cors';
 
 // معالجة طلبات OPTIONS للـ CORS
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     console.log('🔍 جلب كتاب الرأي...');
     
     // التأكد من الاتصال بقاعدة البيانات
-    const isConnected = await ensureConnection();
+    // سيتم التحقق من الاتصال تلقائياً عند استخدام Prisma
     if (!isConnected) {
       return corsResponse({
         success: false,
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
   try {
     console.log('➕ إضافة كاتب رأي جديد...');
     
-    const isConnected = await ensureConnection();
+    // سيتم التحقق من الاتصال تلقائياً عند استخدام Prisma
     if (!isConnected) {
       return corsResponse({
         success: false,

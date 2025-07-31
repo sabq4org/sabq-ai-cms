@@ -31,7 +31,7 @@ const enhancedUrl = process.env.DATABASE_URL
   ? enhanceDatabaseUrl(process.env.DATABASE_URL)
   : process.env.DATABASE_URL;
 
-export const prisma = globalThis.__prisma ?? new PrismaClient({
+const prisma = globalThis.__prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   datasources: {
     db: {
@@ -105,7 +105,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // دالة اتصال محسنة
-export async function ensureConnection(): Promise<boolean> {
+async function ensureConnection(): Promise<boolean> {
   try {
     await prisma.$queryRaw`SELECT 1`
     return true
@@ -115,6 +115,6 @@ export async function ensureConnection(): Promise<boolean> {
   }
 }
 
-// التصدير الافتراضي للتوافق
+// التصدير
+export { prisma, ensureConnection };
 export default prisma;
-export { ensureConnection };

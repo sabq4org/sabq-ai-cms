@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, ensureConnection } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 
@@ -33,24 +33,10 @@ export async function GET(request: NextRequest) {
 
     // 1. اختبار الاتصال بقاعدة البيانات
     try {
-      const isConnected = await ensureConnection();
-      diagnostics.database.connected = isConnected;
-      diagnostics.database.connectionTest = isConnected ? 'success' : 'failed';
-      
-      if (!isConnected) {
-        diagnostics.issues.push({
-          type: 'critical',
-          category: 'database',
-          message: 'فشل الاتصال بقاعدة البيانات',
-          suggestion: 'تحقق من إعدادات قاعدة البيانات والشبكة'
-        });
-        
-        return NextResponse.json({
-          success: false,
-          diagnostics,
-          summary: 'فشل الاتصال بقاعدة البيانات'
-        }, { status: 503 });
-      }
+      // اختبار الاتصال بتشغيل استعلام بسيط
+      await prisma.$queryRaw`SELECT 1`;
+      diagnostics.database.connected = true;
+      diagnostics.database.connectionTest = 'success';
     } catch (dbError) {
       diagnostics.database.connectionTest = 'error';
       diagnostics.database.error = dbError instanceof Error ? dbError.message : 'خطأ غير معروف';

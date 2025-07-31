@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArticleUpdateDebugger, useArticleUpdateLogger } from '@/components/article/ArticleUpdateDebugger';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -75,7 +75,12 @@ export default function DebugUpdatePage() {
     }
   };
 
-  const logs = getUpdateLogs();
+  const [logs, setLogs] = useState<any[]>([]);
+
+  useEffect(() => {
+    // تحميل السجلات من localStorage فقط في جانب العميل
+    setLogs(getUpdateLogs());
+  }, [result, getUpdateLogs]); // تحديث السجلات عند تغيير النتيجة
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
@@ -154,7 +159,7 @@ export default function DebugUpdatePage() {
               size="sm"
               onClick={() => {
                 clearUpdateLogs();
-                window.location.reload();
+                setLogs([]);
               }}
             >
               مسح السجل

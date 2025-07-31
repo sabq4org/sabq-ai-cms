@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, ensureConnection } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { corsResponse } from '@/lib/cors';
 
 interface RouteParams {
@@ -20,7 +20,7 @@ export async function GET(
     const { id } = await params;
     console.log(`🔍 جلب بيانات الكاتب: ${id}`);
     
-    const isConnected = await ensureConnection();
+    // سيتم التحقق من الاتصال تلقائياً عند استخدام Prisma
     if (!isConnected) {
       return corsResponse({
         success: false,
@@ -106,7 +106,7 @@ export async function PUT(
     const { id } = await params;
     console.log(`📝 تحديث بيانات الكاتب: ${id}`);
     
-    const isConnected = await ensureConnection();
+    // سيتم التحقق من الاتصال تلقائياً عند استخدام Prisma
     if (!isConnected) {
       return corsResponse({
         success: false,
@@ -211,7 +211,7 @@ export async function DELETE(
     const { id } = await params;
     console.log(`🗑️ حذف الكاتب: ${id}`);
     
-    const isConnected = await ensureConnection();
+    // سيتم التحقق من الاتصال تلقائياً عند استخدام Prisma
     if (!isConnected) {
       return corsResponse({
         success: false,

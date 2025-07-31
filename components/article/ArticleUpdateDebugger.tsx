@@ -152,6 +152,8 @@ export function ArticleUpdateDebugger() {
  */
 export function useArticleUpdateLogger() {
   const logUpdateAttempt = (articleId: string, data: any, response: any, error?: any) => {
+    if (typeof window === 'undefined') return;
+    
     const logEntry = {
       timestamp: new Date().toISOString(),
       articleId,
@@ -182,10 +184,12 @@ export function useArticleUpdateLogger() {
   };
 
   const getUpdateLogs = () => {
+    if (typeof window === 'undefined') return [];
     return JSON.parse(localStorage.getItem('articleUpdateLogs') || '[]');
   };
 
   const clearUpdateLogs = () => {
+    if (typeof window === 'undefined') return;
     localStorage.removeItem('articleUpdateLogs');
     console.log('✅ تم مسح سجلات التحديث');
   };

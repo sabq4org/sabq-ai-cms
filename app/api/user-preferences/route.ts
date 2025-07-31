@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { prisma, ensureConnection } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 // دالة مساعدة لإضافة CORS headers
 function addCorsHeaders(response: NextResponse): NextResponse {
@@ -108,13 +108,7 @@ async function getUserFromToken(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // التأكد من الاتصال بقاعدة البيانات
-    const isConnected = await ensureConnection();
-    if (!isConnected) {
-      return corsResponse({
-        success: false,
-        error: 'فشل الاتصال بقاعدة البيانات'
-      }, 500);
-    }
+    // سيتم التحقق من الاتصال تلقائياً عند استخدام Prisma
 
     // الحصول على المستخدم
     const user = await getUserFromToken(request);
@@ -162,13 +156,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // التأكد من الاتصال بقاعدة البيانات
-    const isConnected = await ensureConnection();
-    if (!isConnected) {
-      return corsResponse({
-        success: false,
-        error: 'فشل الاتصال بقاعدة البيانات'
-      }, 500);
-    }
+    // سيتم التحقق من الاتصال تلقائياً عند استخدام Prisma
 
     // الحصول على المستخدم
     const user = await getUserFromToken(request);
@@ -230,13 +218,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // التأكد من الاتصال بقاعدة البيانات
-    const isConnected = await ensureConnection();
-    if (!isConnected) {
-      return corsResponse({
-        success: false,
-        error: 'فشل الاتصال بقاعدة البيانات'
-      }, 500);
-    }
+    // سيتم التحقق من الاتصال تلقائياً عند استخدام Prisma
 
     // الحصول على المستخدم
     const user = await getUserFromToken(request);
