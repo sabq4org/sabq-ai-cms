@@ -73,6 +73,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { FileUpload } from '@/components/ui/file-upload';
 
 interface TeamMember {
   id: string;
@@ -210,7 +211,7 @@ export default function TeamManagementPage() {
     setFormData({
       name: '',
       email: '',
-      role: '',
+      role: 'reporter', // قيمة افتراضية
       department: '',
       position: '',
       bio: '',
@@ -251,11 +252,19 @@ export default function TeamManagementPage() {
 
   const handleSaveMember = async () => {
     try {
+      // التحقق من البيانات المطلوبة
+      if (!formData.name || !formData.email || !formData.role) {
+        toast.error('الرجاء ملء جميع الحقول المطلوبة');
+        return;
+      }
+      
       const url = selectedMember 
         ? `/api/team-members/${selectedMember.id}`
         : '/api/team-members';
       
       const method = selectedMember ? 'PUT' : 'POST';
+      
+      console.log('📤 إرسال البيانات:', { url, method, formData });
       
       const response = await fetch(url, {
         method,
@@ -263,14 +272,20 @@ export default function TeamManagementPage() {
         body: JSON.stringify(formData)
       });
       
-      if (!response.ok) throw new Error('فشل في حفظ البيانات');
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'فشل في حفظ البيانات');
+      }
       
       toast.success(selectedMember ? 'تم تحديث العضو بنجاح' : 'تم إضافة العضو بنجاح');
       setIsAddModalOpen(false);
       setIsEditModalOpen(false);
+      setSelectedMember(null);
       fetchTeamMembers();
-    } catch (error) {
-      toast.error('فشل في حفظ البيانات');
+    } catch (error: any) {
+      console.error('❌ خطأ في حفظ العضو:', error);
+      toast.error(error.message || 'فشل في حفظ البيانات');
     }
   };
 
@@ -757,13 +772,23 @@ export default function TeamManagementPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="avatar">رابط الصورة الشخصية</Label>
-                <Input
-                  id="avatar"
+                <Label>الصورة الشخصية</Label>
+                <FileUpload
                   value={formData.avatar}
-                  onChange={(e) => handleInputChange('avatar', e.target.value)}
-                  placeholder="https://example.com/avatar.jpg"
+                  onChange={(url) => handleInputChange('avatar', url)}
+                  accept="image/*"
+                  maxSize={5 * 1024 * 1024}
+                  folder="team-members"
                 />
+                {formData.avatar && (
+                  <div className="mt-2">
+                    <img 
+                      src={formData.avatar} 
+                      alt="معاينة الصورة" 
+                      className="w-20 h-20 rounded-full object-cover"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
