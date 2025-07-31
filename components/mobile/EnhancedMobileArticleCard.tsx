@@ -205,7 +205,7 @@ export default function EnhancedMobileArticleCard({
     return (
       <div className="relative w-full overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] mb-4">
         <Link href={getArticleLink(article)} className="block relative">
-          <div className="relative w-full h-52 overflow-hidden">
+          <div className="relative w-full h-64 md:h-72 lg:h-80 overflow-hidden">
             <Image
               src={imageUrl}
               alt={article.title}
@@ -226,13 +226,16 @@ export default function EnhancedMobileArticleCard({
               </div>
             )}
 
-            {/* التدرج الداكن من الأسفل */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            {/* التدرج المحسن - ظلال من الأسفل تنتهي تدريجياً إلى ثلث الصورة */}
+            <div className="absolute inset-0" 
+                 style={{
+                   background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 25%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 70%, transparent 100%)'
+                 }} />
 
             {/* شارة "مميز" في الزاوية العلوية اليمنى */}
             {article.is_featured && (
-              <div className="absolute top-3 right-3 z-10">
-                <div className="bg-yellow-400 text-black text-[10px] font-semibold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 backdrop-blur-sm">
+              <div className="absolute top-4 right-4 z-20">
+                <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-xl flex items-center gap-1 backdrop-blur-sm">
                   <span className="text-xs">✨</span>
                   مميز
                 </div>
@@ -241,24 +244,25 @@ export default function EnhancedMobileArticleCard({
 
             {/* شارة عاجل إذا كانت موجودة */}
             {article.is_breaking && (
-              <div className="absolute top-3 left-3 z-10">
-                <div className="bg-red-500 text-white text-[10px] font-semibold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 backdrop-blur-sm animate-pulse">
-                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+              <div className="absolute top-4 left-4 z-20">
+                <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl flex items-center gap-1 backdrop-blur-sm animate-pulse">
+                  <span className="w-2 h-2 bg-white rounded-full animate-ping" />
                   عاجل
                 </div>
               </div>
             )}
 
-            {/* المحتوى النصي فوق التدرج */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 text-white z-10">
-              {/* التصنيف */}
+            {/* المحتوى النصي المحسن فوق الظلال */}
+            <div className="absolute bottom-0 left-0 right-0 p-5 text-white z-10">
+              {/* التصنيف مع تصميم محسن */}
               {article.category && (
-                <div className="mb-2">
+                <div className="mb-3">
                   <span 
-                    className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md font-medium border border-white/30"
+                    className="inline-block bg-white/25 backdrop-blur-md text-white text-sm px-3 py-1.5 rounded-lg font-semibold border border-white/40 shadow-lg"
                     style={{ 
-                      backgroundColor: `${article.category.color || '#3b82f6'}33`,
-                      borderColor: `${article.category.color || '#3b82f6'}66`
+                      backgroundColor: `${article.category.color || '#3b82f6'}40`,
+                      borderColor: `${article.category.color || '#3b82f6'}60`,
+                      boxShadow: `0 4px 12px ${article.category.color || '#3b82f6'}20`
                     }}
                   >
                     {article.category.name}
@@ -266,35 +270,47 @@ export default function EnhancedMobileArticleCard({
                 </div>
               )}
 
-              {/* العنوان */}
-              <h2 className="text-base md:text-lg font-bold text-white line-clamp-2 leading-tight mb-3 drop-shadow-lg">
+              {/* العنوان المحسن */}
+              <h2 className="text-xl md:text-2xl font-bold text-white line-clamp-2 leading-tight mb-4 drop-shadow-2xl"
+                  style={{
+                    textShadow: '0 2px 8px rgba(0,0,0,0.8), 0 0 16px rgba(0,0,0,0.6)'
+                  }}>
                 {article.title}
               </h2>
 
-              {/* معلومات الكاتب والتاريخ */}
-              <div className="flex items-center justify-between text-white/90 text-xs">
-                <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1">
-                    ✍️ {article.author?.name || article.author_name || 'كاتب مجهول'}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {formatDateShort(article.published_at || article.created_at)}
-                  </span>
+              {/* معلومات المراسل والتاريخ مع تصميم جميل */}
+              <div className="flex items-center justify-between text-white/95 text-sm backdrop-blur-sm bg-black/20 rounded-lg p-3 border border-white/20">
+                <div className="flex items-center gap-4">
+                  {/* المراسل */}
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                      <User className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="font-medium">{article.author?.name || article.author_name || 'كاتب مجهول'}</span>
+                  </div>
+                  
+                  {/* التاريخ */}
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
+                      <Clock className="w-3 h-3 text-white" />
+                    </div>
+                    <span>{formatDateShort(article.published_at || article.created_at)}</span>
+                  </div>
                 </div>
 
-                {/* إحصائيات */}
+                {/* إحصائيات جميلة */}
                 <div className="flex items-center gap-3">
                   {article.views_count > 0 && (
-                    <span className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 bg-white/20 rounded-full px-2 py-1">
                       <Eye className="w-3 h-3" />
-                      {article.views_count}
-                    </span>
+                      <span className="text-xs font-medium">{article.views_count}</span>
+                    </div>
                   )}
                   {article.reading_time && (
-                    <span className="flex items-center gap-1">
-                      ⏱️ {article.reading_time} دقيقة
-                    </span>
+                    <div className="flex items-center gap-1 bg-white/20 rounded-full px-2 py-1">
+                      <span className="text-xs">⏱️</span>
+                      <span className="text-xs font-medium">{article.reading_time} دقيقة</span>
+                    </div>
                   )}
                 </div>
               </div>
