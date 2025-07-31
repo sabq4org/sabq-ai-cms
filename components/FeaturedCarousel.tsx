@@ -52,10 +52,7 @@ const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ articles }) => {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  // سجلات تشخيصية
-  console.log('🎠 FeaturedCarousel - Articles:', articles);
-  console.log('🎠 Current Index:', currentIndex);
-  console.log('🎠 Articles Length:', articles?.length || 0);
+
 
   // التنقل التلقائي
   useEffect(() => {
@@ -130,33 +127,7 @@ const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ articles }) => {
             الأخبار المميزة
           </h2>
           
-          {/* أزرار التنقل للشاشات الكبيرة */}
-          {articles.length > 1 && (
-            <div className="hidden sm:flex items-center gap-2">
-              <button
-                onClick={goToPrevious}
-                className={`p-2 rounded-full transition-all ${
-                  darkMode 
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                }`}
-                aria-label="السابق"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-              <button
-                onClick={goToNext}
-                className={`p-2 rounded-full transition-all ${
-                  darkMode 
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                }`}
-                aria-label="التالي"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-            </div>
-          )}
+
         </div>
 
         {/* الكاروسيل */}
@@ -164,12 +135,13 @@ const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ articles }) => {
           {/* الشرائح */}
           <div 
             className="flex transition-transform duration-700 ease-in-out"
-            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+            style={{ transform: `translateX(${currentIndex * -100}%)` }}
           >
             {articles.map((article, index) => (
               <div
                 key={article.id}
                 className="w-full flex-shrink-0"
+                style={{ minWidth: '100%' }}
               >
                 <Link 
                   href={getArticleLink(article)}
@@ -300,78 +272,28 @@ const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ articles }) => {
             ))}
           </div>
 
-          {/* أزرار التنقل للموبايل */}
-          {articles.length > 1 && (
-            <>
-              <button
-                onClick={goToPrevious}
-                className={`sm:hidden absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all ${
-                  darkMode 
-                    ? 'bg-gray-800/80 hover:bg-gray-700 text-gray-300' 
-                    : 'bg-white/80 hover:bg-white text-gray-700'
-                } backdrop-blur-sm shadow-lg`}
-                aria-label="السابق"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-              <button
-                onClick={goToNext}
-                className={`sm:hidden absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all ${
-                  darkMode 
-                    ? 'bg-gray-800/80 hover:bg-gray-700 text-gray-300' 
-                    : 'bg-white/80 hover:bg-white text-gray-700'
-                } backdrop-blur-sm shadow-lg`}
-                aria-label="التالي"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-            </>
-          )}
+
         </div>
 
-        {/* المؤشرات */}
+        {/* المؤشرات - شرطات في الأسفل */}
         {articles.length > 1 && (
-          <div className="flex justify-center items-center gap-2 mt-4">
+          <div className="flex justify-center items-center gap-3 mt-6">
             {articles.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`transition-all ${
+                className={`transition-all duration-300 h-1 ${
                   index === currentIndex
-                    ? 'w-8 h-2 bg-blue-600 dark:bg-blue-400'
-                    : 'w-2 h-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
-                } rounded-full`}
+                    ? 'w-12 bg-blue-600 dark:bg-blue-400'
+                    : 'w-12 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                }`}
                 aria-label={`الانتقال إلى الخبر ${index + 1}`}
               />
             ))}
           </div>
         )}
 
-        {/* مؤشر التشغيل التلقائي */}
-        {articles.length > 1 && (
-          <div className="absolute top-4 left-4">
-            <button
-              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              className={`p-2 rounded-full transition-all ${
-                darkMode 
-                  ? 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-300' 
-                  : 'bg-white/50 hover:bg-white/70 text-gray-700'
-              } backdrop-blur-sm`}
-              aria-label={isAutoPlaying ? 'إيقاف التشغيل التلقائي' : 'تشغيل تلقائي'}
-            >
-              {isAutoPlaying ? (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              ) : (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              )}
-            </button>
-          </div>
-        )}
+
       </div>
     </div>
   );
