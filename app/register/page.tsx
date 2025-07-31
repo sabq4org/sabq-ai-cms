@@ -49,23 +49,57 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
+    
+    // إظهار رسالة تحميل
+    const loadingToast = toast.loading('جاري إنشاء حسابك...');
     setLoading(true);
+    
     try {
+      console.log('بدء عملية التسجيل:', {
+        name: formData.fullName,
+        email: formData.email,
+        passwordLength: formData.password.length
+      });
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // timeout بعد 30 ثانية
+      
       const response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           name: formData.fullName,
           email: formData.email,
           password: formData.password
-        })
+        }),
+        signal: controller.signal,
+        cache: 'no-store'
       });
+      
+      clearTimeout(timeoutId);
+      
+      console.log('استجابة API:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+      
       const data = await response.json();
+      console.log('بيانات الاستجابة:', data);
+      
       if (!response.ok) {
-        throw new Error(data.error || 'فشل التسجيل');
+        throw new Error(data.error || data.message || 'فشل التسجيل');
       }
+      
+      // إلغاء رسالة التحميل
+      toast.dismiss(loadingToast);
+      
       // حفظ بيانات المستخدم في localStorage
       localStorage.setItem('user', JSON.stringify(data.user));
+      
       if (data.requiresVerification) {
         toast.success('تم إنشاء حسابك! يرجى التحقق من بريدك الإلكتروني');
         // توجيه إلى صفحة التحقق من البريد
@@ -75,8 +109,17 @@ export default function RegisterPage() {
         // توجيه إلى صفحة اختيار الاهتمامات
         router.push('/welcome/preferences');
       }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'حدث خطأ في التسجيل');
+    } catch (error: any) {
+      // إلغاء رسالة التحميل
+      toast.dismiss(loadingToast);
+      
+      console.error('خطأ في التسجيل:', error);
+      
+      if (error.name === 'AbortError') {
+        toast.error('انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.');
+      } else {
+        toast.error(error instanceof Error ? error.message : 'حدث خطأ في التسجيل');
+      }
     } finally {
       setLoading(false);
     }

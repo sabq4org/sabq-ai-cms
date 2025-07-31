@@ -1,16 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { sendVerificationEmail, generateVerificationCode } from '@/lib/email';
 import { getCorrectEmailConfig } from '@/lib/email-config-fix';
 import crypto from 'crypto';
+
+// تعطيل التخزين المؤقت
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 
 export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   try {
+    console.log('🔄 بدء معالجة طلب التسجيل');
+    
+    // التأكد من الاتصال بقاعدة البيانات
+    try {
+      await prisma.$connect();
+      console.log('✅ تم الاتصال بقاعدة البيانات بنجاح');
+    } catch (connectError) {
+      console.error('❌ خطأ في الاتصال بقاعدة البيانات:', connectError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'فشل الاتصال بقاعدة البيانات',
+          details: connectError instanceof Error ? connectError.message : 'خطأ غير معروف'
+        },
+        { status: 500 }
+      );
+    }
+    
     const body = await request.json();
+    console.log('📝 بيانات الطلب:', { ...body, password: '******' });
+    
     const { name, email, password } = body;
 
     // التحقق من البيانات المطلوبة
@@ -121,18 +145,37 @@ export async function POST(request: Request) {
         : 'تم إنشاء الحساب بنجاح',
       user: userWithoutPassword,
       requiresVerification: true
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate'
+      }
     });
     
   } catch (error) {
-    console.error('خطأ في التسجيل:', error);
+    console.error('❌ خطأ في التسجيل:', error);
     return NextResponse.json(
       { 
         success: false, 
         error: 'حدث خطأ في عملية التسجيل',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, no-cache, must-revalidate'
+        }
+      }
     );
+  } finally {
+    // التأكد من إغلاق اتصال قاعدة البيانات
+    try {
+      await prisma.$disconnect();
+      console.log('✅ تم إغلاق اتصال قاعدة البيانات بنجاح');
+    } catch (disconnectError) {
+      console.error('❌ خطأ في إغلاق اتصال قاعدة البيانات:', disconnectError);
+    }
   }
 }
 

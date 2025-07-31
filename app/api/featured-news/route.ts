@@ -6,6 +6,21 @@ export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من الاتصال بقاعدة البيانات
+    try {
+      await prisma.$connect();
+    } catch (connectError) {
+      console.error('❌ خطأ في الاتصال بقاعدة البيانات:', connectError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'فشل الاتصال بقاعدة البيانات',
+          details: connectError instanceof Error ? connectError.message : 'خطأ غير معروف'
+        },
+        { status: 500 }
+      );
+    }
+    
     // البحث عن الخبر المميز الأحدث
     const featuredArticle = await prisma.articles.findFirst({
       where: {
