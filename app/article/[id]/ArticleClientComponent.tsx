@@ -228,10 +228,11 @@ export default function ArticleClientComponent({
       <ReadingProgressBar />
       
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-[56px] sm:pt-[64px]">
-        {/* Container موحد لجميع العناصر */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-          {/* رأس المقال */}
-          <header className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 lg:p-8">
+        {/* منطقة المحتوى الرئيسية */}
+        <div className="relative">
+          <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+            {/* رأس المقال بخلفية شفافة بدون إطار */}
+            <header className="mb-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 sm:p-6 lg:p-8 relative z-10">
             {/* التصنيف - محاذاة لليمين */}
             {article.category && (
               <div className="flex justify-end mb-4">
@@ -301,49 +302,50 @@ export default function ArticleClientComponent({
             </div>
             </header>
 
-          {/* صورة المقال */}
-          {article.featured_image && (
-            <div className="mb-8">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-                <ArticleFeaturedImage
-                  imageUrl={article.featured_image}
-                  title={article.title}
-                  category={article.category}
-                />
+            {/* صورة المقال */}
+            {article.featured_image && (
+              <div className="mb-8">
+                <div className="-mx-4 sm:mx-0">
+                  <ArticleFeaturedImage
+                    imageUrl={article.featured_image}
+                    title={article.title}
+                    category={article.category}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </article>
+        </div>
+
+        {/* منطقة المحتوى */}
+        <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
 
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-              <ArticleAISummary
-                articleId={article.id}
-                title={article.title || 'مقال بدون عنوان'}
-                content={article.content || ''}
-                existingSummary={article.ai_summary || article.summary || article.excerpt || ''}
-                className=""
-              />
-            </div>
+            <ArticleAISummary
+              articleId={article.id}
+              title={article.title || 'مقال بدون عنوان'}
+              content={article.content || ''}
+              existingSummary={article.ai_summary || article.summary || article.excerpt || ''}
+              className="shadow-lg"
+            />
           </div>
 
           {/* شريط التفاعل الذكي */}
           <div className="mb-6 sm:mb-8">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
-              <SmartInteractionButtons 
-                articleId={article.id}
-                initialStats={{
-                  likes: article.likes || article.stats?.likes || 0,
-                  saves: article.saves || article.stats?.saves || 0,
-                  shares: article.shares || article.stats?.shares || 0,
-                  comments: article.comments_count || 0
-                }}
-                onComment={() => {
-                  // تم إزالة قسم التعليقات
-                  console.log('تم النقر على التعليقات');
-                }}
-              />
-            </div>
+            <SmartInteractionButtons 
+              articleId={article.id}
+              initialStats={{
+                likes: article.likes || article.stats?.likes || 0,
+                saves: article.saves || article.stats?.saves || 0,
+                shares: article.shares || article.stats?.shares || 0,
+                comments: article.comments_count || 0
+              }}
+              onComment={() => {
+                // تم إزالة قسم التعليقات
+                console.log('تم النقر على التعليقات');
+              }}
+            />
           </div>
 
           {/* الكلمات المفتاحية */}
@@ -383,14 +385,12 @@ export default function ArticleClientComponent({
 
           {/* محتوى المقال */}
           <div className="mb-12">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 lg:p-8">
-              <div 
-                className={`prose max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-relaxed prose-img:rounded-lg prose-img:shadow-lg ${
-                  isReading ? 'prose-xl' : 'prose-lg'
-                }`}
-                dangerouslySetInnerHTML={{ __html: contentHtml }}
-              />
-            </div>
+            <div 
+              className={`prose max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-relaxed prose-img:rounded-lg prose-img:shadow-lg ${
+                isReading ? 'prose-xl' : 'prose-lg'
+              }`}
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+            />
           </div>
           
           {/* إحصائيات المقال */}
@@ -420,7 +420,7 @@ export default function ArticleClientComponent({
               userId={undefined} // يمكن تمرير معرف المستخدم عند التسجيل
             />
           </div>
-        </div>
+        </article>
       </main>
       
       <Footer />
