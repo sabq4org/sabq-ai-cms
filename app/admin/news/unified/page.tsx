@@ -591,7 +591,6 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         category_id: formData.categoryId,
         author_id: formData.authorId,
         status,
-        external_link: formData.externalLink || null,
         // حقول SEO مباشرة
         seo_title: formData.seoTitle || null,
         seo_description: formData.seoDescription || null,
@@ -604,7 +603,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           keywords: formData.keywords,
           is_featured: formData.isFeatured,
           is_breaking: formData.isBreaking,
-          gallery: formData.gallery || []
+          gallery: formData.gallery || [],
+          external_link: formData.externalLink || null
         },
         ...(status === 'published' && formData.publishType === 'scheduled' && formData.scheduledDate && {
           scheduled_for: formData.scheduledDate

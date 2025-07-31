@@ -257,13 +257,12 @@ export async function PATCH(
     // نسخ الحقول المسموح بها فقط
     const allowedFields = [
       'title', 'content', 'excerpt',
-      'author_id', 'category_id',
       'featured_image',
       'status', 'metadata', 'published_at',
       'seo_title', 'seo_description', 'seo_keywords',
-      'breaking', 'external_link'
+      'breaking'
       // 'featured' تمت إزالته من هنا وسيتم معالجته بشكل خاص
-      // الحقول غير الموجودة في schema: subtitle, type, image_caption, author_name, publish_at
+      // الحقول غير الموجودة في schema: subtitle, type, image_caption, author_name, publish_at, external_link
     ]
     
     console.log('📋 الحقول المستلمة:', Object.keys(data));
@@ -274,6 +273,21 @@ export async function PATCH(
         updateData[field] = data[field]
         console.log(`✅ تم نسخ الحقل ${field}:`, data[field]);
       }
+    }
+    
+    // معالجة خاصة للعلاقات (author و category)
+    if (data.author_id) {
+      updateData.author = {
+        connect: { id: data.author_id }
+      }
+      console.log(`✅ تم ربط المؤلف: ${data.author_id}`);
+    }
+    
+    if (data.category_id) {
+      updateData.categories = {
+        connect: { id: data.category_id }
+      }
+      console.log(`✅ تم ربط التصنيف: ${data.category_id}`);
     }
     
     // معالجة خاصة لحقل featured - نحفظه مؤقتاً ونعالجه بعد التحديث
