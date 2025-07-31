@@ -496,7 +496,7 @@ export default function MobileArticleEditor() {
                 <div className="space-y-4">
                   {article.category && (
                     <Badge className="bg-blue-500 text-white">
-                      {article.category}
+                      {typeof article.category === 'string' ? article.category : article.category?.name || 'عام'}
                     </Badge>
                   )}
                   

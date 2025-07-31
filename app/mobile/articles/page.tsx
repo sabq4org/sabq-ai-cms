@@ -320,7 +320,7 @@ export default function MobileArticlesPage() {
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-1">
                           <User className="w-3 h-3" />
-                          <span>{article.author}</span>
+                          <span>{typeof article.author === 'string' ? article.author : article.author?.name || 'غير محدد'}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
@@ -328,7 +328,7 @@ export default function MobileArticlesPage() {
                         </div>
                       </div>
                       <Badge variant="outline" className="text-xs">
-                        {article.category}
+                                                  {typeof article.category === 'string' ? article.category : article.category?.name || 'عام'}
                       </Badge>
                     </div>
 

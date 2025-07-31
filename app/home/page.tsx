@@ -244,7 +244,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-sm">
               <span className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {article.author}
+                {typeof article.author === 'string' ? article.author : article.author?.name || 'غير محدد'}
               </span>
               <span className={`flex items-center gap-1 ${
                 darkMode ? 'text-gray-400' : 'text-gray-500'

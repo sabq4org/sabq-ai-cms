@@ -605,7 +605,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
                           <div className="flex items-center gap-2 mt-2">
                             {article.category && (
                               <Badge variant="outline" className="text-xs">
-                                {article.category}
+                                {typeof article.category === 'string' ? article.category : article.category?.name || 'عام'}
                               </Badge>
                             )}
                             {article.views > 1000 && (
@@ -658,7 +658,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
                       <div className="flex items-center gap-2">
                         <User className={`h-4 w-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                         <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {article.author}
+                          {typeof article.author === 'string' ? article.author : article.author?.name || 'غير محدد'}
                         </span>
                       </div>
                     </td>

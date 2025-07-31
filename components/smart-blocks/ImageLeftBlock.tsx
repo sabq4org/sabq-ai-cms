@@ -102,7 +102,7 @@ export const ImageLeftBlock: React.FC<ImageLeftBlockProps> = ({ block, articles 
                       style={{ color: block.theme.primaryColor }}
                     >
                       <Tag className="w-3 h-3" />
-                      <span className="font-medium">{article.category}</span>
+                      <span className="font-medium">{typeof article.category === 'string' ? article.category : article.category?.name || 'عام'}</span>
                     </div>
                   )}
 

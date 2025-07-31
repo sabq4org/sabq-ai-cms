@@ -398,7 +398,7 @@ export default function MyJourneyPage() {
                     </h4>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-600 dark:text-gray-400">
-                        {article.category}
+                        {typeof article.category === 'string' ? article.category : article.category?.name || 'عام'}
                       </span>
                       <span className="text-xs text-teal-600 dark:text-teal-400">
                         {article.matchReason}

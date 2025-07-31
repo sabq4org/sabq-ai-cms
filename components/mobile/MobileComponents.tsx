@@ -139,7 +139,7 @@ export function MobileArticleCard({
           />
           <div className="absolute top-3 right-3">
             <Badge className="bg-blue-500 text-white">
-              {article.category}
+              {typeof article.category === 'string' ? article.category : article.category?.name || 'عام'}
             </Badge>
           </div>
         </div>
@@ -164,7 +164,7 @@ export function MobileArticleCard({
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
               <User className="w-3 h-3" />
-              <span>{article.author}</span>
+              <span>{typeof article.author === 'string' ? article.author : article.author?.name || 'غير محدد'}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock className="w-3 h-3" />

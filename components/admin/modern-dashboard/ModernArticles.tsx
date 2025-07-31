@@ -285,7 +285,7 @@ export default function ModernArticles() {
                     {/* التصنيف والعلامات */}
                     <div className="flex items-center gap-2 mb-3">
                       <Badge variant="outline" className="text-xs">
-                        {article.category}
+                        {typeof article.category === 'string' ? article.category : article.category?.name || 'عام'}
                       </Badge>
                       {article.tags.slice(0, 2).map((tag) => (
                         <Badge key={tag} variant="secondary" className="text-xs">
@@ -298,7 +298,7 @@ export default function ModernArticles() {
                     <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                       <div className="flex items-center gap-2">
                         <User className="h-3 w-3" />
-                        <span>{article.author}</span>
+                        <span>{typeof article.author === 'string' ? article.author : article.author?.name || 'غير محدد'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-3 w-3" />

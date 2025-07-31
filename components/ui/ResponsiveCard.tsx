@@ -124,7 +124,7 @@ export default function ResponsiveCard({
         )}
         {article.category && (
           <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs z-10">
-            {article.category}
+            {typeof article.category === 'string' ? article.category : article.category?.name || 'عام'}
           </div>
         )}
       </div>
