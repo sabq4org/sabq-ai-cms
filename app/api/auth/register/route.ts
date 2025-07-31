@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { sendVerificationEmail, generateVerificationCode } from '@/lib/email';
+import { getCorrectEmailConfig } from '@/lib/email-config-fix';
 import crypto from 'crypto';
 
 
@@ -85,10 +86,18 @@ export async function POST(request: Request) {
     });
 
     // إرسال بريد التحقق
-    const emailSent = await sendVerificationEmail(email, name, verificationCode);
-    
-    if (!emailSent) {
-      console.warn('⚠️ تحذير: فشل إرسال بريد التحقق');
+    try {
+      console.log('📧 جاري إرسال بريد التحقق إلى:', email);
+      const emailSent = await sendVerificationEmail(email, name, verificationCode);
+      
+      if (!emailSent) {
+        console.warn('⚠️ تحذير: فشل إرسال بريد التحقق');
+      } else {
+        console.log('✅ تم إرسال بريد التحقق بنجاح');
+      }
+    } catch (emailError) {
+      console.error('❌ خطأ في إرسال بريد التحقق:', emailError);
+      // لا نريد إيقاف عملية التسجيل إذا فشل إرسال البريد
     }
 
     // إنشاء نقاط ولاء أولية (50 نقطة ترحيبية)
