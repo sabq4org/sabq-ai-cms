@@ -80,35 +80,31 @@ export async function GET(request: NextRequest) {
 
     // جلب المقالات مع العد بشكل متوازي
     const [articles, totalCount] = await Promise.all([
-      dbConnectionManager.executeWithConnection(async () => {
-        return await prisma.articles.findMany({
-          where,
-          skip,
-          take: limit,
-          orderBy,
-          include: {
-            categories: {
-              select: {
-                id: true,
-                name: true,
-                slug: true
-              }
-            },
-            author: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                avatar: true
-              }
+      prisma.articles.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy,
+        include: {
+          categories: {
+            select: {
+              id: true,
+              name: true,
+              slug: true
+            }
+          },
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatar: true
             }
           }
-        });
+        }
       }),
       
-      dbConnectionManager.executeWithConnection(async () => {
-        return await prisma.articles.count({ where });
-      })
+      prisma.articles.count({ where })
     ]);
 
     // إضافة معلومات إضافية
