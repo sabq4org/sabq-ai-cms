@@ -537,7 +537,7 @@ export default function AdminNewsPage() {
                                     <span className="font-medium">عرض المقال</span>
                                   </DropdownMenuItem>
                                   
-                                  <DropdownMenuItem onClick={() => router.push(`/dashboard/article/edit/${article.id}`)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                  <DropdownMenuItem onClick={() => router.push(`/admin/articles/${article.id}/edit`)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
                                     <Edit className="w-4 h-4 ml-3 text-yellow-600 dark:text-yellow-400" />
                                     <span className="font-medium">تعديل المقال</span>
                                   </DropdownMenuItem>
