@@ -164,8 +164,28 @@ export function getArticleLink(article: any): string {
     return '/'; // إرجاع رابط احتياطي آمن
   }
 
-  // استخدام معرف فريد آمن بدلاً من slug عربي
-  const identifier = getArticleIdentifier(article);
+  // استخدام العنوان العربي كـ slug إذا كان موجوداً
+  let identifier: string;
+  
+  // أولاً: التحقق من وجود slug عربي
+  if (article.slug && /[\u0600-\u06FF]/.test(article.slug)) {
+    // استخدام slug العربي الموجود
+    identifier = article.slug;
+  } 
+  // ثانياً: إذا كان العنوان موجوداً، حوله إلى slug عربي
+  else if (article.title) {
+    // تحويل العنوان إلى slug عربي متوافق مع URL
+    identifier = article.title
+      .trim()
+      .replace(/\s+/g, '-') // استبدال المسافات بشرطات
+      .replace(/[^\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\-]/g, '') // إزالة الرموز غير المسموح بها
+      .replace(/-+/g, '-') // دمج الشرطات المتعددة
+      .replace(/^-|-$/g, ''); // إزالة الشرطات من البداية والنهاية
+  }
+  // ثالثاً: استخدام المعرف الإنجليزي كخيار احتياطي
+  else {
+    identifier = getArticleIdentifier(article);
+  }
   
   if (!identifier) {
     console.warn('getArticleLink: Could not generate identifier. Returning fallback link.', { article });

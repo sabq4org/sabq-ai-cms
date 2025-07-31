@@ -1,149 +1,91 @@
-#!/usr/bin/env node
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-/**
- * سكريبت للتحقق من روابط المقالات في جميع المكونات
- * يتأكد من عدم استخدام slugs عربية في الروابط
- */
-
-const fs = require('fs');
-const path = require('path');
-const glob = require('glob');
-
-console.log('🔍 فحص روابط المقالات في المشروع...\n');
-
-// أنماط البحث عن الروابط
-const patterns = [
-  // روابط مباشرة
-  /href=\{[`"']\/article\/\$\{([^}]+)\}[`"']\}/g,
-  /href=\{[`"']\/opinion\/\$\{([^}]+)\}[`"']\}/g,
-  /href=\{[`"']\/news\/\$\{([^}]+)\}[`"']\}/g,
-  /href=\{[`"']\/الأخبار\/\$\{([^}]+)\}[`"']\}/g,
-  
-  // استخدام template literals
-  /href=\{`\/article\/\$\{([^}]+)\}`\}/g,
-  /href=\{`\/opinion\/\$\{([^}]+)\}`\}/g,
-  /href=\{`\/news\/\$\{([^}]+)\}`\}/g,
-  /href=\{`\/الأخبار\/\$\{([^}]+)\}`\}/g,
-  
-  // استخدام دوال
-  /href=\{getArticleLink\(([^)]+)\)\}/g,
-  /href=\{getNewsLink\(([^)]+)\)\}/g,
-  
-  // Next.js Link component
-  /<Link\s+href=\{[`"']\/article\/\$\{([^}]+)\}[`"']\}/g,
-  /<Link\s+href=\{[`"']\/opinion\/\$\{([^}]+)\}[`"']\}/g,
-  /<Link\s+href=\{[`"']\/news\/\$\{([^}]+)\}[`"']\}/g,
-  /<Link\s+href=\{[`"']\/الأخبار\/\$\{([^}]+)\}[`"']\}/g,
-];
-
-// الملفات المطلوب فحصها
-const filesToCheck = glob.sync('**/*.{tsx,jsx,ts,js}', {
-  ignore: [
-    'node_modules/**',
-    '.next/**',
-    'build/**',
-    'dist/**',
-    'scripts/**',
-    '*.test.*',
-    '*.spec.*'
-  ]
-});
-
-let totalIssues = 0;
-const issues = [];
-
-filesToCheck.forEach(file => {
-  const content = fs.readFileSync(file, 'utf8');
-  let fileIssues = [];
-  
-  patterns.forEach(pattern => {
-    let match;
-    while ((match = pattern.exec(content)) !== null) {
-      const fullMatch = match[0];
-      const identifier = match[1];
-      
-      // تحقق من نوع المعرف المستخدم
-      let issueType = null;
-      
-      if (fullMatch.includes('/الأخبار/')) {
-        issueType = 'مسار عربي';
-      } else if (fullMatch.includes('/news/')) {
-        issueType = 'مسار قديم /news/';
-      } else if (identifier && identifier.includes('.slug') && !identifier.includes('getArticleLink')) {
-        issueType = 'استخدام slug مباشر';
-      } else if (identifier && identifier.includes('.title')) {
-        issueType = 'استخدام العنوان كمعرف';
-      }
-      
-      if (issueType) {
-        fileIssues.push({
-          line: content.substring(0, match.index).split('\n').length,
-          match: fullMatch,
-          identifier: identifier,
-          type: issueType
-        });
-      }
-    }
-  });
-  
-  if (fileIssues.length > 0) {
-    issues.push({
-      file: file,
-      issues: fileIssues
+async function checkArticleLinks() {
+  try {
+    console.log('🔍 فحص روابط المقالات الحالية...\n');
+    
+    // جلب عينة من المقالات المنشورة
+    const articles = await prisma.articles.findMany({
+      where: {
+        status: 'published'
+      },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        categories: {
+          select: {
+            name: true,
+            slug: true
+          }
+        }
+      },
+      orderBy: {
+        published_at: 'desc'
+      },
+      take: 10
     });
-    totalIssues += fileIssues.length;
+    
+    console.log(`📊 عرض آخر ${articles.length} مقالات منشورة:\n`);
+    
+    articles.forEach((article, index) => {
+      console.log(`${index + 1}. ${article.title}`);
+      console.log(`   ID: ${article.id}`);
+      console.log(`   Slug الحالي: ${article.slug || 'لا يوجد'}`);
+      console.log(`   التصنيف: ${article.categories?.name || 'غير محدد'}`);
+      
+      // عرض الروابط المختلفة
+      console.log(`   الروابط المحتملة:`);
+      console.log(`   - باستخدام ID: /article/${article.id}`);
+      console.log(`   - باستخدام Slug: /article/${article.slug || article.id}`);
+      
+      // توليد slug عربي من العنوان
+      const arabicSlug = article.title
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^\u0600-\u06FF\u0750-\u077Fa-zA-Z0-9\-]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      
+      console.log(`   - Slug عربي مقترح: /article/${arabicSlug}`);
+      console.log('\n');
+    });
+    
+    // إحصائيات عن الـ slugs
+    const totalArticles = await prisma.articles.count({
+      where: { status: 'published' }
+    });
+    
+    const articlesWithSlug = await prisma.articles.count({
+      where: {
+        status: 'published',
+        slug: { not: null },
+        slug: { not: '' }
+      }
+    });
+    
+    const articlesWithArabicSlug = await prisma.$queryRaw`
+      SELECT COUNT(*) as count 
+      FROM articles 
+      WHERE status = 'published' 
+      AND slug IS NOT NULL 
+      AND slug != ''
+      AND slug ~ '[\\u0600-\\u06FF]'
+    `;
+    
+    console.log('📊 إحصائيات الـ Slugs:');
+    console.log(`- إجمالي المقالات المنشورة: ${totalArticles}`);
+    console.log(`- المقالات التي لديها slug: ${articlesWithSlug}`);
+    console.log(`- المقالات التي لديها slug عربي: ${articlesWithArabicSlug[0]?.count || 0}`);
+    console.log(`- المقالات بدون slug: ${totalArticles - articlesWithSlug}`);
+    
+  } catch (error) {
+    console.error('❌ خطأ:', error);
+  } finally {
+    await prisma.$disconnect();
   }
-});
-
-// عرض النتائج
-if (totalIssues === 0) {
-  console.log('✅ ممتاز! لم يتم العثور على مشاكل في روابط المقالات.\n');
-} else {
-  console.log(`⚠️  تم العثور على ${totalIssues} مشكلة محتملة:\n`);
-  
-  issues.forEach(({ file, issues }) => {
-    console.log(`\n📄 ${file}:`);
-    issues.forEach(issue => {
-      console.log(`   السطر ${issue.line}: ${issue.type}`);
-      console.log(`   ${issue.match}`);
-      if (issue.identifier) {
-        console.log(`   المعرف المستخدم: ${issue.identifier}`);
-      }
-      console.log('');
-    });
-  });
-  
-  console.log('\n💡 التوصيات:');
-  console.log('1. استخدم دالة getArticleLink() من lib/utils بدلاً من بناء الروابط يدوياً');
-  console.log('2. استخدم article.id بدلاً من article.slug');
-  console.log('3. تجنب استخدام المسارات العربية مثل /الأخبار/');
-  console.log('4. استخدم /article/ بدلاً من /news/ للمقالات الجديدة');
 }
 
-// فحص استخدام getArticleLink
-console.log('\n📊 إحصائيات استخدام getArticleLink:');
-let getArticleLinkCount = 0;
-let directLinkCount = 0;
-
-filesToCheck.forEach(file => {
-  const content = fs.readFileSync(file, 'utf8');
-  
-  const getArticleLinkMatches = content.match(/getArticleLink\(/g);
-  if (getArticleLinkMatches) {
-    getArticleLinkCount += getArticleLinkMatches.length;
-  }
-  
-  const directLinkMatches = content.match(/href=\{[`"']\/article\/\$\{/g);
-  if (directLinkMatches) {
-    directLinkCount += directLinkMatches.length;
-  }
-});
-
-console.log(`- استخدام getArticleLink: ${getArticleLinkCount} مرة`);
-console.log(`- روابط مباشرة: ${directLinkCount} مرة`);
-
-if (directLinkCount > 0) {
-  console.log('\n⚡ نصيحة: يفضل استخدام getArticleLink() لضمان توحيد طريقة بناء الروابط');
-}
-
-console.log('\n✨ انتهى الفحص!');
+// تشغيل الفحص
+checkArticleLinks();
