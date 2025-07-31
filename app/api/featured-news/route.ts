@@ -42,9 +42,10 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: {
-        published_at: 'desc'
-      }
+      orderBy: [
+        { updated_at: 'desc' },
+        { published_at: 'desc' }
+      ]
     });
 
     if (!featuredArticle) {

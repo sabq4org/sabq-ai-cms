@@ -219,12 +219,38 @@ export async function PATCH(
       'featured_image', 'image_caption',
       'status', 'metadata', 'publish_at',
       'seo_title', 'seo_description', 'seo_keywords',
-      'featured', 'breaking', 'external_link'
+      'breaking', 'external_link'
+      // 'featured' تمت إزالته من هنا وسيتم معالجته بشكل خاص
     ]
     
     for (const field of allowedFields) {
       if (data[field] !== undefined) {
         updateData[field] = data[field]
+      }
+    }
+    
+    // معالجة خاصة لحقل featured
+    if (data.featured !== undefined) {
+      updateData.featured = data.featured
+      
+      // إذا كان المطلوب هو تعيين المقال كمميز، فنقوم بإلغاء التمييز عن الأخبار الأخرى
+      if (data.featured === true) {
+        try {
+          await dbConnectionManager.executeWithConnection(async () => {
+            return await prisma.articles.updateMany({
+              where: {
+                featured: true,
+                id: { not: id }
+              },
+              data: {
+                featured: false
+              }
+            })
+          })
+          console.log('✅ تم إلغاء التمييز عن الأخبار الأخرى')
+        } catch (error) {
+          console.error('❌ خطأ في إلغاء التمييز عن الأخبار الأخرى:', error)
+        }
       }
     }
     

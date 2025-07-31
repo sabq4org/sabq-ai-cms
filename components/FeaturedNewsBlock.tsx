@@ -60,23 +60,43 @@ const FeaturedNewsBlock: React.FC = () => {
   const fetchFeaturedNews = async () => {
     try {
       setLoading(true);
+      
+      // إنشاء controller للتحكم في timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // timeout بعد 10 ثوان
+      
       const response = await fetch('/api/featured-news', {
         cache: 'no-store',
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
+      
       const data = await response.json();
       
       if (data.success && data.article) {
         setFeaturedArticle(data.article);
+        setError(null); // مسح أي أخطاء سابقة
       } else {
+        console.log('لا يوجد خبر مميز متاح:', data.message);
         setFeaturedArticle(null);
       }
     } catch (error: any) {
       console.error('خطأ في جلب الخبر المميز:', error);
-      setError('فشل في تحميل الخبر المميز');
+      
+      // التحقق إذا كان الخطأ بسبب timeout
+      if (error.name === 'AbortError') {
+        setError('انتهت مهلة الاتصال. جاري إعادة المحاولة...');
+        // إعادة المحاولة بعد 3 ثوان
+        setTimeout(fetchFeaturedNews, 3000);
+      } else {
+        setError('فشل في تحميل الخبر المميز');
+      }
     } finally {
       setLoading(false);
     }

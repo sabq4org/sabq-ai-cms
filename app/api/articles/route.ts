@@ -212,6 +212,23 @@ export async function POST(request: NextRequest) {
     
     console.log('📝 بيانات المقال المنقاة:', articleData);
     
+    // إذا كان المقال مميزاً، نقوم بإلغاء التمييز عن الأخبار الأخرى
+    if (articleData.featured === true) {
+      try {
+        await prisma.articles.updateMany({
+          where: {
+            featured: true
+          },
+          data: {
+            featured: false
+          }
+        });
+        console.log('✅ تم إلغاء التمييز عن الأخبار الأخرى قبل إنشاء الخبر المميز الجديد');
+      } catch (error) {
+        console.error('❌ خطأ في إلغاء التمييز عن الأخبار الأخرى:', error);
+      }
+    }
+    
     const article = await prisma.articles.create({
       data: articleData
     })
