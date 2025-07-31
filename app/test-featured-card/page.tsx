@@ -1,10 +1,13 @@
 'use client';
 
 import React from 'react';
-import FeaturedMobileCard from '@/components/mobile/FeaturedMobileCard';
-import MobileCard from '@/components/mobile/MobileCard';
-import EnhancedMobileArticleCard from '@/components/mobile/EnhancedMobileArticleCard';
-import { DarkModeProvider } from '@/contexts/DarkModeContext';
+import dynamic from 'next/dynamic';
+
+// Dynamic imports to avoid SSR issues
+const FeaturedMobileCard = dynamic(() => import('@/components/mobile/FeaturedMobileCard'), { ssr: false });
+const MobileCard = dynamic(() => import('@/components/mobile/MobileCard'), { ssr: false });
+const EnhancedMobileArticleCard = dynamic(() => import('@/components/mobile/EnhancedMobileArticleCard'), { ssr: false });
+const DarkModeProvider = dynamic(() => import('@/contexts/DarkModeContext').then(mod => ({ default: mod.DarkModeProvider })), { ssr: false });
 
 const sampleArticles = [
   {

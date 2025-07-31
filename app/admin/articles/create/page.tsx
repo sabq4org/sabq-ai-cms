@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { 
@@ -72,7 +72,7 @@ export default function CreateArticlePage() {
   const [categories, setCategories] = useState<any[]>([]);
 
   // جلب التصنيفات
-  useState(() => {
+  useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await fetch('/api/categories');

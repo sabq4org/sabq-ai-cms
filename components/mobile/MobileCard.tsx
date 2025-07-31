@@ -4,7 +4,7 @@ import React from 'react';
 import { formatDateShort } from '@/lib/date-utils';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, Eye, Share2, Bookmark, MessageSquare } from 'lucide-react';
+import { Clock, Eye, Share2, Bookmark, MessageSquare, Star } from 'lucide-react';
 import { getArticleLink } from '@/lib/utils';
 
 interface MobileCardProps {
