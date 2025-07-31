@@ -315,7 +315,7 @@ export default function AdminNewsPage() {
               </p>
             </div>
             
-            <Link href="/dashboard/news/unified">
+            <Link href="/admin/news/unified">
               <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600" size="lg">
                 <Plus className="w-5 h-5 ml-2" />
                 مقال جديد
@@ -537,7 +537,7 @@ export default function AdminNewsPage() {
                                     <span className="font-medium">عرض المقال</span>
                                   </DropdownMenuItem>
                                   
-                                  <DropdownMenuItem onClick={() => router.push(`/admin/articles/${article.id}/edit`)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                  <DropdownMenuItem onClick={() => router.push(`/admin/news/unified?id=${article.id}`)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
                                     <Edit className="w-4 h-4 ml-3 text-yellow-600 dark:text-yellow-400" />
                                     <span className="font-medium">تعديل المقال</span>
                                   </DropdownMenuItem>

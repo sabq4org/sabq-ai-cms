@@ -4,6 +4,21 @@ import type { NextRequest } from 'next/server';
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   
+  // إعادة توجيه من dashboard إلى admin
+  if (pathname.startsWith('/dashboard/')) {
+    const url = req.nextUrl.clone();
+    // معالجة خاصة لصفحة unified
+    if (pathname === '/dashboard/news/unified' || pathname.startsWith('/dashboard/news/unified?')) {
+      url.pathname = '/admin/news/unified';
+    } else {
+      // التحويل العام
+      url.pathname = pathname
+        .replace('/dashboard/', '/admin/')
+        .replace('/article/', '/articles/');
+    }
+    return NextResponse.redirect(url, 301);
+  }
+  
   // إضافة cache headers للملفات الثابتة
   const response = NextResponse.next();
   
