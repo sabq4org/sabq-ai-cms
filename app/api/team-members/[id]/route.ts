@@ -1,5 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import fs from 'fs/promises';
+import path from 'path';
+
+// مسار ملف البيانات
+const DATA_FILE = path.join(process.cwd(), 'data', 'team-members.json');
+
+// دالة لقراءة البيانات
+async function readData() {
+  try {
+    const data = await fs.readFile(DATA_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    return [];
+  }
+}
+
+// دالة لكتابة البيانات
+async function writeData(data: any[]) {
+  const dataDir = path.dirname(DATA_FILE);
+  try {
+    await fs.access(dataDir);
+  } catch {
+    await fs.mkdir(dataDir, { recursive: true });
+  }
+  
+  await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+}
 
 export async function PUT(
   request: NextRequest,
@@ -11,102 +37,40 @@ export async function PUT(
     
     console.log(`📝 تحديث عضو الفريق: ${id}`);
     
-    // التحقق من وجود العضو
-    const existingMember = await prisma.$queryRaw`
-      SELECT id FROM team_members WHERE id = ${id}
-    `;
+    // قراءة البيانات الحالية
+    const teamMembers = await readData();
     
-    if (existingMember.length === 0) {
+    // البحث عن العضو
+    const memberIndex = teamMembers.findIndex((m: any) => m.id === id);
+    
+    if (memberIndex === -1) {
       return NextResponse.json(
         { success: false, error: 'العضو غير موجود' },
         { status: 404 }
       );
     }
     
-    // بناء قائمة الحقول للتحديث
-    const updateFields = [];
-    const values = [];
-    let paramIndex = 1;
+    // تحديث البيانات
+    const updatedMember = {
+      ...teamMembers[memberIndex],
+      ...data,
+      id: teamMembers[memberIndex].id, // الحفاظ على ID
+      created_at: teamMembers[memberIndex].created_at, // الحفاظ على تاريخ الإنشاء
+      updated_at: new Date().toISOString()
+    };
     
-    if (data.name !== undefined) {
-      updateFields.push(`name = $${paramIndex++}`);
-      values.push(data.name);
-    }
+    // استبدال العضو في المصفوفة
+    teamMembers[memberIndex] = updatedMember;
     
-    if (data.email !== undefined) {
-      updateFields.push(`email = $${paramIndex++}`);
-      values.push(data.email);
-    }
-    
-    if (data.role !== undefined) {
-      updateFields.push(`role = $${paramIndex++}`);
-      values.push(data.role);
-    }
-    
-    if (data.department !== undefined) {
-      updateFields.push(`department = $${paramIndex++}`);
-      values.push(data.department || null);
-    }
-    
-    if (data.position !== undefined) {
-      updateFields.push(`position = $${paramIndex++}`);
-      values.push(data.position || null);
-    }
-    
-    if (data.bio !== undefined) {
-      updateFields.push(`bio = $${paramIndex++}`);
-      values.push(data.bio || null);
-    }
-    
-    if (data.avatar !== undefined) {
-      updateFields.push(`avatar = $${paramIndex++}`);
-      values.push(data.avatar || null);
-    }
-    
-    if (data.phone !== undefined) {
-      updateFields.push(`phone = $${paramIndex++}`);
-      values.push(data.phone || null);
-    }
-    
-    if (data.social_links !== undefined) {
-      updateFields.push(`social_links = $${paramIndex++}`);
-      values.push(JSON.stringify(data.social_links || {}));
-    }
-    
-    if (data.is_active !== undefined) {
-      updateFields.push(`is_active = $${paramIndex++}`);
-      values.push(data.is_active);
-    }
-    
-    if (updateFields.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'لا توجد بيانات للتحديث' },
-        { status: 400 }
-      );
-    }
-    
-    // إضافة updated_at
-    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
-    
-    // إضافة id في النهاية
-    values.push(id);
-    
-    // تنفيذ التحديث
-    const query = `
-      UPDATE team_members 
-      SET ${updateFields.join(', ')}
-      WHERE id = $${paramIndex}
-      RETURNING *
-    `;
-    
-    const updatedMember = await prisma.$queryRawUnsafe(query, ...values);
+    // حفظ البيانات
+    await writeData(teamMembers);
     
     console.log('✅ تم تحديث العضو بنجاح');
     
     return NextResponse.json({
       success: true,
       message: 'تم تحديث العضو بنجاح',
-      member: updatedMember[0]
+      member: updatedMember
     });
     
   } catch (error: any) {
@@ -131,24 +95,26 @@ export async function DELETE(
     
     console.log(`🗑️ حذف عضو الفريق: ${id}`);
     
-    // التحقق من وجود العضو
-    const existingMember = await prisma.$queryRaw`
-      SELECT id, name FROM team_members WHERE id = ${id}
-    `;
+    // قراءة البيانات الحالية
+    const teamMembers = await readData();
     
-    if (existingMember.length === 0) {
+    // البحث عن العضو
+    const memberIndex = teamMembers.findIndex((m: any) => m.id === id);
+    
+    if (memberIndex === -1) {
       return NextResponse.json(
         { success: false, error: 'العضو غير موجود' },
         { status: 404 }
       );
     }
     
-    // حذف العضو
-    await prisma.$executeRawUnsafe(`
-      DELETE FROM team_members WHERE id = $1
-    `, id);
+    // حذف العضو من المصفوفة
+    teamMembers.splice(memberIndex, 1);
     
-    console.log(`✅ تم حذف العضو: ${existingMember[0].name}`);
+    // حفظ البيانات
+    await writeData(teamMembers);
+    
+    console.log('✅ تم حذف العضو بنجاح');
     
     return NextResponse.json({
       success: true,

@@ -1,32 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import fs from 'fs/promises';
+import path from 'path';
+
+// مسار ملف البيانات
+const DATA_FILE = path.join(process.cwd(), 'data', 'team-members.json');
+
+// دالة لإنشاء ID فريد
+function generateId(): string {
+  return `team_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// دالة لقراءة البيانات
+async function readData() {
+  try {
+    const data = await fs.readFile(DATA_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    // إذا لم يكن الملف موجوداً، نرجع مصفوفة فارغة
+    return [];
+  }
+}
+
+// دالة لكتابة البيانات
+async function writeData(data: any[]) {
+  // التأكد من وجود مجلد data
+  const dataDir = path.dirname(DATA_FILE);
+  try {
+    await fs.access(dataDir);
+  } catch {
+    await fs.mkdir(dataDir, { recursive: true });
+  }
+  
+  await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+}
 
 export async function GET(request: NextRequest) {
   try {
-    // التأكد من الاتصال بقاعدة البيانات
-    await prisma.$connect();
+    console.log('📊 جلب أعضاء الفريق من ملف JSON...');
     
-    console.log('📊 جلب أعضاء الفريق...');
+    const teamMembers = await readData();
     
-    // جلب أعضاء الفريق من الجدول المخصص
-    const teamMembers = await prisma.$queryRaw`
-      SELECT 
-        id,
-        name,
-        role,
-        department,
-        bio,
-        avatar,
-        email,
-        phone,
-        social_links,
-        is_active,
-        display_order,
-        created_at,
-        updated_at
-      FROM team_members
-      ORDER BY display_order ASC, created_at DESC
-    `;
+    // ترتيب حسب display_order ثم created_at
+    teamMembers.sort((a: any, b: any) => {
+      if (a.display_order !== b.display_order) {
+        return (a.display_order || 0) - (b.display_order || 0);
+      }
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
     
     console.log(`✅ تم جلب ${teamMembers.length} عضو`);
     
@@ -51,9 +71,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // التأكد من الاتصال بقاعدة البيانات
-    await prisma.$connect();
-    
     const data = await request.json();
     console.log('➕ إضافة عضو جديد:', data.name);
     
@@ -68,12 +85,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // التحقق من عدم وجود عضو بنفس البريد
-    const existingMember = await prisma.$queryRaw`
-      SELECT id FROM team_members WHERE email = ${data.email}
-    `;
+    // قراءة البيانات الحالية
+    const teamMembers = await readData();
     
-    if (existingMember.length > 0) {
+    // التحقق من عدم وجود عضو بنفس البريد
+    const existingMember = teamMembers.find((m: any) => m.email === data.email);
+    if (existingMember) {
       return NextResponse.json(
         { 
           success: false, 
@@ -84,31 +101,33 @@ export async function POST(request: NextRequest) {
     }
     
     // الحصول على أعلى display_order
-    const maxOrder = await prisma.$queryRaw`
-      SELECT COALESCE(MAX(display_order), 0) as max_order FROM team_members
-    `;
+    const maxOrder = teamMembers.reduce((max: number, m: any) => 
+      Math.max(max, m.display_order || 0), 0
+    );
     
-    const newOrder = (maxOrder[0]?.max_order || 0) + 1;
+    // إنشاء العضو الجديد
+    const newMember = {
+      id: generateId(),
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      department: data.department || null,
+      position: data.position || null,
+      bio: data.bio || null,
+      avatar: data.avatar || null,
+      phone: data.phone || null,
+      social_links: data.social_links || {},
+      is_active: data.is_active !== false,
+      display_order: maxOrder + 1,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
     
-    // إضافة العضو الجديد
-    const newMember = await prisma.$queryRaw`
-      INSERT INTO team_members (
-        name, email, role, department, position, bio, 
-        avatar, phone, social_links, is_active, display_order
-      ) VALUES (
-        ${data.name}, 
-        ${data.email}, 
-        ${data.role}, 
-        ${data.department || null}, 
-        ${data.position || null}, 
-        ${data.bio || null}, 
-        ${data.avatar || null}, 
-        ${data.phone || null}, 
-        ${JSON.stringify(data.social_links || {})}, 
-        ${data.is_active !== false}, 
-        ${newOrder}
-      ) RETURNING *
-    `;
+    // إضافة العضو للقائمة
+    teamMembers.push(newMember);
+    
+    // حفظ البيانات
+    await writeData(teamMembers);
     
     console.log('✅ تم إضافة العضو بنجاح');
     
@@ -121,40 +140,12 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('❌ خطأ في إضافة العضو:', error);
     console.error('Stack trace:', error.stack);
-    console.error('Error code:', error.code);
-    
-    // معالجة أخطاء محددة
-    if (error.code === 'P2010') {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'خطأ في تنفيذ الاستعلام',
-          details: 'تحقق من صحة البيانات المدخلة'
-        },
-        { status: 400 }
-      );
-    }
-    
-    if (error.message?.includes('unique constraint')) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'البريد الإلكتروني مستخدم بالفعل',
-          details: 'يرجى استخدام بريد إلكتروني آخر'
-        },
-        { status: 400 }
-      );
-    }
     
     return NextResponse.json(
       { 
         success: false, 
         error: 'فشل في إضافة العضو',
-        details: error?.message || 'خطأ غير معروف',
-        debug: {
-          code: error.code,
-          message: error.message
-        }
+        details: error?.message || 'خطأ غير معروف'
       },
       { status: 500 }
     );
