@@ -18,6 +18,15 @@ export async function POST(request: NextRequest) {
         }
         break;
 
+      case 'subtitle':
+        // توليد عنوان فرعي بناءً على العنوان والمحتوى
+        if (title && content) {
+          suggestion = `عنوان فرعي يوضح: ${title.split(' ').slice(0, 5).join(' ')}`;
+        } else {
+          suggestion = 'عنوان فرعي توضيحي للمقال';
+        }
+        break;
+
       case 'excerpt':
         // توليد ملخص بناءً على المحتوى
         if (content) {
