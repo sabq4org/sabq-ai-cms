@@ -178,11 +178,12 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     id: 'users',
-    title: 'المحررين',
+    title: 'المستخدمين',
     icon: Users,
-    href: '/admin/modern/users',
+    href: '/admin/users',
     children: [
-      { id: 'editors', title: 'المحررين', icon: Users, href: '/admin/modern/users' },
+      { id: 'readers', title: 'القراء', icon: Users, href: '/admin/users' },
+      { id: 'team', title: 'الفريق', icon: Users, href: '/admin/team' },
       { id: 'roles', title: 'الأدوار', icon: Shield, href: '/admin/users/roles' },
     ]
   },

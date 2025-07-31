@@ -1,171 +1,127 @@
 import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 
-
-export const runtime = 'nodejs';
-
-// GET: جلب بيانات عضو محدد
-export async function GET(
+export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await context.params;
+    const data = await request.json();
     
-    const member = await prisma.users.findUnique({
-      where: { id }
-    });
-    
-    if (!member) {
-      return NextResponse.json(
-        { success: false, error: 'العضو غير موجود' },
-        { status: 404 }
-      );
-    }
-    
-    // تحويل البيانات للتوافق مع الواجهة
-    const formattedMember = {
-      id: member.id,
-      name: member.name || member.email.split('@')[0],
-      email: member.email,
-      roleId: member.role,
-      role: member.role,
-      avatar: member.avatar,
-      isActive: true,
-      isVerified: member.is_verified,
-      createdAt: member.created_at.toISOString()
-    };
-    
-    return NextResponse.json({
-      success: true,
-      data: formattedMember
-    });
-  } catch (error) {
-    console.error('Error fetching team member:', error);
-    return NextResponse.json(
-      { success: false, error: 'حدث خطأ في جلب بيانات العضو' },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
-}
-
-// PATCH: تحديث بيانات عضو
-export async function PATCH(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await context.params;
-    const body = await request.json();
+    console.log(`📝 تحديث عضو الفريق: ${id}`);
     
     // التحقق من وجود العضو
-    const currentMember = await prisma.users.findUnique({
-      where: { id }
-    });
+    const existingMember = await prisma.$queryRaw`
+      SELECT id FROM team_members WHERE id = ${id}
+    `;
     
-    if (!currentMember) {
+    if (existingMember.length === 0) {
       return NextResponse.json(
         { success: false, error: 'العضو غير موجود' },
         { status: 404 }
       );
     }
     
-    // بناء البيانات للتحديث
-    const updateData: any = {
-      updated_at: new Date()
-    };
+    // بناء قائمة الحقول للتحديث
+    const updateFields = [];
+    const values = [];
+    let paramIndex = 1;
     
-    if (body.name !== undefined) {
-      updateData.name = body.name;
+    if (data.name !== undefined) {
+      updateFields.push(`name = $${paramIndex++}`);
+      values.push(data.name);
     }
     
-    if (body.email && body.email !== currentMember.email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(body.email)) {
-        return NextResponse.json(
-          { success: false, error: 'البريد الإلكتروني غير صالح' },
-          { status: 400 }
-        );
-      }
-      
-      const emailExists = await prisma.users.findUnique({
-        where: {
-          email: body.email.toLowerCase()
-        }
-      });
-      
-      if (emailExists) {
-        return NextResponse.json(
-          { success: false, error: 'البريد الإلكتروني مستخدم بالفعل' },
-          { status: 400 }
-        );
-      }
-      
-      updateData.email = body.email.toLowerCase();
+    if (data.email !== undefined) {
+      updateFields.push(`email = $${paramIndex++}`);
+      values.push(data.email);
     }
     
-    if (body.roleId !== undefined) {
-      updateData.role = body.roleId;
-      updateData.is_admin = body.roleId === 'admin';
+    if (data.role !== undefined) {
+      updateFields.push(`role = $${paramIndex++}`);
+      values.push(data.role);
     }
     
-    if (body.isVerified !== undefined) {
-      updateData.is_verified = body.isVerified;
+    if (data.department !== undefined) {
+      updateFields.push(`department = $${paramIndex++}`);
+      values.push(data.department || null);
     }
     
-    if (body.avatar !== undefined) {
-      updateData.avatar = body.avatar || null;
+    if (data.position !== undefined) {
+      updateFields.push(`position = $${paramIndex++}`);
+      values.push(data.position || null);
     }
     
-    // تحديث كلمة المرور إذا تم توفيرها
-    if (body.password) {
-      if (body.password.length < 6) {
-        return NextResponse.json(
-          { success: false, error: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' },
-          { status: 400 }
-        );
-      }
-      updateData.password_hash = await bcrypt.hash(body.password, 10);
+    if (data.bio !== undefined) {
+      updateFields.push(`bio = $${paramIndex++}`);
+      values.push(data.bio || null);
     }
     
-    // تحديث العضو
-    const updatedMember = await prisma.users.update({
-      where: { id },
-      data: updateData
-    });
+    if (data.avatar !== undefined) {
+      updateFields.push(`avatar = $${paramIndex++}`);
+      values.push(data.avatar || null);
+    }
     
-    // تحويل البيانات للتوافق مع الواجهة
-    const formattedMember = {
-      id: updatedMember.id,
-      name: updatedMember.name || updatedMember.email.split('@')[0],
-      email: updatedMember.email,
-      roleId: updatedMember.role,
-      role: updatedMember.role,
-      avatar: updatedMember.avatar,
-      isActive: true,
-      isVerified: updatedMember.is_verified,
-      createdAt: updatedMember.created_at.toISOString()
-    };
+    if (data.phone !== undefined) {
+      updateFields.push(`phone = $${paramIndex++}`);
+      values.push(data.phone || null);
+    }
+    
+    if (data.social_links !== undefined) {
+      updateFields.push(`social_links = $${paramIndex++}`);
+      values.push(JSON.stringify(data.social_links || {}));
+    }
+    
+    if (data.is_active !== undefined) {
+      updateFields.push(`is_active = $${paramIndex++}`);
+      values.push(data.is_active);
+    }
+    
+    if (updateFields.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'لا توجد بيانات للتحديث' },
+        { status: 400 }
+      );
+    }
+    
+    // إضافة updated_at
+    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+    
+    // إضافة id في النهاية
+    values.push(id);
+    
+    // تنفيذ التحديث
+    const query = `
+      UPDATE team_members 
+      SET ${updateFields.join(', ')}
+      WHERE id = $${paramIndex}
+      RETURNING *
+    `;
+    
+    const updatedMember = await prisma.$queryRawUnsafe(query, ...values);
+    
+    console.log('✅ تم تحديث العضو بنجاح');
     
     return NextResponse.json({
       success: true,
-      data: formattedMember
+      message: 'تم تحديث العضو بنجاح',
+      member: updatedMember[0]
     });
-  } catch (error) {
-    console.error('Error updating team member:', error);
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في تحديث العضو:', error);
     return NextResponse.json(
-      { success: false, error: 'حدث خطأ في تحديث بيانات العضو' },
+      { 
+        success: false, 
+        error: 'فشل في تحديث العضو',
+        details: error?.message || 'خطأ غير معروف'
+      },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
-// DELETE: حذف عضو
 export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -173,12 +129,14 @@ export async function DELETE(
   try {
     const { id } = await context.params;
     
-    // التحقق من وجود العضو
-    const member = await prisma.users.findUnique({
-      where: { id }
-    });
+    console.log(`🗑️ حذف عضو الفريق: ${id}`);
     
-    if (!member) {
+    // التحقق من وجود العضو
+    const existingMember = await prisma.$queryRaw`
+      SELECT id, name FROM team_members WHERE id = ${id}
+    `;
+    
+    if (existingMember.length === 0) {
       return NextResponse.json(
         { success: false, error: 'العضو غير موجود' },
         { status: 404 }
@@ -186,22 +144,26 @@ export async function DELETE(
     }
     
     // حذف العضو
-    await prisma.users.delete({
-      where: { id }
-    });
+    await prisma.$executeRawUnsafe(`
+      DELETE FROM team_members WHERE id = $1
+    `, id);
+    
+    console.log(`✅ تم حذف العضو: ${existingMember[0].name}`);
     
     return NextResponse.json({
       success: true,
-      message: 'تم حذف العضو بنجاح',
-      data: { id: member.id, name: member.name || member.email }
+      message: 'تم حذف العضو بنجاح'
     });
-  } catch (error) {
-    console.error('Error deleting team member:', error);
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في حذف العضو:', error);
     return NextResponse.json(
-      { success: false, error: 'حدث خطأ في حذف العضو' },
+      { 
+        success: false, 
+        error: 'فشل في حذف العضو',
+        details: error?.message || 'خطأ غير معروف'
+      },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
-} 
+}
