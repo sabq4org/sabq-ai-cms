@@ -3,13 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { 
-  Sparkles, Clock, User, Eye, Heart, Share2, 
-  Bookmark, MessageCircle, TrendingUp
+  Star, Clock, User, Eye, Heart, Share2, 
+  CheckCircle2, Award, Calendar, ExternalLink,
+  Sparkles, Headphones
 } from 'lucide-react';
 import CloudImage from '@/components/ui/CloudImage';
 import { formatDateGregorian } from '@/lib/date-utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { getArticleLink } from '@/lib/utils';
 
 interface FeaturedArticle {
   id: string;
@@ -18,10 +18,10 @@ interface FeaturedArticle {
   excerpt?: string;
   featured_image: string;
   published_at: string;
+  reading_time?: number;
   views?: number;
   likes?: number;
   shares?: number;
-  reading_time?: number;
   category?: {
     id: string;
     name: string;
@@ -31,6 +31,14 @@ interface FeaturedArticle {
   author?: {
     id: string;
     name: string;
+    reporter?: {
+      id: string;
+      full_name: string;
+      slug: string;
+      title?: string;
+      is_verified?: boolean;
+      verification_badge?: string;
+    } | null;
   } | null;
 }
 
@@ -41,159 +49,204 @@ interface FeaturedNewsBlockProps {
 const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   const { darkMode } = useDarkModeContext();
 
+  const getVerificationIcon = (badge: string) => {
+    switch (badge) {
+      case 'expert':
+        return <Star className="w-4 h-4 text-amber-500" />;
+      case 'senior':
+        return <Award className="w-4 h-4 text-purple-500" />;
+      default:
+        return <CheckCircle2 className="w-4 h-4 text-blue-500" />;
+    }
+  };
+
+  const getArticleLink = (article: FeaturedArticle) => {
+    return `/article/${article.id}`;
+  };
+
+  // إذا لا يوجد محتوى، لا نعرض شيئاً
   if (!article) {
     return null;
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-      {/* العنوان */}
-      <div className="flex items-center gap-2 mb-6">
-        <Sparkles className="w-6 h-6 text-amber-500" />
-        <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-          الخبر المميز
-        </h2>
-      </div>
-
-      {/* البطاقة المميزة */}
-      <Link href={getArticleLink(article)} className="block group">
-        <article className={`relative overflow-hidden rounded-3xl shadow-2xl transition-all duration-500 ${
+      <Link 
+        href={getArticleLink(article)}
+        className="group block"
+      >
+        {/* البلوك الرئيسي */}
+        <div className={`relative overflow-hidden transition-all duration-500 group-hover:shadow-2xl ${
           darkMode 
-            ? 'bg-gray-800 hover:bg-gray-750' 
-            : 'bg-white hover:shadow-3xl'
-        }`}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[400px]">
-            {/* قسم الصورة */}
-            <div className="lg:col-span-7 relative h-64 lg:h-full overflow-hidden">
-              <CloudImage
-                src={article.featured_image}
-                alt={article.title}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-                fallbackType="article"
-                priority
-              />
-              {/* التدرج */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-black/20 lg:to-black/80" />
-              
-              {/* الشارات */}
-              <div className="absolute top-4 right-4 flex flex-col gap-2">
-                {/* شارة مميز */}
-                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full shadow-lg backdrop-blur-sm">
-                  <Sparkles className="w-4 h-4" />
-                  <span className="font-bold text-sm">خبر مميز</span>
-                </div>
+            ? 'bg-gray-800/50 hover:bg-gray-800/70' 
+            : 'bg-white/80 hover:bg-white'
+        } backdrop-blur-sm rounded-3xl`}>
+          
+          {/* Grid Layout: 50% للصورة، 50% للنص */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[240px] lg:min-h-[280px]">
+            
+            {/* قسم الصورة - 6 أعمدة (50%) */}
+            <div className="lg:col-span-6 relative overflow-hidden lg:rounded-r-2xl rounded-t-2xl lg:rounded-t-none">
+              {/* الصورة */}
+              <div className="relative w-full h-48 lg:h-full">
+                <CloudImage
+                  src={article.featured_image}
+                  alt={article.title}
+                  fill
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  fallbackType="article"
+                  priority={true}
+                />
                 
-                {/* شارة رائج إذا كانت المشاهدات عالية */}
-                {article.views && article.views > 1000 && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full shadow-lg backdrop-blur-sm">
-                    <TrendingUp className="w-3 h-3" />
-                    <span className="font-bold text-xs">رائج</span>
+                {/* تدرج لوني ناعم فوق الصورة */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent lg:bg-gradient-to-l lg:from-black/30 lg:via-transparent lg:to-transparent"></div>
+                
+                {/* شارة الخبر المميز - مكثفة */}
+                <div className="absolute top-3 right-3">
+                  <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
+                    darkMode 
+                      ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white'
+                      : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white'
+                  } shadow-lg backdrop-blur-sm border border-amber-400/30`}>
+                    <Sparkles className="w-3 h-3" />
+                    <span className="font-bold text-xs">مميز</span>
                   </div>
-                )}
-              </div>
-
-              {/* التصنيف */}
-              {article.category && (
-                <div className="absolute bottom-4 right-4">
-                  <span 
-                    className="inline-flex items-center gap-1 px-4 py-2 text-white text-sm font-bold rounded-full shadow-lg backdrop-blur-md"
-                    style={{ 
-                      backgroundColor: article.category.color || '#3B82F6',
-                      borderColor: 'rgba(255,255,255,0.2)',
-                      borderWidth: '1px'
-                    }}
-                  >
-                    {article.category.icon && <span>{article.category.icon}</span>}
-                    {article.category.name}
-                  </span>
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* قسم المحتوى */}
-            <div className="lg:col-span-5 p-6 lg:p-8 flex flex-col justify-between">
-              <div>
-                {/* العنوان */}
-                <h3 className={`text-2xl lg:text-3xl font-bold mb-4 leading-tight transition-colors ${
-                  darkMode 
-                    ? 'text-white group-hover:text-blue-400' 
-                    : 'text-gray-900 group-hover:text-blue-600'
-                }`}>
-                  {article.title}
-                </h3>
+            {/* قسم النص - 6 أعمدة (50%) */}
+            <div className="lg:col-span-6 p-4 lg:p-6 flex flex-col justify-center">
+              {/* العنوان الرئيسي - مقصور على 2-3 سطور */}
+              <h2 className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-3 leading-tight line-clamp-3 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}>
+                {article.title}
+              </h2>
 
-                {/* الموجز */}
-                {article.excerpt && (
-                  <p className={`text-base lg:text-lg mb-6 line-clamp-3 ${
-                    darkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
-                    {article.excerpt}
-                  </p>
+              {/* موجز الخبر - مكثف */}
+              {article.excerpt && (
+                <p className={`text-sm lg:text-base mb-4 leading-relaxed line-clamp-2 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  {article.excerpt}
+                </p>
+              )}
+
+              {/* معلومات المراسل والتصنيف - مكثفة */}
+              <div className="mb-4 space-y-2">
+                {/* المراسل */}
+                {article.author && (
+                  <div className="flex items-center gap-2">
+                    {article.author.reporter ? (
+                      <Link 
+                        href={`/reporter/${article.author.reporter.slug}`}
+                        className="inline-flex items-center gap-1 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <User className="w-3 h-3" />
+                        <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {article.author.reporter.full_name}
+                        </span>
+                        {article.author.reporter.is_verified && (
+                          <div className="flex items-center">
+                            {getVerificationIcon(article.author.reporter.verification_badge || 'verified')}
+                          </div>
+                        )}
+                      </Link>
+                    ) : (
+                      <div className="flex items-center gap-1 text-sm">
+                        <User className="w-3 h-3" />
+                        <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {article.author.name}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* التصنيف */}
+                {article.category && (
+                  <div className="flex items-center gap-1 text-sm">
+                    {article.category.icon && (
+                      <span className="text-base">{article.category.icon}</span>
+                    )}
+                    <span className={`font-medium ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                      {article.category.name}
+                    </span>
+                  </div>
                 )}
               </div>
 
-              {/* المعلومات والتفاعل */}
-              <div>
-                {/* معلومات المقال */}
-                <div className={`flex flex-wrap items-center gap-4 text-sm mb-4 ${
-                  darkMode ? 'text-gray-400' : 'text-gray-600'
-                }`}>
-                  {article.author && (
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span className="font-medium">{article.author.name}</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <span>{formatDateGregorian(article.published_at)}</span>
+              {/* أيقونات صفية مضغوطة */}
+              <div className="flex items-center justify-between mb-4">
+                {/* المعلومات الأساسية */}
+                <div className="flex items-center gap-3 text-xs">
+                  <div className="flex items-center gap-1">
+                    <Calendar className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                      {formatDateGregorian(article.published_at)}
+                    </span>
                   </div>
-                  
                   {article.reading_time && (
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      <span>{article.reading_time} دقائق قراءة</span>
+                    <div className="flex items-center gap-1">
+                      <Clock className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                        {article.reading_time} د
+                      </span>
                     </div>
                   )}
+                  <div className="flex items-center gap-1">
+                    <Headphones className={`w-3 h-3 ${darkMode ? 'text-green-400' : 'text-green-500'}`} />
+                    <span className={darkMode ? 'text-green-400' : 'text-green-600'}>
+                      استمع
+                    </span>
+                  </div>
                 </div>
 
                 {/* إحصائيات التفاعل */}
-                <div className={`flex items-center gap-6 pt-4 border-t ${
-                  darkMode ? 'border-gray-700' : 'border-gray-200'
-                }`}>
-                  {article.views !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      <span className="text-sm font-medium">
-                        {article.views.toLocaleString('ar-SA')} مشاهدة
+                <div className="flex items-center gap-3 text-xs">
+                  {article.views && (
+                    <div className="flex items-center gap-1">
+                      <Eye className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                        {article.views > 1000 ? `${(article.views / 1000).toFixed(1)}ك` : article.views}
                       </span>
                     </div>
                   )}
-                  
                   {article.likes !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <Heart className="w-4 h-4" />
-                      <span className="text-sm font-medium">
-                        {article.likes.toLocaleString('ar-SA')}
+                    <div className="flex items-center gap-1">
+                      <Heart className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                        {article.likes}
                       </span>
                     </div>
                   )}
-                  
                   {article.shares !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <Share2 className="w-4 h-4" />
-                      <span className="text-sm font-medium">
-                        {article.shares.toLocaleString('ar-SA')}
+                    <div className="flex items-center gap-1">
+                      <Share2 className={`w-3 h-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                        {article.shares}
                       </span>
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* زر "اقرأ المزيد" */}
+              <div className="mt-auto">
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105 ${
+                  darkMode 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}>
+                  <span>اقرأ المزيد</span>
+                  <ExternalLink className="w-3 h-3" />
                 </div>
               </div>
             </div>
           </div>
-        </article>
+        </div>
       </Link>
     </div>
   );
