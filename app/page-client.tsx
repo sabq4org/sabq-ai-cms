@@ -47,7 +47,7 @@ const SmartAudioBlock = dynamic(() => import('@/components/home/SmartAudioBlock'
   loading: () => <Skeleton className="w-full h-40 rounded-lg" />
 });
 
-const FeaturedCarousel = dynamic(() => import('@/components/FeaturedCarousel'), {
+const FeaturedNewsBlock = dynamic(() => import('@/components/FeaturedNewsBlock'), {
   ssr: true,
   loading: () => <Skeleton className="w-full h-80 rounded-lg" />
 });
@@ -179,7 +179,7 @@ function NewspaperHomePage({
   const [articles, setArticles] = useState<any[]>(initialArticles);
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
   const [smartRecommendations, setSmartRecommendations] = useState<RecommendedArticle[]>([]);
-  const [featuredArticles, setFeaturedArticles] = useState<any[]>([]);
+  const [featuredArticle, setFeaturedArticle] = useState<any>(null);
   const [featuredLoading, setFeaturedLoading] = useState<boolean>(true);
   
   console.log('🔧 NewspaperHomePage: تحضير useEffects...');
@@ -347,9 +347,9 @@ function NewspaperHomePage({
   
   // =============================
   // جلب التوصيات الذكية
-  // جلب الأخبار المميزة
+  // جلب الخبر المميز
   useEffect(() => {
-    const fetchFeaturedArticles = async () => {
+    const fetchFeaturedArticle = async () => {
       try {
         setFeaturedLoading(true);
         const response = await fetch('/api/featured-news-carousel', {
@@ -361,18 +361,19 @@ function NewspaperHomePage({
         
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.articles) {
-            setFeaturedArticles(data.articles);
+          if (data.success && data.articles && data.articles.length > 0) {
+            // نأخذ أول خبر مميز فقط
+            setFeaturedArticle(data.articles[0]);
           }
         }
       } catch (error) {
-        console.error('خطأ في جلب الأخبار المميزة:', error);
+        console.error('خطأ في جلب الخبر المميز:', error);
       } finally {
         setFeaturedLoading(false);
       }
     };
     
-    fetchFeaturedArticles();
+    fetchFeaturedArticle();
   }, []);
 
   useEffect(() => {
@@ -538,8 +539,8 @@ function NewspaperHomePage({
       </div>
       
       {/* بلوك الأخبار المميزة - كاروسيل */}
-      {!featuredLoading && featuredArticles.length > 0 && (
-        <FeaturedCarousel articles={featuredArticles} />
+      {!featuredLoading && featuredArticle && (
+        <FeaturedNewsBlock article={featuredArticle} />
       )}
       
       {/* بلوك الجرعات الذكي - ثاني بلوك */}
