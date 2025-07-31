@@ -153,8 +153,13 @@ export async function POST(request: NextRequest) {
       transformations: transformations.length
     });
 
-    // رفع الصورة
+    // رفع الصورة مع معالجة أفضل للأخطاء
     const uploadResult = await new Promise<any>((resolve, reject) => {
+      // إعداد timeout لمنع الانتظار الطويل
+      const timeoutId = setTimeout(() => {
+        reject(new Error('تجاوز الوقت المسموح لرفع الصورة (30 ثانية)'));
+      }, 30000); // 30 ثانية كحد أقصى
+      
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder,
@@ -166,9 +171,12 @@ export async function POST(request: NextRequest) {
           eager: generateThumbnail ? [
             { width: 200, height: 150, crop: 'fill', quality: 'auto' }
           ] : undefined,
-          eager_async: generateThumbnail
+          eager_async: generateThumbnail,
+          timeout: 25000 // 25 ثانية كحد أقصى من جانب Cloudinary
         },
         (error, result) => {
+          clearTimeout(timeoutId); // إلغاء timeout بعد الانتهاء
+          
           if (error) {
             console.error('❌ خطأ من Cloudinary:', {
               message: error.message,
@@ -176,12 +184,22 @@ export async function POST(request: NextRequest) {
               name: error.name
             });
             reject(error);
+          } else if (!result) {
+            console.error('❌ لم يتم استلام نتيجة من Cloudinary');
+            reject(new Error('لم يتم استلام نتيجة من Cloudinary'));
           } else {
             console.log('✅ نجح رفع الصورة إلى Cloudinary');
             resolve(result);
           }
         }
       );
+
+      // معالجة أخطاء stream
+      uploadStream.on('error', (error) => {
+        clearTimeout(timeoutId);
+        console.error('❌ خطأ في stream رفع الصورة:', error);
+        reject(error);
+      });
 
       uploadStream.end(buffer);
     });

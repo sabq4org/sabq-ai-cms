@@ -207,6 +207,16 @@ export async function PATCH(
     console.log('📥 البيانات المستلمة للتحديث:', data)
     console.log('📦 metadata المستلمة:', data.metadata)
     
+    // التحقق من صحة البيانات المستلمة
+    if (data.featured_image && typeof data.featured_image !== 'string') {
+      console.error('❌ نوع صورة المقال غير صحيح:', typeof data.featured_image)
+      return NextResponse.json({
+        success: false,
+        error: 'نوع صورة المقال غير صحيح',
+        details: 'featured_image must be a string'
+      }, { status: 400 })
+    }
+    
     // معالجة البيانات قبل الحفظ
     const updateData: any = {
       updated_at: new Date()
@@ -263,17 +273,45 @@ export async function PATCH(
     
     console.log('💾 البيانات المعدة للحفظ:', updateData)
     
-    const updatedArticle = await dbConnectionManager.executeWithConnection(async () => {
-      return await prisma.articles.update({
-        where: { id },
-        data: updateData
+    try {
+      // محاولة تحديث المقال مع معالجة أفضل للأخطاء
+      const updatedArticle = await dbConnectionManager.executeWithConnection(async () => {
+        return await prisma.articles.update({
+          where: { id },
+          data: updateData
+        })
       })
-    })
-    
-    return NextResponse.json({
-      success: true,
-      article: updatedArticle
-    })
+      
+      console.log('✅ تم تحديث المقال بنجاح:', { id: updatedArticle.id, title: updatedArticle.title })
+      
+      return NextResponse.json({
+        success: true,
+        article: updatedArticle
+      })
+    } catch (updateError: any) {
+      console.error('❌ خطأ في تحديث المقال في قاعدة البيانات:', updateError)
+      
+      // رسائل خطأ أكثر تفصيلاً
+      if (updateError.code === 'P2025') {
+        return NextResponse.json({
+          success: false,
+          error: 'المقال غير موجود',
+          details: 'Article not found'
+        }, { status: 404 })
+      } else if (updateError.code === 'P2002') {
+        return NextResponse.json({
+          success: false,
+          error: 'قيمة مكررة في حقل فريد',
+          details: `Unique constraint failed: ${updateError.meta?.target}`
+        }, { status: 409 })
+      }
+      
+      return NextResponse.json({
+        success: false,
+        error: 'فشل تحديث المقال',
+        details: updateError.message || 'خطأ غير معروف في قاعدة البيانات'
+      }, { status: 500 })
+    }
     
   } catch (error: any) {
     console.error('❌ خطأ في تحديث المقال:', error)
