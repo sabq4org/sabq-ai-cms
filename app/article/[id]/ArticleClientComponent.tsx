@@ -216,34 +216,36 @@ export default function ArticleClientComponent({
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-[56px] sm:pt-[64px]">
         {/* منطقة المحتوى الرئيسية */}
         <div className="relative">
-          <article className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+          <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
             {/* رأس المقال بخلفية شفافة بدون إطار */}
-            <header className="mb-8 flex flex-col items-end text-right bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 sm:p-6 lg:p-8 relative z-10">
-            {/* التصنيف */}
+            <header className="mb-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 sm:p-6 lg:p-8 relative z-10">
+            {/* التصنيف - محاذاة لليمين */}
             {article.category && (
-              <Link
-                href={`/categories/${article.category.slug}`}
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
-              >
-                {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
-                <span>{article.category.name}</span>
-              </Link>
+              <div className="flex justify-end mb-4">
+                <Link
+                  href={`/categories/${article.category.slug}`}
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
+                >
+                  {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
+                  <span>{article.category.name}</span>
+                </Link>
+              </div>
             )}
 
             {/* العنوان */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight w-full">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight text-right">
               {article.title}
             </h1>
             
             {/* العنوان الفرعي */}
             {article.subtitle && (
-              <h2 className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-6 w-full">
+              <h2 className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-6 text-right">
                 {article.subtitle}
               </h2>
             )}
 
             {/* المعلومات الأساسية */}
-            <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 w-full">
+            <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -302,7 +304,7 @@ export default function ArticleClientComponent({
         </div>
 
         {/* منطقة المحتوى */}
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
 
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
