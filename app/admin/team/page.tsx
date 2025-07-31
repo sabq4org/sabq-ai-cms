@@ -73,7 +73,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { FileUpload } from '@/components/ui/file-upload';
+import { ImageUploadComponent as ImageUpload } from '@/components/ui/ImageUpload';
 
 interface TeamMember {
   id: string;
@@ -773,22 +773,14 @@ export default function TeamManagementPage() {
 
               <div className="space-y-2">
                 <Label>الصورة الشخصية</Label>
-                <FileUpload
-                  value={formData.avatar}
-                  onChange={(url) => handleInputChange('avatar', url)}
+                <ImageUpload
+                  currentImage={formData.avatar}
+                  onImageUploaded={(url) => handleInputChange('avatar', url)}
+                  type="avatar"
                   accept="image/*"
-                  maxSize={5 * 1024 * 1024}
-                  folder="team-members"
+                  maxSize={5}
+                  label="رفع صورة شخصية"
                 />
-                {formData.avatar && (
-                  <div className="mt-2">
-                    <img 
-                      src={formData.avatar} 
-                      alt="معاينة الصورة" 
-                      className="w-20 h-20 rounded-full object-cover"
-                    />
-                  </div>
-                )}
               </div>
 
               <div className="space-y-4">
