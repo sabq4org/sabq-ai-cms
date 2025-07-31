@@ -145,7 +145,7 @@ export default function Header() {
               <Link
                 key={item.url}
                 href={item.url}
-                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-800  ${
+                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                   item.highlight
                     ? darkMode
                       ? 'text-red-400 hover:text-red-300'
@@ -268,7 +268,7 @@ export default function Header() {
                   key={item.url}
                   href={item.url}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-800  ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-colors duration-200 ${
                     item.highlight
                       ? darkMode
                         ? 'text-red-400 hover:text-red-300'
@@ -292,7 +292,7 @@ export default function Header() {
               <Link
                 href="/profile"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-colors duration-200 ${
                   darkMode 
                                         ? 'text-gray-300 hover:text-white'
                     : 'text-gray-700 hover:text-gray-900'
@@ -305,7 +305,7 @@ export default function Header() {
               <Link
                 href="/my-journey"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-colors duration-200 ${
                   darkMode 
                                         ? 'text-gray-300 hover:text-white'
                     : 'text-gray-700 hover:text-gray-900'
