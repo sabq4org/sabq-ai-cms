@@ -105,7 +105,7 @@ export default function EnhancedMobileNewsCard({
               {isPersonalized && (
                 <span className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
                   <Sparkles className="w-3 h-3" />
-                  مخصص
+                  مخصص | {personalizedScore}%
                 </span>
               )}
               
@@ -206,23 +206,7 @@ export default function EnhancedMobileNewsCard({
                 </div>
               </div>
               
-              {/* نسبة التوافق AI */}
-              {isPersonalized && (
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
-                  <Target className="w-3 h-3 text-purple-500" />
-                  <div className="flex items-center gap-2 flex-1">
-                    <div className="h-2 flex-1 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
-                        style={{ width: `${personalizedScore}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
-                      {personalizedScore}% ملائم لك
-                    </span>
-                  </div>
-                </div>
-              )}
+
             </div>
           </div>
         </article>
@@ -272,7 +256,7 @@ export default function EnhancedMobileNewsCard({
                 {isPersonalized && (
                   <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full">
                     <Sparkles className="w-3 h-3" />
-                    مخصص
+                    مخصص | {personalizedScore}%
                   </span>
                 )}
                 
@@ -343,23 +327,7 @@ export default function EnhancedMobileNewsCard({
                   </div>
                 </div>
                 
-                {/* نسبة التوافق AI */}
-                {isPersonalized && (
-                  <div className="flex items-center gap-2 p-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
-                    <Target className="w-3 h-3 text-purple-500" />
-                    <div className="flex items-center gap-1 flex-1">
-                      <div className="h-1.5 flex-1 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
-                          style={{ width: `${personalizedScore}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
-                        {personalizedScore}%
-                      </span>
-                    </div>
-                  </div>
-                )}
+
               </div>
             </div>
           </div>
@@ -407,7 +375,7 @@ export default function EnhancedMobileNewsCard({
             {isPersonalized && (
               <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full">
                 <Sparkles className="w-3 h-3" />
-                مخصص
+                مخصص | {personalizedScore}%
               </span>
             )}
             {isTrending && (
@@ -451,23 +419,7 @@ export default function EnhancedMobileNewsCard({
               </div>
             </div>
             
-            {/* نسبة التوافق AI */}
-            {isPersonalized && (
-              <div className="flex items-center gap-2 p-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
-                <Target className="w-3 h-3 text-purple-500" />
-                <div className="flex items-center gap-1 flex-1">
-                  <div className="h-1.5 flex-1 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
-                      style={{ width: `${personalizedScore}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
-                    {personalizedScore}%
-                  </span>
-                </div>
-              </div>
-            )}
+
           </div>
         </div>
       </article>
