@@ -358,7 +358,11 @@ export default function EditArticlePage() {
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
-              onClick={() => window.open(`/article/${article.slug}`, '_blank')}
+              onClick={() => {
+                // استخدام ID بدلاً من slug لتجنب الروابط العربية
+                const articleId = article.id;
+                window.open(`/article/${articleId}`, '_blank');
+              }}
             >
               <Eye className="ml-2 h-4 w-4" />
               معاينة
