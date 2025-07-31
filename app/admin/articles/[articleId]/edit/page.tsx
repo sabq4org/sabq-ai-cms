@@ -350,7 +350,7 @@ export default function EditArticlePage() {
             </Button>
             <div>
               <h1 className="text-3xl font-bold">تعديل المقال</h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-2">
                 قم بتعديل محتوى المقال وإعداداته
               </p>
             </div>
@@ -387,7 +387,7 @@ export default function EditArticlePage() {
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content - نفس تصميم صفحة الإنشاء بالضبط */}
         <Tabs defaultValue="content" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
             <TabsTrigger value="content">
@@ -414,7 +414,7 @@ export default function EditArticlePage() {
               <CardHeader>
                 <CardTitle>محتوى المقال</CardTitle>
                 <CardDescription>
-                  قم بتعديل العنوان والملخص والمحتوى الرئيسي
+                  قم بإدخال العنوان والملخص والمحتوى الرئيسي
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -519,7 +519,7 @@ export default function EditArticlePage() {
               <CardHeader>
                 <CardTitle>الصورة البارزة</CardTitle>
                 <CardDescription>
-                  قم برفع أو تغيير الصورة البارزة للمقال
+                  قم برفع صورة بارزة للمقال
                 </CardDescription>
               </CardHeader>
               <CardContent>
