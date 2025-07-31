@@ -118,76 +118,82 @@ export default function MobileCard({
 
   if (variant === 'featured') {
     return (
-      <div className={`mobile-card rounded-xl border overflow-hidden tap-highlight ${
-        darkMode 
-          ? 'bg-gradient-to-br from-slate-800 to-slate-900 border-slate-600'
-          : 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200'
-      }`}>
-        <Link href={getArticleLink(article)} className="block">
+      <div className="relative w-full overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <Link href={getArticleLink(article)} className="block relative">
           {showImage && article.featured_image && (
-            <div className="relative">
+            <div className="relative w-full h-52 overflow-hidden">
               <Image
                 src={getImageUrl(article.featured_image)}
                 alt={article.title}
                 width={400}
-                height={200}
-                className="w-full h-48 object-cover"
+                height={208}
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                 loading="lazy"
               />
               
-              {article.category && (
-                <div className="absolute top-3 right-3">
-                  <span 
-                    className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-white/90 backdrop-blur-sm"
-                    style={{ color: article.category.color || '#3b82f6' }}
-                  >
-                    {article.category.name}
-                  </span>
+              {/* التدرج الداكن من الأسفل */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+              {/* شارة "مميز" في الزاوية العلوية اليمنى */}
+              <div className="absolute top-3 right-3 z-10">
+                <div className="bg-yellow-400 text-black text-[10px] font-semibold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 backdrop-blur-sm">
+                  <Star className="w-3 h-3" />
+                  مميز ✨
                 </div>
-              )}
+              </div>
+
+              {/* المحتوى النصي فوق التدرج */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white z-10">
+                {/* التصنيف */}
+                {article.category && (
+                  <div className="mb-2">
+                    <span 
+                      className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md font-medium border border-white/30"
+                      style={{ 
+                        backgroundColor: `${article.category.color || '#3b82f6'}33`,
+                        borderColor: `${article.category.color || '#3b82f6'}66`
+                      }}
+                    >
+                      {article.category.name}
+                    </span>
+                  </div>
+                )}
+
+                {/* العنوان */}
+                <h2 className="text-base md:text-lg font-bold text-white line-clamp-2 leading-tight mb-3 drop-shadow-lg">
+                  {article.title}
+                </h2>
+
+                {/* معلومات الكاتب والتاريخ */}
+                <div className="flex items-center justify-between text-white/90 text-xs">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      ✍️ {article.author?.name || 'كاتب مجهول'}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {formatDate(article.published_at || '')}
+                    </span>
+                  </div>
+
+                  {/* إحصائيات */}
+                  <div className="flex items-center gap-3">
+                    {article.views && (
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        {article.views}
+                      </span>
+                    )}
+                    {article.reading_time && (
+                      <span className="flex items-center gap-1">
+                        ⏱️ {article.reading_time} دقيقة
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
-          
-          <div className="p-4">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white text-clamp-3 mb-3">
-              {article.title}
-            </h2>
-            
-            {showExcerpt && article.excerpt && (
-              <p className="text-sm text-gray-600 dark:text-gray-300 text-clamp-2 mb-3">
-                {article.excerpt}
-              </p>
-            )}
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {formatDate(article.published_at || '')}
-                </span>
-                
-                {article.reading_time && (
-                  <span>{article.reading_time} دقيقة</span>
-                )}
-              </div>
-              
-              <div className="flex items-center gap-2">
-                {article.views && (
-                  <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                    <Eye className="w-3 h-3" />
-                    {article.views}
-                  </span>
-                )}
-                
-                {article.comments_count && (
-                  <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                    <MessageSquare className="w-3 h-3" />
-                    {article.comments_count}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
         </Link>
         
         {/* أزرار التفاعل */}

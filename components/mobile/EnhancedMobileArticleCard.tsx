@@ -200,7 +200,112 @@ export default function EnhancedMobileArticleCard({
     );
   }
 
-  // الوضع المفصل
+  // الوضع المفصل - عندما يكون مميز
+  if (viewMode === 'featured' && article.is_featured) {
+    return (
+      <div className="relative w-full overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] mb-4">
+        <Link href={getArticleLink(article)} className="block relative">
+          <div className="relative w-full h-52 overflow-hidden">
+            <Image
+              src={imageUrl}
+              alt={article.title}
+              fill
+              className="object-cover transition-transform duration-500 hover:scale-105"
+              sizes="(max-width: 768px) 100vw, 400px"
+              onLoad={() => setImageLoaded(true)}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = generatePlaceholderImage(article.title, 'article');
+              }}
+              loading="lazy"
+            />
+            
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 animate-bounce" />
+              </div>
+            )}
+
+            {/* التدرج الداكن من الأسفل */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+            {/* شارة "مميز" في الزاوية العلوية اليمنى */}
+            {article.is_featured && (
+              <div className="absolute top-3 right-3 z-10">
+                <div className="bg-yellow-400 text-black text-[10px] font-semibold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 backdrop-blur-sm">
+                  <span className="text-xs">✨</span>
+                  مميز
+                </div>
+              </div>
+            )}
+
+            {/* شارة عاجل إذا كانت موجودة */}
+            {article.is_breaking && (
+              <div className="absolute top-3 left-3 z-10">
+                <div className="bg-red-500 text-white text-[10px] font-semibold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 backdrop-blur-sm animate-pulse">
+                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                  عاجل
+                </div>
+              </div>
+            )}
+
+            {/* المحتوى النصي فوق التدرج */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 text-white z-10">
+              {/* التصنيف */}
+              {article.category && (
+                <div className="mb-2">
+                  <span 
+                    className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md font-medium border border-white/30"
+                    style={{ 
+                      backgroundColor: `${article.category.color || '#3b82f6'}33`,
+                      borderColor: `${article.category.color || '#3b82f6'}66`
+                    }}
+                  >
+                    {article.category.name}
+                  </span>
+                </div>
+              )}
+
+              {/* العنوان */}
+              <h2 className="text-base md:text-lg font-bold text-white line-clamp-2 leading-tight mb-3 drop-shadow-lg">
+                {article.title}
+              </h2>
+
+              {/* معلومات الكاتب والتاريخ */}
+              <div className="flex items-center justify-between text-white/90 text-xs">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1">
+                    ✍️ {article.author?.name || article.author_name || 'كاتب مجهول'}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {formatDateShort(article.published_at || article.created_at)}
+                  </span>
+                </div>
+
+                {/* إحصائيات */}
+                <div className="flex items-center gap-3">
+                  {article.views_count > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      {article.views_count}
+                    </span>
+                  )}
+                  {article.reading_time && (
+                    <span className="flex items-center gap-1">
+                      ⏱️ {article.reading_time} دقيقة
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </div>
+    );
+  }
+
+  // الوضع المفصل العادي
   return (
     <div className="enhanced-mobile-card detailed">
       {/* صورة المقال */}
