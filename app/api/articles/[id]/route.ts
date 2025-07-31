@@ -256,13 +256,14 @@ export async function PATCH(
     
     // نسخ الحقول المسموح بها فقط
     const allowedFields = [
-      'title', 'content', 'excerpt', 'subtitle',
-      'author_id', 'author_name', 'category_id',
-      'featured_image', 'image_caption',
-      'status', 'metadata', 'publish_at',
+      'title', 'content', 'excerpt',
+      'author_id', 'category_id',
+      'featured_image',
+      'status', 'metadata', 'published_at',
       'seo_title', 'seo_description', 'seo_keywords',
-      'breaking', 'external_link', 'type'
+      'breaking', 'external_link'
       // 'featured' تمت إزالته من هنا وسيتم معالجته بشكل خاص
+      // الحقول غير الموجودة في schema: subtitle, type, image_caption, author_name, publish_at
     ]
     
     console.log('📋 الحقول المستلمة:', Object.keys(data));

@@ -585,21 +585,23 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       
       const articleData = {
         title: formData.title,
-        subtitle: formData.subtitle,
         excerpt: formData.excerpt,
         content: editorContent, // HTML من المحرر
         featured_image: formData.featuredImage || null,
-        image_caption: formData.featuredImageCaption,
         category_id: formData.categoryId,
         author_id: formData.authorId,
         status,
-        type: formData.type,
-        external_link: formData.externalLink,
-        // metadata كـ JSON
+        external_link: formData.externalLink || null,
+        // حقول SEO مباشرة
+        seo_title: formData.seoTitle || null,
+        seo_description: formData.seoDescription || null,
+        seo_keywords: formData.keywords.join(', ') || null,
+        // metadata كـ JSON للحقول الإضافية
         metadata: {
+          subtitle: formData.subtitle || null,
+          type: formData.type || 'local',
+          image_caption: formData.featuredImageCaption || null,
           keywords: formData.keywords,
-          seo_title: formData.seoTitle,
-          seo_description: formData.seoDescription,
           is_featured: formData.isFeatured,
           is_breaking: formData.isBreaking,
           gallery: formData.gallery || []
