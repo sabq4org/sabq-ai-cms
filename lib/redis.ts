@@ -1,10 +1,31 @@
 import { Redis } from 'ioredis';
 
+// فحص إذا كنا في بيئة بناء Vercel
+const isVercelBuild = process.env.VERCEL === '1' || 
+                     process.env.VERCEL_ENV !== undefined ||
+                     process.env.DISABLE_REDIS === 'true';
+
 // إنشاء اتصال Redis - يدعم كل من الإنتاج والتطوير
 let redis: Redis;
 
-// في بيئة التطوير، تجاهل REDIS_URL واستخدم الإعدادات المحلية
-const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+// إذا كنا في بيئة بناء، استخدم dummy Redis
+if (isVercelBuild) {
+  console.log('🏗️  Vercel build detected - using dummy Redis');
+  redis = {
+    get: async () => null,
+    set: async () => 'OK',
+    del: async () => 1,
+    exists: async () => 0,
+    expire: async () => 1,
+    ttl: async () => -1,
+    keys: async () => [],
+    flushdb: async () => 'OK',
+    on: () => {},
+    disconnect: async () => {},
+  } as any;
+} else {
+  // في بيئة التطوير، تجاهل REDIS_URL واستخدم الإعدادات المحلية
+  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
 
 // التحقق من أن REDIS_URL يشير إلى cloud
 const isCloudRedis = process.env.REDIS_URL && 
@@ -60,26 +81,28 @@ if (isDevelopment || (!isCloudRedis && process.env.REDIS_HOST)) {
 }
 
 // متغير لتتبع حالة Redis
-let redisAvailable = true;
+let redisAvailable = !isVercelBuild;
 
 // معالج الأخطاء
-redis.on('error', (err) => {
-  console.error('❌ خطأ في Redis:', err);
-  // تعطيل Redis في حالة الأخطاء الحرجة
-  if (err.code === 'ERR_SSL_WRONG_VERSION_NUMBER' || err.code === 'ECONNREFUSED') {
-    redisAvailable = false;
-    console.warn('⚠️ تم تعطيل Redis بسبب مشكلة في الاتصال');
-  }
-});
+if (!isVercelBuild) {
+  redis.on('error', (err) => {
+    console.error('❌ خطأ في Redis:', err);
+    // تعطيل Redis في حالة الأخطاء الحرجة
+    if (err.code === 'ERR_SSL_WRONG_VERSION_NUMBER' || err.code === 'ECONNREFUSED') {
+      redisAvailable = false;
+      console.warn('⚠️ تم تعطيل Redis بسبب مشكلة في الاتصال');
+    }
+  });
 
-redis.on('connect', () => {
-  console.log('✅ تم الاتصال بـ Redis');
-  if (isDevelopment) {
-    console.log('💻 متصل بـ Redis المحلي على', redis.options.host + ':' + redis.options.port);
-  } else if (process.env.REDIS_URL) {
-    console.log('📡 متصل بـ Redis Cloud');
-  }
-});
+  redis.on('connect', () => {
+    console.log('✅ تم الاتصال بـ Redis');
+    if (isDevelopment) {
+      console.log('💻 متصل بـ Redis المحلي على', redis.options.host + ':' + redis.options.port);
+    } else if (process.env.REDIS_URL) {
+      console.log('📡 متصل بـ Redis Cloud');
+    }
+  });
+}
 
 // دوال مساعدة للتخزين المؤقت
 export const cache = {

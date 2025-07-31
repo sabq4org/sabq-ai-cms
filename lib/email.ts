@@ -3,16 +3,22 @@ import { Transporter } from 'nodemailer';
 import { emailConfig } from '@/config/email.config';
 import { getCorrectEmailConfig } from './email-config-fix';
 
+// فحص إذا كنا في بيئة بناء Vercel
+const isVercelBuild = process.env.VERCEL === '1' || 
+                     process.env.VERCEL_ENV !== undefined ||
+                     process.env.DISABLE_EMAIL === 'true';
+
 // إنشاء transporter للبريد الإلكتروني
 let transporter: Transporter | null = null;
 
 // تهيئة البريد الإلكتروني - lazy initialization
 export function initializeEmail() {
   // تخطي التهيئة أثناء البناء أو إذا كان مطلوباً
-  if (process.env.SKIP_EMAIL_VERIFICATION === 'true' || 
+  if (isVercelBuild ||
+      process.env.SKIP_EMAIL_VERIFICATION === 'true' || 
       process.env.NODE_ENV === 'test' ||
       process.env.BUILDING === 'true') {
-    console.log('⏭️  تخطي تهيئة البريد الإلكتروني');
+    console.log('⏭️  Skipping email initialization (Build/Test)');
     return;
   }
 
@@ -196,6 +202,12 @@ const emailTemplates = {
 
 // إرسال بريد التحقق
 export async function sendVerificationEmail(to: string, name: string, code: string) {
+  // تخطي الإرسال أثناء البناء
+  if (isVercelBuild) {
+    console.log('🏗️  Skipping email send during build');
+    return true;
+  }
+  
   // إعادة تهيئة البريد إذا لم يكن مهيأ
   if (!transporter) {
     console.log('🔄 إعادة تهيئة البريد الإلكتروني...');
