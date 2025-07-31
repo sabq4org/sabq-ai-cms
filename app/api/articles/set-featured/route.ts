@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { FeaturedArticleManager } from '@/lib/services/featured-article-manager';
 import { revalidatePath } from 'next/cache';
 
 /**
@@ -10,7 +10,7 @@ import { revalidatePath } from 'next/cache';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { articleId, featured = true } = body;
+    const { articleId, featured = true, categoryId } = body;
 
     if (!articleId) {
       return NextResponse.json(
@@ -19,64 +19,52 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // التحقق من وجود المقال
-    const article = await prisma.articles.findUnique({
-      where: { id: articleId },
-      select: { id: true, title: true }
-    });
-
-    if (!article) {
-      return NextResponse.json(
-        { success: false, error: 'المقال غير موجود' },
-        { status: 404 }
-      );
-    }
-
     // إذا كان المطلوب هو تعيين المقال كمميز
     if (featured) {
-      // إلغاء تمييز جميع المقالات الأخرى أولاً
-      await prisma.articles.updateMany({
-        where: {
-          featured: true,
-          id: { not: articleId }
-        },
-        data: {
-          featured: false
-        }
+      const result = await FeaturedArticleManager.setFeaturedArticle(articleId, {
+        categoryId: categoryId
       });
 
-      // تعيين المقال الحالي كمميز
-      await prisma.articles.update({
-        where: { id: articleId },
-        data: {
-          featured: true,
-          updated_at: new Date() // تحديث وقت التعديل لضمان ظهوره كأحدث خبر مميز
-        }
-      });
-
-      // إعادة التحقق من صحة مسار الصفحة الرئيسية
-      revalidatePath('/');
-      
-      return NextResponse.json({
-        success: true,
-        message: `تم تعيين "${article.title}" كخبر مميز وإلغاء التمييز عن الأخبار الأخرى`
-      });
+      if (result.success) {
+        // إعادة التحقق من صحة مسار الصفحة الرئيسية
+        revalidatePath('/');
+        
+        return NextResponse.json({
+          success: true,
+          message: result.message,
+          featuredArticle: result.featuredArticle,
+          previouslyFeatured: result.previouslyFeatured
+        });
+      } else {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: result.message
+          },
+          { status: 400 }
+        );
+      }
     } else {
-      // إلغاء تمييز المقال المحدد فقط
-      await prisma.articles.update({
-        where: { id: articleId },
-        data: {
-          featured: false
-        }
-      });
+      // إلغاء تمييز المقال
+      const result = await FeaturedArticleManager.unsetFeaturedArticle(articleId);
 
-      // إعادة التحقق من صحة مسار الصفحة الرئيسية
-      revalidatePath('/');
-      
-      return NextResponse.json({
-        success: true,
-        message: `تم إلغاء تمييز "${article.title}"`
-      });
+      if (result.success) {
+        // إعادة التحقق من صحة مسار الصفحة الرئيسية
+        revalidatePath('/');
+        
+        return NextResponse.json({
+          success: true,
+          message: result.message
+        });
+      } else {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: result.message
+          },
+          { status: 400 }
+        );
+      }
     }
   } catch (error: any) {
     console.error('❌ خطأ في تعيين الخبر المميز:', error);
@@ -88,7 +76,5 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

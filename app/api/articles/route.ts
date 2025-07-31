@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import dbConnectionManager from '@/lib/db-connection-manager';
+import { FeaturedArticleManager } from '@/lib/services/featured-article-manager';
 
 const prisma = new PrismaClient();
 
@@ -212,26 +213,29 @@ export async function POST(request: NextRequest) {
     
     console.log('📝 بيانات المقال المنقاة:', articleData);
     
-    // إذا كان المقال مميزاً، نقوم بإلغاء التمييز عن الأخبار الأخرى
-    if (articleData.featured === true) {
-      try {
-        await prisma.articles.updateMany({
-          where: {
-            featured: true
-          },
-          data: {
-            featured: false
-          }
-        });
-        console.log('✅ تم إلغاء التمييز عن الأخبار الأخرى قبل إنشاء الخبر المميز الجديد');
-      } catch (error) {
-        console.error('❌ خطأ في إلغاء التمييز عن الأخبار الأخرى:', error);
-      }
-    }
-    
+    // إنشاء المقال أولاً
     const article = await prisma.articles.create({
       data: articleData
     })
+    
+    // إذا كان المقال مميزاً، نستخدم المدير المركزي لضمان الـ atomicity
+    if (articleData.featured === true) {
+      const featuredResult = await FeaturedArticleManager.setFeaturedArticle(article.id, {
+        categoryId: article.category_id || undefined,
+        skipValidation: true // نتخطى التحقق لأننا أنشأنا المقال للتو
+      });
+      
+      if (featuredResult.success) {
+        console.log('✅', featuredResult.message);
+      } else {
+        console.error('❌ خطأ في تعيين المقال كمميز:', featuredResult.message);
+        // نحاول إلغاء تمييز المقال في حالة الفشل
+        await prisma.articles.update({
+          where: { id: article.id },
+          data: { featured: false }
+        });
+      }
+    }
     
     return NextResponse.json({
       success: true,

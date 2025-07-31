@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { getCachedCategories } from '@/lib/services/categoriesCache'
 import dbConnectionManager from '@/lib/db-connection-manager'
+import { FeaturedArticleManager } from '@/lib/services/featured-article-manager'
 
 export async function GET(
   request: Request,
@@ -258,34 +259,15 @@ export async function PATCH(
       }
     }
     
-    // معالجة خاصة لحقل featured
+    // معالجة خاصة لحقل featured - نحفظه مؤقتاً ونعالجه بعد التحديث
+    let shouldUpdateFeatured = false;
+    let featuredValue = false;
+    
     if (data.featured !== undefined) {
-      // تأكد من أن القيمة هي boolean
-      updateData.featured = Boolean(data.featured)
-      
-      console.log(`🏆 تحديث حالة التمييز للمقال ${id}: ${updateData.featured ? 'مميز' : 'غير مميز'}`)
-      
-      // إذا كان المطلوب هو تعيين المقال كمميز، فنقوم بإلغاء التمييز عن الأخبار الأخرى
-      if (updateData.featured === true) {
-        try {
-          await dbConnectionManager.executeWithConnection(async () => {
-            return await prisma.articles.updateMany({
-              where: {
-                featured: true,
-                id: { not: id }
-              },
-              data: {
-                featured: false
-              }
-            })
-          })
-          console.log('✅ تم إلغاء التمييز عن الأخبار الأخرى')
-        } catch (error) {
-          console.error('❌ خطأ في إلغاء التمييز عن الأخبار الأخرى:', error)
-        }
-      } else {
-        console.log('ℹ️ تم إلغاء خاصية التمييز عن المقال')
-      }
+      shouldUpdateFeatured = true;
+      featuredValue = Boolean(data.featured);
+      console.log(`🏆 سيتم تحديث حالة التمييز للمقال ${id}: ${featuredValue ? 'مميز' : 'غير مميز'}`);
+      // لا نضيف featured إلى updateData هنا، سنعالجه بشكل منفصل
     }
     
     // التأكد من أن metadata يتم حفظه بشكل صحيح كـ JSON
@@ -316,13 +298,33 @@ export async function PATCH(
       
       console.log('✅ تم تحديث المقال بنجاح:', { id: updatedArticle.id, title: updatedArticle.title })
       
-      // إعادة تحقق صحة الصفحة الرئيسية إذا تم تغيير حالة التمييز
-      if (data.featured !== undefined) {
-        try {
-          // استيراد revalidatePath من next/cache
-          const { revalidatePath } = await import('next/cache')
+      // معالجة تحديث حالة التمييز باستخدام المدير المركزي
+      if (shouldUpdateFeatured) {
+        if (featuredValue) {
+          // تعيين المقال كمميز
+          const featuredResult = await FeaturedArticleManager.setFeaturedArticle(id, {
+            categoryId: updatedArticle.category_id || undefined
+          });
           
-          // إعادة تحقق صحة الصفحة الرئيسية
+          if (featuredResult.success) {
+            console.log('✅', featuredResult.message);
+          } else {
+            console.error('❌ خطأ في تعيين المقال كمميز:', featuredResult.message);
+          }
+        } else {
+          // إلغاء تمييز المقال
+          const unfeaturedResult = await FeaturedArticleManager.unsetFeaturedArticle(id);
+          
+          if (unfeaturedResult.success) {
+            console.log('✅', unfeaturedResult.message);
+          } else {
+            console.error('❌ خطأ في إلغاء تمييز المقال:', unfeaturedResult.message);
+          }
+        }
+        
+        // إعادة تحقق صحة الصفحة الرئيسية
+        try {
+          const { revalidatePath } = await import('next/cache')
           revalidatePath('/')
           console.log('🔄 تم إعادة تحقق صحة الصفحة الرئيسية')
         } catch (error) {

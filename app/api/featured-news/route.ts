@@ -1,69 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { FeaturedArticleManager } from '@/lib/services/featured-article-manager';
 
 // تعطيل التخزين المؤقت لهذه الواجهة
 export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   try {
-    // التأكد من الاتصال بقاعدة البيانات
-    try {
-      await prisma.$connect();
-    } catch (connectError) {
-      console.error('❌ خطأ في الاتصال بقاعدة البيانات:', connectError);
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'فشل الاتصال بقاعدة البيانات',
-          details: connectError instanceof Error ? connectError.message : 'خطأ غير معروف'
-        },
-        { status: 500 }
-      );
-    }
-    
-    // البحث عن الخبر المميز الأحدث
-    const featuredArticle = await prisma.articles.findFirst({
-      where: {
-        featured: true,
-        status: 'published',
-        published_at: {
-          lte: new Date()
-        }
-      },
-      include: {
-        categories: {
-          select: {
-            id: true,
-            name: true,
-            icon: true,
-            color: true
-          }
-        },
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            reporter_profile: {
-              select: {
-                id: true,
-                full_name: true,
-                slug: true,
-                title: true,
-                is_verified: true,
-                verification_badge: true
-              }
-            }
-          }
-        }
-      },
-      orderBy: [
-        { updated_at: 'desc' },
-        { published_at: 'desc' }
-      ]
-    });
+    // جلب المقال المميز باستخدام المدير المركزي
+    const featuredArticle = await FeaturedArticleManager.getCurrentFeatured();
 
     if (!featuredArticle) {
       return NextResponse.json({
@@ -128,7 +72,5 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
