@@ -21,7 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { 
   Upload, 
   Save, 
@@ -33,7 +34,11 @@ import {
   FileText,
   Settings,
   Calendar,
-  User
+  User,
+  X,
+  CheckCircle,
+  AlertCircle,
+  Trash2
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
@@ -54,6 +59,8 @@ interface ArticleData {
   status: 'draft' | 'review' | 'published';
   category_id: string;
   author_id: string;
+  is_featured?: boolean;
+  is_breaking?: boolean;
   seo_title?: string;
   seo_description?: string;
   seo_keywords?: string;
@@ -73,6 +80,8 @@ export default function EditArticlePage() {
   const [formData, setFormData] = useState<Partial<ArticleData>>({});
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
+  const [isDirty, setIsDirty] = useState(false);
+  const [completionScore, setCompletionScore] = useState(0);
 
   // جلب بيانات المقال
   useEffect(() => {
@@ -91,6 +100,7 @@ export default function EditArticlePage() {
         setArticle(data);
         setFormData(data);
         setImagePreview(data.featured_image);
+        calculateCompletionScore(data);
       } catch (error) {
         console.error('Error fetching article:', error);
         toast.error('فشل في تحميل بيانات المقال');
@@ -119,10 +129,56 @@ export default function EditArticlePage() {
     fetchCategories();
   }, []);
 
-  // معالج رفع الصورة
-  const handleImageUpload = async (file: File) => {
+  // حساب نسبة اكتمال المقال
+  const calculateCompletionScore = (data: Partial<ArticleData>) => {
+    let score = 0;
+    if (data.title && data.title.length > 10) score += 20;
+    if (data.excerpt && data.excerpt.length > 20) score += 20;
+    if (data.content && data.content.length > 100) score += 20;
+    if (data.featured_image) score += 20;
+    if (data.category_id) score += 10;
+    if (data.seo_keywords) score += 10;
+    setCompletionScore(score);
+  };
+
+  // تحديث البيانات
+  const updateFormData = (field: string, value: any) => {
+    const newData = { ...formData, [field]: value };
+    setFormData(newData);
+    setIsDirty(true);
+    calculateCompletionScore(newData);
+  };
+
+  // توليد slug من العنوان
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
+  // رفع الصورة
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // التحقق من نوع وحجم الملف
+    if (!file.type.startsWith('image/')) {
+      toast.error('يرجى اختيار ملف صورة');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+      return;
+    }
+
+    setUploading(true);
+    const loadingToast = toast.loading('جاري رفع الصورة...');
+
     try {
-      setUploading(true);
       const formData = new FormData();
       formData.append('file', file);
 
@@ -136,67 +192,76 @@ export default function EditArticlePage() {
       }
 
       const data = await response.json();
-      const imageUrl = data.url || data.secure_url || data.path;
-      
-      setImagePreview(imageUrl);
-      setFormData(prev => ({ ...prev, featured_image: imageUrl }));
-      toast.success('تم رفع الصورة بنجاح');
+      updateFormData('featured_image', data.url);
+      setImagePreview(data.url);
+      toast.success('تم رفع الصورة بنجاح', { id: loadingToast });
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('فشل في رفع الصورة');
+      toast.error('فشل في رفع الصورة', { id: loadingToast });
     } finally {
       setUploading(false);
     }
   };
 
-  // معالج السحب والإفلات
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      handleImageUpload(file);
-    }
-  }, []);
+  // حذف الصورة
+  const handleRemoveImage = () => {
+    updateFormData('featured_image', null);
+    setImagePreview(null);
+    toast.success('تم حذف الصورة');
+  };
 
-  // معالج حفظ المقال
+  // حفظ المقال
   const handleSave = async () => {
-    try {
-      setSaving(true);
+    if (!formData.title || !formData.content) {
+      toast.error('يرجى إدخال العنوان والمحتوى');
+      return;
+    }
 
+    setSaving(true);
+    const savingToast = toast.loading('جاري حفظ التغييرات...');
+
+    try {
       const response = await fetch(`/api/articles/${articleId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          slug: formData.slug || generateSlug(formData.title),
+        }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'فشل في حفظ المقال');
+        throw new Error(error.error || 'فشل في حفظ المقال');
       }
 
-      toast.success('تم حفظ المقال بنجاح');
+      const data = await response.json();
+      toast.success('تم حفظ التغييرات بنجاح', { id: savingToast });
+      setIsDirty(false);
       
-      // إعادة توجيه للصفحة الرئيسية للمقالات
+      // التوجيه إلى صفحة الأخبار بدلاً من المقالات
       setTimeout(() => {
-        router.push('/admin/articles');
+        router.push('/admin/news');
       }, 1000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving article:', error);
-      toast.error(error instanceof Error ? error.message : 'فشل في حفظ المقال');
+      toast.error(error.message || 'فشل في حفظ المقال', { id: savingToast });
     } finally {
       setSaving(false);
     }
   };
 
-  // معالج تغيير المحتوى
-  const handleContentChange = (content: string) => {
-    setFormData(prev => ({ ...prev, content }));
-  };
+  // توليد محتوى بالذكاء الاصطناعي
+  const generateAIContent = async (type: 'title' | 'excerpt' | 'keywords') => {
+    if (!formData.content && type !== 'title') {
+      toast.error('يرجى إدخال المحتوى أولاً');
+      return;
+    }
 
-  // توليد مقترحات AI
-  const generateAISuggestions = async (type: 'title' | 'excerpt' | 'keywords') => {
+    const loadingToast = toast.loading(`جاري توليد ${type === 'title' ? 'العنوان' : type === 'excerpt' ? 'الملخص' : 'الكلمات المفتاحية'}...`);
+
     try {
       const response = await fetch('/api/ai/generate', {
         method: 'POST',
@@ -211,17 +276,19 @@ export default function EditArticlePage() {
       if (response.ok) {
         const data = await response.json();
         if (type === 'title') {
-          setFormData(prev => ({ ...prev, title: data.suggestion }));
+          updateFormData('title', data.suggestion);
         } else if (type === 'excerpt') {
-          setFormData(prev => ({ ...prev, excerpt: data.suggestion }));
+          updateFormData('excerpt', data.suggestion);
         } else if (type === 'keywords') {
-          setFormData(prev => ({ ...prev, seo_keywords: data.suggestion }));
+          updateFormData('seo_keywords', data.suggestion);
         }
-        toast.success(`تم توليد ${type === 'title' ? 'العنوان' : type === 'excerpt' ? 'الملخص' : 'الكلمات المفتاحية'} بنجاح`);
+        toast.success(`تم التوليد بنجاح`, { id: loadingToast });
+      } else {
+        throw new Error('فشل في التوليد');
       }
     } catch (error) {
       console.error(`Error generating ${type}:`, error);
-      toast.error(`فشل في توليد ${type === 'title' ? 'العنوان' : type === 'excerpt' ? 'الملخص' : 'الكلمات المفتاحية'}`);
+      toast.error(`فشل في التوليد`, { id: loadingToast });
     }
   };
 
@@ -240,8 +307,8 @@ export default function EditArticlePage() {
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-screen">
           <h2 className="text-2xl font-bold mb-4">المقال غير موجود</h2>
-          <Button onClick={() => router.push('/admin/articles')}>
-            العودة للمقالات
+          <Button onClick={() => router.push('/admin/news')}>
+            العودة للأخبار
           </Button>
         </div>
       </DashboardLayout>
@@ -250,16 +317,59 @@ export default function EditArticlePage() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-6 max-w-7xl">
+      <div className="container mx-auto p-6 max-w-6xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">تعديل المقال</h1>
-            <p className="text-muted-foreground mt-2">
-              قم بتعديل محتوى المقال وإعداداته
-            </p>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push('/admin/news')}
+            >
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">تعديل المقال</h1>
+              <p className="text-muted-foreground mt-1">
+                قم بتعديل محتوى المقال وإعداداته
+              </p>
+            </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            {/* نسبة الاكتمال */}
+            <div className="flex items-center gap-2">
+              <div className="relative h-10 w-10">
+                <svg className="h-10 w-10 -rotate-90 transform">
+                  <circle
+                    cx="20"
+                    cy="20"
+                    r="16"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                    className="text-gray-200"
+                  />
+                  <circle
+                    cx="20"
+                    cy="20"
+                    r="16"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                    strokeDasharray={`${completionScore} 100`}
+                    className={`transition-all duration-500 ${
+                      completionScore >= 80 ? 'text-green-500' : 
+                      completionScore >= 50 ? 'text-yellow-500' : 'text-red-500'
+                    }`}
+                  />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">
+                  {completionScore}%
+                </span>
+              </div>
+              <span className="text-sm text-muted-foreground">اكتمال</span>
+            </div>
+
             <Button
               variant="outline"
               onClick={() => window.open(`/article/${article.slug}`, '_blank')}
@@ -269,7 +379,7 @@ export default function EditArticlePage() {
             </Button>
             <Button 
               onClick={handleSave} 
-              disabled={saving}
+              disabled={saving || !isDirty}
               className="min-w-[120px]"
             >
               {saving ? (
@@ -287,360 +397,332 @@ export default function EditArticlePage() {
           </div>
         </div>
 
-        {/* Main Content */}
-        <Tabs defaultValue="content" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
-            <TabsTrigger value="content">
-              <FileText className="ml-2 h-4 w-4" />
-              المحتوى
-            </TabsTrigger>
-            <TabsTrigger value="media">
-              <ImageIcon className="ml-2 h-4 w-4" />
-              الوسائط
-            </TabsTrigger>
-            <TabsTrigger value="seo">
-              <Settings className="ml-2 h-4 w-4" />
-              SEO
-            </TabsTrigger>
-            <TabsTrigger value="settings">
-              <Calendar className="ml-2 h-4 w-4" />
-              الإعدادات
-            </TabsTrigger>
-          </TabsList>
+        {/* إشعار التغييرات غير المحفوظة */}
+        {isDirty && (
+          <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+            <span className="text-sm text-yellow-800 dark:text-yellow-200">
+              لديك تغييرات غير محفوظة
+            </span>
+          </div>
+        )}
 
-          {/* Content Tab */}
-          <TabsContent value="content" className="space-y-6">
+        {/* Main Form - All in One Page */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* العمود الأيسر - المحتوى الرئيسي */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* معلومات أساسية */}
             <Card>
               <CardHeader>
-                <CardTitle>محتوى المقال</CardTitle>
+                <CardTitle>المعلومات الأساسية</CardTitle>
                 <CardDescription>
-                  قم بتحرير العنوان والملخص والمحتوى الرئيسي
+                  العنوان والملخص والمحتوى الرئيسي للمقال
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Title */}
+                {/* العنوان */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="title">العنوان</Label>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => generateAISuggestions('title')}
+                      onClick={() => generateAIContent('title')}
+                      className="text-xs"
                     >
-                      <Sparkles className="ml-2 h-4 w-4" />
-                      اقتراح بالذكاء الاصطناعي
+                      <Sparkles className="h-3 w-3 ml-1" />
+                      توليد بالذكاء الاصطناعي
                     </Button>
                   </div>
                   <Input
                     id="title"
                     value={formData.title || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={(e) => updateFormData('title', e.target.value)}
                     placeholder="أدخل عنوان المقال"
-                    className="text-lg"
+                    className="text-lg font-semibold"
                   />
                 </div>
 
-                {/* Excerpt */}
+                {/* الملخص */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="excerpt">الملخص</Label>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => generateAISuggestions('excerpt')}
+                      onClick={() => generateAIContent('excerpt')}
+                      className="text-xs"
                     >
-                      <Sparkles className="ml-2 h-4 w-4" />
-                      اقتراح بالذكاء الاصطناعي
+                      <Sparkles className="h-3 w-3 ml-1" />
+                      توليد بالذكاء الاصطناعي
                     </Button>
                   </div>
                   <Textarea
                     id="excerpt"
                     value={formData.excerpt || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                    onChange={(e) => updateFormData('excerpt', e.target.value)}
                     placeholder="أدخل ملخص المقال"
                     rows={3}
                   />
                 </div>
 
-                {/* Content Editor */}
+                {/* المحتوى */}
                 <div className="space-y-2">
                   <Label>المحتوى</Label>
-                  <div className="border rounded-lg overflow-hidden">
-                    <ArticleEditor
-                      initialContent={formData.content || ''}
-                      onChange={handleContentChange}
-                    />
-                  </div>
+                  <ArticleEditor
+                    content={formData.content || ''}
+                    onChange={(content) => updateFormData('content', content)}
+                  />
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* Media Tab */}
-          <TabsContent value="media" className="space-y-6">
+            {/* SEO */}
             <Card>
               <CardHeader>
-                <CardTitle>الصورة البارزة</CardTitle>
+                <CardTitle>تحسين محركات البحث (SEO)</CardTitle>
                 <CardDescription>
-                  قم برفع أو تغيير الصورة البارزة للمقال
+                  تحسين ظهور المقال في نتائج البحث
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div
-                  onDrop={handleDrop}
-                  onDragOver={(e) => e.preventDefault()}
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors"
-                >
-                  {imagePreview ? (
-                    <div className="space-y-4">
-                      <img
-                        src={imagePreview}
-                        alt="Featured"
-                        className="mx-auto max-h-64 rounded-lg shadow-lg"
-                      />
-                      <div className="flex justify-center gap-3">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setImagePreview(null);
-                            setFormData(prev => ({ ...prev, featured_image: null }));
-                          }}
-                        >
-                          إزالة الصورة
-                        </Button>
-                        <label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(file);
-                            }}
-                            disabled={uploading}
-                          />
-                          <Button as="span" disabled={uploading}>
-                            {uploading ? (
-                              <>
-                                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                                جاري الرفع...
-                              </>
-                            ) : (
-                              <>
-                                <Upload className="ml-2 h-4 w-4" />
-                                تغيير الصورة
-                              </>
-                            )}
-                          </Button>
-                        </label>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                      <div>
-                        <p className="text-lg font-medium">
-                          اسحب وأفلت الصورة هنا
-                        </p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          أو انقر لاختيار ملف
-                        </p>
-                      </div>
-                      <label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleImageUpload(file);
-                          }}
-                          disabled={uploading}
-                        />
-                        <Button as="span" variant="outline" disabled={uploading}>
-                          {uploading ? (
-                            <>
-                              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                              جاري الرفع...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="ml-2 h-4 w-4" />
-                              اختيار صورة
-                            </>
-                          )}
-                        </Button>
-                      </label>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* SEO Tab */}
-          <TabsContent value="seo" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>إعدادات SEO</CardTitle>
-                <CardDescription>
-                  قم بتحسين المقال لمحركات البحث
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="seo_title">عنوان SEO</Label>
+                  <Label htmlFor="seo-title">عنوان SEO</Label>
                   <Input
-                    id="seo_title"
+                    id="seo-title"
                     value={formData.seo_title || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, seo_title: e.target.value }))}
-                    placeholder="عنوان مخصص لمحركات البحث"
+                    onChange={(e) => updateFormData('seo_title', e.target.value)}
+                    placeholder="اتركه فارغاً لاستخدام العنوان الرئيسي"
                   />
-                  <p className="text-sm text-muted-foreground">
-                    {formData.seo_title?.length || 0} / 60 حرف
-                  </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="seo_description">وصف SEO</Label>
+                  <Label htmlFor="seo-description">وصف SEO</Label>
                   <Textarea
-                    id="seo_description"
+                    id="seo-description"
                     value={formData.seo_description || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, seo_description: e.target.value }))}
-                    placeholder="وصف مخصص لمحركات البحث"
-                    rows={3}
+                    onChange={(e) => updateFormData('seo_description', e.target.value)}
+                    placeholder="اتركه فارغاً لاستخدام الملخص"
+                    rows={2}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    {formData.seo_description?.length || 0} / 160 حرف
-                  </p>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <Label htmlFor="seo_keywords">الكلمات المفتاحية</Label>
+                    <Label htmlFor="seo-keywords">الكلمات المفتاحية</Label>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => generateAISuggestions('keywords')}
+                      onClick={() => generateAIContent('keywords')}
+                      className="text-xs"
                     >
-                      <Sparkles className="ml-2 h-4 w-4" />
-                      اقتراح بالذكاء الاصطناعي
+                      <Sparkles className="h-3 w-3 ml-1" />
+                      توليد بالذكاء الاصطناعي
                     </Button>
                   </div>
                   <Input
-                    id="seo_keywords"
+                    id="seo-keywords"
                     value={formData.seo_keywords || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, seo_keywords: e.target.value }))}
+                    onChange={(e) => updateFormData('seo_keywords', e.target.value)}
                     placeholder="كلمة1، كلمة2، كلمة3"
                   />
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
 
-          {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
+          {/* العمود الأيمن - الإعدادات والصورة */}
+          <div className="space-y-6">
+            {/* الصورة البارزة */}
+            <Card>
+              <CardHeader>
+                <CardTitle>الصورة البارزة</CardTitle>
+                <CardDescription>
+                  الصورة الرئيسية للمقال
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {imagePreview ? (
+                    <div className="relative group">
+                      <img
+                        src={imagePreview}
+                        alt="Featured"
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => document.getElementById('image-upload')?.click()}
+                        >
+                          <Upload className="h-4 w-4 ml-1" />
+                          تغيير
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={handleRemoveImage}
+                        >
+                          <Trash2 className="h-4 w-4 ml-1" />
+                          حذف
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => document.getElementById('image-upload')?.click()}
+                      className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors"
+                    >
+                      <ImageIcon className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        انقر لرفع صورة أو اسحب وأفلت
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        PNG, JPG, GIF حتى 5MB
+                      </p>
+                    </div>
+                  )}
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={uploading}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* إعدادات النشر */}
             <Card>
               <CardHeader>
                 <CardTitle>إعدادات النشر</CardTitle>
                 <CardDescription>
-                  قم بتحديد حالة المقال وإعدادات النشر
+                  التحكم في كيفية نشر المقال
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Status */}
-                  <div className="space-y-2">
-                    <Label htmlFor="status">الحالة</Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as any }))}
-                    >
-                      <SelectTrigger id="status">
-                        <SelectValue placeholder="اختر الحالة" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="draft">مسودة</SelectItem>
-                        <SelectItem value="review">قيد المراجعة</SelectItem>
-                        <SelectItem value="published">منشور</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <CardContent className="space-y-4">
+                {/* الحالة */}
+                <div className="space-y-2">
+                  <Label htmlFor="status">الحالة</Label>
+                  <Select
+                    value={formData.status || 'draft'}
+                    onValueChange={(value) => updateFormData('status', value)}
+                  >
+                    <SelectTrigger id="status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-gray-500" />
+                          مسودة
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="review">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-yellow-500" />
+                          قيد المراجعة
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="published">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-green-500" />
+                          منشور
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                  {/* Category */}
-                  <div className="space-y-2">
-                    <Label htmlFor="category">التصنيف</Label>
-                    <Select
-                      value={formData.category_id}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}
-                    >
-                      <SelectTrigger id="category">
-                        <SelectValue placeholder="اختر التصنيف" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                {/* التصنيف */}
+                <div className="space-y-2">
+                  <Label htmlFor="category">التصنيف</Label>
+                  <Select
+                    value={formData.category_id || ''}
+                    onValueChange={(value) => updateFormData('category_id', value)}
+                  >
+                    <SelectTrigger id="category">
+                      <SelectValue placeholder="اختر التصنيف" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                  {/* Publish Date */}
-                  <div className="space-y-2">
-                    <Label htmlFor="published_at">تاريخ النشر</Label>
-                    <Input
-                      id="published_at"
-                      type="datetime-local"
-                      value={formData.published_at ? new Date(formData.published_at).toISOString().slice(0, 16) : ''}
-                      onChange={(e) => setFormData(prev => ({ ...prev, published_at: new Date(e.target.value).toISOString() }))}
+                {/* تاريخ النشر */}
+                <div className="space-y-2">
+                  <Label htmlFor="published-at">تاريخ النشر</Label>
+                  <Input
+                    id="published-at"
+                    type="datetime-local"
+                    value={formData.published_at ? new Date(formData.published_at).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => updateFormData('published_at', e.target.value)}
+                  />
+                </div>
+
+                {/* خيارات إضافية */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="featured" className="text-sm">
+                      مقال مميز
+                    </Label>
+                    <Switch
+                      id="featured"
+                      checked={formData.is_featured || false}
+                      onCheckedChange={(checked) => updateFormData('is_featured', checked)}
                     />
                   </div>
 
-                  {/* Author */}
-                  <div className="space-y-2">
-                    <Label htmlFor="author">الكاتب</Label>
-                    <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{article.author_id}</span>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="breaking" className="text-sm">
+                      خبر عاجل
+                    </Label>
+                    <Switch
+                      id="breaking"
+                      checked={formData.is_breaking || false}
+                      onCheckedChange={(checked) => updateFormData('is_breaking', checked)}
+                    />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Metadata */}
+            {/* معلومات المقال */}
             <Card>
               <CardHeader>
-                <CardTitle>معلومات إضافية</CardTitle>
-                <CardDescription>
-                  معلومات تقنية عن المقال
-                </CardDescription>
+                <CardTitle>معلومات المقال</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">معرف المقال:</span>
-                    <span className="mr-2 font-mono">{article.id}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">الرابط الدائم:</span>
-                    <span className="mr-2 font-mono">{article.slug}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">تاريخ الإنشاء:</span>
-                    <span className="mr-2">{new Date(article.created_at || '').toLocaleDateString('ar-SA')}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">آخر تحديث:</span>
-                    <span className="mr-2">{new Date(article.updated_at || '').toLocaleDateString('ar-SA')}</span>
-                  </div>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">ID:</span>
+                  <span className="font-mono">{article.id}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">تاريخ الإنشاء:</span>
+                  <span>{new Date(article.created_at || '').toLocaleDateString('ar')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">آخر تحديث:</span>
+                  <span>{new Date(article.updated_at || '').toLocaleDateString('ar')}</span>
+                </div>
+                {article.views_count && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">المشاهدات:</span>
+                    <span>{article.views_count.toLocaleString('ar')}</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );
